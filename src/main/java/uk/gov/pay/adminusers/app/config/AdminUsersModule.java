@@ -23,31 +23,30 @@ public class AdminUsersModule extends AbstractModule {
         bind(AdminUsersConfig.class).toInstance(configuration);
         bind(Environment.class).toInstance(environment);
 
-//        install(jpaModule(configuration));
+        install(jpaModule(configuration));
     }
 
-    //TODO: disabling till the next pull request, until the AWS DB environments are ready
-//    private JpaPersistModule jpaModule(AdminUsersConfig configuration) {
-//        DataSourceFactory dbConfig = configuration.getDataSourceFactory();
-//        final Properties properties = new Properties();
-//        properties.put("javax.persistence.jdbc.driver", dbConfig.getDriverClass());
-//        properties.put("javax.persistence.jdbc.url", dbConfig.getUrl());
-//        properties.put("javax.persistence.jdbc.user", dbConfig.getUser());
-//        properties.put("javax.persistence.jdbc.password", dbConfig.getPassword());
-//
-//        JPAConfiguration jpaConfiguration = configuration.getJpaConfiguration();
-//        properties.put("eclipselink.logging.level", jpaConfiguration.getJpaLoggingLevel());
-//        properties.put("eclipselink.logging.level.sql", jpaConfiguration.getSqlLoggingLevel());
-//        properties.put("eclipselink.query-results-cache", jpaConfiguration.getCacheSharedDefault());
-//        properties.put("eclipselink.cache.shared.default", jpaConfiguration.getCacheSharedDefault());
-//        properties.put("eclipselink.ddl-generation.output-mode", jpaConfiguration.getDdlGenerationOutputMode());
-//        properties.put("eclipselink.session.customizer", "uk.gov.pay.adminusers.app.config.AdminUsersSessionCustomiser");
-//
-//        final JpaPersistModule jpaModule = new JpaPersistModule("AdminUsersUnit");
-//        jpaModule.properties(properties);
-//
-//        return jpaModule;
-//    }
+    private JpaPersistModule jpaModule(AdminUsersConfig configuration) {
+        DataSourceFactory dbConfig = configuration.getDataSourceFactory();
+        final Properties properties = new Properties();
+        properties.put("javax.persistence.jdbc.driver", dbConfig.getDriverClass());
+        properties.put("javax.persistence.jdbc.url", dbConfig.getUrl());
+        properties.put("javax.persistence.jdbc.user", dbConfig.getUser());
+        properties.put("javax.persistence.jdbc.password", dbConfig.getPassword());
+
+        JPAConfiguration jpaConfiguration = configuration.getJpaConfiguration();
+        properties.put("eclipselink.logging.level", jpaConfiguration.getJpaLoggingLevel());
+        properties.put("eclipselink.logging.level.sql", jpaConfiguration.getSqlLoggingLevel());
+        properties.put("eclipselink.query-results-cache", jpaConfiguration.getCacheSharedDefault());
+        properties.put("eclipselink.cache.shared.default", jpaConfiguration.getCacheSharedDefault());
+        properties.put("eclipselink.ddl-generation.output-mode", jpaConfiguration.getDdlGenerationOutputMode());
+        properties.put("eclipselink.session.customizer", "uk.gov.pay.adminusers.app.config.AdminUsersSessionCustomiser");
+
+        final JpaPersistModule jpaModule = new JpaPersistModule("AdminUsersUnit");
+        jpaModule.properties(properties);
+
+        return jpaModule;
+    }
 
     @Provides
     public ObjectMapper provideObjectMapper() {

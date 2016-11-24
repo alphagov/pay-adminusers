@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <!--   NOTE: We are using *.sql based migration for this service.                          -->
+    <!--   Please make sure to enable the following includeAll tag before the first migration. -->
+    <!--    add sql files in to the `migration` directory, with the next sequence number       -->
+    <!--    For e.g. migrations/00001_create_your_table.sql  -->
+    <!--             migrations/00002_update_your_table.sql  -->
+
+    <!-- <includeAll path="migrations"/> -->
+
+</databaseChangeLog>
