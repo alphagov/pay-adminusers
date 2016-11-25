@@ -29,15 +29,14 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
                 )
         );
 
-        //TODO: disabling till the next pull request, until the AWS DB environments are ready
-//        bootstrap.addBundle(new MigrationsBundle<AdminUsersConfig>() {
-//            @Override
-//            public DataSourceFactory getDataSourceFactory(AdminUsersConfig configuration) {
-//                return configuration.getDataSourceFactory();
-//            }
-//        });
-//
-//        bootstrap.addCommand(new DependentResourceWaitCommand());
+        bootstrap.addBundle(new MigrationsBundle<AdminUsersConfig>() {
+            @Override
+            public DataSourceFactory getDataSourceFactory(AdminUsersConfig configuration) {
+                return configuration.getDataSourceFactory();
+            }
+        });
+
+        bootstrap.addCommand(new DependentResourceWaitCommand());
     }
 
     @Override
@@ -45,9 +44,8 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         final Injector injector = Guice.createInjector(new AdminUsersModule(configuration, environment));
 
         environment.healthChecks().register("ping", new Ping());
-        //TODO: disabling till the next pull request, until the AWS DB environments are ready
-//        injector.getInstance(PersistenceServiceInitialiser.class);
-//        environment.healthChecks().register("database", injector.getInstance(DatabaseHealthCheck.class));
+        injector.getInstance(PersistenceServiceInitialiser.class);
+        environment.healthChecks().register("database", injector.getInstance(DatabaseHealthCheck.class));
 
         environment.jersey().register(injector.getInstance(HealthCheckResource.class));
 

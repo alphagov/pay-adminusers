@@ -17,12 +17,10 @@ public class ApplicationStartupDependentResource {
     }
 
     public Connection getDatabaseConnection() throws SQLException {
-        //TODO: disabling till the next pull request, until the AWS DB environments are ready
-//        return DriverManager.getConnection(
-//                configuration.getDataSourceFactory().getUrl(),
-//                configuration.getDataSourceFactory().getUser(),
-//                configuration.getDataSourceFactory().getPassword());
-        return null;
+        return DriverManager.getConnection(
+                configuration.getDataSourceFactory().getUrl(),
+                configuration.getDataSourceFactory().getUser(),
+                configuration.getDataSourceFactory().getPassword());
     }
 
     public void sleep(long durationSeconds) {

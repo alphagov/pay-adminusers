@@ -20,11 +20,10 @@ public class DatabaseHealthCheck extends HealthCheck {
     protected Result check() throws Exception {
         Connection connection = null;
         try {
-            //TODO: disabling till the next pull request, until the AWS DB environments are ready
-//            connection = DriverManager.getConnection(
-//                configuration.getDataSourceFactory().getUrl(),
-//                configuration.getDataSourceFactory().getUser(),
-//                configuration.getDataSourceFactory().getPassword());
+            connection = DriverManager.getConnection(
+                configuration.getDataSourceFactory().getUrl(),
+                configuration.getDataSourceFactory().getUser(),
+                configuration.getDataSourceFactory().getPassword());
             connection.setReadOnly(true);
             return connection.isValid(2) ? Result.healthy() : Result.unhealthy("Could not validate the DB connection.");
         } catch (Exception e) {
