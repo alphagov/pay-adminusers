@@ -1,8 +1,12 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
 
-import javax.persistence.*;
-import java.time.ZonedDateTime;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+
+import static java.lang.Boolean.FALSE;
 
 @Entity
 @Table(name = "users")
@@ -21,44 +25,20 @@ public class UserEntity extends AbstractEntity {
     @Column(name = "gateway_account_id")
     private String gatewayAccountId;
 
-    @Column(name = "top_key")
+    @Column(name = "otp_key")
     private String otpKey;
 
     @Column(name = "telephone_number")
     private String telephoneNumber;
 
     @Column(name = "disabled")
-    private Boolean disabled;
+    private Boolean disabled  = FALSE;
 
     @Column(name = "login_counter")
-    private Integer loginCount;
-
-    @Column(name = "createdAt")// probably need to rename sometime later
-    @Convert(converter = UTCDateTimeConverter.class)
-    private ZonedDateTime createdDate;
-
-    @Column(name = "updatedAt") // probably need to rename sometime later
-    @Convert(converter = UTCDateTimeConverter.class)
-    private ZonedDateTime updatedDate;
+    private Integer loginCount = 0;
 
     public UserEntity() {
         //for jpa
-    }
-
-    public ZonedDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public ZonedDateTime getUpdatedDate() {
-        return updatedDate;
-    }
-
-    public void setUpdatedDate(ZonedDateTime updatedDate) {
-        this.updatedDate = updatedDate;
-    }
-
-    public void setCreatedDate(ZonedDateTime createdDate) {
-        this.createdDate = createdDate;
     }
 
     public String getUsername() {

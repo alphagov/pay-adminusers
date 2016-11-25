@@ -1,4 +1,4 @@
-package uk.gov.pay.adminusers.utils;
+package uk.gov.pay.adminusers.infra;
 
 import com.google.inject.persist.jpa.JpaPersistModule;
 import io.dropwizard.db.DataSourceFactory;
@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.app.AdminUsersApp;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
+import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.util.List;
 import java.util.Properties;

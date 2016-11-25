@@ -1,4 +1,4 @@
-package uk.gov.pay.adminusers.utils;
+package uk.gov.pay.adminusers.infra;
 
 import com.google.common.base.Stopwatch;
 import com.spotify.docker.client.DockerClient;
@@ -11,6 +11,7 @@ import com.spotify.docker.client.messages.PortBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -112,10 +113,10 @@ public class PostgresContainer {
         }
         try {
             stopped = true;
-            System.err.println("Killing postgres container with ID: " + containerId);
+            System.out.println("Killing postgres container with ID: " + containerId);
             LogStream logs = docker.logs(containerId, DockerClient.LogsParam.stdout(), DockerClient.LogsParam.stderr());
-            System.err.println("Killed container logs:\n");
-            logs.attach(System.err, System.err);
+            System.out.println("Killed container logs:\n");
+            logs.attach(System.out, System.err);
             docker.stopContainer(containerId, 5);
             docker.removeContainer(containerId);
         } catch (DockerException | InterruptedException | IOException e) {

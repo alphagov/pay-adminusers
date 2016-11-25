@@ -8,15 +8,19 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.skife.jdbi.v2.DBI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
-import uk.gov.pay.adminusers.utils.GuicedTestEnvironment;
-import uk.gov.pay.adminusers.utils.PostgresDockerRule;
+import uk.gov.pay.adminusers.infra.GuicedTestEnvironment;
+import uk.gov.pay.adminusers.infra.PostgresDockerRule;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
 
 public class DaoTestBase {
+
+    private static Logger logger = LoggerFactory.getLogger(DaoTestBase.class);
 
     @ClassRule
     public static PostgresDockerRule postgres = new PostgresDockerRule();
@@ -61,11 +65,11 @@ public class DaoTestBase {
             connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword());
             Liquibase migrator = new Liquibase("config/initial-testdb-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             Liquibase migrator2 = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
-            migrator.dropAll();
             migrator2.dropAll();
+            migrator.dropAll();
             connection.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error stopping docker", e);
         }
         env.stop();
     }

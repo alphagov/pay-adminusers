@@ -1,4 +1,4 @@
-package uk.gov.pay.adminusers.utils;
+package uk.gov.pay.adminusers.infra;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;

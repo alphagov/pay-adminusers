@@ -1,4 +1,4 @@
-package uk.gov.pay.adminusers.utils;
+package uk.gov.pay.adminusers.infra;
 
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
