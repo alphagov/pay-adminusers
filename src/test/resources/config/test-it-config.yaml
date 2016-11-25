@@ -1,0 +1,56 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 0
+  adminConnectors:
+    - type: http
+      port: 0
+
+logging:
+    level: INFO
+    appenders:
+      - type: console
+        threshold: ALL
+        timeZone: UTC
+        target: stdout
+        logFormat: "[%thread] %highlight(%-5level) %cyan(%logger{15}) - %msg %n"
+
+database:
+  driverClass: org.postgresql.Driver
+  user: postgres
+  password: mysecretpassword
+  url:
+
+  # the maximum amount of time to wait on an empty pool before throwing an exception
+  maxWaitForConnection: 1s
+
+  # the SQL query to run when validating a connection's liveness
+  validationQuery: "SELECT '1'"
+
+  # the timeout before a connection validation queries fail
+  validationQueryTimeout: 2s
+
+  # The initial size of the connection pool
+  initialSize: 4
+
+  # the minimum number of connections to keep open
+  minSize: 4
+
+  # the maximum number of connections to keep open
+  maxSize: 8
+
+  # whether or not idle connections should be validated
+  checkConnectionWhileIdle: false
+
+  # the amount of time to sleep between runs of the idle connection validation, abandoned cleaner and idle pool resizing
+  evictionInterval: 10s
+
+  # the minimum amount of time an connection must sit idle in the pool before it is eligible for eviction
+  minIdleTime: 1 minute
+
+jpa:
+  jpaLoggingLevel: WARNING
+  sqlLoggingLevel: WARNING
+  ddlGenerationOutputMode: database
+  queryResultsCache: false
+  cacheSharedDefault: false
