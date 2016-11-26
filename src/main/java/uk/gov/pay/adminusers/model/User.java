@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Boolean.FALSE;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newLongId;
 
 public class User {
 
@@ -21,6 +22,10 @@ public class User {
     private Boolean disabled = FALSE;
     private Integer loginCount = 0;
     private List<Role> roles = new ArrayList<>();
+
+    public static User from(String username, String password, String email, String gatewayAccountId, String otpKey, String telephoneNumber) {
+        return from(newLongId(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
+    }
 
     public static User from(Long id, String username, String password, String email, String gatewayAccountId, String otpKey, String telephoneNumber) {
         return new User(id, username, password, email, gatewayAccountId, otpKey, telephoneNumber);

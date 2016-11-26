@@ -1,10 +1,12 @@
 package uk.gov.pay.adminusers.utils;
 
 import org.skife.jdbi.v2.DBI;
+import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +38,17 @@ public class DatabaseTestHelper {
         return ret;
     }
 
-    public DatabaseTestHelper addUser(User user) {
+    public List<Map<String, Object>> findForgottenPasswordById(Long forgottenPasswordId) {
+        List<Map<String, Object>> ret = jdbi.withHandle(h ->
+                h.createQuery("SELECT id, date, code, \"userId\" " +
+                        "FROM forgotten_passwords " +
+                        "WHERE id=:id")
+                        .bind("id", forgottenPasswordId)
+                        .list());
+        return ret;
+    }
+
+    public DatabaseTestHelper add(User user) {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO users(id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter, version) " +
@@ -64,7 +76,7 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public DatabaseTestHelper addRole(Role role) {
+    public DatabaseTestHelper add(Role role) {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO roles(id, name, description) " +
@@ -85,7 +97,7 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public DatabaseTestHelper addPermission(Permission permission) {
+    public DatabaseTestHelper add(Permission permission) {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO permissions(id, name, description) " +
@@ -93,6 +105,20 @@ public class DatabaseTestHelper {
                         .bind("id", permission.getId())
                         .bind("name", permission.getName())
                         .bind("description", permission.getDescription())
+                        .execute()
+        );
+        return this;
+    }
+
+    public DatabaseTestHelper add(ForgottenPassword forgottenPassword, Long userId) {
+        jdbi.withHandle(handle ->
+                handle
+                        .createStatement("INSERT INTO forgotten_passwords(id, date, code, \"userId\") " +
+                                "VALUES (:id, :date, :code, :userId)")
+                        .bind("id", forgottenPassword.getId())
+                        .bind("date", Timestamp.from(forgottenPassword.getDate().toInstant()))
+                        .bind("code", forgottenPassword.getCode())
+                        .bind("userId", userId)
                         .execute()
         );
         return this;

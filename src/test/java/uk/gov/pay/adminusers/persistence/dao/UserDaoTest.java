@@ -48,8 +48,8 @@ public class UserDaoTest extends DaoTestBase {
         role1.setPermissions(asList(perm1, perm2));
         role2.setPermissions(asList(perm3, perm4));
 
-        databaseTestHelper.addPermission(perm1).addPermission(perm2).addPermission(perm3).addPermission(perm4);
-        databaseTestHelper.addRole(role1).addRole(role2);
+        databaseTestHelper.add(perm1).add(perm2).add(perm3).add(perm4);
+        databaseTestHelper.add(role1).add(role2);
 
         UserEntity userEntity = new UserEntity();
         userEntity.setUsername("user-" + random);
@@ -96,13 +96,13 @@ public class UserDaoTest extends DaoTestBase {
         role1.setPermissions(asList(perm1, perm2, perm3));
         role2.setPermissions(asList(perm2, perm3));
 
-        databaseTestHelper.addPermission(perm1).addPermission(perm2).addPermission(perm3);
-        databaseTestHelper.addRole(role1).addRole(role2);
+        databaseTestHelper.add(perm1).add(perm2).add(perm3);
+        databaseTestHelper.add(role1).add(role2);
 
         String username = "user-" + random;
         User user = User.from(newLongId(), username, "password-" + random, random + "@example.com", randomLong.toString(), randomLong.toString(), "374628482");
         user.setRoles(asList(role1, role2));
-        databaseTestHelper.addUser(user);
+        databaseTestHelper.add(user);
 
         Optional<UserEntity> userEntityMaybe = userDao.findByUsername(username);
         assertTrue(userEntityMaybe.isPresent());
@@ -130,13 +130,13 @@ public class UserDaoTest extends DaoTestBase {
         role1.setPermissions(asList(perm1, perm2, perm3));
         role2.setPermissions(asList(perm2, perm3));
 
-        databaseTestHelper.addPermission(perm1).addPermission(perm2).addPermission(perm3);
-        databaseTestHelper.addRole(role1).addRole(role2);
+        databaseTestHelper.add(perm1).add(perm2).add(perm3);
+        databaseTestHelper.add(role1).add(role2);
 
         String email = random + "@example.com";
         User user = User.from(newLongId(), "user-" + random, "password-" + random, email, randomLong.toString(), randomLong.toString(), "374628482");
         user.setRoles(asList(role1, role2));
-        databaseTestHelper.addUser(user);
+        databaseTestHelper.add(user);
 
         Optional<UserEntity> userEntityMaybe = userDao.findByEmail(email);
         assertTrue(userEntityMaybe.isPresent());

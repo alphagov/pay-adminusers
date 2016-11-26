@@ -1,8 +1,11 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
+import uk.gov.pay.adminusers.model.User;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.Boolean.FALSE;
 
@@ -114,5 +117,24 @@ public class UserEntity extends AbstractEntity {
 
     public void setRoles(List<RoleEntity> roles) {
         this.roles = roles;
+    }
+
+    /**
+     * Note: this constructor will not copy <b>id</b> from the User model. It will always assign a new one internally (by JPA)
+     * @param user
+     * @return persistable UserEntity object not bounded to entity manager
+     */
+    public static UserEntity from(User user) {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setUsername(user.getUsername());
+        userEntity.setPassword(user.getPassword());
+        userEntity.setEmail(user.getEmail());
+        userEntity.setOtpKey(user.getOtpKey());
+        userEntity.setTelephoneNumber(user.getTelephoneNumber());
+        userEntity.setGatewayAccountId(user.getGatewayAccountId());
+        userEntity.setLoginCount(user.getLoginCount());
+        userEntity.setDisabled(user.getDisabled());
+        userEntity.setRoles(user.getRoles().stream().map(RoleEntity::new).collect(Collectors.toList()));
+        return userEntity;
     }
 }

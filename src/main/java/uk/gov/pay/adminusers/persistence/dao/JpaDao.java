@@ -10,9 +10,11 @@ import java.util.Optional;
 public abstract class JpaDao<T> {
 
     protected final Provider<EntityManager> entityManager;
+    private final Class<T> persistenceClass;
 
-    protected JpaDao(Provider<EntityManager> entityManager) {
+    protected JpaDao(Provider<EntityManager> entityManager, Class<T> persistenceClass) {
         this.entityManager = entityManager;
+        this.persistenceClass = persistenceClass;
     }
 
     public void persist(final T object) {
@@ -23,8 +25,8 @@ public abstract class JpaDao<T> {
         entityManager.get().remove(object);
     }
 
-    public <ID> Optional<T> findById(final Class<T> clazz, final ID id) {
-        return Optional.ofNullable(entityManager.get().find(clazz, id));
+    public <ID> Optional<T> findById(final ID id) {
+        return Optional.ofNullable(entityManager.get().find(persistenceClass, id));
     }
 
     public T merge(final T object) {

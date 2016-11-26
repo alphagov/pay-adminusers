@@ -13,11 +13,7 @@ public class UserDao extends JpaDao<UserEntity> {
 
     @Inject
     public UserDao(Provider<EntityManager> entityManager) {
-        super(entityManager);
-    }
-
-    public Optional<UserEntity> findById(Long userId) {
-        return super.findById(UserEntity.class, userId);
+        super(entityManager, UserEntity.class);
     }
 
     public Optional<UserEntity> findByUsername(String username) {
