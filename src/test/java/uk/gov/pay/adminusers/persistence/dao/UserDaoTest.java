@@ -2,19 +2,26 @@ package uk.gov.pay.adminusers.persistence.dao;
 
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.pay.adminusers.model.Permission;
+import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.either;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newLongId;
+import static uk.gov.pay.adminusers.model.Permission.permission;
+import static uk.gov.pay.adminusers.model.Role.role;
 
 public class UserDaoTest extends DaoTestBase {
 
@@ -31,6 +38,19 @@ public class UserDaoTest extends DaoTestBase {
 
     @Test
     public void shouldCreateAUserSuccessfully() throws Exception {
+
+        Permission perm1 = aPermission();
+        Permission perm2 = aPermission();
+        Permission perm3 = aPermission();
+        Permission perm4 = aPermission();
+        Role role1 = aRole();
+        Role role2 = aRole();
+        role1.setPermissions(asList(perm1, perm2));
+        role2.setPermissions(asList(perm3, perm4));
+
+        databaseTestHelper.addPermission(perm1).addPermission(perm2).addPermission(perm3).addPermission(perm4);
+        databaseTestHelper.addRole(role1).addRole(role2);
+
         UserEntity userEntity = new UserEntity();
         userEntity.setUsername("user-" + random);
         userEntity.setPassword("password-" + random);
@@ -39,8 +59,10 @@ public class UserDaoTest extends DaoTestBase {
         userEntity.setGatewayAccountId(randomLong.toString());
         userEntity.setOtpKey(randomLong.toString());
         userEntity.setTelephoneNumber("876284762");
+        userEntity.setRoles(asList(new RoleEntity(role1), new RoleEntity(role2)));
 
         userDao.persist(userEntity);
+
         assertThat(userEntity.getId(), is(notNullValue()));
         List<Map<String, Object>> savedUserData = databaseTestHelper.findUser(userEntity.getId());
         assertThat(savedUserData.size(), is(1));
@@ -51,12 +73,35 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(savedUserData.get(0).get("telephone_number"), is(userEntity.getTelephoneNumber()));
         assertThat(savedUserData.get(0).get("gateway_account_id"), is(userEntity.getGatewayAccountId()));
         assertThat(savedUserData.get(0).get("disabled"), is(Boolean.FALSE));
+
+        List<Map<String, Object>> rolesForUser = databaseTestHelper.findRolesForUser(userEntity.getId());
+        assertThat(rolesForUser.size(), is(2));
+        assertThat((Long) rolesForUser.get(0).get("id"), either(is(role1.getId())).or(is(role2.getId())));
+        assertThat((String) rolesForUser.get(0).get("name"), either(is(role1.getName())).or(is(role2.getName())));
+        assertThat((String) rolesForUser.get(0).get("description"), either(is(role1.getDescription())).or(is(role2.getDescription())));
+
+        assertThat((Long) rolesForUser.get(1).get("id"), either(is(role1.getId())).or(is(role2.getId())));
+        assertThat((String) rolesForUser.get(1).get("name"), either(is(role1.getName())).or(is(role2.getName())));
+        assertThat((String) rolesForUser.get(1).get("description"), either(is(role1.getDescription())).or(is(role2.getDescription())));
+
     }
 
     @Test
     public void shouldFindUserByUsername() throws Exception {
+        Permission perm1 = aPermission();
+        Permission perm2 = aPermission();
+        Permission perm3 = aPermission();
+        Role role1 = aRole();
+        Role role2 = aRole();
+        role1.setPermissions(asList(perm1, perm2, perm3));
+        role2.setPermissions(asList(perm2, perm3));
+
+        databaseTestHelper.addPermission(perm1).addPermission(perm2).addPermission(perm3);
+        databaseTestHelper.addRole(role1).addRole(role2);
+
         String username = "user-" + random;
-        User user = User.from(username, "password-" + random, random + "@example.com", randomLong.toString(), randomLong.toString(), "374628482");
+        User user = User.from(newLongId(), username, "password-" + random, random + "@example.com", randomLong.toString(), randomLong.toString(), "374628482");
+        user.setRoles(asList(role1, role2));
         databaseTestHelper.addUser(user);
 
         Optional<UserEntity> userEntityMaybe = userDao.findByUsername(username);
@@ -70,12 +115,27 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
         assertThat(foundUser.getDisabled(), is(false));
         assertThat(foundUser.getLoginCount(), is(0));
+        assertThat(foundUser.getRoles().size(), is(2));
+        assertThat(foundUser.getRoles().get(0).toRole(), either(is(role1)).or(is(role2)));
+        assertThat(foundUser.getRoles().get(1).toRole(), either(is(role1)).or(is(role2)));
     }
 
     @Test
     public void shouldFindUserByEmail() throws Exception {
+        Permission perm1 = aPermission();
+        Permission perm2 = aPermission();
+        Permission perm3 = aPermission();
+        Role role1 = aRole();
+        Role role2 = aRole();
+        role1.setPermissions(asList(perm1, perm2, perm3));
+        role2.setPermissions(asList(perm2, perm3));
+
+        databaseTestHelper.addPermission(perm1).addPermission(perm2).addPermission(perm3);
+        databaseTestHelper.addRole(role1).addRole(role2);
+
         String email = random + "@example.com";
-        User user = User.from("user-" + random, "password-" + random, email, randomLong.toString(), randomLong.toString(), "374628482");
+        User user = User.from(newLongId(), "user-" + random, "password-" + random, email, randomLong.toString(), randomLong.toString(), "374628482");
+        user.setRoles(asList(role1, role2));
         databaseTestHelper.addUser(user);
 
         Optional<UserEntity> userEntityMaybe = userDao.findByEmail(email);
@@ -89,5 +149,17 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
         assertThat(foundUser.getDisabled(), is(false));
         assertThat(foundUser.getLoginCount(), is(0));
+        assertThat(foundUser.getRoles().size(), is(2));
+        assertThat(foundUser.getRoles().get(0).toRole(), either(is(role1)).or(is(role2)));
+        assertThat(foundUser.getRoles().get(1).toRole(), either(is(role1)).or(is(role2)));
     }
+
+    private Role aRole() {
+        return role(newLongId(), "role-name-" + newId(), "role-description" + newId());
+    }
+
+    private Permission aPermission() {
+        return permission(newLongId(), "permission-name-" + newId(), "permission-description" + newId());
+    }
+
 }

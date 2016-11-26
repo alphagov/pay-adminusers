@@ -1,10 +1,8 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.Boolean.FALSE;
 
@@ -32,10 +30,15 @@ public class UserEntity extends AbstractEntity {
     private String telephoneNumber;
 
     @Column(name = "disabled")
-    private Boolean disabled  = FALSE;
+    private Boolean disabled = FALSE;
 
     @Column(name = "login_counter")
     private Integer loginCount = 0;
+
+    @ManyToMany(fetch = FetchType.EAGER, targetEntity = RoleEntity.class)
+    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+    private List<RoleEntity> roles = new ArrayList<>();
 
     public UserEntity() {
         //for jpa
@@ -103,5 +106,13 @@ public class UserEntity extends AbstractEntity {
 
     public void setLoginCount(Integer loginCount) {
         this.loginCount = loginCount;
+    }
+
+    public List<RoleEntity> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<RoleEntity> roles) {
+        this.roles = roles;
     }
 }

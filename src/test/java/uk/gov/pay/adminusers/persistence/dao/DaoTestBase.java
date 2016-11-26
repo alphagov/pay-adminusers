@@ -10,9 +10,9 @@ import org.junit.ClassRule;
 import org.skife.jdbi.v2.DBI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 import uk.gov.pay.adminusers.infra.GuicedTestEnvironment;
 import uk.gov.pay.adminusers.infra.PostgresDockerRule;
+import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -72,6 +72,7 @@ public class DaoTestBase {
             logger.error("Error stopping docker", e);
         }
         env.stop();
+        postgres.stop();
     }
 
 }
