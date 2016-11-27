@@ -16,8 +16,18 @@ public class UserDao extends JpaDao<UserEntity> {
         super(entityManager, UserEntity.class);
     }
 
-    public Optional<UserEntity> findByUsername(String username) {
+    public Optional<UserEntity> findByUsernameAndPassword(String username, String password) {
+        String query = "SELECT u FROM UserEntity u " +
+                "WHERE u.username = :username AND u.password=:password";
 
+        return entityManager.get()
+                .createQuery(query, UserEntity.class)
+                .setParameter("username", username)
+                .setParameter("password", password)
+                .getResultList().stream().findFirst();
+    }
+
+    public Optional<UserEntity> findByUsername(String username) {
         String query = "SELECT u FROM UserEntity u " +
                 "WHERE u.username = :username";
 
@@ -28,7 +38,6 @@ public class UserDao extends JpaDao<UserEntity> {
     }
 
     public Optional<UserEntity> findByEmail(String email) {
-
         String query = "SELECT u FROM UserEntity u " +
                 "WHERE u.email = :email";
 

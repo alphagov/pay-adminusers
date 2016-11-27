@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.either;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newLongId;
@@ -85,7 +86,7 @@ public class UserDaoTest extends DaoTestBase {
     }
 
     @Test
-    public void shouldFindUserByUsername() throws Exception {
+    public void shouldFindUserBy_Username() throws Exception {
         Permission perm1 = aPermission();
         Permission perm2 = aPermission();
         Permission perm3 = aPermission();
@@ -119,7 +120,7 @@ public class UserDaoTest extends DaoTestBase {
     }
 
     @Test
-    public void shouldFindUserByEmail() throws Exception {
+    public void shouldFindUser_ByEmail() throws Exception {
         Permission perm1 = aPermission();
         Permission perm2 = aPermission();
         Permission perm3 = aPermission();
@@ -150,6 +151,31 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(foundUser.getRoles().size(), is(2));
         assertThat(foundUser.getRoles().get(0).toRole(), either(is(role1)).or(is(role2)));
         assertThat(foundUser.getRoles().get(1).toRole(), either(is(role1)).or(is(role2)));
+    }
+
+    @Test
+    public void shouldFindAUser_ByUserNamePasswordCombination() throws Exception {
+
+        String username = "user-" + random;
+        String password = "password-" + random;
+        User user = User.from(newLongId(), username, password, random + "@example.com", randomLong.toString(), randomLong.toString(), "374628482");
+        databaseTestHelper.add(user);
+
+        Optional<UserEntity> userEntityOptional = userDao.findByUsernameAndPassword(username, password);
+        assertTrue(userEntityOptional.isPresent());
+
+        UserEntity foundUser = userEntityOptional.get();
+        assertThat(foundUser.getUsername(), is("user-" + random));
+        assertThat(foundUser.getEmail(), is(random + "@example.com"));
+        assertThat(foundUser.getGatewayAccountId(), is(randomLong.toString()));
+        assertThat(foundUser.getOtpKey(), is(randomLong.toString()));
+        assertThat(foundUser.getTelephoneNumber(), is("374628482"));
+        assertThat(foundUser.getDisabled(), is(false));
+        assertThat(foundUser.getLoginCount(), is(0));
+
+        Optional<UserEntity> userEntityOptional2 = userDao.findByUsernameAndPassword(username, "invalid-password");
+        assertFalse(userEntityOptional2.isPresent());
+
     }
 
 }
