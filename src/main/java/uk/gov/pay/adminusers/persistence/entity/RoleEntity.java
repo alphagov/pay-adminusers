@@ -8,6 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Represents a Role of a selfservice user (Government department user)
+ * <p>
+ *     Marked specifically as read-only.
+ *     Roles are only intended to be added manually through migration scripts
+ * </p>
+ * @see PermissionEntity
+ */
 @ReadOnly
 @Entity
 @Table(name = "roles")

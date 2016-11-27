@@ -8,6 +8,14 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+/**
+ * Represents a single Permission assignable to a selfservice user (Government department user)
+ * <p>
+ *     Marked specifically as read-only.
+ *     Permissions are only intended to be added manually through migration scripts
+ * </p>
+ * @see RoleEntity
+ */
 @ReadOnly
 @Entity
 @Table(name = "permissions")
