@@ -7,6 +7,7 @@ import com.google.inject.Singleton;
 import com.google.inject.persist.PersistService;
 import com.google.inject.persist.jpa.JpaPersistModule;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
+import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 
 public class GuicedTestEnvironment {
@@ -41,6 +42,7 @@ public class GuicedTestEnvironment {
         protected void configure() {
             bind(UserDao.class).in(Singleton.class);
             bind(ForgottenPasswordDao.class).in(Singleton.class);
+            bind(RoleDao.class).in(Singleton.class);
         }
     }
 }

@@ -12,11 +12,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.infra.GuicedTestEnvironment;
 import uk.gov.pay.adminusers.infra.PostgresDockerRule;
+import uk.gov.pay.adminusers.model.Permission;
+import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
+
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newLongId;
+import static uk.gov.pay.adminusers.model.Permission.permission;
+import static uk.gov.pay.adminusers.model.Role.role;
 
 public class DaoTestBase {
 
@@ -74,4 +81,11 @@ public class DaoTestBase {
         env.stop();
     }
 
+    protected Role aRole() {
+        return role(newLongId(), "role-name-" + newId(), "role-description" + newId());
+    }
+
+    protected Permission aPermission() {
+        return permission(newLongId(), "permission-name-" + newId(), "permission-description" + newId());
+    }
 }

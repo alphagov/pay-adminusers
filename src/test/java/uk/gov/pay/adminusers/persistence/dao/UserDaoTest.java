@@ -20,8 +20,6 @@ import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newLongId;
-import static uk.gov.pay.adminusers.model.Permission.permission;
-import static uk.gov.pay.adminusers.model.Role.role;
 
 public class UserDaoTest extends DaoTestBase {
 
@@ -152,14 +150,6 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(foundUser.getRoles().size(), is(2));
         assertThat(foundUser.getRoles().get(0).toRole(), either(is(role1)).or(is(role2)));
         assertThat(foundUser.getRoles().get(1).toRole(), either(is(role1)).or(is(role2)));
-    }
-
-    private Role aRole() {
-        return role(newLongId(), "role-name-" + newId(), "role-description" + newId());
-    }
-
-    private Permission aPermission() {
-        return permission(newLongId(), "permission-name-" + newId(), "permission-description" + newId());
     }
 
 }
