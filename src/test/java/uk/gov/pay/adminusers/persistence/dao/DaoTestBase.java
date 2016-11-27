@@ -72,7 +72,6 @@ public class DaoTestBase {
             logger.error("Error stopping docker", e);
         }
         env.stop();
-        postgres.stop();
     }
 
 }
