@@ -17,6 +17,11 @@ public class AdminUsersConfig extends Configuration{
     @NotNull
     private JPAConfiguration jpaConfiguration;
 
+    @NotNull
+    private String graphiteHost;
+    @NotNull
+    private String graphitePort;
+
     @JsonProperty("database")
     public DataSourceFactory getDataSourceFactory() {
         return dataSourceFactory;
@@ -25,5 +30,13 @@ public class AdminUsersConfig extends Configuration{
     @JsonProperty("jpa")
     public JPAConfiguration getJpaConfiguration() {
         return jpaConfiguration;
+    }
+
+    public String getGraphiteHost() {
+        return graphiteHost;
+    }
+
+    public String getGraphitePort() {
+        return graphitePort;
     }
 }

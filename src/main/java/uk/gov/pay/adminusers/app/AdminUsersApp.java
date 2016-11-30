@@ -1,5 +1,8 @@
 package uk.gov.pay.adminusers.app;
 
+import com.codahale.metrics.graphite.GraphiteReporter;
+import com.codahale.metrics.graphite.GraphiteSender;
+import com.codahale.metrics.graphite.GraphiteUDP;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.dropwizard.Application;
@@ -17,9 +20,13 @@ import uk.gov.pay.adminusers.app.healthchecks.DependentResourceWaitCommand;
 import uk.gov.pay.adminusers.app.healthchecks.Ping;
 import uk.gov.pay.adminusers.resources.HealthCheckResource;
 
+import java.util.concurrent.TimeUnit;
+
 public class AdminUsersApp extends Application<AdminUsersConfig> {
 
     private static final boolean NON_STRICT_VARIABLE_SUBSTITUTOR = false;
+    private static final String SERVICE_METRICS_NODE = "adminusers";
+    private static final int GRAPHITE_SENDING_PERIOD_SECONDS = 10;
 
     @Override
     public void initialize(Bootstrap<AdminUsersConfig> bootstrap) {
@@ -42,12 +49,23 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
     @Override
     public void run(AdminUsersConfig configuration, Environment environment) throws Exception {
         final Injector injector = Guice.createInjector(new AdminUsersModule(configuration, environment));
+        injector.getInstance(PersistenceServiceInitialiser.class);
+
+        initialiseMetrics(configuration, environment);
 
         environment.healthChecks().register("ping", new Ping());
-        injector.getInstance(PersistenceServiceInitialiser.class);
         environment.healthChecks().register("database", injector.getInstance(DatabaseHealthCheck.class));
 
         environment.jersey().register(injector.getInstance(HealthCheckResource.class));
+
+    }
+
+    private void initialiseMetrics(AdminUsersConfig configuration, Environment environment) {
+        GraphiteSender graphiteUDP = new GraphiteUDP(configuration.getGraphiteHost(), Integer.valueOf(configuration.getGraphitePort()));
+        GraphiteReporter.forRegistry(environment.metrics())
+                .prefixedWith(SERVICE_METRICS_NODE)
+                .build(graphiteUDP)
+                .start(GRAPHITE_SENDING_PERIOD_SECONDS, TimeUnit.SECONDS);
 
     }
 
