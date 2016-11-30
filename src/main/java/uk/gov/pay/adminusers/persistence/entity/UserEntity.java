@@ -121,6 +121,7 @@ public class UserEntity extends AbstractEntity {
 
     /**
      * Note: this constructor will not copy <b>id</b> from the User model. It will always assign a new one internally (by JPA)
+     *
      * @param user
      * @return persistable UserEntity object not bounded to entity manager
      */
@@ -136,5 +137,13 @@ public class UserEntity extends AbstractEntity {
         userEntity.setDisabled(user.getDisabled());
         userEntity.setRoles(user.getRoles().stream().map(RoleEntity::new).collect(Collectors.toList()));
         return userEntity;
+    }
+
+    public User toUser() {
+        User user = User.from(getId(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
+        user.setLoginCount(loginCount);
+        user.setDisabled(disabled);
+        user.setRoles(roles.stream().map(roleEntity -> roleEntity.toRole()).collect(Collectors.toList()));
+        return user;
     }
 }

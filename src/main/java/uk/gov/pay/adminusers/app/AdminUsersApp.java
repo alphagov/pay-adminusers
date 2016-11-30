@@ -15,12 +15,18 @@ import io.dropwizard.setup.Environment;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.AdminUsersModule;
 import uk.gov.pay.adminusers.app.config.PersistenceServiceInitialiser;
+import uk.gov.pay.adminusers.app.filters.LoggingFilter;
 import uk.gov.pay.adminusers.app.healthchecks.DatabaseHealthCheck;
 import uk.gov.pay.adminusers.app.healthchecks.DependentResourceWaitCommand;
 import uk.gov.pay.adminusers.app.healthchecks.Ping;
 import uk.gov.pay.adminusers.resources.HealthCheckResource;
+import uk.gov.pay.adminusers.resources.UserResource;
 
 import java.util.concurrent.TimeUnit;
+
+import static java.util.EnumSet.of;
+import static javax.servlet.DispatcherType.REQUEST;
+import static uk.gov.pay.adminusers.resources.UserResource.API_VERSION_PATH;
 
 public class AdminUsersApp extends Application<AdminUsersConfig> {
 
@@ -53,8 +59,12 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
 
         initialiseMetrics(configuration, environment);
 
+        environment.servlets().addFilter("LoggingFilter", new LoggingFilter())
+                .addMappingForUrlPatterns(of(REQUEST), true, API_VERSION_PATH + "/*");
         environment.healthChecks().register("ping", new Ping());
         environment.healthChecks().register("database", injector.getInstance(DatabaseHealthCheck.class));
+        environment.jersey().register(injector.getInstance(UserResource.class));
+
 
         environment.jersey().register(injector.getInstance(HealthCheckResource.class));
 

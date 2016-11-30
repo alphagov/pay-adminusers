@@ -2,7 +2,9 @@ package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 
+import javax.ws.rs.core.Link;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +13,6 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newLongId;
 
 public class User {
 
-    @JsonIgnore
     private Long id;
     private String username;
     private String password;
@@ -22,6 +23,21 @@ public class User {
     private Boolean disabled = FALSE;
     private Integer loginCount = 0;
     private List<Role> roles = new ArrayList<>();
+    private List<Link> links = new ArrayList<>();
+
+    public static User from(JsonNode node) {
+        try {
+            String username = node.get("username").asText();
+            String password = node.get("password").asText();
+            String email = node.get("email").asText();
+            String telephoneNumber = node.get("telephoneNumber").asText();
+            String gatewayAccountId = node.get("gatewayAccountId").asText();
+            String otpKey = node.get("otpKey").asText();
+            return from(newLongId(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
+        } catch (NullPointerException e) {
+            throw new RuntimeException("Error retrieving required fields for creating a user", e);
+        }
+    }
 
     public static User from(String username, String password, String email, String gatewayAccountId, String otpKey, String telephoneNumber) {
         return from(newLongId(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
@@ -47,6 +63,7 @@ public class User {
         return username;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
@@ -91,7 +108,32 @@ public class User {
         this.roles = roles;
     }
 
+    @JsonIgnore
     public Long getId() {
         return id;
+    }
+
+    public List<Link> getLinks() {
+        return links;
+    }
+
+    public void setLinks(List<Link> links) {
+        this.links = links;
+    }
+
+    /**
+     * its probably not a good idea to toString() password / otpKey
+     * @return
+     */
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", gatewayAccountId='" + gatewayAccountId + '\'' +
+                ", disabled=" + disabled +
+                ", roles=" + roles +
+                '}';
     }
 }

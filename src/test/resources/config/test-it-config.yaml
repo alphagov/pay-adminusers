@@ -54,3 +54,6 @@ jpa:
   ddlGenerationOutputMode: database
   queryResultsCache: false
   cacheSharedDefault: false
+
+graphiteHost: ${METRICS_HOST:-localhost}
+graphitePort: ${METRICS_PORT:-8092}
