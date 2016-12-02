@@ -35,8 +35,6 @@ public class DropwizardAppWithPostgresRule implements TestRule {
     public static final String JPA_UNIT = "ConnectorUnit";
 
     private final String configFilePath;
-    private final String initialDatabaseMigrationsPath;
-    private final String secondaryDatabaseMigrationsPath;
     private final PostgresDockerRule postgres;
     private final DropwizardAppRule<AdminUsersConfig> app;
     private final RuleChain rules;
@@ -54,8 +52,6 @@ public class DropwizardAppWithPostgresRule implements TestRule {
 
     public DropwizardAppWithPostgresRule(String configPath, ConfigOverride... configOverrides) {
         configFilePath = resourceFilePath(configPath);
-        initialDatabaseMigrationsPath = resourceFilePath("config/initial-testdb-state.xml");
-        secondaryDatabaseMigrationsPath = resourceFilePath("migrations.xml");
         postgres = new PostgresDockerRule();
         List<ConfigOverride> cfgOverrideList = newArrayList(configOverrides);
         cfgOverrideList.add(config("database.url", postgres.getConnectionUrl()));
@@ -95,7 +91,7 @@ public class DropwizardAppWithPostgresRule implements TestRule {
         try {
             connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword());
 
-            Liquibase migrator = new Liquibase("config/initial-testdb-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
+            Liquibase migrator = new Liquibase("config/initial-db-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             Liquibase migrator2 = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator.update("");
             migrator2.update("");

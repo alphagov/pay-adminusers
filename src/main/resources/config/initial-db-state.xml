@@ -143,4 +143,11 @@
 
     </changeSet>
 
+    <changeSet id="populate role table" author="">
+        <loadData tableName="roles" file="config/initdata/roles.csv">
+            <column header="id" name="id"/>
+            <column header="name" name="name"/>
+            <column header="description" name="description"/>
+        </loadData>
+    </changeSet>
 </databaseChangeLog>

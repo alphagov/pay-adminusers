@@ -49,12 +49,13 @@ public class UserResource {
         return validationsErrors
                 .map(errors -> Response.status(400).entity(errors).build())
                 .orElseGet(() -> {
-                    User newUser = userServices.createUser(User.from(node));
+                    String roleName = node.get("roleName").asText();
+                    User newUser = userServices.createUser(User.from(node), roleName);
                     logger.info("[{}] User created: [ {} ]", currentRequestId(), newUser);
+
                     return UserResponseBuilder.created()
                             .withUser(newUser)
-                            .withBaseUrl(baseUrl)
-                            .build();
+                            .withBaseUrl(baseUrl).build();
                 });
     }
 }

@@ -53,7 +53,7 @@ public class DaoTestBase {
         try {
             connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword());
 
-            Liquibase migrator = new Liquibase("config/initial-testdb-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
+            Liquibase migrator = new Liquibase("config/initial-db-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             Liquibase migrator2 = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator.update("");
             migrator2.update("");
@@ -70,7 +70,7 @@ public class DaoTestBase {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword());
-            Liquibase migrator = new Liquibase("config/initial-testdb-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
+            Liquibase migrator = new Liquibase("config/initial-db-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             Liquibase migrator2 = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator2.dropAll();
             migrator.dropAll();
