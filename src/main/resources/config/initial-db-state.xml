@@ -150,4 +150,19 @@
             <column header="description" name="description"/>
         </loadData>
     </changeSet>
+
+    <changeSet id="populate permissions table" author="">
+        <loadData tableName="permissions" file="config/initdata/permissions.csv">
+            <column header="id" name="id"/>
+            <column header="name" name="name"/>
+            <column header="description" name="description"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="populate role_permission table" author="">
+        <loadData tableName="role_permission" file="config/initdata/role-permissions.csv">
+            <column header="role_id" name="role_id"/>
+            <column header="permission_id" name="permission_id"/>
+        </loadData>
+    </changeSet>
 </databaseChangeLog>

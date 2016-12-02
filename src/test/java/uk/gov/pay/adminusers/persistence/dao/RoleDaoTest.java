@@ -47,4 +47,19 @@ public class RoleDaoTest extends DaoTestBase {
 
     }
 
+    /**
+     * This is just to confirm the initial data migrations have happened.
+     * perhaps we can consider to remove this if its doesn't serve a purpose.
+     * @throws Exception
+     */
+    @Test
+    public void shouldFindAnExistingRole() throws Exception {
+        Optional<RoleEntity> adminRoleOptional = roleDao.findByRoleName("admin");
+
+        assertTrue(adminRoleOptional.isPresent());
+        RoleEntity adminRoleEntity = adminRoleOptional.get();
+
+        assertThat(adminRoleEntity.getPermissions().size(),is(27));
+    }
+
 }
