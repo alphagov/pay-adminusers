@@ -18,4 +18,20 @@ public class AdminUsersExceptionsTest {
         Map<String, List<String>> entity = (Map<String, List<String>>) undefinedRoleException.getResponse().getEntity();
         assertThat(entity.get("errors").get(0), is("role [non-existent-role] not recognised"));
     }
+
+    @Test
+    public void shouldCreateAConflictingUsernameException() throws Exception {
+        WebApplicationException undefinedRoleException = AdminUsersExceptions.conflictingUsername("existing-user");
+        assertThat(undefinedRoleException.getResponse().getStatus(), is(409));
+        Map<String, List<String>> entity = (Map<String, List<String>>) undefinedRoleException.getResponse().getEntity();
+        assertThat(entity.get("errors").get(0), is("username [existing-user] already exists"));
+    }
+
+    @Test
+    public void shouldCreateAnInternalServerErrorException() throws Exception {
+        WebApplicationException undefinedRoleException = AdminUsersExceptions.internalServerError("server error");
+        assertThat(undefinedRoleException.getResponse().getStatus(), is(500));
+        Map<String, List<String>> entity = (Map<String, List<String>>) undefinedRoleException.getResponse().getEntity();
+        assertThat(entity.get("errors").get(0), is("server error"));
+    }
 }

@@ -2,11 +2,12 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import com.jayway.restassured.response.ValidatableResponse;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.pay.adminusers.model.User;
 
 import static com.jayway.restassured.http.ContentType.JSON;
+import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
@@ -69,16 +70,14 @@ public class UserResourceTest extends IntegrationTest {
                 .put("roleName", "invalid-role")
                 .build();
 
-        ValidatableResponse validatableResponse = givenSetup()
+        givenSetup()
                 .when()
                 .body(mapper.writeValueAsString(userPayload))
                 .contentType(JSON)
                 .accept(JSON)
                 .post(USERS_RESOURCE_URL)
                 .then()
-                .statusCode(400);
-        System.out.println(validatableResponse.extract().body().asString());
-        validatableResponse
+                .statusCode(400)
                 .body("errors", hasSize(1))
                 .body("errors[0]", is("role [invalid-role] not recognised"));
     }
@@ -107,4 +106,33 @@ public class UserResourceTest extends IntegrationTest {
                         "Field [roleName] is required"));
     }
 
+    @Test
+    public void shouldError409_IfUsernameAlreadyExists() throws Exception {
+
+        String random = randomUUID().toString();
+        String username = "user-" + random;
+        User user = User.from(username, "password", "email@example.com", "2", "otpKey", "3543534");
+        databaseTestHelper.add(user);
+
+        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
+                .put("username", username)
+                .put("password", "password-" + random)
+                .put("email", "user-" + random + "@example.com")
+                .put("gatewayAccountId", "1")
+                .put("telephoneNumber", "45334534634")
+                .put("otpKey", "34f34")
+                .put("roleName", "admin")
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(userPayload))
+                .contentType(JSON)
+                .accept(JSON)
+                .post(USERS_RESOURCE_URL)
+                .then()
+                .statusCode(409)
+                .body("errors", hasSize(1))
+                .body("errors[0]", is(format("username [%s] already exists", username)));
+    }
 }

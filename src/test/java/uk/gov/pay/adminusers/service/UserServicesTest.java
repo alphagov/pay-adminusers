@@ -2,15 +2,22 @@ package uk.gov.pay.adminusers.service;
 
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
+import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
+import javax.persistence.RollbackException;
 import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+import static uk.gov.pay.adminusers.service.UserServices.CONSTRAINT_VIOLATION_MESSAGE;
 
 public class UserServicesTest {
 
@@ -31,6 +38,48 @@ public class UserServicesTest {
         String nonExistentRole = "nonExistentRole";
         when(roleDao.findByRoleName(nonExistentRole)).thenReturn(Optional.empty());
         userServices.createUser(user, nonExistentRole);
+    }
+
+    @Test(expected = WebApplicationException.class)
+    public void shouldError_ifRoleNameConflicts() throws Exception {
+        User user = aUser();
+        Role role = Role.role(2l, "admin", "admin role");
+
+        when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
+        doThrow(new RollbackException(CONSTRAINT_VIOLATION_MESSAGE)).when(userDao).persist(any(UserEntity.class));
+
+        userServices.createUser(user, role.getName());
+    }
+
+    @Test(expected = WebApplicationException.class)
+    public void shouldError_ifUnknownErrorThrownWhenSaving() throws Exception {
+        User user = aUser();
+        Role role = Role.role(2l, "admin", "admin role");
+
+        when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
+        doThrow(new RuntimeException("unknown error")).when(userDao).persist(any(UserEntity.class));
+
+        userServices.createUser(user, role.getName());
+    }
+
+    @Test
+    public void shouldPersistAUserSuccessfully() throws Exception {
+        User user = aUser();
+        Role role = Role.role(2l, "admin", "admin role");
+
+        when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
+        doNothing().when(userDao).persist(any(UserEntity.class));
+
+        User persistedUser = userServices.createUser(user, role.getName());
+
+        assertThat(persistedUser.getUsername(), is(user.getUsername()));
+        assertThat(persistedUser.getPassword(), is(user.getPassword()));
+        assertThat(persistedUser.getEmail(), is(user.getEmail()));
+        assertThat(persistedUser.getGatewayAccountId(), is(user.getGatewayAccountId()));
+        assertThat(persistedUser.getTelephoneNumber(), is(user.getTelephoneNumber()));
+        assertThat(persistedUser.getOtpKey(), is(user.getOtpKey()));
+        assertThat(persistedUser.getRoles().size(), is(1));
+        assertThat(persistedUser.getRoles().get(0), is(role));
     }
 
     private User aUser() {
