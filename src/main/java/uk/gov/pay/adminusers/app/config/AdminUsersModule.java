@@ -9,6 +9,7 @@ import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.setup.Environment;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.resources.UserRequestValidator;
+import uk.gov.pay.adminusers.service.PasswordHasher;
 import uk.gov.pay.adminusers.service.UserServices;
 
 import java.util.Properties;
@@ -27,6 +28,7 @@ public class AdminUsersModule extends AbstractModule {
         bind(AdminUsersConfig.class).toInstance(configuration);
         bind(Environment.class).toInstance(environment);
         bind(UserRequestValidator.class).in(Singleton.class);
+        bind(PasswordHasher.class).in(Singleton.class);
         bind(UserServices.class).in(Singleton.class);
         bind(UserDao.class).in(Singleton.class);
         install(jpaModule(configuration));

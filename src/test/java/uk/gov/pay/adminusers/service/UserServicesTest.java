@@ -13,6 +13,7 @@ import javax.persistence.RollbackException;
 import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
 
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
@@ -23,13 +24,15 @@ public class UserServicesTest {
 
     private UserDao userDao;
     private RoleDao roleDao;
+    private PasswordHasher passwordHasher;
     private UserServices userServices;
 
     @Before
     public void before() throws Exception {
         userDao = mock(UserDao.class);
         roleDao = mock(RoleDao.class);
-        userServices = new UserServices(userDao, roleDao);
+        passwordHasher = mock(PasswordHasher.class);
+        userServices = new UserServices(userDao, roleDao, passwordHasher);
     }
 
     @Test(expected = WebApplicationException.class)
@@ -46,6 +49,7 @@ public class UserServicesTest {
         Role role = Role.role(2l, "admin", "admin role");
 
         when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
+        when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
         doThrow(new RollbackException(CONSTRAINT_VIOLATION_MESSAGE)).when(userDao).persist(any(UserEntity.class));
 
         userServices.createUser(user, role.getName());
@@ -57,6 +61,7 @@ public class UserServicesTest {
         Role role = Role.role(2l, "admin", "admin role");
 
         when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
+        when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
         doThrow(new RuntimeException("unknown error")).when(userDao).persist(any(UserEntity.class));
 
         userServices.createUser(user, role.getName());
@@ -68,12 +73,13 @@ public class UserServicesTest {
         Role role = Role.role(2l, "admin", "admin role");
 
         when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
+        when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
         doNothing().when(userDao).persist(any(UserEntity.class));
 
         User persistedUser = userServices.createUser(user, role.getName());
 
         assertThat(persistedUser.getUsername(), is(user.getUsername()));
-        assertThat(persistedUser.getPassword(), is(user.getPassword()));
+        assertThat(persistedUser.getPassword(), is(not(user.getPassword())));
         assertThat(persistedUser.getEmail(), is(user.getEmail()));
         assertThat(persistedUser.getGatewayAccountId(), is(user.getGatewayAccountId()));
         assertThat(persistedUser.getTelephoneNumber(), is(user.getTelephoneNumber()));

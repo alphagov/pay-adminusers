@@ -13,16 +13,18 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
 
 public class UserServices {
 
-    public static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
+    static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
     private static Logger logger = LoggerFactory.getLogger(UserServices.class);
 
     private final UserDao userDao;
     private final RoleDao roleDao;
+    private final PasswordHasher passwordHasher;
 
     @Inject
-    public UserServices(UserDao userDao, RoleDao roleDao) {
+    public UserServices(UserDao userDao, RoleDao roleDao, PasswordHasher passwordHasher) {
         this.userDao = userDao;
         this.roleDao = roleDao;
+        this.passwordHasher = passwordHasher;
     }
 
     public User createUser(User validatedUserRequest, String roleName) {
@@ -30,7 +32,8 @@ public class UserServices {
                 .map(roleEntity -> {
                     UserEntity userEntity = UserEntity.from(validatedUserRequest);
                     userEntity.setRoles(asList(roleEntity));
-                    //encrypt password here
+                    userEntity.setPassword(passwordHasher.hash(validatedUserRequest.getPassword()));
+
                     try {
                         userDao.persist(userEntity);
                         return userEntity.toUser();
