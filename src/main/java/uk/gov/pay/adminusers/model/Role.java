@@ -67,4 +67,12 @@ public class Role {
         result = 31 * result + permissions.hashCode();
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Role{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

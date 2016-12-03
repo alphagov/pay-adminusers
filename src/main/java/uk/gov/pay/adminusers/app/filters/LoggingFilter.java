@@ -2,9 +2,9 @@ package uk.gov.pay.adminusers.app.filters;
 
 import com.google.common.base.Stopwatch;
 import org.apache.commons.lang3.StringUtils;
-import org.jboss.logging.MDC;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -16,10 +16,10 @@ import static java.lang.String.format;
 public class LoggingFilter implements Filter {
 
     public static final String HEADER_REQUEST_ID = "X-Request-Id";
-    private static final Logger logger = LoggerFactory.getLogger(LoggingFilter.class);
+    private static final Logger logger = PayLoggerFactory.getLogger(LoggingFilter.class);
 
     public static String currentRequestId() {
-        return (String) MDC.get(HEADER_REQUEST_ID);
+        return MDC.get(HEADER_REQUEST_ID);
     }
 
     @Override
@@ -37,13 +37,13 @@ public class LoggingFilter implements Filter {
 
         MDC.put(HEADER_REQUEST_ID, requestId);
 
-        logger.info(format("[%s] - %s to %s began", requestId, requestMethod, requestURL));
+        logger.info(format("%s to %s began", requestMethod, requestURL));
         try {
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (Throwable throwable) {
             logger.error("Exception - adminusers request - " + requestURL + " - exception - " + throwable.getMessage(), throwable);
         } finally {
-            logger.info(format("[%s] - %s to %s ended - total time %dms", requestId, requestMethod, requestURL,
+            logger.info(format("%s to %s ended - total time %dms", requestId, requestMethod, requestURL,
                     stopwatch.elapsed(TimeUnit.MILLISECONDS)));
             stopwatch.stop();
         }
