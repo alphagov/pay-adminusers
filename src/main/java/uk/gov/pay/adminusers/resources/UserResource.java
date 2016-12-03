@@ -23,6 +23,7 @@ public class UserResource {
 
     public static final String API_VERSION_PATH = "/v1";
     public static final String USERS_RESOURCE = API_VERSION_PATH + "/api/users";
+    public static final String AUTHENTICATE_RESOURCE = USERS_RESOURCE + "/authenticate";
     public static final String USER_RESOURCE = USERS_RESOURCE + "/{username}";
 
     private final UserServices userServices;
@@ -68,4 +69,32 @@ public class UserResource {
                 });
     }
 
+
+    @Path(AUTHENTICATE_RESOURCE)
+    @POST
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response authenticate(JsonNode node) {
+        logger.info("User authenticate request");
+        Optional<Errors> validationsErrors = validator.validateAuthenticateRequest(node);
+
+        return validationsErrors
+                .map(errors ->
+                        Response.status(400).entity(errors).build())
+                .orElseGet(() -> {
+                    Optional<User> userOptional = userServices.authenticate(
+                            getFieldValue(node, "username"),
+                            getFieldValue(node, "password"));
+
+                    return userOptional.map(user ->
+                            Response.status(OK).type(APPLICATION_JSON)
+                                    .entity(user).build())
+                            .orElseGet(() ->
+                                    Response.status(UNAUTHORIZED).build());
+                });
+    }
+
+    private String getFieldValue(JsonNode node, String fieldName) {
+        return node.get(fieldName).asText();
+    }
 }

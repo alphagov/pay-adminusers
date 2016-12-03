@@ -16,9 +16,9 @@ public class UserDao extends JpaDao<UserEntity> {
         super(entityManager, UserEntity.class);
     }
 
-    public Optional<UserEntity> findByUsernameAndPassword(String username, String password) {
+    public Optional<UserEntity> findEnabledUserByUsernameAndPassword(String username, String password) {
         String query = "SELECT u FROM UserEntity u " +
-                "WHERE u.username = :username AND u.password=:password";
+                "WHERE u.username = :username AND u.password=:password AND u.disabled=false";
 
         return entityManager.get()
                 .createQuery(query, UserEntity.class)

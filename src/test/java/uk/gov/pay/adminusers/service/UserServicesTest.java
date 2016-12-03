@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.service;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import uk.gov.pay.adminusers.model.Link;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
@@ -74,7 +75,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldPersistAUserSuccessfully() throws Exception {
+    public void shouldPersist_aUserSuccessfully() throws Exception {
         User user = aUser();
         Role role = Role.role(2, "admin", "admin role");
 
@@ -115,6 +116,71 @@ public class UserServicesTest {
 
         Optional<User> userOptional = userServices.findUser("random-name");
         assertFalse(userOptional.isPresent());
+    }
+
+    @Test
+    public void shouldReturnUserAndResetLoginCount_ifAuthenticationSuccessful() throws Exception {
+        User user = aUser();
+        user.setLoginCount(2);
+
+        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+        when(passwordHasher.hash("random-password")).thenReturn("hashed-password");
+        when(userDao.findEnabledUserByUsernameAndPassword("random-name", "hashed-password")).thenReturn(userEntityOptional);
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
+
+        Optional<User> userOptional = userServices.authenticate("random-name", "random-password");
+        assertTrue(userOptional.isPresent());
+
+        User authenticatedUser = userOptional.get();
+        assertThat(authenticatedUser.getUsername(), is("random-name"));
+        assertThat(authenticatedUser.getLinks().size(), is(1));
+        assertThat(argumentCaptor.getValue().getLoginCount(), is(0));
+    }
+
+    @Test
+    public void shouldReturnEmptyAndIncrementLoginCount_ifAuthenticationFail() throws Exception {
+        User user = aUser();
+        user.setLoginCount(1);
+
+        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+
+        when(passwordHasher.hash("random-password")).thenReturn("hashed-password");
+        when(userDao.findEnabledUserByUsernameAndPassword("random-name", "hashed-password")).thenReturn(Optional.empty());
+        when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
+
+        Optional<User> userOptional = userServices.authenticate("random-name", "random-password");
+        assertFalse(userOptional.isPresent());
+
+        UserEntity savedUser = argumentCaptor.getValue();
+        assertThat(savedUser.getLoginCount(), is(2));
+        assertThat(savedUser.getDisabled(), is(false));
+    }
+
+    @Test
+    public void shouldErrorAndLockUser_onTooManyAuthFailures() throws Exception {
+        User user = aUser();
+        user.setLoginCount(3);
+
+        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+
+        when(passwordHasher.hash("random-password")).thenReturn("hashed-password");
+        when(userDao.findEnabledUserByUsernameAndPassword("random-name", "hashed-password")).thenReturn(Optional.empty());
+        when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
+
+        try {
+            userServices.authenticate("random-name", "random-password");
+        } catch (WebApplicationException e) {
+            assertThat(e.getResponse().getStatus(), is(423));
+            UserEntity savedUser = argumentCaptor.getValue();
+            assertThat(savedUser.getLoginCount(), is(4));
+            assertThat(savedUser.getDisabled(), is(true));
+        }
+
     }
 
     private User aUser() {

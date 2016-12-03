@@ -161,7 +161,7 @@ public class UserDaoTest extends DaoTestBase {
         User user = User.from(randomInt(), username, password, random + "@example.com", randomInt.toString(), randomInt.toString(), "374628482");
         databaseTestHelper.add(user);
 
-        Optional<UserEntity> userEntityOptional = userDao.findByUsernameAndPassword(username, password);
+        Optional<UserEntity> userEntityOptional = userDao.findEnabledUserByUsernameAndPassword(username, password);
         assertTrue(userEntityOptional.isPresent());
 
         UserEntity foundUser = userEntityOptional.get();
@@ -173,8 +173,30 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(foundUser.getDisabled(), is(false));
         assertThat(foundUser.getLoginCount(), is(0));
 
-        Optional<UserEntity> userEntityOptional2 = userDao.findByUsernameAndPassword(username, "invalid-password");
+    }
+
+    @Test
+    public void shouldNotFindUser_ifInvalidUserNamePasswordCombination() throws Exception {
+        String username = "user-" + random;
+        String password = "password-" + random;
+        User user = User.from(newLongId(), username, password, random + "@example.com", randomLong.toString(), randomLong.toString(), "374628482");
+        databaseTestHelper.add(user);
+
+        Optional<UserEntity> userEntityOptional2 = userDao.findEnabledUserByUsernameAndPassword(username, "invalid-password");
         assertFalse(userEntityOptional2.isPresent());
+    }
+
+    @Test
+    public void shouldNotFindUser_ByUserNamePasswordCombination_ifDisabled() throws Exception {
+
+        String username = "user-" + random;
+        String password = "password-" + random;
+        User user = User.from(newLongId(), username, password, random + "@example.com", randomLong.toString(), randomLong.toString(), "374628482");
+        user.setDisabled(true);
+        databaseTestHelper.add(user);
+
+        Optional<UserEntity> userEntityOptional = userDao.findEnabledUserByUsernameAndPassword(username, password);
+        assertFalse(userEntityOptional.isPresent());
 
     }
 
