@@ -28,7 +28,6 @@ public class UserResourceTest extends IntegrationTest {
         String random = randomUUID().toString();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", "user-" + random)
-                .put("password", "password-" + random)
                 .put("email", "user-" + random + "@example.com")
                 .put("gatewayAccountId", "1")
                 .put("telephoneNumber", "45334534634")
@@ -63,7 +62,6 @@ public class UserResourceTest extends IntegrationTest {
         String random = randomUUID().toString();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", "user-" + random)
-                .put("password", "password-" + random)
                 .put("email", "user-" + random + "@example.com")
                 .put("gatewayAccountId", "1")
                 .put("telephoneNumber", "45334534634")
@@ -85,11 +83,9 @@ public class UserResourceTest extends IntegrationTest {
 
     @Test
     public void shouldError400_whenFieldsMissingForUserCreation() throws Exception {
-        String random = randomUUID().toString();
         ImmutableMap<Object, Object> invalidPayload = ImmutableMap.builder()
-                .put("password", "password-" + random)
                 .put("gatewayAccountId", "1")
-                .put("otpKey", "34f34").build();
+                .build();
 
         givenSetup()
                 .when()
@@ -117,11 +113,9 @@ public class UserResourceTest extends IntegrationTest {
 
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
-                .put("password", "password-" + random)
                 .put("email", "user-" + random + "@example.com")
                 .put("gatewayAccountId", "1")
                 .put("telephoneNumber", "45334534634")
-                .put("otpKey", "34f34")
                 .put("roleName", "admin")
                 .build();
 

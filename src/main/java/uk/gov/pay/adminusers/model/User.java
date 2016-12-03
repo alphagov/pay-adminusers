@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Boolean.FALSE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newLongId;
 
 public class User {
@@ -25,26 +27,30 @@ public class User {
     private List<Role> roles = new ArrayList<>();
     private List<Link> links = new ArrayList<>();
 
-    public static User from(JsonNode node) {
-        try {
-            String username = node.get("username").asText();
-            String password = node.get("password").asText();
-            String email = node.get("email").asText();
-            String telephoneNumber = node.get("telephoneNumber").asText();
-            String gatewayAccountId = node.get("gatewayAccountId").asText();
-            String otpKey = node.get("otpKey").asText();
-            return from(newLongId(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
-        } catch (NullPointerException e) {
-            throw new RuntimeException("Error retrieving required fields for creating a user", e);
-        }
-    }
-
     public static User from(String username, String password, String email, String gatewayAccountId, String otpKey, String telephoneNumber) {
         return from(newLongId(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
     }
 
     public static User from(Long id, String username, String password, String email, String gatewayAccountId, String otpKey, String telephoneNumber) {
         return new User(id, username, password, email, gatewayAccountId, otpKey, telephoneNumber);
+    }
+
+    public static User from(JsonNode node) {
+        try {
+            String username = node.get("username").asText();
+            String password = getOrElseRandom(node.get("password"));
+            String email = node.get("email").asText();
+            String telephoneNumber = node.get("telephoneNumber").asText();
+            String gatewayAccountId = node.get("gatewayAccountId").asText();
+            String otpKey = getOrElseRandom(node.get("otpKey"));
+            return from(newLongId(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
+        } catch (NullPointerException e) {
+            throw new RuntimeException("Error retrieving required fields for creating a user", e);
+        }
+    }
+
+    private static String getOrElseRandom(JsonNode elementNode) {
+        return elementNode == null || isBlank(elementNode.asText()) ? newId() : elementNode.asText();
     }
 
     private User(Long id, @JsonProperty("username") String username, @JsonProperty("password") String password,
@@ -123,6 +129,7 @@ public class User {
 
     /**
      * its probably not a good idea to toString() password / otpKey
+     *
      * @return
      */
     @Override

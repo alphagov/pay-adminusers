@@ -15,7 +15,7 @@ import static org.apache.commons.lang3.math.NumberUtils.isDigits;
 public class UserRequestValidator {
 
     public Optional<Errors> validateCreateRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = checkIfExists(payload, "username", "password", "email", "gatewayAccountId", "telephoneNumber", "otpKey", "roleName");
+        Optional<List<String>> missingMandatoryFields = checkIfExists(payload, "username", "email", "gatewayAccountId", "telephoneNumber", "roleName");
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
