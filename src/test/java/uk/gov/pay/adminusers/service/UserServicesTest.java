@@ -200,6 +200,51 @@ public class UserServicesTest {
 
     }
 
+    @Test
+    public void shouldIncreaseLoginCount_whenRecordLoginAttempt() throws Exception {
+        User user = aUser();
+        user.setLoginCount(1);
+
+        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+        when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+
+        Optional<User> userOptional = userServices.recordLoginAttempt("random-name");
+
+        assertTrue(userOptional.isPresent());
+
+        assertThat(userOptional.get().getUsername(), is("random-name"));
+        assertThat(userOptional.get().getLoginCount(), is(2));
+        assertThat(userOptional.get().getDisabled(), is(false));
+    }
+
+    @Test
+    public void shouldLockAccount_whenRecordLoginAttempt_ifMoreThanAllowedLoginAttempts() throws Exception {
+        User user = aUser();
+        user.setLoginCount(3);
+
+        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+        when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
+
+        try {
+            userServices.recordLoginAttempt("random-name");
+        } catch (WebApplicationException ex) {
+            UserEntity savedUser = argumentCaptor.getValue();
+            assertThat(savedUser.getLoginCount(), is(4));
+            assertThat(savedUser.isDisabled(), is(true));
+        }
+
+    }
+
+    @Test
+    public void shouldReturnEmpty_whenRecordLoginAttempt_ifUserNotFound() throws Exception {
+        when(userDao.findByUsername("random-name")).thenReturn(Optional.empty());
+        Optional<User> userOptional = userServices.recordLoginAttempt("random-name");
+
+        assertFalse(userOptional.isPresent());
+    }
+
     private User aUser() {
         return User.from("random-name", "random-password", "random@email.com", "1", "784rh", "8948924");
     }

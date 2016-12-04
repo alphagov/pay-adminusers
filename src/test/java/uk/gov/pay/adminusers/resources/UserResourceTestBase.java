@@ -12,7 +12,7 @@ public class UserResourceTestBase extends IntegrationTest {
     protected static final String USERS_RESOURCE_URL = "/v1/api/users";
     protected static final String USER_RESOURCE_URL = "/v1/api/users/%s";
     protected static final String USERS_AUTHENTICATE_URL = "/v1/api/users/authenticate";
-
+    protected static final String LOGIN_ATTEMPT_URL = USER_RESOURCE_URL + "/attempt-login";
 
     protected ObjectMapper mapper;
 
