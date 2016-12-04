@@ -5,32 +5,26 @@ import org.junit.Test;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class PasswordHasherTest {
 
+    public static final String HASH_SALT = "$2a$10$IhaXo6LIBhKIWOiGpbtPOu";
+
     @Test
     public void shouldHashAPlainTextPassword() throws Exception {
-        PasswordHasher passwordHasher = new PasswordHasher();
+        PasswordHasher passwordHasher = new PasswordHasher(HASH_SALT);
 
         String hashedPassword = passwordHasher.hash("plain text password");
         assertThat(hashedPassword, is(not("plain text password")));
     }
 
     @Test
-    public void shouldSuccessfullyCompareExistingHashWithAPlaintextPassword() throws Exception {
-        PasswordHasher passwordHasher = new PasswordHasher();
+    public void shouldRegenerateSameHash_ifSamePasswordHashedTwice() throws Exception {
+        PasswordHasher passwordHasher = new PasswordHasher(HASH_SALT);
         String hashedPassword = passwordHasher.hash("plain text password");
+        String hashedPassword2 = passwordHasher.hash("plain text password");
 
-        assertTrue(passwordHasher.isEqual("plain text password", hashedPassword));
+        assertThat(hashedPassword,is(hashedPassword2));
     }
 
-    @Test
-    public void shouldFalsify_IfPasswordAndHashDontMatch() throws Exception {
-        PasswordHasher passwordHasher = new PasswordHasher();
-        String hashedPassword = passwordHasher.hash("plain text password");
-
-        assertFalse(passwordHasher.isEqual("different password", hashedPassword));
-    }
 }

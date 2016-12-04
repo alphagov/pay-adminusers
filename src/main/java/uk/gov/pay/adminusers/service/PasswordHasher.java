@@ -1,16 +1,19 @@
 package uk.gov.pay.adminusers.service;
 
+import com.google.inject.Inject;
 import org.mindrot.jbcrypt.BCrypt;
 
 public class PasswordHasher {
 
-    private static final int HASH_PASSWORD_SALT_ROUNDS = 10;
+    private final String hashSalt;
+
+    @Inject
+    public PasswordHasher(String hashSalt) {
+        this.hashSalt = hashSalt;
+    }
 
     public String hash(String password) {
-        return BCrypt.hashpw(password, BCrypt.gensalt(HASH_PASSWORD_SALT_ROUNDS));
+        return BCrypt.hashpw(password, hashSalt);
     }
 
-    public boolean isEqual(String password, String hashedPassword) {
-        return BCrypt.checkpw(password, hashedPassword);
-    }
 }

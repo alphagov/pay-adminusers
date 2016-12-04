@@ -43,7 +43,7 @@ public class LoggingFilter implements Filter {
         } catch (Throwable throwable) {
             logger.error("Exception - adminusers request - " + requestURL + " - exception - " + throwable.getMessage(), throwable);
         } finally {
-            logger.info(format("%s to %s ended - total time %dms", requestId, requestMethod, requestURL,
+            logger.info(format("%s to %s ended - total time %dms", requestMethod, requestURL,
                     stopwatch.elapsed(TimeUnit.MILLISECONDS)));
             stopwatch.stop();
         }
