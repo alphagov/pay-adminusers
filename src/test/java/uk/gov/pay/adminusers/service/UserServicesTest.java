@@ -214,7 +214,7 @@ public class UserServicesTest {
 
         assertThat(userOptional.get().getUsername(), is("random-name"));
         assertThat(userOptional.get().getLoginCount(), is(2));
-        assertThat(userOptional.get().getDisabled(), is(false));
+        assertThat(userOptional.get().isDisabled(), is(false));
     }
 
     @Test
@@ -241,6 +241,30 @@ public class UserServicesTest {
     public void shouldReturnEmpty_whenRecordLoginAttempt_ifUserNotFound() throws Exception {
         when(userDao.findByUsername("random-name")).thenReturn(Optional.empty());
         Optional<User> userOptional = userServices.recordLoginAttempt("random-name");
+
+        assertFalse(userOptional.isPresent());
+    }
+
+    @Test
+    public void shouldReturnUser_whenResetLoginAttempt_ifUserFound() throws Exception {
+        User user = aUser();
+
+        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+        when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+
+        Optional<User> userOptional = userServices.resetLoginAttempts("random-name");
+        assertTrue(userOptional.isPresent());
+
+        assertThat(userOptional.get().getUsername(), is("random-name"));
+        assertThat(userOptional.get().getLoginCount(), is(0));
+        assertThat(userOptional.get().isDisabled(), is(false));
+
+    }
+
+    @Test
+    public void shouldReturnEmpty_whenResetLoginAttempt_ifUserNotFound() throws Exception {
+        when(userDao.findByUsername("random-name")).thenReturn(Optional.empty());
+        Optional<User> userOptional = userServices.resetLoginAttempts("random-name");
 
         assertFalse(userOptional.isPresent());
     }

@@ -108,13 +108,20 @@ public class UserResource {
 
     @Path(ATTEMPT_LOGIN_RESOURCE)
     @POST
-    public Response recordLoginAttempt(@PathParam("username") String username) {
+    public Response updateLoginAttempts(@PathParam("username") String username, @QueryParam("action") String action) {
         logger.info("User login attempt request");
         if (isBlank(username)) {
             return Response.status(NOT_FOUND).build();
         }
 
-        Optional<User> userOptional = userServices.recordLoginAttempt(username);
+        Optional<User> userOptional;
+
+        if (!isBlank(action) && "reset".equals(action)) {
+            userOptional = userServices.resetLoginAttempts(username);
+        } else {
+            userOptional = userServices.recordLoginAttempt(username);
+        }
+
         return userOptional
                 .map(user -> Response.status(OK).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
