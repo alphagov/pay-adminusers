@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.service;
 
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.pay.adminusers.model.Link;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
@@ -18,6 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
+import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
 import static uk.gov.pay.adminusers.service.UserServices.CONSTRAINT_VIOLATION_MESSAGE;
 
 public class UserServicesTest {
@@ -26,13 +28,15 @@ public class UserServicesTest {
     private RoleDao roleDao;
     private PasswordHasher passwordHasher;
     private UserServices userServices;
+    private LinksBuilder linksBuilder;
 
     @Before
     public void before() throws Exception {
         userDao = mock(UserDao.class);
         roleDao = mock(RoleDao.class);
         passwordHasher = mock(PasswordHasher.class);
-        userServices = new UserServices(userDao, roleDao, passwordHasher);
+        linksBuilder = new LinksBuilder("http://localhost");
+        userServices = new UserServices(userDao, roleDao, passwordHasher, linksBuilder);
     }
 
     @Test(expected = WebApplicationException.class)
@@ -77,6 +81,7 @@ public class UserServicesTest {
         doNothing().when(userDao).persist(any(UserEntity.class));
 
         User persistedUser = userServices.createUser(user, role.getName());
+        Link selfLink = Link.from(Link.Rel.self, "GET", "http://localhost" + USERS_RESOURCE + "/random-name");
 
         assertThat(persistedUser.getUsername(), is(user.getUsername()));
         assertThat(persistedUser.getPassword(), is(not(user.getPassword())));
@@ -86,6 +91,7 @@ public class UserServicesTest {
         assertThat(persistedUser.getOtpKey(), is(user.getOtpKey()));
         assertThat(persistedUser.getRoles().size(), is(1));
         assertThat(persistedUser.getRoles().get(0), is(role));
+        assertThat(persistedUser.getLinks().get(0), is(selfLink));
     }
 
     private User aUser() {

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import javax.ws.rs.core.Link;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,6 +118,7 @@ public class User {
         return id;
     }
 
+    @JsonProperty("_links")
     public List<Link> getLinks() {
         return links;
     }

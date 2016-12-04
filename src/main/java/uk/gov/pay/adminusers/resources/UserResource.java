@@ -17,6 +17,7 @@ import javax.ws.rs.core.Response;
 import java.util.Optional;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.Response.Status.CREATED;
 
 @Path("/")
 public class UserResource {
@@ -52,9 +53,8 @@ public class UserResource {
                     User newUser = userServices.createUser(User.from(node), roleName);
                     logger.info("User created: [ {} ]", newUser);
 
-                    return UserResponseBuilder.created()
-                            .withUser(newUser)
-                            .withBaseUrl(baseUrl).build();
+                    return Response.status(CREATED).type(APPLICATION_JSON)
+                            .entity(newUser).build();
                 });
     }
 }

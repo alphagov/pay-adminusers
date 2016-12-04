@@ -19,12 +19,14 @@ public class UserServices {
     private final UserDao userDao;
     private final RoleDao roleDao;
     private final PasswordHasher passwordHasher;
+    private final LinksBuilder linksBuilder;
 
     @Inject
-    public UserServices(UserDao userDao, RoleDao roleDao, PasswordHasher passwordHasher) {
+    public UserServices(UserDao userDao, RoleDao roleDao, PasswordHasher passwordHasher, LinksBuilder linksBuilder) {
         this.userDao = userDao;
         this.roleDao = roleDao;
         this.passwordHasher = passwordHasher;
+        this.linksBuilder = linksBuilder;
     }
 
     public User createUser(User validatedUserRequest, String roleName) {
@@ -36,7 +38,9 @@ public class UserServices {
 
                     try {
                         userDao.persist(userEntity);
-                        return userEntity.toUser();
+                        User user = userEntity.toUser();
+                        user.setLinks(asList(linksBuilder.buildSelf(user)));
+                        return user;
                     } catch (Exception ex) {
                         if (ex.getMessage().contains(CONSTRAINT_VIOLATION_MESSAGE)) {
                             throw conflictingUsername(validatedUserRequest.getUsername());

@@ -52,6 +52,10 @@ public class UserResourceTest extends IntegrationTest {
                 .body("otpKey", is("34f34"))
                 .body("loginCount", is(0))
                 .body("disabled", is(false))
+                .body("_links", hasSize(1))
+                .body("_links[0].href", is("http://localhost:8080/v1/api/users/user-" + random))
+                .body("_links[0].method", is("GET"))
+                .body("_links[0].rel", is("self"))
                 .body("roles", hasSize(1))
                 .body("roles[0].name", is("admin"))
                 .body("roles[0].permissions", hasSize(27)); //we could consider removing this assertion if the permissions constantly changing

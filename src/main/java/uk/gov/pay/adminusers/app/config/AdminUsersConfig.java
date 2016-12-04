@@ -21,6 +21,8 @@ public class AdminUsersConfig extends Configuration{
     private String graphiteHost;
     @NotNull
     private String graphitePort;
+    @NotNull
+    private String baseUrl;
 
     @JsonProperty("database")
     public DataSourceFactory getDataSourceFactory() {
@@ -38,5 +40,9 @@ public class AdminUsersConfig extends Configuration{
 
     public String getGraphitePort() {
         return graphitePort;
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
     }
 }
