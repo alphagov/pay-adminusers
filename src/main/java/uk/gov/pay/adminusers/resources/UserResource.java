@@ -83,18 +83,15 @@ public class UserResource {
                         Response.status(400).entity(errors).build())
                 .orElseGet(() -> {
                     Optional<User> userOptional = userServices.authenticate(
-                            getFieldValue(node, "username"),
-                            getFieldValue(node, "password"));
+                            node.get("username").asText(),
+                            node.get("password").asText());
 
-                    return userOptional.map(user ->
-                            Response.status(OK).type(APPLICATION_JSON)
+                    return userOptional
+                            .map(user -> Response.status(OK).type(APPLICATION_JSON)
                                     .entity(user).build())
                             .orElseGet(() ->
                                     Response.status(UNAUTHORIZED).build());
                 });
     }
 
-    private String getFieldValue(JsonNode node, String fieldName) {
-        return node.get(fieldName).asText();
-    }
 }

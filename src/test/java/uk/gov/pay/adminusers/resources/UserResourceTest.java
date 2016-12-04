@@ -17,6 +17,7 @@ public class UserResourceTest extends IntegrationTest {
 
     private static final String USERS_RESOURCE_URL = "/v1/api/users";
     private static final String USER_RESOURCE_URL = "/v1/api/users/%s";
+    private static final String USERS_AUTHENTICATE_URL = "/v1/api/users/authenticate";
 
     private ObjectMapper mapper;
 
@@ -176,6 +177,81 @@ public class UserResourceTest extends IntegrationTest {
                 .body("role.description", is("Administrator"))
                 .body("permissions", hasSize(27)); //we could consider removing this assertion if the permissions constantly changing
 
+
+    }
+
+    @Test
+    public void shouldAuthenticateUser_onAValidUsernamePasswordCombination() throws Exception {
+        String random = randomUUID().toString();
+        createAValidUser(random);
+
+        ImmutableMap<Object, Object> authPayload = ImmutableMap.builder()
+                .put("username", "user-" + random)
+                .put("password", "password-" + random)
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(authPayload))
+                .contentType(JSON)
+                .accept(JSON)
+                .post(USERS_AUTHENTICATE_URL)
+                .then()
+                .statusCode(200)
+                .body("username", is("user-" + random))
+                .body("email", is("user-" + random + "@example.com"))
+                .body("gatewayAccountId", is("1"))
+                .body("telephoneNumber", is("45334534634"))
+                .body("otpKey", is("34f34"))
+                .body("loginCount", is(0))
+                .body("disabled", is(false))
+                .body("_links", hasSize(1))
+                .body("roles", hasSize(1));
+    }
+
+    @Test
+    public void shouldAuthenticateFail_onAInvalidUsernamePasswordCombination() throws Exception {
+        String random = randomUUID().toString();
+        createAValidUser(random);
+
+        ImmutableMap<Object, Object> authPayload = ImmutableMap.builder()
+                .put("username", "user-" + random)
+                .put("password", "invalid-password")
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(authPayload))
+                .contentType(JSON)
+                .accept(JSON)
+                .post(USERS_AUTHENTICATE_URL)
+                .then()
+                .statusCode(401);
+
+    }
+
+    @Test
+    public void shouldLockAccount_onTooManyInvalidAttempts() throws Exception {
+        String random = randomUUID().toString();
+        createAValidUser(random);
+        String username = "user-" + random;
+        databaseTestHelper.updateLoginCount(username, 3);
+
+        ImmutableMap<Object, Object> authPayload = ImmutableMap.builder()
+                .put("username", username)
+                .put("password", "invalid-password")
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(authPayload))
+                .contentType(JSON)
+                .accept(JSON)
+                .post(USERS_AUTHENTICATE_URL)
+                .then()
+                .statusCode(423)
+                .body("errors", hasSize(1))
+                .body("errors[0]", is(format("user [%s] locked due to too many login attempts", username)));
 
     }
 

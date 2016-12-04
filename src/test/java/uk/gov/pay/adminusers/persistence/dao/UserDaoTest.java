@@ -112,7 +112,7 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(foundUser.getGatewayAccountId(), is(randomInt.toString()));
         assertThat(foundUser.getOtpKey(), is(randomInt.toString()));
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
-        assertThat(foundUser.getDisabled(), is(false));
+        assertThat(foundUser.isDisabled(), is(false));
         assertThat(foundUser.getLoginCount(), is(0));
         assertThat(foundUser.getRoles().size(), is(2));
         assertThat(foundUser.getRoles().get(0).toRole(), either(is(role1)).or(is(role2)));
@@ -146,7 +146,7 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(foundUser.getGatewayAccountId(), is(randomInt.toString()));
         assertThat(foundUser.getOtpKey(), is(randomInt.toString()));
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
-        assertThat(foundUser.getDisabled(), is(false));
+        assertThat(foundUser.isDisabled(), is(false));
         assertThat(foundUser.getLoginCount(), is(0));
         assertThat(foundUser.getRoles().size(), is(2));
         assertThat(foundUser.getRoles().get(0).toRole(), either(is(role1)).or(is(role2)));
@@ -161,7 +161,7 @@ public class UserDaoTest extends DaoTestBase {
         User user = User.from(randomInt(), username, password, random + "@example.com", randomInt.toString(), randomInt.toString(), "374628482");
         databaseTestHelper.add(user);
 
-        Optional<UserEntity> userEntityOptional = userDao.findEnabledUserByUsernameAndPassword(username, password);
+        Optional<UserEntity> userEntityOptional = userDao.findByUsernameAndPassword(username, password);
         assertTrue(userEntityOptional.isPresent());
 
         UserEntity foundUser = userEntityOptional.get();
@@ -170,7 +170,7 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(foundUser.getGatewayAccountId(), is(randomInt.toString()));
         assertThat(foundUser.getOtpKey(), is(randomInt.toString()));
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
-        assertThat(foundUser.getDisabled(), is(false));
+        assertThat(foundUser.isDisabled(), is(false));
         assertThat(foundUser.getLoginCount(), is(0));
 
     }
@@ -182,22 +182,8 @@ public class UserDaoTest extends DaoTestBase {
         User user = User.from(newLongId(), username, password, random + "@example.com", randomLong.toString(), randomLong.toString(), "374628482");
         databaseTestHelper.add(user);
 
-        Optional<UserEntity> userEntityOptional2 = userDao.findEnabledUserByUsernameAndPassword(username, "invalid-password");
+        Optional<UserEntity> userEntityOptional2 = userDao.findByUsernameAndPassword(username, "invalid-password");
         assertFalse(userEntityOptional2.isPresent());
-    }
-
-    @Test
-    public void shouldNotFindUser_ByUserNamePasswordCombination_ifDisabled() throws Exception {
-
-        String username = "user-" + random;
-        String password = "password-" + random;
-        User user = User.from(newLongId(), username, password, random + "@example.com", randomLong.toString(), randomLong.toString(), "374628482");
-        user.setDisabled(true);
-        databaseTestHelper.add(user);
-
-        Optional<UserEntity> userEntityOptional = userDao.findEnabledUserByUsernameAndPassword(username, password);
-        assertFalse(userEntityOptional.isPresent());
-
     }
 
 }

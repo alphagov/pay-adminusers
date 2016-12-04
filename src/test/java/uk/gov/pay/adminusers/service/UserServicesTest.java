@@ -125,7 +125,7 @@ public class UserServicesTest {
 
         Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
         when(passwordHasher.hash("random-password")).thenReturn("hashed-password");
-        when(userDao.findEnabledUserByUsernameAndPassword("random-name", "hashed-password")).thenReturn(userEntityOptional);
+        when(userDao.findByUsernameAndPassword("random-name", "hashed-password")).thenReturn(userEntityOptional);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
@@ -146,7 +146,7 @@ public class UserServicesTest {
         Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
 
         when(passwordHasher.hash("random-password")).thenReturn("hashed-password");
-        when(userDao.findEnabledUserByUsernameAndPassword("random-name", "hashed-password")).thenReturn(Optional.empty());
+        when(userDao.findByUsernameAndPassword("random-name", "hashed-password")).thenReturn(Optional.empty());
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
@@ -156,7 +156,7 @@ public class UserServicesTest {
 
         UserEntity savedUser = argumentCaptor.getValue();
         assertThat(savedUser.getLoginCount(), is(2));
-        assertThat(savedUser.getDisabled(), is(false));
+        assertThat(savedUser.isDisabled(), is(false));
     }
 
     @Test
@@ -167,7 +167,7 @@ public class UserServicesTest {
         Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
 
         when(passwordHasher.hash("random-password")).thenReturn("hashed-password");
-        when(userDao.findEnabledUserByUsernameAndPassword("random-name", "hashed-password")).thenReturn(Optional.empty());
+        when(userDao.findByUsernameAndPassword("random-name", "hashed-password")).thenReturn(Optional.empty());
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
@@ -178,7 +178,25 @@ public class UserServicesTest {
             assertThat(e.getResponse().getStatus(), is(423));
             UserEntity savedUser = argumentCaptor.getValue();
             assertThat(savedUser.getLoginCount(), is(4));
-            assertThat(savedUser.getDisabled(), is(true));
+            assertThat(savedUser.isDisabled(), is(true));
+        }
+
+    }
+
+    @Test
+    public void shouldErrorLockedWhenDisabled_evenIfUsernamePasswordMatches() throws Exception {
+        User user = aUser();
+        user.setDisabled(true);
+
+        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+
+        when(passwordHasher.hash("random-password")).thenReturn("hashed-password");
+        when(userDao.findByUsernameAndPassword("random-name", "hashed-password")).thenReturn(userEntityOptional);
+
+        try {
+            userServices.authenticate("random-name", "random-password");
+        } catch (WebApplicationException e) {
+            assertThat(e.getResponse().getStatus(), is(423));
         }
 
     }

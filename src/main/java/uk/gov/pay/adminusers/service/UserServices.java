@@ -71,13 +71,17 @@ public class UserServices {
      * @param username
      * @param password
      * @return {@link User} wrapped in an Optional if a matching user found. Otherwise an Optional.empty()
-     * @throws  javax.ws.rs.WebApplicationException with status 423 (Locked) if login attempts >  ALLOWED_FAILED_LOGIN_ATTEMPTS
+     * @throws javax.ws.rs.WebApplicationException if user account is disabled
+     * @throws javax.ws.rs.WebApplicationException with status 423 (Locked) if login attempts >  ALLOWED_FAILED_LOGIN_ATTEMPTS
      */
     public Optional<User> authenticate(String username, String password) {
-        Optional<UserEntity> userEntityOptional = userDao.findEnabledUserByUsernameAndPassword(username, passwordHasher.hash(password));
+        Optional<UserEntity> userEntityOptional = userDao.findByUsernameAndPassword(username, passwordHasher.hash(password));
 
         return userEntityOptional
                 .map(userEntity -> {
+                    if (userEntity.isDisabled()) {
+                        throw userLockedException(username);
+                    }
                     userEntity.setLoginCount(0);
                     userDao.merge(userEntity);
                     return Optional.of(userWithLinks(userEntity));
@@ -89,7 +93,7 @@ public class UserServices {
                                 userEntity.setDisabled(userEntity.getLoginCount() > ALLOWED_FAILED_LOGIN_ATTEMPTS);
                                 //TODO how do we enable the user back?
                                 userDao.merge(userEntity);
-                                if (userEntity.getDisabled()) {
+                                if (userEntity.isDisabled()) {
                                     throw userLockedException(username);
                                 }
                             });

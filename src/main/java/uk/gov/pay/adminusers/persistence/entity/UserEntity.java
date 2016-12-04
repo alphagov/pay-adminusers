@@ -95,7 +95,7 @@ public class UserEntity extends AbstractEntity {
         this.telephoneNumber = telephoneNumber;
     }
 
-    public Boolean getDisabled() {
+    public Boolean isDisabled() {
         return disabled;
     }
 

@@ -33,7 +33,7 @@ public class LoggingFilter implements Filter {
 
         String requestURL = ((HttpServletRequest) servletRequest).getRequestURI();
         String requestMethod = ((HttpServletRequest) servletRequest).getMethod();
-        String requestId = StringUtils.defaultString(((HttpServletRequest) servletRequest).getHeader(HEADER_REQUEST_ID));
+        String requestId = StringUtils.defaultString(((HttpServletRequest) servletRequest).getHeader(HEADER_REQUEST_ID),"");
 
         MDC.put(HEADER_REQUEST_ID, requestId);
 
