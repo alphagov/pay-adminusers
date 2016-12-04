@@ -23,6 +23,11 @@ public class AdminUsersConfig extends Configuration{
     private String graphitePort;
     @NotNull
     private String baseUrl;
+    @NotNull
+    private String passwordHashSalt;
+
+    @NotNull
+    private String initialMigrationRequired;
 
     @JsonProperty("database")
     public DataSourceFactory getDataSourceFactory() {
@@ -44,5 +49,13 @@ public class AdminUsersConfig extends Configuration{
 
     public String getBaseUrl() {
         return baseUrl;
+    }
+
+    public String getPasswordHashSalt() {
+        return passwordHashSalt;
+    }
+
+    public boolean getInitialMigrationRequired() {
+        return initialMigrationRequired.equalsIgnoreCase("true") ;
     }
 }

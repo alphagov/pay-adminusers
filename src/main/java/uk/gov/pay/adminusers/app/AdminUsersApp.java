@@ -18,6 +18,7 @@ import uk.gov.pay.adminusers.app.config.PersistenceServiceInitialiser;
 import uk.gov.pay.adminusers.app.filters.LoggingFilter;
 import uk.gov.pay.adminusers.app.healthchecks.DatabaseHealthCheck;
 import uk.gov.pay.adminusers.app.healthchecks.DependentResourceWaitCommand;
+import uk.gov.pay.adminusers.app.healthchecks.MigrateToInitialDbState;
 import uk.gov.pay.adminusers.app.healthchecks.Ping;
 import uk.gov.pay.adminusers.resources.HealthCheckResource;
 import uk.gov.pay.adminusers.resources.UserResource;
@@ -50,6 +51,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         });
 
         bootstrap.addCommand(new DependentResourceWaitCommand());
+        bootstrap.addCommand(new MigrateToInitialDbState());
     }
 
     @Override

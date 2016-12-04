@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.app.healthchecks;
 
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -9,7 +9,7 @@ import java.sql.SQLException;
 public class ApplicationStartupDependentResourceChecker {
 
     private static final int PROGRESSIVE_SECONDS_TO_WAIT = 5;
-    private static final Logger logger = PayLoggerFactory.getLogger(ApplicationStartupDependentResourceChecker.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationStartupDependentResourceChecker.class);
 
     private final ApplicationStartupDependentResource applicationStartupDependentResource;
 

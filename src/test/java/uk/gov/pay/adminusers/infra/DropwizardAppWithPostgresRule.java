@@ -75,7 +75,8 @@ public class DropwizardAppWithPostgresRule implements TestRule {
             public void evaluate() throws Throwable {
                 logger.info("Clearing database.");
                 app.getApplication().run("db", "drop-all", "--confirm-delete-everything", configFilePath);
-                doDatabaseMigration();
+                app.getApplication().run( "migrateToInitialDbState", configFilePath);
+                doSecondaryDatabaseMigration();
                 restoreDropwizardsLogging();
 
                 DataSourceFactory dataSourceFactory = app.getConfiguration().getDataSourceFactory();
@@ -86,15 +87,12 @@ public class DropwizardAppWithPostgresRule implements TestRule {
         }, description);
     }
 
-    private void doDatabaseMigration() throws SQLException, LiquibaseException {
+    private void doSecondaryDatabaseMigration() throws SQLException, LiquibaseException {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword());
-
-            Liquibase migrator = new Liquibase("config/initial-db-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
-            Liquibase migrator2 = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
+            Liquibase migrator = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator.update("");
-            migrator2.update("");
         } finally {
             if(connection != null)
                 connection.close();

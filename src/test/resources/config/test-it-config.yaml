@@ -59,3 +59,5 @@ graphiteHost: ${METRICS_HOST:-localhost}
 graphitePort: ${METRICS_PORT:-8092}
 
 baseUrl: ${BASE_URL:-http://localhost:8080}
+passwordHashSalt: ${PASSWORD_HASH_SALT:-$2a$10$IhaXo6LIBhKIWOiGpbtPOu}
+initialMigrationRequired: ${INITIAL_MIGRATION_REQUIRED:-true}
