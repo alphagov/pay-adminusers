@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.service;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
@@ -7,6 +8,8 @@ import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
@@ -29,6 +32,15 @@ public class UserServices {
         this.linksBuilder = linksBuilder;
     }
 
+    /**
+     * persists a new user
+     *
+     * @param validatedUserRequest
+     * @param roleName             initial role to be assigned
+     * @return {@link User} with associated links
+     * @throws javax.ws.rs.WebApplicationException with status 409-Conflict if the username is already taken
+     * @throws javax.ws.rs.WebApplicationException with status 500 for any unknown error during persistence
+     */
     public User createUser(User validatedUserRequest, String roleName) {
         return roleDao.findByRoleName(roleName)
                 .map(roleEntity -> {
@@ -51,5 +63,22 @@ public class UserServices {
                     }
                 })
                 .orElseThrow(() -> undefinedRoleException(roleName));
+    }
+
+    /**
+     * finds a user by username
+     *
+     * @param username
+     * @return {@link User} as an {@link Optional} if found. Otherwise Optional.empty() will be returned.
+     */
+    public Optional<User> findUser(String username) {
+        Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
+        return userEntityOptional
+                .map(userEntity -> {
+                    User user = userEntity.toUser();
+                    user.setLinks(ImmutableList.of(linksBuilder.buildSelf(user)));
+                    return Optional.of(user);
+                })
+                .orElse(Optional.empty());
     }
 }

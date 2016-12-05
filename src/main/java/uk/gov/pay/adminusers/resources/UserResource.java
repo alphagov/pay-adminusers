@@ -9,15 +9,12 @@ import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.pay.adminusers.utils.Errors;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.Optional;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.Response.Status.CREATED;
+import static javax.ws.rs.core.Response.Status.*;
 
 @Path("/")
 public class UserResource {
@@ -26,6 +23,7 @@ public class UserResource {
 
     public static final String API_VERSION_PATH = "/v1";
     public static final String USERS_RESOURCE = API_VERSION_PATH + "/api/users";
+    public static final String USER_RESOURCE = USERS_RESOURCE + "/{username}";
 
     private final UserServices userServices;
     private final UserRequestValidator validator;
@@ -36,6 +34,18 @@ public class UserResource {
         this.baseUrl = baseUrl;
         this.userServices = userServices;
         this.validator = validator;
+    }
+
+    @Path(USER_RESOURCE)
+    @GET
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response getUser(@PathParam("username") String username) {
+        logger.info("User GET request - [ {} ]", username);
+        Optional<User> userOptional = userServices.findUser(username);
+        return userOptional
+                .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
+                .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
     @Path(USERS_RESOURCE)
@@ -57,4 +67,5 @@ public class UserResource {
                             .entity(newUser).build();
                 });
     }
+
 }

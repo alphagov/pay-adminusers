@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.resources;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
@@ -15,6 +16,7 @@ import static org.hamcrest.core.Is.is;
 public class UserResourceTest extends IntegrationTest {
 
     private static final String USERS_RESOURCE_URL = "/v1/api/users";
+    private static final String USER_RESOURCE_URL = "/v1/api/users/%s";
 
     private ObjectMapper mapper;
 
@@ -133,5 +135,68 @@ public class UserResourceTest extends IntegrationTest {
                 .statusCode(409)
                 .body("errors", hasSize(1))
                 .body("errors[0]", is(format("username [%s] already exists", username)));
+    }
+
+    @Test
+    public void shouldReturn404_whenGetUserWithNonExistentUsername() throws Exception {
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .get(format(USER_RESOURCE_URL, "non-existent-user"))
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
+    public void shouldReturnUser_whenGetUserWithUsername() throws Exception {
+        String random = randomUUID().toString();
+        createAValidUser(random);
+        String username = "user-" + random;
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .accept(JSON)
+                .get(format(USER_RESOURCE_URL, username))
+                .then()
+                .statusCode(200)
+                .body("username", is(username))
+                .body("password", nullValue())
+                .body("email", is("user-" + random + "@example.com"))
+                .body("gatewayAccountId", is("1"))
+                .body("telephoneNumber", is("45334534634"))
+                .body("otpKey", is("34f34"))
+                .body("loginCount", is(0))
+                .body("disabled", is(false))
+                .body("_links", hasSize(1))
+                .body("_links[0].href", is("http://localhost:8080/v1/api/users/user-" + random))
+                .body("_links[0].method", is("GET"))
+                .body("_links[0].rel", is("self"))
+                .body("roles", hasSize(1))
+                .body("roles[0].name", is("admin"))
+                .body("roles[0].permissions", hasSize(27)); //we could consider removing this assertion if the permissions constantly changing
+
+
+    }
+
+    private void createAValidUser(String random) throws JsonProcessingException {
+        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
+                .put("username", "user-" + random)
+                .put("password", "password-" + random)
+                .put("email", "user-" + random + "@example.com")
+                .put("gatewayAccountId", "1")
+                .put("telephoneNumber", "45334534634")
+                .put("otpKey", "34f34")
+                .put("roleName", "admin")
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(userPayload))
+                .contentType(JSON)
+                .accept(JSON)
+                .post(USERS_RESOURCE_URL)
+                .then()
+                .statusCode(201);
     }
 }

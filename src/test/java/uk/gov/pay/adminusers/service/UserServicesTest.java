@@ -17,6 +17,8 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
@@ -92,6 +94,27 @@ public class UserServicesTest {
         assertThat(persistedUser.getRoles().size(), is(1));
         assertThat(persistedUser.getRoles().get(0), is(role));
         assertThat(persistedUser.getLinks().get(0), is(selfLink));
+    }
+
+    @Test
+    public void shouldFindAUserByUserName() throws Exception {
+        User user = aUser();
+
+        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+        when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+
+        Optional<User> userOptional = userServices.findUser("random-name");
+        assertTrue(userOptional.isPresent());
+
+        assertThat(userOptional.get().getUsername(),is("random-name"));
+    }
+
+    @Test
+    public void shouldReturnEmpty_WhenFindByUserName_ifNotFound() throws Exception {
+        when(userDao.findByUsername("random-name")).thenReturn(Optional.empty());
+
+        Optional<User> userOptional = userServices.findUser("random-name");
+        assertFalse(userOptional.isPresent());
     }
 
     private User aUser() {
