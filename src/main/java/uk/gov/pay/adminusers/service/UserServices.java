@@ -75,31 +75,30 @@ public class UserServices {
      * @throws javax.ws.rs.WebApplicationException with status 423 (Locked) if login attempts >  ALLOWED_FAILED_LOGIN_ATTEMPTS
      */
     public Optional<User> authenticate(String username, String password) {
-        Optional<UserEntity> userEntityOptional = userDao.findByUsernameAndPassword(username, passwordHasher.hash(password));
+        Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
 
-        return userEntityOptional
-                .map(userEntity -> {
-                    if (userEntity.isDisabled()) {
-                        throw userLockedException(username);
-                    }
-                    userEntity.setLoginCount(0);
-                    userDao.merge(userEntity);
-                    return Optional.of(userWithLinks(userEntity));
-                })
-                .orElseGet(() -> {
-                    userDao.findByUsername(username)
-                            .ifPresent(userEntity -> {
-                                userEntity.setLoginCount(userEntity.getLoginCount() + 1);
-                                userEntity.setDisabled(userEntity.getLoginCount() > ALLOWED_FAILED_LOGIN_ATTEMPTS);
-                                //TODO how do we enable the user back?
-                                userDao.merge(userEntity);
-                                if (userEntity.isDisabled()) {
-                                    throw userLockedException(username);
-                                }
-                            });
-                    return Optional.empty();
-                });
-
+        if (userEntityOptional.isPresent()) { //interestingly java cannot map/orElseGet this block properly, without getting the compiler confused. :)
+            UserEntity userEntity = userEntityOptional.get();
+            if (passwordHasher.isEqual(password, userEntity.getPassword())) {
+                if (userEntity.isDisabled()) {
+                    throw userLockedException(username);
+                }
+                userEntity.setLoginCount(0);
+                userDao.merge(userEntity);
+                return Optional.of(linksBuilder.decorate(userEntity.toUser()));
+            } else {
+                userEntity.setLoginCount(userEntity.getLoginCount() + 1);
+                //currently we can only unlock an account by script, manually
+                userEntity.setDisabled(userEntity.getLoginCount() > ALLOWED_FAILED_LOGIN_ATTEMPTS);
+                userDao.merge(userEntity);
+                if (userEntity.isDisabled()) {
+                    throw userLockedException(username);
+                }
+                return Optional.empty();
+            }
+        } else {
+            return Optional.empty();
+        }
     }
 
     /**

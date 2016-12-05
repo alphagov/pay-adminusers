@@ -200,13 +200,15 @@ public class UserResourceTest extends IntegrationTest {
                 .statusCode(200)
                 .body("username", is("user-" + random))
                 .body("email", is("user-" + random + "@example.com"))
-                .body("gatewayAccountId", is("1"))
-                .body("telephoneNumber", is("45334534634"))
-                .body("otpKey", is("34f34"))
-                .body("loginCount", is(0))
+                .body("gateway_account_id", is("1"))
+                .body("telephone_number", is("45334534634"))
+                .body("otp_key", is("34f34"))
+                .body("login_count", is(0))
                 .body("disabled", is(false))
                 .body("_links", hasSize(1))
-                .body("roles", hasSize(1));
+                .body("role.name", is("admin"))
+                .body("permissions", hasSize(27)); //we could consider removing this assertion if the permissions constantly changing
+
     }
 
     @Test

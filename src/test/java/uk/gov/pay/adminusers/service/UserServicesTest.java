@@ -107,7 +107,7 @@ public class UserServicesTest {
         Optional<User> userOptional = userServices.findUser("random-name");
         assertTrue(userOptional.isPresent());
 
-        assertThat(userOptional.get().getUsername(),is("random-name"));
+        assertThat(userOptional.get().getUsername(), is("random-name"));
     }
 
     @Test
@@ -123,9 +123,10 @@ public class UserServicesTest {
         User user = aUser();
         user.setLoginCount(2);
 
-        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
-        when(passwordHasher.hash("random-password")).thenReturn("hashed-password");
-        when(userDao.findByUsernameAndPassword("random-name", "hashed-password")).thenReturn(userEntityOptional);
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setPassword("hashed-password");
+        when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(true);
+        when(userDao.findByUsername("random-name")).thenReturn(Optional.of(userEntity));
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
@@ -142,12 +143,11 @@ public class UserServicesTest {
     public void shouldReturnEmptyAndIncrementLoginCount_ifAuthenticationFail() throws Exception {
         User user = aUser();
         user.setLoginCount(1);
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setPassword("hashed-password");
 
-        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
-
-        when(passwordHasher.hash("random-password")).thenReturn("hashed-password");
-        when(userDao.findByUsernameAndPassword("random-name", "hashed-password")).thenReturn(Optional.empty());
-        when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+        when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(false);
+        when(userDao.findByUsername("random-name")).thenReturn(Optional.of(UserEntity.from(user)));
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
@@ -163,12 +163,11 @@ public class UserServicesTest {
     public void shouldErrorAndLockUser_onTooManyAuthFailures() throws Exception {
         User user = aUser();
         user.setLoginCount(3);
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setPassword("hashed-password");
 
-        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
-
-        when(passwordHasher.hash("random-password")).thenReturn("hashed-password");
-        when(userDao.findByUsernameAndPassword("random-name", "hashed-password")).thenReturn(Optional.empty());
-        when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+        when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(false);
+        when(userDao.findByUsername("random-name")).thenReturn(Optional.of(UserEntity.from(user)));
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
@@ -188,10 +187,10 @@ public class UserServicesTest {
         User user = aUser();
         user.setDisabled(true);
 
-        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
-
-        when(passwordHasher.hash("random-password")).thenReturn("hashed-password");
-        when(userDao.findByUsernameAndPassword("random-name", "hashed-password")).thenReturn(userEntityOptional);
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setPassword("hashed-password");
+        when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(true);
+        when(userDao.findByUsername("random-name")).thenReturn(Optional.of(userEntity));
 
         try {
             userServices.authenticate("random-name", "random-password");
