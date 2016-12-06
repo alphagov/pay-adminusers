@@ -23,7 +23,7 @@ public class RoleEntity {
 
     @Id
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "name")
     private String name;
@@ -48,11 +48,11 @@ public class RoleEntity {
                 .map(PermissionEntity::new).collect(Collectors.toList());
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

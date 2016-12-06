@@ -10,11 +10,11 @@ import java.util.List;
 import static java.lang.Boolean.FALSE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newLongId;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 
 public class User {
 
-    private Long id;
+    private Integer id;
     private String username;
     private String password;
     private String email;
@@ -27,10 +27,10 @@ public class User {
     private List<Link> links = new ArrayList<>();
 
     public static User from(String username, String password, String email, String gatewayAccountId, String otpKey, String telephoneNumber) {
-        return from(newLongId(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
+        return from(randomInt(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
     }
 
-    public static User from(Long id, String username, String password, String email, String gatewayAccountId, String otpKey, String telephoneNumber) {
+    public static User from(Integer id, String username, String password, String email, String gatewayAccountId, String otpKey, String telephoneNumber) {
         return new User(id, username, password, email, gatewayAccountId, otpKey, telephoneNumber);
     }
 
@@ -42,7 +42,7 @@ public class User {
             String telephoneNumber = node.get("telephoneNumber").asText();
             String gatewayAccountId = node.get("gatewayAccountId").asText();
             String otpKey = getOrElseRandom(node.get("otpKey"));
-            return from(newLongId(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
+            return from(randomInt(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
         } catch (NullPointerException e) {
             throw new RuntimeException("Error retrieving required fields for creating a user", e);
         }
@@ -52,7 +52,7 @@ public class User {
         return elementNode == null || isBlank(elementNode.asText()) ? newId() : elementNode.asText();
     }
 
-    private User(Long id, @JsonProperty("username") String username, @JsonProperty("password") String password,
+    private User(Integer id, @JsonProperty("username") String username, @JsonProperty("password") String password,
                  @JsonProperty("email") String email, @JsonProperty("gateway_account_id") String gatewayAccountId,
                  @JsonProperty("otp_key") String otpKey, @JsonProperty("telephone_number") String telephoneNumber) {
         this.id = id;
@@ -114,7 +114,7 @@ public class User {
     }
 
     @JsonIgnore
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 

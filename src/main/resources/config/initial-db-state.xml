@@ -8,7 +8,7 @@
 
     <changeSet id="build initial table structures to match selfservice db state" author="">
         <createTable tableName="users">
-            <column name="id" type="bigserial" autoIncrement="true">
+            <column name="id" type="serial" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="username" type="varchar(255)">
@@ -47,7 +47,7 @@
         </createTable>
 
         <createTable tableName="roles">
-            <column name="id" type="bigserial" autoIncrement="true">
+            <column name="id" type="serial" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(255)">
@@ -65,7 +65,7 @@
         </createTable>
 
         <createTable tableName="permissions">
-            <column name="id" type="bigserial" autoIncrement="true">
+            <column name="id" type="serial" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(255)">
@@ -83,11 +83,11 @@
         </createTable>
 
         <createTable tableName="role_permission">
-            <column name="role_id" type="bigint">
+            <column name="role_id" type="int">
                 <constraints foreignKeyName="role_permission_role_id_fkey" referencedTableName="roles"
                              referencedColumnNames="id" nullable="false"/>
             </column>
-            <column name="permission_id" type="bigint">
+            <column name="permission_id" type="int">
                 <constraints foreignKeyName="role_permission_permission_id_fkey" referencedTableName="permissions"
                              referencedColumnNames="id" nullable="false"/>
             </column>
@@ -100,11 +100,11 @@
         </createTable>
 
         <createTable tableName="user_role">
-            <column name="role_id" type="bigint">
+            <column name="role_id" type="int">
                 <constraints foreignKeyName="user_role_role_id_fkey" referencedTableName="roles"
                              referencedColumnNames="id" nullable="false"/>
             </column>
-            <column name="user_id" type="bigint">
+            <column name="user_id" type="int">
                 <constraints foreignKeyName="user_role_user_id_fkey" referencedTableName="users"
                              referencedColumnNames="id" nullable="false"/>
             </column>
@@ -117,7 +117,7 @@
         </createTable>
 
         <createTable tableName="forgotten_passwords">
-            <column name="id" type="bigserial" autoIncrement="true">
+            <column name="id" type="serial" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="date" type="timestamp with timezone" defaultValueComputed="(now() at time zone 'utc')">

@@ -23,7 +23,7 @@ public class PermissionEntity {
 
     @Id
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "name")
     private String name;
@@ -41,11 +41,11 @@ public class PermissionEntity {
         this.description = permission.getDescription();
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

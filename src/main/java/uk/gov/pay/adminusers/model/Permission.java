@@ -6,21 +6,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Permission {
 
     @JsonIgnore
-    private Long id;
+    private Integer id;
     private String name;
     private String description;
 
-    public static Permission permission(Long roleId, String name, String description) {
+    public static Permission permission(Integer roleId, String name, String description) {
         return new Permission(roleId, name, description);
     }
 
-    private Permission(Long id, @JsonProperty("name") String name, @JsonProperty("description") String description) {
+    private Permission(Integer id, @JsonProperty("name") String name, @JsonProperty("description") String description) {
         this.id = id;
         this.name = name;
         this.description = description;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 

@@ -38,7 +38,7 @@ public class DatabaseTestHelper {
         return ret;
     }
 
-    public List<Map<String, Object>> findForgottenPasswordById(Long forgottenPasswordId) {
+    public List<Map<String, Object>> findForgottenPasswordById(Integer forgottenPasswordId) {
         List<Map<String, Object>> ret = jdbi.withHandle(h ->
                 h.createQuery("SELECT id, date, code, \"userId\" " +
                         "FROM forgotten_passwords " +
@@ -110,7 +110,7 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public DatabaseTestHelper add(ForgottenPassword forgottenPassword, Long userId) {
+    public DatabaseTestHelper add(ForgottenPassword forgottenPassword, Integer userId) {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO forgotten_passwords(id, date, code, \"userId\") " +

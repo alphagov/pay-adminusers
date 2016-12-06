@@ -21,7 +21,7 @@ import java.sql.DriverManager;
 import java.util.Properties;
 
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newLongId;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.model.Permission.permission;
 import static uk.gov.pay.adminusers.model.Role.role;
 
@@ -82,10 +82,10 @@ public class DaoTestBase {
     }
 
     protected Role aRole() {
-        return role(newLongId(), "role-name-" + newId(), "role-description" + newId());
+        return role(randomInt(), "role-name-" + newId(), "role-description" + newId());
     }
 
     protected Permission aPermission() {
-        return permission(newLongId(), "permission-name-" + newId(), "permission-description" + newId());
+        return permission(randomInt(), "permission-name-" + newId(), "permission-description" + newId());
     }
 }

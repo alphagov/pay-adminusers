@@ -11,22 +11,22 @@ import static org.apache.commons.collections.CollectionUtils.isEqualCollection;
 public class Role {
 
     @JsonIgnore
-    private Long id;
+    private Integer id;
     private String name;
     private String description;
     private List<Permission> permissions = new ArrayList<>();
 
-    public static Role role(Long roleId, String name, String description) {
+    public static Role role(Integer roleId, String name, String description) {
         return new Role(roleId, name, description);
     }
 
-    private Role(Long id, @JsonProperty("name") String name, @JsonProperty("description") String description) {
+    private Role(Integer id, @JsonProperty("name") String name, @JsonProperty("description") String description) {
         this.id = id;
         this.name = name;
         this.description = description;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 

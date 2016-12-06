@@ -2,10 +2,12 @@ package uk.gov.pay.adminusers.app.util;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Random;
 
 public class RandomIdGenerator {
 
-    private static final SecureRandom RANDOM = new SecureRandom();
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final Random RANDOM = new Random();
 
     /**
      * This method will generate a URL safe random string.
@@ -19,10 +21,14 @@ public class RandomIdGenerator {
      * @return a random number in base32 (in string format)
      */
     public static String newId() {
-        return new BigInteger(130, RANDOM).toString(32);
+        return new BigInteger(130, SECURE_RANDOM).toString(32);
     }
 
     public static Long newLongId() {
         return (long) Math.floor(Math.random() * 9000000000L) + 1000000000L;
+    }
+
+    public static Integer randomInt(){
+        return RANDOM.nextInt(Integer.MAX_VALUE);
     }
 }

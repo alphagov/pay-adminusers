@@ -52,7 +52,7 @@ public class UserServicesTest {
     @Test(expected = WebApplicationException.class)
     public void shouldError_ifRoleNameConflicts() throws Exception {
         User user = aUser();
-        Role role = Role.role(2l, "admin", "admin role");
+        Role role = Role.role(2, "admin", "admin role");
 
         when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
         when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
@@ -64,7 +64,7 @@ public class UserServicesTest {
     @Test(expected = WebApplicationException.class)
     public void shouldError_ifUnknownErrorThrownWhenSaving() throws Exception {
         User user = aUser();
-        Role role = Role.role(2l, "admin", "admin role");
+        Role role = Role.role(2, "admin", "admin role");
 
         when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
         when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
@@ -76,7 +76,7 @@ public class UserServicesTest {
     @Test
     public void shouldPersistAUserSuccessfully() throws Exception {
         User user = aUser();
-        Role role = Role.role(2l, "admin", "admin role");
+        Role role = Role.role(2, "admin", "admin role");
 
         when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
         when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");

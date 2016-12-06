@@ -20,19 +20,19 @@ import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newLongId;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 
 public class UserDaoTest extends DaoTestBase {
 
     private UserDao userDao;
     String random;
-    Long randomLong;
+    Integer randomInt;
 
     @Before
     public void before() throws Exception {
         userDao = env.getInstance(UserDao.class);
         random = newId();
-        randomLong = newLongId();
+        randomInt = randomInt();
     }
 
     @Test
@@ -55,8 +55,8 @@ public class UserDaoTest extends DaoTestBase {
         userEntity.setPassword("password-" + random);
         userEntity.setDisabled(false);
         userEntity.setEmail(random + "@example.com");
-        userEntity.setGatewayAccountId(randomLong.toString());
-        userEntity.setOtpKey(randomLong.toString());
+        userEntity.setGatewayAccountId(randomInt.toString());
+        userEntity.setOtpKey(randomInt.toString());
         userEntity.setTelephoneNumber("876284762");
         userEntity.setRoles(asList(new RoleEntity(role1), new RoleEntity(role2)));
 
@@ -75,11 +75,11 @@ public class UserDaoTest extends DaoTestBase {
 
         List<Map<String, Object>> rolesForUser = databaseTestHelper.findRolesForUser(userEntity.getId());
         assertThat(rolesForUser.size(), is(2));
-        assertThat((Long) rolesForUser.get(0).get("id"), either(is(role1.getId())).or(is(role2.getId())));
+        assertThat((Integer) rolesForUser.get(0).get("id"), either(is(role1.getId())).or(is(role2.getId())));
         assertThat((String) rolesForUser.get(0).get("name"), either(is(role1.getName())).or(is(role2.getName())));
         assertThat((String) rolesForUser.get(0).get("description"), either(is(role1.getDescription())).or(is(role2.getDescription())));
 
-        assertThat((Long) rolesForUser.get(1).get("id"), either(is(role1.getId())).or(is(role2.getId())));
+        assertThat((Integer) rolesForUser.get(1).get("id"), either(is(role1.getId())).or(is(role2.getId())));
         assertThat((String) rolesForUser.get(1).get("name"), either(is(role1.getName())).or(is(role2.getName())));
         assertThat((String) rolesForUser.get(1).get("description"), either(is(role1.getDescription())).or(is(role2.getDescription())));
 
@@ -99,7 +99,7 @@ public class UserDaoTest extends DaoTestBase {
         databaseTestHelper.add(role1).add(role2);
 
         String username = "user-" + random;
-        User user = User.from(newLongId(), username, "password-" + random, random + "@example.com", randomLong.toString(), randomLong.toString(), "374628482");
+        User user = User.from(randomInt(), username, "password-" + random, random + "@example.com", randomInt.toString(), randomInt.toString(), "374628482");
         user.setRoles(asList(role1, role2));
         databaseTestHelper.add(user);
 
@@ -109,8 +109,8 @@ public class UserDaoTest extends DaoTestBase {
         UserEntity foundUser = userEntityMaybe.get();
         assertThat(foundUser.getEmail(), is(random + "@example.com"));
         assertThat(foundUser.getUsername(), is(username));
-        assertThat(foundUser.getGatewayAccountId(), is(randomLong.toString()));
-        assertThat(foundUser.getOtpKey(), is(randomLong.toString()));
+        assertThat(foundUser.getGatewayAccountId(), is(randomInt.toString()));
+        assertThat(foundUser.getOtpKey(), is(randomInt.toString()));
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
         assertThat(foundUser.getDisabled(), is(false));
         assertThat(foundUser.getLoginCount(), is(0));
@@ -133,7 +133,7 @@ public class UserDaoTest extends DaoTestBase {
         databaseTestHelper.add(role1).add(role2);
 
         String email = random + "@example.com";
-        User user = User.from(newLongId(), "user-" + random, "password-" + random, email, randomLong.toString(), randomLong.toString(), "374628482");
+        User user = User.from(randomInt(), "user-" + random, "password-" + random, email, randomInt.toString(), randomInt.toString(), "374628482");
         user.setRoles(asList(role1, role2));
         databaseTestHelper.add(user);
 
@@ -143,8 +143,8 @@ public class UserDaoTest extends DaoTestBase {
         UserEntity foundUser = userEntityMaybe.get();
         assertThat(foundUser.getUsername(), is("user-" + random));
         assertThat(foundUser.getEmail(), is(email));
-        assertThat(foundUser.getGatewayAccountId(), is(randomLong.toString()));
-        assertThat(foundUser.getOtpKey(), is(randomLong.toString()));
+        assertThat(foundUser.getGatewayAccountId(), is(randomInt.toString()));
+        assertThat(foundUser.getOtpKey(), is(randomInt.toString()));
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
         assertThat(foundUser.getDisabled(), is(false));
         assertThat(foundUser.getLoginCount(), is(0));
@@ -158,7 +158,7 @@ public class UserDaoTest extends DaoTestBase {
 
         String username = "user-" + random;
         String password = "password-" + random;
-        User user = User.from(newLongId(), username, password, random + "@example.com", randomLong.toString(), randomLong.toString(), "374628482");
+        User user = User.from(randomInt(), username, password, random + "@example.com", randomInt.toString(), randomInt.toString(), "374628482");
         databaseTestHelper.add(user);
 
         Optional<UserEntity> userEntityOptional = userDao.findByUsernameAndPassword(username, password);
@@ -167,8 +167,8 @@ public class UserDaoTest extends DaoTestBase {
         UserEntity foundUser = userEntityOptional.get();
         assertThat(foundUser.getUsername(), is("user-" + random));
         assertThat(foundUser.getEmail(), is(random + "@example.com"));
-        assertThat(foundUser.getGatewayAccountId(), is(randomLong.toString()));
-        assertThat(foundUser.getOtpKey(), is(randomLong.toString()));
+        assertThat(foundUser.getGatewayAccountId(), is(randomInt.toString()));
+        assertThat(foundUser.getOtpKey(), is(randomInt.toString()));
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
         assertThat(foundUser.getDisabled(), is(false));
         assertThat(foundUser.getLoginCount(), is(0));
