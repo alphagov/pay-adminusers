@@ -20,6 +20,7 @@ import uk.gov.pay.adminusers.app.healthchecks.DatabaseHealthCheck;
 import uk.gov.pay.adminusers.app.healthchecks.DependentResourceWaitCommand;
 import uk.gov.pay.adminusers.app.healthchecks.MigrateToInitialDbState;
 import uk.gov.pay.adminusers.app.healthchecks.Ping;
+import uk.gov.pay.adminusers.resources.ForgottenPasswordResource;
 import uk.gov.pay.adminusers.resources.HealthCheckResource;
 import uk.gov.pay.adminusers.resources.UserResource;
 
@@ -66,6 +67,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.healthChecks().register("ping", new Ping());
         environment.healthChecks().register("database", injector.getInstance(DatabaseHealthCheck.class));
         environment.jersey().register(injector.getInstance(UserResource.class));
+        environment.jersey().register(injector.getInstance(ForgottenPasswordResource.class));
 
 
         environment.jersey().register(injector.getInstance(HealthCheckResource.class));

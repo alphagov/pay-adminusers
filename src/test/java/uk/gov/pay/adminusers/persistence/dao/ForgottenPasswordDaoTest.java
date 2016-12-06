@@ -21,7 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newLongId;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 
 public class ForgottenPasswordDaoTest extends DaoTestBase {
 
@@ -37,7 +37,7 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
     @Test
     public void shouldPersistAForgottenPasswordEntity() throws Exception {
         String random = newId();
-        String randomLong = newLongId().toString();
+        String randomLong = randomInt().toString();
         User user = User.from("user-" + random, "password" + random, random + "@example.com", randomLong, randomLong, "8395398535");
         UserEntity userEntity = UserEntity.from(user);
         userDao.persist(userEntity);
@@ -62,7 +62,7 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
     public void shouldFindForgottenPasswordByCode() throws Exception {
 
         String random = newId();
-        String randomLong = newLongId().toString();
+        String randomLong = randomInt().toString();
         User user = User.from("user-" + random, "password" + random, random + "@example.com", randomLong, randomLong, "8395398535");
         UserEntity userEntity = UserEntity.from(user);
         userDao.persist(userEntity);

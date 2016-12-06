@@ -34,11 +34,9 @@ public class UserResource {
 
     private final UserServices userServices;
     private final UserRequestValidator validator;
-    private final String baseUrl;
 
     @Inject
-    public UserResource(String baseUrl, UserServices userServices, UserRequestValidator validator) {
-        this.baseUrl = baseUrl;
+    public UserResource(UserServices userServices, UserRequestValidator validator) {
         this.userServices = userServices;
         this.validator = validator;
     }
