@@ -23,8 +23,6 @@ public class AdminUsersConfig extends Configuration{
     private String graphitePort;
     @NotNull
     private String baseUrl;
-    @NotNull
-    private String passwordHashSalt;
 
     @NotNull
     private String initialMigrationRequired;
@@ -49,10 +47,6 @@ public class AdminUsersConfig extends Configuration{
 
     public String getBaseUrl() {
         return baseUrl;
-    }
-
-    public String getPasswordHashSalt() {
-        return passwordHashSalt;
     }
 
     public boolean getInitialMigrationRequired() {

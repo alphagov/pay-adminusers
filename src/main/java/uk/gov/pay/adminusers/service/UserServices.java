@@ -11,7 +11,6 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.util.Optional;
 
-import static java.util.Arrays.asList;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
 
 public class UserServices {
@@ -35,29 +34,27 @@ public class UserServices {
     /**
      * persists a new user
      *
-     * @param validatedUserRequest
-     * @param roleName             initial role to be assigned
+     * @param user
+     * @param roleName initial role to be assigned
      * @return {@link User} with associated links
      * @throws javax.ws.rs.WebApplicationException with status 409-Conflict if the username is already taken
      * @throws javax.ws.rs.WebApplicationException with status 500 for any unknown error during persistence
      */
-    public User createUser(User validatedUserRequest, String roleName) {
+    public User createUser(User user, String roleName) {
         return roleDao.findByRoleName(roleName)
                 .map(roleEntity -> {
-                    UserEntity userEntity = UserEntity.from(validatedUserRequest);
-                    userEntity.setRoles(asList(roleEntity));
-                    userEntity.setPassword(passwordHasher.hash(validatedUserRequest.getPassword()));
+                    UserEntity userEntity = UserEntity.from(user);
+                    userEntity.setRoles(ImmutableList.of(roleEntity));
+                    userEntity.setPassword(passwordHasher.hash(user.getPassword()));
 
                     try {
                         userDao.persist(userEntity);
-                        User user = userEntity.toUser();
-                        user.setLinks(asList(linksBuilder.buildSelf(user)));
-                        return user;
+                        return linksBuilder.decorate(userEntity.toUser());
                     } catch (Exception ex) {
                         if (ex.getMessage().contains(CONSTRAINT_VIOLATION_MESSAGE)) {
-                            throw conflictingUsername(validatedUserRequest.getUsername());
+                            throw conflictingUsername(user.getUsername());
                         } else {
-                            logger.error("unknown database error during user creation for data {}", validatedUserRequest, ex);
+                            logger.error("unknown database error during user creation for data {}", user, ex);
                             throw internalServerError("unable to create user at this moment");
                         }
                     }
@@ -74,11 +71,9 @@ public class UserServices {
     public Optional<User> findUser(String username) {
         Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
         return userEntityOptional
-                .map(userEntity -> {
-                    User user = userEntity.toUser();
-                    user.setLinks(ImmutableList.of(linksBuilder.buildSelf(user)));
-                    return Optional.of(user);
-                })
+                .map(userEntity -> Optional.of(
+                        linksBuilder.decorate(userEntity.toUser())))
                 .orElse(Optional.empty());
     }
+
 }

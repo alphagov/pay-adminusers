@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.service;
 
+import com.google.common.collect.ImmutableList;
 import uk.gov.pay.adminusers.model.Link;
 import uk.gov.pay.adminusers.model.Link.Rel;
 import uk.gov.pay.adminusers.model.User;
@@ -17,9 +18,11 @@ public class LinksBuilder {
         this.baseUrl = baseUrl;
     }
 
-    public Link buildSelf(User user) {
+    public User decorate(User user) {
         URI uri = fromUri(baseUrl).path(USERS_RESOURCE).path(user.getUsername())
                 .build();
-        return Link.from(Rel.self, "GET", uri.toString());
+        Link selfLink = Link.from(Rel.self, "GET", uri.toString());
+        user.setLinks(ImmutableList.of(selfLink));
+        return user;
     }
 }

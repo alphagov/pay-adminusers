@@ -29,7 +29,7 @@ public class AdminUsersModule extends AbstractModule {
         bind(AdminUsersConfig.class).toInstance(configuration);
         bind(Environment.class).toInstance(environment);
         bind(UserRequestValidator.class).in(Singleton.class);
-        bind(PasswordHasher.class).toInstance(new PasswordHasher(configuration.getPasswordHashSalt()));
+        bind(PasswordHasher.class).in(Singleton.class);
         bind(LinksBuilder.class).toInstance(new LinksBuilder(configuration.getBaseUrl()));
         bind(UserServices.class).in(Singleton.class);
         bind(UserDao.class).in(Singleton.class);
