@@ -3,6 +3,8 @@ package uk.gov.pay.adminusers.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +16,16 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class User {
+
+    public static final String FIELD_GATEWAY_ACCOUNT_ID = "gateway_account_id";
+    public static final String FIELD_USERNAME = "username";
+    public static final String FIELD_PASSWORD = "password";
+    public static final String FIELD_EMAIL = "email";
+    public static final String FIELD_OTP_KEY = "otp_key";
+    public static final String FIELD_TELEPHONE_NUMBER = "telephone_number";
+    public static final String FIELD_ROLE_NAME = "role_name";
 
     private Integer id;
     private String username;
@@ -38,12 +49,12 @@ public class User {
 
     public static User from(JsonNode node) {
         try {
-            String username = node.get("username").asText();
-            String password = getOrElseRandom(node.get("password"));
-            String email = node.get("email").asText();
-            String telephoneNumber = node.get("telephoneNumber").asText();
-            String gatewayAccountId = node.get("gatewayAccountId").asText();
-            String otpKey = getOrElseRandom(node.get("otpKey"));
+            String username = node.get(FIELD_USERNAME).asText();
+            String password = getOrElseRandom(node.get(FIELD_PASSWORD));
+            String email = node.get(FIELD_EMAIL).asText();
+            String telephoneNumber = node.get(FIELD_TELEPHONE_NUMBER).asText();
+            String gatewayAccountId = node.get(FIELD_GATEWAY_ACCOUNT_ID).asText();
+            String otpKey = getOrElseRandom(node.get(FIELD_OTP_KEY));
             return from(randomInt(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
         } catch (NullPointerException e) {
             throw new RuntimeException("Error retrieving required fields for creating a user", e);

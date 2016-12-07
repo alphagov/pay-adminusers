@@ -59,7 +59,7 @@ public class UserResource {
         return validationsErrors
                 .map(errors -> Response.status(400).entity(errors).build())
                 .orElseGet(() -> {
-                    String roleName = node.get("roleName").asText();
+                    String roleName = node.get(User.FIELD_ROLE_NAME).asText();
                     User newUser = userServices.createUser(User.from(node), roleName);
                     logger.info("User created: [ {} ]", newUser);
 

@@ -11,15 +11,16 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.math.NumberUtils.isDigits;
+import static uk.gov.pay.adminusers.model.User.*;
 
 public class UserRequestValidator {
 
     public Optional<Errors> validateCreateRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = checkIfExists(payload, "username", "email", "gatewayAccountId", "telephoneNumber", "roleName");
+        Optional<List<String>> missingMandatoryFields = checkIfExists(payload, FIELD_USERNAME, FIELD_EMAIL, FIELD_GATEWAY_ACCOUNT_ID, FIELD_TELEPHONE_NUMBER, FIELD_ROLE_NAME);
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
-        Optional<List<String>> invalidData = checkIsNumeric(payload, "gatewayAccountId", "telephoneNumber");
+        Optional<List<String>> invalidData = checkIsNumeric(payload, FIELD_GATEWAY_ACCOUNT_ID, FIELD_TELEPHONE_NUMBER);
         if (invalidData.isPresent()) {
             return Optional.of(Errors.from(invalidData.get()));
         }

@@ -39,9 +39,9 @@ public class UserRequestValidatorTest {
         assertThat(errors.getErrors(), hasItems(
                 "Field [username] is required",
                 "Field [email] is required",
-                "Field [gatewayAccountId] is required",
-                "Field [telephoneNumber] is required",
-                "Field [roleName] is required"));
+                "Field [gateway_account_id] is required",
+                "Field [telephone_number] is required",
+                "Field [role_name] is required"));
 
     }
 
@@ -49,7 +49,7 @@ public class UserRequestValidatorTest {
     public void shouldError_ifSomeMandatoryFieldsAreMissing() throws Exception {
         JsonNode invalidPayload = mock(JsonNode.class);
         mockValidValuesFor(invalidPayload,
-                of("username", "blah"), of("email", "blah@blah.com"), of("otpKey", "blahblah"));
+                of("username", "blah"), of("email", "blah@blah.com"), of("otp_key", "blahblah"));
         Optional<Errors> optionalErrors = validator.validateCreateRequest(invalidPayload);
 
         assertTrue(optionalErrors.isPresent());
@@ -57,9 +57,9 @@ public class UserRequestValidatorTest {
 
         assertThat(errors.getErrors().size(), is(3));
         assertThat(errors.getErrors(), hasItems(
-                "Field [gatewayAccountId] is required",
-                "Field [roleName] is required",
-                "Field [telephoneNumber] is required"));
+                "Field [gateway_account_id] is required",
+                "Field [role_name] is required",
+                "Field [telephone_number] is required"));
 
     }
 
@@ -67,9 +67,9 @@ public class UserRequestValidatorTest {
     public void shouldError_ifNumericFieldsAreNotNumeric() throws Exception {
         JsonNode invalidPayload = mock(JsonNode.class);
         mockValidValuesFor(invalidPayload,
-                of("username", "blah"), of("password", "blah pass"), of("gatewayAccountId", "gatewayAccountId"),
-                of("telephoneNumber", "telephoneNumber"), of("email", "blah@blah.com"), of("otpKey", "blahblah"),
-                of("roleName","boo"));
+                of("username", "blah"), of("password", "blah pass"), of("gateway_account_id", "gatewayAccountId"),
+                of("telephone_number", "telephoneNumber"), of("email", "blah@blah.com"), of("otp_key", "blahblah"),
+                of("role_name","boo"));
         Optional<Errors> optionalErrors = validator.validateCreateRequest(invalidPayload);
 
         assertTrue(optionalErrors.isPresent());
@@ -77,8 +77,8 @@ public class UserRequestValidatorTest {
 
         assertThat(errors.getErrors().size(), is(2));
         assertThat(errors.getErrors(), hasItems(
-                "Field [gatewayAccountId] must be a number",
-                "Field [telephoneNumber] must be a number"));
+                "Field [gateway_account_id] must be a number",
+                "Field [telephone_number] must be a number"));
 
     }
 
@@ -86,9 +86,9 @@ public class UserRequestValidatorTest {
     public void shouldReturnEmpty_ifAllValidationsArePassed() throws Exception {
         JsonNode invalidPayload = mock(JsonNode.class);
         mockValidValuesFor(invalidPayload,
-                of("username", "blah"), of("gatewayAccountId", "1"),
-                of("telephoneNumber", "3534876538"), of("email", "blah@blah.com"),
-                of("roleName","yah"));
+                of("username", "blah"), of("gateway_account_id", "1"),
+                of("telephone_number", "3534876538"), of("email", "blah@blah.com"),
+                of("role_name","yah"));
         Optional<Errors> optionalErrors = validator.validateCreateRequest(invalidPayload);
 
         assertFalse(optionalErrors.isPresent());

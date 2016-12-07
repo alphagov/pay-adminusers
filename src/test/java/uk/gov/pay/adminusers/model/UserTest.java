@@ -18,8 +18,8 @@ public class UserTest {
     public void shouldConstructAUser_fromMinimalValidUserJson() throws Exception {
         String minimumUserJson = "{" +
                 "\"username\": \"a-username\"," +
-                "\"telephoneNumber\": \"2123524\"," +
-                "\"gatewayAccountId\": \"2\"," +
+                "\"telephone_number\": \"2123524\"," +
+                "\"gateway_account_id\": \"2\"," +
                 "\"email\": \"email@example.com\"" +
                 "}";
 
@@ -39,9 +39,9 @@ public class UserTest {
         String minimunUserJson = "{" +
                 "\"username\": \"a-username\"," +
                 "\"password\": \"a-password\"," +
-                "\"telephoneNumber\": \"2123524\"," +
-                "\"gatewayAccountId\": \"2\"," +
-                "\"otpKey\": \"fr6ysdf\"," +
+                "\"telephone_number\": \"2123524\"," +
+                "\"gateway_account_id\": \"2\"," +
+                "\"otp_key\": \"fr6ysdf\"," +
                 "\"email\": \"email@example.com\"" +
                 "}";
 

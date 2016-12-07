@@ -31,10 +31,10 @@ public class UserResourceTest extends IntegrationTest {
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", "user-" + random)
                 .put("email", "user-" + random + "@example.com")
-                .put("gatewayAccountId", "1")
-                .put("telephoneNumber", "45334534634")
-                .put("otpKey", "34f34")
-                .put("roleName", "admin")
+                .put("gateway_account_id", "1")
+                .put("telephone_number", "45334534634")
+                .put("otp_key", "34f34")
+                .put("role_name", "admin")
                 .build();
 
         givenSetup()
@@ -49,10 +49,10 @@ public class UserResourceTest extends IntegrationTest {
                 .body("username", is("user-" + random))
                 .body("password", nullValue())
                 .body("email", is("user-" + random + "@example.com"))
-                .body("gatewayAccountId", is("1"))
-                .body("telephoneNumber", is("45334534634"))
-                .body("otpKey", is("34f34"))
-                .body("loginCount", is(0))
+                .body("gateway_account_id", is("1"))
+                .body("telephone_number", is("45334534634"))
+                .body("otp_key", is("34f34"))
+                .body("login_count", is(0))
                 .body("disabled", is(false))
                 .body("_links", hasSize(1))
                 .body("_links[0].href", is("http://localhost:8080/v1/api/users/user-" + random))
@@ -69,10 +69,10 @@ public class UserResourceTest extends IntegrationTest {
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", "user-" + random)
                 .put("email", "user-" + random + "@example.com")
-                .put("gatewayAccountId", "1")
-                .put("telephoneNumber", "45334534634")
-                .put("otpKey", "34f34")
-                .put("roleName", "invalid-role")
+                .put("gateway_account_id", "1")
+                .put("telephone_number", "45334534634")
+                .put("otp_key", "34f34")
+                .put("role_name", "invalid-role")
                 .build();
 
         givenSetup()
@@ -90,7 +90,7 @@ public class UserResourceTest extends IntegrationTest {
     @Test
     public void shouldError400_whenFieldsMissingForUserCreation() throws Exception {
         ImmutableMap<Object, Object> invalidPayload = ImmutableMap.builder()
-                .put("gatewayAccountId", "1")
+                .put("gateway_account_id", "1")
                 .build();
 
         givenSetup()
@@ -105,8 +105,8 @@ public class UserResourceTest extends IntegrationTest {
                 .body("errors", hasItems(
                         "Field [username] is required",
                         "Field [email] is required",
-                        "Field [telephoneNumber] is required",
-                        "Field [roleName] is required"));
+                        "Field [telephone_number] is required",
+                        "Field [role_name] is required"));
     }
 
     @Test
@@ -120,9 +120,9 @@ public class UserResourceTest extends IntegrationTest {
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
                 .put("email", "user-" + random + "@example.com")
-                .put("gatewayAccountId", "1")
-                .put("telephoneNumber", "45334534634")
-                .put("roleName", "admin")
+                .put("gateway_account_id", "1")
+                .put("telephone_number", "45334534634")
+                .put("role_name", "admin")
                 .build();
 
         givenSetup()
@@ -163,10 +163,10 @@ public class UserResourceTest extends IntegrationTest {
                 .body("username", is(username))
                 .body("password", nullValue())
                 .body("email", is("user-" + random + "@example.com"))
-                .body("gatewayAccountId", is("1"))
-                .body("telephoneNumber", is("45334534634"))
-                .body("otpKey", is("34f34"))
-                .body("loginCount", is(0))
+                .body("gateway_account_id", is("1"))
+                .body("telephone_number", is("45334534634"))
+                .body("otp_key", is("34f34"))
+                .body("login_count", is(0))
                 .body("disabled", is(false))
                 .body("_links", hasSize(1))
                 .body("_links[0].href", is("http://localhost:8080/v1/api/users/user-" + random))
@@ -184,10 +184,10 @@ public class UserResourceTest extends IntegrationTest {
                 .put("username", "user-" + random)
                 .put("password", "password-" + random)
                 .put("email", "user-" + random + "@example.com")
-                .put("gatewayAccountId", "1")
-                .put("telephoneNumber", "45334534634")
-                .put("otpKey", "34f34")
-                .put("roleName", "admin")
+                .put("gateway_account_id", "1")
+                .put("telephone_number", "45334534634")
+                .put("otp_key", "34f34")
+                .put("role_name", "admin")
                 .build();
 
         givenSetup()
