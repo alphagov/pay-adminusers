@@ -2,7 +2,11 @@ package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
+import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
+
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -50,5 +54,23 @@ public class UserTest {
         assertThat(user.getTelephoneNumber(), is("2123524"));
         assertThat(user.getOtpKey(), is("fr6ysdf"));
         assertThat(user.getEmail(), is("email@example.com"));
+    }
+
+    @Test
+    public void shouldFlatten_permissionsOfAUser() throws Exception {
+        User user = User.from("name", "password", "email@gmail.com", "1", "ewrew", "453453");
+        Role role1 = Role.role(1, "role1", "role1 description");
+        Role role2 = Role.role(2, "role2", "role2 description");
+        role1.setPermissions(ImmutableList.of(aPermission(), aPermission(), aPermission()));
+        role2.setPermissions(ImmutableList.of(aPermission(), aPermission()));
+        List<Role> roles = ImmutableList.of(role1, role2);
+        user.setRoles(roles);
+
+        assertThat(user.getPermissions().size(),is(5));
+    }
+
+    private Permission aPermission() {
+        Integer randomInt = RandomIdGenerator.randomInt();
+        return Permission.permission(1, "perm" + randomInt, "perm desc" + randomInt);
     }
 }

@@ -58,9 +58,9 @@ public class UserResourceTest extends IntegrationTest {
                 .body("_links[0].href", is("http://localhost:8080/v1/api/users/user-" + random))
                 .body("_links[0].method", is("GET"))
                 .body("_links[0].rel", is("self"))
-                .body("roles", hasSize(1))
-                .body("roles[0].name", is("admin"))
-                .body("roles[0].permissions", hasSize(27)); //we could consider removing this assertion if the permissions constantly changing
+                .body("role.name", is("admin"))
+                .body("role.description", is("Administrator"))
+                .body("permissions", hasSize(27)); //we could consider removing this assertion if the permissions constantly changing
     }
 
     @Test
@@ -172,9 +172,9 @@ public class UserResourceTest extends IntegrationTest {
                 .body("_links[0].href", is("http://localhost:8080/v1/api/users/user-" + random))
                 .body("_links[0].method", is("GET"))
                 .body("_links[0].rel", is("self"))
-                .body("roles", hasSize(1))
-                .body("roles[0].name", is("admin"))
-                .body("roles[0].permissions", hasSize(27)); //we could consider removing this assertion if the permissions constantly changing
+                .body("role.name", is("admin"))
+                .body("role.description", is("Administrator"))
+                .body("permissions", hasSize(27)); //we could consider removing this assertion if the permissions constantly changing
 
 
     }

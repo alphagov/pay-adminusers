@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.Boolean.FALSE;
+import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
@@ -105,9 +107,37 @@ public class User {
         this.loginCount = loginCount;
     }
 
+    /**
+     * We've agreed that given we are currently supporting only 1 role per user we will not json output a list of 1 role
+     * instead the flat role attribute below.
+     *
+     * @return
+     */
+    @JsonIgnore
     public List<Role> getRoles() {
         return roles;
     }
+
+    /**
+     * Only for the json payload as described above
+     *
+     * @return
+     */
+    @JsonProperty("role")
+    public Role getRole() {
+        return roles != null ? roles.get(0) : null;
+    }
+
+    @JsonProperty("permissions")
+    public List<String> getPermissions() {
+        return roles != null ?
+                roles.stream()
+                        .flatMap(role -> role.getPermissions().stream())
+                        .map(Permission::getName)
+                        .collect(Collectors.toList())
+                : emptyList();
+    }
+
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
