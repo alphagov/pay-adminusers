@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.app.util;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
@@ -19,7 +19,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 
 public class TrustStoreLoader {
-    private static final Logger logger = LoggerFactory.getLogger(TrustStoreLoader.class);
+    private static final Logger logger = PayLoggerFactory.getLogger(TrustStoreLoader.class);
 
     private static final String CERTS_PATH;
     private static final String TRUST_STORE_PASSWORD = "";

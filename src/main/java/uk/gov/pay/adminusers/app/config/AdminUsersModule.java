@@ -3,9 +3,15 @@ package uk.gov.pay.adminusers.app.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.persist.jpa.JpaPersistModule;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.setup.Environment;
+import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.resources.UserRequestValidator;
+import uk.gov.pay.adminusers.service.LinksBuilder;
+import uk.gov.pay.adminusers.service.PasswordHasher;
+import uk.gov.pay.adminusers.service.UserServices;
 
 import java.util.Properties;
 
@@ -22,7 +28,11 @@ public class AdminUsersModule extends AbstractModule {
     protected void configure() {
         bind(AdminUsersConfig.class).toInstance(configuration);
         bind(Environment.class).toInstance(environment);
-
+        bind(UserRequestValidator.class).in(Singleton.class);
+        bind(PasswordHasher.class).in(Singleton.class);
+        bind(LinksBuilder.class).toInstance(new LinksBuilder(configuration.getBaseUrl()));
+        bind(UserServices.class).in(Singleton.class);
+        bind(UserDao.class).in(Singleton.class);
         install(jpaModule(configuration));
     }
 

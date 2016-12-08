@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="build initial table structures to match selfservice db state" author="">
+        <createTable tableName="users">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="gateway_account_id" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="otp_key" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="telephone_number" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="disabled" type="boolean" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="login_counter" type="integer" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="timestamp with timezone" defaultValueComputed="(now() at time zone 'utc')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="timestamp with timezone" defaultValueComputed="(now() at time zone 'utc')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="integer" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="roles">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="timestamp with timezone" defaultValueComputed="(now() at time zone 'utc')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="timestamp with timezone" defaultValueComputed="(now() at time zone 'utc')">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="permissions">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="timestamp with timezone" defaultValueComputed="(now() at time zone 'utc')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="timestamp with timezone" defaultValueComputed="(now() at time zone 'utc')">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="role_permission">
+            <column name="role_id" type="int">
+                <constraints foreignKeyName="role_permission_role_id_fkey" referencedTableName="roles"
+                             referencedColumnNames="id" nullable="false"/>
+            </column>
+            <column name="permission_id" type="int">
+                <constraints foreignKeyName="role_permission_permission_id_fkey" referencedTableName="permissions"
+                             referencedColumnNames="id" nullable="false"/>
+            </column>
+            <column name="createdAt" type="timestamp with timezone" defaultValueComputed="(now() at time zone 'utc')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="timestamp with timezone" defaultValueComputed="(now() at time zone 'utc')">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="user_role">
+            <column name="role_id" type="int">
+                <constraints foreignKeyName="user_role_role_id_fkey" referencedTableName="roles"
+                             referencedColumnNames="id" nullable="false"/>
+            </column>
+            <column name="user_id" type="int">
+                <constraints foreignKeyName="user_role_user_id_fkey" referencedTableName="users"
+                             referencedColumnNames="id" nullable="false"/>
+            </column>
+            <column name="createdAt" type="timestamp with timezone" defaultValueComputed="(now() at time zone 'utc')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="timestamp with timezone" defaultValueComputed="(now() at time zone 'utc')">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="forgotten_passwords">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="date" type="timestamp with timezone" defaultValueComputed="(now() at time zone 'utc')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="code" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="userId" type="integer">
+                <constraints foreignKeyName="forgotten_passwords_userId_fkey" referencedTableName="users"
+                             referencedColumnNames="id" nullable="false"/>
+            </column>
+            <column name="createdAt" type="timestamp with timezone" defaultValueComputed="(now() at time zone 'utc')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updatedAt" type="timestamp with timezone" defaultValueComputed="(now() at time zone 'utc')">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="integer" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+    </changeSet>
+
+    <changeSet id="populate role table" author="">
+        <loadData tableName="roles" file="config/initdata/roles.csv">
+            <column header="id" name="id"/>
+            <column header="name" name="name"/>
+            <column header="description" name="description"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="populate permissions table" author="">
+        <loadData tableName="permissions" file="config/initdata/permissions.csv">
+            <column header="id" name="id"/>
+            <column header="name" name="name"/>
+            <column header="description" name="description"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="populate role_permission table" author="">
+        <loadData tableName="role_permission" file="config/initdata/role-permissions.csv">
+            <column header="role_id" name="role_id"/>
+            <column header="permission_id" name="permission_id"/>
+        </loadData>
+    </changeSet>
+</databaseChangeLog>

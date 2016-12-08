@@ -1,10 +1,10 @@
 server:
   applicationConnectors:
     - type: http
-      port: ${PORT}
+      port: 0
   adminConnectors:
     - type: http
-      port: ${ADMIN_PORT}
+      port: 0
 
 logging:
     level: INFO
@@ -13,13 +13,13 @@ logging:
         threshold: ALL
         timeZone: UTC
         target: stdout
-        logFormat: "[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] %highlight(%-5level) %cyan(%logger{15}) - %msg %n"
+        logFormat: "[%thread] %highlight(%-5level) %cyan(%logger{15}) - %msg %n"
 
 database:
   driverClass: org.postgresql.Driver
-  user: ${DB_USER}
-  password: ${DB_PASSWORD}
-  url: jdbc:postgresql://${DB_HOST}:5432/selfservice?sslfactory=uk.gov.pay.adminusers.app.util.TrustingSSLSocketFactory&${DB_SSL_OPTION}
+  user: postgres
+  password: mysecretpassword
+  url:
 
   # the maximum amount of time to wait on an empty pool before throwing an exception
   maxWaitForConnection: 1s
@@ -49,8 +49,8 @@ database:
   minIdleTime: 1 minute
 
 jpa:
-  jpaLoggingLevel: ${JPA_LOG_LEVEL:-WARNING}
-  sqlLoggingLevel: ${JPA_SQL_LOG_LEVEL:-WARNING}
+  jpaLoggingLevel: WARNING
+  sqlLoggingLevel: WARNING
   ddlGenerationOutputMode: database
   queryResultsCache: false
   cacheSharedDefault: false
@@ -59,7 +59,4 @@ graphiteHost: ${METRICS_HOST:-localhost}
 graphitePort: ${METRICS_PORT:-8092}
 
 baseUrl: ${BASE_URL:-http://localhost:8080}
-
-# Keep this property to default false. If you need to perform the initial migration, override through ENV variable or pay-scripts/services/adminusers.env
-# This is because in production/AWS environments this migration is not required, the only use cases required are DEV environments and any new AWS environment
-initialMigrationRequired: ${INITIAL_MIGRATION_REQUIRED:-false}
+initialMigrationRequired: ${INITIAL_MIGRATION_REQUIRED:-true}
