@@ -34,4 +34,12 @@ public class AdminUsersExceptionsTest {
         Map<String, List<String>> entity = (Map<String, List<String>>) undefinedRoleException.getResponse().getEntity();
         assertThat(entity.get("errors").get(0), is("server error"));
     }
+
+    @Test
+    public void shouldCreateAnUnAuthorizedLockedException() throws Exception {
+        WebApplicationException undefinedRoleException = AdminUsersExceptions.userLockedException("bad-user");
+        assertThat(undefinedRoleException.getResponse().getStatus(), is(401));
+        Map<String, List<String>> entity = (Map<String, List<String>>) undefinedRoleException.getResponse().getEntity();
+        assertThat(entity.get("errors").get(0), is("user [bad-user] locked due to too many login attempts"));
+    }
 }

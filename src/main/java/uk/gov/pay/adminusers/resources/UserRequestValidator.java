@@ -16,7 +16,7 @@ import static uk.gov.pay.adminusers.model.User.*;
 public class UserRequestValidator {
 
     public Optional<Errors> validateAuthenticateRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = checkIfExists(payload, "username", "password");
+        Optional<List<String>> missingMandatoryFields = checkIfExists(payload, FIELD_USERNAME, FIELD_PASSWORD);
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }

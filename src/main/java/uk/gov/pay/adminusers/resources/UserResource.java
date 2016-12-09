@@ -2,6 +2,8 @@ package uk.gov.pay.adminusers.resources;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
@@ -11,6 +13,8 @@ import uk.gov.pay.adminusers.utils.Errors;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -90,8 +94,14 @@ public class UserResource {
                             .map(user -> Response.status(OK).type(APPLICATION_JSON)
                                     .entity(user).build())
                             .orElseGet(() ->
-                                    Response.status(UNAUTHORIZED).build());
+                                    Response.status(UNAUTHORIZED).type(APPLICATION_JSON)
+                                            .entity(unauthorisedErrorMessage())
+                                            .build());
                 });
+    }
+
+    private Map<String, List<String>> unauthorisedErrorMessage() {
+        return ImmutableMap.of("errors", ImmutableList.of("invalid username and/or password"));
     }
 
 }

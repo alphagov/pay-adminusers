@@ -174,7 +174,7 @@ public class UserServicesTest {
         try {
             userServices.authenticate("random-name", "random-password");
         } catch (WebApplicationException e) {
-            assertThat(e.getResponse().getStatus(), is(423));
+            assertThat(e.getResponse().getStatus(), is(401));
             UserEntity savedUser = argumentCaptor.getValue();
             assertThat(savedUser.getLoginCount(), is(4));
             assertThat(savedUser.isDisabled(), is(true));
@@ -195,7 +195,7 @@ public class UserServicesTest {
         try {
             userServices.authenticate("random-name", "random-password");
         } catch (WebApplicationException e) {
-            assertThat(e.getResponse().getStatus(), is(423));
+            assertThat(e.getResponse().getStatus(), is(401));
         }
 
     }

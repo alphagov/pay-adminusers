@@ -25,7 +25,7 @@ public class AdminUsersExceptions {
 
     public static WebApplicationException userLockedException(String username) {
         String error = format("user [%s] locked due to too many login attempts", username);
-        return buildWebApplicationException(error, 423); //Locked
+        return buildWebApplicationException(error, UNAUTHORIZED.getStatusCode());
     }
 
     public static WebApplicationException internalServerError(String message) {

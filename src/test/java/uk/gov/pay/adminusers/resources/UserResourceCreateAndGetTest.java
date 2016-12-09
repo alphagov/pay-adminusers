@@ -1,9 +1,6 @@
 package uk.gov.pay.adminusers.resources;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.User;
 
@@ -13,18 +10,7 @@ import static java.util.UUID.randomUUID;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 
-public class UserResourceTest extends IntegrationTest {
-
-    private static final String USERS_RESOURCE_URL = "/v1/api/users";
-    private static final String USER_RESOURCE_URL = "/v1/api/users/%s";
-    private static final String USERS_AUTHENTICATE_URL = "/v1/api/users/authenticate";
-
-    private ObjectMapper mapper;
-
-    @Before
-    public void before() throws Exception {
-        mapper = new ObjectMapper();
-    }
+public class UserResourceCreateAndGetTest extends UserResourceTestBase {
 
     @Test
     public void shouldCreateAUserSuccessfully() throws Exception {
@@ -178,103 +164,5 @@ public class UserResourceTest extends IntegrationTest {
                 .body("permissions", hasSize(27)); //we could consider removing this assertion if the permissions constantly changing
 
 
-    }
-
-    @Test
-    public void shouldAuthenticateUser_onAValidUsernamePasswordCombination() throws Exception {
-        String random = randomUUID().toString();
-        createAValidUser(random);
-
-        ImmutableMap<Object, Object> authPayload = ImmutableMap.builder()
-                .put("username", "user-" + random)
-                .put("password", "password-" + random)
-                .build();
-
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(authPayload))
-                .contentType(JSON)
-                .accept(JSON)
-                .post(USERS_AUTHENTICATE_URL)
-                .then()
-                .statusCode(200)
-                .body("username", is("user-" + random))
-                .body("email", is("user-" + random + "@example.com"))
-                .body("gateway_account_id", is("1"))
-                .body("telephone_number", is("45334534634"))
-                .body("otp_key", is("34f34"))
-                .body("login_count", is(0))
-                .body("disabled", is(false))
-                .body("_links", hasSize(1))
-                .body("role.name", is("admin"))
-                .body("permissions", hasSize(27)); //we could consider removing this assertion if the permissions constantly changing
-
-    }
-
-    @Test
-    public void shouldAuthenticateFail_onAInvalidUsernamePasswordCombination() throws Exception {
-        String random = randomUUID().toString();
-        createAValidUser(random);
-
-        ImmutableMap<Object, Object> authPayload = ImmutableMap.builder()
-                .put("username", "user-" + random)
-                .put("password", "invalid-password")
-                .build();
-
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(authPayload))
-                .contentType(JSON)
-                .accept(JSON)
-                .post(USERS_AUTHENTICATE_URL)
-                .then()
-                .statusCode(401);
-
-    }
-
-    @Test
-    public void shouldLockAccount_onTooManyInvalidAttempts() throws Exception {
-        String random = randomUUID().toString();
-        createAValidUser(random);
-        String username = "user-" + random;
-        databaseTestHelper.updateLoginCount(username, 3);
-
-        ImmutableMap<Object, Object> authPayload = ImmutableMap.builder()
-                .put("username", username)
-                .put("password", "invalid-password")
-                .build();
-
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(authPayload))
-                .contentType(JSON)
-                .accept(JSON)
-                .post(USERS_AUTHENTICATE_URL)
-                .then()
-                .statusCode(423)
-                .body("errors", hasSize(1))
-                .body("errors[0]", is(format("user [%s] locked due to too many login attempts", username)));
-
-    }
-
-    private void createAValidUser(String random) throws JsonProcessingException {
-        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
-                .put("username", "user-" + random)
-                .put("password", "password-" + random)
-                .put("email", "user-" + random + "@example.com")
-                .put("gateway_account_id", "1")
-                .put("telephone_number", "45334534634")
-                .put("otp_key", "34f34")
-                .put("role_name", "admin")
-                .build();
-
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(userPayload))
-                .contentType(JSON)
-                .accept(JSON)
-                .post(USERS_RESOURCE_URL)
-                .then()
-                .statusCode(201);
     }
 }
