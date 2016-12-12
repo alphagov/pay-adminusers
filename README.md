@@ -17,6 +17,7 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
  | ----------------------------- | ----------------- | ---------------------------------- |
  |[```/v1/api/users```](#post-v1apiusers)              | POST    |  Creates a new user            |
  |[```/v1/api/users/{username}```](#get-v1apiusers)              | GET    |  Gets a user with the associated username            |
+ |[```/v1/api/users/authenticate```](#get-v1apiusersauthenticate)              | POST    |  Authenticate a given username/password            |
 
 
 -----------------------------------------------------------------------------------------------------------
@@ -50,7 +51,7 @@ Content-Type: application/json
 | `gateway_account_id`            |  X        | valid gateway account ID from connector | |
 | `telephone_number`           |   X       | Valid mobile/phone number      | |
 | `otp_key`           |          | opt key (for 2FA)      | |
-| `role_name`           |          | known role name for adminusers      | | e.g. `admin`
+| `role_name`           |          | known role name for adminusers      | e.g. `admin` | 
 
 #### Response example
 
@@ -135,3 +136,61 @@ Content-Type: application/json
 | `_links`                  | X              | Self link for this user.     |
 
 -----------------------------------------------------------------------------------------------------------
+
+### POST /v1/api/users/authenticate
+
+Authenticates the provided username / password combination. Counts failed login attempts as a side effect.
+
+#### Request example
+
+```
+POST /v1/api/users/authenticate
+Content-Type: application/json
+
+{
+    "username": "abcd1234",
+    "password": "a-password"
+}
+```
+
+##### Request body description
+
+| Field                    | required | Description                                                      | Supported Values     |
+| ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
+| `username`       | X        | username of user          |  |
+| `password`           |          | password of user      |  | 
+
+
+
+#### Response example
+
+if authorised:
+
+```
+200 OK
+Content-Type: application/json
+{
+    "username": "abcd1234",
+    "email": "email@email.com",
+    "gateway_account_id": "1",
+    "telephone_number": "49875792",
+    "otp_key": "43c3c4t",
+    "role": {"admin","Administrator"},
+    "permissions":["perm-1","perm-2","perm-3"], 
+    "_links": [{
+        "href": "http://adminusers.service/v1/api/users/abcd1234",
+        "rel" : "self",
+        "method" : "GET"
+    }]
+    
+}
+```
+
+if un-authorised:
+```
+401 Unauthorized
+Content-Type: application/json
+{
+  "errors": "invalid username/password combination"
+}
+```
