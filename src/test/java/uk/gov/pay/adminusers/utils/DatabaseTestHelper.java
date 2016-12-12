@@ -48,6 +48,18 @@ public class DatabaseTestHelper {
         return ret;
     }
 
+    public DatabaseTestHelper updateLoginCount(String username, int loginCount) {
+        jdbi.withHandle(handle ->
+                handle
+                        .createStatement("UPDATE users SET login_counter=:loginCount " +
+                                "WHERE username=:username")
+                        .bind("loginCount", loginCount)
+                        .bind("username", username)
+                        .execute()
+        );
+        return this;
+    }
+
     public DatabaseTestHelper add(User user) {
         jdbi.withHandle(handle ->
                 handle

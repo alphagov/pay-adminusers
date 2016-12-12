@@ -15,6 +15,14 @@ import static uk.gov.pay.adminusers.model.User.*;
 
 public class UserRequestValidator {
 
+    public Optional<Errors> validateAuthenticateRequest(JsonNode payload) {
+        Optional<List<String>> missingMandatoryFields = checkIfExists(payload, FIELD_USERNAME, FIELD_PASSWORD);
+        if (missingMandatoryFields.isPresent()) {
+            return Optional.of(Errors.from(missingMandatoryFields.get()));
+        }
+        return Optional.empty();
+    }
+
     public Optional<Errors> validateCreateRequest(JsonNode payload) {
         Optional<List<String>> missingMandatoryFields = checkIfExists(payload, FIELD_USERNAME, FIELD_EMAIL, FIELD_GATEWAY_ACCOUNT_ID, FIELD_TELEPHONE_NUMBER, FIELD_ROLE_NAME);
         if (missingMandatoryFields.isPresent()) {

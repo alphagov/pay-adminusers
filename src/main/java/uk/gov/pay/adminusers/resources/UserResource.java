@@ -2,6 +2,8 @@ package uk.gov.pay.adminusers.resources;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
@@ -11,6 +13,8 @@ import uk.gov.pay.adminusers.utils.Errors;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -23,6 +27,7 @@ public class UserResource {
 
     public static final String API_VERSION_PATH = "/v1";
     public static final String USERS_RESOURCE = API_VERSION_PATH + "/api/users";
+    public static final String AUTHENTICATE_RESOURCE = USERS_RESOURCE + "/authenticate";
     public static final String USER_RESOURCE = USERS_RESOURCE + "/{username}";
 
     private final UserServices userServices;
@@ -66,6 +71,37 @@ public class UserResource {
                     return Response.status(CREATED).type(APPLICATION_JSON)
                             .entity(newUser).build();
                 });
+    }
+
+
+    @Path(AUTHENTICATE_RESOURCE)
+    @POST
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response authenticate(JsonNode node) {
+        logger.info("User authenticate request");
+        Optional<Errors> validationsErrors = validator.validateAuthenticateRequest(node);
+
+        return validationsErrors
+                .map(errors ->
+                        Response.status(400).entity(errors).build())
+                .orElseGet(() -> {
+                    Optional<User> userOptional = userServices.authenticate(
+                            node.get("username").asText(),
+                            node.get("password").asText());
+
+                    return userOptional
+                            .map(user -> Response.status(OK).type(APPLICATION_JSON)
+                                    .entity(user).build())
+                            .orElseGet(() ->
+                                    Response.status(UNAUTHORIZED).type(APPLICATION_JSON)
+                                            .entity(unauthorisedErrorMessage())
+                                            .build());
+                });
+    }
+
+    private Map<String, List<String>> unauthorisedErrorMessage() {
+        return ImmutableMap.of("errors", ImmutableList.of("invalid username and/or password"));
     }
 
 }
