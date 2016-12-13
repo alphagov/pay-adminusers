@@ -16,7 +16,10 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
  | Path                          | Supported Methods | Description                        |
  | ----------------------------- | ----------------- | ---------------------------------- |
  |[```/v1/api/users```](#post-v1apiusers)              | POST    |  Creates a new user            |
- |[```/v1/api/users/{username}```](#get-v1apiusers)              | GET    |  Gets a user with the associated username            |
+ |[```/v1/api/users/{username}```](#get-v1apiusersusername)              | GET    |  Gets a user with the associated username            |
+ |[```/v1/api/users/authenticate```](#get-v1apiusersauthenticate)              | POST    |  Authenticate a given username/password            |
+ |[```/v1/api/users/{username}/attempt-login```](#get-v1apiusersusernameattempt-login)              | POST    |  Records login attempts and locks account if necessary`            |
+ |[```/v1/api/users/{username}/attempt-login?action=reset```](#get-v1apiusersusernameattemptLoginActionReset)              | POST    |  Resets login attempts to `0` and enables the user account            |
 
 
 -----------------------------------------------------------------------------------------------------------
@@ -50,7 +53,7 @@ Content-Type: application/json
 | `gateway_account_id`            |  X        | valid gateway account ID from connector | |
 | `telephone_number`           |   X       | Valid mobile/phone number      | |
 | `otp_key`           |          | opt key (for 2FA)      | |
-| `role_name`           |          | known role name for adminusers      | | e.g. `admin`
+| `role_name`           |          | known role name for adminusers      | e.g. `admin` | 
 
 #### Response example
 
@@ -135,3 +138,126 @@ Content-Type: application/json
 | `_links`                  | X              | Self link for this user.     |
 
 -----------------------------------------------------------------------------------------------------------
+
+### POST /v1/api/users/authenticate
+
+Authenticates the provided username / password combination. Counts failed login attempts as a side effect.
+
+#### Request example
+
+```
+POST /v1/api/users/authenticate
+Content-Type: application/json
+
+{
+    "username": "abcd1234",
+    "password": "a-password"
+}
+```
+
+##### Request body description
+
+| Field                    | required | Description                                                      | Supported Values     |
+| ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
+| `username`       | X        | username of user          |  |
+| `password`           |    X    | password of user      |  | 
+
+
+
+#### Response example
+
+if authorised:
+
+```
+200 OK
+Content-Type: application/json
+{
+    "username": "abcd1234",
+    "email": "email@email.com",
+    "gateway_account_id": "1",
+    "telephone_number": "49875792",
+    "otp_key": "43c3c4t",
+    "role": {"admin","Administrator"},
+    "permissions":["perm-1","perm-2","perm-3"], 
+    "_links": [{
+        "href": "http://adminusers.service/v1/api/users/abcd1234",
+        "rel" : "self",
+        "method" : "GET"
+    }]
+    
+}
+```
+
+if un-authorised:
+```
+401 Unauthorized
+Content-Type: application/json
+{
+  "errors": "invalid username/password combination"
+}
+```
+
+if locked due to multiple login attempts:
+```
+401 Unauthorized
+Content-Type: application/json
+{
+  "errors": "user [abcd1234] locked due to too many login attempts"
+}
+```
+
+-----------------------------------------------------------------------------------------------------------
+
+### POST /v1/api/users/{username}/attempt-login
+
+Records a login attempt (increase count). If attempt count is over 3, the account will be locked
+
+#### Request example
+
+```
+POST /v1/api/users/abcd1234/attempt-login
+```
+
+#### Response examples
+
+if successful and account not locked:
+```
+200 OK
+```
+
+if successful and account is locked:
+```
+401 Unauthorized
+Content-Type: application/json
+{
+  "errors": "user [abcd1234] locked due to too many login attempts"
+}
+```
+
+if user not found
+```
+404 Not Found
+```
+
+
+-----------------------------------------------------------------------------------------------------------
+
+### POST /v1/api/users/{username}/attempt-login?action=reset
+
+Resets login attempts to `0` and enables the user account
+
+```
+POST /v1/api/users/abcd1234/attempt-login?action=reset
+```
+
+#### Response examples
+
+if successful and account is un-locked:
+```
+200 OK
+```
+
+if user not found
+```
+404 Not Found
+```

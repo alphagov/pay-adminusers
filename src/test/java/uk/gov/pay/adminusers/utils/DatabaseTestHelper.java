@@ -18,6 +18,16 @@ public class DatabaseTestHelper {
         this.jdbi = jdbi;
     }
 
+    public List<Map<String, Object>> findUserByName(String username) {
+        List<Map<String, Object>> ret = jdbi.withHandle(h ->
+                h.createQuery("SELECT id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter " +
+                        "FROM users " +
+                        "WHERE username = :username")
+                        .bind("username", username)
+                        .list());
+        return ret;
+    }
+
     public List<Map<String, Object>> findUser(long userId) {
         List<Map<String, Object>> ret = jdbi.withHandle(h ->
                 h.createQuery("SELECT id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter " +
@@ -72,7 +82,7 @@ public class DatabaseTestHelper {
                         .bind("otpKey", user.getOtpKey())
                         .bind("telephoneNumber", user.getTelephoneNumber())
                         .bind("gatewayAccountId", user.getGatewayAccountId())
-                        .bind("disabled", user.getDisabled())
+                        .bind("disabled", user.isDisabled())
                         .bind("loginCounter", user.getLoginCount())
                         .bind("version", 0)
                         .execute()

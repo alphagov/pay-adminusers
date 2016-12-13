@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.model;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -102,7 +103,8 @@ public class User {
         return telephoneNumber;
     }
 
-    public Boolean getDisabled() {
+    @JsonGetter
+    public Boolean isDisabled() {
         return disabled;
     }
 

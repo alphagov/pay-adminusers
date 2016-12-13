@@ -134,7 +134,7 @@ public class UserEntity extends AbstractEntity {
         userEntity.setTelephoneNumber(user.getTelephoneNumber());
         userEntity.setGatewayAccountId(user.getGatewayAccountId());
         userEntity.setLoginCount(user.getLoginCount());
-        userEntity.setDisabled(user.getDisabled());
+        userEntity.setDisabled(user.isDisabled());
         userEntity.setRoles(user.getRoles().stream().map(RoleEntity::new).collect(Collectors.toList()));
         return userEntity;
     }

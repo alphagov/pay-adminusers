@@ -115,4 +115,44 @@ public class UserServices {
                 .orElse(Optional.empty());
     }
 
+
+    /**
+     * increment login count if a user with given username found
+     *
+     * @param username
+     * @return {@link Optional<User>} if login count less that maximum allowed attempts. Or Optional.empty() if given username not found
+     * @throws javax.ws.rs.WebApplicationException if user account is disabled
+     */
+    public Optional<User> recordLoginAttempt(String username) {
+        Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
+        return userEntityOptional
+                .map(userEntity -> {
+                    userEntity.setLoginCount(userEntity.getLoginCount() + 1);
+                    userEntity.setDisabled(userEntity.getLoginCount() > ALLOWED_FAILED_LOGIN_ATTEMPTS);
+                    userDao.merge(userEntity);
+                    if (userEntity.isDisabled()) {
+                        throw userLockedException(username);
+                    }
+                    return Optional.of(linksBuilder.decorate(userEntity.toUser()));
+                })
+                .orElseGet(Optional::empty);
+    }
+
+    /**
+     * resets users login attempts to 0.
+     * @param username
+     * @return {@link Optional<User>} if user found and resets to 0. Or Optional.empty() if given username not found
+     */
+    public Optional<User> resetLoginAttempts(String username) {
+        Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
+        return userEntityOptional
+                .map(userEntity -> {
+                    userEntity.setLoginCount(0);
+                    userEntity.setDisabled(false);
+                    userDao.merge(userEntity);
+                    return Optional.of(linksBuilder.decorate(userEntity.toUser()));
+                })
+                .orElseGet(Optional::empty);
+    }
+
 }

@@ -19,6 +19,7 @@ import java.util.Optional;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Path("/")
 public class UserResource {
@@ -29,6 +30,7 @@ public class UserResource {
     public static final String USERS_RESOURCE = API_VERSION_PATH + "/api/users";
     public static final String AUTHENTICATE_RESOURCE = USERS_RESOURCE + "/authenticate";
     public static final String USER_RESOURCE = USERS_RESOURCE + "/{username}";
+    public static final String ATTEMPT_LOGIN_RESOURCE = USER_RESOURCE + "/attempt-login";
 
     private final UserServices userServices;
     private final UserRequestValidator validator;
@@ -102,6 +104,27 @@ public class UserResource {
 
     private Map<String, List<String>> unauthorisedErrorMessage() {
         return ImmutableMap.of("errors", ImmutableList.of("invalid username and/or password"));
+    }
+
+    @Path(ATTEMPT_LOGIN_RESOURCE)
+    @POST
+    public Response updateLoginAttempts(@PathParam("username") String username, @QueryParam("action") String action) {
+        logger.info("User login attempt request");
+        if (isBlank(username)) {
+            return Response.status(NOT_FOUND).build();
+        }
+
+        Optional<User> userOptional;
+
+        if (!isBlank(action) && "reset".equals(action)) {
+            userOptional = userServices.resetLoginAttempts(username);
+        } else {
+            userOptional = userServices.recordLoginAttempt(username);
+        }
+
+        return userOptional
+                .map(user -> Response.status(OK).build())
+                .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
 }
