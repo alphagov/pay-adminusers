@@ -30,6 +30,6 @@ public class LinksBuilderTest {
         ForgottenPassword decorated = linksBuilder.decorate(forgottenPassword);
 
         String linkJson = new ObjectMapper().writeValueAsString(decorated.getLinks().get(0));
-        assertThat(linkJson, is("{\"rel\":\"self\",\"method\":\"GET\",\"href\":\"http://localhost:8080/v1/api/forgotten-password/a-code\"}"));
+        assertThat(linkJson, is("{\"rel\":\"self\",\"method\":\"GET\",\"href\":\"http://localhost:8080/v1/api/forgotten-passwords/a-code\"}"));
     }
 }

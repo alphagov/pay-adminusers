@@ -20,6 +20,7 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
  |[```/v1/api/users/authenticate```](#get-v1apiusersauthenticate)              | POST    |  Authenticate a given username/password            |
  |[```/v1/api/users/{username}/attempt-login```](#get-v1apiusersusernameattempt-login)              | POST    |  Records login attempts and locks account if necessary`            |
  |[```/v1/api/users/{username}/attempt-login?action=reset```](#get-v1apiusersusernameattemptLoginActionReset)              | POST    |  Resets login attempts to `0` and enables the user account            |
+ |[```/v1/api/forgotten-passwords```](#get-v1apiforgottenpasswords)              | POST    |  Create a new forgotten password request            |
 
 
 -----------------------------------------------------------------------------------------------------------
@@ -260,4 +261,45 @@ if successful and account is un-locked:
 if user not found
 ```
 404 Not Found
+```
+
+-----------------------------------------------------------------------------------------------------------
+
+### POST /v1/api/forgotten-passwords
+
+This endpoint creates a new forgotten password request
+
+#### Request example
+
+```
+POST /v1/api/forgotten-passwords
+Content-Type: application/json
+
+{
+    "username": "abcd1234",
+}
+```
+
+##### Request body description
+
+| Field                    | required | Description                                                      | Supported Values     |
+| ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
+| `username`       | X        |  username for the forgotten password to be created           |  |
+
+
+#### Response example
+
+```
+201 Created
+Content-Type: application/json
+{
+    "username": "abcd1234",
+    "code": "6fg77h67g497r5ivcdtdh",
+    "date": "23-12-2015 13:23:12Z",
+    "_links": [{
+            "href": "http://adminusers.service/v1/api/forgotten-passwords/6fg77h67g497r5ivcdtdh",
+            "rel" : "self",
+            "method" : "GET"
+          }]
+}
 ```
