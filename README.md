@@ -160,7 +160,7 @@ Content-Type: application/json
 | Field                    | required | Description                                                      | Supported Values     |
 | ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
 | `username`       | X        | username of user          |  |
-| `password`           |          | password of user      |  | 
+| `password`           |    X    | password of user      |  | 
 
 
 
@@ -194,6 +194,15 @@ if un-authorised:
 Content-Type: application/json
 {
   "errors": "invalid username/password combination"
+}
+```
+
+if locked due to multiple login attempts:
+```
+401 Unauthorized
+Content-Type: application/json
+{
+  "errors": "user [abcd1234] locked due to too many login attempts"
 }
 ```
 
