@@ -6,6 +6,8 @@ import javax.persistence.*;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+import static uk.gov.pay.adminusers.model.ForgottenPassword.forgottenPassword;
+
 @Entity
 @Table(name = "forgotten_passwords")
 @SequenceGenerator(name = "forgotten_passwords_id_seq", sequenceName = "forgotten_passwords_id_seq", allocationSize = 1)
@@ -62,5 +64,9 @@ public class ForgottenPasswordEntity extends AbstractEntity {
 
     public static ForgottenPasswordEntity from(ForgottenPassword forgottenPassword, UserEntity user) {
         return new ForgottenPasswordEntity(forgottenPassword.getCode(), forgottenPassword.getDate(), user);
+    }
+
+    public ForgottenPassword toForgottenPassword() {
+        return forgottenPassword(getId(), code, user.getUsername(), date);
     }
 }
