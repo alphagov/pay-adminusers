@@ -37,8 +37,8 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
     @Test
     public void shouldPersistAForgottenPasswordEntity() throws Exception {
         String random = newId();
-        String randomLong = randomInt().toString();
-        User user = User.from("user-" + random, "password" + random, random + "@example.com", randomLong, randomLong, "8395398535");
+        String randomInt = randomInt().toString();
+        User user = User.from("user-" + random, "password" + random, random + "@example.com", randomInt, randomInt, "8395398535");
         UserEntity userEntity = UserEntity.from(user);
         userDao.persist(userEntity);
 
@@ -62,8 +62,8 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
     public void shouldFindForgottenPasswordByCode() throws Exception {
 
         String random = newId();
-        String randomLong = randomInt().toString();
-        User user = User.from("user-" + random, "password" + random, random + "@example.com", randomLong, randomLong, "8395398535");
+        String randomInt = randomInt().toString();
+        User user = User.from("user-" + random, "password" + random, random + "@example.com", randomInt, randomInt, "8395398535");
         UserEntity userEntity = UserEntity.from(user);
         userDao.persist(userEntity);
 
