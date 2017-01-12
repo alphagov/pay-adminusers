@@ -9,6 +9,8 @@ import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
@@ -84,10 +86,12 @@ public class UserServices {
                     throw userLockedException(username);
                 }
                 userEntity.setLoginCount(0);
+                userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                 userDao.merge(userEntity);
                 return Optional.of(linksBuilder.decorate(userEntity.toUser()));
             } else {
                 userEntity.setLoginCount(userEntity.getLoginCount() + 1);
+                userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                 //currently we can only unlock an account by script, manually
                 userEntity.setDisabled(userEntity.getLoginCount() > ALLOWED_FAILED_LOGIN_ATTEMPTS);
                 userDao.merge(userEntity);
@@ -129,6 +133,7 @@ public class UserServices {
                 .map(userEntity -> {
                     userEntity.setLoginCount(userEntity.getLoginCount() + 1);
                     userEntity.setDisabled(userEntity.getLoginCount() > ALLOWED_FAILED_LOGIN_ATTEMPTS);
+                    userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                     userDao.merge(userEntity);
                     if (userEntity.isDisabled()) {
                         throw userLockedException(username);
@@ -149,6 +154,7 @@ public class UserServices {
                 .map(userEntity -> {
                     userEntity.setLoginCount(0);
                     userEntity.setDisabled(false);
+                    userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                     userDao.merge(userEntity);
                     return Optional.of(linksBuilder.decorate(userEntity.toUser()));
                 })

@@ -7,6 +7,8 @@ import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
 
 import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +22,7 @@ public class DatabaseTestHelper {
 
     public List<Map<String, Object>> findUserByName(String username) {
         List<Map<String, Object>> ret = jdbi.withHandle(h ->
-                h.createQuery("SELECT id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter " +
+                h.createQuery("SELECT id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter, \"createdAt\", \"updatedAt\"  " +
                         "FROM users " +
                         "WHERE username = :username")
                         .bind("username", username)
@@ -30,7 +32,7 @@ public class DatabaseTestHelper {
 
     public List<Map<String, Object>> findUser(long userId) {
         List<Map<String, Object>> ret = jdbi.withHandle(h ->
-                h.createQuery("SELECT id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter " +
+                h.createQuery("SELECT id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter, \"createdAt\", \"updatedAt\" " +
                         "FROM users " +
                         "WHERE id = :userId")
                         .bind("userId", userId)
@@ -71,10 +73,12 @@ public class DatabaseTestHelper {
     }
 
     public DatabaseTestHelper add(User user) {
+        Timestamp now = Timestamp.from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant());
         jdbi.withHandle(handle ->
                 handle
-                        .createStatement("INSERT INTO users(id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter, version) " +
-                                "VALUES (:id, :username, :password, :email, :otpKey, :telephoneNumber, :gatewayAccountId, :disabled, :loginCounter, :version)")
+                        .createStatement("INSERT INTO users(" +
+                                "id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter, version, \"createdAt\", \"updatedAt\") " +
+                                "VALUES (:id, :username, :password, :email, :otpKey, :telephoneNumber, :gatewayAccountId, :disabled, :loginCounter, :version, :createdAt, :updatedAt)")
                         .bind("id", user.getId())
                         .bind("username", user.getUsername())
                         .bind("password", user.getPassword())
@@ -85,6 +89,8 @@ public class DatabaseTestHelper {
                         .bind("disabled", user.isDisabled())
                         .bind("loginCounter", user.getLoginCount())
                         .bind("version", 0)
+                        .bind("createdAt", now)
+                        .bind("updatedAt", now)
                         .execute()
         );
         user.getRoles().forEach(userRole -> {

@@ -3,6 +3,8 @@ package uk.gov.pay.adminusers.persistence.entity;
 import uk.gov.pay.adminusers.model.User;
 
 import javax.persistence.*;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,6 +44,15 @@ public class UserEntity extends AbstractEntity {
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private List<RoleEntity> roles = new ArrayList<>();
+
+    // TODO: Change column from 'camelCase' to 'snake_case'. These columns were created through Sequelize.
+    @Column(name = "\"createdAt\"")
+    @Convert(converter = UTCDateTimeConverter.class)
+    private ZonedDateTime createdAt;
+
+    @Column(name = "\"updatedAt\"")
+    @Convert(converter = UTCDateTimeConverter.class)
+    private ZonedDateTime updatedAt;
 
     public UserEntity() {
         //for jpa
@@ -119,6 +130,22 @@ public class UserEntity extends AbstractEntity {
         this.roles = roles;
     }
 
+    public ZonedDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(ZonedDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public ZonedDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(ZonedDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     /**
      * Note: this constructor will not copy <b>id</b> from the User model. It will always assign a new one internally (by JPA)
      *
@@ -136,6 +163,9 @@ public class UserEntity extends AbstractEntity {
         userEntity.setLoginCount(user.getLoginCount());
         userEntity.setDisabled(user.isDisabled());
         userEntity.setRoles(user.getRoles().stream().map(RoleEntity::new).collect(Collectors.toList()));
+        ZonedDateTime timeNow = ZonedDateTime.now(ZoneId.of("UTC"));
+        userEntity.setCreatedAt(timeNow);
+        userEntity.setUpdatedAt(timeNow);
         return userEntity;
     }
 

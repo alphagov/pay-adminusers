@@ -8,6 +8,8 @@ import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -58,6 +60,9 @@ public class UserDaoTest extends DaoTestBase {
         userEntity.setOtpKey(randomInt.toString());
         userEntity.setTelephoneNumber("876284762");
         userEntity.setRoles(asList(new RoleEntity(role1), new RoleEntity(role2)));
+        ZonedDateTime timeNow = ZonedDateTime.now(ZoneId.of("UTC"));
+        userEntity.setCreatedAt(timeNow);
+        userEntity.setUpdatedAt(timeNow);
 
         userDao.persist(userEntity);
 
@@ -71,6 +76,8 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(savedUserData.get(0).get("telephone_number"), is(userEntity.getTelephoneNumber()));
         assertThat(savedUserData.get(0).get("gateway_account_id"), is(userEntity.getGatewayAccountId()));
         assertThat(savedUserData.get(0).get("disabled"), is(Boolean.FALSE));
+        assertThat(savedUserData.get(0).get("createdAt"), is(java.sql.Timestamp.from(timeNow.toInstant())));
+        assertThat(savedUserData.get(0).get("updatedAt"), is(java.sql.Timestamp.from(timeNow.toInstant())));
 
         List<Map<String, Object>> rolesForUser = databaseTestHelper.findRolesForUser(userEntity.getId());
         assertThat(rolesForUser.size(), is(2));
