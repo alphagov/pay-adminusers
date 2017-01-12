@@ -13,14 +13,14 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
  
  ## API NAMESPACE
  
- | Path                          | Supported Methods | Description                        |
- | ----------------------------- | ----------------- | ---------------------------------- |
- |[```/v1/api/users```](#post-v1apiusers)              | POST    |  Creates a new user            |
- |[```/v1/api/users/{username}```](#get-v1apiusersusername)              | GET    |  Gets a user with the associated username            |
- |[```/v1/api/users/authenticate```](#get-v1apiusersauthenticate)              | POST    |  Authenticate a given username/password            |
- |[```/v1/api/users/{username}/attempt-login```](#get-v1apiusersusernameattempt-login)              | POST    |  Records login attempts and locks account if necessary`            |
- |[```/v1/api/users/{username}/attempt-login?action=reset```](#get-v1apiusersusernameattemptLoginActionReset)              | POST    |  Resets login attempts to `0` and enables the user account            |
- |[```/v1/api/forgotten-passwords```](#get-v1apiforgottenpasswords)              | POST    |  Create a new forgotten password request            |
+| Path                          | Supported Methods | Description                        |
+| ----------------------------- | ----------------- | ---------------------------------- |
+| [```/v1/api/users```](#post-v1apiusers)              | POST    |  Creates a new user            |
+| [```/v1/api/users/{username}```](#get-v1apiusersusername)              | GET    |  Gets a user with the associated username            |
+| [```/v1/api/users/authenticate```](#get-v1apiusersauthenticate)              | POST    |  Authenticate a given username/password            |
+| [```/v1/api/users/{username}/attempt-login```](#get-v1apiusersusernameattempt-login)              | POST    |  Records login attempts and locks account if necessary`            |
+| [```/v1/api/users/{username}/attempt-login?action=reset```](#get-v1apiusersusernameattemptLoginActionReset)              | POST    |  Resets login attempts to `0` and enables the user account            |
+| [```/v1/api/forgotten-passwords```](#get-v1apiforgottenpasswords)              | POST    |  Create a new forgotten password request            |
 
 
 -----------------------------------------------------------------------------------------------------------
