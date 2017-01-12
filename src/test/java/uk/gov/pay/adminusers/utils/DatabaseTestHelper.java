@@ -22,7 +22,7 @@ public class DatabaseTestHelper {
 
     public List<Map<String, Object>> findUserByName(String username) {
         List<Map<String, Object>> ret = jdbi.withHandle(h ->
-                h.createQuery("SELECT id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter, \"createdAt\", \"updatedAt\"  " +
+                h.createQuery("SELECT id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
                         "FROM users " +
                         "WHERE username = :username")
                         .bind("username", username)
@@ -32,7 +32,7 @@ public class DatabaseTestHelper {
 
     public List<Map<String, Object>> findUser(long userId) {
         List<Map<String, Object>> ret = jdbi.withHandle(h ->
-                h.createQuery("SELECT id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter, \"createdAt\", \"updatedAt\" " +
+                h.createQuery("SELECT id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
                         "FROM users " +
                         "WHERE id = :userId")
                         .bind("userId", userId)
@@ -77,8 +77,8 @@ public class DatabaseTestHelper {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO users(" +
-                                "id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter, version, \"createdAt\", \"updatedAt\") " +
-                                "VALUES (:id, :username, :password, :email, :otpKey, :telephoneNumber, :gatewayAccountId, :disabled, :loginCounter, :version, :createdAt, :updatedAt)")
+                                "id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter, version, \"createdAt\", \"updatedAt\", session_version) " +
+                                "VALUES (:id, :username, :password, :email, :otpKey, :telephoneNumber, :gatewayAccountId, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version)")
                         .bind("id", user.getId())
                         .bind("username", user.getUsername())
                         .bind("password", user.getPassword())
@@ -89,6 +89,7 @@ public class DatabaseTestHelper {
                         .bind("disabled", user.isDisabled())
                         .bind("loginCounter", user.getLoginCount())
                         .bind("version", 0)
+                        .bind("session_version", user.getSessionVersion())
                         .bind("createdAt", now)
                         .bind("updatedAt", now)
                         .execute()

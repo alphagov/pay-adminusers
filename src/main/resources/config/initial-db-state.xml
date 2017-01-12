@@ -44,6 +44,9 @@
             <column name="version" type="integer" defaultValue="0">
                 <constraints nullable="false"/>
             </column>
+            <column name="session_version" type="integer" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
         <createTable tableName="roles">

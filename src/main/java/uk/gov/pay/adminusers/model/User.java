@@ -39,6 +39,7 @@ public class User {
     private Integer loginCount = 0;
     private List<Role> roles = new ArrayList<>();
     private List<Link> links = new ArrayList<>();
+    private Integer sessionVersion = 0;
 
     public static User from(String username, String password, String email, String gatewayAccountId, String otpKey, String telephoneNumber) {
         return from(randomInt(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
@@ -118,6 +119,14 @@ public class User {
 
     public void setLoginCount(Integer loginCount) {
         this.loginCount = loginCount;
+    }
+
+    public void setSessionVersion(Integer sessionVersion) {
+        this.sessionVersion = sessionVersion;
+    }
+
+    public Integer getSessionVersion() {
+        return sessionVersion;
     }
 
     /**

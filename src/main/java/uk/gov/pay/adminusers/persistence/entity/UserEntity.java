@@ -54,6 +54,9 @@ public class UserEntity extends AbstractEntity {
     @Convert(converter = UTCDateTimeConverter.class)
     private ZonedDateTime updatedAt;
 
+    @Column(name = "session_version", columnDefinition="int default 0")
+    private Integer sessionVersion;
+
     public UserEntity() {
         //for jpa
     }
@@ -146,6 +149,14 @@ public class UserEntity extends AbstractEntity {
         this.createdAt = createdAt;
     }
 
+    public Integer getSessionVersion() {
+        return sessionVersion;
+    }
+
+    public void setSessionVersion(Integer sessionVersion) {
+        this.sessionVersion = sessionVersion;
+    }
+
     /**
      * Note: this constructor will not copy <b>id</b> from the User model. It will always assign a new one internally (by JPA)
      *
@@ -162,6 +173,7 @@ public class UserEntity extends AbstractEntity {
         userEntity.setGatewayAccountId(user.getGatewayAccountId());
         userEntity.setLoginCount(user.getLoginCount());
         userEntity.setDisabled(user.isDisabled());
+        userEntity.setSessionVersion(user.getSessionVersion());
         userEntity.setRoles(user.getRoles().stream().map(RoleEntity::new).collect(Collectors.toList()));
         ZonedDateTime timeNow = ZonedDateTime.now(ZoneId.of("UTC"));
         userEntity.setCreatedAt(timeNow);
@@ -173,6 +185,7 @@ public class UserEntity extends AbstractEntity {
         User user = User.from(getId(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
         user.setLoginCount(loginCount);
         user.setDisabled(disabled);
+        user.setSessionVersion(sessionVersion);
         user.setRoles(roles.stream().map(roleEntity -> roleEntity.toRole()).collect(Collectors.toList()));
         return user;
     }

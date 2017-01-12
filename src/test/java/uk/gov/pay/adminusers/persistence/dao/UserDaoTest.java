@@ -60,6 +60,7 @@ public class UserDaoTest extends DaoTestBase {
         userEntity.setOtpKey(randomInt.toString());
         userEntity.setTelephoneNumber("876284762");
         userEntity.setRoles(asList(new RoleEntity(role1), new RoleEntity(role2)));
+        userEntity.setSessionVersion(0);
         ZonedDateTime timeNow = ZonedDateTime.now(ZoneId.of("UTC"));
         userEntity.setCreatedAt(timeNow);
         userEntity.setUpdatedAt(timeNow);
@@ -76,6 +77,7 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(savedUserData.get(0).get("telephone_number"), is(userEntity.getTelephoneNumber()));
         assertThat(savedUserData.get(0).get("gateway_account_id"), is(userEntity.getGatewayAccountId()));
         assertThat(savedUserData.get(0).get("disabled"), is(Boolean.FALSE));
+        assertThat(savedUserData.get(0).get("session_version"), is(0));
         assertThat(savedUserData.get(0).get("createdAt"), is(java.sql.Timestamp.from(timeNow.toInstant())));
         assertThat(savedUserData.get(0).get("updatedAt"), is(java.sql.Timestamp.from(timeNow.toInstant())));
 
@@ -120,6 +122,7 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
         assertThat(foundUser.isDisabled(), is(false));
         assertThat(foundUser.getLoginCount(), is(0));
+        assertThat(foundUser.getSessionVersion(), is(0));
         assertThat(foundUser.getRoles().size(), is(2));
         assertThat(foundUser.getRoles().get(0).toRole(), either(is(role1)).or(is(role2)));
         assertThat(foundUser.getRoles().get(1).toRole(), either(is(role1)).or(is(role2)));
@@ -154,6 +157,7 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
         assertThat(foundUser.isDisabled(), is(false));
         assertThat(foundUser.getLoginCount(), is(0));
+        assertThat(foundUser.getSessionVersion(), is(0));
         assertThat(foundUser.getRoles().size(), is(2));
         assertThat(foundUser.getRoles().get(0).toRole(), either(is(role1)).or(is(role2)));
         assertThat(foundUser.getRoles().get(1).toRole(), either(is(role1)).or(is(role2)));
