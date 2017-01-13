@@ -1,6 +1,8 @@
 package uk.gov.pay.adminusers.service;
 
-import org.exparity.hamcrest.date.ZonedDateTimeMatchers;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -25,7 +27,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
-import static uk.gov.pay.adminusers.matchers.ZoneDateTimeAsStringWithinMatcher.isWithin;
 import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
 import static uk.gov.pay.adminusers.service.UserServices.CONSTRAINT_VIOLATION_MESSAGE;
 
@@ -283,6 +284,21 @@ public class UserServicesTest {
         Optional<User> userOptional = userServices.resetLoginAttempts("random-name");
 
         assertFalse(userOptional.isPresent());
+    }
+
+    @Test
+    public void shouldReturnUser_whenIncrementingSessionVersion_ifUserFound() throws Exception {
+        User user = aUser();
+
+        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("value", 1));
+        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+        when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+
+        Optional<User> userOptional = userServices.incrementSessionVersion("random-name", Integer.valueOf(node.get("value").asText()));
+        assertTrue(userOptional.isPresent());
+
+        assertThat(userOptional.get().getUsername(), is("random-name"));
+        assertThat(userOptional.get().getSessionVersion(), is(1));
     }
 
     private User aUser() {

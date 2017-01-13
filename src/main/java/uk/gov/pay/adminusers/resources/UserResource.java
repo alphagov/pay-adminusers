@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import io.dropwizard.jersey.PATCH;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.User;
@@ -58,7 +59,7 @@ public class UserResource {
     public Response createUser(JsonNode node) {
         logger.info("User create request - [ {} ]", node);
         return validator.validateCreateRequest(node)
-            .map(errors -> Response.status(400).entity(errors).build())
+            .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
             .orElseGet(() -> {
                 String roleName = node.get(User.FIELD_ROLE_NAME).asText();
                 User newUser = userServices.createUser(User.from(node), roleName);
@@ -117,4 +118,17 @@ public class UserResource {
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
+    @PATCH
+    @Path(USER_RESOURCE)
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response incrementSessionVersion(@PathParam("username") String username, JsonNode node) {
+        logger.info("User update user session attempt request");
+        return validator.valueIsNumeric(node, ImmutableMap.of("op","replace", "path", "sessionVersion"))
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() ->
+                    userServices.incrementSessionVersion(username, Integer.valueOf(node.get("value").asText()))
+                            .map(user -> Response.status(OK).build())
+                            .orElseGet(() -> Response.status(NOT_FOUND).build()));
+    }
 }

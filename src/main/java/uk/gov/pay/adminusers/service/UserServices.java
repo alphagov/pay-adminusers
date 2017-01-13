@@ -128,19 +128,18 @@ public class UserServices {
      * @throws javax.ws.rs.WebApplicationException if user account is disabled
      */
     public Optional<User> recordLoginAttempt(String username) {
-        Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
-        return userEntityOptional
-                .map(userEntity -> {
-                    userEntity.setLoginCount(userEntity.getLoginCount() + 1);
-                    userEntity.setDisabled(userEntity.getLoginCount() > ALLOWED_FAILED_LOGIN_ATTEMPTS);
-                    userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
-                    userDao.merge(userEntity);
-                    if (userEntity.isDisabled()) {
-                        throw userLockedException(username);
-                    }
-                    return Optional.of(linksBuilder.decorate(userEntity.toUser()));
-                })
-                .orElseGet(Optional::empty);
+        return userDao.findByUsername(username)
+            .map(userEntity -> {
+                userEntity.setLoginCount(userEntity.getLoginCount() + 1);
+                userEntity.setDisabled(userEntity.getLoginCount() > ALLOWED_FAILED_LOGIN_ATTEMPTS);
+                userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+                userDao.merge(userEntity);
+                if (userEntity.isDisabled()) {
+                    throw userLockedException(username);
+                }
+                return Optional.of(linksBuilder.decorate(userEntity.toUser()));
+            })
+            .orElseGet(Optional::empty);
     }
 
     /**
@@ -149,16 +148,25 @@ public class UserServices {
      * @return {@link Optional<User>} if user found and resets to 0. Or Optional.empty() if given username not found
      */
     public Optional<User> resetLoginAttempts(String username) {
-        Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
-        return userEntityOptional
-                .map(userEntity -> {
-                    userEntity.setLoginCount(0);
-                    userEntity.setDisabled(false);
-                    userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
-                    userDao.merge(userEntity);
-                    return Optional.of(linksBuilder.decorate(userEntity.toUser()));
-                })
-                .orElseGet(Optional::empty);
+        return userDao.findByUsername(username)
+            .map(userEntity -> {
+                userEntity.setLoginCount(0);
+                userEntity.setDisabled(false);
+                userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+                userDao.merge(userEntity);
+                return Optional.of(linksBuilder.decorate(userEntity.toUser()));
+            })
+            .orElseGet(Optional::empty);
     }
 
+    public Optional<User> incrementSessionVersion(String username, Integer value) {
+        return userDao.findByUsername(username)
+            .map(userEntity -> {
+                userEntity.setSessionVersion(userEntity.getSessionVersion() + value);
+                userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+                userDao.merge(userEntity);
+                return Optional.of(linksBuilder.decorate(userEntity.toUser()));
+            })
+            .orElseGet(Optional::empty);
+    }
 }
