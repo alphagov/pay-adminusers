@@ -1,5 +1,8 @@
 package uk.gov.pay.adminusers.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -15,6 +18,8 @@ import javax.persistence.RollbackException;
 import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
 
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -155,6 +160,7 @@ public class UserServicesTest {
         assertFalse(userOptional.isPresent());
 
         UserEntity savedUser = argumentCaptor.getValue();
+        assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
         assertThat(savedUser.getLoginCount(), is(2));
         assertThat(savedUser.isDisabled(), is(false));
     }
@@ -176,6 +182,7 @@ public class UserServicesTest {
         } catch (WebApplicationException e) {
             assertThat(e.getResponse().getStatus(), is(401));
             UserEntity savedUser = argumentCaptor.getValue();
+            assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
             assertThat(savedUser.getLoginCount(), is(4));
             assertThat(savedUser.isDisabled(), is(true));
         }
@@ -207,6 +214,8 @@ public class UserServicesTest {
 
         Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
         Optional<User> userOptional = userServices.recordLoginAttempt("random-name");
 
@@ -215,6 +224,9 @@ public class UserServicesTest {
         assertThat(userOptional.get().getUsername(), is("random-name"));
         assertThat(userOptional.get().getLoginCount(), is(2));
         assertThat(userOptional.get().isDisabled(), is(false));
+
+        UserEntity savedUser = argumentCaptor.getValue();
+        assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
     }
 
     @Test
@@ -231,6 +243,7 @@ public class UserServicesTest {
             userServices.recordLoginAttempt("random-name");
         } catch (WebApplicationException ex) {
             UserEntity savedUser = argumentCaptor.getValue();
+            assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
             assertThat(savedUser.getLoginCount(), is(4));
             assertThat(savedUser.isDisabled(), is(true));
         }
@@ -251,6 +264,8 @@ public class UserServicesTest {
 
         Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
         Optional<User> userOptional = userServices.resetLoginAttempts("random-name");
         assertTrue(userOptional.isPresent());
@@ -259,6 +274,8 @@ public class UserServicesTest {
         assertThat(userOptional.get().getLoginCount(), is(0));
         assertThat(userOptional.get().isDisabled(), is(false));
 
+        UserEntity savedUser = argumentCaptor.getValue();
+        assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
     }
 
     @Test
@@ -267,6 +284,21 @@ public class UserServicesTest {
         Optional<User> userOptional = userServices.resetLoginAttempts("random-name");
 
         assertFalse(userOptional.isPresent());
+    }
+
+    @Test
+    public void shouldReturnUser_whenIncrementingSessionVersion_ifUserFound() throws Exception {
+        User user = aUser();
+
+        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("value", 1));
+        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+        when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+
+        Optional<User> userOptional = userServices.incrementSessionVersion("random-name", Integer.valueOf(node.get("value").asText()));
+        assertTrue(userOptional.isPresent());
+
+        assertThat(userOptional.get().getUsername(), is("random-name"));
+        assertThat(userOptional.get().getSessionVersion(), is(1));
     }
 
     private User aUser() {

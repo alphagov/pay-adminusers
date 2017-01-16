@@ -35,13 +35,16 @@
             <column name="login_counter" type="integer" defaultValue="0">
                 <constraints nullable="false"/>
             </column>
-            <column name="createdAt" type="timestamp with timezone" defaultValueComputed="(now() at time zone 'utc')">
+            <column name="createdAt" type="timestamp with timezone">
                 <constraints nullable="false"/>
             </column>
-            <column name="updatedAt" type="timestamp with timezone" defaultValueComputed="(now() at time zone 'utc')">
+            <column name="updatedAt" type="timestamp with timezone">
                 <constraints nullable="false"/>
             </column>
             <column name="version" type="integer" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="session_version" type="integer" defaultValue="0">
                 <constraints nullable="false"/>
             </column>
         </createTable>

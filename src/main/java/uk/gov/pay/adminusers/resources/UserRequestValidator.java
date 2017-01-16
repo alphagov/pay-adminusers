@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import uk.gov.pay.adminusers.utils.Errors;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
@@ -35,6 +37,31 @@ public class UserRequestValidator {
         return Optional.empty();
     }
 
+    public Optional<Errors> validatePatchRequest(JsonNode payload, Map<String, String> requiredData) {
+        Optional<List<String>> missingMandatoryFields = checkIfExists(payload, "op", "path", "value" );
+        if (missingMandatoryFields.isPresent()) {
+            return Optional.of(Errors.from(missingMandatoryFields.get()));
+        }
+
+        Optional<List<String>> invalidData = checkIsValid(payload, requiredData);
+        if (invalidData.isPresent()) {
+            return Optional.of(Errors.from(invalidData.get()));
+        }
+
+        return Optional.empty();
+    }
+
+    private Optional<List<String>> checkIsValid(JsonNode payload, Map<String, String> requiredData) {
+        List<String> errors = newArrayList();
+        errors.addAll(
+                requiredData.keySet().stream()
+                        .filter(fieldName -> !requiredData.get(fieldName).equals(payload.get(fieldName).asText()))
+                        .map(fieldName -> format("Field [%s] must have value of [%s]", fieldName, requiredData.get(fieldName)))
+                        .collect(Collectors.toList())
+        );
+        return Optional.of(errors);
+    }
+
     private Optional<List<String>> checkIsNumeric(JsonNode payload, String... fieldNames) {
         return applyCheck(payload, isNotNumeric(), fieldNames, "Field [%s] must be a number");
     }
@@ -59,5 +86,18 @@ public class UserRequestValidator {
 
     private Function<JsonNode, Boolean> isNotNumeric() {
         return jsonNode -> !isDigits(jsonNode.asText());
+    }
+
+    public Optional<Errors> valueIsNumeric(JsonNode payload, Map<String, String> requiredData) {
+        Optional<Errors> invalidPatch = validatePatchRequest(payload, requiredData);
+        if (invalidPatch.isPresent() && invalidPatch.get().getErrors().size() > 0) {
+            return invalidPatch;
+        }
+
+        Optional<List<String>> numericErrors = checkIsNumeric(payload, "value");
+        if (numericErrors.isPresent()) {
+            return Optional.of(Errors.from(numericErrors.get()));
+        }
+        return Optional.empty();
     }
 }

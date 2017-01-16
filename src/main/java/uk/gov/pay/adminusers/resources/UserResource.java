@@ -5,11 +5,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import io.dropwizard.jersey.PATCH;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.service.UserServices;
-import uk.gov.pay.adminusers.utils.Errors;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -47,10 +47,9 @@ public class UserResource {
     @Consumes(APPLICATION_JSON)
     public Response getUser(@PathParam("username") String username) {
         logger.info("User GET request - [ {} ]", username);
-        Optional<User> userOptional = userServices.findUser(username);
-        return userOptional
-                .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
-                .orElseGet(() -> Response.status(NOT_FOUND).build());
+        return userServices.findUser(username)
+            .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
+            .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
     @Path(USERS_RESOURCE)
@@ -59,18 +58,16 @@ public class UserResource {
     @Consumes(APPLICATION_JSON)
     public Response createUser(JsonNode node) {
         logger.info("User create request - [ {} ]", node);
-        Optional<Errors> validationsErrors = validator.validateCreateRequest(node);
+        return validator.validateCreateRequest(node)
+            .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+            .orElseGet(() -> {
+                String roleName = node.get(User.FIELD_ROLE_NAME).asText();
+                User newUser = userServices.createUser(User.from(node), roleName);
+                logger.info("User created: [ {} ]", newUser);
 
-        return validationsErrors
-                .map(errors -> Response.status(400).entity(errors).build())
-                .orElseGet(() -> {
-                    String roleName = node.get(User.FIELD_ROLE_NAME).asText();
-                    User newUser = userServices.createUser(User.from(node), roleName);
-                    logger.info("User created: [ {} ]", newUser);
-
-                    return Response.status(CREATED).type(APPLICATION_JSON)
-                            .entity(newUser).build();
-                });
+                return Response.status(CREATED).type(APPLICATION_JSON)
+                        .entity(newUser).build();
+            });
     }
 
 
@@ -80,19 +77,15 @@ public class UserResource {
     @Consumes(APPLICATION_JSON)
     public Response authenticate(JsonNode node) {
         logger.info("User authenticate request");
-        Optional<Errors> validationsErrors = validator.validateAuthenticateRequest(node);
-
-        return validationsErrors
-                .map(errors ->
-                        Response.status(400).entity(errors).build())
+        return validator.validateAuthenticateRequest(node)
+                .map(errors -> Response.status(400).entity(errors).build())
                 .orElseGet(() -> {
                     Optional<User> userOptional = userServices.authenticate(
                             node.get("username").asText(),
                             node.get("password").asText());
 
                     return userOptional
-                            .map(user -> Response.status(OK).type(APPLICATION_JSON)
-                                    .entity(user).build())
+                            .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                             .orElseGet(() ->
                                     Response.status(UNAUTHORIZED).type(APPLICATION_JSON)
                                             .entity(unauthorisedErrorMessage())
@@ -125,4 +118,17 @@ public class UserResource {
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
+    @PATCH
+    @Path(USER_RESOURCE)
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response incrementSessionVersion(@PathParam("username") String username, JsonNode node) {
+        logger.info("User update user session attempt request");
+        return validator.valueIsNumeric(node, ImmutableMap.of("op","replace", "path", "sessionVersion"))
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() ->
+                    userServices.incrementSessionVersion(username, Integer.valueOf(node.get("value").asText()))
+                            .map(user -> Response.status(OK).build())
+                            .orElseGet(() -> Response.status(NOT_FOUND).build()));
+    }
 }

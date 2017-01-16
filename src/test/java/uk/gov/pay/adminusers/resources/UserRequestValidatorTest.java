@@ -1,6 +1,8 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,6 +63,49 @@ public class UserRequestValidatorTest {
                 "Field [role_name] is required",
                 "Field [telephone_number] is required"));
 
+    }
+
+    @Test
+    public void shouldError_ifMandatoryPatchFieldsAreMissing() throws Exception {
+        JsonNode invalidPayload = mock(JsonNode.class);
+        mockValidValuesFor(invalidPayload, of("foo", "blah"), of("bar", "blah@blah.com"));
+        Optional<Errors> optionalErrors = validator.validatePatchRequest(invalidPayload, ImmutableMap.of("op","replace", "path", "sessionVersion"));
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(3));
+        assertThat(errors.getErrors(), hasItems(
+                "Field [op] is required",
+                "Field [path] is required",
+                "Field [value] is required"));
+    }
+
+    @Test
+    public void shouldError_ifMandatoryPatchFieldsAreIncorrect() throws Exception {
+        JsonNode invalidPayload = mock(JsonNode.class);
+        mockValidValuesFor(invalidPayload, of("op", "add"), of("path", "version"), of("value", "1"));
+        Optional<Errors> optionalErrors = validator.validatePatchRequest(invalidPayload, ImmutableMap.of("op","replace", "path", "sessionVersion"));
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(2));
+        assertThat(errors.getErrors(), hasItems(
+                "Field [op] must have value of [replace]",
+                "Field [path] must have value of [sessionVersion]"));
+    }
+
+    @Test
+    public void shouldError_ifMandatoryPatchFieldsValueIsNotNumeric() throws Exception {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "sessionVersion", "value", "1r"));
+        Optional<Errors> optionalErrors = validator.valueIsNumeric(payload, ImmutableMap.of("op","replace", "path", "sessionVersion"));
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("Field [value] must be a number"));
     }
 
     @Test

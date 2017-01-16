@@ -3,6 +3,8 @@ package uk.gov.pay.adminusers.persistence.entity;
 import uk.gov.pay.adminusers.model.User;
 
 import javax.persistence.*;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,6 +44,18 @@ public class UserEntity extends AbstractEntity {
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private List<RoleEntity> roles = new ArrayList<>();
+
+    // TODO: Change column from 'camelCase' to 'snake_case'. These columns were created through Sequelize.
+    @Column(name = "\"createdAt\"")
+    @Convert(converter = UTCDateTimeConverter.class)
+    private ZonedDateTime createdAt;
+
+    @Column(name = "\"updatedAt\"")
+    @Convert(converter = UTCDateTimeConverter.class)
+    private ZonedDateTime updatedAt;
+
+    @Column(name = "session_version", columnDefinition="int default 0")
+    private Integer sessionVersion;
 
     public UserEntity() {
         //for jpa
@@ -119,6 +133,30 @@ public class UserEntity extends AbstractEntity {
         this.roles = roles;
     }
 
+    public ZonedDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(ZonedDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public ZonedDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(ZonedDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Integer getSessionVersion() {
+        return sessionVersion;
+    }
+
+    public void setSessionVersion(Integer sessionVersion) {
+        this.sessionVersion = sessionVersion;
+    }
+
     /**
      * Note: this constructor will not copy <b>id</b> from the User model. It will always assign a new one internally (by JPA)
      *
@@ -135,7 +173,11 @@ public class UserEntity extends AbstractEntity {
         userEntity.setGatewayAccountId(user.getGatewayAccountId());
         userEntity.setLoginCount(user.getLoginCount());
         userEntity.setDisabled(user.isDisabled());
+        userEntity.setSessionVersion(user.getSessionVersion());
         userEntity.setRoles(user.getRoles().stream().map(RoleEntity::new).collect(Collectors.toList()));
+        ZonedDateTime timeNow = ZonedDateTime.now(ZoneId.of("UTC"));
+        userEntity.setCreatedAt(timeNow);
+        userEntity.setUpdatedAt(timeNow);
         return userEntity;
     }
 
@@ -143,6 +185,7 @@ public class UserEntity extends AbstractEntity {
         User user = User.from(getId(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
         user.setLoginCount(loginCount);
         user.setDisabled(disabled);
+        user.setSessionVersion(sessionVersion);
         user.setRoles(roles.stream().map(roleEntity -> roleEntity.toRole()).collect(Collectors.toList()));
         return user;
     }
