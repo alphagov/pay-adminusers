@@ -40,4 +40,12 @@ public class ForgottenPasswordServices {
                 });
     }
 
+    public Optional<ForgottenPassword> find(String code) {
+        return forgottenPasswordDao.findByCode(code)
+                .map(forgottenPasswordEntity -> Optional.of(linksBuilder.decorate(forgottenPasswordEntity.toForgottenPassword())))
+                .orElseGet(() -> {
+                    logger.warn("Attempted forgotten password GET for non existent code {}", code);
+                    return Optional.empty();
+                });
+    }
 }

@@ -21,6 +21,7 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 | [```/v1/api/users/{username}/attempt-login```](#get-v1apiusersusernameattempt-login)              | POST    |  Records login attempts and locks account if necessary`            |
 | [```/v1/api/users/{username}/attempt-login?action=reset```](#get-v1apiusersusernameattemptLoginActionReset)              | POST    |  Resets login attempts to `0` and enables the user account            |
 | [```/v1/api/forgotten-passwords```](#get-v1apiforgottenpasswords)              | POST    |  Create a new forgotten password request            |
+| [```/v1/api/forgotten-passwords/{code}```](#get-v1apiforgottenpasswordscode)              | GET    |  GETs a forgotten password record by code            |
 
 
 -----------------------------------------------------------------------------------------------------------
@@ -298,6 +299,36 @@ Content-Type: application/json
     "date": "23-12-2015 13:23:12Z",
     "_links": [{
             "href": "http://adminusers.service/v1/api/forgotten-passwords/6fg77h67g497r5ivcdtdh",
+            "rel" : "self",
+            "method" : "GET"
+          }]
+}
+```
+
+
+-----------------------------------------------------------------------------------------------------------
+
+### GET /v1/api/forgotten-passwords/{code}
+
+This endpoint creates a new forgotten password request
+
+#### Request example
+
+```
+GET /v1/api/forgotten-passwords/xyz1234
+```
+
+#### Response example
+
+```
+200 OK
+Content-Type: application/json
+{
+    "username": "abcd1234",
+    "code": "xyz1234",
+    "date": "23-12-2015 13:23:12Z",
+    "_links": [{
+            "href": "http://adminusers.service/v1/api/forgotten-passwords/xyz1234",
             "rel" : "self",
             "method" : "GET"
           }]

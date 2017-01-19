@@ -8,11 +8,13 @@ import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ForgottenPasswordEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.mockito.Matchers.any;
@@ -56,5 +58,32 @@ public class ForgottenPasswordServicesTest {
 
         Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.create(nonExistingUser);
         assertFalse(forgottenPasswordOptional.isPresent());
+    }
+
+    @Test
+    public void shouldFindForgottenPassword_whenFindByCode_ifFound() throws Exception {
+        String code = "an-existent-code";
+        ForgottenPasswordEntity forgottenPasswordEntity = mockForgottenPassword(code);
+        when(forgottenPasswordDao.findByCode(code)).thenReturn(Optional.of(forgottenPasswordEntity));
+
+        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.find(code);
+        assertTrue(forgottenPasswordOptional.isPresent());
+        assertThat(forgottenPasswordOptional.get().getCode(), is(code));
+        assertThat(forgottenPasswordOptional.get().getLinks(), hasSize(1));
+    }
+
+    @Test
+    public void shouldReturnEmpty_whenFindByCode_ifNotFound() throws Exception {
+        String code = "non-existent-code";
+        when(forgottenPasswordDao.findByCode(code)).thenReturn(Optional.empty());
+
+        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.find(code);
+        assertFalse(forgottenPasswordOptional.isPresent());
+    }
+
+    private ForgottenPasswordEntity mockForgottenPassword(String code) {
+        UserEntity mockUser = mock(UserEntity.class);
+        when(mockUser.getUsername()).thenReturn("random-username");
+        return new ForgottenPasswordEntity(code, ZonedDateTime.now(), mockUser);
     }
 }
