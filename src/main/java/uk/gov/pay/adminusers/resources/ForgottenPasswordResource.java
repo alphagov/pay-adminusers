@@ -51,9 +51,9 @@ public class ForgottenPasswordResource {
     @Path(FORGOTTEN_PASSWORD_RESOURCE)
     @GET
     @Produces(APPLICATION_JSON)
-    public Response getForgottenPassword(@PathParam("code") String code) {
+    public Response findNonExpiredForgottenPassword(@PathParam("code") String code) {
         logger.info("ForgottenPassword GET request - [ {} ]", code);
-        return forgottenPasswordServices.find(code)
+        return forgottenPasswordServices.findNonExpired(code)
                 .map(forgottenPassword -> Response.status(OK).type(APPLICATION_JSON).entity(forgottenPassword).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }

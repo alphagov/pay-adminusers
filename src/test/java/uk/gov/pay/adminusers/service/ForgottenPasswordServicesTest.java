@@ -64,9 +64,9 @@ public class ForgottenPasswordServicesTest {
     public void shouldFindForgottenPassword_whenFindByCode_ifFound() throws Exception {
         String code = "an-existent-code";
         ForgottenPasswordEntity forgottenPasswordEntity = mockForgottenPassword(code);
-        when(forgottenPasswordDao.findByCode(code)).thenReturn(Optional.of(forgottenPasswordEntity));
+        when(forgottenPasswordDao.findNonExpiredByCode(code)).thenReturn(Optional.of(forgottenPasswordEntity));
 
-        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.find(code);
+        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.findNonExpired(code);
         assertTrue(forgottenPasswordOptional.isPresent());
         assertThat(forgottenPasswordOptional.get().getCode(), is(code));
         assertThat(forgottenPasswordOptional.get().getLinks(), hasSize(1));
@@ -75,9 +75,9 @@ public class ForgottenPasswordServicesTest {
     @Test
     public void shouldReturnEmpty_whenFindByCode_ifNotFound() throws Exception {
         String code = "non-existent-code";
-        when(forgottenPasswordDao.findByCode(code)).thenReturn(Optional.empty());
+        when(forgottenPasswordDao.findNonExpiredByCode(code)).thenReturn(Optional.empty());
 
-        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.find(code);
+        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.findNonExpired(code);
         assertFalse(forgottenPasswordOptional.isPresent());
     }
 
