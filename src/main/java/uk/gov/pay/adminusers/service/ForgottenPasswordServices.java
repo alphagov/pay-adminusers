@@ -40,4 +40,12 @@ public class ForgottenPasswordServices {
                 });
     }
 
+    public Optional<ForgottenPassword> findNonExpired(String code) {
+        return forgottenPasswordDao.findNonExpiredByCode(code)
+                .map(forgottenPasswordEntity -> Optional.of(linksBuilder.decorate(forgottenPasswordEntity.toForgottenPassword())))
+                .orElseGet(() -> {
+                    logger.warn("Attempted forgotten password GET for non-existent/expired code {}", code);
+                    return Optional.empty();
+                });
+    }
 }

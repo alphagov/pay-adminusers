@@ -9,7 +9,7 @@ import uk.gov.pay.adminusers.model.User;
 import java.net.URI;
 
 import static javax.ws.rs.core.UriBuilder.fromUri;
-import static uk.gov.pay.adminusers.resources.ForgottenPasswordResource.FORGOTTEN_PASSWORD_RESOURCE;
+import static uk.gov.pay.adminusers.resources.ForgottenPasswordResource.FORGOTTEN_PASSWORDS_RESOURCE;
 import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
 
 public class LinksBuilder {
@@ -29,7 +29,7 @@ public class LinksBuilder {
     }
 
     public ForgottenPassword decorate(ForgottenPassword forgottenPassword) {
-        URI uri = fromUri(baseUrl).path(FORGOTTEN_PASSWORD_RESOURCE).path(forgottenPassword.getCode())
+        URI uri = fromUri(baseUrl).path(FORGOTTEN_PASSWORDS_RESOURCE).path(forgottenPassword.getCode())
                 .build();
         Link selfLink = Link.from(Rel.self, "GET", uri.toString());
         forgottenPassword.setLinks(ImmutableList.of(selfLink));
