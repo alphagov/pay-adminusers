@@ -13,6 +13,7 @@ import java.util.Optional;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Path("/")
 public class ForgottenPasswordResource {
@@ -21,6 +22,7 @@ public class ForgottenPasswordResource {
     public static final String FORGOTTEN_PASSWORD_RESOURCE = FORGOTTEN_PASSWORDS_RESOURCE + "/{code}";
     private static final Logger logger = PayLoggerFactory.getLogger(ForgottenPasswordResource.class);
 
+    private static final int MAX_LENGTH = 255;
     private final ForgottenPasswordServices forgottenPasswordServices;
     private final ForgottenPasswordValidator validator;
 
@@ -53,6 +55,10 @@ public class ForgottenPasswordResource {
     @Produces(APPLICATION_JSON)
     public Response findNonExpiredForgottenPassword(@PathParam("code") String code) {
         logger.info("ForgottenPassword GET request - [ {} ]", code);
+
+        if(isNotBlank(code) && code.length() > MAX_LENGTH) {
+            return Response.status(NOT_FOUND).build();
+        }
         return forgottenPasswordServices.findNonExpired(code)
                 .map(forgottenPassword -> Response.status(OK).type(APPLICATION_JSON).entity(forgottenPassword).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());

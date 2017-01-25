@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.response.ValidatableResponse;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
@@ -101,6 +102,18 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
                 .when()
                 .accept(JSON)
                 .get(FORGOTTEN_PASSWORDS_RESOURCE_URL + "/non-existent-code")
+                .then()
+                .statusCode(404);
+
+    }
+
+    @Test
+    public void shouldReturn404_whenGetByCode_andCodeExceedsMaxLength() throws Exception {
+
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .get(FORGOTTEN_PASSWORDS_RESOURCE_URL + RandomStringUtils.randomAlphanumeric(256))
                 .then()
                 .statusCode(404);
 
