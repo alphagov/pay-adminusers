@@ -52,4 +52,36 @@ public class UserResourceLoginAttemptTest extends UserResourceTestBase {
                 .then()
                 .statusCode(404);
     }
+
+    @Test
+    public void shouldError400_whenResetLoginAttemptActionIsInvalid() throws Exception {
+        String random = randomUUID().toString();
+        createAValidUser(random);
+        String username = "user-" + random;
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .accept(JSON)
+                .post(format(LOGIN_ATTEMPT_URL, username) + "?action=invalidate")
+                .then()
+                .statusCode(400)
+                .body("errors", hasSize(1))
+                .body("errors[0]", is("Parameter [action] value is invalid"));
+    }
+
+    @Test
+    public void shouldError200_whenResetLoginAttemptActionIsValid() throws Exception {
+        String random = randomUUID().toString();
+        createAValidUser(random);
+        String username = "user-" + random;
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .accept(JSON)
+                .post(format(LOGIN_ATTEMPT_URL, username) + "?action=reset")
+                .then()
+                .statusCode(200);
+    }
 }

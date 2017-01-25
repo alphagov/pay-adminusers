@@ -20,6 +20,7 @@ import java.util.Optional;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Path("/")
 public class UserResource {
@@ -99,18 +100,22 @@ public class UserResource {
 
     @Path(ATTEMPT_LOGIN_RESOURCE)
     @POST
-    public Response updateLoginAttempts(@PathParam("username") String username, @QueryParam("action") String action) {
+    public Response updateLoginAttempts(@PathParam("username") String username, @QueryParam("action") String resetAction) {
         logger.info("User login attempt request");
         if (isBlank(username)) {
             return Response.status(NOT_FOUND).build();
         }
+        if(isNotBlank(resetAction) && !resetAction.equals("reset")) {
+            return Response.status(BAD_REQUEST)
+                    .entity(ImmutableMap.of("errors", ImmutableList.of("Parameter [action] value is invalid"))).build();
+        }
 
         Optional<User> userOptional;
 
-        if (!isBlank(action) && "reset".equals(action)) {
-            userOptional = userServices.resetLoginAttempts(username);
-        } else {
+        if (isBlank(resetAction)) {
             userOptional = userServices.recordLoginAttempt(username);
+        } else {
+            userOptional = userServices.resetLoginAttempts(username);
         }
 
         return userOptional
