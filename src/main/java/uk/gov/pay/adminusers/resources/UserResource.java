@@ -35,6 +35,7 @@ public class UserResource {
 
     private final UserServices userServices;
     private final UserRequestValidator validator;
+    private static final int MAX_LENGTH = 255;
 
     @Inject
     public UserResource(UserServices userServices, UserRequestValidator validator) {
@@ -48,6 +49,11 @@ public class UserResource {
     @Consumes(APPLICATION_JSON)
     public Response getUser(@PathParam("username") String username) {
         logger.info("User GET request - [ {} ]", username);
+
+        if(isNotBlank(username) && username.length() > MAX_LENGTH) {
+            return Response.status(NOT_FOUND).build();
+        }
+
         return userServices.findUser(username)
             .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
             .orElseGet(() -> Response.status(NOT_FOUND).build());

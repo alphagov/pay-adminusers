@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.User;
 
@@ -130,6 +131,16 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
                 .when()
                 .accept(JSON)
                 .get(format(USER_RESOURCE_URL, "non-existent-user"))
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
+    public void shouldReturn404_whenGetUser_withInvalidMaxLengthUsername() throws Exception {
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .get(format(USER_RESOURCE_URL, RandomStringUtils.randomAlphanumeric(256)))
                 .then()
                 .statusCode(404);
     }
