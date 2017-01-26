@@ -34,7 +34,19 @@ public class UserRequestValidator {
         if (invalidData.isPresent()) {
             return Optional.of(Errors.from(invalidData.get()));
         }
+        Optional<List<String>> invalidLength = checkLength(payload, FIELD_USERNAME);
+        if (invalidLength.isPresent()) {
+            return Optional.of(Errors.from(invalidLength.get()));
+        }
         return Optional.empty();
+    }
+
+    private Optional<List<String>> checkLength(JsonNode payload, String... fieldNames) {
+        return applyCheck(payload, exceedsMaxLength(), fieldNames, "Field [%s] must have a maximum length of 255 characters");
+    }
+
+    private Function<JsonNode, Boolean> exceedsMaxLength() {
+        return jsonNode -> jsonNode.asText().length() > 255;
     }
 
     public Optional<Errors> validatePatchRequest(JsonNode payload, Map<String, String> requiredData) {

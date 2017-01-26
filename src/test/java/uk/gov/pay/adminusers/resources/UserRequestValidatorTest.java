@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
@@ -124,6 +125,24 @@ public class UserRequestValidatorTest {
         assertThat(errors.getErrors(), hasItems(
                 "Field [gateway_account_id] must be a number",
                 "Field [telephone_number] must be a number"));
+
+    }
+
+    @Test
+    public void shouldError_ifFieldsAreBiggerThanMaxLength() throws Exception {
+        JsonNode invalidPayload = mock(JsonNode.class);
+        mockValidValuesFor(invalidPayload,
+                of("username", RandomStringUtils.randomAlphanumeric(256)), of("password", RandomStringUtils.randomAlphanumeric(256)), of("gateway_account_id", "123"),
+                of("telephone_number", "07990000000"), of("email", "blah@blah.com"), of("otp_key", "blahblah"),
+                of("role_name","boo"));
+        Optional<Errors> optionalErrors = validator.validateCreateRequest(invalidPayload);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems(
+                "Field [username] must have a maximum length of 255 characters"));
 
     }
 
