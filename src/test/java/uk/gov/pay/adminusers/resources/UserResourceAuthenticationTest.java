@@ -70,7 +70,7 @@ public class UserResourceAuthenticationTest extends UserResourceTestBase {
         String random = randomUUID().toString();
         createAValidUser(random);
         String username = "user-" + random;
-        databaseTestHelper.updateLoginCount(username, 3);
+        databaseTestHelper.updateLoginCount(username, 10);
 
         ImmutableMap<Object, Object> authPayload = ImmutableMap.builder()
                 .put("username", username)

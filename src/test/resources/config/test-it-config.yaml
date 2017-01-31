@@ -59,4 +59,5 @@ graphiteHost: ${METRICS_HOST:-localhost}
 graphitePort: ${METRICS_PORT:-8092}
 
 baseUrl: ${BASE_URL:-http://localhost:8080}
+loginAttemptCap: ${LOGIN_ATTEMPT_CAP:-10}
 initialMigrationRequired: ${INITIAL_MIGRATION_REQUIRED:-true}
