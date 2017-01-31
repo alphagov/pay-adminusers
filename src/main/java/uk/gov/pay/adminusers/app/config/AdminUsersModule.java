@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.name.Names;
 import com.google.inject.persist.jpa.JpaPersistModule;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.setup.Environment;
@@ -35,8 +36,8 @@ public class AdminUsersModule extends AbstractModule {
         bind(PasswordHasher.class).in(Singleton.class);
         bind(UserRequestValidator.class).in(Singleton.class);
         bind(UserDao.class).in(Singleton.class);
+        bind(Integer.class).annotatedWith(Names.named("LOGIN_ATTEMPT_CAP")).toInstance(configuration.getLoginAttemptCap());
         bind(UserServices.class).in(Singleton.class);
-
         bind(ForgottenPasswordDao.class).in(Singleton.class);
         bind(ForgottenPasswordServices.class).in(Singleton.class);
 

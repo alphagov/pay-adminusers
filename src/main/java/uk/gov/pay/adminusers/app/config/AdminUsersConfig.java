@@ -27,6 +27,9 @@ public class AdminUsersConfig extends Configuration{
     @NotNull
     private String initialMigrationRequired;
 
+    @NotNull
+    private Integer loginAttemptCap;
+
     @JsonProperty("database")
     public DataSourceFactory getDataSourceFactory() {
         return dataSourceFactory;
@@ -51,5 +54,9 @@ public class AdminUsersConfig extends Configuration{
 
     public boolean getInitialMigrationRequired() {
         return initialMigrationRequired.equalsIgnoreCase("true") ;
+    }
+
+    public Integer getLoginAttemptCap() {
+        return loginAttemptCap;
     }
 }

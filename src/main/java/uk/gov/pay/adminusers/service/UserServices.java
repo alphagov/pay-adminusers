@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.User;
@@ -18,20 +19,21 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
 public class UserServices {
 
     static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
-    private static final int ALLOWED_FAILED_LOGIN_ATTEMPTS = 3;
     private static Logger logger = PayLoggerFactory.getLogger(UserServices.class);
 
     private final UserDao userDao;
     private final RoleDao roleDao;
     private final PasswordHasher passwordHasher;
     private final LinksBuilder linksBuilder;
+    private final Integer loginAttemptCap;
 
     @Inject
-    public UserServices(UserDao userDao, RoleDao roleDao, PasswordHasher passwordHasher, LinksBuilder linksBuilder) {
+    public UserServices(UserDao userDao, RoleDao roleDao, PasswordHasher passwordHasher, LinksBuilder linksBuilder, @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap) {
         this.userDao = userDao;
         this.roleDao = roleDao;
         this.passwordHasher = passwordHasher;
         this.linksBuilder = linksBuilder;
+        this.loginAttemptCap = loginAttemptCap;
     }
 
     /**
@@ -93,7 +95,7 @@ public class UserServices {
                 userEntity.setLoginCount(userEntity.getLoginCount() + 1);
                 userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                 //currently we can only unlock an account by script, manually
-                userEntity.setDisabled(userEntity.getLoginCount() > ALLOWED_FAILED_LOGIN_ATTEMPTS);
+                userEntity.setDisabled(userEntity.getLoginCount() > loginAttemptCap);
                 userDao.merge(userEntity);
                 if (userEntity.isDisabled()) {
                     throw userLockedException(username);
@@ -129,44 +131,45 @@ public class UserServices {
      */
     public Optional<User> recordLoginAttempt(String username) {
         return userDao.findByUsername(username)
-            .map(userEntity -> {
-                userEntity.setLoginCount(userEntity.getLoginCount() + 1);
-                userEntity.setDisabled(userEntity.getLoginCount() > ALLOWED_FAILED_LOGIN_ATTEMPTS);
-                userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
-                userDao.merge(userEntity);
-                if (userEntity.isDisabled()) {
-                    throw userLockedException(username);
-                }
-                return Optional.of(linksBuilder.decorate(userEntity.toUser()));
-            })
-            .orElseGet(Optional::empty);
+                .map(userEntity -> {
+                    userEntity.setLoginCount(userEntity.getLoginCount() + 1);
+                    userEntity.setDisabled(userEntity.getLoginCount() > loginAttemptCap);
+                    userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+                    userDao.merge(userEntity);
+                    if (userEntity.isDisabled()) {
+                        throw userLockedException(username);
+                    }
+                    return Optional.of(linksBuilder.decorate(userEntity.toUser()));
+                })
+                .orElseGet(Optional::empty);
     }
 
     /**
      * resets users login attempts to 0.
+     *
      * @param username
      * @return {@link Optional<User>} if user found and resets to 0. Or Optional.empty() if given username not found
      */
     public Optional<User> resetLoginAttempts(String username) {
         return userDao.findByUsername(username)
-            .map(userEntity -> {
-                userEntity.setLoginCount(0);
-                userEntity.setDisabled(false);
-                userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
-                userDao.merge(userEntity);
-                return Optional.of(linksBuilder.decorate(userEntity.toUser()));
-            })
-            .orElseGet(Optional::empty);
+                .map(userEntity -> {
+                    userEntity.setLoginCount(0);
+                    userEntity.setDisabled(false);
+                    userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+                    userDao.merge(userEntity);
+                    return Optional.of(linksBuilder.decorate(userEntity.toUser()));
+                })
+                .orElseGet(Optional::empty);
     }
 
     public Optional<User> incrementSessionVersion(String username, Integer value) {
         return userDao.findByUsername(username)
-            .map(userEntity -> {
-                userEntity.setSessionVersion(userEntity.getSessionVersion() + value);
-                userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
-                userDao.merge(userEntity);
-                return Optional.of(linksBuilder.decorate(userEntity.toUser()));
-            })
-            .orElseGet(Optional::empty);
+                .map(userEntity -> {
+                    userEntity.setSessionVersion(userEntity.getSessionVersion() + value);
+                    userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+                    userDao.merge(userEntity);
+                    return Optional.of(linksBuilder.decorate(userEntity.toUser()));
+                })
+                .orElseGet(Optional::empty);
     }
 }

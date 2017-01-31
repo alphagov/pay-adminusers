@@ -44,7 +44,8 @@ public class UserServicesTest {
         roleDao = mock(RoleDao.class);
         passwordHasher = mock(PasswordHasher.class);
         linksBuilder = new LinksBuilder("http://localhost");
-        userServices = new UserServices(userDao, roleDao, passwordHasher, linksBuilder);
+        int testLoginAttemptCap = 3;
+        userServices = new UserServices(userDao, roleDao, passwordHasher, linksBuilder, testLoginAttemptCap);
     }
 
     @Test(expected = WebApplicationException.class)
