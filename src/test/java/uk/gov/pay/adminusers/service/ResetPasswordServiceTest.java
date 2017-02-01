@@ -1,84 +1,87 @@
 package uk.gov.pay.adminusers.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ForgottenPasswordEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
-import uk.gov.pay.adminusers.resources.RequestValidator;
-import uk.gov.pay.adminusers.resources.ResetPasswordValidator;
-import uk.gov.pay.adminusers.utils.Errors;
 
+import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.TestCase.assertTrue;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ResetPasswordServiceTest {
 
-    ResetPasswordService resetPasswordService;
-    ForgottenPasswordDao forgottenPasswordDao;
-    PasswordHasher passwordHasher;
-    UserDao userDao;
-    JsonNode jsonNode;
-    JsonNode codeMock;
-    JsonNode passwordMock;
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+    @Mock
+    private ForgottenPasswordDao mockForgottenPasswordDao;
+    @Mock
+    private PasswordHasher mockPasswordHasher;
+    @Mock
+    private UserDao mockUserDao;
+
+    private ResetPasswordService resetPasswordService;
 
     @Before
     public void before() throws Exception {
-        userDao = mock(UserDao.class);
-        forgottenPasswordDao = mock(ForgottenPasswordDao.class);
-        passwordHasher = mock(PasswordHasher.class);
-        setUpJsonNodes();
-        resetPasswordService = new ResetPasswordService(userDao, forgottenPasswordDao, passwordHasher, new ResetPasswordValidator(new RequestValidator()));
+        mockUserDao = mock(UserDao.class);
+        mockForgottenPasswordDao = mock(ForgottenPasswordDao.class);
+        mockPasswordHasher = mock(PasswordHasher.class);
+        resetPasswordService = new ResetPasswordService(mockUserDao, mockForgottenPasswordDao, mockPasswordHasher);
     }
 
     @Test
-    public void shouldReturnErrors_whenCodeExpired(){
+    public void shouldThrowAWebApplicationException_whenForgottenPasswordCode_doesNotExistOrIsExpired() {
 
-        String code = "forgotten_password_code";
-        when(forgottenPasswordDao.findNonExpiredByCode(code)).thenReturn(Optional.empty());
+        String code = "forgottenPasswordCode";
+        String password = "myNewPassword";
 
-        Optional<Errors> errorsOptional = resetPasswordService.updatePassword(jsonNode);
+        when(mockForgottenPasswordDao.findNonExpiredByCode(code)).thenReturn(Optional.empty());
 
-        assertTrue(errorsOptional.isPresent());
-        assertThat(errorsOptional.get().getErrors(), hasItem("Field [forgotten_password_code] non-existent/expired"));
+        expectedException.expect(WebApplicationException.class);
+        expectedException.expectMessage(is("HTTP 400 Bad Request"));
+
+        resetPasswordService.updatePassword(code, password);
     }
 
     @Test
-    public void shouldReturnEmptyOptional_whenCodeValid(){
-        setUpJsonNodes();
+    public void shouldUpdatePasswordAsEncrypted_whenCodeIsValid() {
 
-        String code = "forgotten_password_code";
-        ForgottenPasswordEntity forgottenPasswordEntity = mockForgottenPassword(code);
-        when(forgottenPasswordDao.findNonExpiredByCode(code)).thenReturn(Optional.of(forgottenPasswordEntity));
+        String code = "forgottenPasswordCode";
+        String plainPassword = "myNewPlainPassword";
+        String hashedPassword = "hashedPassword";
 
-        Optional<Errors> errorsOptional = resetPasswordService.updatePassword(jsonNode);
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        UserEntity user = new UserEntity();
+        user.setLoginCount(2);
+        user.setPassword("whatever");
 
-        assertFalse(errorsOptional.isPresent());
-    }
+        ForgottenPasswordEntity forgottenPasswordEntity = new ForgottenPasswordEntity(code, ZonedDateTime.now(), user);
+        when(mockForgottenPasswordDao.findNonExpiredByCode(code))
+                .thenReturn(Optional.of(forgottenPasswordEntity));
+        when(mockPasswordHasher.hash(plainPassword)).thenReturn(hashedPassword);
 
-    private void setUpJsonNodes(){
-        jsonNode = mock(JsonNode.class);
-        codeMock = mock(JsonNode.class);
-        passwordMock = mock(JsonNode.class);
+        resetPasswordService.updatePassword(code, plainPassword);
 
-        when(jsonNode.get("forgotten_password_code")).thenReturn(codeMock);
-        when(codeMock.asText()).thenReturn("forgotten_password_code");
-        when(jsonNode.get("new_password")).thenReturn(passwordMock);
-        when(passwordMock.asText()).thenReturn("valid-password");
-    }
+        verify(mockUserDao).merge(argumentCaptor.capture());
 
-    private ForgottenPasswordEntity mockForgottenPassword(String code) {
-        UserEntity mockUser = mock(UserEntity.class);
-        when(mockUser.getUsername()).thenReturn("random-username");
-        return new ForgottenPasswordEntity(code, ZonedDateTime.now(), mockUser);
+        UserEntity updatedUser = argumentCaptor.getValue();
+        assertThat(updatedUser.getLoginCount(), is(0));
+        assertThat(updatedUser.getPassword(), is(hashedPassword));
+
+        verify(mockForgottenPasswordDao).remove(forgottenPasswordEntity);
     }
 }

@@ -18,10 +18,15 @@ import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 public class ResetPasswordResource {
 
     private static final String RESET_PASSWORD_RESOURCE = "/v1/api/reset-password";
+    static final String FIELD_CODE = "forgotten_password_code";
+    static final String FIELD_PASSWORD = "new_password";
+
+    private final ResetPasswordValidator resetPasswordValidator;
     private final ResetPasswordService resetPasswordService;
 
     @Inject
-    public ResetPasswordResource(ResetPasswordService resetPasswordService) {
+    public ResetPasswordResource(ResetPasswordValidator resetPasswordValidator, ResetPasswordService resetPasswordService) {
+        this.resetPasswordValidator = resetPasswordValidator;
         this.resetPasswordService = resetPasswordService;
     }
 
@@ -30,10 +35,14 @@ public class ResetPasswordResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response resetForgottenPassword(JsonNode payload) {
-        return resetPasswordService.updatePassword(payload)
+
+        return resetPasswordValidator.validateResetRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST)
                         .type(APPLICATION_JSON)
                         .entity(errors).build())
-                .orElseGet(() -> Response.status(NO_CONTENT).build());
+                .orElseGet(() -> {
+                    resetPasswordService.updatePassword(payload.get(FIELD_CODE).asText(), payload.get(FIELD_PASSWORD).asText());
+                    return Response.status(NO_CONTENT).build();
+                });
     }
 }

@@ -22,7 +22,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class UserRequestValidatorTest {
-    UserRequestValidator validator;
+
+    private UserRequestValidator validator;
 
     @Before
     public void before() throws Exception {

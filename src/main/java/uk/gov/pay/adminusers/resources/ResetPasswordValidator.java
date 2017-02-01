@@ -9,11 +9,10 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import static com.google.common.collect.ImmutableList.of;
+import static uk.gov.pay.adminusers.resources.ResetPasswordResource.FIELD_CODE;
+import static uk.gov.pay.adminusers.resources.ResetPasswordResource.FIELD_PASSWORD;
 
 public class ResetPasswordValidator {
-
-    private static final String FIELD_CODE = "forgotten_password_code";
-    private static final String FIELD_PASSWORD = "new_password";
 
     private final RequestValidator requestValidator;
 

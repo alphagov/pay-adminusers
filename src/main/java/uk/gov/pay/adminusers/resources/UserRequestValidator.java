@@ -8,12 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.math.NumberUtils.isDigits;
 import static uk.gov.pay.adminusers.model.User.*;
 
 public class UserRequestValidator {
