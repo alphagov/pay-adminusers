@@ -7,6 +7,8 @@ import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ForgottenPasswordEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.adminusers.resources.RequestValidator;
+import uk.gov.pay.adminusers.resources.ResetPasswordValidator;
 import uk.gov.pay.adminusers.utils.Errors;
 
 import java.time.ZonedDateTime;
@@ -35,7 +37,7 @@ public class ResetPasswordServiceTest {
         forgottenPasswordDao = mock(ForgottenPasswordDao.class);
         passwordHasher = mock(PasswordHasher.class);
         setUpJsonNodes();
-        resetPasswordService = new ResetPasswordService(userDao, forgottenPasswordDao, passwordHasher);
+        resetPasswordService = new ResetPasswordService(userDao, forgottenPasswordDao, passwordHasher, new ResetPasswordValidator(new RequestValidator()));
     }
 
     @Test
@@ -47,7 +49,7 @@ public class ResetPasswordServiceTest {
         Optional<Errors> errorsOptional = resetPasswordService.updatePassword(jsonNode);
 
         assertTrue(errorsOptional.isPresent());
-        assertThat(errorsOptional.get().getErrors(), hasItem("Field [forgotten_password_code] has expired"));
+        assertThat(errorsOptional.get().getErrors(), hasItem("Field [forgotten_password_code] non-existent/expired"));
     }
 
     @Test

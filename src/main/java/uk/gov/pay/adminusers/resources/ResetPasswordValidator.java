@@ -2,32 +2,52 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
-import jersey.repackaged.com.google.common.collect.ImmutableList;
-import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.utils.Errors;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static com.google.common.collect.ImmutableList.of;
 
 public class ResetPasswordValidator {
 
+    private static final String FIELD_CODE = "forgotten_password_code";
+    private static final String FIELD_PASSWORD = "new_password";
+
+    private final RequestValidator requestValidator;
+
+    @Inject
+    public ResetPasswordValidator(RequestValidator requestValidator) {
+        this.requestValidator = requestValidator;
+    }
 
     public Optional<Errors> validateResetRequest(JsonNode payload) {
-        if(payload == null){
-            return Optional.of(Errors.from(ImmutableList.of("JsonNode is invalid")));
+
+        if (payload == null) {
+            return Optional.of(Errors.from(of("invalid JSON")));
         }
 
-        if (isBlank(payload.get("forgotten_password_code").asText()) )
-        {
-            return Optional.of(Errors.from(ImmutableList.of("Field [forgotten_password_code] is invalid")));
+        Optional<List<String>> missingMandatoryFields = requestValidator.checkIfExists(payload, FIELD_CODE, FIELD_PASSWORD);
+
+        if (missingMandatoryFields.isPresent()) {
+            return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
 
-        if(isBlank(payload.get("new_password").asText())){
-            return Optional.of(Errors.from(ImmutableList.of("Field [new_password] is invalid")));
+        Optional<List<String>> invalidLength = checkLength(payload, FIELD_CODE);
+
+        if (invalidLength.isPresent()) {
+            return Optional.of(Errors.from(invalidLength.get()));
         }
 
         return Optional.empty();
+    }
+
+    private Optional<List<String>> checkLength(JsonNode payload, String... fieldNames) {
+        return requestValidator.applyCheck(payload, exceedsMaxLength(), fieldNames, "Field [%s] must have a maximum length of 255 characters");
+    }
+
+    private Function<JsonNode, Boolean> exceedsMaxLength() {
+        return jsonNode -> jsonNode.asText().length() > 255;
     }
 }

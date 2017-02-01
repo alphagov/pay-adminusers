@@ -26,7 +26,7 @@ public class UserRequestValidatorTest {
 
     @Before
     public void before() throws Exception {
-        validator = new UserRequestValidator();
+        validator = new UserRequestValidator(new RequestValidator());
     }
 
     @Test

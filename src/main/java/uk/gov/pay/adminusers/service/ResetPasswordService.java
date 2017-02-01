@@ -23,11 +23,11 @@ public class ResetPasswordService {
     private ResetPasswordValidator validator;
 
     @Inject
-    public ResetPasswordService(UserDao userDao, ForgottenPasswordDao forgottenPasswordDao, PasswordHasher passwordHasher) {
+    public ResetPasswordService(UserDao userDao, ForgottenPasswordDao forgottenPasswordDao, PasswordHasher passwordHasher, ResetPasswordValidator resetPasswordValidator) {
         this.userDao = userDao;
         this.forgottenPasswordDao = forgottenPasswordDao;
         this.passwordHasher = passwordHasher;
-        this.validator = new ResetPasswordValidator();
+        this.validator = resetPasswordValidator;
     }
 
     public Optional<Errors> updatePassword(JsonNode payload) {
@@ -43,8 +43,8 @@ public class ResetPasswordService {
                 forgottenPasswordDao.findNonExpiredByCode(payload.get("forgotten_password_code").asText());
 
         if (!optionalForgottenPasswordEntity.isPresent()) {
-            logger.warn("Password validation failed, no valid Entity found by " + payload.get("forgotten_password_code"));
-            return Optional.of(Errors.from(ImmutableList.of("Field [forgotten_password_code] has expired")));
+            logger.warn("Reset password validation failed, non-existent/expired " + payload.get("forgotten_password_code"));
+            return Optional.of(Errors.from(ImmutableList.of("Field [forgotten_password_code] non-existent/expired")));
         }
 
         ForgottenPasswordEntity forgottenPasswordEntity = optionalForgottenPasswordEntity.get();

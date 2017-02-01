@@ -2,8 +2,6 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
-import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.service.ResetPasswordService;
 
 import javax.ws.rs.Consumes;
@@ -33,7 +31,9 @@ public class ResetPasswordResource {
     @Consumes(APPLICATION_JSON)
     public Response resetForgottenPassword(JsonNode payload) {
         return resetPasswordService.updatePassword(payload)
-                .map(errors -> Response.status(BAD_REQUEST).build())
+                .map(errors -> Response.status(BAD_REQUEST)
+                        .type(APPLICATION_JSON)
+                        .entity(errors).build())
                 .orElseGet(() -> Response.status(NO_CONTENT).build());
     }
 }
