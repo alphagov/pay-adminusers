@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.service;
 
 import com.google.common.collect.ImmutableMap;
-import uk.gov.pay.adminusers.utils.Errors;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -31,13 +30,6 @@ public class AdminUsersExceptions {
 
     public static WebApplicationException internalServerError(String message) {
         return buildWebApplicationException(message, INTERNAL_SERVER_ERROR.getStatusCode());
-    }
-
-    public static WebApplicationException clientErrorException(Errors errors) {
-        Response response = Response.status(BAD_REQUEST)
-                .entity(errors)
-                .build();
-        return new WebApplicationException(response);
     }
 
     private static WebApplicationException buildWebApplicationException(String error, int status) {

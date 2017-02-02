@@ -25,7 +25,7 @@ public class ResetPasswordValidatorTest {
     @Before
     public void before() throws Exception {
         forgottenPasswordDao = mock(ForgottenPasswordDao.class);
-        resetPasswordValidator = new ResetPasswordValidator(new RequestValidator());
+        resetPasswordValidator = new ResetPasswordValidator(new RequestValidations());
     }
 
     @Test

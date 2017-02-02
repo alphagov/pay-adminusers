@@ -1,9 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -13,7 +11,6 @@ import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ForgottenPasswordEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
-import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
@@ -24,8 +21,6 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ResetPasswordServiceTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
     @Mock
     private ForgottenPasswordDao mockForgottenPasswordDao;
     @Mock
@@ -44,17 +39,16 @@ public class ResetPasswordServiceTest {
     }
 
     @Test
-    public void shouldThrowAWebApplicationException_whenForgottenPasswordCode_doesNotExistOrIsExpired() {
+    public void shouldReturnOptionalEmpty_whenForgottenPasswordCode_doesNotExistOrIsExpired() {
 
         String code = "forgottenPasswordCode";
         String password = "myNewPassword";
 
         when(mockForgottenPasswordDao.findNonExpiredByCode(code)).thenReturn(Optional.empty());
 
-        expectedException.expect(WebApplicationException.class);
-        expectedException.expectMessage(is("HTTP 400 Bad Request"));
+        Optional<Integer> userIdOptional = resetPasswordService.updatePassword(code, password);
 
-        resetPasswordService.updatePassword(code, password);
+        assertThat(userIdOptional.isPresent(), is(false));
     }
 
     @Test
@@ -63,9 +57,11 @@ public class ResetPasswordServiceTest {
         String code = "forgottenPasswordCode";
         String plainPassword = "myNewPlainPassword";
         String hashedPassword = "hashedPassword";
+        int userId = 666;
 
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         UserEntity user = new UserEntity();
+        user.setId(userId);
         user.setLoginCount(2);
         user.setPassword("whatever");
 
@@ -74,7 +70,9 @@ public class ResetPasswordServiceTest {
                 .thenReturn(Optional.of(forgottenPasswordEntity));
         when(mockPasswordHasher.hash(plainPassword)).thenReturn(hashedPassword);
 
-        resetPasswordService.updatePassword(code, plainPassword);
+        Optional<Integer> userIdOptional = resetPasswordService.updatePassword(code, plainPassword);
+        assertThat(userIdOptional.isPresent(), is(true));
+        assertThat(userIdOptional.get(), is(userId));
 
         verify(mockUserDao).merge(argumentCaptor.capture());
 

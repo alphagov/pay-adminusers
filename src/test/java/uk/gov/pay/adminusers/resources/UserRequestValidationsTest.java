@@ -21,13 +21,13 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class UserRequestValidatorTest {
+public class UserRequestValidationsTest {
 
     private UserRequestValidator validator;
 
     @Before
     public void before() throws Exception {
-        validator = new UserRequestValidator(new RequestValidator());
+        validator = new UserRequestValidator(new RequestValidations());
     }
 
     @Test

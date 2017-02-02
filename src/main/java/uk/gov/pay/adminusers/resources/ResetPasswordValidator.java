@@ -14,11 +14,11 @@ import static uk.gov.pay.adminusers.resources.ResetPasswordResource.FIELD_PASSWO
 
 public class ResetPasswordValidator {
 
-    private final RequestValidator requestValidator;
+    private final RequestValidations requestValidations;
 
     @Inject
-    public ResetPasswordValidator(RequestValidator requestValidator) {
-        this.requestValidator = requestValidator;
+    public ResetPasswordValidator(RequestValidations requestValidations) {
+        this.requestValidations = requestValidations;
     }
 
     public Optional<Errors> validateResetRequest(JsonNode payload) {
@@ -27,7 +27,7 @@ public class ResetPasswordValidator {
             return Optional.of(Errors.from(of("invalid JSON")));
         }
 
-        Optional<List<String>> missingMandatoryFields = requestValidator.checkIfExists(payload, FIELD_CODE, FIELD_PASSWORD);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_CODE, FIELD_PASSWORD);
 
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
@@ -43,7 +43,7 @@ public class ResetPasswordValidator {
     }
 
     private Optional<List<String>> checkLength(JsonNode payload, String... fieldNames) {
-        return requestValidator.applyCheck(payload, exceedsMaxLength(), fieldNames, "Field [%s] must have a maximum length of 255 characters");
+        return requestValidations.applyCheck(payload, exceedsMaxLength(), fieldNames, "Field [%s] must have a maximum length of 255 characters");
     }
 
     private Function<JsonNode, Boolean> exceedsMaxLength() {

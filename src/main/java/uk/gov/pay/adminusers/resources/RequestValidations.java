@@ -13,7 +13,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.math.NumberUtils.isDigits;
 
-public class RequestValidator {
+public class RequestValidations {
 
     Optional<List<String>> checkIsValid(JsonNode payload, Map<String, String> requiredData) {
         List<String> errors = newArrayList();

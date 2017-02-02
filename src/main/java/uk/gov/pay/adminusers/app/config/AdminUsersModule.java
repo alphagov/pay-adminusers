@@ -10,7 +10,7 @@ import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.setup.Environment;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
-import uk.gov.pay.adminusers.resources.RequestValidator;
+import uk.gov.pay.adminusers.resources.RequestValidations;
 import uk.gov.pay.adminusers.resources.ResetPasswordValidator;
 import uk.gov.pay.adminusers.resources.UserRequestValidator;
 import uk.gov.pay.adminusers.service.*;
@@ -33,7 +33,7 @@ public class AdminUsersModule extends AbstractModule {
         bind(LinksBuilder.class).toInstance(new LinksBuilder(configuration.getBaseUrl()));
 
         bind(PasswordHasher.class).in(Singleton.class);
-        bind(RequestValidator.class).in(Singleton.class);
+        bind(RequestValidations.class).in(Singleton.class);
         bind(UserRequestValidator.class).in(Singleton.class);
         bind(ResetPasswordValidator.class).in(Singleton.class);
         bind(UserDao.class).in(Singleton.class);

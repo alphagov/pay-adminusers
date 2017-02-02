@@ -80,7 +80,7 @@ public class ResetPasswordResourceTest extends IntegrationTest {
                 .accept(JSON)
                 .post(RESET_PASSWORD_RESOURCE_URL)
                 .then()
-                .statusCode(400)
+                .statusCode(404)
                 .body("errors", hasSize(1))
                 .body("errors[0]", is("Field [forgotten_password_code] non-existent/expired"));
 
@@ -108,7 +108,7 @@ public class ResetPasswordResourceTest extends IntegrationTest {
                 .accept(JSON)
                 .post(RESET_PASSWORD_RESOURCE_URL)
                 .then()
-                .statusCode(400)
+                .statusCode(404)
                 .body("errors", hasSize(1))
                 .body("errors[0]", is("Field [forgotten_password_code] non-existent/expired"));
 
