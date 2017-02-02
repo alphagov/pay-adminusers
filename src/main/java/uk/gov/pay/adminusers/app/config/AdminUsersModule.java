@@ -10,11 +10,10 @@ import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.setup.Environment;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.resources.RequestValidations;
+import uk.gov.pay.adminusers.resources.ResetPasswordValidator;
 import uk.gov.pay.adminusers.resources.UserRequestValidator;
-import uk.gov.pay.adminusers.service.ForgottenPasswordServices;
-import uk.gov.pay.adminusers.service.LinksBuilder;
-import uk.gov.pay.adminusers.service.PasswordHasher;
-import uk.gov.pay.adminusers.service.UserServices;
+import uk.gov.pay.adminusers.service.*;
 
 import java.util.Properties;
 
@@ -34,12 +33,15 @@ public class AdminUsersModule extends AbstractModule {
         bind(LinksBuilder.class).toInstance(new LinksBuilder(configuration.getBaseUrl()));
 
         bind(PasswordHasher.class).in(Singleton.class);
+        bind(RequestValidations.class).in(Singleton.class);
         bind(UserRequestValidator.class).in(Singleton.class);
+        bind(ResetPasswordValidator.class).in(Singleton.class);
         bind(UserDao.class).in(Singleton.class);
         bind(Integer.class).annotatedWith(Names.named("LOGIN_ATTEMPT_CAP")).toInstance(configuration.getLoginAttemptCap());
         bind(UserServices.class).in(Singleton.class);
         bind(ForgottenPasswordDao.class).in(Singleton.class);
         bind(ForgottenPasswordServices.class).in(Singleton.class);
+        bind(ResetPasswordService.class).in(Singleton.class);
 
         install(jpaModule(configuration));
     }

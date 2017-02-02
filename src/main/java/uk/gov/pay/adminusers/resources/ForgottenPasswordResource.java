@@ -19,7 +19,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class ForgottenPasswordResource {
 
     public static final String FORGOTTEN_PASSWORDS_RESOURCE = "/v1/api/forgotten-passwords";
-    public static final String FORGOTTEN_PASSWORD_RESOURCE = FORGOTTEN_PASSWORDS_RESOURCE + "/{code}";
+    private static final String FORGOTTEN_PASSWORD_RESOURCE = FORGOTTEN_PASSWORDS_RESOURCE + "/{code}";
     private static final Logger logger = PayLoggerFactory.getLogger(ForgottenPasswordResource.class);
 
     private static final int MAX_LENGTH = 255;
