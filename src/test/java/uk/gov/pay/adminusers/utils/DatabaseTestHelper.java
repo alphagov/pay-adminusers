@@ -152,4 +152,21 @@ public class DatabaseTestHelper {
         );
         return this;
     }
+
+    //TODO Remove - This is temporary - WIP PP-1483
+    public List<Map<String, Object>> findUserServicesByUserId(long userId) {
+        return jdbi.withHandle(h ->
+                h.createQuery("SELECT service_id FROM users_services " +
+                        "WHERE user_id = :userId")
+                        .bind("userId", userId)
+                        .list());
+    }
+
+    public List<Map<String, Object>> findGatewayAccountsByService(long serviceId) {
+        return jdbi.withHandle(h ->
+                h.createQuery("SELECT gateway_account_id FROM service_gateway_accounts " +
+                        "WHERE service_id = :serviceId")
+                        .bind("serviceId", serviceId)
+                        .list());
+    }
 }
