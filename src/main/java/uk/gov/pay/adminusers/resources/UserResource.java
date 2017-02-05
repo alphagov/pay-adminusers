@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import io.dropwizard.jersey.PATCH;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.service.UserServices;
 
@@ -50,13 +51,13 @@ public class UserResource {
     public Response getUser(@PathParam("username") String username) {
         logger.info("User GET request - [ {} ]", username);
 
-        if(isNotBlank(username) && username.length() > MAX_LENGTH) {
+        if (isNotBlank(username) && username.length() > MAX_LENGTH) {
             return Response.status(NOT_FOUND).build();
         }
 
         return userServices.findUser(username)
-            .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
-            .orElseGet(() -> Response.status(NOT_FOUND).build());
+                .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
+                .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
     @Path(USERS_RESOURCE)
@@ -66,15 +67,15 @@ public class UserResource {
     public Response createUser(JsonNode node) {
         logger.info("User create request - [ {} ]", node);
         return validator.validateCreateRequest(node)
-            .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-            .orElseGet(() -> {
-                String roleName = node.get(User.FIELD_ROLE_NAME).asText();
-                User newUser = userServices.createUser(User.from(node), roleName);
-                logger.info("User created: [ {} ]", newUser);
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> {
+                    String roleName = node.get(User.FIELD_ROLE_NAME).asText();
+                    User newUser = userServices.createUser(User.from(node), roleName);
+                    logger.info("User created: [ {} ]", newUser);
 
-                return Response.status(CREATED).type(APPLICATION_JSON)
-                        .entity(newUser).build();
-            });
+                    return Response.status(CREATED).type(APPLICATION_JSON)
+                            .entity(newUser).build();
+                });
     }
 
 
@@ -111,7 +112,7 @@ public class UserResource {
         if (isBlank(username)) {
             return Response.status(NOT_FOUND).build();
         }
-        if(isNotBlank(resetAction) && !resetAction.equals("reset")) {
+        if (isNotBlank(resetAction) && !resetAction.equals("reset")) {
             return Response.status(BAD_REQUEST)
                     .entity(ImmutableMap.of("errors", ImmutableList.of("Parameter [action] value is invalid"))).build();
         }
@@ -133,13 +134,12 @@ public class UserResource {
     @Path(USER_RESOURCE)
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response incrementSessionVersion(@PathParam("username") String username, JsonNode node) {
-        logger.info("User update user session attempt request");
-        return validator.valueIsNumeric(node, ImmutableMap.of("op","replace", "path", "sessionVersion"))
+    public Response updateUserAttribute(@PathParam("username") String username, JsonNode node) {
+        logger.info("User update attribute attempt request");
+        return validator.validatePatchRequest(node)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() ->
-                    userServices.incrementSessionVersion(username, Integer.valueOf(node.get("value").asText()))
-                            .map(user -> Response.status(OK).build())
-                            .orElseGet(() -> Response.status(NOT_FOUND).build()));
+                .orElseGet(() -> userServices.patchUser(username, PatchRequest.from(node))
+                        .map(user -> Response.status(OK).entity(user).build())
+                        .orElseGet(() -> Response.status(NOT_FOUND).build()));
     }
 }

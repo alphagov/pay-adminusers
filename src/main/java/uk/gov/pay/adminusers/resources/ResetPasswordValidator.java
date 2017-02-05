@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import uk.gov.pay.adminusers.utils.Errors;
+import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.util.List;
 import java.util.Optional;
