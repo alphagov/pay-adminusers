@@ -65,7 +65,7 @@ public class UserServices {
                         if (ex.getMessage().contains(CONSTRAINT_VIOLATION_MESSAGE)) {
                             throw conflictingUsername(user.getUsername());
                         } else {
-                            logger.error("unknown database error during user creation for data {}", user, ex);
+                            logger.error("unknown database error during user creation for user [{}]", user.getUsername(), ex);
                             throw internalServerError("unable to create user at this moment");
                         }
                     }

@@ -65,13 +65,13 @@ public class UserResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response createUser(JsonNode node) {
-        logger.info("User create request - [ {} ]", node);
+        logger.info("Attempting user create request");
         return validator.validateCreateRequest(node)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
                     String roleName = node.get(User.FIELD_ROLE_NAME).asText();
                     User newUser = userServices.createUser(User.from(node), roleName);
-                    logger.info("User created: [ {} ]", newUser);
+                    logger.info("User created successfully [{}] for gateway account [{}]", newUser.getUsername(), newUser.getGatewayAccountId());
 
                     return Response.status(CREATED).type(APPLICATION_JSON)
                             .entity(newUser).build();
