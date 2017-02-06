@@ -106,6 +106,7 @@ public class UserResource {
     }
 
     @Path(ATTEMPT_LOGIN_RESOURCE)
+    @Produces(APPLICATION_JSON)
     @POST
     public Response updateLoginAttempts(@PathParam("username") String username, @QueryParam("action") String resetAction) {
         logger.info("User login attempt request");
@@ -126,7 +127,7 @@ public class UserResource {
         }
 
         return userOptional
-                .map(user -> Response.status(OK).build())
+                .map(user -> Response.status(OK).entity(user).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
