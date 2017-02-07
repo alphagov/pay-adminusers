@@ -62,7 +62,7 @@ public class ResetPasswordServiceTest {
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         UserEntity user = new UserEntity();
         user.setId(userId);
-        user.setLoginCount(2);
+        user.setLoginCounter(2);
         user.setPassword("whatever");
 
         ForgottenPasswordEntity forgottenPasswordEntity = new ForgottenPasswordEntity(code, ZonedDateTime.now(), user);
@@ -77,7 +77,7 @@ public class ResetPasswordServiceTest {
         verify(mockUserDao).merge(argumentCaptor.capture());
 
         UserEntity updatedUser = argumentCaptor.getValue();
-        assertThat(updatedUser.getLoginCount(), is(0));
+        assertThat(updatedUser.getLoginCounter(), is(0));
         assertThat(updatedUser.getPassword(), is(hashedPassword));
 
         verify(mockForgottenPasswordDao).remove(forgottenPasswordEntity);

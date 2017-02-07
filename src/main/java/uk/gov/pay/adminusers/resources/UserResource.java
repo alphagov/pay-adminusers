@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.lang.String.format;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -81,23 +82,11 @@ public class UserResource {
                         logger.info("User created successfully [{}] for gateway account [{}]", newUser.getUsername(), newUser.getGatewayAccountId());
                         return Response.status(CREATED).type(APPLICATION_JSON)
                                 .entity(newUser).build();
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         return handleCreateUserException(userName, e);
                     }
                 });
     }
-
-    private Response handleCreateUserException(String userName, Exception e) {
-        if (e.getMessage().contains(CONSTRAINT_VIOLATION_MESSAGE)) {
-            throw conflictingUsername(userName);
-        } else if (e instanceof WebApplicationException) {
-            throw (WebApplicationException)e;
-        } else {
-            logger.error("unknown database error during user creation for user [{}]", userName, e);
-            throw internalServerError("unable to create user at this moment");
-        }
-    }
-
 
     @Path(AUTHENTICATE_RESOURCE)
     @POST
@@ -119,10 +108,6 @@ public class UserResource {
                                             .entity(unauthorisedErrorMessage())
                                             .build());
                 });
-    }
-
-    private Map<String, List<String>> unauthorisedErrorMessage() {
-        return ImmutableMap.of("errors", ImmutableList.of("invalid username and/or password"));
     }
 
     @Path(ATTEMPT_LOGIN_RESOURCE)
@@ -147,7 +132,16 @@ public class UserResource {
         }
 
         return userOptional
-                .map(user -> Response.status(OK).entity(user).build())
+                .map(user -> {
+                    if (user.isDisabled()) {
+                        logger.warn("user {} attempted a 2fa login/reset, but account currently locked", username);
+                        return Response.status(UNAUTHORIZED)
+                                .entity(ImmutableMap.of("errors", ImmutableList.of(format("user [%s] locked due to too many login attempts", username))))
+                                .build();
+                    }
+                    return Response.status(OK).entity(user).build();
+
+                })
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
@@ -162,5 +156,20 @@ public class UserResource {
                 .orElseGet(() -> userServices.patchUser(username, PatchRequest.from(node))
                         .map(user -> Response.status(OK).entity(user).build())
                         .orElseGet(() -> Response.status(NOT_FOUND).build()));
+    }
+
+    private Response handleCreateUserException(String userName, Exception e) {
+        if (e.getMessage().contains(CONSTRAINT_VIOLATION_MESSAGE)) {
+            throw conflictingUsername(userName);
+        } else if (e instanceof WebApplicationException) {
+            throw (WebApplicationException) e;
+        } else {
+            logger.error("unknown database error during user creation for user [{}]", userName, e);
+            throw internalServerError("unable to create user at this moment");
+        }
+    }
+
+    private Map<String, List<String>> unauthorisedErrorMessage() {
+        return ImmutableMap.of("errors", ImmutableList.of("invalid username and/or password"));
     }
 }

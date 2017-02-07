@@ -36,7 +36,7 @@ public class User {
     private String otpKey;
     private String telephoneNumber;
     private Boolean disabled = FALSE;
-    private Integer loginCount = 0;
+    private Integer loginCounter = 0;
     private List<Role> roles = new ArrayList<>();
     private List<Link> links = new ArrayList<>();
     private Integer sessionVersion = 0;
@@ -109,16 +109,16 @@ public class User {
         return disabled;
     }
 
-    public Integer getLoginCount() {
-        return loginCount;
+    public Integer getLoginCounter() {
+        return loginCounter;
     }
 
     public void setDisabled(Boolean disabled) {
         this.disabled = disabled;
     }
 
-    public void setLoginCount(Integer loginCount) {
-        this.loginCount = loginCount;
+    public void setLoginCounter(Integer loginCounter) {
+        this.loginCounter = loginCounter;
     }
 
     public void setSessionVersion(Integer sessionVersion) {

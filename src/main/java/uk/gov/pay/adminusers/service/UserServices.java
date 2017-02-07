@@ -79,25 +79,27 @@ public class UserServices {
     @Transactional
     public Optional<User> authenticate(String username, String password) {
         Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
+        logger.warn("Attempting to find user {}", username);
 
         if (userEntityOptional.isPresent()) { //interestingly java cannot map/orElseGet this block properly, without getting the compiler confused. :)
             UserEntity userEntity = userEntityOptional.get();
             if (passwordHasher.isEqual(password, userEntity.getPassword())) {
                 if (userEntity.isDisabled()) {
+                    logger.warn("user {} attempted a valid login, but account currently locked", username);
                     throw userLockedException(username);
                 }
-                userEntity.setLoginCount(0);
+                userEntity.setLoginCounter(0);
                 userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                 userDao.merge(userEntity);
                 return Optional.of(linksBuilder.decorate(userEntity.toUser()));
             } else {
-                userEntity.setLoginCount(userEntity.getLoginCount() + 1);
+                userEntity.setLoginCounter(userEntity.getLoginCounter() + 1);
                 userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                 //currently we can only unlock an account by script, manually
-                userEntity.setDisabled(userEntity.getLoginCount() > loginAttemptCap);
+                userEntity.setDisabled(userEntity.getLoginCounter() >= loginAttemptCap);
                 userDao.merge(userEntity);
                 if (userEntity.isDisabled()) {
-                    throw userLockedException(username);
+                    logger.warn("user {} attempted a invalid login, but account currently locked", username);
                 }
                 return Optional.empty();
             }
@@ -132,13 +134,10 @@ public class UserServices {
     public Optional<User> recordLoginAttempt(String username) {
         return userDao.findByUsername(username)
                 .map(userEntity -> {
-                    userEntity.setLoginCount(userEntity.getLoginCount() + 1);
-                    userEntity.setDisabled(userEntity.getLoginCount() > loginAttemptCap);
+                    userEntity.setLoginCounter(userEntity.getLoginCounter() + 1);
+                    userEntity.setDisabled(userEntity.getLoginCounter() >= loginAttemptCap);
                     userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                     userDao.merge(userEntity);
-                    if (userEntity.isDisabled()) {
-                        throw userLockedException(username);
-                    }
                     return Optional.of(linksBuilder.decorate(userEntity.toUser()));
                 })
                 .orElseGet(Optional::empty);
@@ -154,7 +153,7 @@ public class UserServices {
     public Optional<User> resetLoginAttempts(String username) {
         return userDao.findByUsername(username)
                 .map(userEntity -> {
-                    userEntity.setLoginCount(0);
+                    userEntity.setLoginCounter(0);
                     userEntity.setDisabled(false);
                     userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                     userDao.merge(userEntity);

@@ -22,7 +22,7 @@ public class UserResourceLoginAttemptTest extends UserResourceTestBase {
                 .then()
                 .statusCode(200)
                 .body("username", is(username))
-                .body("login_count", is(1));
+                .body("login_counter", is(1));
     }
 
     @Test

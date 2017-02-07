@@ -34,7 +34,7 @@ public class UserResourceAuthenticationTest extends UserResourceTestBase {
                 .body("gateway_account_id", is("1"))
                 .body("telephone_number", is("45334534634"))
                 .body("otp_key", is("34f34"))
-                .body("login_count", is(0))
+                .body("login_counter", is(0))
                 .body("disabled", is(false))
                 .body("_links", hasSize(1))
                 .body("role.name", is("admin"))
@@ -62,31 +62,6 @@ public class UserResourceAuthenticationTest extends UserResourceTestBase {
                 .statusCode(401)
                 .body("errors", hasSize(1))
                 .body("errors[0]", is("invalid username and/or password"));
-
-    }
-
-    @Test
-    public void shouldLockAccount_onTooManyInvalidAttempts() throws Exception {
-        String random = randomUUID().toString();
-        createAValidUser(random);
-        String username = "user-" + random;
-        databaseTestHelper.updateLoginCount(username, 10);
-
-        ImmutableMap<Object, Object> authPayload = ImmutableMap.builder()
-                .put("username", username)
-                .put("password", "invalid-password")
-                .build();
-
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(authPayload))
-                .contentType(JSON)
-                .accept(JSON)
-                .post(USERS_AUTHENTICATE_URL)
-                .then()
-                .statusCode(401)
-                .body("errors", hasSize(1))
-                .body("errors[0]", is(format("user [%s] locked due to too many login attempts", username)));
 
     }
 

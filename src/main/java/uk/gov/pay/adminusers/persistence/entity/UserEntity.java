@@ -38,7 +38,7 @@ public class UserEntity extends AbstractEntity {
     private Boolean disabled = FALSE;
 
     @Column(name = "login_counter")
-    private Integer loginCount = 0;
+    private Integer loginCounter = 0;
 
     @ManyToMany(fetch = FetchType.EAGER, targetEntity = RoleEntity.class)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
@@ -117,12 +117,12 @@ public class UserEntity extends AbstractEntity {
         this.disabled = disabled;
     }
 
-    public Integer getLoginCount() {
-        return loginCount;
+    public Integer getLoginCounter() {
+        return loginCounter;
     }
 
-    public void setLoginCount(Integer loginCount) {
-        this.loginCount = loginCount;
+    public void setLoginCounter(Integer loginCount) {
+        this.loginCounter = loginCount;
     }
 
     public List<RoleEntity> getRoles() {
@@ -171,7 +171,7 @@ public class UserEntity extends AbstractEntity {
         userEntity.setOtpKey(user.getOtpKey());
         userEntity.setTelephoneNumber(user.getTelephoneNumber());
         userEntity.setGatewayAccountId(user.getGatewayAccountId());
-        userEntity.setLoginCount(user.getLoginCount());
+        userEntity.setLoginCounter(user.getLoginCounter());
         userEntity.setDisabled(user.isDisabled());
         userEntity.setSessionVersion(user.getSessionVersion());
         userEntity.setRoles(user.getRoles().stream().map(RoleEntity::new).collect(Collectors.toList()));
@@ -183,7 +183,7 @@ public class UserEntity extends AbstractEntity {
 
     public User toUser() {
         User user = User.from(getId(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
-        user.setLoginCount(loginCount);
+        user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);
         user.setRoles(roles.stream().map(roleEntity -> roleEntity.toRole()).collect(Collectors.toList()));

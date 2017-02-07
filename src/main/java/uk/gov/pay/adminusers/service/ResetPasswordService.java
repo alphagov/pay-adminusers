@@ -25,7 +25,7 @@ public class ResetPasswordService {
     public Optional<Integer> updatePassword(String code, String password) {
         return forgottenPasswordDao.findNonExpiredByCode(code).map(forgottenPassword -> {
             UserEntity userEntity = forgottenPassword.getUser();
-            userEntity.setLoginCount(0);
+            userEntity.setLoginCounter(0);
             userEntity.setPassword(passwordHasher.hash(password));
             userDao.merge(userEntity);
             forgottenPasswordDao.remove(forgottenPassword);
