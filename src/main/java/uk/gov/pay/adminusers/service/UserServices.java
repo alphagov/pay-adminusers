@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.service;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.PatchRequest;
@@ -20,11 +21,11 @@ import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_DISABLED;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.undefinedRoleException;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.userLockedException;
 
 public class UserServices {
 
-    static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
     private static Logger logger = PayLoggerFactory.getLogger(UserServices.class);
 
     private final UserDao userDao;
@@ -51,24 +52,15 @@ public class UserServices {
      * @throws javax.ws.rs.WebApplicationException with status 409-Conflict if the username is already taken
      * @throws javax.ws.rs.WebApplicationException with status 500 for any unknown error during persistence
      */
+    @Transactional
     public User createUser(User user, String roleName) {
         return roleDao.findByRoleName(roleName)
                 .map(roleEntity -> {
                     UserEntity userEntity = UserEntity.from(user);
                     userEntity.setRoles(ImmutableList.of(roleEntity));
                     userEntity.setPassword(passwordHasher.hash(user.getPassword()));
-
-                    try {
-                        userDao.persist(userEntity);
-                        return linksBuilder.decorate(userEntity.toUser());
-                    } catch (Exception ex) {
-                        if (ex.getMessage().contains(CONSTRAINT_VIOLATION_MESSAGE)) {
-                            throw conflictingUsername(user.getUsername());
-                        } else {
-                            logger.error("unknown database error during user creation for user [{}]", user.getUsername(), ex);
-                            throw internalServerError("unable to create user at this moment");
-                        }
-                    }
+                    userDao.persist(userEntity);
+                    return linksBuilder.decorate(userEntity.toUser());
                 })
                 .orElseThrow(() -> undefinedRoleException(roleName));
     }
@@ -84,6 +76,7 @@ public class UserServices {
      * @throws javax.ws.rs.WebApplicationException if user account is disabled
      * @throws javax.ws.rs.WebApplicationException with status 423 (Locked) if login attempts >  ALLOWED_FAILED_LOGIN_ATTEMPTS
      */
+    @Transactional
     public Optional<User> authenticate(String username, String password) {
         Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
 
@@ -135,6 +128,7 @@ public class UserServices {
      * @return {@link Optional<User>} if login count less that maximum allowed attempts. Or Optional.empty() if given username not found
      * @throws javax.ws.rs.WebApplicationException if user account is disabled
      */
+    @Transactional
     public Optional<User> recordLoginAttempt(String username) {
         return userDao.findByUsername(username)
                 .map(userEntity -> {
@@ -156,6 +150,7 @@ public class UserServices {
      * @param username
      * @return {@link Optional<User>} if user found and resets to 0. Or Optional.empty() if given username not found
      */
+    @Transactional
     public Optional<User> resetLoginAttempts(String username) {
         return userDao.findByUsername(username)
                 .map(userEntity -> {
@@ -169,6 +164,7 @@ public class UserServices {
     }
 
 
+    @Transactional
     public Optional<User> patchUser(String username, PatchRequest patchRequest) {
         if (PATH_SESSION_VERSION.equals(patchRequest.getPath())) {
             return incrementSessionVersion(username, parseInt(patchRequest.getValue()));

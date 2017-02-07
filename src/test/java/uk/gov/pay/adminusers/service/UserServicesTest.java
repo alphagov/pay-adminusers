@@ -28,8 +28,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
+import static uk.gov.pay.adminusers.resources.UserResource.CONSTRAINT_VIOLATION_MESSAGE;
 import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
-import static uk.gov.pay.adminusers.service.UserServices.CONSTRAINT_VIOLATION_MESSAGE;
 
 public class UserServicesTest {
 
@@ -55,30 +55,6 @@ public class UserServicesTest {
         String nonExistentRole = "nonExistentRole";
         when(roleDao.findByRoleName(nonExistentRole)).thenReturn(Optional.empty());
         userServices.createUser(user, nonExistentRole);
-    }
-
-    @Test(expected = WebApplicationException.class)
-    public void shouldError_ifRoleNameConflicts() throws Exception {
-        User user = aUser();
-        Role role = Role.role(2, "admin", "admin role");
-
-        when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
-        when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
-        doThrow(new RollbackException(CONSTRAINT_VIOLATION_MESSAGE)).when(userDao).persist(any(UserEntity.class));
-
-        userServices.createUser(user, role.getName());
-    }
-
-    @Test(expected = WebApplicationException.class)
-    public void shouldError_ifUnknownErrorThrownWhenSaving() throws Exception {
-        User user = aUser();
-        Role role = Role.role(2, "admin", "admin role");
-
-        when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
-        when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
-        doThrow(new RuntimeException("unknown error")).when(userDao).persist(any(UserEntity.class));
-
-        userServices.createUser(user, role.getName());
     }
 
     @Test

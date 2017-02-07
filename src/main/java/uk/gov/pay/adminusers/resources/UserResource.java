@@ -22,6 +22,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingUsername;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 
 @Path("/")
 public class UserResource {
@@ -33,6 +35,9 @@ public class UserResource {
     public static final String AUTHENTICATE_RESOURCE = USERS_RESOURCE + "/authenticate";
     public static final String USER_RESOURCE = USERS_RESOURCE + "/{username}";
     public static final String ATTEMPT_LOGIN_RESOURCE = USER_RESOURCE + "/attempt-login";
+
+    public static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
+
 
     private final UserServices userServices;
     private final UserRequestValidator validator;
@@ -70,12 +75,27 @@ public class UserResource {
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
                     String roleName = node.get(User.FIELD_ROLE_NAME).asText();
-                    User newUser = userServices.createUser(User.from(node), roleName);
-                    logger.info("User created successfully [{}] for gateway account [{}]", newUser.getUsername(), newUser.getGatewayAccountId());
-
-                    return Response.status(CREATED).type(APPLICATION_JSON)
-                            .entity(newUser).build();
+                    String userName = node.get(User.FIELD_USERNAME).asText();
+                    try {
+                        User newUser = userServices.createUser(User.from(node), roleName);
+                        logger.info("User created successfully [{}] for gateway account [{}]", newUser.getUsername(), newUser.getGatewayAccountId());
+                        return Response.status(CREATED).type(APPLICATION_JSON)
+                                .entity(newUser).build();
+                    } catch (Exception e){
+                        return handleCreateUserException(userName, e);
+                    }
                 });
+    }
+
+    private Response handleCreateUserException(String userName, Exception e) {
+        if (e.getMessage().contains(CONSTRAINT_VIOLATION_MESSAGE)) {
+            throw conflictingUsername(userName);
+        } else if (e instanceof WebApplicationException) {
+            throw (WebApplicationException)e;
+        } else {
+            logger.error("unknown database error during user creation for user [{}]", userName, e);
+            throw internalServerError("unable to create user at this moment");
+        }
     }
 
 
