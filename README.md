@@ -17,6 +17,7 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 | ----------------------------- | ----------------- | ---------------------------------- |
 | [```/v1/api/users```](#post-v1apiusers)              | POST    |  Creates a new user            |
 | [```/v1/api/users/{username}```](#get-v1apiusersusername)              | GET    |  Gets a user with the associated username            |
+| [```/v1/api/users/{username}```](#patch-v1apiusersusername)              | PATCH    |  amend a specific user attribute            |
 | [```/v1/api/users/authenticate```](#get-v1apiusersauthenticate)              | POST    |  Authenticate a given username/password            |
 | [```/v1/api/users/{username}/attempt-login```](#get-v1apiusersusernameattempt-login)              | POST    |  Records login attempts and locks account if necessary`            |
 | [```/v1/api/users/{username}/attempt-login?action=reset```](#get-v1apiusersusernameattemptLoginActionReset)              | POST    |  Resets login attempts to `0` and enables the user account            |
@@ -96,7 +97,7 @@ Content-Type: application/json
 
 ### GET /v1/api/users/{username}
 
-This endpoint creates a new account in this connector.
+This endpoint finds and return a user with the given username.
 
 #### Request example
 
@@ -116,6 +117,7 @@ Content-Type: application/json
     "telephone_number": "49875792",
     "otp_key": "43c3c4t",
     "role": {"admin","Administrator"},
+    "sessionVersion": 0,
     "permissions":["perm-1","perm-2","perm-3"], 
     "_links": [{
         "href": "http://adminusers.service/v1/api/users/abcd1234",
@@ -140,6 +142,54 @@ Content-Type: application/json
 | `_links`                  | X              | Self link for this user.     |
 
 -----------------------------------------------------------------------------------------------------------
+
+### PATCH /v1/api/users/{username}
+
+This endpoint amends a specific attribute in user resource.
+
+#### Request example
+
+```
+PATCH /v1/api/users/abcd1234
+Content-Type: application/json
+{
+    "path": "sessionVersion",
+    "op": "append",
+    "value": "2",
+}
+```
+
+#### Response example
+
+```
+200 OK
+Content-Type: application/json
+{
+    "username": "abcd1234",
+    "email": "email@email.com",
+    "gateway_account_id": "1",
+    "telephone_number": "49875792",
+    "otp_key": "43c3c4t",
+    "sessionVersion": 2,
+    "role": {"admin","Administrator"},
+    "permissions":["perm-1","perm-2","perm-3"], 
+    "_links": [{
+        "href": "http://adminusers.service/v1/api/users/abcd1234",
+        "rel" : "self",
+        "method" : "GET"
+    }]
+    
+}
+```
+
+##### Request field description
+
+| Field                    | required | Description                                                | Supported Values     |
+| ------------------------ |:--------:| ---------------------------------------------------------- |----------------------|
+| `path`                   |   X      | the name of the attribute to be adjusted                   | [sessionVersion|disabled]] |
+| `op`                     |   X      | type of adjustment to be performed on attribute            | [append | replace]   |
+| `value`                  |   X      | value to be used for performing the op                     |                      |
+
 
 ### POST /v1/api/users/authenticate
 

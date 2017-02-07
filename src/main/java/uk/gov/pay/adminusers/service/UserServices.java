@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
@@ -14,6 +15,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.Integer.parseInt;
+import static java.lang.String.format;
+import static uk.gov.pay.adminusers.model.PatchRequest.PATH_DISABLED;
+import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
 
 public class UserServices {
@@ -59,7 +65,7 @@ public class UserServices {
                         if (ex.getMessage().contains(CONSTRAINT_VIOLATION_MESSAGE)) {
                             throw conflictingUsername(user.getUsername());
                         } else {
-                            logger.error("unknown database error during user creation for data {}", user, ex);
+                            logger.error("unknown database error during user creation for user [{}]", user.getUsername(), ex);
                             throw internalServerError("unable to create user at this moment");
                         }
                     }
@@ -162,7 +168,31 @@ public class UserServices {
                 .orElseGet(Optional::empty);
     }
 
-    public Optional<User> incrementSessionVersion(String username, Integer value) {
+
+    public Optional<User> patchUser(String username, PatchRequest patchRequest) {
+        if (PATH_SESSION_VERSION.equals(patchRequest.getPath())) {
+            return incrementSessionVersion(username, parseInt(patchRequest.getValue()));
+        } else if (PATH_DISABLED.equals(patchRequest.getPath())) {
+            return changeUserDisabled(username, parseBoolean(patchRequest.getValue()));
+        } else {
+            String error = format("Invalid patch request with path [%s]", patchRequest.getPath());
+            logger.error(error);
+            throw new RuntimeException(error);
+        }
+    }
+
+    private Optional<User> changeUserDisabled(String username, Boolean value) {
+        return userDao.findByUsername(username)
+                .map(userEntity -> {
+                    userEntity.setDisabled(value);
+                    userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+                    userDao.merge(userEntity);
+                    return Optional.of(linksBuilder.decorate(userEntity.toUser()));
+                })
+                .orElseGet(Optional::empty);
+    }
+
+    private Optional<User> incrementSessionVersion(String username, Integer value) {
         return userDao.findByUsername(username)
                 .map(userEntity -> {
                     userEntity.setSessionVersion(userEntity.getSessionVersion() + value);

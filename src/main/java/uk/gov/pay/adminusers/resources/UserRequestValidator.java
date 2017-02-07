@@ -2,14 +2,20 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
+import jersey.repackaged.com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.tuple.Pair;
 import uk.gov.pay.adminusers.utils.Errors;
+import uk.gov.pay.adminusers.validations.RequestValidations;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 import static uk.gov.pay.adminusers.model.User.*;
+import static uk.gov.pay.adminusers.validations.UserPatchValidations.*;
 
 public class UserRequestValidator {
 
@@ -52,13 +58,24 @@ public class UserRequestValidator {
         return jsonNode -> jsonNode.asText().length() > 255;
     }
 
-    public Optional<Errors> validatePatchRequest(JsonNode payload, Map<String, String> requiredData) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, "op", "path", "value" );
+    public Optional<Errors> validatePatchRequest(JsonNode payload) {
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, "op", "path", "value");
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
 
-        Optional<List<String>> invalidData = requestValidations.checkIsValid(payload, requiredData);
+        String path = payload.get("path").asText();
+        String op = payload.get("op").asText();
+
+        if (!isPathAllowed(path)) {
+            return Optional.of(Errors.from(ImmutableList.of(format("Patching path [%s] not allowed", path))));
+        }
+
+        if (!isAllowedOpForPath(path, op)) {
+            return Optional.of(Errors.from(ImmutableList.of(format("Operation [%s] not allowed for path [%s]", op, path))));
+        }
+
+        Optional<List<String>> invalidData = checkValidPatchValue(payload.get("value"), getUserPatchPathValidations(path));
         if (invalidData.isPresent()) {
             return Optional.of(Errors.from(invalidData.get()));
         }
@@ -66,16 +83,14 @@ public class UserRequestValidator {
         return Optional.empty();
     }
 
-    public Optional<Errors> valueIsNumeric(JsonNode payload, Map<String, String> requiredData) {
-        Optional<Errors> invalidPatch = validatePatchRequest(payload, requiredData);
-        if (invalidPatch.isPresent() && invalidPatch.get().getErrors().size() > 0) {
-            return invalidPatch;
-        }
-
-        Optional<List<String>> numericErrors = requestValidations.checkIsNumeric(payload, "value");
-        if (numericErrors.isPresent()) {
-            return Optional.of(Errors.from(numericErrors.get()));
-        }
-        return Optional.empty();
+    private Optional<List<String>> checkValidPatchValue(JsonNode valueNode, Collection<Pair<Function<JsonNode, Boolean>, String>> pathValidations) {
+        List<String> errors = newArrayList();
+        pathValidations.forEach(validationPair -> {
+            if (validationPair.getLeft().apply(valueNode)) {
+                errors.add(validationPair.getRight());
+            }
+        });
+        return errors.size() !=0 ? Optional.of(errors) : Optional.empty() ;
     }
+
 }

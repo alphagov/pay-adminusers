@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import uk.gov.pay.adminusers.model.Link;
+import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
@@ -291,15 +292,32 @@ public class UserServicesTest {
     public void shouldReturnUser_whenIncrementingSessionVersion_ifUserFound() throws Exception {
         User user = aUser();
 
-        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("value", 1));
+        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path","sessionVersion","op","append","value", "2"));
         Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
 
-        Optional<User> userOptional = userServices.incrementSessionVersion("random-name", Integer.valueOf(node.get("value").asText()));
+        Optional<User> userOptional = userServices.patchUser("random-name", PatchRequest.from(node));
         assertTrue(userOptional.isPresent());
 
         assertThat(userOptional.get().getUsername(), is("random-name"));
-        assertThat(userOptional.get().getSessionVersion(), is(1));
+        assertThat(userOptional.get().getSessionVersion(), is(2));
+    }
+
+    @Test
+    public void shouldReturnUser_withDisabled_ifUserFoundDuringPatch() throws Exception {
+        User user = aUser();
+
+        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path","disabled","op","replace","value", "true"));
+        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+        when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+
+        assertFalse(user.isDisabled());
+
+        Optional<User> userOptional = userServices.patchUser("random-name", PatchRequest.from(node));
+        assertTrue(userOptional.isPresent());
+
+        assertThat(userOptional.get().getUsername(), is("random-name"));
+        assertTrue(userOptional.get().isDisabled());
     }
 
     private User aUser() {

@@ -8,6 +8,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.utils.Errors;
+import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.util.Optional;
 
@@ -21,7 +22,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class UserRequestValidationsTest {
+public class UserRequestValidatorTest {
 
     private UserRequestValidator validator;
 
@@ -71,7 +72,7 @@ public class UserRequestValidationsTest {
     public void shouldError_ifMandatoryPatchFieldsAreMissing() throws Exception {
         JsonNode invalidPayload = mock(JsonNode.class);
         mockValidValuesFor(invalidPayload, of("foo", "blah"), of("bar", "blah@blah.com"));
-        Optional<Errors> optionalErrors = validator.validatePatchRequest(invalidPayload, ImmutableMap.of("op","replace", "path", "sessionVersion"));
+        Optional<Errors> optionalErrors = validator.validatePatchRequest(invalidPayload);
 
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
@@ -84,30 +85,69 @@ public class UserRequestValidationsTest {
     }
 
     @Test
-    public void shouldError_ifMandatoryPatchFieldsAreIncorrect() throws Exception {
+    public void shouldError_ifPathNotAllowed_whenPatching() throws Exception {
         JsonNode invalidPayload = mock(JsonNode.class);
-        mockValidValuesFor(invalidPayload, of("op", "add"), of("path", "version"), of("value", "1"));
-        Optional<Errors> optionalErrors = validator.validatePatchRequest(invalidPayload, ImmutableMap.of("op","replace", "path", "sessionVersion"));
-
-        assertTrue(optionalErrors.isPresent());
-        Errors errors = optionalErrors.get();
-
-        assertThat(errors.getErrors().size(), is(2));
-        assertThat(errors.getErrors(), hasItems(
-                "Field [op] must have value of [replace]",
-                "Field [path] must have value of [sessionVersion]"));
-    }
-
-    @Test
-    public void shouldError_ifMandatoryPatchFieldsValueIsNotNumeric() throws Exception {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "sessionVersion", "value", "1r"));
-        Optional<Errors> optionalErrors = validator.valueIsNumeric(payload, ImmutableMap.of("op","replace", "path", "sessionVersion"));
+        mockValidValuesFor(invalidPayload, of("op", "append"), of("path", "version"), of("value", "1"));
+        Optional<Errors> optionalErrors = validator.validatePatchRequest(invalidPayload);
 
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
 
         assertThat(errors.getErrors().size(), is(1));
-        assertThat(errors.getErrors(), hasItems("Field [value] must be a number"));
+        assertThat(errors.getErrors(), hasItems("Patching path [version] not allowed"));
+    }
+
+    @Test
+    public void shouldError_ifPathOperationNotValid_whenPatching() throws Exception {
+        JsonNode invalidPayload = mock(JsonNode.class);
+        mockValidValuesFor(invalidPayload, of("op", "replace"), of("path", "sessionVersion"), of("value", "1"));
+        Optional<Errors> optionalErrors = validator.validatePatchRequest(invalidPayload);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("Operation [replace] not allowed for path [sessionVersion]"));
+    }
+
+    @Test
+    public void shouldError_ifSessionVersionNotNumeric_whenPatching() throws Exception {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "append", "path", "sessionVersion", "value", "1r"));
+        Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("path [sessionVersion] must contain a value of positive integer"));
+    }
+
+    @Test
+    public void shouldError_ifDisabledNotBoolean_whenPatching() throws Exception {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "disabled", "value", "1r"));
+        Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("path [disabled] must be contain value [true | false]"));
+    }
+
+    @Test
+    public void shouldSuccess_forDisabled_whenPatching() throws Exception {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "disabled", "value", "true"));
+        Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
+
+        assertFalse(optionalErrors.isPresent());
+    }
+
+    @Test
+    public void shouldSuccess_forSessionVersion_whenPatching() throws Exception {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "append", "path", "sessionVersion", "value", "2"));
+        Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
+
+        assertFalse(optionalErrors.isPresent());
     }
 
     @Test

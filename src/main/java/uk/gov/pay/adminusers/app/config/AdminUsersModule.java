@@ -10,10 +10,10 @@ import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.setup.Environment;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
-import uk.gov.pay.adminusers.resources.RequestValidations;
 import uk.gov.pay.adminusers.resources.ResetPasswordValidator;
 import uk.gov.pay.adminusers.resources.UserRequestValidator;
 import uk.gov.pay.adminusers.service.*;
+import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.util.Properties;
 

@@ -20,7 +20,9 @@ public class UserResourceLoginAttemptTest extends UserResourceTestBase {
                 .when()
                 .post(format(LOGIN_ATTEMPT_URL, username))
                 .then()
-                .statusCode(200);
+                .statusCode(200)
+                .body("username", is(username))
+                .body("login_count", is(1));
     }
 
     @Test
