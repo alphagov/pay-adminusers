@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
@@ -20,6 +21,7 @@ public class ResetPasswordService {
         this.passwordHasher = passwordHasher;
     }
 
+    @Transactional
     public Optional<Integer> updatePassword(String code, String password) {
         return forgottenPasswordDao.findNonExpiredByCode(code).map(forgottenPassword -> {
             UserEntity userEntity = forgottenPassword.getUser();
