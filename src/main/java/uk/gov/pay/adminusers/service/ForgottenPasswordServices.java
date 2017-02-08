@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
@@ -27,6 +28,7 @@ public class ForgottenPasswordServices {
         this.linksBuilder = linksBuilder;
     }
 
+    @Transactional
     public Optional<ForgottenPassword> create(String username) {
         return userDao.findByUsername(username)
                 .map(userEntity -> {

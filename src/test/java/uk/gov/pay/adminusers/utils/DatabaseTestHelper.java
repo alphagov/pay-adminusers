@@ -87,7 +87,7 @@ public class DatabaseTestHelper {
                         .bind("telephoneNumber", user.getTelephoneNumber())
                         .bind("gatewayAccountId", user.getGatewayAccountId())
                         .bind("disabled", user.isDisabled())
-                        .bind("loginCounter", user.getLoginCount())
+                        .bind("loginCounter", user.getLoginCounter())
                         .bind("version", 0)
                         .bind("session_version", user.getSessionVersion())
                         .bind("createdAt", now)

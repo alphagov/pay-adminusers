@@ -121,7 +121,7 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(foundUser.getOtpKey(), is(randomInt.toString()));
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
         assertThat(foundUser.isDisabled(), is(false));
-        assertThat(foundUser.getLoginCount(), is(0));
+        assertThat(foundUser.getLoginCounter(), is(0));
         assertThat(foundUser.getSessionVersion(), is(0));
         assertThat(foundUser.getRoles().size(), is(2));
         assertThat(foundUser.getRoles().get(0).toRole(), either(is(role1)).or(is(role2)));
@@ -156,7 +156,7 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(foundUser.getOtpKey(), is(randomInt.toString()));
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
         assertThat(foundUser.isDisabled(), is(false));
-        assertThat(foundUser.getLoginCount(), is(0));
+        assertThat(foundUser.getLoginCounter(), is(0));
         assertThat(foundUser.getSessionVersion(), is(0));
         assertThat(foundUser.getRoles().size(), is(2));
         assertThat(foundUser.getRoles().get(0).toRole(), either(is(role1)).or(is(role2)));

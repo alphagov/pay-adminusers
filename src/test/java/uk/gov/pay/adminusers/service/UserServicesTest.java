@@ -15,7 +15,6 @@ import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
-import javax.persistence.RollbackException;
 import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
 
@@ -24,12 +23,10 @@ import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
-import static uk.gov.pay.adminusers.service.UserServices.CONSTRAINT_VIOLATION_MESSAGE;
 
 public class UserServicesTest {
 
@@ -55,30 +52,6 @@ public class UserServicesTest {
         String nonExistentRole = "nonExistentRole";
         when(roleDao.findByRoleName(nonExistentRole)).thenReturn(Optional.empty());
         userServices.createUser(user, nonExistentRole);
-    }
-
-    @Test(expected = WebApplicationException.class)
-    public void shouldError_ifRoleNameConflicts() throws Exception {
-        User user = aUser();
-        Role role = Role.role(2, "admin", "admin role");
-
-        when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
-        when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
-        doThrow(new RollbackException(CONSTRAINT_VIOLATION_MESSAGE)).when(userDao).persist(any(UserEntity.class));
-
-        userServices.createUser(user, role.getName());
-    }
-
-    @Test(expected = WebApplicationException.class)
-    public void shouldError_ifUnknownErrorThrownWhenSaving() throws Exception {
-        User user = aUser();
-        Role role = Role.role(2, "admin", "admin role");
-
-        when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
-        when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
-        doThrow(new RuntimeException("unknown error")).when(userDao).persist(any(UserEntity.class));
-
-        userServices.createUser(user, role.getName());
     }
 
     @Test
@@ -128,7 +101,7 @@ public class UserServicesTest {
     @Test
     public void shouldReturnUserAndResetLoginCount_ifAuthenticationSuccessful() throws Exception {
         User user = aUser();
-        user.setLoginCount(2);
+        user.setLoginCounter(2);
 
         UserEntity userEntity = UserEntity.from(user);
         userEntity.setPassword("hashed-password");
@@ -143,13 +116,13 @@ public class UserServicesTest {
         User authenticatedUser = userOptional.get();
         assertThat(authenticatedUser.getUsername(), is("random-name"));
         assertThat(authenticatedUser.getLinks().size(), is(1));
-        assertThat(argumentCaptor.getValue().getLoginCount(), is(0));
+        assertThat(argumentCaptor.getValue().getLoginCounter(), is(0));
     }
 
     @Test
     public void shouldReturnEmptyAndIncrementLoginCount_ifAuthenticationFail() throws Exception {
         User user = aUser();
-        user.setLoginCount(1);
+        user.setLoginCounter(1);
         UserEntity userEntity = UserEntity.from(user);
         userEntity.setPassword("hashed-password");
 
@@ -163,14 +136,14 @@ public class UserServicesTest {
 
         UserEntity savedUser = argumentCaptor.getValue();
         assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
-        assertThat(savedUser.getLoginCount(), is(2));
+        assertThat(savedUser.getLoginCounter(), is(2));
         assertThat(savedUser.isDisabled(), is(false));
     }
 
     @Test
-    public void shouldErrorAndLockUser_onTooManyAuthFailures() throws Exception {
+    public void shouldLockUser_onTooManyAuthFailures() throws Exception {
         User user = aUser();
-        user.setLoginCount(3);
+        user.setLoginCounter(3);
         UserEntity userEntity = UserEntity.from(user);
         userEntity.setPassword("hashed-password");
 
@@ -179,20 +152,16 @@ public class UserServicesTest {
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        try {
-            userServices.authenticate("random-name", "random-password");
-        } catch (WebApplicationException e) {
-            assertThat(e.getResponse().getStatus(), is(401));
-            UserEntity savedUser = argumentCaptor.getValue();
-            assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
-            assertThat(savedUser.getLoginCount(), is(4));
-            assertThat(savedUser.isDisabled(), is(true));
-        }
+        userServices.authenticate("random-name", "random-password");
+        UserEntity savedUser = argumentCaptor.getValue();
+        assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
+        assertThat(savedUser.getLoginCounter(), is(4));
+        assertThat(savedUser.isDisabled(), is(true));
 
     }
 
     @Test
-    public void shouldErrorLockedWhenDisabled_evenIfUsernamePasswordMatches() throws Exception {
+    public void shouldErrorWhenDisabled_evenIfUsernamePasswordMatches() throws Exception {
         User user = aUser();
         user.setDisabled(true);
 
@@ -203,6 +172,7 @@ public class UserServicesTest {
 
         try {
             userServices.authenticate("random-name", "random-password");
+            fail();
         } catch (WebApplicationException e) {
             assertThat(e.getResponse().getStatus(), is(401));
         }
@@ -212,7 +182,7 @@ public class UserServicesTest {
     @Test
     public void shouldIncreaseLoginCount_whenRecordLoginAttempt() throws Exception {
         User user = aUser();
-        user.setLoginCount(1);
+        user.setLoginCounter(1);
 
         Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
@@ -224,7 +194,7 @@ public class UserServicesTest {
         assertTrue(userOptional.isPresent());
 
         assertThat(userOptional.get().getUsername(), is("random-name"));
-        assertThat(userOptional.get().getLoginCount(), is(2));
+        assertThat(userOptional.get().getLoginCounter(), is(2));
         assertThat(userOptional.get().isDisabled(), is(false));
 
         UserEntity savedUser = argumentCaptor.getValue();
@@ -234,21 +204,17 @@ public class UserServicesTest {
     @Test
     public void shouldLockAccount_whenRecordLoginAttempt_ifMoreThanAllowedLoginAttempts() throws Exception {
         User user = aUser();
-        user.setLoginCount(3);
+        user.setLoginCounter(3);
 
         Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        try {
-            userServices.recordLoginAttempt("random-name");
-        } catch (WebApplicationException ex) {
-            UserEntity savedUser = argumentCaptor.getValue();
-            assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
-            assertThat(savedUser.getLoginCount(), is(4));
-            assertThat(savedUser.isDisabled(), is(true));
-        }
+        userServices.recordLoginAttempt("random-name");
+        UserEntity savedUser = argumentCaptor.getValue();
+        assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
+        assertThat(savedUser.getLoginCounter(), is(4));
 
     }
 
@@ -273,7 +239,7 @@ public class UserServicesTest {
         assertTrue(userOptional.isPresent());
 
         assertThat(userOptional.get().getUsername(), is("random-name"));
-        assertThat(userOptional.get().getLoginCount(), is(0));
+        assertThat(userOptional.get().getLoginCounter(), is(0));
         assertThat(userOptional.get().isDisabled(), is(false));
 
         UserEntity savedUser = argumentCaptor.getValue();
