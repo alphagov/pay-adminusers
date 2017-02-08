@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.resources;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.RandomStringUtils;
-import org.hamcrest.Matcher;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.User;
 
@@ -58,12 +57,52 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
         //TODO - WIP PP-1483 This will be amended when the story is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
         List<Map<String, Object>> userByName = databaseTestHelper.findUserByName("user-" + random);
-        List<Map<String, Object>> servicesAssociatedToUser = databaseTestHelper.findUserServicesByUserId((Long) userByName.get(0).get("id"));
+        List<Map<String, Object>> servicesAssociatedToUser = databaseTestHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
 
         List<Map<String, Object>> gatewayAccountsAssociatedToUser = databaseTestHelper.findGatewayAccountsByService((Long) servicesAssociatedToUser.get(0).get("service_id"));
         assertThat(gatewayAccountsAssociatedToUser.size(), is(1));
         assertThat(gatewayAccountsAssociatedToUser.get(0).get("gateway_account_id"), is("1"));
+    }
+
+    @Test
+    public void shouldAddUserToAServiceWhenCreatingTheUserWithAnAlreadyExistingGatewayAccount() throws Exception {
+
+        Long serviceId = 123L;
+        String gatewayAccount = "666";
+        databaseTestHelper.addService(serviceId, gatewayAccount);
+
+        String random = randomUUID().toString();
+        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
+                .put("username", "user-" + random)
+                .put("email", "user-" + random + "@example.com")
+                .put("gateway_account_id", gatewayAccount)
+                .put("telephone_number", "45334534634")
+                .put("otp_key", "34f34")
+                .put("role_name", "admin")
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(userPayload))
+                .contentType(JSON)
+                .accept(JSON)
+                .post(USERS_RESOURCE_URL)
+                .then()
+                .statusCode(201)
+                .body("username", is("user-" + random))
+                .body("gateway_account_id", is("666"));
+
+        //TODO - WIP PP-1483 This will be amended when the story is done.
+        // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
+        List<Map<String, Object>> userByName = databaseTestHelper.findUserByName("user-" + random);
+        List<Map<String, Object>> servicesAssociatedToUser = databaseTestHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
+        assertThat(servicesAssociatedToUser.size(), is(1));
+        assertThat(servicesAssociatedToUser.get(0).get("service_id"), is(123L));
+
+        List<Map<String, Object>> gatewayAccountsAssociatedToUser = databaseTestHelper.findGatewayAccountsByService((Long) servicesAssociatedToUser.get(0).get("service_id"));
+        assertThat(gatewayAccountsAssociatedToUser.size(), is(1));
+        assertThat(gatewayAccountsAssociatedToUser.get(0).get("gateway_account_id"), is(gatewayAccount));
     }
 
     @Test

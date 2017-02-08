@@ -16,7 +16,7 @@ BEGIN
         'WHERE gateway_account_id = $1') INTO serviceGatewayAccount USING gatewayAccountId;
       IF serviceGatewayAccount IS NULL
       THEN
-        EXECUTE format('INSERT INTO services values(default)');
+        EXECUTE 'INSERT INTO services values(default)';
         SELECT currval('services_id_seq') INTO service;
         INSERT INTO service_gateway_accounts (service_id, gateway_account_id) VALUES (service.currval, gatewayAccountId);
         INSERT INTO users_services (user_id, service_id) VALUES (userId, service.currval);

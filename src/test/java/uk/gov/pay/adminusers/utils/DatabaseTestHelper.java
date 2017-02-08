@@ -154,7 +154,7 @@ public class DatabaseTestHelper {
     }
 
     //TODO Remove - This is temporary - WIP PP-1483
-    public List<Map<String, Object>> findUserServicesByUserId(long userId) {
+    public List<Map<String, Object>> findUserServicesByUserId(Integer userId) {
         return jdbi.withHandle(h ->
                 h.createQuery("SELECT service_id FROM users_services " +
                         "WHERE user_id = :userId")
@@ -162,11 +162,31 @@ public class DatabaseTestHelper {
                         .list());
     }
 
-    public List<Map<String, Object>> findGatewayAccountsByService(long serviceId) {
+    public List<Map<String, Object>> findGatewayAccountsByService(Long serviceId) {
         return jdbi.withHandle(h ->
                 h.createQuery("SELECT gateway_account_id FROM service_gateway_accounts " +
                         "WHERE service_id = :serviceId")
                         .bind("serviceId", serviceId)
                         .list());
+    }
+
+    public DatabaseTestHelper addService(Long serviceId, String gatewayAccountId) {
+
+        jdbi.withHandle(handle ->
+                handle
+                        .createStatement("INSERT INTO services(id) " +
+                                "VALUES (:id)")
+                        .bind("id", serviceId)
+                        .execute()
+        );
+
+        jdbi.withHandle(handle ->
+                handle.createStatement("INSERT INTO service_gateway_accounts(service_id, gateway_account_id) VALUES (:serviceId, :gatewayAccountId)")
+                        .bind("serviceId", serviceId)
+                        .bind("gatewayAccountId", gatewayAccountId)
+                        .execute()
+        );
+
+        return this;
     }
 }

@@ -3,6 +3,8 @@ package uk.gov.pay.adminusers.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -11,8 +13,10 @@ import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
+import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.ws.rs.WebApplicationException;
@@ -32,6 +36,7 @@ public class UserServicesTest {
 
     private UserDao userDao;
     private RoleDao roleDao;
+    private ServiceDao serviceDao;
     private PasswordHasher passwordHasher;
     private UserServices userServices;
     private LinksBuilder linksBuilder;
@@ -40,10 +45,11 @@ public class UserServicesTest {
     public void before() throws Exception {
         userDao = mock(UserDao.class);
         roleDao = mock(RoleDao.class);
+        serviceDao = mock(ServiceDao.class);
         passwordHasher = mock(PasswordHasher.class);
         linksBuilder = new LinksBuilder("http://localhost");
         int testLoginAttemptCap = 3;
-        userServices = new UserServices(userDao, roleDao, passwordHasher, linksBuilder, testLoginAttemptCap);
+        userServices = new UserServices(userDao, roleDao, serviceDao, passwordHasher, linksBuilder, testLoginAttemptCap);
     }
 
     @Test(expected = WebApplicationException.class)
@@ -55,12 +61,17 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldPersist_aUserSuccessfully() throws Exception {
+    public void shouldPersistAUser_creatingANewServiceForTheUsersGatewayAccount_whenPersistingTheUserWithNoServiceRelatedToTheGivenGateway() throws Exception {
+
         User user = aUser();
         Role role = Role.role(2, "admin", "admin role");
+        ArgumentCaptor<ServiceEntity> expectedService = ArgumentCaptor.forClass(ServiceEntity.class);
 
         when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
         when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
+        when(serviceDao.findByGatewayAccountId(user.getGatewayAccountId())).thenReturn(Optional.empty());
+
+        doNothing().when(serviceDao).persist(any(ServiceEntity.class));
         doNothing().when(userDao).persist(any(UserEntity.class));
 
         User persistedUser = userServices.createUser(user, role.getName());
@@ -75,6 +86,46 @@ public class UserServicesTest {
         assertThat(persistedUser.getRoles().size(), is(1));
         assertThat(persistedUser.getRoles().get(0), is(role));
         assertThat(persistedUser.getLinks().get(0), is(selfLink));
+
+        verify(serviceDao).persist(expectedService.capture());
+        assertThat(expectedService.getValue().getGatewayAccount().getGatewayAccountId(), is(user.getGatewayAccountId()));
+    }
+
+    @Test
+    public void shouldPersist_aUserSuccessfully_andAssociateToTheServiceRelatedToExistingGatewayAccount() throws Exception {
+
+        User user = aUser();
+        Role role = Role.role(2, "admin", "admin role");
+        ServiceEntity existingServiceRelatedToTheGatewayAccountPassedIn = new ServiceEntity();
+        long serviceId = 4;
+
+        existingServiceRelatedToTheGatewayAccountPassedIn.setId(serviceId);
+        ArgumentCaptor<UserEntity> expectedUser = ArgumentCaptor.forClass(UserEntity.class);
+
+        when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
+        when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
+        when(serviceDao.findByGatewayAccountId(user.getGatewayAccountId())).thenReturn(Optional.of(existingServiceRelatedToTheGatewayAccountPassedIn));
+        doNothing().when(userDao).persist(any(UserEntity.class));
+
+        User persistedUser = userServices.createUser(user, role.getName());
+        Link selfLink = Link.from(Link.Rel.self, "GET", "http://localhost" + USERS_RESOURCE + "/random-name");
+
+        assertThat(persistedUser.getUsername(), is(user.getUsername()));
+        assertThat(persistedUser.getPassword(), is(not(user.getPassword())));
+        assertThat(persistedUser.getEmail(), is(user.getEmail()));
+        assertThat(persistedUser.getGatewayAccountId(), is(user.getGatewayAccountId()));
+        assertThat(persistedUser.getTelephoneNumber(), is(user.getTelephoneNumber()));
+        assertThat(persistedUser.getOtpKey(), is(user.getOtpKey()));
+        assertThat(persistedUser.getRoles().size(), is(1));
+        assertThat(persistedUser.getRoles().get(0), is(role));
+        assertThat(persistedUser.getLinks().get(0), is(selfLink));
+
+        verify(serviceDao).findByGatewayAccountId(user.getGatewayAccountId());
+        verifyNoMoreInteractions(serviceDao);
+        verify(userDao).persist(expectedUser.capture());
+
+        assertThat(expectedUser.getValue().getGatewayAccountId(), is(user.getGatewayAccountId()));
+        assertThat(expectedUser.getValue().getService().getId(), is(serviceId));
     }
 
     @Test

@@ -45,6 +45,11 @@ public class UserEntity extends AbstractEntity {
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private List<RoleEntity> roles = new ArrayList<>();
 
+    @ManyToMany(fetch = FetchType.LAZY, targetEntity = ServiceEntity.class)
+    @JoinTable(name = "users_services", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "service_id", referencedColumnName = "id"))
+    private List<ServiceEntity> services = new ArrayList<>();
+
     // TODO: Change column from 'camelCase' to 'snake_case'. These columns were created through Sequelize.
     @Column(name = "\"createdAt\"")
     @Convert(converter = UTCDateTimeConverter.class)
@@ -188,5 +193,14 @@ public class UserEntity extends AbstractEntity {
         user.setSessionVersion(sessionVersion);
         user.setRoles(roles.stream().map(roleEntity -> roleEntity.toRole()).collect(Collectors.toList()));
         return user;
+    }
+
+    public void setService(ServiceEntity service) {
+        this.services.clear();
+        this.services.add(service);
+    }
+
+    public ServiceEntity getService(){
+        return services.get(0);
     }
 }
