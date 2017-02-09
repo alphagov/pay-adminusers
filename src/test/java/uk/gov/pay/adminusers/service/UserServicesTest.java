@@ -3,8 +3,6 @@ package uk.gov.pay.adminusers.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -96,7 +94,7 @@ public class UserServicesTest {
 
         User user = aUser();
         Role role = Role.role(2, "admin", "admin role");
-        ServiceEntity existingServiceRelatedToTheGatewayAccountPassedIn = new ServiceEntity();
+        ServiceEntity existingServiceRelatedToTheGatewayAccountPassedIn = new ServiceEntity(user.getGatewayAccountId());
         long serviceId = 4;
 
         existingServiceRelatedToTheGatewayAccountPassedIn.setId(serviceId);
@@ -125,14 +123,15 @@ public class UserServicesTest {
         verify(userDao).persist(expectedUser.capture());
 
         assertThat(expectedUser.getValue().getGatewayAccountId(), is(user.getGatewayAccountId()));
-        assertThat(expectedUser.getValue().getService().getId(), is(serviceId));
     }
 
     @Test
     public void shouldFindAUserByUserName() throws Exception {
         User user = aUser();
 
-        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
 
         Optional<User> userOptional = userServices.findUser("random-name");
@@ -155,6 +154,7 @@ public class UserServicesTest {
         user.setLoginCounter(2);
 
         UserEntity userEntity = UserEntity.from(user);
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         userEntity.setPassword("hashed-password");
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(true);
         when(userDao.findByUsername("random-name")).thenReturn(Optional.of(userEntity));
@@ -175,6 +175,7 @@ public class UserServicesTest {
         User user = aUser();
         user.setLoginCounter(1);
         UserEntity userEntity = UserEntity.from(user);
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         userEntity.setPassword("hashed-password");
 
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(false);
@@ -196,6 +197,7 @@ public class UserServicesTest {
         User user = aUser();
         user.setLoginCounter(2);
         UserEntity userEntity = UserEntity.from(user);
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         userEntity.setPassword("hashed-password");
 
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(false);
@@ -217,6 +219,7 @@ public class UserServicesTest {
         user.setDisabled(true);
 
         UserEntity userEntity = UserEntity.from(user);
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         userEntity.setPassword("hashed-password");
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(true);
         when(userDao.findByUsername("random-name")).thenReturn(Optional.of(userEntity));
@@ -235,7 +238,9 @@ public class UserServicesTest {
         User user = aUser();
         user.setLoginCounter(1);
 
-        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
@@ -257,7 +262,9 @@ public class UserServicesTest {
         User user = aUser();
         user.setLoginCounter(3);
 
-        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
@@ -282,7 +289,9 @@ public class UserServicesTest {
     public void shouldReturnUser_whenResetLoginAttempt_ifUserFound() throws Exception {
         User user = aUser();
 
-        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
@@ -310,8 +319,10 @@ public class UserServicesTest {
     public void shouldReturnUser_whenIncrementingSessionVersion_ifUserFound() throws Exception {
         User user = aUser();
 
-        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path","sessionVersion","op","append","value", "2"));
-        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "sessionVersion", "op", "append", "value", "2"));
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
 
         Optional<User> userOptional = userServices.patchUser("random-name", PatchRequest.from(node));
@@ -325,8 +336,10 @@ public class UserServicesTest {
     public void shouldReturnUser_withDisabled_ifUserFoundDuringPatch() throws Exception {
         User user = aUser();
 
-        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path","disabled","op","replace","value", "true"));
-        Optional<UserEntity> userEntityOptional = Optional.of(UserEntity.from(user));
+        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "disabled", "op", "replace", "value", "true"));
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
 
         assertFalse(user.isDisabled());

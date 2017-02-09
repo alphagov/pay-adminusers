@@ -91,7 +91,7 @@ public class UserEntity extends AbstractEntity {
     }
 
     public String getGatewayAccountId() {
-        return gatewayAccountId;
+        return this.services.get(0).getGatewayAccount().getGatewayAccountId();
     }
 
     public void setGatewayAccountId(String gatewayAccountId) {
@@ -187,7 +187,7 @@ public class UserEntity extends AbstractEntity {
     }
 
     public User toUser() {
-        User user = User.from(getId(), username, password, email, gatewayAccountId, otpKey, telephoneNumber);
+        User user = User.from(getId(), username, password, email, this.getGatewayAccountId(), otpKey, telephoneNumber);
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);
@@ -198,9 +198,5 @@ public class UserEntity extends AbstractEntity {
     public void setService(ServiceEntity service) {
         this.services.clear();
         this.services.add(service);
-    }
-
-    public ServiceEntity getService(){
-        return services.get(0);
     }
 }

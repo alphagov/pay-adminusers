@@ -72,7 +72,7 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public DatabaseTestHelper add(User user) {
+    public DatabaseTestHelper add(User user, int serviceId) {
         Timestamp now = Timestamp.from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant());
         jdbi.withHandle(handle ->
                 handle
@@ -102,6 +102,13 @@ public class DatabaseTestHelper {
                             .execute()
             );
         });
+        jdbi.withHandle(handle ->
+                handle
+                        .createStatement("INSERT INTO users_services(user_id, service_id) VALUES (:userId, :serviceId)")
+                        .bind("userId", user.getId())
+                        .bind("serviceId", serviceId)
+                        .execute()
+        );
         return this;
     }
 
@@ -170,7 +177,7 @@ public class DatabaseTestHelper {
                         .list());
     }
 
-    public DatabaseTestHelper addService(Long serviceId, String gatewayAccountId) {
+    public DatabaseTestHelper addService(int serviceId, String gatewayAccountId) {
 
         jdbi.withHandle(handle ->
                 handle

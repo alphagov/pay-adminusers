@@ -63,11 +63,11 @@ public class UserServices {
                     UserEntity userEntity = UserEntity.from(user);
                     userEntity.setRoles(ImmutableList.of(roleEntity));
                     userEntity.setPassword(passwordHasher.hash(user.getPassword()));
-                    Optional<ServiceEntity> serviceOptional = serviceDao.findByGatewayAccountId(userEntity.getGatewayAccountId());
+                    Optional<ServiceEntity> serviceOptional = serviceDao.findByGatewayAccountId(user.getGatewayAccountId());
                     ServiceEntity service = serviceOptional
                             .map(serviceEntity -> serviceEntity)
                             .orElseGet(() -> {
-                                ServiceEntity serviceEntity = new ServiceEntity(userEntity.getGatewayAccountId());
+                                ServiceEntity serviceEntity = new ServiceEntity(user.getGatewayAccountId());
                                 serviceDao.persist(serviceEntity);
                                 return serviceEntity;
                             });

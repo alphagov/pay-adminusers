@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.persistence.dao;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Permission;
@@ -26,12 +27,14 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 public class UserDaoTest extends DaoTestBase {
 
     private UserDao userDao;
-    String random;
-    Integer randomInt;
+    private ServiceDao serviceDao;
+    private String random;
+    private Integer randomInt;
 
     @Before
     public void before() throws Exception {
         userDao = env.getInstance(UserDao.class);
+        serviceDao = env.getInstance(ServiceDao.class);
         random = newId();
         randomInt = randomInt();
     }
@@ -48,6 +51,8 @@ public class UserDaoTest extends DaoTestBase {
         role1.setPermissions(asList(perm1, perm2));
         role2.setPermissions(asList(perm3, perm4));
 
+        String gatewayAccountId = randomInt.toString();
+        databaseTestHelper.addService(RandomUtils.nextInt(), gatewayAccountId);
         databaseTestHelper.add(perm1).add(perm2).add(perm3).add(perm4);
         databaseTestHelper.add(role1).add(role2);
 
@@ -56,7 +61,8 @@ public class UserDaoTest extends DaoTestBase {
         userEntity.setPassword("password-" + random);
         userEntity.setDisabled(false);
         userEntity.setEmail(random + "@example.com");
-        userEntity.setGatewayAccountId(randomInt.toString());
+        userEntity.setGatewayAccountId(gatewayAccountId);
+        userEntity.setService(serviceDao.findByGatewayAccountId(gatewayAccountId).get());
         userEntity.setOtpKey(randomInt.toString());
         userEntity.setTelephoneNumber("876284762");
         userEntity.setRoles(asList(new RoleEntity(role1), new RoleEntity(role2)));
@@ -102,14 +108,17 @@ public class UserDaoTest extends DaoTestBase {
         Role role2 = aRole();
         role1.setPermissions(asList(perm1, perm2, perm3));
         role2.setPermissions(asList(perm2, perm3));
+        String gatewayAccountId = randomInt.toString();
+        int serviceId = RandomUtils.nextInt();
 
+        databaseTestHelper.addService(serviceId, gatewayAccountId);
         databaseTestHelper.add(perm1).add(perm2).add(perm3);
         databaseTestHelper.add(role1).add(role2);
 
         String username = "user-" + random;
-        User user = User.from(randomInt(), username, "password-" + random, random + "@example.com", randomInt.toString(), randomInt.toString(), "374628482");
+        User user = User.from(randomInt(), username, "password-" + random, random + "@example.com", gatewayAccountId, randomInt.toString(), "374628482");
         user.setRoles(asList(role1, role2));
-        databaseTestHelper.add(user);
+        databaseTestHelper.add(user, serviceId);
 
         Optional<UserEntity> userEntityMaybe = userDao.findByUsername(username);
         assertTrue(userEntityMaybe.isPresent());
@@ -117,7 +126,7 @@ public class UserDaoTest extends DaoTestBase {
         UserEntity foundUser = userEntityMaybe.get();
         assertThat(foundUser.getEmail(), is(random + "@example.com"));
         assertThat(foundUser.getUsername(), is(username));
-        assertThat(foundUser.getGatewayAccountId(), is(randomInt.toString()));
+        assertThat(foundUser.getGatewayAccountId(), is(gatewayAccountId));
         assertThat(foundUser.getOtpKey(), is(randomInt.toString()));
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
         assertThat(foundUser.isDisabled(), is(false));
@@ -138,13 +147,17 @@ public class UserDaoTest extends DaoTestBase {
         role1.setPermissions(asList(perm1, perm2, perm3));
         role2.setPermissions(asList(perm2, perm3));
 
+        String gatewayAccountId = randomInt.toString();
+        int serviceId = RandomUtils.nextInt();
+
+        databaseTestHelper.addService(serviceId, gatewayAccountId);
         databaseTestHelper.add(perm1).add(perm2).add(perm3);
         databaseTestHelper.add(role1).add(role2);
 
         String email = random + "@example.com";
         User user = User.from(randomInt(), "user-" + random, "password-" + random, email, randomInt.toString(), randomInt.toString(), "374628482");
         user.setRoles(asList(role1, role2));
-        databaseTestHelper.add(user);
+        databaseTestHelper.add(user, serviceId);
 
         Optional<UserEntity> userEntityMaybe = userDao.findByEmail(email);
         assertTrue(userEntityMaybe.isPresent());
@@ -152,7 +165,7 @@ public class UserDaoTest extends DaoTestBase {
         UserEntity foundUser = userEntityMaybe.get();
         assertThat(foundUser.getUsername(), is("user-" + random));
         assertThat(foundUser.getEmail(), is(email));
-        assertThat(foundUser.getGatewayAccountId(), is(randomInt.toString()));
+        assertThat(foundUser.getGatewayAccountId(), is(gatewayAccountId));
         assertThat(foundUser.getOtpKey(), is(randomInt.toString()));
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
         assertThat(foundUser.isDisabled(), is(false));
@@ -162,5 +175,4 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(foundUser.getRoles().get(0).toRole(), either(is(role1)).or(is(role2)));
         assertThat(foundUser.getRoles().get(1).toRole(), either(is(role1)).or(is(role2)));
     }
-
 }
