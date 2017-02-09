@@ -9,7 +9,9 @@ import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
+import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.time.ZoneId;
@@ -30,14 +32,16 @@ public class UserServices {
 
     private final UserDao userDao;
     private final RoleDao roleDao;
+    private final ServiceDao serviceDao;
     private final PasswordHasher passwordHasher;
     private final LinksBuilder linksBuilder;
     private final Integer loginAttemptCap;
 
     @Inject
-    public UserServices(UserDao userDao, RoleDao roleDao, PasswordHasher passwordHasher, LinksBuilder linksBuilder, @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap) {
+    public UserServices(UserDao userDao, RoleDao roleDao, ServiceDao serviceDao, PasswordHasher passwordHasher, LinksBuilder linksBuilder, @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap) {
         this.userDao = userDao;
         this.roleDao = roleDao;
+        this.serviceDao = serviceDao;
         this.passwordHasher = passwordHasher;
         this.linksBuilder = linksBuilder;
         this.loginAttemptCap = loginAttemptCap;
@@ -59,6 +63,15 @@ public class UserServices {
                     UserEntity userEntity = UserEntity.from(user);
                     userEntity.setRoles(ImmutableList.of(roleEntity));
                     userEntity.setPassword(passwordHasher.hash(user.getPassword()));
+                    Optional<ServiceEntity> serviceOptional = serviceDao.findByGatewayAccountId(userEntity.getGatewayAccountId());
+                    ServiceEntity service = serviceOptional
+                            .map(serviceEntity -> serviceEntity)
+                            .orElseGet(() -> {
+                                ServiceEntity serviceEntity = new ServiceEntity(userEntity.getGatewayAccountId());
+                                serviceDao.persist(serviceEntity);
+                                return serviceEntity;
+                            });
+                    userEntity.setService(service);
                     userDao.persist(userEntity);
                     return linksBuilder.decorate(userEntity.toUser());
                 })
