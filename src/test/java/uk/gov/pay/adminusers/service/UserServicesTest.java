@@ -143,7 +143,7 @@ public class UserServicesTest {
     @Test
     public void shouldLockUser_onTooManyAuthFailures() throws Exception {
         User user = aUser();
-        user.setLoginCounter(3);
+        user.setLoginCounter(2);
         UserEntity userEntity = UserEntity.from(user);
         userEntity.setPassword("hashed-password");
 
@@ -155,7 +155,7 @@ public class UserServicesTest {
         userServices.authenticate("random-name", "random-password");
         UserEntity savedUser = argumentCaptor.getValue();
         assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
-        assertThat(savedUser.getLoginCounter(), is(4));
+        assertThat(savedUser.getLoginCounter(), is(3));
         assertThat(savedUser.isDisabled(), is(true));
 
     }
@@ -215,6 +215,7 @@ public class UserServicesTest {
         UserEntity savedUser = argumentCaptor.getValue();
         assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
         assertThat(savedUser.getLoginCounter(), is(4));
+        assertThat(savedUser.isDisabled(), is(true));
 
     }
 

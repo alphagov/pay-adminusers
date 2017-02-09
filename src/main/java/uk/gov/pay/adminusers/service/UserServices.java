@@ -135,7 +135,11 @@ public class UserServices {
         return userDao.findByUsername(username)
                 .map(userEntity -> {
                     userEntity.setLoginCounter(userEntity.getLoginCounter() + 1);
-                    userEntity.setDisabled(userEntity.getLoginCounter() >= loginAttemptCap);
+                    //NOTE: the reason for this check is different to authenticate method above, is due to the way selfservice
+                    // is wired up. Currently increment login count is called before the second factor check,
+                    // whereas on username/password (first factor) it the increment happens afterwards.
+                    // FIXME: when we migrate the ToTp login to adminusers
+                    userEntity.setDisabled(userEntity.getLoginCounter() > loginAttemptCap);
                     userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                     userDao.merge(userEntity);
                     return Optional.of(linksBuilder.decorate(userEntity.toUser()));
