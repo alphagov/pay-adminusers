@@ -53,7 +53,7 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
                 .body("_links[0].rel", is("self"))
                 .body("role.name", is("admin"))
                 .body("role.description", is("Administrator"))
-                .body("permissions", hasSize(27)); //we could consider removing this assertion if the permissions constantly changing
+                .body("permissions", hasSize(28)); //we could consider removing this assertion if the permissions constantly changing
 
         //TODO - WIP PP-1483 This will be amended when the story is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
@@ -230,7 +230,7 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
                 .body("_links[0].rel", is("self"))
                 .body("role.name", is("admin"))
                 .body("role.description", is("Administrator"))
-                .body("permissions", hasSize(27)); //we could consider removing this assertion if the permissions constantly changing
+                .body("permissions", hasSize(28)); //we could consider removing this assertion if the permissions constantly changing
 
 
     }

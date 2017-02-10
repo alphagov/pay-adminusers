@@ -59,7 +59,7 @@ public class RoleDaoTest extends DaoTestBase {
         assertTrue(adminRoleOptional.isPresent());
         RoleEntity adminRoleEntity = adminRoleOptional.get();
 
-        assertThat(adminRoleEntity.getPermissions().size(),is(27));
+        assertThat(adminRoleEntity.getPermissions().size(),is(28));
     }
 
 }

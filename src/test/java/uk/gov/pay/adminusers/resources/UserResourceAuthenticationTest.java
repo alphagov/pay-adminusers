@@ -38,7 +38,7 @@ public class UserResourceAuthenticationTest extends UserResourceTestBase {
                 .body("disabled", is(false))
                 .body("_links", hasSize(1))
                 .body("role.name", is("admin"))
-                .body("permissions", hasSize(27)); //we could consider removing this assertion if the permissions constantly changing
+                .body("permissions", hasSize(28)); //we could consider removing this assertion if the permissions constantly changing
 
     }
 
