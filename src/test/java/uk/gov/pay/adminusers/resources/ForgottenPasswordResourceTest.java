@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.response.ValidatableResponse;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
@@ -38,7 +39,9 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
     public void shouldGetForgottenPasswordReference_whenCreate_forAnExistingUser() throws Exception {
         String random = randomUUID().toString();
         User user = aUser(random);
-        databaseTestHelper.add(user);
+        int serviceId = RandomUtils.nextInt();
+        databaseTestHelper.addService(serviceId, RandomStringUtils.randomNumeric(2));
+        databaseTestHelper.add(user, serviceId);
 
         Map<String, String> forgottenPasswordPayload = ImmutableMap.of("username", user.getUsername());
         ValidatableResponse validatableResponse = givenSetup()
@@ -82,7 +85,9 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
         String random = randomUUID().toString();
         User user = aUser(random);
         ForgottenPassword forgottenPassword = aForgottenPassword(random);
-        databaseTestHelper.add(user);
+        int serviceId = RandomUtils.nextInt();
+        databaseTestHelper.addService(serviceId, RandomStringUtils.randomNumeric(2));
+        databaseTestHelper.add(user, serviceId);
         databaseTestHelper.add(forgottenPassword, user.getId());
 
         givenSetup()

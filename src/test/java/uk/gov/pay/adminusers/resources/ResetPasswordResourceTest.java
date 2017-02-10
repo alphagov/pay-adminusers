@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
@@ -15,6 +16,7 @@ import java.util.Map;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.time.temporal.ChronoUnit.MINUTES;
+import static org.apache.commons.lang3.RandomStringUtils.*;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.CoreMatchers.not;
@@ -34,8 +36,10 @@ public class ResetPasswordResourceTest extends IntegrationTest {
     @Before
     public void before() throws Exception {
         userId = nextInt();
-        forgottenPasswordCode = RandomStringUtils.randomAlphanumeric(255);
-        databaseTestHelper.add(aUser(userId, CURRENT_PASSWORD));
+        forgottenPasswordCode = randomAlphanumeric(255);
+        int serviceId = RandomUtils.nextInt();
+        databaseTestHelper.addService(serviceId, randomNumeric(2));
+        databaseTestHelper.add(aUser(userId, CURRENT_PASSWORD), serviceId);
         databaseTestHelper.add(aForgottenPassword(forgottenPasswordCode, ZonedDateTime.now(ZoneId.of("UTC"))), userId);
     }
 

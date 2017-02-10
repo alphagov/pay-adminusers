@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.resources;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.User;
 
@@ -68,7 +69,7 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
     @Test
     public void shouldAddUserToAServiceWhenCreatingTheUserWithAnAlreadyExistingGatewayAccount() throws Exception {
 
-        Long serviceId = 123L;
+        int serviceId = 123;
         String gatewayAccount = "666";
         databaseTestHelper.addService(serviceId, gatewayAccount);
 
@@ -156,13 +157,16 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
 
         String random = randomUUID().toString();
         String username = "user-" + random;
-        User user = User.from(username, "password", "email@example.com", "2", "otpKey", "3543534");
-        databaseTestHelper.add(user);
+        String gatewayAccountId = "2";
+        User user = User.from(username, "password", "email@example.com", gatewayAccountId, "otpKey", "3543534");
+        int serviceId = RandomUtils.nextInt();
+        databaseTestHelper.addService(serviceId, gatewayAccountId);
+        databaseTestHelper.add(user, serviceId);
 
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
                 .put("email", "user-" + random + "@example.com")
-                .put("gateway_account_id", "1")
+                .put("gateway_account_id", gatewayAccountId)
                 .put("telephone_number", "45334534634")
                 .put("role_name", "admin")
                 .build();

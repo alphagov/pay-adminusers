@@ -2,12 +2,8 @@ package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import org.junit.Test;
-import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
-
-import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -32,7 +28,6 @@ public class UserEntityTest {
         assertEquals(user.getUsername(), userEntity.getUsername());
         assertEquals(user.getPassword(), userEntity.getPassword());
         assertEquals(user.getOtpKey(), userEntity.getOtpKey());
-        assertEquals(user.getGatewayAccountId(), userEntity.getGatewayAccountId());
         assertEquals(user.getTelephoneNumber(), userEntity.getTelephoneNumber());
         assertEquals(user.getEmail(), userEntity.getEmail());
         assertEquals(user.getRoles().size(), userEntity.getRoles().size());
