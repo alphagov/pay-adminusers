@@ -7,6 +7,7 @@ import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.PatchRequest;
+import uk.gov.pay.adminusers.model.SecondFactorToken;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -136,6 +137,57 @@ public class UserServices {
     }
 
 
+    public Optional<SecondFactorToken> newSecondFactorPasscode(String username) {
+        return userDao.findByUsername(username)
+                .map(userEntity -> {
+                    int newPassCode = SecondFactorAuthenticator.newPassCode(userEntity.getOtpKey());
+                    SecondFactorToken token = SecondFactorToken.from(username, newPassCode);
+                    logger.info("New 2FA token generated for User [{}]", userEntity.getId());
+                    //send SMS here using notify
+                    return Optional.of(token);
+                })
+                .orElseGet(() -> {
+                    //this cannot happen unless a bug in selfservice
+                    logger.error("New 2FA token attempted for non-existent User [{}]", username);
+                    return Optional.empty();
+                });
+    }
+
+    @Transactional
+    public Optional<User> authenticateSecondFactor(SecondFactorToken token) {
+        return userDao.findByUsername(token.getUsername())
+                .map(userEntity -> {
+                    if (userEntity.isDisabled()) {
+                        logger.warn("Authenticate Second Factor attempted for disabled User [{}]", userEntity.getId());
+                        return Optional.<User>empty();
+                    }
+                    if (SecondFactorAuthenticator.authorize(userEntity.getOtpKey(), token.getPasscodeAsInt())) {
+                        userEntity.setLoginCounter(0);
+                        userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+                        userDao.merge(userEntity);
+                        logger.info("Authenticate Second Factor successful for User [{}]", userEntity.getId());
+                        return Optional.of(linksBuilder.decorate(userEntity.toUser()));
+                    } else  {
+                        userEntity.setLoginCounter(userEntity.getLoginCounter() + 1);
+                        userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+                        userEntity.setDisabled(userEntity.getLoginCounter() >= loginAttemptCap);
+                        userDao.merge(userEntity);
+                        if (userEntity.isDisabled()) {
+                            logger.warn("User [{}] attempted a invalid second factor, and account currently locked", userEntity.getId());
+                        } else {
+                            logger.warn("User [{}] attempted a invalid second factor", userEntity.getId());
+                        }
+                        return Optional.<User>empty();
+                    }
+                })
+                .orElseGet(() -> {
+                    //this cannot happen unless a bug in selfservice
+                    logger.error("Authenticate 2FA token attempted for non-existent User [{}]", token.getUsername());
+                    return Optional.empty();
+                });
+    }
+
+
     /**
      * increment login count if a user with given username found
      *
@@ -178,7 +230,6 @@ public class UserServices {
                 })
                 .orElseGet(Optional::empty);
     }
-
 
     @Transactional
     public Optional<User> patchUser(String username, PatchRequest patchRequest) {

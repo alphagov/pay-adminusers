@@ -9,6 +9,7 @@ import io.dropwizard.jersey.PATCH;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.PatchRequest;
+import uk.gov.pay.adminusers.model.SecondFactorToken;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.service.UserServices;
 
@@ -35,6 +36,8 @@ public class UserResource {
     public static final String USERS_RESOURCE = API_VERSION_PATH + "/api/users";
     public static final String AUTHENTICATE_RESOURCE = USERS_RESOURCE + "/authenticate";
     public static final String USER_RESOURCE = USERS_RESOURCE + "/{username}";
+    public static final String SECOND_FACTOR_RESOURCE = USER_RESOURCE + "/authenticate";
+    public static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/{passcode}";
     public static final String ATTEMPT_LOGIN_RESOURCE = USER_RESOURCE + "/attempt-login";
 
     public static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
@@ -108,6 +111,30 @@ public class UserResource {
                                             .entity(unauthorisedErrorMessage())
                                             .build());
                 });
+    }
+
+    @Path(SECOND_FACTOR_RESOURCE)
+    @POST
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response newSecondFactorPasscode(@PathParam("username") String username) {
+        logger.info("User 2FA new passcode request");
+        return userServices.newSecondFactorPasscode(username)
+                .map(twoFAToken -> Response.status(CREATED).type(APPLICATION_JSON).entity(twoFAToken).build())
+                .orElseGet(() -> Response.status(NOT_FOUND).build());
+    }
+
+
+    @Path(SECOND_FACTOR_AUTHENTICATE_RESOURCE)
+    @POST
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response authenticateSecondFactor(@PathParam("username") String username, @PathParam("passcode") Integer passcode) {
+        logger.info("User 2FA authenticate passcode request");
+        SecondFactorToken token = SecondFactorToken.from(username, passcode);
+        return userServices.authenticateSecondFactor(token)
+                .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
+                .orElseGet(() -> Response.status(UNAUTHORIZED).build());
     }
 
     @Path(ATTEMPT_LOGIN_RESOURCE)

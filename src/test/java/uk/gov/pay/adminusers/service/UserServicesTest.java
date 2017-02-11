@@ -6,10 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import uk.gov.pay.adminusers.model.Link;
-import uk.gov.pay.adminusers.model.PatchRequest;
-import uk.gov.pay.adminusers.model.Role;
-import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.model.*;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
@@ -23,6 +20,7 @@ import java.util.Optional;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -371,6 +369,93 @@ public class UserServicesTest {
 
         assertFalse(userOptional.get().isDisabled());
         assertThat(userOptional.get().getLoginCounter(), is(0));
+    }
+
+    @Test
+    public void shouldReturn2FAToken_whenCreate_ifUserFound() throws Exception {
+        User user = aUser();
+        UserEntity userEntity = UserEntity.from(user);
+        when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
+
+        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getUsername());
+
+        assertTrue(tokenOptional.isPresent());
+        assertThat(tokenOptional.get().getPasscode(), is(notNullValue()));
+        assertThat(tokenOptional.get().getLinks().size(), is(1));
+    }
+
+    @Test
+    public void shouldReturnEmpty_whenCreate_ifUserNotFound() throws Exception {
+        String username = "non-existent";
+        when(userDao.findByUsername(username)).thenReturn(Optional.empty());
+
+        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(username);
+
+        assertFalse(tokenOptional.isPresent());
+    }
+
+    @Test
+    public void shouldReturnUser_whenAuthenticate_ifSuccessful() throws Exception {
+        User user = aUser();
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
+        int newPassCode = SecondFactorAuthenticator.newPassCode(user.getOtpKey());
+
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(SecondFactorToken.from(user.getUsername(), newPassCode));
+
+        assertTrue(tokenOptional.isPresent());
+        assertThat(tokenOptional.get().getUsername(), is(user.getUsername()));
+        assertThat(tokenOptional.get().getLoginCounter(), is(0));
+    }
+
+    @Test
+    public void shouldReturnEmpty_whenAuthenticate_ifUnsuccessful() throws Exception {
+        User user = aUser();
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
+
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(SecondFactorToken.from(user.getUsername(), 12));
+
+        assertFalse(tokenOptional.isPresent());
+
+        UserEntity savedUser = argumentCaptor.getValue();
+        assertThat(savedUser.getLoginCounter(),is(1));
+        assertThat(savedUser.isDisabled(),is(false));
+    }
+
+
+    @Test
+    public void shouldReturnEmptyAndDisable_whenAuthenticate_ifUnsuccessfulMaxRetry() throws Exception {
+        User user = aUser();
+        user.setLoginCounter(2);
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
+
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(SecondFactorToken.from(user.getUsername(), 11));
+
+        assertFalse(tokenOptional.isPresent());
+
+        UserEntity savedUser = argumentCaptor.getValue();
+        assertThat(savedUser.getLoginCounter(),is(3));
+        assertThat(savedUser.isDisabled(),is(true));
+    }
+
+    @Test
+    public void shouldReturnEmpty_whenAuthenticate_ifUserNotFound() throws Exception {
+
+        String username = "non-existent";
+        when(userDao.findByUsername(username)).thenReturn(Optional.empty());
+
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(SecondFactorToken.from(username, 111111));
+
+        assertFalse(tokenOptional.isPresent());
     }
 
     private User aUser() {
