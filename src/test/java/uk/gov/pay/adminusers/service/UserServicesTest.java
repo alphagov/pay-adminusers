@@ -16,6 +16,7 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
@@ -36,16 +37,18 @@ public class UserServicesTest {
     private PasswordHasher passwordHasher;
     private UserServices userServices;
     private LinksBuilder linksBuilder;
+    private UserNotificationService userNotificationService;
 
     @Before
     public void before() throws Exception {
         userDao = mock(UserDao.class);
         roleDao = mock(RoleDao.class);
         serviceDao = mock(ServiceDao.class);
+        userNotificationService = mock(UserNotificationService.class);
         passwordHasher = mock(PasswordHasher.class);
         linksBuilder = new LinksBuilder("http://localhost");
         int testLoginAttemptCap = 3;
-        userServices = new UserServices(userDao, roleDao, serviceDao, passwordHasher, linksBuilder, testLoginAttemptCap);
+        userServices = new UserServices(userDao, roleDao, serviceDao, passwordHasher, linksBuilder, testLoginAttemptCap, userNotificationService);
     }
 
     @Test(expected = WebApplicationException.class)
@@ -372,20 +375,43 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturn2FAToken_whenCreate_ifUserFound() throws Exception {
+    public void shouldReturn2FAToken_whenCreate2FA_ifUserFound() throws Exception {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
+        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
+        when(userNotificationService.sendSecondFactorPasscodeSms(any(String.class), anyInt()))
+                .thenReturn(notifyPromise);
 
         Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getUsername());
 
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is(notNullValue()));
-        assertThat(tokenOptional.get().getLinks().size(), is(1));
+        assertTrue(notifyPromise.isDone());
     }
 
     @Test
-    public void shouldReturnEmpty_whenCreate_ifUserNotFound() throws Exception {
+    public void shouldReturn2FAToken_whenCreate2FA_evenIfNotifyThrowsAnError() throws Exception {
+        User user = aUser();
+        UserEntity userEntity = UserEntity.from(user);
+        when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
+        CompletableFuture<String> errorPromise = CompletableFuture.supplyAsync(() -> {
+            throw new RuntimeException("some error from notify");
+        });
+
+        when(userNotificationService.sendSecondFactorPasscodeSms(any(String.class), anyInt()))
+                .thenReturn(errorPromise);
+
+        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getUsername());
+
+        assertTrue(tokenOptional.isPresent());
+        assertThat(tokenOptional.get().getPasscode(), is(notNullValue()));
+
+        assertTrue(errorPromise.isCompletedExceptionally());
+    }
+
+    @Test
+    public void shouldReturnEmpty_whenCreate2FA_ifUserNotFound() throws Exception {
         String username = "non-existent";
         when(userDao.findByUsername(username)).thenReturn(Optional.empty());
 
@@ -395,7 +421,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUser_whenAuthenticate_ifSuccessful() throws Exception {
+    public void shouldReturnUser_whenAuthenticate2FA_ifSuccessful() throws Exception {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
@@ -410,7 +436,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnEmpty_whenAuthenticate_ifUnsuccessful() throws Exception {
+    public void shouldReturnEmpty_whenAuthenticate2FA_ifUnsuccessful() throws Exception {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
@@ -423,13 +449,13 @@ public class UserServicesTest {
         assertFalse(tokenOptional.isPresent());
 
         UserEntity savedUser = argumentCaptor.getValue();
-        assertThat(savedUser.getLoginCounter(),is(1));
-        assertThat(savedUser.isDisabled(),is(false));
+        assertThat(savedUser.getLoginCounter(), is(1));
+        assertThat(savedUser.isDisabled(), is(false));
     }
 
 
     @Test
-    public void shouldReturnEmptyAndDisable_whenAuthenticate_ifUnsuccessfulMaxRetry() throws Exception {
+    public void shouldReturnEmptyAndDisable_whenAuthenticate2FA_ifUnsuccessfulMaxRetry() throws Exception {
         User user = aUser();
         user.setLoginCounter(2);
         UserEntity userEntity = UserEntity.from(user);
@@ -443,12 +469,12 @@ public class UserServicesTest {
         assertFalse(tokenOptional.isPresent());
 
         UserEntity savedUser = argumentCaptor.getValue();
-        assertThat(savedUser.getLoginCounter(),is(3));
-        assertThat(savedUser.isDisabled(),is(true));
+        assertThat(savedUser.getLoginCounter(), is(3));
+        assertThat(savedUser.isDisabled(), is(true));
     }
 
     @Test
-    public void shouldReturnEmpty_whenAuthenticate_ifUserNotFound() throws Exception {
+    public void shouldReturnEmpty_whenAuthenticate2FA_ifUserNotFound() throws Exception {
 
         String username = "non-existent";
         when(userDao.findByUsername(username)).thenReturn(Optional.empty());

@@ -120,7 +120,8 @@ public class UserResource {
     public Response newSecondFactorPasscode(@PathParam("username") String username) {
         logger.info("User 2FA new passcode request");
         return userServices.newSecondFactorPasscode(username)
-                .map(twoFAToken -> Response.status(CREATED).type(APPLICATION_JSON).entity(twoFAToken).build())
+                //selfservice doesn't need to know the 2fa, so not sending.
+                .map(twoFAToken -> Response.status(OK).type(APPLICATION_JSON).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
@@ -129,12 +130,14 @@ public class UserResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response authenticateSecondFactor(@PathParam("username") String username, @PathParam("passcode") Integer passcode) {
+    public Response authenticateSecondFactor(@PathParam("username") String username, JsonNode payload) {
         logger.info("User 2FA authenticate passcode request");
-        SecondFactorToken token = SecondFactorToken.from(username, passcode);
-        return userServices.authenticateSecondFactor(token)
-                .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
-                .orElseGet(() -> Response.status(UNAUTHORIZED).build());
+        return validator.validate2FAAuthRequest(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> userServices.authenticateSecondFactor(username, payload.get("code").asInt())
+                        .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
+                        .orElseGet(() -> Response.status(UNAUTHORIZED).build()));
+
     }
 
     @Path(ATTEMPT_LOGIN_RESOURCE)

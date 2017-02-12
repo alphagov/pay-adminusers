@@ -58,6 +58,19 @@ public class UserRequestValidator {
         return jsonNode -> jsonNode.asText().length() > 255;
     }
 
+    public Optional<Errors> validate2FAAuthRequest(JsonNode payload) {
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, "code");
+        if (missingMandatoryFields.isPresent()) {
+            return Optional.of(Errors.from(missingMandatoryFields.get()));
+        }
+
+        Optional<List<String>> notNumeric = requestValidations.checkIsNumeric(payload, "code");
+        if(notNumeric.isPresent()){
+            return Optional.of(Errors.from(notNumeric.get()));
+        }
+        return Optional.empty();
+    }
+
     public Optional<Errors> validatePatchRequest(JsonNode payload) {
         Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, "op", "path", "value");
         if (missingMandatoryFields.isPresent()) {
@@ -92,5 +105,4 @@ public class UserRequestValidator {
         });
         return errors.size() !=0 ? Optional.of(errors) : Optional.empty() ;
     }
-
 }

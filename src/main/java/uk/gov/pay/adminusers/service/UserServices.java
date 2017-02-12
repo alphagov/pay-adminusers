@@ -37,15 +37,22 @@ public class UserServices {
     private final PasswordHasher passwordHasher;
     private final LinksBuilder linksBuilder;
     private final Integer loginAttemptCap;
+    private final UserNotificationService userNotificationService;
 
     @Inject
-    public UserServices(UserDao userDao, RoleDao roleDao, ServiceDao serviceDao, PasswordHasher passwordHasher, LinksBuilder linksBuilder, @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap) {
+    public UserServices(UserDao userDao, RoleDao roleDao,
+                        ServiceDao serviceDao,
+                        PasswordHasher passwordHasher,
+                        LinksBuilder linksBuilder,
+                        @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap,
+                        UserNotificationService userNotificationService) {
         this.userDao = userDao;
         this.roleDao = roleDao;
         this.serviceDao = serviceDao;
         this.passwordHasher = passwordHasher;
         this.linksBuilder = linksBuilder;
         this.loginAttemptCap = loginAttemptCap;
+        this.userNotificationService = userNotificationService;
     }
 
     /**
@@ -142,8 +149,16 @@ public class UserServices {
                 .map(userEntity -> {
                     int newPassCode = SecondFactorAuthenticator.newPassCode(userEntity.getOtpKey());
                     SecondFactorToken token = SecondFactorToken.from(username, newPassCode);
-                    logger.info("New 2FA token generated for User [{}]", userEntity.getId());
-                    //send SMS here using notify
+                    final Integer userId = userEntity.getId();
+                    //send sms async
+                    userNotificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), newPassCode)
+                            .thenAcceptAsync(notificationId -> logger.info("sent 2FA token successfully to user [{}], notification id [{}]",
+                                    userId, notificationId))
+                            .exceptionally(exception -> {
+                                logger.error(format("error sending 2FA token to user [%s]", userId), exception);
+                                return null;
+                            });
+                    logger.info("New 2FA token generated for User [{}]", userId);
                     return Optional.of(token);
                 })
                 .orElseGet(() -> {
@@ -154,20 +169,20 @@ public class UserServices {
     }
 
     @Transactional
-    public Optional<User> authenticateSecondFactor(SecondFactorToken token) {
-        return userDao.findByUsername(token.getUsername())
+    public Optional<User> authenticateSecondFactor(String username, int code) {
+        return userDao.findByUsername(username)
                 .map(userEntity -> {
                     if (userEntity.isDisabled()) {
                         logger.warn("Authenticate Second Factor attempted for disabled User [{}]", userEntity.getId());
                         return Optional.<User>empty();
                     }
-                    if (SecondFactorAuthenticator.authorize(userEntity.getOtpKey(), token.getPasscodeAsInt())) {
+                    if (SecondFactorAuthenticator.authorize(userEntity.getOtpKey(), code)) {
                         userEntity.setLoginCounter(0);
                         userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                         userDao.merge(userEntity);
                         logger.info("Authenticate Second Factor successful for User [{}]", userEntity.getId());
                         return Optional.of(linksBuilder.decorate(userEntity.toUser()));
-                    } else  {
+                    } else {
                         userEntity.setLoginCounter(userEntity.getLoginCounter() + 1);
                         userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                         userEntity.setDisabled(userEntity.getLoginCounter() >= loginAttemptCap);
@@ -182,11 +197,10 @@ public class UserServices {
                 })
                 .orElseGet(() -> {
                     //this cannot happen unless a bug in selfservice
-                    logger.error("Authenticate 2FA token attempted for non-existent User [{}]", token.getUsername());
+                    logger.error("Authenticate 2FA token attempted for non-existent User [{}]", username);
                     return Optional.empty();
                 });
     }
-
 
     /**
      * increment login count if a user with given username found
