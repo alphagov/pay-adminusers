@@ -9,7 +9,6 @@ import io.dropwizard.jersey.PATCH;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.PatchRequest;
-import uk.gov.pay.adminusers.model.SecondFactorToken;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.service.UserServices;
 
@@ -36,8 +35,8 @@ public class UserResource {
     public static final String USERS_RESOURCE = API_VERSION_PATH + "/api/users";
     public static final String AUTHENTICATE_RESOURCE = USERS_RESOURCE + "/authenticate";
     public static final String USER_RESOURCE = USERS_RESOURCE + "/{username}";
-    public static final String SECOND_FACTOR_RESOURCE = USER_RESOURCE + "/authenticate";
-    public static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/{passcode}";
+    public static final String SECOND_FACTOR_RESOURCE = USER_RESOURCE + "/second-factor";
+    public static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/authenticate";
     public static final String ATTEMPT_LOGIN_RESOURCE = USER_RESOURCE + "/attempt-login";
 
     public static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";

@@ -428,7 +428,7 @@ public class UserServicesTest {
         when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
         int newPassCode = SecondFactorAuthenticator.newPassCode(user.getOtpKey());
 
-        Optional<User> tokenOptional = userServices.authenticateSecondFactor(SecondFactorToken.from(user.getUsername(), newPassCode));
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getUsername(), newPassCode);
 
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getUsername(), is(user.getUsername()));
@@ -444,7 +444,7 @@ public class UserServicesTest {
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        Optional<User> tokenOptional = userServices.authenticateSecondFactor(SecondFactorToken.from(user.getUsername(), 12));
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getUsername(), 12);
 
         assertFalse(tokenOptional.isPresent());
 
@@ -464,7 +464,7 @@ public class UserServicesTest {
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        Optional<User> tokenOptional = userServices.authenticateSecondFactor(SecondFactorToken.from(user.getUsername(), 11));
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getUsername(), 11);
 
         assertFalse(tokenOptional.isPresent());
 
@@ -479,7 +479,7 @@ public class UserServicesTest {
         String username = "non-existent";
         when(userDao.findByUsername(username)).thenReturn(Optional.empty());
 
-        Optional<User> tokenOptional = userServices.authenticateSecondFactor(SecondFactorToken.from(username, 111111));
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(username, 111111);
 
         assertFalse(tokenOptional.isPresent());
     }

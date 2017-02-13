@@ -1,42 +1,54 @@
 package uk.gov.pay.adminusers.resources;
 
-import com.jayway.restassured.response.ValidatableResponse;
+import com.google.common.collect.ImmutableMap;
+import com.warrenstrange.googleauth.GoogleAuthenticator;
+import com.warrenstrange.googleauth.GoogleAuthenticatorConfig;
 import org.junit.Test;
 
+import java.util.concurrent.TimeUnit;
+
+import static com.google.common.io.BaseEncoding.base32;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 
 public class UserResourceSecondFactorAuthenticationTest extends UserResourceTestBase {
 
-    public static final String USER_2FA_AUTH_SUBMIT_URL = USER_2FA_AUTHENTICATE_URL + "/%s";
+    public static final String USER_2FA_AUTHENTICATE_URL = USER_2FA_URL + "/authenticate";
 
     @Test
-    public void shouldCreateAndAuthenticate2FA_onForAValid2FAAuthRequest() throws Exception {
+    public void shouldCreate2FA_onForAValid2FAAuthRequest() throws Exception {
         String random = randomUUID().toString();
         createAValidUser(random);
         String username = "user-" + random;
-        ValidatableResponse validatableResponse = givenSetup()
+        givenSetup()
                 .when()
                 .accept(JSON)
-                .post(format(USER_2FA_AUTHENTICATE_URL, username))
+                .post(format(USER_2FA_URL, username))
                 .then()
-                .statusCode(201);
+                .statusCode(200);
+    }
 
-        validatableResponse
-                .body("username", is("user-" + random))
-                .body("passcode", is(notNullValue()))
-                .body("_links", hasSize(1));
+    @Test
+    public void shouldAuthenticate2FA_onForAValid2FAAuthRequest() throws Exception {
+        String random = randomUUID().toString();
+        createAValidUser(random);
+        String username = "user-" + random;
+        String otpSecret = "34f34";
 
-        String passcode = validatableResponse.extract().body().jsonPath().get("passcode");
+        GoogleAuthenticator testAuthenticator = new GoogleAuthenticator(new GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder()
+                .setCodeDigits(6)
+                .setTimeStepSizeInMillis(TimeUnit.SECONDS.toMillis(60))
+                .build());
+        int passcode = testAuthenticator.getTotpPassword(base32().encode(otpSecret.getBytes()));
+        ImmutableMap<String, Integer> authBody = ImmutableMap.of("code", passcode);
 
         givenSetup()
                 .when()
                 .accept(JSON)
-                .post(format(USER_2FA_AUTH_SUBMIT_URL, username, passcode))
+                .body(mapper.writeValueAsString(authBody))
+                .post(format(USER_2FA_AUTHENTICATE_URL, username))
                 .then()
                 .statusCode(200)
                 .body("username", is("user-" + random))
@@ -45,12 +57,12 @@ public class UserResourceSecondFactorAuthenticationTest extends UserResourceTest
     }
 
     @Test
-    public void shouldReturnNotFound_forNonExistentUser_when2FAAuthRequest() throws Exception {
+    public void shouldReturnNotFound_forNonExistentUser_when2FAAuthCreateRequest() throws Exception {
         String username = "non-existent";
         givenSetup()
                 .when()
                 .accept(JSON)
-                .post(format(USER_2FA_AUTHENTICATE_URL, username))
+                .post(format(USER_2FA_URL, username))
                 .then()
                 .statusCode(404);
     }
@@ -61,12 +73,14 @@ public class UserResourceSecondFactorAuthenticationTest extends UserResourceTest
         createAValidUser(random);
 
         String username = "user-" + random;
-        String invalidPasscode = "111111";
+        int invalidPasscode = 111111;
+        ImmutableMap<String, Integer> authBody = ImmutableMap.of("code", invalidPasscode);
 
         givenSetup()
                 .when()
                 .accept(JSON)
-                .post(format(USER_2FA_AUTH_SUBMIT_URL, username, invalidPasscode))
+                .body(mapper.writeValueAsString(authBody))
+                .post(format(USER_2FA_AUTHENTICATE_URL, username))
                 .then()
                 .statusCode(401);
 
@@ -80,14 +94,16 @@ public class UserResourceSecondFactorAuthenticationTest extends UserResourceTest
         String username = "user-" + random;
         databaseTestHelper.updateLoginCount(username, 10);
 
-        String invalidPasscode = "111111";
+        int invalidPasscode = 111111;
+        ImmutableMap<String, Integer> authBody = ImmutableMap.of("code", invalidPasscode);
+
         givenSetup()
                 .when()
                 .accept(JSON)
-                .post(format(USER_2FA_AUTH_SUBMIT_URL, username, invalidPasscode))
+                .body(mapper.writeValueAsString(authBody))
+                .post(format(USER_2FA_AUTHENTICATE_URL, username))
                 .then()
                 .statusCode(401);
-
 
         givenSetup()
                 .when()
