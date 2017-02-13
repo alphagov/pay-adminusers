@@ -351,6 +351,28 @@ public class UserServicesTest {
         assertTrue(userOptional.get().isDisabled());
     }
 
+    @Test
+    public void shouldResetLoginCounter_whenTheUserIsEnabled() throws Exception {
+        User user = aUser();
+        user.setDisabled(Boolean.TRUE);
+        user.setLoginCounter(11);
+
+        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "disabled", "op", "replace", "value", "false"));
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
+        when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+
+        assertTrue(user.isDisabled());
+        assertThat(user.getLoginCounter(), is(11));
+
+        Optional<User> userOptional = userServices.patchUser("random-name", PatchRequest.from(node));
+        assertTrue(userOptional.isPresent());
+
+        assertFalse(userOptional.get().isDisabled());
+        assertThat(userOptional.get().getLoginCounter(), is(0));
+    }
+
     private User aUser() {
         return User.from("random-name", "random-password", "random@email.com", "1", "784rh", "8948924");
     }
