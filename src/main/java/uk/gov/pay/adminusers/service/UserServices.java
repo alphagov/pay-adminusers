@@ -196,6 +196,7 @@ public class UserServices {
     private Optional<User> changeUserDisabled(String username, Boolean value) {
         return userDao.findByUsername(username)
                 .map(userEntity -> {
+                    userEntity.setLoginCounter(0);
                     userEntity.setDisabled(value);
                     userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                     userDao.merge(userEntity);
