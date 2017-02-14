@@ -25,9 +25,6 @@ public class AdminUsersConfig extends Configuration{
     private String baseUrl;
 
     @NotNull
-    private String initialMigrationRequired;
-
-    @NotNull
     private Integer loginAttemptCap;
 
     @JsonProperty("database")
@@ -50,10 +47,6 @@ public class AdminUsersConfig extends Configuration{
 
     public String getBaseUrl() {
         return baseUrl;
-    }
-
-    public boolean getInitialMigrationRequired() {
-        return initialMigrationRequired.equalsIgnoreCase("true") ;
     }
 
     public Integer getLoginAttemptCap() {
