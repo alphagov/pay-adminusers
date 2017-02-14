@@ -28,14 +28,27 @@ public class ForgottenPasswordEntity extends AbstractEntity {
     @JoinColumn(name = "\"userId\"", updatable = false)
     private UserEntity user;
 
+    // TODO: Change column from 'camelCase' to 'snake_case'. These columns were created through Sequelize.
+    @Column(name = "\"createdAt\"")
+    @Convert(converter = UTCDateTimeConverter.class)
+    private ZonedDateTime createdAt;
+
+    @Column(name = "\"updatedAt\"")
+    @Convert(converter = UTCDateTimeConverter.class)
+    private ZonedDateTime updatedAt;
+
+
     public ForgottenPasswordEntity() {
         //for jpa
     }
 
     public ForgottenPasswordEntity(String code, ZonedDateTime date, UserEntity user) {
-        this.date = date == null ? ZonedDateTime.now(ZoneId.of("UTC")) : date;
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
+        this.date = date == null ? now : date;
         this.code = code;
         this.user = user;
+        this.createdAt = now;
+        this.updatedAt = now;
     }
 
     public ZonedDateTime getDate() {
@@ -60,6 +73,22 @@ public class ForgottenPasswordEntity extends AbstractEntity {
 
     public void setUser(UserEntity user) {
         this.user = user;
+    }
+
+    public ZonedDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(ZonedDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public ZonedDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(ZonedDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public static ForgottenPasswordEntity from(ForgottenPassword forgottenPassword, UserEntity user) {
