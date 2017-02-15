@@ -23,12 +23,6 @@ public class MigrateToInitialDbState extends ConfiguredCommand<AdminUsersConfig>
 
     @Override
     protected void run(Bootstrap<AdminUsersConfig> bootstrap, Namespace namespace, AdminUsersConfig configuration) throws Exception {
-        if (!configuration.getInitialMigrationRequired()) {
-            logger.info("Environment specified as not required for the initial database migration");
-            return;
-        }
-
-        logger.info("Environment specified as required for the initial database migration. Checking if migration is required");
         Connection connection = null;
         try {
             connection = getDatabaseConnection(configuration);

@@ -61,7 +61,3 @@ graphitePort: ${METRICS_PORT:-8092}
 baseUrl: ${BASE_URL:-http://localhost:8080}
 
 loginAttemptCap: ${LOGIN_ATTEMPT_CAP:-10}
-
-# Keep this property to default false. If you need to perform the initial migration, override through ENV variable or pay-scripts/services/adminusers.env
-# This is because in production/AWS environments this migration is not required, the only use cases required are DEV environments and any new AWS environment
-initialMigrationRequired: ${INITIAL_MIGRATION_REQUIRED:-false}
