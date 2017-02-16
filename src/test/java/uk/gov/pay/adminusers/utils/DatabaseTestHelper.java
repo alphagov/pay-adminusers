@@ -5,6 +5,9 @@ import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
+import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.sql.Timestamp;
 import java.time.ZoneId;
@@ -40,10 +43,10 @@ public class DatabaseTestHelper {
         return ret;
     }
 
-    public List<Map<String, Object>> findRolesForUser(long userId) {
+    public List<Map<String, Object>> findServiceRoleForUser(long userId) {
         List<Map<String, Object>> ret = jdbi.withHandle(h ->
-                h.createQuery("SELECT r.id, r.name, r.description " +
-                        "FROM roles r INNER JOIN user_role ur " +
+                h.createQuery("SELECT r.id, r.name, r.description, ur.service_id " +
+                        "FROM roles r INNER JOIN user_services_roles ur " +
                         "ON ur.user_id = :userId AND ur.role_id=r.id")
                         .bind("userId", userId)
                         .list());
@@ -72,7 +75,7 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public DatabaseTestHelper add(User user, int serviceId) {
+    public DatabaseTestHelper add(User user) {
         Timestamp now = Timestamp.from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant());
         jdbi.withHandle(handle ->
                 handle
@@ -94,21 +97,39 @@ public class DatabaseTestHelper {
                         .bind("updatedAt", now)
                         .execute()
         );
-        user.getRoles().forEach(userRole -> {
-            jdbi.withHandle(handle ->
-                    handle.createStatement("INSERT INTO user_role(user_id, role_id) VALUES (:userId, :roleId)")
-                            .bind("userId", user.getId())
-                            .bind("roleId", userRole.getId())
-                            .execute()
-            );
-        });
+        return this;
+    }
+
+    public DatabaseTestHelper add(User user, int serviceId, int roleId) {
+        Timestamp now = Timestamp.from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant());
         jdbi.withHandle(handle ->
                 handle
-                        .createStatement("INSERT INTO users_services(user_id, service_id) VALUES (:userId, :serviceId)")
-                        .bind("userId", user.getId())
-                        .bind("serviceId", serviceId)
+                        .createStatement("INSERT INTO users(" +
+                                "id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter, version, \"createdAt\", \"updatedAt\", session_version) " +
+                                "VALUES (:id, :username, :password, :email, :otpKey, :telephoneNumber, :gatewayAccountId, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version)")
+                        .bind("id", user.getId())
+                        .bind("username", user.getUsername())
+                        .bind("password", user.getPassword())
+                        .bind("email", user.getEmail())
+                        .bind("otpKey", user.getOtpKey())
+                        .bind("telephoneNumber", user.getTelephoneNumber())
+                        .bind("gatewayAccountId", user.getGatewayAccountId())
+                        .bind("disabled", user.isDisabled())
+                        .bind("loginCounter", user.getLoginCounter())
+                        .bind("version", 0)
+                        .bind("session_version", user.getSessionVersion())
+                        .bind("createdAt", now)
+                        .bind("updatedAt", now)
                         .execute()
         );
+
+        jdbi.withHandle(handle -> handle
+                .createStatement("INSERT INTO user_services_roleS(user_id, service_id, role_id) VALUES(:userId, :serviceId, :roleId)")
+                .bind("userId", user.getId())
+                .bind("serviceId", serviceId)
+                .bind("roleId", roleId)
+                .execute());
+
         return this;
     }
 
@@ -163,7 +184,7 @@ public class DatabaseTestHelper {
     //TODO Remove - This is temporary - WIP PP-1483
     public List<Map<String, Object>> findUserServicesByUserId(Integer userId) {
         return jdbi.withHandle(h ->
-                h.createQuery("SELECT service_id FROM users_services " +
+                h.createQuery("SELECT service_id FROM user_services_roles " +
                         "WHERE user_id = :userId")
                         .bind("userId", userId)
                         .list());

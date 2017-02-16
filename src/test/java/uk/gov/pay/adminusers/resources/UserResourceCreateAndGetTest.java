@@ -199,9 +199,9 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
         List<Map<String, Object>> userByName = databaseTestHelper.findUserByName(username);
         List<Map<String, Object>> servicesAssociatedToUser = databaseTestHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
-        assertThat(servicesAssociatedToUser.get(0).get("service_id"), is(123L));
+        assertThat(servicesAssociatedToUser.get(0).get("service_id"), is(123));
 
-        List<Map<String, Object>> gatewayAccountsAssociatedToUser = databaseTestHelper.findGatewayAccountsByService((Long) servicesAssociatedToUser.get(0).get("service_id"));
+        List<Map<String, Object>> gatewayAccountsAssociatedToUser = databaseTestHelper.findGatewayAccountsByService(((Integer) servicesAssociatedToUser.get(0).get("service_id")).longValue());
         assertThat(gatewayAccountsAssociatedToUser.size(), is(1));
         assertThat(gatewayAccountsAssociatedToUser.get(0).get("gateway_account_id"), is(gatewayAccount));
     }
@@ -262,7 +262,8 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
         User user = User.from(username, "password", "user-" + username + "@example.com", gatewayAccountId, "otpKey", "3543534");
         int serviceId = RandomUtils.nextInt();
         databaseTestHelper.addService(serviceId, gatewayAccountId);
-        databaseTestHelper.add(user, serviceId);
+        databaseTestHelper.add(user);
+        //add servicerole
 
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)

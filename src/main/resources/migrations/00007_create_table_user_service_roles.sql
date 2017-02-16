@@ -18,4 +18,4 @@ ALTER TABLE user_services_roles ADD CONSTRAINT fk_services_roles_services FOREIG
 ALTER TABLE user_services_roles ADD CONSTRAINT fk_services_roles_roles FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE CASCADE;
 
 --changeset uk.gov.pay:add_pk-user_id-service_id_role_id
-ALTER TABLE user_services_roles ADD PRIMARY KEY (user_id, service_id, role_id);
+ALTER TABLE user_services_roles ADD PRIMARY KEY (user_id, service_id);

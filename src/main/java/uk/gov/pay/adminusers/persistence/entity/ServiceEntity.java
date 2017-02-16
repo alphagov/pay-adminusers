@@ -13,18 +13,12 @@ public class ServiceEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "services_seq_gen")
-    private Long id;
+    private Integer id;
 
     @OneToMany(mappedBy = "service", targetEntity = GatewayAccountIdEntity.class, fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private List<GatewayAccountIdEntity> gatewayAccountIds = new ArrayList<>();
 
-    public ServiceEntity() {
-    }
-
-    public ServiceEntity(String gatewayAccountId) {
-        this.gatewayAccountIds.clear();
-        this.gatewayAccountIds.add(new GatewayAccountIdEntity(gatewayAccountId, this));
-    }
+    public ServiceEntity() {}
 
     public ServiceEntity(List<String> gatewayAccountIds) {
         this.gatewayAccountIds.clear();
@@ -33,11 +27,11 @@ public class ServiceEntity {
         }
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

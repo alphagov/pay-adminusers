@@ -13,8 +13,8 @@ public class Permission {
     private String name;
     private String description;
 
-    public static Permission permission(Integer roleId, String name, String description) {
-        return new Permission(roleId, name, description);
+    public static Permission permission(Integer permissionId, String name, String description) {
+        return new Permission(permissionId, name, description);
     }
 
     private Permission(Integer id, @JsonProperty("name") String name, @JsonProperty("description") String description) {

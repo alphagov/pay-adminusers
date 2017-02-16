@@ -29,7 +29,6 @@ public class UserResourceAuthenticationTest extends UserResourceTestBase {
                 .statusCode(200)
                 .body("username", is(username))
                 .body("email", is("user-" + username + "@example.com"))
-                .body("gateway_account_id", is("1"))
                 .body("gateway_account_ids", hasSize(2))
                 .body("gateway_account_ids[0]", is("1"))
                 .body("gateway_account_ids[1]", is("2"))
@@ -64,5 +63,4 @@ public class UserResourceAuthenticationTest extends UserResourceTestBase {
                 .body("errors[0]", is("invalid username and/or password"));
 
     }
-
 }

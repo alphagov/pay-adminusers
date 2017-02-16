@@ -4,27 +4,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.response.ValidatableResponse;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
+import uk.gov.pay.adminusers.model.Permission;
+import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
 
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
 import static java.time.ZonedDateTime.now;
 import static java.util.UUID.randomUUID;
-import static org.apache.commons.lang3.RandomStringUtils.*;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
+import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.utils.DateTimeUtils.toUTCZonedDateTime;
 
 public class ForgottenPasswordResourceTest extends IntegrationTest {
@@ -43,11 +48,16 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
 
         String username = randomAlphanumeric(10) + randomUUID().toString();
         User user = aUser(username);
-        int serviceId = RandomUtils.nextInt();
-        String gatewayAccountId = randomNumeric(2,4);
-
+        int serviceId = nextInt();
+        int roleId = nextInt();
+        String gatewayAccountId = valueOf(nextInt());
+        Role role = role(roleId, "role", "roledesc");
+        Permission permission = Permission.permission(nextInt(), "name", "desc");
+        role.setPermissions(newArrayList(permission));
         databaseTestHelper.addService(serviceId, gatewayAccountId);
-        databaseTestHelper.add(user, serviceId);
+        databaseTestHelper.add(permission);
+        databaseTestHelper.add(role);
+        databaseTestHelper.add(user, serviceId, roleId);
 
         Map<String, String> forgottenPasswordPayload = ImmutableMap.of("username", user.getUsername());
         ValidatableResponse validatableResponse = givenSetup()
@@ -92,9 +102,9 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
         String username = RandomStringUtils.randomAlphanumeric(10) + UUID.randomUUID();
         User user = aUser(username);
         ForgottenPassword forgottenPassword = aForgottenPassword(username);
-        int serviceId = RandomUtils.nextInt();
+        int serviceId = nextInt();
         databaseTestHelper.addService(serviceId, randomNumeric(2));
-        databaseTestHelper.add(user, serviceId);
+        databaseTestHelper.add(user);
         databaseTestHelper.add(forgottenPassword, user.getId());
 
         givenSetup()
