@@ -38,6 +38,7 @@ public class UserServices {
     private final LinksBuilder linksBuilder;
     private final Integer loginAttemptCap;
     private final UserNotificationService userNotificationService;
+    private final SecondFactorAuthenticator secondFactorAuthenticator;
 
     @Inject
     public UserServices(UserDao userDao, RoleDao roleDao,
@@ -45,7 +46,7 @@ public class UserServices {
                         PasswordHasher passwordHasher,
                         LinksBuilder linksBuilder,
                         @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap,
-                        UserNotificationService userNotificationService) {
+                        UserNotificationService userNotificationService, SecondFactorAuthenticator secondFactorAuthenticator) {
         this.userDao = userDao;
         this.roleDao = roleDao;
         this.serviceDao = serviceDao;
@@ -53,6 +54,7 @@ public class UserServices {
         this.linksBuilder = linksBuilder;
         this.loginAttemptCap = loginAttemptCap;
         this.userNotificationService = userNotificationService;
+        this.secondFactorAuthenticator = secondFactorAuthenticator;
     }
 
     /**
@@ -147,10 +149,9 @@ public class UserServices {
     public Optional<SecondFactorToken> newSecondFactorPasscode(String username) {
         return userDao.findByUsername(username)
                 .map(userEntity -> {
-                    int newPassCode = SecondFactorAuthenticator.newPassCode(userEntity.getOtpKey());
+                    int newPassCode = secondFactorAuthenticator.newPassCode(userEntity.getOtpKey());
                     SecondFactorToken token = SecondFactorToken.from(username, newPassCode);
                     final Integer userId = userEntity.getId();
-                    //send sms async
                     userNotificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), newPassCode)
                             .thenAcceptAsync(notificationId -> logger.info("sent 2FA token successfully to user [{}], notification id [{}]",
                                     userId, notificationId))
@@ -176,7 +177,7 @@ public class UserServices {
                         logger.warn("Authenticate Second Factor attempted for disabled User [{}]", userEntity.getId());
                         return Optional.<User>empty();
                     }
-                    if (SecondFactorAuthenticator.authorize(userEntity.getOtpKey(), code)) {
+                    if (secondFactorAuthenticator.authorize(userEntity.getOtpKey(), code)) {
                         userEntity.setLoginCounter(0);
                         userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                         userDao.merge(userEntity);

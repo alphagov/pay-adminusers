@@ -119,7 +119,6 @@ public class UserResource {
     public Response newSecondFactorPasscode(@PathParam("username") String username) {
         logger.info("User 2FA new passcode request");
         return userServices.newSecondFactorPasscode(username)
-                //selfservice doesn't need to know the 2fa, so not sending.
                 .map(twoFAToken -> Response.status(OK).type(APPLICATION_JSON).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
