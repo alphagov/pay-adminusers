@@ -88,6 +88,10 @@ jpa:
   queryResultsCache: false
   cacheSharedDefault: false
 
+proxy:
+  host: ${HTTP_PROXY_HOST}
+  port: ${HTTP_PROXY_PORT}
+
 notify:
   secret: ${NOTIFY_SECRET:-pay-notify-secret-needs-to-be-32-chars-fsghdngfhmhfkrgsfs}
   serviceId: ${NOTIFY_SERVICE_ID:-pay-notify-service-id}

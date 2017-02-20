@@ -20,11 +20,14 @@ import uk.gov.pay.adminusers.app.healthchecks.DatabaseHealthCheck;
 import uk.gov.pay.adminusers.app.healthchecks.DependentResourceWaitCommand;
 import uk.gov.pay.adminusers.app.healthchecks.MigrateToInitialDbState;
 import uk.gov.pay.adminusers.app.healthchecks.Ping;
+import uk.gov.pay.adminusers.app.util.TrustingSSLSocketFactory;
 import uk.gov.pay.adminusers.resources.ForgottenPasswordResource;
 import uk.gov.pay.adminusers.resources.HealthCheckResource;
 import uk.gov.pay.adminusers.resources.ResetPasswordResource;
 import uk.gov.pay.adminusers.resources.UserResource;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.EnumSet.of;
@@ -73,6 +76,8 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
 
         environment.jersey().register(injector.getInstance(HealthCheckResource.class));
 
+        setGlobalProxies(configuration);
+
     }
 
     private void initialiseMetrics(AdminUsersConfig configuration, Environment environment) {
@@ -82,6 +87,14 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
                 .build(graphiteUDP)
                 .start(GRAPHITE_SENDING_PERIOD_SECONDS, TimeUnit.SECONDS);
 
+    }
+
+    private void setGlobalProxies(AdminUsersConfig configuration) {
+        SSLSocketFactory socketFactory = new TrustingSSLSocketFactory();
+        HttpsURLConnection.setDefaultSSLSocketFactory(socketFactory);
+
+        System.setProperty("https.proxyHost", configuration.getProxyConfiguration().getHost());
+        System.setProperty("https.proxyPort", configuration.getProxyConfiguration().getPort().toString());
     }
 
     public static void main(String[] args) throws Exception {
