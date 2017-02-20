@@ -32,6 +32,10 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(message, INTERNAL_SERVER_ERROR.getStatusCode());
     }
 
+    public static RuntimeException userNotificationError(Exception e) {
+        return new RuntimeException("error sending user notification", e);
+    }
+
     private static WebApplicationException buildWebApplicationException(String error, int status) {
         Map<String, List<String>> errors = ImmutableMap.of("errors", asList(error));
         Response response = Response.status(status)

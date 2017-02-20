@@ -35,6 +35,8 @@ public class UserResource {
     public static final String USERS_RESOURCE = API_VERSION_PATH + "/api/users";
     public static final String AUTHENTICATE_RESOURCE = USERS_RESOURCE + "/authenticate";
     public static final String USER_RESOURCE = USERS_RESOURCE + "/{username}";
+    public static final String SECOND_FACTOR_RESOURCE = USER_RESOURCE + "/second-factor";
+    public static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/authenticate";
     public static final String ATTEMPT_LOGIN_RESOURCE = USER_RESOURCE + "/attempt-login";
 
     public static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
@@ -108,6 +110,32 @@ public class UserResource {
                                             .entity(unauthorisedErrorMessage())
                                             .build());
                 });
+    }
+
+    @Path(SECOND_FACTOR_RESOURCE)
+    @POST
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response newSecondFactorPasscode(@PathParam("username") String username) {
+        logger.info("User 2FA new passcode request");
+        return userServices.newSecondFactorPasscode(username)
+                .map(twoFAToken -> Response.status(OK).type(APPLICATION_JSON).build())
+                .orElseGet(() -> Response.status(NOT_FOUND).build());
+    }
+
+
+    @Path(SECOND_FACTOR_AUTHENTICATE_RESOURCE)
+    @POST
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response authenticateSecondFactor(@PathParam("username") String username, JsonNode payload) {
+        logger.info("User 2FA authenticate passcode request");
+        return validator.validate2FAAuthRequest(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> userServices.authenticateSecondFactor(username, payload.get("code").asInt())
+                        .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
+                        .orElseGet(() -> Response.status(UNAUTHORIZED).build()));
+
     }
 
     @Path(ATTEMPT_LOGIN_RESOURCE)

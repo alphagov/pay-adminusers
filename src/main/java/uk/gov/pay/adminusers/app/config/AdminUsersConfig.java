@@ -27,6 +27,12 @@ public class AdminUsersConfig extends Configuration{
     @NotNull
     private Integer loginAttemptCap;
 
+    @NotNull
+    private NotifyConfiguration notifyConfiguration;
+
+    @NotNull
+    private Integer timeStepsInSeconds;
+
     @JsonProperty("database")
     public DataSourceFactory getDataSourceFactory() {
         return dataSourceFactory;
@@ -51,5 +57,14 @@ public class AdminUsersConfig extends Configuration{
 
     public Integer getLoginAttemptCap() {
         return loginAttemptCap;
+    }
+
+    @JsonProperty("notify")
+    public NotifyConfiguration getNotifyConfiguration() {
+        return notifyConfiguration;
+    }
+
+    public int getTimeStepsInSeconds() {
+        return timeStepsInSeconds;
     }
 }
