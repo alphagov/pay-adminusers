@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +16,6 @@ import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.apache.commons.lang3.RandomStringUtils.*;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -123,25 +121,6 @@ public class ResetPasswordResourceTest extends IntegrationTest {
     }
 
     @Test
-    public void resetPassword_shouldReturn400_whenEmptyJsonPayload() throws Exception {
-
-        ImmutableMap<Object, Object> payload = ImmutableMap.builder()
-                .build();
-
-        givenSetup()
-                .when()
-                .body(MAPPER.writeValueAsString(payload))
-                .contentType(JSON)
-                .accept(JSON)
-                .post(RESET_PASSWORD_RESOURCE_URL)
-                .then()
-                .statusCode(400)
-                .body("errors", hasSize(2))
-                .body("errors[0]", is("Field [forgotten_password_code] is required"))
-                .body("errors[1]", is("Field [new_password] is required"));
-    }
-
-    @Test
     public void resetPassword_shouldReturn400_whenJsonIsMissing() throws Exception {
 
         givenSetup()
@@ -155,16 +134,12 @@ public class ResetPasswordResourceTest extends IntegrationTest {
                 .body("errors[0]", is("invalid JSON"));
     }
 
-
     @Test
     public void resetPassword_shouldReturn400_whenFieldsAreMissing() throws Exception {
 
-        ImmutableMap<Object, Object> payload = ImmutableMap.builder()
-                .build();
-
         givenSetup()
                 .when()
-                .body(MAPPER.writeValueAsString(payload))
+                .body("{}")
                 .contentType(JSON)
                 .accept(JSON)
                 .post(RESET_PASSWORD_RESOURCE_URL)
@@ -180,6 +155,7 @@ public class ResetPasswordResourceTest extends IntegrationTest {
     }
 
     private User aUser(int id, String encryptedPassword) {
-        return User.from(id, randomAlphabetic(5), encryptedPassword, "user@email.com", "1", "784rh", "8948924");
+        String username = randomAlphabetic(20);
+        return User.from(id, username, encryptedPassword, username + "@example.com", "1", "784rh", "8948924");
     }
 }

@@ -12,11 +12,14 @@ import uk.gov.pay.adminusers.model.User;
 
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.time.ZonedDateTime.now;
 import static java.util.UUID.randomUUID;
+import static org.apache.commons.lang3.RandomStringUtils.*;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -37,10 +40,13 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
 
     @Test
     public void shouldGetForgottenPasswordReference_whenCreate_forAnExistingUser() throws Exception {
-        String random = randomUUID().toString();
-        User user = aUser(random);
+
+        String username = randomAlphanumeric(10) + randomUUID().toString();
+        User user = aUser(username);
         int serviceId = RandomUtils.nextInt();
-        databaseTestHelper.addService(serviceId, RandomStringUtils.randomNumeric(2));
+        String gatewayAccountId = randomNumeric(2,4);
+
+        databaseTestHelper.addService(serviceId, gatewayAccountId);
         databaseTestHelper.add(user, serviceId);
 
         Map<String, String> forgottenPasswordPayload = ImmutableMap.of("username", user.getUsername());
@@ -82,21 +88,22 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
 
     @Test
     public void shouldGetForgottenPassword_whenGetByCode_forAnExistingForgottenPassword() throws Exception {
-        String random = randomUUID().toString();
-        User user = aUser(random);
-        ForgottenPassword forgottenPassword = aForgottenPassword(random);
+
+        String username = RandomStringUtils.randomAlphanumeric(10) + UUID.randomUUID();
+        User user = aUser(username);
+        ForgottenPassword forgottenPassword = aForgottenPassword(username);
         int serviceId = RandomUtils.nextInt();
-        databaseTestHelper.addService(serviceId, RandomStringUtils.randomNumeric(2));
+        databaseTestHelper.addService(serviceId, randomNumeric(2));
         databaseTestHelper.add(user, serviceId);
         databaseTestHelper.add(forgottenPassword, user.getId());
 
         givenSetup()
                 .when()
                 .accept(JSON)
-                .get(FORGOTTEN_PASSWORDS_RESOURCE_URL + "/" + random)
+                .get(FORGOTTEN_PASSWORDS_RESOURCE_URL + "/" + forgottenPassword.getCode())
                 .then()
                 .statusCode(200)
-                .body("code", is(random));
+                .body("code", is(forgottenPassword.getCode()));
 
     }
 
@@ -118,18 +125,17 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
         givenSetup()
                 .when()
                 .accept(JSON)
-                .get(FORGOTTEN_PASSWORDS_RESOURCE_URL + RandomStringUtils.randomAlphanumeric(256))
+                .get(FORGOTTEN_PASSWORDS_RESOURCE_URL + "/" + randomAlphanumeric(256))
                 .then()
                 .statusCode(404);
 
     }
 
-    private ForgottenPassword aForgottenPassword(String random) {
-        return ForgottenPassword.forgottenPassword(format("%s", random), format("%s-name", random));
+    private ForgottenPassword aForgottenPassword(String username) {
+        return ForgottenPassword.forgottenPassword(format("%s-code", username), username);
     }
 
-
-    private User aUser(String random) {
-        return User.from(format("%s-name", random), format("%s-password", random), format("%s@email.com", random), "1", "784rh", "8948924");
+    private User aUser(String username) {
+        return User.from(username, format("%s-password", username), format("%s@email.com", username), "1", "784rh", "8948924");
     }
 }

@@ -4,7 +4,6 @@ import org.junit.Test;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
-import static java.util.UUID.randomUUID;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 
@@ -12,9 +11,8 @@ public class UserResourceLoginAttemptTest extends UserResourceTestBase {
 
     @Test
     public void shouldIncreaseLoginCount_whenRecordLoginAttempt() throws Exception {
-        String random = randomUUID().toString();
-        createAValidUser(random);
-        String username = "user-" + random;
+
+        String username = createAValidUser();
 
         givenSetup()
                 .when()
@@ -27,9 +25,8 @@ public class UserResourceLoginAttemptTest extends UserResourceTestBase {
 
     @Test
     public void shouldErrorLocked_whenRecordLoginAttempt_ifAttemptsMoreThanAllowed() throws Exception {
-        String random = randomUUID().toString();
-        createAValidUser(random);
-        String username = "user-" + random;
+
+        String username = createAValidUser();
         databaseTestHelper.updateLoginCount(username, 10);
 
         givenSetup()
@@ -57,9 +54,8 @@ public class UserResourceLoginAttemptTest extends UserResourceTestBase {
 
     @Test
     public void shouldError400_whenResetLoginAttemptActionIsInvalid() throws Exception {
-        String random = randomUUID().toString();
-        createAValidUser(random);
-        String username = "user-" + random;
+
+        String username = createAValidUser();
 
         givenSetup()
                 .when()
@@ -74,9 +70,8 @@ public class UserResourceLoginAttemptTest extends UserResourceTestBase {
 
     @Test
     public void shouldError200_whenResetLoginAttemptActionIsValid() throws Exception {
-        String random = randomUUID().toString();
-        createAValidUser(random);
-        String username = "user-" + random;
+
+        String username = createAValidUser();
 
         givenSetup()
                 .when()

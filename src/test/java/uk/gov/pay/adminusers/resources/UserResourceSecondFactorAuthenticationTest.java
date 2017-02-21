@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.resources;
 import com.google.common.collect.ImmutableMap;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorConfig;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -10,18 +11,21 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.io.BaseEncoding.base32;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
-import static java.util.UUID.randomUUID;
 import static org.hamcrest.core.Is.is;
 
 public class UserResourceSecondFactorAuthenticationTest extends UserResourceTestBase {
 
-    public static final String USER_2FA_AUTHENTICATE_URL = USER_2FA_URL + "/authenticate";
+    private static final String USER_2FA_AUTHENTICATE_URL = USER_2FA_URL + "/authenticate";
+    private String username;
+
+    @Before
+    public void createValidUser() throws Exception {
+        username = createAValidUser();
+    }
 
     @Test
     public void shouldCreate2FA_onForAValid2FAAuthRequest() throws Exception {
-        String random = randomUUID().toString();
-        createAValidUser(random);
-        String username = "user-" + random;
+
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -32,9 +36,7 @@ public class UserResourceSecondFactorAuthenticationTest extends UserResourceTest
 
     @Test
     public void shouldAuthenticate2FA_onForAValid2FAAuthRequest() throws Exception {
-        String random = randomUUID().toString();
-        createAValidUser(random);
-        String username = "user-" + random;
+
         String otpSecret = "34f34";
 
         GoogleAuthenticator testAuthenticator = new GoogleAuthenticator(new GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder()
@@ -51,7 +53,7 @@ public class UserResourceSecondFactorAuthenticationTest extends UserResourceTest
                 .post(format(USER_2FA_AUTHENTICATE_URL, username))
                 .then()
                 .statusCode(200)
-                .body("username", is("user-" + random))
+                .body("username", is(username))
                 .body("login_counter", is(0))
                 .body("disabled", is(false));
     }
@@ -69,10 +71,7 @@ public class UserResourceSecondFactorAuthenticationTest extends UserResourceTest
 
     @Test
     public void shouldReturnUnauthorized_onInvalid2FACode_during2FAAuth() throws Exception {
-        String random = randomUUID().toString();
-        createAValidUser(random);
 
-        String username = "user-" + random;
         int invalidPasscode = 111111;
         ImmutableMap<String, Integer> authBody = ImmutableMap.of("code", invalidPasscode);
 
@@ -88,10 +87,7 @@ public class UserResourceSecondFactorAuthenticationTest extends UserResourceTest
 
     @Test
     public void shouldReturnUnauthorizedAndAccountLocked_during2FAAuth_ifMaxRetryExceeded() throws Exception {
-        String random = randomUUID().toString();
-        createAValidUser(random);
 
-        String username = "user-" + random;
         databaseTestHelper.updateLoginCount(username, 10);
 
         int invalidPasscode = 111111;
@@ -116,5 +112,4 @@ public class UserResourceSecondFactorAuthenticationTest extends UserResourceTest
                 .body("login_counter", is(11))
                 .body("disabled", is(true));
     }
-
 }
