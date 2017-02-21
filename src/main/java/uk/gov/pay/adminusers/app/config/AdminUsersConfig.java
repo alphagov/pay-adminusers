@@ -113,21 +113,8 @@ public class AdminUsersConfig extends Configuration {
                     dataSourceFactory.getPassword());
             connection.setReadOnly(true);
             if (connection.isValid(2)) {
-                PreparedStatement statement = connection.prepareStatement("select exists (select * from pg_tables where tablename='users')");
-                ResultSet resultSet = statement.executeQuery();
-                if (resultSet.next()) {
-                    boolean usersExists = resultSet.getBoolean(1);
-                    if (usersExists) {
-                        logger.info("datasource {} is available and USERS table exists. Assuming its ready to be used", adminusersDb);
-                        return true;
-                    } else {
-                        logger.info("datasource {} is available and USERS table does not exist. Switching to selfservice DB", adminusersDb);
-                    }
-                } else {
-                    logger.error("datasource {} is available. But pg_tables doesn't seem to exists. Check database setup", adminusersDb);
-                }
-            } else {
-                logger.warn("database {} is contactable. But connections cannot be made", adminusersDb);
+                logger.info(format("datasource %s found, switching to it", adminusersDb));
+                return true;
             }
             return false;
         } catch (Exception e) {
