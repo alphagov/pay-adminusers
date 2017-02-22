@@ -3,7 +3,10 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
+
+import java.util.UUID;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 
@@ -22,11 +25,13 @@ public class UserResourceTestBase extends IntegrationTest {
         mapper = new ObjectMapper();
     }
 
-    protected void createAValidUser(String random) throws JsonProcessingException {
+    protected String createAValidUser() throws JsonProcessingException {
+
+        String username = RandomStringUtils.randomAlphanumeric(10) + UUID.randomUUID();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
-                .put("username", "user-" + random)
-                .put("password", "password-" + random)
-                .put("email", "user-" + random + "@example.com")
+                .put("username", username)
+                .put("password", "password-" + username)
+                .put("email", "user-" + username + "@example.com")
                 .put("gateway_account_id", "1")
                 .put("telephone_number", "45334534634")
                 .put("otp_key", "34f34")
@@ -41,5 +46,7 @@ public class UserResourceTestBase extends IntegrationTest {
                 .post(USERS_RESOURCE_URL)
                 .then()
                 .statusCode(201);
+
+        return username;
     }
 }

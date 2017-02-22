@@ -12,6 +12,7 @@ import java.util.Map;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
+import static org.apache.commons.lang3.RandomStringUtils.*;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -20,10 +21,11 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
 
     @Test
     public void shouldCreateAUserSuccessfully() throws Exception {
-        String random = randomUUID().toString();
+
+        String username = randomAlphanumeric(10) + randomUUID().toString();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
-                .put("username", "user-" + random)
-                .put("email", "user-" + random + "@example.com")
+                .put("username", username)
+                .put("email", "user-" + username + "@example.com")
                 .put("gateway_account_id", "1")
                 .put("telephone_number", "45334534634")
                 .put("otp_key", "34f34")
@@ -39,16 +41,16 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
                 .then()
                 .statusCode(201)
                 .body("id", nullValue())
-                .body("username", is("user-" + random))
+                .body("username", is(username))
                 .body("password", nullValue())
-                .body("email", is("user-" + random + "@example.com"))
+                .body("email", is("user-" + username + "@example.com"))
                 .body("gateway_account_id", is("1"))
                 .body("telephone_number", is("45334534634"))
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
                 .body("disabled", is(false))
                 .body("_links", hasSize(1))
-                .body("_links[0].href", is("http://localhost:8080/v1/api/users/user-" + random))
+                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + username))
                 .body("_links[0].method", is("GET"))
                 .body("_links[0].rel", is("self"))
                 .body("role.name", is("admin"))
@@ -57,7 +59,7 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
 
         //TODO - WIP PP-1483 This will be amended when the story is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
-        List<Map<String, Object>> userByName = databaseTestHelper.findUserByName("user-" + random);
+        List<Map<String, Object>> userByName = databaseTestHelper.findUserByName(username);
         List<Map<String, Object>> servicesAssociatedToUser = databaseTestHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
 
@@ -72,11 +74,10 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
         int serviceId = 123;
         String gatewayAccount = "666";
         databaseTestHelper.addService(serviceId, gatewayAccount);
-
-        String random = randomUUID().toString();
+        String username = randomAlphanumeric(10) + randomUUID().toString();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
-                .put("username", "user-" + random)
-                .put("email", "user-" + random + "@example.com")
+                .put("username", username)
+                .put("email", "user-" + username + "@example.com")
                 .put("gateway_account_id", gatewayAccount)
                 .put("telephone_number", "45334534634")
                 .put("otp_key", "34f34")
@@ -91,12 +92,12 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
                 .post(USERS_RESOURCE_URL)
                 .then()
                 .statusCode(201)
-                .body("username", is("user-" + random))
+                .body("username", is(username))
                 .body("gateway_account_id", is("666"));
 
         //TODO - WIP PP-1483 This will be amended when the story is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
-        List<Map<String, Object>> userByName = databaseTestHelper.findUserByName("user-" + random);
+        List<Map<String, Object>> userByName = databaseTestHelper.findUserByName(username);
         List<Map<String, Object>> servicesAssociatedToUser = databaseTestHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
         assertThat(servicesAssociatedToUser.get(0).get("service_id"), is(123L));
@@ -108,10 +109,10 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
 
     @Test
     public void shouldError400_IfRoleDoesNotExist() throws Exception {
-        String random = randomUUID().toString();
+        String username = randomAlphanumeric(10) + randomUUID().toString();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
-                .put("username", "user-" + random)
-                .put("email", "user-" + random + "@example.com")
+                .put("username", username)
+                .put("email", "user-" + username + "@example.com")
                 .put("gateway_account_id", "1")
                 .put("telephone_number", "45334534634")
                 .put("otp_key", "34f34")
@@ -155,17 +156,16 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
     @Test
     public void shouldError409_IfUsernameAlreadyExists() throws Exception {
 
-        String random = randomUUID().toString();
-        String username = "user-" + random;
+        String username = randomAlphanumeric(10) + randomUUID().toString();
         String gatewayAccountId = "2";
-        User user = User.from(username, "password", "email@example.com", gatewayAccountId, "otpKey", "3543534");
+        User user = User.from(username, "password", "user-" + username + "@example.com", gatewayAccountId, "otpKey", "3543534");
         int serviceId = RandomUtils.nextInt();
         databaseTestHelper.addService(serviceId, gatewayAccountId);
         databaseTestHelper.add(user, serviceId);
 
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
-                .put("email", "user-" + random + "@example.com")
+                .put("email", "user-" + username + "@example.com")
                 .put("gateway_account_id", gatewayAccountId)
                 .put("telephone_number", "45334534634")
                 .put("role_name", "admin")
@@ -185,6 +185,7 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
 
     @Test
     public void shouldReturn404_whenGetUserWithNonExistentUsername() throws Exception {
+
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -195,6 +196,7 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
 
     @Test
     public void shouldReturn404_whenGetUser_withInvalidMaxLengthUsername() throws Exception {
+
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -205,9 +207,8 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
 
     @Test
     public void shouldReturnUser_whenGetUserWithUsername() throws Exception {
-        String random = randomUUID().toString();
-        createAValidUser(random);
-        String username = "user-" + random;
+
+        String username = createAValidUser();
 
         givenSetup()
                 .when()
@@ -218,20 +219,18 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
                 .statusCode(200)
                 .body("username", is(username))
                 .body("password", nullValue())
-                .body("email", is("user-" + random + "@example.com"))
+                .body("email", is("user-" + username + "@example.com"))
                 .body("gateway_account_id", is("1"))
                 .body("telephone_number", is("45334534634"))
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
                 .body("disabled", is(false))
                 .body("_links", hasSize(1))
-                .body("_links[0].href", is("http://localhost:8080/v1/api/users/user-" + random))
+                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + username))
                 .body("_links[0].method", is("GET"))
                 .body("_links[0].rel", is("self"))
                 .body("role.name", is("admin"))
                 .body("role.description", is("Administrator"))
                 .body("permissions", hasSize(28)); //we could consider removing this assertion if the permissions constantly changing
-
-
     }
 }
