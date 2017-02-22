@@ -46,6 +46,14 @@ public class AdminUsersConfig extends Configuration {
     @NotNull
     private Integer timeStepsInSeconds;
 
+    @NotNull
+    private  ProxyConfiguration proxyConfiguration;
+
+    @JsonProperty("proxy")
+    public ProxyConfiguration getProxyConfiguration() {
+        return proxyConfiguration;
+    }
+
     public DataSourceFactory getDataSourceFactory() {
         //temporary switch to check if adminusers database exists and can be used
         if (shouldUseAdminUsersDatasource(getNewDataSourceFactory())) {
