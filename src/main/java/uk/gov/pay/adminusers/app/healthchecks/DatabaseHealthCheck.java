@@ -9,21 +9,22 @@ import java.sql.DriverManager;
 
 public class DatabaseHealthCheck extends HealthCheck {
 
-    private AdminUsersConfig configuration;
+    private final String dbUrl;
+    private final String dbUser;
+    private final String dbPassword;
 
     @Inject
     public DatabaseHealthCheck(AdminUsersConfig configuration) {
-        this.configuration = configuration;
+        this.dbUrl = configuration.getDataSourceFactory().getUrl();
+        this.dbUser = configuration.getDataSourceFactory().getUser();
+        this.dbPassword = configuration.getDataSourceFactory().getPassword();
     }
 
     @Override
     protected Result check() throws Exception {
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection(
-                configuration.getDataSourceFactory().getUrl(),
-                configuration.getDataSourceFactory().getUser(),
-                configuration.getDataSourceFactory().getPassword());
+            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             connection.setReadOnly(true);
             return connection.isValid(2) ? Result.healthy() : Result.unhealthy("Could not validate the DB connection.");
         } catch (Exception e) {
