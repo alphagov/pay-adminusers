@@ -1,5 +1,7 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
+import com.google.common.collect.ImmutableList;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,10 @@ public class ServiceEntity {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public List<GatewayAccountEntity> getGatewayAccounts() {
+        return ImmutableList.copyOf(this.gatewayAccounts);
     }
 
     public GatewayAccountEntity getGatewayAccount() {

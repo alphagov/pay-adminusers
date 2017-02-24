@@ -1,10 +1,9 @@
 package uk.gov.pay.adminusers.validations;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import jersey.repackaged.com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -30,6 +29,16 @@ public class RequestValidations {
             }
         }
         return errors.size() > 0 ? Optional.of(errors) : Optional.empty();
+    }
+
+    public Optional<List<String>> checkContainsAtLeastOne(JsonNode payload, String... fieldNames) {
+        boolean elementsNotFound = Collections.disjoint(
+                ImmutableList.copyOf(payload.fieldNames()),
+                Arrays.asList(fieldNames)
+        );
+        return elementsNotFound ?
+                Optional.of(Collections.singletonList(format("Must have one of [%s]", String.join(",", fieldNames)))) :
+                Optional.empty();
     }
 
     public static Function<JsonNode, Boolean> notExist() {

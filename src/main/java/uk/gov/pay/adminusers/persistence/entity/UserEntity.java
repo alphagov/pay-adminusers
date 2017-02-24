@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
+import com.google.common.collect.ImmutableList;
 import uk.gov.pay.adminusers.model.User;
 
 import javax.persistence.*;
@@ -191,12 +192,27 @@ public class UserEntity extends AbstractEntity {
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);
+        List<String> gatewayAccountIds = this.services.stream()
+                .map(service -> service.getGatewayAccounts().stream()
+                        .map(gatewayAccountEntity -> gatewayAccountEntity.getGatewayAccountId())
+                        .collect(Collectors.toList()))
+                .flatMap(List::stream)
+                .distinct()
+                .collect(Collectors.toList());
+        user.setGatewayAccountIds(gatewayAccountIds);
         user.setRoles(roles.stream().map(roleEntity -> roleEntity.toRole()).collect(Collectors.toList()));
         return user;
     }
 
-    public void setService(ServiceEntity service) {
-        this.services.clear();
+    public List<ServiceEntity> getServices() {
+        return ImmutableList.copyOf(this.services);
+    }
+
+    public void addService(ServiceEntity service) {
         this.services.add(service);
+    }
+
+    public void removeService(ServiceEntity service) {
+        this.services.remove(service);
     }
 }

@@ -10,7 +10,9 @@ import org.junit.Test;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
@@ -40,11 +42,10 @@ public class UserRequestValidatorTest {
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
 
-        assertThat(errors.getErrors().size(), is(5));
+        assertThat(errors.getErrors().size(), is(4));
         assertThat(errors.getErrors(), hasItems(
                 "Field [username] is required",
                 "Field [email] is required",
-                "Field [gateway_account_id] is required",
                 "Field [telephone_number] is required",
                 "Field [role_name] is required"));
 
@@ -60,12 +61,28 @@ public class UserRequestValidatorTest {
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
 
-        assertThat(errors.getErrors().size(), is(3));
+        assertThat(errors.getErrors().size(), is(2));
         assertThat(errors.getErrors(), hasItems(
-                "Field [gateway_account_id] is required",
                 "Field [role_name] is required",
                 "Field [telephone_number] is required"));
 
+    }
+
+    @Test
+    public void shouldError_ifGatewayAccountFieldsAreMissing() throws Exception {
+        JsonNode invalidPayload = mock(JsonNode.class);
+        mockValidValuesFor(invalidPayload,
+                of("username", "blah"), of("password", "blah pass"), of("email", "blah@blah.com"),
+                of("telephone_number", "telephoneNumber"), of("otp_key", "blahblah"),
+                of("role_name","boo"));
+        Optional<Errors> optionalErrors = validator.validateCreateRequest(invalidPayload);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems(
+                "Must have one of [gateway_account_id,gateway_account_ids]"));
     }
 
     @Test
@@ -162,9 +179,8 @@ public class UserRequestValidatorTest {
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
 
-        assertThat(errors.getErrors().size(), is(2));
+        assertThat(errors.getErrors().size(), is(1));
         assertThat(errors.getErrors(), hasItems(
-                "Field [gateway_account_id] must be a number",
                 "Field [telephone_number] must be a number"));
 
     }
@@ -204,6 +220,7 @@ public class UserRequestValidatorTest {
             JsonNode fieldMock = mock(JsonNode.class);
             when(fieldMock.asText()).thenReturn(mockFieldValue.getRight());
             when(mockJsonNode.get(mockFieldValue.getLeft())).thenReturn(fieldMock);
-        }
+        };
+        when(mockJsonNode.fieldNames()).thenReturn(Arrays.stream(mockFieldValues).map(Pair::getKey).iterator());
     }
 }

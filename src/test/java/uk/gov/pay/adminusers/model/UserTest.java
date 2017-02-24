@@ -19,7 +19,8 @@ public class UserTest {
         String minimumUserJson = "{" +
                 "\"username\": \"a-username\"," +
                 "\"telephone_number\": \"2123524\"," +
-                "\"gateway_account_id\": \"2\"," +
+                "\"gateway_account_id\": \"1\"," +
+                "\"gateway_account_ids\": [\"1\", \"2\"]," +
                 "\"email\": \"email@example.com\"" +
                 "}";
 
@@ -29,7 +30,10 @@ public class UserTest {
         assertThat(user.getUsername(), is("a-username"));
         assertThat(user.getPassword(), notNullValue());
         assertThat(user.getOtpKey(), notNullValue());
-        assertThat(user.getGatewayAccountId(), is("2"));
+        assertThat(user.getGatewayAccountId(), is("1"));
+        assertThat(user.getGatewayAccountIds().size(), is(2));
+        assertThat(user.getGatewayAccountIds().get(0), is("1"));
+        assertThat(user.getGatewayAccountIds().get(1), is("2"));
         assertThat(user.getTelephoneNumber(), is("2123524"));
         assertThat(user.getEmail(), is("email@example.com"));
     }
@@ -40,7 +44,8 @@ public class UserTest {
                 "\"username\": \"a-username\"," +
                 "\"password\": \"a-password\"," +
                 "\"telephone_number\": \"2123524\"," +
-                "\"gateway_account_id\": \"2\"," +
+                "\"gateway_account_id\": \"1\"," +
+                "\"gateway_account_ids\": [\"1\", \"2\"]," +
                 "\"otp_key\": \"fr6ysdf\"," +
                 "\"email\": \"email@example.com\"" +
                 "}";
@@ -50,7 +55,10 @@ public class UserTest {
 
         assertThat(user.getUsername(), is("a-username"));
         assertThat(user.getPassword(), is("a-password"));
-        assertThat(user.getGatewayAccountId(), is("2"));
+        assertThat(user.getGatewayAccountId(), is("1"));
+        assertThat(user.getGatewayAccountIds().size(), is(2));
+        assertThat(user.getGatewayAccountIds().get(0), is("1"));
+        assertThat(user.getGatewayAccountIds().get(1), is("2"));
         assertThat(user.getTelephoneNumber(), is("2123524"));
         assertThat(user.getOtpKey(), is("fr6ysdf"));
         assertThat(user.getEmail(), is("email@example.com"));

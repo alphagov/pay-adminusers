@@ -82,6 +82,8 @@ public class UserServicesTest {
         assertThat(persistedUser.getPassword(), is(not(user.getPassword())));
         assertThat(persistedUser.getEmail(), is(user.getEmail()));
         assertThat(persistedUser.getGatewayAccountId(), is(user.getGatewayAccountId()));
+        assertThat(persistedUser.getGatewayAccountIds().size(), is(1));
+        assertThat(persistedUser.getGatewayAccountIds().get(0), is("1"));
         assertThat(persistedUser.getTelephoneNumber(), is(user.getTelephoneNumber()));
         assertThat(persistedUser.getOtpKey(), is(user.getOtpKey()));
         assertThat(persistedUser.getRoles().size(), is(1));
@@ -115,6 +117,8 @@ public class UserServicesTest {
         assertThat(persistedUser.getPassword(), is(not(user.getPassword())));
         assertThat(persistedUser.getEmail(), is(user.getEmail()));
         assertThat(persistedUser.getGatewayAccountId(), is(user.getGatewayAccountId()));
+        assertThat(persistedUser.getGatewayAccountIds().size(), is(1));
+        assertThat(persistedUser.getGatewayAccountIds().get(0), is("1"));
         assertThat(persistedUser.getTelephoneNumber(), is(user.getTelephoneNumber()));
         assertThat(persistedUser.getOtpKey(), is(user.getOtpKey()));
         assertThat(persistedUser.getRoles().size(), is(1));
@@ -133,7 +137,7 @@ public class UserServicesTest {
         User user = aUser();
 
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
 
@@ -157,7 +161,7 @@ public class UserServicesTest {
         user.setLoginCounter(2);
 
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
         userEntity.setPassword("hashed-password");
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(true);
         when(userDao.findByUsername("random-name")).thenReturn(Optional.of(userEntity));
@@ -178,7 +182,7 @@ public class UserServicesTest {
         User user = aUser();
         user.setLoginCounter(1);
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
         userEntity.setPassword("hashed-password");
 
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(false);
@@ -200,7 +204,7 @@ public class UserServicesTest {
         User user = aUser();
         user.setLoginCounter(2);
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
         userEntity.setPassword("hashed-password");
 
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(false);
@@ -222,7 +226,7 @@ public class UserServicesTest {
         user.setDisabled(true);
 
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
         userEntity.setPassword("hashed-password");
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(true);
         when(userDao.findByUsername("random-name")).thenReturn(Optional.of(userEntity));
@@ -242,7 +246,7 @@ public class UserServicesTest {
         user.setLoginCounter(1);
 
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
@@ -266,7 +270,7 @@ public class UserServicesTest {
         user.setLoginCounter(3);
 
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
@@ -293,7 +297,7 @@ public class UserServicesTest {
         User user = aUser();
 
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
@@ -324,7 +328,7 @@ public class UserServicesTest {
 
         JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "sessionVersion", "op", "append", "value", "2"));
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
 
@@ -341,7 +345,7 @@ public class UserServicesTest {
 
         JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "disabled", "op", "replace", "value", "true"));
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
 
@@ -362,7 +366,7 @@ public class UserServicesTest {
 
         JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "disabled", "op", "replace", "value", "false"));
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
 
@@ -429,7 +433,7 @@ public class UserServicesTest {
         User user = aUser();
         int newPassCode = 123456;
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
         when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.authorize(user.getOtpKey(), newPassCode)).thenReturn(true);
 
@@ -445,7 +449,7 @@ public class UserServicesTest {
     public void shouldReturnEmpty_whenAuthenticate2FA_ifUnsuccessful() throws Exception {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
         when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.authorize(user.getOtpKey(), 123456)).thenReturn(false);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
@@ -466,7 +470,7 @@ public class UserServicesTest {
         User user = aUser();
         user.setLoginCounter(2);
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
         when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.authorize(user.getOtpKey(), 123456)).thenReturn(false);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
