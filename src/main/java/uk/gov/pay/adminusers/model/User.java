@@ -9,9 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.collect.ImmutableList;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.FALSE;
@@ -76,7 +74,9 @@ public class User {
                     (node.get(FIELD_GATEWAY_ACCOUNT_IDS) instanceof ArrayNode)) {
                 gatewayAccountIds =
                         ImmutableList.copyOf(((ArrayNode) node.get(FIELD_GATEWAY_ACCOUNT_IDS)).iterator())
-                                .stream().map(JsonNode::asText).collect(Collectors.toList());
+                                .stream().map(JsonNode::asText)
+                                .sorted(usingNumericComparator())
+                                .collect(Collectors.toList());
             }
             String otpKey = getOrElseRandom(node.get(FIELD_OTP_KEY));
             return from(randomInt(), username, password, email, gatewayAccountId, gatewayAccountIds, otpKey, telephoneNumber);
@@ -87,6 +87,10 @@ public class User {
 
     private static String getOrElseRandom(JsonNode elementNode) {
         return elementNode == null || isBlank(elementNode.asText()) ? newId() : elementNode.asText();
+    }
+
+    private static Comparator<String> usingNumericComparator() {
+        return Comparator.comparingLong(Long::valueOf);
     }
 
     private User(Integer id, @JsonProperty("username") String username, @JsonProperty("password") String password,

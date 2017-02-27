@@ -73,13 +73,13 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
     }
 
     @Test
-    public void shouldCreateAUserWithGatewayAccountIdsArraySuccessfully() throws Exception {
+    public void shouldCreateAUserWithSortedGatewayAccountIdsArraySuccessfully() throws Exception {
 
         String username = randomAlphanumeric(10) + randomUUID().toString();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
                 .put("email", "user-" + username + "@example.com")
-                .put("gateway_account_ids", new String[]{"1", "2"})
+                .put("gateway_account_ids", new String[]{"111111", "222"})
                 .put("telephone_number", "45334534634")
                 .put("otp_key", "34f34")
                 .put("role_name", "admin")
@@ -97,10 +97,10 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
                 .body("username", is(username))
                 .body("password", nullValue())
                 .body("email", is("user-" + username + "@example.com"))
-                .body("gateway_account_id", is("1"))
+                .body("gateway_account_id", is("222"))
                 .body("gateway_account_ids", hasSize(2))
-                .body("gateway_account_ids[0]", is("1"))
-                .body("gateway_account_ids[1]", is("2"))
+                .body("gateway_account_ids[0]", is("222"))
+                .body("gateway_account_ids[1]", is("111111"))
                 .body("telephone_number", is("45334534634"))
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
@@ -121,7 +121,7 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
 
         List<Map<String, Object>> gatewayAccountsAssociatedToUser = databaseTestHelper.findGatewayAccountsByService((Long) servicesAssociatedToUser.get(0).get("service_id"));
         assertThat(gatewayAccountsAssociatedToUser.size(), is(1));
-        assertThat(gatewayAccountsAssociatedToUser.get(0).get("gateway_account_id"), is("1"));
+        assertThat(gatewayAccountsAssociatedToUser.get(0).get("gateway_account_id"), is("222"));
     }
 
     @Test
