@@ -1,7 +1,10 @@
 package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class PatchRequest {
 
     public static final String PATH_SESSION_VERSION = "sessionVersion";
