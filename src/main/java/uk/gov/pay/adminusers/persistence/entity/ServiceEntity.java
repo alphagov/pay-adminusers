@@ -15,15 +15,15 @@ public class ServiceEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "services_seq_gen")
     private Long id;
 
-    @OneToMany(mappedBy = "service", targetEntity = GatewayAccountEntity.class, fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    private List<GatewayAccountEntity> gatewayAccounts = new ArrayList<>();
+    @OneToMany(mappedBy = "service", targetEntity = GatewayAccountIdEntity.class, fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    private List<GatewayAccountIdEntity> gatewayAccountIds = new ArrayList<>();
 
     public ServiceEntity() {
     }
 
     public ServiceEntity(String gatewayAccountId) {
-        this.gatewayAccounts.clear();
-        this.gatewayAccounts.add(new GatewayAccountEntity(gatewayAccountId, this));
+        this.gatewayAccountIds.clear();
+        this.gatewayAccountIds.add(new GatewayAccountIdEntity(gatewayAccountId, this));
     }
 
     public Long getId() {
@@ -34,11 +34,11 @@ public class ServiceEntity {
         this.id = id;
     }
 
-    public List<GatewayAccountEntity> getGatewayAccounts() {
-        return ImmutableList.copyOf(this.gatewayAccounts);
+    public List<GatewayAccountIdEntity> getGatewayAccountIds() {
+        return ImmutableList.copyOf(this.gatewayAccountIds);
     }
 
-    public GatewayAccountEntity getGatewayAccount() {
-        return gatewayAccounts.get(0);
+    public GatewayAccountIdEntity getGatewayAccountId() {
+        return gatewayAccountIds.get(0);
     }
 }

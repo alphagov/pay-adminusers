@@ -91,7 +91,7 @@ public class UserServicesTest {
         assertThat(persistedUser.getLinks().get(0), is(selfLink));
 
         verify(serviceDao).persist(expectedService.capture());
-        assertThat(expectedService.getValue().getGatewayAccount().getGatewayAccountId(), is(user.getGatewayAccountId()));
+        assertThat(expectedService.getValue().getGatewayAccountId().getGatewayAccountId(), is(user.getGatewayAccountId()));
     }
 
     @Test

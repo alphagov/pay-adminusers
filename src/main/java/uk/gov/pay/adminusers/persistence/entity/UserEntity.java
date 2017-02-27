@@ -92,7 +92,7 @@ public class UserEntity extends AbstractEntity {
     }
 
     public String getGatewayAccountId() {
-        return this.services.get(0).getGatewayAccount().getGatewayAccountId();
+        return this.services.get(0).getGatewayAccountId().getGatewayAccountId();
     }
 
     public void setGatewayAccountId(String gatewayAccountId) {
@@ -193,7 +193,7 @@ public class UserEntity extends AbstractEntity {
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);
         List<String> gatewayAccountIds = this.services.stream()
-                .map(service -> service.getGatewayAccounts().stream()
+                .map(service -> service.getGatewayAccountIds().stream()
                         .map(gatewayAccountEntity -> gatewayAccountEntity.getGatewayAccountId())
                         .collect(Collectors.toList()))
                 .flatMap(List::stream)
