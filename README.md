@@ -38,7 +38,7 @@ Content-Type: application/json
 {
     "username": "abcd1234",
     "email": "email@email.com",
-    "gateway_account_id": "1",
+    "gateway_account_ids": ["1"],
     "telephone_number": "49875792",
     "otp_key": "43c3c4t",
     "role_name": "admin"
@@ -51,7 +51,7 @@ Content-Type: application/json
 | ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
 | `username`       | X        | a username for the user. must be unique          |  |
 | `email`                   |     X     | valid email address for a user.                                  |  |
-| `gateway_account_id`            |  X        | valid gateway account ID from connector | |
+| `gateway_account_ids`            |  X        | valid gateway account IDs from connector | |
 | `telephone_number`           |   X       | Valid mobile/phone number      | |
 | `otp_key`           |          | opt key (for 2FA)      | |
 | `role_name`           |          | known role name for adminusers      | e.g. `admin` | 
@@ -64,7 +64,7 @@ Content-Type: application/json
 {
     "username": "abcd1234",
     "email": "email@email.com",
-    "gateway_account_id": "1",
+    "gateway_account_ids": ["1"],
     "telephone_number": "49875792",
     "otp_key": "43c3c4t",
     "role": {"admin","Administrator"},
@@ -83,7 +83,7 @@ Content-Type: application/json
 | Field                    | always present | Description                                   |
 | ------------------------ |:--------------:| --------------------------------------------- |
 | `username`     | X              | Username for the user       |
-| `gateway_account_id`     | X              | The account Id created by the connector       |
+| `gateway_account_ids`     | X              | The account Ids created by the connector       |
 | `email`                   | X              | email address     |
 | `telephone_number`            | X              | user's mobile/phone number |
 | `otp_key`           | X              | top key for this user      |
@@ -111,7 +111,7 @@ Content-Type: application/json
 {
     "username": "abcd1234",
     "email": "email@email.com",
-    "gateway_account_id": "1",
+    "gateway_account_ids": ["1"],
     "telephone_number": "49875792",
     "otp_key": "43c3c4t",
     "role": {"admin","Administrator"},
@@ -131,7 +131,7 @@ Content-Type: application/json
 | Field                    | always present | Description                                   |
 | ------------------------ |:--------------:| --------------------------------------------- |
 | `username`     | X              | Username for the user       |
-| `gateway_account_id`     | X              | The account Id created by the connector       |
+| `gateway_account_ids`     | X              | The account Ids created by the connector       |
 | `email`                   | X              | email address     |
 | `telephone_number`            | X              | user's mobile/phone number |
 | `otp_key`           | X              | top key for this user      |
@@ -165,7 +165,7 @@ Content-Type: application/json
 {
     "username": "abcd1234",
     "email": "email@email.com",
-    "gateway_account_id": "1",
+    "gateway_account_ids": ["1"],
     "telephone_number": "49875792",
     "otp_key": "43c3c4t",
     "sessionVersion": 2,
@@ -224,7 +224,7 @@ Content-Type: application/json
 {
     "username": "abcd1234",
     "email": "email@email.com",
-    "gateway_account_id": "1",
+    "gateway_account_ids": ["1"],
     "telephone_number": "49875792",
     "otp_key": "43c3c4t",
     "role": {"admin","Administrator"},
