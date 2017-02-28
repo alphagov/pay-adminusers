@@ -2,6 +2,8 @@ package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.time.ZoneId;
@@ -10,6 +12,7 @@ import java.util.List;
 
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class ForgottenPassword {
     @JsonIgnore
     private Integer id;

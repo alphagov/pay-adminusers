@@ -17,6 +17,8 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static java.lang.Boolean.parseBoolean;
@@ -73,15 +75,11 @@ public class UserServices {
                     UserEntity userEntity = UserEntity.from(user);
                     userEntity.setRoles(ImmutableList.of(roleEntity));
                     userEntity.setPassword(passwordHasher.hash(user.getPassword()));
-                    Optional<ServiceEntity> serviceOptional = serviceDao.findByGatewayAccountId(user.getGatewayAccountId());
-                    ServiceEntity service = serviceOptional
-                            .map(serviceEntity -> serviceEntity)
-                            .orElseGet(() -> {
-                                ServiceEntity serviceEntity = new ServiceEntity(user.getGatewayAccountId());
-                                serviceDao.persist(serviceEntity);
-                                return serviceEntity;
-                            });
-                    userEntity.setService(service);
+                    if (!user.getGatewayAccountIds().isEmpty()) {
+                        addServicesToUser(userEntity, user.getGatewayAccountIds());
+                    } else {
+                        addServicesToUser(userEntity, Arrays.asList(user.getGatewayAccountId()));
+                    }
                     userDao.persist(userEntity);
                     return linksBuilder.decorate(userEntity.toUser());
                 })
@@ -280,5 +278,21 @@ public class UserServices {
                     return Optional.of(linksBuilder.decorate(userEntity.toUser()));
                 })
                 .orElseGet(Optional::empty);
+    }
+
+    private void addServicesToUser(UserEntity userEntity, List<String> gatewayAccountIds) {
+        for (String gatewayAccountId : gatewayAccountIds) {
+            Optional<ServiceEntity> serviceOptional = serviceDao.findByGatewayAccountId(gatewayAccountId);
+            ServiceEntity service = serviceOptional
+                    .map(serviceEntity -> serviceEntity)
+                    .orElseGet(() -> {
+                        ServiceEntity serviceEntity = new ServiceEntity(gatewayAccountId);
+                        serviceDao.persist(serviceEntity);
+                        return serviceEntity;
+                    });
+            if (!userEntity.getServices().contains(service)) {
+                userEntity.addService(service);
+            }
+        }
     }
 }

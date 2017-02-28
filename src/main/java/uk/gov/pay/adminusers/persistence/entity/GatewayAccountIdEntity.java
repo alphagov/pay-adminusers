@@ -5,7 +5,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "service_gateway_accounts")
 @SequenceGenerator(name = "service_gatewayAccounts_seq_gen", sequenceName = "service_gateway_accounts_id_seq", allocationSize = 1)
-public class GatewayAccountEntity {
+public class GatewayAccountIdEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "service_gatewayAccounts_seq_gen")
@@ -18,10 +18,10 @@ public class GatewayAccountEntity {
     @JoinColumn(name = "service_id")
     private ServiceEntity service;
 
-    public GatewayAccountEntity() {
+    public GatewayAccountIdEntity() {
     }
 
-    public GatewayAccountEntity(String gatewayAccountId, ServiceEntity service) {
+    public GatewayAccountIdEntity(String gatewayAccountId, ServiceEntity service) {
         this.gatewayAccountId = gatewayAccountId;
         this.service = service;
     }

@@ -2,7 +2,7 @@ package uk.gov.pay.adminusers.persistence.dao;
 
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
-import uk.gov.pay.adminusers.persistence.entity.GatewayAccountEntity;
+import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
 import javax.inject.Inject;
@@ -19,11 +19,11 @@ public class ServiceDao extends JpaDao<ServiceEntity> {
 
     public Optional<ServiceEntity> findByGatewayAccountId(String gatewayAccountId) {
 
-        String query = "SELECT ga FROM GatewayAccountEntity ga " +
+        String query = "SELECT ga FROM GatewayAccountIdEntity ga " +
                 "WHERE ga.gatewayAccountId = :gatewayAccountId";
 
-        Optional<GatewayAccountEntity> gatewayAccount = entityManager.get()
-                .createQuery(query, GatewayAccountEntity.class)
+        Optional<GatewayAccountIdEntity> gatewayAccount = entityManager.get()
+                .createQuery(query, GatewayAccountIdEntity.class)
                 .setParameter("gatewayAccountId", gatewayAccountId)
                 .getResultList().stream().findFirst();
 

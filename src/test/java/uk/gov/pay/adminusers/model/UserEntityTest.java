@@ -17,7 +17,8 @@ public class UserEntityTest {
         String minimumUserJson = "{" +
                 "\"username\": \"a-username\"," +
                 "\"telephone_number\": \"2123524\"," +
-                "\"gateway_account_id\": \"2\"," +
+                "\"gateway_account_id\": \"1\"," +
+                "\"gateway_account_ids\": [\"1\", \"2\"]," +
                 "\"email\": \"email@example.com\"" +
                 "}";
 
