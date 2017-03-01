@@ -8,10 +8,6 @@ import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.sql.*;
-
-import static java.lang.String.format;
-
 
 public class AdminUsersConfig extends Configuration {
 
@@ -19,11 +15,7 @@ public class AdminUsersConfig extends Configuration {
 
     @Valid
     @NotNull
-    private DataSourceFactory oldDataSourceFactory;
-
-    @Valid
-    @NotNull
-    private DataSourceFactory newDataSourceFactory;
+    private DataSourceFactory dataSourceFactory;
 
     @Valid
     @NotNull
@@ -54,26 +46,9 @@ public class AdminUsersConfig extends Configuration {
         return proxyConfiguration;
     }
 
-    public DataSourceFactory getDataSourceFactory() {
-        //temporary switch to check if adminusers database exists and can be used
-        if (shouldUseAdminUsersDatasource(getNewDataSourceFactory())) {
-            return getNewDataSourceFactory();
-        }
-        return getOldDataSourceFactory();
-    }
-
     @JsonProperty("database")
-    public DataSourceFactory getOldDataSourceFactory() {
-        return oldDataSourceFactory;
-    }
-
-    /**
-     * TODO: rename this annotation to `database` when we remove the above `getOldDataSourceFactory`
-     * @return
-     */
-    @JsonProperty("databaseNew")
-    public DataSourceFactory getNewDataSourceFactory() {
-        return newDataSourceFactory;
+    public DataSourceFactory getDataSourceFactory() {
+        return dataSourceFactory;
     }
 
     @JsonProperty("jpa")
@@ -106,36 +81,4 @@ public class AdminUsersConfig extends Configuration {
         return timeStepsInSeconds;
     }
 
-    /**
-     * Temporary method which checks availability of adminusers database, or switch to selfservice if not available
-     * @param dataSourceFactory
-     * @return
-     */
-    private boolean shouldUseAdminUsersDatasource(DataSourceFactory dataSourceFactory) {
-        final String adminusersDb = "adminusers";
-        Connection connection = null;
-        try {
-            connection = DriverManager.getConnection(
-                    dataSourceFactory.getUrl(),
-                    dataSourceFactory.getUser(),
-                    dataSourceFactory.getPassword());
-            connection.setReadOnly(true);
-            if (connection.isValid(2)) {
-                logger.info(format("datasource %s found, switching to it", adminusersDb));
-                return true;
-            }
-            return false;
-        } catch (Exception e) {
-            logger.info(format("datasource %s is not available > switching to selfservice database", adminusersDb), e);
-            return false;
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    logger.error("error closing test connection to " + adminusersDb, e);
-                }
-            }
-        }
-    }
 }

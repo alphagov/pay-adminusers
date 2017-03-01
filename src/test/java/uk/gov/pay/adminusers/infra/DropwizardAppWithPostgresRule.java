@@ -52,10 +52,6 @@ public class DropwizardAppWithPostgresRule implements TestRule {
         cfgOverrideList.add(config("database.user", postgres.getUsername()));
         cfgOverrideList.add(config("database.password", postgres.getPassword()));
 
-        cfgOverrideList.add(config("databaseNew.url", postgres.getConnectionUrl()));
-        cfgOverrideList.add(config("databaseNew.user", postgres.getUsername()));
-        cfgOverrideList.add(config("databaseNew.password", postgres.getPassword()));
-
         app = new DropwizardAppRule<>(
                 AdminUsersApp.class,
                 configFilePath,
