@@ -31,7 +31,7 @@ import static io.dropwizard.testing.ResourceHelpers.resourceFilePath;
 
 public class DropwizardAppWithPostgresRule implements TestRule {
     private static final Logger logger = LoggerFactory.getLogger(DropwizardAppWithPostgresRule.class);
-    private static final String JPA_UNIT = "ConnectorUnit";
+    private static final String JPA_UNIT = "AdminUsersUnit";
 
     private final String configFilePath;
     private final PostgresDockerRule postgres;
@@ -51,10 +51,6 @@ public class DropwizardAppWithPostgresRule implements TestRule {
         cfgOverrideList.add(config("database.url", postgres.getConnectionUrl()));
         cfgOverrideList.add(config("database.user", postgres.getUsername()));
         cfgOverrideList.add(config("database.password", postgres.getPassword()));
-
-        cfgOverrideList.add(config("databaseNew.url", postgres.getConnectionUrl()));
-        cfgOverrideList.add(config("databaseNew.user", postgres.getUsername()));
-        cfgOverrideList.add(config("databaseNew.password", postgres.getPassword()));
 
         app = new DropwizardAppRule<>(
                 AdminUsersApp.class,
