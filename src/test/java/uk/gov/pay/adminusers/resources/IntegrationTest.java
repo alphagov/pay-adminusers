@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.resources;
 import com.jayway.restassured.specification.RequestSpecification;
 import org.junit.Before;
 import org.junit.ClassRule;
+import uk.gov.pay.adminusers.fixture.UserDatabaseFixture;
 import uk.gov.pay.adminusers.infra.DropwizardAppWithPostgresRule;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
@@ -14,11 +15,13 @@ public class IntegrationTest {
     @ClassRule
     public static DropwizardAppWithPostgresRule app = new DropwizardAppWithPostgresRule();
 
+    protected UserDatabaseFixture userDatabaseFixture;
     protected DatabaseTestHelper databaseTestHelper;
 
     @Before
     public void setUp() {
         databaseTestHelper = app.getDatabaseTestHelper();
+        userDatabaseFixture = UserDatabaseFixture.aUserDatabaseFixture(databaseTestHelper);
     }
 
     protected RequestSpecification givenSetup() {

@@ -32,8 +32,15 @@ public class ResetPasswordResourceTest extends IntegrationTest {
     private int userId;
 
     @Before
-    public void before() throws Exception {
+    public void createUser() throws Exception {
+
         userId = nextInt();
+        userDatabaseFixture.aUser()
+                .withId(nextInt())
+                .withService(nextInt())
+                .withPassword(CURRENT_PASSWORD)
+                .build();
+
         forgottenPasswordCode = randomAlphanumeric(255);
         int serviceId = RandomUtils.nextInt();
         databaseTestHelper.addService(serviceId, randomNumeric(2));

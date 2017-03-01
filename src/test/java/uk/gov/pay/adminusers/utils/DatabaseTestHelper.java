@@ -72,6 +72,35 @@ public class DatabaseTestHelper {
         return this;
     }
 
+
+    public DatabaseTestHelper addUser(int id, String username, String password, String email, String otpKey, String telephone, String gatewayAccountId, boolean isDisabled, int loginCounter, int sessionVersion) {
+
+        Timestamp now = Timestamp.from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant());
+
+        jdbi.withHandle(handle ->
+                handle
+                        .createStatement("INSERT INTO users(" +
+                                "id, username, password, email, otp_key, telephone_number, gateway_account_id, disabled, login_counter, version, \"createdAt\", \"updatedAt\", session_version) " +
+                                "VALUES (:id, :username, :password, :email, :otpKey, :telephoneNumber, :gatewayAccountId, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version)")
+                        .bind("id", id)
+                        .bind("username", username)
+                        .bind("password", password)
+                        .bind("email", email)
+                        .bind("otpKey", otpKey)
+                        .bind("telephoneNumber", telephone)
+                        .bind("gatewayAccountId", gatewayAccountId)
+                        .bind("disabled", isDisabled)
+                        .bind("loginCounter", loginCounter)
+                        .bind("version", 0)
+                        .bind("session_version", sessionVersion)
+                        .bind("createdAt", now)
+                        .bind("updatedAt", now)
+                        .execute()
+        );
+
+        return this;
+    }
+
     public DatabaseTestHelper add(User user, int serviceId) {
         Timestamp now = Timestamp.from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant());
         jdbi.withHandle(handle ->
