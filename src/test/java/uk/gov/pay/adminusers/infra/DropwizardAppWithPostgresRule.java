@@ -31,7 +31,7 @@ import static io.dropwizard.testing.ResourceHelpers.resourceFilePath;
 
 public class DropwizardAppWithPostgresRule implements TestRule {
     private static final Logger logger = LoggerFactory.getLogger(DropwizardAppWithPostgresRule.class);
-    private static final String JPA_UNIT = "ConnectorUnit";
+    private static final String JPA_UNIT = "AdminUsersUnit";
 
     private final String configFilePath;
     private final PostgresDockerRule postgres;
