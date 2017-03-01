@@ -19,7 +19,7 @@ database:
   driverClass: org.postgresql.Driver
   user: ${DB_USER}
   password: ${DB_PASSWORD}
-  url: jdbc:postgresql://${DB_HOST}:${DB_PORT:-5432}/adminusers?sslfactory=uk.gov.pay.adminusers.app.util.TrustingSSLSocketFactory&${DB_SSL_OPTION}
+  url: jdbc:postgresql://${DB_HOST}:${DB_PORT:-5432}/${DB_NAME:-adminusers}?sslfactory=uk.gov.pay.adminusers.app.util.TrustingSSLSocketFactory&${DB_SSL_OPTION}
 
   # the maximum amount of time to wait on an empty pool before throwing an exception
   maxWaitForConnection: 1s
