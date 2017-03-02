@@ -26,8 +26,7 @@ import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_DISABLED;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.undefinedRoleException;
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.userLockedException;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
 
 public class UserServices {
 
@@ -281,18 +280,26 @@ public class UserServices {
     }
 
     private void addServicesToUser(UserEntity userEntity, List<String> gatewayAccountIds) {
+        userEntity.setService(getServiceAssignedTo(gatewayAccountIds)
+                .map(serviceEntity -> serviceEntity)
+                .orElseGet(() -> {
+                    ServiceEntity serviceEntity = new ServiceEntity(gatewayAccountIds);
+                    serviceDao.persist(serviceEntity);
+                    return serviceEntity;
+                }));
+    }
+
+    private Optional<ServiceEntity> getServiceAssignedTo(List<String> gatewayAccountIds) {
         for (String gatewayAccountId : gatewayAccountIds) {
             Optional<ServiceEntity> serviceOptional = serviceDao.findByGatewayAccountId(gatewayAccountId);
-            ServiceEntity service = serviceOptional
-                    .map(serviceEntity -> serviceEntity)
-                    .orElseGet(() -> {
-                        ServiceEntity serviceEntity = new ServiceEntity(gatewayAccountId);
-                        serviceDao.persist(serviceEntity);
-                        return serviceEntity;
-                    });
-            if (!userEntity.getServices().contains(service)) {
-                userEntity.addService(service);
+            if (serviceOptional.isPresent()) {
+                if (serviceOptional.get().hasExactGatewayAccountIds(gatewayAccountIds)) {
+                    return serviceOptional;
+                } else {
+                    throw conflictingServiceGatewayAccounts();
+                }
             }
         }
+        return Optional.empty();
     }
 }

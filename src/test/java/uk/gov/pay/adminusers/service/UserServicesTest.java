@@ -4,24 +4,31 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.*;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.ws.rs.WebApplicationException;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -29,28 +36,30 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
 
+@RunWith(MockitoJUnitRunner.class)
 public class UserServicesTest {
 
+    @Mock
     private UserDao userDao;
+    @Mock
     private RoleDao roleDao;
+    @Mock
     private ServiceDao serviceDao;
+    @Mock
     private PasswordHasher passwordHasher;
-    private UserServices userServices;
-    private LinksBuilder linksBuilder;
+    @Mock
     private UserNotificationService userNotificationService;
+    @Mock
     private SecondFactorAuthenticator secondFactorAuthenticator;
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
+    private UserServices userServices;
 
     @Before
     public void before() throws Exception {
-        userDao = mock(UserDao.class);
-        roleDao = mock(RoleDao.class);
-        serviceDao = mock(ServiceDao.class);
-        userNotificationService = mock(UserNotificationService.class);
-        secondFactorAuthenticator = mock(SecondFactorAuthenticator.class);
-        passwordHasher = mock(PasswordHasher.class);
-        linksBuilder = new LinksBuilder("http://localhost");
-        int testLoginAttemptCap = 3;
-        userServices = new UserServices(userDao, roleDao, serviceDao, passwordHasher, linksBuilder, testLoginAttemptCap, userNotificationService, secondFactorAuthenticator);
+        userServices = new UserServices(userDao, roleDao, serviceDao, passwordHasher, new LinksBuilder("http://localhost"), 3, userNotificationService, secondFactorAuthenticator);
     }
 
     @Test(expected = WebApplicationException.class)
@@ -137,7 +146,7 @@ public class UserServicesTest {
         User user = aUser();
 
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
 
@@ -161,7 +170,7 @@ public class UserServicesTest {
         user.setLoginCounter(2);
 
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         userEntity.setPassword("hashed-password");
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(true);
         when(userDao.findByUsername("random-name")).thenReturn(Optional.of(userEntity));
@@ -182,7 +191,7 @@ public class UserServicesTest {
         User user = aUser();
         user.setLoginCounter(1);
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         userEntity.setPassword("hashed-password");
 
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(false);
@@ -204,7 +213,7 @@ public class UserServicesTest {
         User user = aUser();
         user.setLoginCounter(2);
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         userEntity.setPassword("hashed-password");
 
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(false);
@@ -226,7 +235,7 @@ public class UserServicesTest {
         user.setDisabled(true);
 
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         userEntity.setPassword("hashed-password");
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(true);
         when(userDao.findByUsername("random-name")).thenReturn(Optional.of(userEntity));
@@ -246,7 +255,7 @@ public class UserServicesTest {
         user.setLoginCounter(1);
 
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
@@ -270,7 +279,7 @@ public class UserServicesTest {
         user.setLoginCounter(3);
 
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
@@ -297,7 +306,7 @@ public class UserServicesTest {
         User user = aUser();
 
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
@@ -328,7 +337,7 @@ public class UserServicesTest {
 
         JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "sessionVersion", "op", "append", "value", "2"));
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
 
@@ -345,7 +354,7 @@ public class UserServicesTest {
 
         JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "disabled", "op", "replace", "value", "true"));
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
 
@@ -366,7 +375,7 @@ public class UserServicesTest {
 
         JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "disabled", "op", "replace", "value", "false"));
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
 
@@ -433,7 +442,7 @@ public class UserServicesTest {
         User user = aUser();
         int newPassCode = 123456;
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.authorize(user.getOtpKey(), newPassCode)).thenReturn(true);
 
@@ -449,7 +458,7 @@ public class UserServicesTest {
     public void shouldReturnEmpty_whenAuthenticate2FA_ifUnsuccessful() throws Exception {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.authorize(user.getOtpKey(), 123456)).thenReturn(false);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
@@ -470,7 +479,7 @@ public class UserServicesTest {
         User user = aUser();
         user.setLoginCounter(2);
         UserEntity userEntity = UserEntity.from(user);
-        userEntity.addService(new ServiceEntity(user.getGatewayAccountId()));
+        userEntity.setService(new ServiceEntity(user.getGatewayAccountId()));
         when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.authorize(user.getOtpKey(), 123456)).thenReturn(false);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
@@ -496,8 +505,108 @@ public class UserServicesTest {
         assertFalse(tokenOptional.isPresent());
     }
 
+    @Test
+    public void createUser_shouldError_whenAddingAUserToDifferentGatewayAccountsBelongingToDifferentServices() {
+
+        ArrayList<String> gatewayAccountIds = newArrayList("1", "2", "3");
+        User user = User.from(1, "random-name", "random-password", "random@email.com", null, gatewayAccountIds, "784rh", "8948924");
+        String roleName = "admin";
+        Role role = Role.role(2, roleName, "admin role");
+        ArgumentCaptor<ServiceEntity> expectedService = ArgumentCaptor.forClass(ServiceEntity.class);
+
+        when(roleDao.findByRoleName(roleName)).thenReturn(Optional.of(new RoleEntity(role)));
+        when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
+
+        ServiceEntity service1 = mock(ServiceEntity.class);
+        when(service1.getGatewayAccountIds()).thenReturn(newArrayList(new GatewayAccountIdEntity("1", service1), new GatewayAccountIdEntity("6", service1)));
+        when(serviceDao.findByGatewayAccountId("1")).thenReturn(Optional.of(service1));
+
+        expectedException.expect(WebApplicationException.class);
+        expectedException.expectMessage("409 Conflict");
+
+        userServices.createUser(user, roleName);
+
+        verify(serviceDao).findByGatewayAccountId("1");
+        verifyNoMoreInteractions(serviceDao);
+        verifyZeroInteractions(userDao);
+    }
+
+    @Test
+    public void createUser_shouldError_whenListOfGatewayAccountsContainsSomeNotBelongingToAnything() {
+
+        ArrayList<String> gatewayAccountIds = newArrayList("1", "2", "3");
+        User user = User.from(1, "random-name", "random-password", "random@email.com", null, gatewayAccountIds, "784rh", "8948924");
+        String roleName = "admin";
+        Role role = Role.role(2, roleName, "admin role");
+        ArgumentCaptor<ServiceEntity> expectedService = ArgumentCaptor.forClass(ServiceEntity.class);
+
+        when(roleDao.findByRoleName(roleName)).thenReturn(Optional.of(new RoleEntity(role)));
+        when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
+
+        when(serviceDao.findByGatewayAccountId("1")).thenReturn(Optional.empty());
+        ServiceEntity service2 = mock(ServiceEntity.class);
+        when(service2.getGatewayAccountIds()).thenReturn(newArrayList(new GatewayAccountIdEntity("2", service2), new GatewayAccountIdEntity("3", service2)));
+        when(serviceDao.findByGatewayAccountId("2")).thenReturn(Optional.of(service2));
+
+        expectedException.expect(WebApplicationException.class);
+        expectedException.expectMessage("409 Conflict");
+
+        userServices.createUser(user, roleName);
+
+        verify(serviceDao).findByGatewayAccountId("1");
+        verify(serviceDao).findByGatewayAccountId("2");
+        verifyNoMoreInteractions(serviceDao);
+        verifyZeroInteractions(userDao);
+    }
+
+    @Test
+    public void createUser_shouldPersist_aUserSuccessfully_andCreateANewServiceAssociatingAllNonExistingGatewayAccounts() throws Exception {
+
+        ArrayList<String> gatewayAccountIds = newArrayList("1", "2", "3");
+        User user = User.from(1, "random-name", "random-password", "random@email.com", null, gatewayAccountIds, "784rh", "8948924");
+        Role role = Role.role(2, "admin", "admin role");
+
+        ArgumentCaptor<UserEntity> expectedUser = ArgumentCaptor.forClass(UserEntity.class);
+        ArgumentCaptor<ServiceEntity> expectedService = ArgumentCaptor.forClass(ServiceEntity.class);
+
+        when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
+        when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
+        when(serviceDao.findByGatewayAccountId("1")).thenReturn(Optional.empty());
+        when(serviceDao.findByGatewayAccountId("2")).thenReturn(Optional.empty());
+        when(serviceDao.findByGatewayAccountId("3")).thenReturn(Optional.empty());
+
+        doNothing().when(userDao).persist(any(UserEntity.class));
+        doNothing().when(serviceDao).persist(any(ServiceEntity.class));
+
+        User persistedUser = userServices.createUser(user, role.getName());
+        Link selfLink = Link.from(Link.Rel.self, "GET", "http://localhost" + USERS_RESOURCE + "/random-name");
+
+        assertThat(persistedUser.getUsername(), is(user.getUsername()));
+        assertThat(persistedUser.getPassword(), is(not(user.getPassword())));
+        assertThat(persistedUser.getEmail(), is(user.getEmail()));
+        assertThat(persistedUser.getGatewayAccountIds().size(), is(3));
+        assertThat(persistedUser.getGatewayAccountIds().get(0), is("1"));
+        assertThat(persistedUser.getGatewayAccountIds().get(1), is("2"));
+        assertThat(persistedUser.getGatewayAccountIds().get(2), is("3"));
+        assertThat(persistedUser.getTelephoneNumber(), is(user.getTelephoneNumber()));
+        assertThat(persistedUser.getOtpKey(), is(user.getOtpKey()));
+        assertThat(persistedUser.getRoles().size(), is(1));
+        assertThat(persistedUser.getRoles().get(0), is(role));
+        assertThat(persistedUser.getLinks().get(0), is(selfLink));
+
+        verify(serviceDao).findByGatewayAccountId("1");
+        verify(serviceDao).findByGatewayAccountId("2");
+        verify(serviceDao).findByGatewayAccountId("3");
+        verify(serviceDao).persist(expectedService.capture());
+        verifyNoMoreInteractions(serviceDao);
+        verify(userDao).persist(expectedUser.capture());
+
+        assertThat(expectedService.getValue().getGatewayAccountIds().get(0).getGatewayAccountId(), is("1"));
+        assertThat(expectedService.getValue().getGatewayAccountIds().get(1).getGatewayAccountId(), is("2"));
+        assertThat(expectedService.getValue().getGatewayAccountIds().get(2).getGatewayAccountId(), is("3"));
+    }
+
     private User aUser() {
         return User.from("random-name", "random-password", "random@email.com", "1", "784rh", "8948924");
     }
-
 }

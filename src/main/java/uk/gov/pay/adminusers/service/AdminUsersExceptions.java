@@ -23,6 +23,11 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 
+    public static WebApplicationException conflictingServiceGatewayAccounts() {
+        String error = format("List of gateway accounts not matching one of the existing services");
+        return buildWebApplicationException(error, CONFLICT.getStatusCode());
+    }
+
     public static WebApplicationException userLockedException(String username) {
         String error = format("user [%s] locked due to too many login attempts", username);
         return buildWebApplicationException(error, UNAUTHORIZED.getStatusCode());

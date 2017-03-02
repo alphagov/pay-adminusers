@@ -26,6 +26,13 @@ public class ServiceEntity {
         this.gatewayAccountIds.add(new GatewayAccountIdEntity(gatewayAccountId, this));
     }
 
+    public ServiceEntity(List<String> gatewayAccountIds) {
+        this.gatewayAccountIds.clear();
+        for (String gatewayAccountId : gatewayAccountIds) {
+            this.gatewayAccountIds.add(new GatewayAccountIdEntity(gatewayAccountId, this));
+        }
+    }
+
     public Long getId() {
         return id;
     }
@@ -40,5 +47,20 @@ public class ServiceEntity {
 
     public GatewayAccountIdEntity getGatewayAccountId() {
         return gatewayAccountIds.get(0);
+    }
+
+    public boolean hasExactGatewayAccountIds(List<String> gatewayAccountIds) {
+
+        if (this.gatewayAccountIds.size() != gatewayAccountIds.size()) {
+            return false;
+        }
+
+        for (GatewayAccountIdEntity gatewayAccountIdEntity : this.gatewayAccountIds) {
+            if (!gatewayAccountIds.contains(gatewayAccountIdEntity.getGatewayAccountId())) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

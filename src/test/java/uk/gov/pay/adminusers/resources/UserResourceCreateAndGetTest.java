@@ -23,10 +23,12 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
     public void shouldCreateAUserWithGatewayAccountIdFieldSuccessfully() throws Exception {
 
         String username = randomAlphanumeric(10) + randomUUID().toString();
+        String gatewayAccountId = randomAlphanumeric(5);
+
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
                 .put("email", "user-" + username + "@example.com")
-                .put("gateway_account_id", "1")
+                .put("gateway_account_id", gatewayAccountId)
                 .put("telephone_number", "45334534634")
                 .put("otp_key", "34f34")
                 .put("role_name", "admin")
@@ -44,9 +46,9 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
                 .body("username", is(username))
                 .body("password", nullValue())
                 .body("email", is("user-" + username + "@example.com"))
-                .body("gateway_account_id", is("1"))
+                .body("gateway_account_id", is(gatewayAccountId))
                 .body("gateway_account_ids", hasSize(1))
-                .body("gateway_account_ids[0]", is("1"))
+                .body("gateway_account_ids[0]", is(gatewayAccountId))
                 .body("telephone_number", is("45334534634"))
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
@@ -59,15 +61,11 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
                 .body("role.description", is("Administrator"))
                 .body("permissions", hasSize(30)); //we could consider removing this assertion if the permissions constantly changing
 
-        //TODO - WIP PP-1483 This will be amended when the story is done.
+        //TODO - WIP This will be removed when PP-1612 is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
         List<Map<String, Object>> userByName = databaseTestHelper.findUserByName(username);
         List<Map<String, Object>> servicesAssociatedToUser = databaseTestHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
-
-        List<Map<String, Object>> gatewayAccountsAssociatedToUser = databaseTestHelper.findGatewayAccountsByService((Long) servicesAssociatedToUser.get(0).get("service_id"));
-        assertThat(gatewayAccountsAssociatedToUser.size(), is(1));
-        assertThat(gatewayAccountsAssociatedToUser.get(0).get("gateway_account_id"), is("1"));
     }
 
     @Test
@@ -111,15 +109,11 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
                 .body("role.description", is("Administrator"))
                 .body("permissions", hasSize(30)); //we could consider removing this assertion if the permissions constantly changing
 
-        //TODO - WIP PP-1483 This will be amended when the story is done.
+        //TODO - WIP This will be removed when PP-1612 is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
         List<Map<String, Object>> userByName = databaseTestHelper.findUserByName(username);
         List<Map<String, Object>> servicesAssociatedToUser = databaseTestHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
-        assertThat(servicesAssociatedToUser.size(), is(2));
-
-        List<Map<String, Object>> gatewayAccountsAssociatedToUser = databaseTestHelper.findGatewayAccountsByService((Long) servicesAssociatedToUser.get(0).get("service_id"));
-        assertThat(gatewayAccountsAssociatedToUser.size(), is(1));
-        assertThat(gatewayAccountsAssociatedToUser.get(0).get("gateway_account_id"), is("222"));
+        assertThat(servicesAssociatedToUser.size(), is(1));
     }
 
     @Test
@@ -164,15 +158,10 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
                 .body("role.description", is("Administrator"))
                 .body("permissions", hasSize(30)); //we could consider removing this assertion if the permissions constantly changing
 
-        //TODO - WIP PP-1483 This will be amended when the story is done.
-        // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
+        //TODO - WIP This will be removed when PP-1612 is done.
         List<Map<String, Object>> userByName = databaseTestHelper.findUserByName(username);
         List<Map<String, Object>> servicesAssociatedToUser = databaseTestHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
-        assertThat(servicesAssociatedToUser.size(), is(2));
-
-        List<Map<String, Object>> gatewayAccountsAssociatedToUser = databaseTestHelper.findGatewayAccountsByService((Long) servicesAssociatedToUser.get(0).get("service_id"));
-        assertThat(gatewayAccountsAssociatedToUser.size(), is(1));
-        assertThat(gatewayAccountsAssociatedToUser.get(0).get("gateway_account_id"), is("1"));
+        assertThat(servicesAssociatedToUser.size(), is(1));
     }
 
     @Test

@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
-import com.google.common.collect.ImmutableList;
 import uk.gov.pay.adminusers.model.User;
 
 import javax.persistence.*;
@@ -60,7 +59,7 @@ public class UserEntity extends AbstractEntity {
     @Convert(converter = UTCDateTimeConverter.class)
     private ZonedDateTime updatedAt;
 
-    @Column(name = "session_version", columnDefinition="int default 0")
+    @Column(name = "session_version", columnDefinition = "int default 0")
     private Integer sessionVersion;
 
     public UserEntity() {
@@ -204,15 +203,8 @@ public class UserEntity extends AbstractEntity {
         return user;
     }
 
-    public List<ServiceEntity> getServices() {
-        return ImmutableList.copyOf(this.services);
-    }
-
-    public void addService(ServiceEntity service) {
+    public void setService(ServiceEntity service) {
+        this.services.clear();
         this.services.add(service);
-    }
-
-    public void removeService(ServiceEntity service) {
-        this.services.remove(service);
     }
 }

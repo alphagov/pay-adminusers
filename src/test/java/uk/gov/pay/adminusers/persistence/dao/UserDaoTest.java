@@ -62,7 +62,7 @@ public class UserDaoTest extends DaoTestBase {
         userEntity.setDisabled(false);
         userEntity.setEmail(random + "@example.com");
         userEntity.setGatewayAccountId(gatewayAccountId);
-        userEntity.addService(serviceDao.findByGatewayAccountId(gatewayAccountId).get());
+        userEntity.setService(serviceDao.findByGatewayAccountId(gatewayAccountId).get());
         userEntity.setOtpKey(randomInt.toString());
         userEntity.setTelephoneNumber("876284762");
         userEntity.setRoles(asList(new RoleEntity(role1), new RoleEntity(role2)));
