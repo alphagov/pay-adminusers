@@ -4,13 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
-import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 
 public class UserTest {
 
@@ -19,7 +20,6 @@ public class UserTest {
         String minimumUserJson = "{" +
                 "\"username\": \"a-username\"," +
                 "\"telephone_number\": \"2123524\"," +
-                "\"gateway_account_id\": \"1\"," +
                 "\"gateway_account_ids\": [\"1\", \"2\"]," +
                 "\"email\": \"email@example.com\"" +
                 "}";
@@ -30,7 +30,6 @@ public class UserTest {
         assertThat(user.getUsername(), is("a-username"));
         assertThat(user.getPassword(), notNullValue());
         assertThat(user.getOtpKey(), notNullValue());
-        assertThat(user.getGatewayAccountId(), is("1"));
         assertThat(user.getGatewayAccountIds().size(), is(2));
         assertThat(user.getGatewayAccountIds().get(0), is("1"));
         assertThat(user.getGatewayAccountIds().get(1), is("2"));
@@ -44,7 +43,6 @@ public class UserTest {
                 "\"username\": \"a-username\"," +
                 "\"password\": \"a-password\"," +
                 "\"telephone_number\": \"2123524\"," +
-                "\"gateway_account_id\": \"1\"," +
                 "\"gateway_account_ids\": [\"1\", \"2\"]," +
                 "\"otp_key\": \"fr6ysdf\"," +
                 "\"email\": \"email@example.com\"" +
@@ -55,7 +53,6 @@ public class UserTest {
 
         assertThat(user.getUsername(), is("a-username"));
         assertThat(user.getPassword(), is("a-password"));
-        assertThat(user.getGatewayAccountId(), is("1"));
         assertThat(user.getGatewayAccountIds().size(), is(2));
         assertThat(user.getGatewayAccountIds().get(0), is("1"));
         assertThat(user.getGatewayAccountIds().get(1), is("2"));
@@ -66,7 +63,7 @@ public class UserTest {
 
     @Test
     public void shouldFlatten_permissionsOfAUser() throws Exception {
-        User user = User.from("name", "password", "email@gmail.com", "1", "ewrew", "453453");
+        User user = User.from(randomInt(), "name", "password", "email@gmail.com", Arrays.asList("1"), "ewrew", "453453");
         Role role1 = Role.role(1, "role1", "role1 description");
         Role role2 = Role.role(2, "role2", "role2 description");
         role1.setPermissions(ImmutableList.of(aPermission(), aPermission(), aPermission()));
@@ -78,7 +75,7 @@ public class UserTest {
     }
 
     private Permission aPermission() {
-        Integer randomInt = RandomIdGenerator.randomInt();
+        Integer randomInt = randomInt();
         return Permission.permission(1, "perm" + randomInt, "perm desc" + randomInt);
     }
 }

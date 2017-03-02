@@ -10,6 +10,7 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,8 +39,9 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
     @Test
     public void shouldPersistAForgottenPasswordEntity() throws Exception {
         String random = newId();
-        String randomInt = randomInt().toString();
-        User user = User.from("user-" + random, "password" + random, random + "@example.com", randomInt, randomInt, "8395398535");
+        Integer randomInt = randomInt();
+        String randomIntAsString = randomInt.toString();
+        User user = User.from(randomInt, "user-" + random, "password" + random, random + "@example.com", Arrays.asList(randomIntAsString), randomIntAsString, "8395398535");
         UserEntity userEntity = UserEntity.from(user);
         userDao.persist(userEntity);
 
@@ -61,15 +63,15 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
 
     @Test
     public void shouldFindForgottenPasswordByCode_ifNotExpired() throws Exception {
-
         String random = newId();
-        String randomInt = randomInt().toString();
-        User user = User.from("user-" + random, "password" + random, random + "@example.com", randomInt, randomInt, "8395398535");
+        Integer randomInt = randomInt();
+        String randomIntAsString = randomInt.toString();
+        User user = User.from(randomInt, "user-" + random, "password" + random, random + "@example.com", Arrays.asList(randomIntAsString), randomIntAsString, "8395398535");
         UserEntity userEntity = UserEntity.from(user);
         userDao.persist(userEntity);
 
         ZonedDateTime notExpired = ZonedDateTime.now().minusMinutes(89);
-        ForgottenPassword forgottenPassword = ForgottenPassword.forgottenPassword(randomInt(), "code-" + random, "user-" + random, notExpired);
+        ForgottenPassword forgottenPassword = ForgottenPassword.forgottenPassword(randomInt, "code-" + random, "user-" + random, notExpired);
 
         databaseTestHelper.add(forgottenPassword, userEntity.getId());
 
@@ -83,15 +85,15 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
 
     @Test
     public void shouldNotFindForgottenPasswordByCode_ifExpired() throws Exception {
-
         String random = newId();
-        String randomInt = randomInt().toString();
-        User user = User.from("user-" + random, "password" + random, random + "@example.com", randomInt, randomInt, "8395398535");
+        Integer randomInt = randomInt();
+        String randomIntAsString = randomInt.toString();
+        User user = User.from(randomInt, "user-" + random, "password" + random, random + "@example.com", Arrays.asList(randomIntAsString), randomIntAsString, "8395398535");
         UserEntity userEntity = UserEntity.from(user);
         userDao.persist(userEntity);
 
         ZonedDateTime expired = ZonedDateTime.now().minusMinutes(91);
-        ForgottenPassword forgottenPassword = ForgottenPassword.forgottenPassword(randomInt(), "code-" + random, "user-" + random, expired);
+        ForgottenPassword forgottenPassword = ForgottenPassword.forgottenPassword(randomInt, "code-" + random, "user-" + random, expired);
 
         databaseTestHelper.add(forgottenPassword, userEntity.getId());
 
@@ -101,15 +103,15 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
 
     @Test
     public void shouldRemoveForgottenPasswordEntity() {
-
         String random = newId();
-        String randomInt = randomInt().toString();
-        User user = User.from("user-" + random, "password" + random, random + "@example.com", randomInt, randomInt, "8395398535");
+        Integer randomInt = randomInt();
+        String randomIntAsString = randomInt.toString();
+        User user = User.from(randomInt, "user-" + random, "password" + random, random + "@example.com", Arrays.asList(randomIntAsString), randomIntAsString, "8395398535");
         UserEntity userEntity = UserEntity.from(user);
         userDao.persist(userEntity);
 
         ZonedDateTime notExpired = ZonedDateTime.now().minusMinutes(89);
-        ForgottenPassword forgottenPassword = ForgottenPassword.forgottenPassword(randomInt(), "code-" + random, "user-" + random, notExpired);
+        ForgottenPassword forgottenPassword = ForgottenPassword.forgottenPassword(randomInt, "code-" + random, "user-" + random, notExpired);
 
         databaseTestHelper.add(forgottenPassword, userEntity.getId());
 

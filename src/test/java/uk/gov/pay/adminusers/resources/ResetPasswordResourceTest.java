@@ -11,6 +11,7 @@ import uk.gov.pay.adminusers.model.User;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -165,6 +166,6 @@ public class ResetPasswordResourceTest extends IntegrationTest {
 
     private User aUser(int id, String encryptedPassword) {
         String username = randomAlphabetic(20);
-        return User.from(id, username, encryptedPassword, username + "@example.com", "1", "784rh", "8948924");
+        return User.from(id, username, encryptedPassword, username + "@example.com", Arrays.asList("1"), "784rh", "8948924");
     }
 }

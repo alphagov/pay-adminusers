@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.utils.Comparators;
 
 import javax.persistence.*;
 import java.time.ZoneId;
@@ -25,9 +26,6 @@ public class UserEntity extends AbstractEntity {
 
     @Column(name = "email")
     private String email;
-
-    @Column(name = "gateway_account_id")
-    private String gatewayAccountId;
 
     @Column(name = "otp_key")
     private String otpKey;
@@ -86,10 +84,6 @@ public class UserEntity extends AbstractEntity {
 
     public String getGatewayAccountId() {
         return this.servicesRoles.get(0).getService().getGatewayAccountId().getGatewayAccountId();
-    }
-
-    public void setGatewayAccountId(String gatewayAccountId) {
-        this.gatewayAccountId = gatewayAccountId;
     }
 
     public String getOtpKey() {
@@ -165,7 +159,6 @@ public class UserEntity extends AbstractEntity {
         userEntity.setEmail(user.getEmail());
         userEntity.setOtpKey(user.getOtpKey());
         userEntity.setTelephoneNumber(user.getTelephoneNumber());
-        userEntity.setGatewayAccountId(user.getGatewayAccountId());
         userEntity.setLoginCounter(user.getLoginCounter());
         userEntity.setDisabled(user.isDisabled());
         userEntity.setSessionVersion(user.getSessionVersion());
@@ -176,18 +169,18 @@ public class UserEntity extends AbstractEntity {
     }
 
     public User toUser() {
-        User user = User.from(getId(), username, password, email, this.getGatewayAccountId(), otpKey, telephoneNumber);
-        user.setLoginCounter(loginCounter);
-        user.setDisabled(disabled);
-        user.setSessionVersion(sessionVersion);
         List<String> gatewayAccountIds = this.servicesRoles.stream()
                 .map(service -> service.getService().getGatewayAccountIds().stream()
                         .map(gatewayAccountEntity -> gatewayAccountEntity.getGatewayAccountId())
                         .collect(Collectors.toList()))
                 .flatMap(List::stream)
                 .distinct()
+                .sorted(Comparators.usingNumericComparator())
                 .collect(Collectors.toList());
-        user.setGatewayAccountIds(gatewayAccountIds);
+        User user = User.from(getId(), username, password, email, gatewayAccountIds, otpKey, telephoneNumber);
+        user.setLoginCounter(loginCounter);
+        user.setDisabled(disabled);
+        user.setSessionVersion(sessionVersion);
         user.setRoles(this.getRoles().stream().map(RoleEntity::toRole).collect(Collectors.toList()));
         return user;
     }

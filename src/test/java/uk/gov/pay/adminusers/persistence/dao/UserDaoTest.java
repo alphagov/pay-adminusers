@@ -13,6 +13,7 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,7 +47,6 @@ public class UserDaoTest extends DaoTestBase {
 
     @Test
     public void shouldCreateAUserSuccessfully() throws Exception {
-
         Permission perm1 = aPermission();
         Permission perm2 = aPermission();
         databaseTestHelper.add(perm1).add(perm2);
@@ -64,7 +64,6 @@ public class UserDaoTest extends DaoTestBase {
         userEntity.setPassword("password-" + random);
         userEntity.setDisabled(false);
         userEntity.setEmail(random + "@example.com");
-        userEntity.setGatewayAccountId(gatewayAccountId);
         userEntity.setOtpKey(randomInt.toString());
         userEntity.setTelephoneNumber("876284762");
         userEntity.setSessionVersion(0);
@@ -90,7 +89,6 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(savedUserData.get(0).get("email"), is(userEntity.getEmail()));
         assertThat(savedUserData.get(0).get("otp_key"), is(userEntity.getOtpKey()));
         assertThat(savedUserData.get(0).get("telephone_number"), is(userEntity.getTelephoneNumber()));
-        assertThat(savedUserData.get(0).get("gateway_account_id"), is(userEntity.getGatewayAccountId()));
         assertThat(savedUserData.get(0).get("disabled"), is(Boolean.FALSE));
         assertThat(savedUserData.get(0).get("session_version"), is(0));
         assertThat(savedUserData.get(0).get("createdAt"), is(java.sql.Timestamp.from(timeNow.toInstant())));
@@ -121,7 +119,7 @@ public class UserDaoTest extends DaoTestBase {
         databaseTestHelper.addService(serviceId, gatewayAccountId);
 
         String username = "user-" + random;
-        User user = User.from(randomInt(), username, "password-" + random, random + "@example.com", gatewayAccountId, randomInt.toString(), "374628482");
+        User user = User.from(randomInt(), username, "password-" + random, random + "@example.com", asList(gatewayAccountId), randomInt.toString(), "374628482");
         databaseTestHelper.add(user, serviceId, role.getId());
 
         Optional<UserEntity> userEntityMaybe = userDao.findByUsername(username);
@@ -130,7 +128,6 @@ public class UserDaoTest extends DaoTestBase {
         UserEntity foundUser = userEntityMaybe.get();
         assertThat(foundUser.getEmail(), is(random + "@example.com"));
         assertThat(foundUser.getUsername(), is(username));
-        assertThat(foundUser.getGatewayAccountId(), is(gatewayAccountId));
         assertThat(foundUser.getOtpKey(), is(randomInt.toString()));
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
         assertThat(foundUser.isDisabled(), is(false));
@@ -157,7 +154,7 @@ public class UserDaoTest extends DaoTestBase {
         databaseTestHelper.addService(serviceId, gatewayAccountId);
 
         String email = random + "@example.com";
-        User user = User.from(randomInt(), "user-" + random, "password-" + random, email, randomInt.toString(), randomInt.toString(), "374628482");
+        User user = User.from(randomInt(), "user-" + random, "password-" + random, email, asList(randomInt.toString()), randomInt.toString(), "374628482");
         databaseTestHelper.add(user, serviceId, role.getId());
 
         Optional<UserEntity> userEntityMaybe = userDao.findByEmail(email);
@@ -166,7 +163,6 @@ public class UserDaoTest extends DaoTestBase {
         UserEntity foundUser = userEntityMaybe.get();
         assertThat(foundUser.getUsername(), is("user-" + random));
         assertThat(foundUser.getEmail(), is(email));
-        assertThat(foundUser.getGatewayAccountId(), is(gatewayAccountId));
         assertThat(foundUser.getOtpKey(), is(randomInt.toString()));
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
         assertThat(foundUser.isDisabled(), is(false));
@@ -178,7 +174,6 @@ public class UserDaoTest extends DaoTestBase {
 
     @Test
     public void shouldOverrideServiceRoleOfAnExistingUser_whenSettingANewServiceRole() {
-
         Permission perm = aPermission();
         databaseTestHelper.add(perm);
 
@@ -198,7 +193,7 @@ public class UserDaoTest extends DaoTestBase {
         databaseTestHelper.addService(serviceId2, gatewayAccountId2);
 
         String username = "user-" + random;
-        databaseTestHelper.add(User.from(username, "password", random + "@example.com", gatewayAccountId1, randomInt.toString(), "876284762"), serviceId1, role1.getId());
+        databaseTestHelper.add(User.from(randomInt(), username, "password", random + "@example.com", asList(gatewayAccountId1), randomInt.toString(), "876284762"), serviceId1, role1.getId());
 
         UserEntity existingUser = userDao.findByUsername(username).get();
 

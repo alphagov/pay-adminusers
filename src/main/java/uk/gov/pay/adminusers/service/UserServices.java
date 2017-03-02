@@ -74,11 +74,7 @@ public class UserServices {
                 .map(roleEntity -> {
                     UserEntity userEntity = UserEntity.from(user);
                     userEntity.setPassword(passwordHasher.hash(user.getPassword()));
-                    if (!user.getGatewayAccountIds().isEmpty()) {
-                        addServiceRoleToUser(userEntity, roleEntity, user.getGatewayAccountIds());
-                    } else {
-                        addServiceRoleToUser(userEntity, roleEntity, Arrays.asList(user.getGatewayAccountId()));
-                    }
+                    addServiceRoleToUser(userEntity, roleEntity, user.getGatewayAccountIds());
                     userDao.persist(userEntity);
                     return linksBuilder.decorate(userEntity.toUser());
                 })

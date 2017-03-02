@@ -81,7 +81,7 @@ public class UserResource {
                     String userName = node.get(User.FIELD_USERNAME).asText();
                     try {
                         User newUser = userServices.createUser(User.from(node), roleName);
-                        logger.info("User created successfully [{}] for gateway account [{}]", newUser.getUsername(), newUser.getGatewayAccountId());
+                        logger.info("User created successfully [{}] for gateway accounts [{}]", newUser.getUsername(), String.join(", ", newUser.getGatewayAccountIds()));
                         return Response.status(CREATED).type(APPLICATION_JSON)
                                 .entity(newUser).build();
                     } catch (Exception e) {

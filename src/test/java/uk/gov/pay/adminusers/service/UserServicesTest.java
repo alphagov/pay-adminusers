@@ -78,7 +78,6 @@ public class UserServicesTest {
 
     @Test
     public void shouldPersistAUser_creatingANewServiceForTheUsersGatewayAccount_whenPersistingTheUserWithNoServiceRelatedToTheGivenGateway() throws Exception {
-
         User user = aUser();
         Role role = Role.role(2, "admin", "admin role");
         ArgumentCaptor<UserEntity> expectedUser = ArgumentCaptor.forClass(UserEntity.class);
@@ -86,7 +85,7 @@ public class UserServicesTest {
 
         when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
         when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
-        when(serviceDao.findByGatewayAccountId(user.getGatewayAccountId())).thenReturn(Optional.empty());
+        when(serviceDao.findByGatewayAccountId(user.getGatewayAccountIds().get(0))).thenReturn(Optional.empty());
 
         doNothing().when(serviceDao).persist(any(ServiceEntity.class));
         doNothing().when(userDao).persist(any(UserEntity.class));
@@ -97,7 +96,6 @@ public class UserServicesTest {
         assertThat(persistedUser.getUsername(), is(user.getUsername()));
         assertThat(persistedUser.getPassword(), is(not(user.getPassword())));
         assertThat(persistedUser.getEmail(), is(user.getEmail()));
-        assertThat(persistedUser.getGatewayAccountId(), is(user.getGatewayAccountId()));
         assertThat(persistedUser.getGatewayAccountIds().size(), is(1));
         assertThat(persistedUser.getGatewayAccountIds().get(0), is("1"));
         assertThat(persistedUser.getTelephoneNumber(), is(user.getTelephoneNumber()));
@@ -110,23 +108,22 @@ public class UserServicesTest {
         verify(userDao).persist(expectedUser.capture());
 
         UserEntity savedUser = expectedUser.getValue();
-        assertThat(savedUser.getGatewayAccountId(), is(user.getGatewayAccountId()));
+        assertThat(savedUser.getGatewayAccountId(), is(user.getGatewayAccountIds().get(0)));
 
-        assertThat(expectedService.getValue().getGatewayAccountId().getGatewayAccountId(), is(user.getGatewayAccountId()));
+        assertThat(expectedService.getValue().getGatewayAccountId().getGatewayAccountId(), is(user.getGatewayAccountIds().get(0)));
     }
 
     @Test
     public void shouldPersist_aUserSuccessfully_andAssociateToTheServiceRelatedToExistingGatewayAccount() throws Exception {
-
         User user = aUser();
         Role role = Role.role(2, "admin", "admin role");
-        ServiceEntity serviceEntity = new ServiceEntity(newArrayList(user.getGatewayAccountId()));
+        ServiceEntity serviceEntity = new ServiceEntity(newArrayList(user.getGatewayAccountIds().get(0)));
 
         ArgumentCaptor<UserEntity> expectedUser = ArgumentCaptor.forClass(UserEntity.class);
 
         when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
         when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
-        when(serviceDao.findByGatewayAccountId(user.getGatewayAccountId()))
+        when(serviceDao.findByGatewayAccountId(user.getGatewayAccountIds().get(0)))
                 .thenReturn(Optional.of(serviceEntity));
         doNothing().when(userDao).persist(any(UserEntity.class));
 
@@ -136,7 +133,6 @@ public class UserServicesTest {
         assertThat(persistedUser.getUsername(), is(user.getUsername()));
         assertThat(persistedUser.getPassword(), is(not(user.getPassword())));
         assertThat(persistedUser.getEmail(), is(user.getEmail()));
-        assertThat(persistedUser.getGatewayAccountId(), is(user.getGatewayAccountId()));
         assertThat(persistedUser.getGatewayAccountIds().size(), is(1));
         assertThat(persistedUser.getGatewayAccountIds().get(0), is("1"));
         assertThat(persistedUser.getTelephoneNumber(), is(user.getTelephoneNumber()));
@@ -145,11 +141,11 @@ public class UserServicesTest {
         assertThat(persistedUser.getRoles().get(0), is(role));
         assertThat(persistedUser.getLinks().get(0), is(selfLink));
 
-        verify(serviceDao).findByGatewayAccountId(user.getGatewayAccountId());
+        verify(serviceDao).findByGatewayAccountId(user.getGatewayAccountIds().get(0));
         verifyNoMoreInteractions(serviceDao);
         verify(userDao).persist(expectedUser.capture());
 
-        assertThat(expectedUser.getValue().getGatewayAccountId(), is(user.getGatewayAccountId()));
+        assertThat(expectedUser.getValue().toUser().getGatewayAccountIds().get(0), is(user.getGatewayAccountIds().get(0)));
     }
 
     @Test
@@ -501,7 +497,6 @@ public class UserServicesTest {
 
     @Test
     public void shouldReturnEmpty_whenAuthenticate2FA_ifUserNotFound() throws Exception {
-
         String username = "non-existent";
         when(userDao.findByUsername(username)).thenReturn(Optional.empty());
 
@@ -512,9 +507,8 @@ public class UserServicesTest {
 
     @Test
     public void createUser_shouldError_whenAddingAUserToDifferentGatewayAccountsBelongingToDifferentServices() {
-
         ArrayList<String> gatewayAccountIds = newArrayList("1", "2", "3");
-        User user = User.from(1, "random-name", "random-password", "random@email.com", null, gatewayAccountIds, "784rh", "8948924");
+        User user = User.from(1, "random-name", "random-password", "random@email.com", gatewayAccountIds, "784rh", "8948924");
         String roleName = "admin";
         Role role = Role.role(2, roleName, "admin role");
         ArgumentCaptor<ServiceEntity> expectedService = ArgumentCaptor.forClass(ServiceEntity.class);
@@ -538,9 +532,8 @@ public class UserServicesTest {
 
     @Test
     public void createUser_shouldError_whenListOfGatewayAccountsContainsSomeNotBelongingToAnything() {
-
         ArrayList<String> gatewayAccountIds = newArrayList("1", "2", "3");
-        User user = User.from(1, "random-name", "random-password", "random@email.com", null, gatewayAccountIds, "784rh", "8948924");
+        User user = User.from(1, "random-name", "random-password", "random@email.com", gatewayAccountIds, "784rh", "8948924");
         String roleName = "admin";
         Role role = Role.role(2, roleName, "admin role");
         ArgumentCaptor<ServiceEntity> expectedService = ArgumentCaptor.forClass(ServiceEntity.class);
@@ -566,9 +559,8 @@ public class UserServicesTest {
 
     @Test
     public void createUser_shouldPersist_aUserSuccessfully_andCreateANewServiceAssociatingAllNonExistingGatewayAccounts() throws Exception {
-
         ArrayList<String> gatewayAccountIds = newArrayList("1", "2", "3");
-        User user = User.from(1, "random-name", "random-password", "random@email.com", null, gatewayAccountIds, "784rh", "8948924");
+        User user = User.from(1, "random-name", "random-password", "random@email.com", gatewayAccountIds, "784rh", "8948924");
         Role role = Role.role(2, "admin", "admin role");
 
         ArgumentCaptor<UserEntity> expectedUser = ArgumentCaptor.forClass(UserEntity.class);
@@ -612,7 +604,7 @@ public class UserServicesTest {
     }
 
     private User aUser() {
-        return User.from("random-name", "random-password", "random@email.com", "1", "784rh", "8948924");
+        return User.from(randomInt(), "random-name", "random-password", "random@email.com", asList("1"), "784rh", "8948924");
     }
 
     private Role aRole() {

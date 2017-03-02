@@ -12,6 +12,7 @@ import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
 
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
@@ -30,6 +31,7 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static uk.gov.pay.adminusers.model.Role.role;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.utils.DateTimeUtils.toUTCZonedDateTime;
 
 public class ForgottenPasswordResourceTest extends IntegrationTest {
@@ -146,6 +148,6 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
     }
 
     private User aUser(String username) {
-        return User.from(username, format("%s-password", username), format("%s@email.com", username), "1", "784rh", "8948924");
+        return User.from(randomInt(), username, format("%s-password", username), format("%s@email.com", username), Arrays.asList("1"), "784rh", "8948924");
     }
 }

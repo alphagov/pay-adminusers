@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.validations;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.collect.ImmutableList;
 
 import java.util.*;
@@ -31,18 +32,28 @@ public class RequestValidations {
         return errors.size() > 0 ? Optional.of(errors) : Optional.empty();
     }
 
-    public Optional<List<String>> checkContainsAtLeastOne(JsonNode payload, String... fieldNames) {
-        boolean elementsNotFound = Collections.disjoint(
-                ImmutableList.copyOf(payload.fieldNames()),
-                Arrays.asList(fieldNames)
-        );
-        return elementsNotFound ?
-                Optional.of(Collections.singletonList(format("Must have one of [%s]", String.join(",", fieldNames)))) :
-                Optional.empty();
+    public static Function<JsonNode, Boolean> notExist() {
+        return (jsonElement) -> {
+            if (jsonElement instanceof ArrayNode) {
+                return notExistOrEmptyArray().apply(jsonElement);
+            } else {
+                return notExistText().apply(jsonElement);
+            }
+        };
     }
 
-    public static Function<JsonNode, Boolean> notExist() {
-        return jsonElement -> (jsonElement == null || isBlank(jsonElement.asText()));
+    private static Function<JsonNode, Boolean> notExistOrEmptyArray() {
+        return jsonElement -> (
+                jsonElement == null ||
+                ((jsonElement instanceof ArrayNode) && (jsonElement.size() == 0))
+        );
+    }
+
+    private static Function<JsonNode, Boolean> notExistText() {
+        return jsonElement -> (
+                jsonElement == null ||
+                        isBlank(jsonElement.asText())
+        );
     }
 
     public static Function<JsonNode, Boolean> isNotNumeric() {
