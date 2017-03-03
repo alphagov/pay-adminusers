@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.service;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
@@ -12,7 +11,9 @@ import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.time.ZoneId;
@@ -72,12 +73,11 @@ public class UserServices {
         return roleDao.findByRoleName(roleName)
                 .map(roleEntity -> {
                     UserEntity userEntity = UserEntity.from(user);
-                    userEntity.setRoles(ImmutableList.of(roleEntity));
                     userEntity.setPassword(passwordHasher.hash(user.getPassword()));
                     if (!user.getGatewayAccountIds().isEmpty()) {
-                        addServicesToUser(userEntity, user.getGatewayAccountIds());
+                        addServiceRoleToUser(userEntity, roleEntity, user.getGatewayAccountIds());
                     } else {
-                        addServicesToUser(userEntity, Arrays.asList(user.getGatewayAccountId()));
+                        addServiceRoleToUser(userEntity, roleEntity, Arrays.asList(user.getGatewayAccountId()));
                     }
                     userDao.persist(userEntity);
                     return linksBuilder.decorate(userEntity.toUser());
@@ -279,14 +279,16 @@ public class UserServices {
                 .orElseGet(Optional::empty);
     }
 
-    private void addServicesToUser(UserEntity userEntity, List<String> gatewayAccountIds) {
-        userEntity.setService(getServiceAssignedTo(gatewayAccountIds)
-                .map(serviceEntity -> serviceEntity)
+    private void addServiceRoleToUser(UserEntity user, RoleEntity role, List<String> gatewayAccountIds) {
+        ServiceRoleEntity serviceRole = getServiceAssignedTo(gatewayAccountIds)
+                .map(serviceEntity -> new ServiceRoleEntity(serviceEntity, role))
                 .orElseGet(() -> {
-                    ServiceEntity serviceEntity = new ServiceEntity(gatewayAccountIds);
-                    serviceDao.persist(serviceEntity);
-                    return serviceEntity;
-                }));
+                    ServiceEntity service = new ServiceEntity(gatewayAccountIds);
+                    serviceDao.persist(service);
+                    return new ServiceRoleEntity(service, role);
+                });
+        serviceRole.setUser(user);
+        user.setServiceRole(serviceRole);
     }
 
     private Optional<ServiceEntity> getServiceAssignedTo(List<String> gatewayAccountIds) {

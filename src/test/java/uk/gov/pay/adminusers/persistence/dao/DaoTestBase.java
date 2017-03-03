@@ -14,6 +14,8 @@ import uk.gov.pay.adminusers.infra.GuicedTestEnvironment;
 import uk.gov.pay.adminusers.infra.PostgresDockerRule;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.persistence.entity.*;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.sql.Connection;
@@ -33,7 +35,7 @@ public class DaoTestBase {
     public static PostgresDockerRule postgres = new PostgresDockerRule();
 
     protected static DatabaseTestHelper databaseTestHelper;
-    protected static JpaPersistModule jpaModule;
+    private static JpaPersistModule jpaModule;
     protected static GuicedTestEnvironment env;
 
     @BeforeClass

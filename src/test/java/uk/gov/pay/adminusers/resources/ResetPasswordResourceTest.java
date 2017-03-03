@@ -2,16 +2,18 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
+import uk.gov.pay.adminusers.model.Permission;
+import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.time.temporal.ChronoUnit.MINUTES;
@@ -22,6 +24,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static uk.gov.pay.adminusers.model.Role.role;
 
 public class ResetPasswordResourceTest extends IntegrationTest {
 
@@ -35,9 +38,15 @@ public class ResetPasswordResourceTest extends IntegrationTest {
     public void before() throws Exception {
         userId = nextInt();
         forgottenPasswordCode = randomAlphanumeric(255);
-        int serviceId = RandomUtils.nextInt();
-        databaseTestHelper.addService(serviceId, randomNumeric(2));
-        databaseTestHelper.add(aUser(userId, CURRENT_PASSWORD), serviceId);
+        int serviceId = nextInt();
+        int roleId = nextInt();
+        Role role = role(roleId, "name", "desc");
+        Permission permission = Permission.permission(nextInt(), "name", "desc");
+        role.setPermissions(newArrayList(permission));
+        databaseTestHelper.addService(serviceId, randomNumeric(5));
+        databaseTestHelper.add(permission);
+        databaseTestHelper.add(role);
+        databaseTestHelper.add(aUser(userId, CURRENT_PASSWORD), serviceId, roleId);
         databaseTestHelper.add(aForgottenPassword(forgottenPasswordCode, ZonedDateTime.now(ZoneId.of("UTC"))), userId);
     }
 

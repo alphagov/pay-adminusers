@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,15 +41,8 @@ public class UserEntity extends AbstractEntity {
     @Column(name = "login_counter")
     private Integer loginCounter = 0;
 
-    @ManyToMany(fetch = FetchType.EAGER, targetEntity = RoleEntity.class)
-    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
-    private List<RoleEntity> roles = new ArrayList<>();
-
-    @ManyToMany(fetch = FetchType.LAZY, targetEntity = ServiceEntity.class)
-    @JoinTable(name = "users_services", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "service_id", referencedColumnName = "id"))
-    private List<ServiceEntity> services = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, targetEntity = ServiceRoleEntity.class)
+    private List<ServiceRoleEntity> servicesRoles = new ArrayList<>();
 
     // TODO: Change column from 'camelCase' to 'snake_case'. These columns were created through Sequelize.
     @Column(name = "\"createdAt\"")
@@ -91,7 +85,7 @@ public class UserEntity extends AbstractEntity {
     }
 
     public String getGatewayAccountId() {
-        return this.services.get(0).getGatewayAccountId().getGatewayAccountId();
+        return this.servicesRoles.get(0).getService().getGatewayAccountId().getGatewayAccountId();
     }
 
     public void setGatewayAccountId(String gatewayAccountId) {
@@ -131,11 +125,7 @@ public class UserEntity extends AbstractEntity {
     }
 
     public List<RoleEntity> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<RoleEntity> roles) {
-        this.roles = roles;
+        return Arrays.asList(servicesRoles.get(0).getRole());
     }
 
     public ZonedDateTime getUpdatedAt() {
@@ -179,7 +169,6 @@ public class UserEntity extends AbstractEntity {
         userEntity.setLoginCounter(user.getLoginCounter());
         userEntity.setDisabled(user.isDisabled());
         userEntity.setSessionVersion(user.getSessionVersion());
-        userEntity.setRoles(user.getRoles().stream().map(RoleEntity::new).collect(Collectors.toList()));
         ZonedDateTime timeNow = ZonedDateTime.now(ZoneId.of("UTC"));
         userEntity.setCreatedAt(timeNow);
         userEntity.setUpdatedAt(timeNow);
@@ -191,20 +180,21 @@ public class UserEntity extends AbstractEntity {
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);
-        List<String> gatewayAccountIds = this.services.stream()
-                .map(service -> service.getGatewayAccountIds().stream()
+        List<String> gatewayAccountIds = this.servicesRoles.stream()
+                .map(service -> service.getService().getGatewayAccountIds().stream()
                         .map(gatewayAccountEntity -> gatewayAccountEntity.getGatewayAccountId())
                         .collect(Collectors.toList()))
                 .flatMap(List::stream)
                 .distinct()
                 .collect(Collectors.toList());
         user.setGatewayAccountIds(gatewayAccountIds);
-        user.setRoles(roles.stream().map(roleEntity -> roleEntity.toRole()).collect(Collectors.toList()));
+        user.setRoles(this.getRoles().stream().map(RoleEntity::toRole).collect(Collectors.toList()));
         return user;
     }
 
-    public void setService(ServiceEntity service) {
-        this.services.clear();
-        this.services.add(service);
+    public void setServiceRole(ServiceRoleEntity service) {
+        this.servicesRoles.clear();
+        service.setUser(this);
+        this.servicesRoles.add(service);
     }
 }
