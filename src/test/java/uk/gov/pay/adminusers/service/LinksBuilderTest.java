@@ -6,18 +6,19 @@ import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.User;
 
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 
 public class LinksBuilderTest {
 
     private LinksBuilder linksBuilder = new LinksBuilder("http://localhost:8080");
 
-        @Test
+    @Test
     public void shouldConstruct_userSelfLinkCorrectly() throws Exception {
-
-        User user = User.from("a-username", "a-password", "email@example.com", "1", "4wrwef", "123435");
+        User user = User.from(randomInt(), "a-username", "a-password", "email@example.com", Arrays.asList("1"), "4wrwef", "123435");
         User decoratedUser = linksBuilder.decorate(user);
 
         String linkJson = new ObjectMapper().writeValueAsString(decoratedUser.getLinks().get(0));

@@ -6,6 +6,7 @@ import org.apache.commons.lang3.RandomUtils;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.User;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -16,57 +17,9 @@ import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 
 public class UserResourceCreateAndGetTest extends UserResourceTestBase {
-
-    @Test
-    public void shouldCreateAUserWithGatewayAccountIdFieldSuccessfully() throws Exception {
-
-        String username = randomAlphanumeric(10) + randomUUID().toString();
-        String gatewayAccountId = randomAlphanumeric(5);
-
-        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
-                .put("username", username)
-                .put("email", "user-" + username + "@example.com")
-                .put("gateway_account_id", gatewayAccountId)
-                .put("telephone_number", "45334534634")
-                .put("otp_key", "34f34")
-                .put("role_name", "admin")
-                .build();
-
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(userPayload))
-                .contentType(JSON)
-                .accept(JSON)
-                .post(USERS_RESOURCE_URL)
-                .then()
-                .statusCode(201)
-                .body("id", nullValue())
-                .body("username", is(username))
-                .body("password", nullValue())
-                .body("email", is("user-" + username + "@example.com"))
-                .body("gateway_account_id", is(gatewayAccountId))
-                .body("gateway_account_ids", hasSize(1))
-                .body("gateway_account_ids[0]", is(gatewayAccountId))
-                .body("telephone_number", is("45334534634"))
-                .body("otp_key", is("34f34"))
-                .body("login_counter", is(0))
-                .body("disabled", is(false))
-                .body("_links", hasSize(1))
-                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + username))
-                .body("_links[0].method", is("GET"))
-                .body("_links[0].rel", is("self"))
-                .body("role.name", is("admin"))
-                .body("role.description", is("Administrator"))
-                .body("permissions", hasSize(30)); //we could consider removing this assertion if the permissions constantly changing
-
-        //TODO - WIP This will be removed when PP-1612 is done.
-        // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
-        List<Map<String, Object>> userByName = databaseTestHelper.findUserByName(username);
-        List<Map<String, Object>> servicesAssociatedToUser = databaseTestHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
-        assertThat(servicesAssociatedToUser.size(), is(1));
-    }
 
     @Test
     public void shouldCreateAUserWithSortedGatewayAccountIdsArraySuccessfully() throws Exception {
@@ -93,7 +46,6 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
                 .body("username", is(username))
                 .body("password", nullValue())
                 .body("email", is("user-" + username + "@example.com"))
-                .body("gateway_account_id", is("222"))
                 .body("gateway_account_ids", hasSize(2))
                 .body("gateway_account_ids[0]", is("222"))
                 .body("gateway_account_ids[1]", is("111111"))
@@ -117,54 +69,6 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
     }
 
     @Test
-    public void shouldCreateAUserWithGatewayAccountIdFieldAndArraySuccessfully() throws Exception {
-
-        String username = randomAlphanumeric(10) + randomUUID().toString();
-        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
-                .put("username", username)
-                .put("email", "user-" + username + "@example.com")
-                .put("gateway_account_id", "1")
-                .put("gateway_account_ids", new String[]{"1", "2"})
-                .put("telephone_number", "45334534634")
-                .put("otp_key", "34f34")
-                .put("role_name", "admin")
-                .build();
-
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(userPayload))
-                .contentType(JSON)
-                .accept(JSON)
-                .post(USERS_RESOURCE_URL)
-                .then()
-                .statusCode(201)
-                .body("id", nullValue())
-                .body("username", is(username))
-                .body("password", nullValue())
-                .body("email", is("user-" + username + "@example.com"))
-                .body("gateway_account_id", is("1"))
-                .body("gateway_account_ids", hasSize(2))
-                .body("gateway_account_ids[0]", is("1"))
-                .body("gateway_account_ids[1]", is("2"))
-                .body("telephone_number", is("45334534634"))
-                .body("otp_key", is("34f34"))
-                .body("login_counter", is(0))
-                .body("disabled", is(false))
-                .body("_links", hasSize(1))
-                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + username))
-                .body("_links[0].method", is("GET"))
-                .body("_links[0].rel", is("self"))
-                .body("role.name", is("admin"))
-                .body("role.description", is("Administrator"))
-                .body("permissions", hasSize(30)); //we could consider removing this assertion if the permissions constantly changing
-
-        //TODO - WIP This will be removed when PP-1612 is done.
-        List<Map<String, Object>> userByName = databaseTestHelper.findUserByName(username);
-        List<Map<String, Object>> servicesAssociatedToUser = databaseTestHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
-        assertThat(servicesAssociatedToUser.size(), is(1));
-    }
-
-    @Test
     public void shouldAddUserToAServiceWhenCreatingTheUserWithAnAlreadyExistingGatewayAccount() throws Exception {
 
         int serviceId = 123;
@@ -174,7 +78,6 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
                 .put("email", "user-" + username + "@example.com")
-                .put("gateway_account_id", gatewayAccount)
                 .put("gateway_account_ids", new String[]{gatewayAccount})
                 .put("telephone_number", "45334534634")
                 .put("otp_key", "34f34")
@@ -190,7 +93,6 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
                 .then()
                 .statusCode(201)
                 .body("username", is(username))
-                .body("gateway_account_id", is(gatewayAccount))
                 .body("gateway_account_ids", hasSize(1))
                 .body("gateway_account_ids[0]", is(gatewayAccount));
 
@@ -212,7 +114,6 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
                 .put("email", "user-" + username + "@example.com")
-                .put("gateway_account_id", "1")
                 .put("gateway_account_ids", new String[]{"1", "2"})
                 .put("telephone_number", "45334534634")
                 .put("otp_key", "34f34")
@@ -233,10 +134,7 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
 
     @Test
     public void shouldError400_whenFieldsMissingForUserCreation() throws Exception {
-        ImmutableMap<Object, Object> invalidPayload = ImmutableMap.builder()
-                .put("gateway_account_id", "1")
-                .put("gateway_account_ids", new String[]{"1", "2"})
-                .build();
+        ImmutableMap<Object, Object> invalidPayload = ImmutableMap.builder().build();
 
         givenSetup()
                 .when()
@@ -246,10 +144,11 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
                 .post(USERS_RESOURCE_URL)
                 .then()
                 .statusCode(400)
-                .body("errors", hasSize(4))
+                .body("errors", hasSize(5))
                 .body("errors", hasItems(
                         "Field [username] is required",
                         "Field [email] is required",
+                        "Field [gateway_account_ids] is required",
                         "Field [telephone_number] is required",
                         "Field [role_name] is required"));
     }
@@ -259,7 +158,7 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
 
         String username = randomAlphanumeric(10) + randomUUID().toString();
         String gatewayAccountId = "3";
-        User user = User.from(username, "password", "user-" + username + "@example.com", gatewayAccountId, "otpKey", "3543534");
+        User user = User.from(randomInt(), username, "password", "user-" + username + "@example.com", Arrays.asList(gatewayAccountId), "otpKey", "3543534");
         int serviceId = RandomUtils.nextInt();
         databaseTestHelper.addService(serviceId, gatewayAccountId);
         databaseTestHelper.add(user);
@@ -268,7 +167,6 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
                 .put("email", "user-" + username + "@example.com")
-                .put("gateway_account_id", gatewayAccountId)
                 .put("gateway_account_ids", new String[]{gatewayAccountId})
                 .put("telephone_number", "45334534634")
                 .put("role_name", "admin")
@@ -323,7 +221,6 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
                 .body("username", is(username))
                 .body("password", nullValue())
                 .body("email", is("user-" + username + "@example.com"))
-                .body("gateway_account_id", is("1"))
                 .body("gateway_account_ids", hasSize(2))
                 .body("gateway_account_ids[0]", is("1"))
                 .body("gateway_account_ids[1]", is("2"))

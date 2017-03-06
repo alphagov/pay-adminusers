@@ -8,6 +8,8 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
+import java.util.Arrays;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -24,7 +26,6 @@ public class UserEntityTest {
         String minimumUserJson = "{" +
                 "\"username\": \"a-username\"," +
                 "\"telephone_number\": \"2123524\"," +
-                "\"gateway_account_id\": \"1\"," +
                 "\"gateway_account_ids\": [\"1\", \"2\"]," +
                 "\"email\": \"email@example.com\"" +
                 "}";

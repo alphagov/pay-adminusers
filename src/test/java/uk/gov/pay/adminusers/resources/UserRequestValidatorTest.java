@@ -12,7 +12,6 @@ import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
@@ -20,7 +19,6 @@ import static org.apache.commons.lang3.tuple.Pair.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -28,61 +26,74 @@ public class UserRequestValidatorTest {
 
     private UserRequestValidator validator;
 
+    private ObjectMapper objectMapper;
+
     @Before
     public void before() throws Exception {
         validator = new UserRequestValidator(new RequestValidations());
+        objectMapper = new ObjectMapper();
     }
 
     @Test
     public void shouldError_ifAllMandatoryFieldsAreMissing() throws Exception {
-        JsonNode invalidPayload = mock(JsonNode.class);
-        when(invalidPayload.get(anyString())).thenReturn(null);
-        Optional<Errors> optionalErrors = validator.validateCreateRequest(invalidPayload);
+        String invalidPayload = "{}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+        Optional<Errors> optionalErrors = validator.validateCreateRequest(jsonNode);
 
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
 
-        assertThat(errors.getErrors().size(), is(4));
+        assertThat(errors.getErrors().size(), is(5));
         assertThat(errors.getErrors(), hasItems(
                 "Field [username] is required",
                 "Field [email] is required",
+                "Field [gateway_account_ids] is required",
                 "Field [telephone_number] is required",
                 "Field [role_name] is required"));
-
     }
 
     @Test
     public void shouldError_ifSomeMandatoryFieldsAreMissing() throws Exception {
-        JsonNode invalidPayload = mock(JsonNode.class);
-        mockValidValuesFor(invalidPayload,
-                of("username", "blah"), of("email", "blah@blah.com"), of("otp_key", "blahblah"));
-        Optional<Errors> optionalErrors = validator.validateCreateRequest(invalidPayload);
+        String invalidPayload = "{" +
+                "\"username\": \"a-username\"," +
+                "\"email\": \"email@example.com\"," +
+                "\"otp_key\": \"12345\"" +
+                "}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+
+        Optional<Errors> optionalErrors = validator.validateCreateRequest(jsonNode);
 
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
 
-        assertThat(errors.getErrors().size(), is(2));
+        assertThat(errors.getErrors().size(), is(3));
         assertThat(errors.getErrors(), hasItems(
+                "Field [gateway_account_ids] is required",
                 "Field [role_name] is required",
                 "Field [telephone_number] is required"));
 
     }
 
     @Test
-    public void shouldError_ifGatewayAccountFieldsAreMissing() throws Exception {
-        JsonNode invalidPayload = mock(JsonNode.class);
-        mockValidValuesFor(invalidPayload,
-                of("username", "blah"), of("password", "blah pass"), of("email", "blah@blah.com"),
-                of("telephone_number", "telephoneNumber"), of("otp_key", "blahblah"),
-                of("role_name","boo"));
-        Optional<Errors> optionalErrors = validator.validateCreateRequest(invalidPayload);
+    public void shouldError_ifGatewayAccountIdsArrayIsEmpty() throws Exception {
+        String invalidPayload = "{" +
+                "\"username\": \"a-username\"," +
+                "\"password\": \"a-password\"," +
+                "\"email\": \"email@example.com\"," +
+                "\"gateway_account_ids\": []," +
+                "\"telephone_number\": \"12345\"," +
+                "\"otp_key\": \"12345\"," +
+                "\"role_name\": \"a-role\"" +
+                "}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+        Optional<Errors> optionalErrors = validator.validateCreateRequest(jsonNode);
 
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
 
         assertThat(errors.getErrors().size(), is(1));
         assertThat(errors.getErrors(), hasItems(
-                "Must have one of [gateway_account_id,gateway_account_ids]"));
+                "Field [gateway_account_ids] is required"));
     }
 
     @Test
@@ -169,12 +180,17 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldError_ifNumericFieldsAreNotNumeric() throws Exception {
-        JsonNode invalidPayload = mock(JsonNode.class);
-        mockValidValuesFor(invalidPayload,
-                of("username", "blah"), of("password", "blah pass"), of("gateway_account_id", "gatewayAccountId"),
-                of("telephone_number", "telephoneNumber"), of("email", "blah@blah.com"), of("otp_key", "blahblah"),
-                of("role_name","boo"));
-        Optional<Errors> optionalErrors = validator.validateCreateRequest(invalidPayload);
+        String invalidPayload = "{" +
+                "\"username\": \"a-username\"," +
+                "\"password\": \"a-password\"," +
+                "\"email\": \"email@example.com\"," +
+                "\"gateway_account_ids\": [\"1\"]," +
+                "\"telephone_number\": \"not-a-number\"," +
+                "\"otp_key\": \"12345\"," +
+                "\"role_name\": \"a-role\"" +
+                "}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+        Optional<Errors> optionalErrors = validator.validateCreateRequest(jsonNode);
 
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
@@ -187,12 +203,17 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldError_ifFieldsAreBiggerThanMaxLength() throws Exception {
-        JsonNode invalidPayload = mock(JsonNode.class);
-        mockValidValuesFor(invalidPayload,
-                of("username", RandomStringUtils.randomAlphanumeric(256)), of("password", RandomStringUtils.randomAlphanumeric(256)), of("gateway_account_id", "123"),
-                of("telephone_number", "07990000000"), of("email", "blah@blah.com"), of("otp_key", "blahblah"),
-                of("role_name","boo"));
-        Optional<Errors> optionalErrors = validator.validateCreateRequest(invalidPayload);
+        String invalidPayload = "{" +
+                "\"username\": \"" + RandomStringUtils.randomAlphanumeric(256) + "\"," +
+                "\"password\": \"" + RandomStringUtils.randomAlphanumeric(256) + "\"," +
+                "\"email\": \"email@example.com\"," +
+                "\"gateway_account_ids\": [\"1\"]," +
+                "\"telephone_number\": \"07990000000\"," +
+                "\"otp_key\": \"12345\"," +
+                "\"role_name\": \"a-role\"" +
+                "}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+        Optional<Errors> optionalErrors = validator.validateCreateRequest(jsonNode);
 
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
@@ -205,12 +226,17 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldReturnEmpty_ifAllValidationsArePassed() throws Exception {
-        JsonNode invalidPayload = mock(JsonNode.class);
-        mockValidValuesFor(invalidPayload,
-                of("username", "blah"), of("gateway_account_id", "1"),
-                of("telephone_number", "3534876538"), of("email", "blah@blah.com"),
-                of("role_name","yah"));
-        Optional<Errors> optionalErrors = validator.validateCreateRequest(invalidPayload);
+        String validPayload = "{" +
+                "\"username\": \"a-username\"," +
+                "\"password\": \"a-password\"," +
+                "\"email\": \"email@example.com\"," +
+                "\"gateway_account_ids\": [\"1\"]," +
+                "\"telephone_number\": \"12345\"," +
+                "\"otp_key\": \"12345\"," +
+                "\"role_name\": \"a-role\"" +
+                "}";
+        JsonNode jsonNode = objectMapper.readTree(validPayload);
+        Optional<Errors> optionalErrors = validator.validateCreateRequest(jsonNode);
 
         assertFalse(optionalErrors.isPresent());
     }

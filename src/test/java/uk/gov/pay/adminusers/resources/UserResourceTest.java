@@ -26,7 +26,6 @@ public class UserResourceTest {
     JsonNode validUserNode = new ObjectMapper().valueToTree( ImmutableMap.builder()
             .put("username", "fred")
             .put("email", "user-@example.com")
-            .put("gateway_account_id", "1")
             .put("gateway_account_ids", new String[]{"1", "2"})
             .put("telephone_number", "45334534634")
             .put("otp_key", "34f34")
