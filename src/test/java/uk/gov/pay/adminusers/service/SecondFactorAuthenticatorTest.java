@@ -16,7 +16,7 @@ public class SecondFactorAuthenticatorTest {
     private SecondFactorAuthenticator secondFactorAuthenticator;
     @Before
     public void before() throws Exception {
-        secondFactorAuthenticator = new SecondFactorAuthenticator(60);
+        secondFactorAuthenticator = new SecondFactorAuthenticator();
     }
 
     @Test

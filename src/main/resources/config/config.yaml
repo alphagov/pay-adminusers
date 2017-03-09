@@ -71,4 +71,3 @@ graphitePort: ${METRICS_PORT:-8092}
 baseUrl: ${BASE_URL:-http://localhost:8080}
 
 loginAttemptCap: ${LOGIN_ATTEMPT_CAP:-10}
-timeStepsInSeconds: ${TIME_STEPS_IN_SECONDS:-60}

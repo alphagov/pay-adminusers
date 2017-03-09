@@ -44,7 +44,7 @@ public class AdminUsersModule extends AbstractModule {
                         environment.lifecycle().executorService("2fa-sms-%d").build(),
                         new NotifyClientProvider(configuration.getNotifyConfiguration()),
                         configuration.getNotifyConfiguration().getSecondFactorSmsTemplateId()));
-        bind(SecondFactorAuthenticator.class).toInstance(new SecondFactorAuthenticator(configuration.getTimeStepsInSeconds()));
+        bind(SecondFactorAuthenticator.class).in(Singleton.class);
         bind(UserServices.class).in(Singleton.class);
         bind(ForgottenPasswordDao.class).in(Singleton.class);
         bind(ForgottenPasswordServices.class).in(Singleton.class);
