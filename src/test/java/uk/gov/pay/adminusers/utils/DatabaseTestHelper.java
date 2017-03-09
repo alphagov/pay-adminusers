@@ -196,7 +196,7 @@ public class DatabaseTestHelper {
                         .list());
     }
 
-    public DatabaseTestHelper addService(int serviceId, String gatewayAccountId) {
+    public DatabaseTestHelper addService(int serviceId, String... gatewayAccountIds) {
 
         jdbi.withHandle(handle ->
                 handle
@@ -206,13 +206,14 @@ public class DatabaseTestHelper {
                         .execute()
         );
 
-        jdbi.withHandle(handle ->
-                handle.createStatement("INSERT INTO service_gateway_accounts(service_id, gateway_account_id) VALUES (:serviceId, :gatewayAccountId)")
-                        .bind("serviceId", serviceId)
-                        .bind("gatewayAccountId", gatewayAccountId)
-                        .execute()
-        );
-
+        for (String gatewayAccountId : gatewayAccountIds) {
+            jdbi.withHandle(handle ->
+                    handle.createStatement("INSERT INTO service_gateway_accounts(service_id, gateway_account_id) VALUES (:serviceId, :gatewayAccountId)")
+                            .bind("serviceId", serviceId)
+                            .bind("gatewayAccountId", gatewayAccountId)
+                            .execute()
+            );
+        }
         return this;
     }
 }

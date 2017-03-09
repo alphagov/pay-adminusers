@@ -28,6 +28,11 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 
+    public static WebApplicationException notFoundServiceError(String serviceId) {
+        String error = format("Service %s provided does not exist", serviceId);
+        return buildWebApplicationException(error, BAD_REQUEST.getStatusCode());
+    }
+
     public static WebApplicationException userLockedException(String username) {
         String error = format("user [%s] locked due to too many login attempts", username);
         return buildWebApplicationException(error, UNAUTHORIZED.getStatusCode());
