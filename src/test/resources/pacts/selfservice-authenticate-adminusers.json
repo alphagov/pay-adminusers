@@ -1,0 +1,172 @@
+{
+  "consumer": {
+    "name": "Selfservice-authenticate"
+  },
+  "provider": {
+    "name": "AdminUsers"
+  },
+  "interactions": [
+    {
+      "description": "a valid user authenticate request",
+      "provider_state": "a user exists",
+      "request": {
+        "method": "POST",
+        "path": "/v1/api/users/authenticate",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "body": {
+          "username": "existing-user",
+          "password": "password"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "username": "existing-user",
+          "email": "existing-user@example.com",
+          "gateway_account_ids": [
+            "918"
+          ],
+          "otp_key": "43c3c4t",
+          "role": {
+            "name": "admin",
+            "description": "Administrator"
+          },
+          "telephone_number": "0123441",
+          "permissions": [
+            "perm-1",
+            "perm-1",
+            "perm-1"
+          ],
+          "_links": [
+            {
+              "href": "http://adminusers.service/v1/api/users/existing-user",
+              "rel": "self",
+              "method": "GET"
+            }
+          ]
+        },
+        "matchingRules": {
+          "$.body.username": {
+            "match": "type"
+          },
+          "$.body.email": {
+            "match": "type"
+          },
+          "$.body.gateway_account_ids": {
+            "min": 1
+          },
+          "$.body.gateway_account_ids[*].*": {
+            "match": "type"
+          },
+          "$.body.gateway_account_ids[*]": {
+            "match": "type"
+          },
+          "$.body.otp_key": {
+            "match": "type"
+          },
+          "$.body.role.name": {
+            "match": "type"
+          },
+          "$.body.role.description": {
+            "match": "type"
+          },
+          "$.body.telephone_number": {
+            "match": "type"
+          },
+          "$.body.permissions": {
+            "min": 3
+          },
+          "$.body.permissions[*].*": {
+            "match": "type"
+          },
+          "$.body.permissions[*]": {
+            "match": "type"
+          },
+          "$.body._links[0].href": {
+            "match": "type"
+          },
+          "$.body._links[0].rel": {
+            "match": "type"
+          },
+          "$.body._links[0].method": {
+            "match": "type"
+          }
+        }
+      }
+    },
+    {
+      "description": "a user authenticate request with no matching user",
+      "provider_state": "a user not exists with a given username password",
+      "request": {
+        "method": "POST",
+        "path": "/v1/api/users/authenticate",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "body": {
+          "username": "nonexisting",
+          "password": "password"
+        }
+      },
+      "response": {
+        "status": 401,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "errors": [
+            "invalid username and/or password"
+          ]
+        },
+        "matchingRules": {
+          "$.body.errors[0]": {
+            "match": "type"
+          }
+        }
+      }
+    },
+    {
+      "description": "a user authenticate request with malformed request",
+      "provider_state": "a user exists with a given username password",
+      "request": {
+        "method": "POST",
+        "path": "/v1/api/users/authenticate",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "body": {
+          "username": "",
+          "password": ""
+        }
+      },
+      "response": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "errors": [
+            "Field [username] is required",
+            "Field [password] is required"
+          ]
+        },
+        "matchingRules": {
+          "$.body.errors[0]": {
+            "match": "type"
+          },
+          "$.body.errors[1]": {
+            "match": "type"
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecificationVersion": "2.0.0"
+  }
+}
