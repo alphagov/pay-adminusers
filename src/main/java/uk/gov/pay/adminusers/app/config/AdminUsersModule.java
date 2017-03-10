@@ -41,9 +41,9 @@ public class AdminUsersModule extends AbstractModule {
         bind(UserDao.class).in(Singleton.class);
         bind(Integer.class).annotatedWith(Names.named("LOGIN_ATTEMPT_CAP")).toInstance(configuration.getLoginAttemptCap());
         bind(UserNotificationService.class).toInstance(new UserNotificationService(
-                        environment.lifecycle().executorService("2fa-sms-%d").build(),
-                        new NotifyClientProvider(configuration.getNotifyConfiguration()),
-                        configuration.getNotifyConfiguration().getSecondFactorSmsTemplateId()));
+                environment.lifecycle().executorService("2fa-sms-%d").build(),
+                new NotifyClientProvider(configuration.getNotifyConfiguration()),
+                configuration.getNotifyConfiguration().getSecondFactorSmsTemplateId(), environment.metrics()));
         bind(SecondFactorAuthenticator.class).in(Singleton.class);
         bind(UserServices.class).in(Singleton.class);
         bind(ForgottenPasswordDao.class).in(Singleton.class);
