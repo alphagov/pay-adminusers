@@ -3,9 +3,9 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 
 ## Environment Variables
 
-`BASE_URL`:  This is the publicly visible URL for the pay admin users root. Defaults to http://localhost:8080 if not set.
-`DB_USER`: database username for adminusers DB. 
-`DB_PASSWORD`: database password for adminusers DB.
+* `BASE_URL`:  This is the publicly visible URL for the pay admin users root. Defaults to http://localhost:8080 if not set.
+* `DB_USER`: database username for adminusers DB.
+* `DB_PASSWORD`: database password for adminusers DB.
  
 ## API Specification
  
