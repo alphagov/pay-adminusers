@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
@@ -66,6 +67,81 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
         List<Map<String, Object>> userByName = databaseTestHelper.findUserByName(username);
         List<Map<String, Object>> servicesAssociatedToUser = databaseTestHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
+    }
+
+    @Test
+    public void shouldCreateAUserWithinAServiceIfServiceIdIsInPayloadIgnoringGatewayAccountIds() throws Exception {
+
+        String username = randomAlphanumeric(10) + randomUUID().toString();
+        databaseTestHelper.addService(666, "1", "2");
+
+        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
+                .put("username", username)
+                .put("email", "user-" + username + "@example.com")
+                .put("gateway_account_ids", new String[]{"55"})
+                .put("service_ids", new String[]{"666"})
+                .put("telephone_number", "45334534634")
+                .put("otp_key", "34f34")
+                .put("role_name", "admin")
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(userPayload))
+                .contentType(JSON)
+                .accept(JSON)
+                .post(USERS_RESOURCE_URL)
+                .then()
+                .statusCode(201)
+                .body("id", nullValue())
+                .body("username", is(username))
+                .body("password", nullValue())
+                .body("email", is("user-" + username + "@example.com"))
+                .body("gateway_account_ids", hasSize(2))
+                .body("gateway_account_ids[0]", is("1"))
+                .body("gateway_account_ids[1]", is("2"))
+                .body("telephone_number", is("45334534634"))
+                .body("otp_key", is("34f34"))
+                .body("login_counter", is(0))
+                .body("disabled", is(false))
+                .body("_links", hasSize(1))
+                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + username))
+                .body("_links[0].method", is("GET"))
+                .body("_links[0].rel", is("self"))
+                .body("role.name", is("admin"))
+                .body("role.description", is("Administrator"))
+                .body("permissions", hasSize(30)); //we could consider removing this assertion if the permissions constantly changing
+
+        //TODO - WIP This will be removed when PP-1612 is done.
+        // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
+        List<Map<String, Object>> userByName = databaseTestHelper.findUserByName(username);
+        List<Map<String, Object>> servicesAssociatedToUser = databaseTestHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
+        assertThat(servicesAssociatedToUser.size(), is(1));
+    }
+
+    @Test
+    public void shouldFailCreatingAUserForAServiceThatDoesNotExist() throws Exception {
+
+        String username = randomAlphanumeric(10) + randomUUID().toString();
+
+        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
+                .put("username", username)
+                .put("email", "user-" + username + "@example.com")
+                .put("gateway_account_ids", new String[]{"55"})
+                .put("service_ids", new String[]{"123"})
+                .put("telephone_number", "45334534634")
+                .put("otp_key", "34f34")
+                .put("role_name", "admin")
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(userPayload))
+                .contentType(JSON)
+                .accept(JSON)
+                .post(USERS_RESOURCE_URL)
+                .then()
+                .statusCode(400);
     }
 
     @Test
@@ -158,7 +234,7 @@ public class UserResourceCreateAndGetTest extends UserResourceTestBase {
 
         String username = randomAlphanumeric(10) + randomUUID().toString();
         String gatewayAccountId = "3";
-        User user = User.from(randomInt(), username, "password", "user-" + username + "@example.com", Arrays.asList(gatewayAccountId), "otpKey", "3543534");
+        User user = User.from(randomInt(), username, "password", "user-" + username + "@example.com", Arrays.asList(gatewayAccountId), newArrayList(), "otpKey", "3543534");
         int serviceId = RandomUtils.nextInt();
         databaseTestHelper.addService(serviceId, gatewayAccountId);
         databaseTestHelper.add(user);

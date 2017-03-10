@@ -74,7 +74,11 @@ public class UserServices {
                 .map(roleEntity -> {
                     UserEntity userEntity = UserEntity.from(user);
                     userEntity.setPassword(passwordHasher.hash(user.getPassword()));
-                    addServiceRoleToUser(userEntity, roleEntity, user.getGatewayAccountIds());
+                    if(user.getServiceIds().isEmpty()){
+                        addServiceRoleToUser(userEntity, roleEntity, user.getGatewayAccountIds());
+                    } else {
+                        addServiceRoleToUser(userEntity, roleEntity, user.getServiceIds().get(0));
+                    }
                     userDao.persist(userEntity);
                     return linksBuilder.decorate(userEntity.toUser());
                 })
@@ -282,6 +286,16 @@ public class UserServices {
                     ServiceEntity service = new ServiceEntity(gatewayAccountIds);
                     serviceDao.persist(service);
                     return new ServiceRoleEntity(service, role);
+                });
+        serviceRole.setUser(user);
+        user.setServiceRole(serviceRole);
+    }
+
+    private void addServiceRoleToUser(UserEntity user, RoleEntity role, String serviceId) {
+        ServiceRoleEntity serviceRole = serviceDao.findById(Integer.parseInt(serviceId))
+                .map(serviceEntity -> new ServiceRoleEntity(serviceEntity, role))
+                .orElseGet(() -> {
+                    throw AdminUsersExceptions.notFoundServiceError(serviceId);
                 });
         serviceRole.setUser(user);
         user.setServiceRole(serviceRole);

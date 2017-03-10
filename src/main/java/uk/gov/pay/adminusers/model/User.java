@@ -9,7 +9,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.google.common.collect.ImmutableList;
 import uk.gov.pay.adminusers.utils.Comparators;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.FALSE;
@@ -24,6 +25,7 @@ public class User {
     public static final String FIELD_USERNAME = "username";
     public static final String FIELD_PASSWORD = "password";
     public static final String FIELD_EMAIL = "email";
+    public static final String FIELD_SERVICE_IDS = "service_ids";
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
     public static final String FIELD_TELEPHONE_NUMBER = "telephone_number";
     public static final String FIELD_OTP_KEY = "otp_key";
@@ -35,6 +37,7 @@ public class User {
     private String email;
     private List<String> gatewayAccountIds = new ArrayList<>();
     private String telephoneNumber;
+    private List<String> serviceIds = new ArrayList<>();
     private String otpKey;
     private Boolean disabled = FALSE;
     private Integer loginCounter = 0;
@@ -47,20 +50,33 @@ public class User {
         return new User(id, username, password, email, gatewayAccountIds, otpKey, telephoneNumber);
     }
 
+    public static User from(Integer id, String username, String password, String email,
+                            List<String> gatewayAccountIds, List<String> serviceIds, String otpKey, String telephoneNumber) {
+        return new User(id, username, password, email, gatewayAccountIds, serviceIds, otpKey, telephoneNumber);
+    }
+
     public static User from(JsonNode node) {
+        List<String> serviceIds = new ArrayList<>();
         try {
             List<String> gatewayAccountIds =
                     ImmutableList.copyOf(node.get(FIELD_GATEWAY_ACCOUNT_IDS).iterator())
                             .stream().map(JsonNode::asText)
                             .sorted(Comparators.usingNumericComparator())
                             .collect(Collectors.toList());
-
+            JsonNode serviceIdsNode = node.get(FIELD_SERVICE_IDS);
+            if (serviceIdsNode != null) {
+               serviceIds =
+                        ImmutableList.copyOf(serviceIdsNode.iterator())
+                                .stream().map(JsonNode::asText)
+                                .sorted(Comparators.usingNumericComparator())
+                                .collect(Collectors.toList());
+            }
             String username = node.get(FIELD_USERNAME).asText();
             String password = getOrElseRandom(node.get(FIELD_PASSWORD));
             String email = node.get(FIELD_EMAIL).asText();
             String telephoneNumber = node.get(FIELD_TELEPHONE_NUMBER).asText();
             String otpKey = getOrElseRandom(node.get(FIELD_OTP_KEY));
-            return from(randomInt(), username, password, email, gatewayAccountIds, otpKey, telephoneNumber);
+            return from(randomInt(), username, password, email, gatewayAccountIds, serviceIds, otpKey, telephoneNumber);
         } catch (NullPointerException e) {
             throw new RuntimeException("Error retrieving required fields for creating a user", e);
         }
@@ -78,6 +94,18 @@ public class User {
         this.password = password;
         this.email = email;
         this.gatewayAccountIds = gatewayAccountIds;
+        this.otpKey = otpKey;
+        this.telephoneNumber = telephoneNumber;
+    }
+
+    private User(Integer id, String username, String password, String email, List<String> gatewayAccountIds,
+                 List<String> serviceIds, String otpKey, String telephoneNumber) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.gatewayAccountIds = gatewayAccountIds;
+        this.serviceIds = serviceIds;
         this.otpKey = otpKey;
         this.telephoneNumber = telephoneNumber;
     }
@@ -130,6 +158,11 @@ public class User {
 
     public Integer getSessionVersion() {
         return sessionVersion;
+    }
+
+    @JsonIgnore
+    public List<String> getServiceIds() {
+        return serviceIds;
     }
 
     /**
