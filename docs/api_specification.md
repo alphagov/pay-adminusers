@@ -1,5 +1,5 @@
-#pay-adminusers
-The GOV.UK Pay Admin Users Module in Java (Dropwizard)
+#API Specification
+These are the endpoints and methods available for managing users on GOV.UK Pay.
 
 ## POST /v1/api/users
 
