@@ -3,7 +3,6 @@ package uk.gov.pay.adminusers.service;
 
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Stopwatch;
-import com.google.inject.Inject;
 import uk.gov.service.notify.NotificationResponse;
 
 import java.util.HashMap;
@@ -20,7 +19,6 @@ public class UserNotificationService {
     private final String secondFactorSmsTemplateId;
     private final MetricRegistry metricRegistry;
 
-    @Inject
     public UserNotificationService(ExecutorService executorService, NotifyClientProvider notificationClientProvider, String secondFactorSmsTemplateId, MetricRegistry metricRegistry) {
         this.executorService = executorService;
         this.notifyClientProvider = notificationClientProvider;

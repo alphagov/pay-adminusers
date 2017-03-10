@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
@@ -18,7 +19,6 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,14 +48,14 @@ public class UserServices {
                         PasswordHasher passwordHasher,
                         LinksBuilder linksBuilder,
                         @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap,
-                        UserNotificationService userNotificationService, SecondFactorAuthenticator secondFactorAuthenticator) {
+                        Provider<UserNotificationService> userNotificationService, SecondFactorAuthenticator secondFactorAuthenticator) {
         this.userDao = userDao;
         this.roleDao = roleDao;
         this.serviceDao = serviceDao;
         this.passwordHasher = passwordHasher;
         this.linksBuilder = linksBuilder;
         this.loginAttemptCap = loginAttemptCap;
-        this.userNotificationService = userNotificationService;
+        this.userNotificationService = userNotificationService.get();
         this.secondFactorAuthenticator = secondFactorAuthenticator;
     }
 
