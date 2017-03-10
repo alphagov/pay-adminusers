@@ -40,11 +40,7 @@ public class AdminUsersModule extends AbstractModule {
         bind(ResetPasswordValidator.class).in(Singleton.class);
         bind(UserDao.class).in(Singleton.class);
         bind(Integer.class).annotatedWith(Names.named("LOGIN_ATTEMPT_CAP")).toInstance(configuration.getLoginAttemptCap());
-        bind(UserNotificationService.class).toInstance(new UserNotificationService(
-                        environment.lifecycle().executorService("2fa-sms-%d").build(),
-                        new NotifyClientProvider(configuration.getNotifyConfiguration()),
-                        configuration.getNotifyConfiguration().getSecondFactorSmsTemplateId()));
-        bind(SecondFactorAuthenticator.class).toInstance(new SecondFactorAuthenticator(configuration.getTimeStepsInSeconds()));
+        bind(SecondFactorAuthenticator.class).in(Singleton.class);
         bind(UserServices.class).in(Singleton.class);
         bind(ForgottenPasswordDao.class).in(Singleton.class);
         bind(ForgottenPasswordServices.class).in(Singleton.class);
@@ -73,6 +69,15 @@ public class AdminUsersModule extends AbstractModule {
         jpaModule.properties(properties);
 
         return jpaModule;
+    }
+
+    @Provides
+    private UserNotificationService provideUserNotificationService() {
+        return new UserNotificationService(
+                environment.lifecycle().executorService("2fa-sms-%d").build(),
+                new NotifyClientProvider(configuration.getNotifyConfiguration()),
+                configuration.getNotifyConfiguration().getSecondFactorSmsTemplateId(),
+                environment.metrics());
     }
 
     @Provides

@@ -36,9 +36,6 @@ public class AdminUsersConfig extends Configuration {
     private NotifyConfiguration notifyConfiguration;
 
     @NotNull
-    private Integer timeStepsInSeconds;
-
-    @NotNull
     private  ProxyConfiguration proxyConfiguration;
 
     @JsonProperty("proxy")
@@ -75,10 +72,6 @@ public class AdminUsersConfig extends Configuration {
     @JsonProperty("notify")
     public NotifyConfiguration getNotifyConfiguration() {
         return notifyConfiguration;
-    }
-
-    public int getTimeStepsInSeconds() {
-        return timeStepsInSeconds;
     }
 
 }

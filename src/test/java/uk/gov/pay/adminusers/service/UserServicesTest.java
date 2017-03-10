@@ -15,11 +15,7 @@ import uk.gov.pay.adminusers.model.*;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
-import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
-import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
-import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
-import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
-import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.adminusers.persistence.entity.*;
 
 import javax.ws.rs.WebApplicationException;
 import java.util.ArrayList;
@@ -65,7 +61,9 @@ public class UserServicesTest {
 
     @Before
     public void before() throws Exception {
-        userServices = new UserServices(userDao, roleDao, serviceDao, passwordHasher, new LinksBuilder("http://localhost"), 3, userNotificationService, secondFactorAuthenticator);
+        userServices = new UserServices(userDao, roleDao, serviceDao, passwordHasher,
+                new LinksBuilder("http://localhost"), 3,
+                () -> userNotificationService, secondFactorAuthenticator);
     }
 
     @Test(expected = WebApplicationException.class)

@@ -2,11 +2,8 @@ package uk.gov.pay.adminusers.resources;
 
 import com.google.common.collect.ImmutableMap;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
-import com.warrenstrange.googleauth.GoogleAuthenticatorConfig;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.TimeUnit;
 
 import static com.google.common.io.BaseEncoding.base32;
 import static com.jayway.restassured.http.ContentType.JSON;
@@ -39,10 +36,7 @@ public class UserResourceSecondFactorAuthenticationTest extends UserResourceTest
 
         String otpSecret = "34f34";
 
-        GoogleAuthenticator testAuthenticator = new GoogleAuthenticator(new GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder()
-                .setCodeDigits(6)
-                .setTimeStepSizeInMillis(TimeUnit.SECONDS.toMillis(60))
-                .build());
+        GoogleAuthenticator testAuthenticator = new GoogleAuthenticator();
         int passcode = testAuthenticator.getTotpPassword(base32().encode(otpSecret.getBytes()));
         ImmutableMap<String, Integer> authBody = ImmutableMap.of("code", passcode);
 
