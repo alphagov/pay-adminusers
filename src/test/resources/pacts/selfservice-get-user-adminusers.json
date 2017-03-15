@@ -1,0 +1,119 @@
+{
+  "consumer": {
+    "name": "Selfservice-get-user"
+  },
+  "provider": {
+    "name": "AdminUsers"
+  },
+  "interactions": [
+    {
+      "description": "a valid get user request",
+      "provider_state": "a user exits with the given name",
+      "request": {
+        "method": "GET",
+        "path": "/v1/api/users/existing-user",
+        "headers": {
+          "Accept": "application/json"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "username": "existing-user",
+          "email": "existing-user@example.com",
+          "gateway_account_ids": [
+            "666",
+            "666"
+          ],
+          "otp_key": "43c3c4t",
+          "role": {
+            "name": "admin",
+            "description": "Administrator"
+          },
+          "telephone_number": "0123441",
+          "permissions": [
+            "perm-1",
+            "perm-1",
+            "perm-1"
+          ],
+          "_links": [
+            {
+              "href": "http://adminusers.service/v1/api/users/existing-user",
+              "rel": "self",
+              "method": "GET"
+            }
+          ]
+        },
+        "matchingRules": {
+          "$.body.username": {
+            "match": "type"
+          },
+          "$.body.email": {
+            "match": "type"
+          },
+          "$.body.gateway_account_ids": {
+            "min": 2
+          },
+          "$.body.gateway_account_ids[*].*": {
+            "match": "type"
+          },
+          "$.body.gateway_account_ids[*]": {
+            "match": "type"
+          },
+          "$.body.otp_key": {
+            "match": "type"
+          },
+          "$.body.role.name": {
+            "match": "type"
+          },
+          "$.body.role.description": {
+            "match": "type"
+          },
+          "$.body.telephone_number": {
+            "match": "type"
+          },
+          "$.body.permissions": {
+            "min": 3
+          },
+          "$.body.permissions[*].*": {
+            "match": "type"
+          },
+          "$.body.permissions[*]": {
+            "match": "type"
+          },
+          "$.body._links[0].href": {
+            "match": "type"
+          },
+          "$.body._links[0].rel": {
+            "match": "type"
+          },
+          "$.body._links[0].method": {
+            "match": "type"
+          }
+        }
+      }
+    },
+    {
+      "description": "a valid get user request of an non existing user",
+      "provider_state": "no user exits with the given name",
+      "request": {
+        "method": "GET",
+        "path": "/v1/api/users/non-existent-user",
+        "headers": {
+          "Accept": "application/json"
+        }
+      },
+      "response": {
+        "status": 404,
+        "headers": {
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecificationVersion": "2.0.0"
+  }
+}

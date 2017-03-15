@@ -1,0 +1,154 @@
+{
+  "consumer": {
+    "name": "Selfservice-create-user"
+  },
+  "provider": {
+    "name": "AdminUsers"
+  },
+  "interactions": [
+    {
+      "description": "a valid user create request",
+      "provider_state": "default",
+      "request": {
+        "method": "POST",
+        "path": "/v1/api/users",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "body": {
+          "username": "wjq68lqaz1in72pgb9",
+          "email": "wjq68lqaz1in72pgb9@example.com",
+          "gateway_account_ids": [
+            "268"
+          ],
+          "telephone_number": "126426",
+          "role_name": "admin"
+        }
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "username": "wjq68lqaz1in72pgb9",
+          "email": "wjq68lqaz1in72pgb9@example.com",
+          "gateway_account_ids": [
+            "268"
+          ],
+          "otp_key": "43c3c4t",
+          "role": {
+            "name": "admin",
+            "description": "Administrator"
+          },
+          "telephone_number": "126426",
+          "permissions": [
+            "perm-1",
+            "perm-1",
+            "perm-1"
+          ],
+          "_links": [
+            {
+              "href": "http://adminusers.service/v1/api/users/wjq68lqaz1in72pgb9",
+              "rel": "self",
+              "method": "GET"
+            }
+          ]
+        },
+        "matchingRules": {
+          "$.body.username": {
+            "match": "type"
+          },
+          "$.body.email": {
+            "match": "type"
+          },
+          "$.body.gateway_account_ids": {
+            "min": 1
+          },
+          "$.body.gateway_account_ids[*].*": {
+            "match": "type"
+          },
+          "$.body.gateway_account_ids[*]": {
+            "match": "type"
+          },
+          "$.body.otp_key": {
+            "match": "type"
+          },
+          "$.body.role.name": {
+            "match": "type"
+          },
+          "$.body.role.description": {
+            "match": "type"
+          },
+          "$.body.telephone_number": {
+            "match": "type"
+          },
+          "$.body.permissions": {
+            "min": 3
+          },
+          "$.body.permissions[*].*": {
+            "match": "type"
+          },
+          "$.body.permissions[*]": {
+            "match": "type"
+          },
+          "$.body._links[0].href": {
+            "match": "type"
+          },
+          "$.body._links[0].rel": {
+            "match": "type"
+          },
+          "$.body._links[0].method": {
+            "match": "type"
+          }
+        }
+      }
+    },
+    {
+      "description": "an invalid user create request with required parameters missing",
+      "provider_state": "default",
+      "request": {
+        "method": "POST",
+        "path": "/v1/api/users",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "body": {
+          "username": "b1icd1ex6chxh6b8lrf6r",
+          "gateway_account_ids": [
+            ""
+          ],
+          "email": "",
+          "telephone_number": ""
+        }
+      },
+      "response": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "errors": [
+            "Field [email] is required",
+            "Field [telephone_number] is required",
+            "Field [role_name] is required"
+          ]
+        },
+        "matchingRules": {
+          "$.body.errors[0]": {
+            "match": "type"
+          },
+          "$.body.errors[1]": {
+            "match": "type"
+          },
+          "$.body.errors[2]": {
+            "match": "type"
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecificationVersion": "2.0.0"
+  }
+}

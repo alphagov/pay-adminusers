@@ -1,0 +1,56 @@
+{
+  "consumer": {
+    "name": "Selfservice-session"
+  },
+  "provider": {
+    "name": "AdminUsers"
+  },
+  "interactions": [
+    {
+      "description": "a valid increment session version update request",
+      "provider_state": "a user exists",
+      "request": {
+        "method": "PATCH",
+        "path": "/v1/api/users/existing-user",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "body": {
+          "op": "append",
+          "path": "sessionVersion",
+          "value": 1
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "description": "a valid increment session version request",
+      "provider_state": "a user does not exist",
+      "request": {
+        "method": "PATCH",
+        "path": "/v1/api/users/non-existent-username",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "body": {
+          "op": "append",
+          "path": "sessionVersion",
+          "value": 1
+        }
+      },
+      "response": {
+        "status": 404,
+        "headers": {
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecificationVersion": "2.0.0"
+  }
+}
