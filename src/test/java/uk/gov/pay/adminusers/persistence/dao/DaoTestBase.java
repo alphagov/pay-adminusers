@@ -14,8 +14,6 @@ import uk.gov.pay.adminusers.infra.GuicedTestEnvironment;
 import uk.gov.pay.adminusers.infra.PostgresDockerRule;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
-import uk.gov.pay.adminusers.model.User;
-import uk.gov.pay.adminusers.persistence.entity.*;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.sql.Connection;
@@ -84,7 +82,11 @@ public class DaoTestBase {
     }
 
     protected Role aRole() {
-        return role(randomInt(), "role-name-" + newId(), "role-description" + newId());
+        return aRole("role-name-" + newId());
+    }
+
+    protected Role aRole(String name) {
+        return role(randomInt(), name, "role-description" + newId());
     }
 
     protected Permission aPermission() {

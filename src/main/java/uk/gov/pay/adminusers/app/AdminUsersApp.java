@@ -21,10 +21,7 @@ import uk.gov.pay.adminusers.app.healthchecks.DependentResourceWaitCommand;
 import uk.gov.pay.adminusers.app.healthchecks.MigrateToInitialDbState;
 import uk.gov.pay.adminusers.app.healthchecks.Ping;
 import uk.gov.pay.adminusers.app.util.TrustingSSLSocketFactory;
-import uk.gov.pay.adminusers.resources.ForgottenPasswordResource;
-import uk.gov.pay.adminusers.resources.HealthCheckResource;
-import uk.gov.pay.adminusers.resources.ResetPasswordResource;
-import uk.gov.pay.adminusers.resources.UserResource;
+import uk.gov.pay.adminusers.resources.*;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
@@ -71,6 +68,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.healthChecks().register("ping", new Ping());
         environment.healthChecks().register("database", injector.getInstance(DatabaseHealthCheck.class));
         environment.jersey().register(injector.getInstance(UserResource.class));
+        environment.jersey().register(injector.getInstance(ServiceResource.class));
         environment.jersey().register(injector.getInstance(ForgottenPasswordResource.class));
         environment.jersey().register(injector.getInstance(ResetPasswordResource.class));
 
