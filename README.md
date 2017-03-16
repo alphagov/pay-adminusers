@@ -1,4 +1,4 @@
-#pay-adminusers
+# pay-adminusers
 The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 
 ## Environment Variables
