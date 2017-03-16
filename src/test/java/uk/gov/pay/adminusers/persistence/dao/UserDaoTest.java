@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.lang.String.*;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
@@ -53,7 +54,7 @@ public class UserDaoTest extends DaoTestBase {
         int serviceId = nextInt();
         databaseTestHelper.addService(serviceId, gatewayAccountId);
 
-        String username = String.valueOf(nextInt());
+        String username = valueOf(nextInt());
 
         UserEntity userEntity = new UserEntity();
         userEntity.setUsername(username);
@@ -114,11 +115,11 @@ public class UserDaoTest extends DaoTestBase {
         int serviceId = nextInt();
         databaseTestHelper.addService(serviceId, gatewayAccountId);
 
-        String username = String.valueOf(nextInt());
-        String otpKey = String.valueOf(nextInt());
+        String username = valueOf(nextInt());
+        String otpKey = valueOf(nextInt());
 
-        User user = User.from(randomInt(), username, "password-" + username, username + "@example.com", asList(gatewayAccountId), otpKey, "374628482");
-        databaseTestHelper.add(user, serviceId, role.getId());
+        User user = User.from(randomInt(), username, "password-" + username, username + "@example.com", asList(gatewayAccountId), asList(valueOf(serviceId)), otpKey, "374628482");
+        databaseTestHelper.add(user, role.getId());
 
         Optional<UserEntity> userEntityMaybe = userDao.findByUsername(username);
         assertTrue(userEntityMaybe.isPresent());
@@ -151,12 +152,12 @@ public class UserDaoTest extends DaoTestBase {
         int serviceId = nextInt();
         databaseTestHelper.addService(serviceId, gatewayAccountId);
 
-        String username = String.valueOf(nextInt());
-        String otpKey = String.valueOf(nextInt());
+        String username = valueOf(nextInt());
+        String otpKey = valueOf(nextInt());
 
         String email = username + "@example.com";
-        User user = User.from(randomInt(), username, "password-" + username,email, asList(String.valueOf(nextInt())), otpKey, "374628482");
-        databaseTestHelper.add(user, serviceId, role.getId());
+        User user = User.from(randomInt(), username, "password-" + username, email, asList(valueOf(nextInt())), asList(valueOf(serviceId)), otpKey, "374628482");
+        databaseTestHelper.add(user, role.getId());
 
         Optional<UserEntity> userEntityMaybe = userDao.findByEmail(username + "@example.com");
         assertTrue(userEntityMaybe.isPresent());
@@ -193,8 +194,8 @@ public class UserDaoTest extends DaoTestBase {
         databaseTestHelper.addService(serviceId1, gatewayAccountId1);
         databaseTestHelper.addService(serviceId2, gatewayAccountId2);
 
-        String username = String.valueOf(nextInt());
-        databaseTestHelper.add(User.from(randomInt(), username, "password", username + "@example.com", asList(gatewayAccountId1), String.valueOf(nextInt()), "876284762"), serviceId1, role1.getId());
+        String username = valueOf(nextInt());
+        databaseTestHelper.add(User.from(randomInt(), username, "password", username + "@example.com", asList(gatewayAccountId1), asList(valueOf(serviceId1)), valueOf(nextInt()), "876284762"), role1.getId());
 
         UserEntity existingUser = userDao.findByUsername(username).get();
 
@@ -239,10 +240,10 @@ public class UserDaoTest extends DaoTestBase {
         Integer userId2 = randomInt();
 
         databaseTestHelper.add(User.from(userId1, "user_" + userId1, "password", userId1 + "@example.com",
-                asList(gatewayAccountId), randomInt().toString(), "876284762"), serviceId, role1.getId());
+                asList(gatewayAccountId), asList(valueOf(serviceId)), randomInt().toString(), "876284762"), role1.getId());
 
         databaseTestHelper.add(User.from(userId2, "user_" + userId2, "password", userId2 + "@example.com",
-                asList(gatewayAccountId), randomInt().toString(), "876284762"), serviceId, role2.getId());
+                asList(gatewayAccountId), asList(valueOf(serviceId)), randomInt().toString(), "876284762"), role2.getId());
 
         List<UserEntity> users = userDao.findByServiceId(serviceId);
 

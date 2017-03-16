@@ -99,7 +99,7 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public DatabaseTestHelper add(User user, int serviceId, int roleId) {
+    public DatabaseTestHelper add(User user, int roleId) {
         Timestamp now = Timestamp.from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant());
         jdbi.withHandle(handle ->
                 handle
@@ -124,7 +124,7 @@ public class DatabaseTestHelper {
         jdbi.withHandle(handle -> handle
                 .createStatement("INSERT INTO user_services_roleS(user_id, service_id, role_id) VALUES(:userId, :serviceId, :roleId)")
                 .bind("userId", user.getId())
-                .bind("serviceId", serviceId)
+                .bind("serviceId", Integer.valueOf(user.getServiceIds().get(0)))
                 .bind("roleId", roleId)
                 .execute());
 

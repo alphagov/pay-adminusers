@@ -18,9 +18,11 @@ import java.util.UUID;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.jayway.restassured.http.ContentType.JSON;
+import static java.lang.String.*;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.time.ZonedDateTime.now;
+import static java.util.Arrays.*;
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
@@ -49,8 +51,8 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
     public void shouldGetForgottenPasswordReference_whenCreate_forAnExistingUser() throws Exception {
 
         String username = randomAlphanumeric(10) + randomUUID().toString();
-        User user = aUser(username);
         int serviceId = nextInt();
+        User user = aUser(username, serviceId);
         int roleId = nextInt();
         String gatewayAccountId = valueOf(nextInt());
         Role role = role(roleId, "role", "roledesc");
@@ -59,7 +61,7 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
         databaseTestHelper.addService(serviceId, gatewayAccountId);
         databaseTestHelper.add(permission);
         databaseTestHelper.add(role);
-        databaseTestHelper.add(user, serviceId, roleId);
+        databaseTestHelper.add(user, roleId);
 
         Map<String, String> forgottenPasswordPayload = ImmutableMap.of("username", user.getUsername());
         ValidatableResponse validatableResponse = givenSetup()
@@ -102,9 +104,9 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
     public void shouldGetForgottenPassword_whenGetByCode_forAnExistingForgottenPassword() throws Exception {
 
         String username = RandomStringUtils.randomAlphanumeric(10) + UUID.randomUUID();
-        User user = aUser(username);
         ForgottenPassword forgottenPassword = aForgottenPassword(username);
         int serviceId = nextInt();
+        User user = aUser(username, serviceId);
         databaseTestHelper.addService(serviceId, randomNumeric(2));
         databaseTestHelper.add(user);
         databaseTestHelper.add(forgottenPassword, user.getId());
@@ -147,7 +149,7 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
         return ForgottenPassword.forgottenPassword(format("%s-code", username), username);
     }
 
-    private User aUser(String username) {
-        return User.from(randomInt(), username, format("%s-password", username), format("%s@email.com", username), Arrays.asList("1"), "784rh", "8948924");
+    private User aUser(String username, int serviceId) {
+        return User.from(randomInt(), username, format("%s-password", username), format("%s@email.com", username), asList("1"), asList(valueOf(serviceId)), "784rh", "8948924");
     }
 }

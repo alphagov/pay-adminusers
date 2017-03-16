@@ -18,7 +18,7 @@ public class LinksBuilderTest {
 
     @Test
     public void shouldConstruct_userSelfLinkCorrectly() throws Exception {
-        User user = User.from(randomInt(), "a-username", "a-password", "email@example.com", Arrays.asList("1"), "4wrwef", "123435");
+        User user = User.from(randomInt(), "a-username", "a-password", "email@example.com", Arrays.asList("1"), Arrays.asList("2"), "4wrwef", "123435");
         User decoratedUser = linksBuilder.decorate(user);
 
         String linkJson = new ObjectMapper().writeValueAsString(decoratedUser.getLinks().get(0));

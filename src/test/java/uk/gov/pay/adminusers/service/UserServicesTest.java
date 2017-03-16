@@ -423,8 +423,9 @@ public class UserServicesTest {
 
     @Test
     public void createUser_shouldError_whenAddingAUserToDifferentGatewayAccountsBelongingToDifferentServices() {
+
         ArrayList<String> gatewayAccountIds = newArrayList("1", "2", "3");
-        User user = User.from(1, "random-name", "random-password", "random@email.com", gatewayAccountIds, "784rh", "8948924");
+        User user = User.from(1, "random-name", "random-password", "random@email.com", gatewayAccountIds, newArrayList(), "784rh", "8948924");
         String roleName = "admin";
         Role role = Role.role(2, roleName, "admin role");
         ArgumentCaptor<ServiceEntity> expectedService = ArgumentCaptor.forClass(ServiceEntity.class);
@@ -449,7 +450,8 @@ public class UserServicesTest {
     @Test
     public void createUser_shouldError_whenListOfGatewayAccountsContainsSomeNotBelongingToAnything() {
         ArrayList<String> gatewayAccountIds = newArrayList("1", "2", "3");
-        User user = User.from(1, "random-name", "random-password", "random@email.com", gatewayAccountIds, "784rh", "8948924");
+
+        User user = User.from(1, "random-name", "random-password", "random@email.com", gatewayAccountIds, newArrayList(), "784rh", "8948924");
         String roleName = "admin";
         Role role = Role.role(2, roleName, "admin role");
         ArgumentCaptor<ServiceEntity> expectedService = ArgumentCaptor.forClass(ServiceEntity.class);
@@ -476,7 +478,8 @@ public class UserServicesTest {
     @Test
     public void createUser_shouldPersist_aUserSuccessfully_andCreateANewServiceAssociatingAllNonExistingGatewayAccounts() throws Exception {
         ArrayList<String> gatewayAccountIds = newArrayList("1", "2", "3");
-        User user = User.from(1, "random-name", "random-password", "random@email.com", gatewayAccountIds, "784rh", "8948924");
+
+        User user = User.from(1, "random-name", "random-password", "random@email.com", gatewayAccountIds, newArrayList(), "784rh", "8948924");
         Role role = Role.role(2, "admin", "admin role");
 
         ArgumentCaptor<UserEntity> expectedUser = ArgumentCaptor.forClass(UserEntity.class);
@@ -520,7 +523,7 @@ public class UserServicesTest {
     }
 
     private User aUser() {
-        return User.from(randomInt(), "random-name", "random-password", "random@email.com", asList("1"), "784rh", "8948924");
+        return User.from(randomInt(), "random-name", "random-password", "random@email.com", asList("1"), newArrayList(), "784rh", "8948924");
     }
 
     private Role aRole() {

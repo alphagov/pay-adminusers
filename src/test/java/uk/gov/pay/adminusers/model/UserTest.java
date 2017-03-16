@@ -63,7 +63,7 @@ public class UserTest {
 
     @Test
     public void shouldFlatten_permissionsOfAUser() throws Exception {
-        User user = User.from(randomInt(), "name", "password", "email@gmail.com", Arrays.asList("1"), "ewrew", "453453");
+        User user = User.from(randomInt(), "name", "password", "email@gmail.com", Arrays.asList("1"), Arrays.asList("1"), "ewrew", "453453");
         Role role1 = Role.role(1, "role1", "role1 description");
         Role role2 = Role.role(2, "role2", "role2 description");
         role1.setPermissions(ImmutableList.of(aPermission(), aPermission(), aPermission()));

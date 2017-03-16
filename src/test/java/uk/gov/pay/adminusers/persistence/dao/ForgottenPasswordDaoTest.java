@@ -15,9 +15,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.lang.String.valueOf;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
+import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -29,11 +31,13 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
 
     private UserDao userDao;
     private ForgottenPasswordDao forgottenPasswordDao;
+    private int serviceId = nextInt();
 
     @Before
     public void before() throws Exception {
         userDao = env.getInstance(UserDao.class);
         forgottenPasswordDao = env.getInstance(ForgottenPasswordDao.class);
+        databaseTestHelper.addService(serviceId, valueOf(nextInt()));
     }
 
     @Test
@@ -41,7 +45,7 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
         String random = newId();
         Integer randomInt = randomInt();
         String randomIntAsString = randomInt.toString();
-        User user = User.from(randomInt, "user-" + random, "password" + random, random + "@example.com", Arrays.asList(randomIntAsString), randomIntAsString, "8395398535");
+        User user = User.from(randomInt, "user-" + random, "password" + random, random + "@example.com", Arrays.asList(randomIntAsString), Arrays.asList(valueOf(serviceId)), randomIntAsString, "8395398535");
         UserEntity userEntity = UserEntity.from(user);
         userDao.persist(userEntity);
 
@@ -66,7 +70,7 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
         String random = newId();
         Integer randomInt = randomInt();
         String randomIntAsString = randomInt.toString();
-        User user = User.from(randomInt, "user-" + random, "password" + random, random + "@example.com", Arrays.asList(randomIntAsString), randomIntAsString, "8395398535");
+        User user = User.from(randomInt, "user-" + random, "password" + random, random + "@example.com", Arrays.asList(randomIntAsString), Arrays.asList(valueOf(serviceId)), randomIntAsString, "8395398535");
         UserEntity userEntity = UserEntity.from(user);
         userDao.persist(userEntity);
 
@@ -88,7 +92,7 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
         String random = newId();
         Integer randomInt = randomInt();
         String randomIntAsString = randomInt.toString();
-        User user = User.from(randomInt, "user-" + random, "password" + random, random + "@example.com", Arrays.asList(randomIntAsString), randomIntAsString, "8395398535");
+        User user = User.from(randomInt, "user-" + random, "password" + random, random + "@example.com", Arrays.asList(randomIntAsString), Arrays.asList(valueOf(serviceId)), randomIntAsString, "8395398535");
         UserEntity userEntity = UserEntity.from(user);
         userDao.persist(userEntity);
 
@@ -106,7 +110,7 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
         String random = newId();
         Integer randomInt = randomInt();
         String randomIntAsString = randomInt.toString();
-        User user = User.from(randomInt, "user-" + random, "password" + random, random + "@example.com", Arrays.asList(randomIntAsString), randomIntAsString, "8395398535");
+        User user = User.from(randomInt, "user-" + random, "password" + random, random + "@example.com", Arrays.asList(randomIntAsString), Arrays.asList(valueOf(serviceId)), randomIntAsString, "8395398535");
         UserEntity userEntity = UserEntity.from(user);
         userDao.persist(userEntity);
 

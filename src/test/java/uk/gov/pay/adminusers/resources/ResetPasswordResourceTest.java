@@ -16,8 +16,10 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.jayway.restassured.http.ContentType.JSON;
+import static java.lang.String.*;
 import static java.lang.String.format;
 import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.util.Arrays.*;
 import static org.apache.commons.lang3.RandomStringUtils.*;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.CoreMatchers.not;
@@ -47,7 +49,7 @@ public class ResetPasswordResourceTest extends IntegrationTest {
         databaseTestHelper.addService(serviceId, randomNumeric(5));
         databaseTestHelper.add(permission);
         databaseTestHelper.add(role);
-        databaseTestHelper.add(aUser(userId, CURRENT_PASSWORD), serviceId, roleId);
+        databaseTestHelper.add(aUser(userId, serviceId, CURRENT_PASSWORD), roleId);
         databaseTestHelper.add(aForgottenPassword(forgottenPasswordCode, ZonedDateTime.now(ZoneId.of("UTC"))), userId);
     }
 
@@ -164,8 +166,8 @@ public class ResetPasswordResourceTest extends IntegrationTest {
         return ForgottenPassword.forgottenPassword(nextInt(), random, format("%s-name", random), date);
     }
 
-    private User aUser(int id, String encryptedPassword) {
+    private User aUser(int id, int serviceId, String encryptedPassword) {
         String username = randomAlphabetic(20);
-        return User.from(id, username, encryptedPassword, username + "@example.com", Arrays.asList("1"), "784rh", "8948924");
+        return User.from(id, username, encryptedPassword, username + "@example.com", asList("1"), asList(valueOf(serviceId)), "784rh", "8948924");
     }
 }

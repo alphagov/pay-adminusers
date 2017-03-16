@@ -6,6 +6,8 @@ import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
 
+import java.util.Arrays;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
@@ -32,10 +34,10 @@ public class ServiceResourceTest extends IntegrationTest {
         String username3 = "user-3-roleA-" + randomUUID().toString();
         String username4 = "user-4-roleB-" + randomUUID().toString();
         Integer user1Id = randomInt();
-        User user1 = User.from(user1Id, username1, format("%s-password", username1), format("%s@email.com", username1), asList("1"), "784rh", "8948924");
-        User user2 = User.from(user1Id + 1, username2, format("%s-password", username2), format("%s@email.com", username2), asList("1"), "784rh", "8948924");
-        User user3 = User.from(user1Id + 2, username3, format("%s-password", username3), format("%s@email.com", username3), asList("1"), "784rh", "8948924");
-        User user4 = User.from(user1Id + 3, username4, format("%s-password", username4), format("%s@email.com", username4), asList("1"), "784rh", "8948924");
+        User user1 = User.from(user1Id, username1, format("%s-password", username1), format("%s@email.com", username1), asList("1"), asList(String.valueOf(serviceId1)), "784rh", "8948924");
+        User user2 = User.from(user1Id + 1, username2, format("%s-password", username2), format("%s@email.com", username2), asList("1"), asList(String.valueOf(serviceId1)), "784rh", "8948924");
+        User user3 = User.from(user1Id + 2, username3, format("%s-password", username3), format("%s@email.com", username3), asList("1"), asList(String.valueOf(serviceId1)), "784rh", "8948924");
+        User user4 = User.from(user1Id + 3, username4, format("%s-password", username4), format("%s@email.com", username4), asList("1"), asList(String.valueOf(serviceId2)), "784rh", "8948924");
 
         String gatewayAccountId1 = valueOf(nextInt());
         String gatewayAccountId2 = valueOf(nextInt());
@@ -52,10 +54,10 @@ public class ServiceResourceTest extends IntegrationTest {
         databaseTestHelper.add(permission2);
         databaseTestHelper.add(role1);
         databaseTestHelper.add(role2);
-        databaseTestHelper.add(user1, serviceId1, roleId1);
-        databaseTestHelper.add(user2, serviceId1, roleId2);
-        databaseTestHelper.add(user3, serviceId1, roleId2);
-        databaseTestHelper.add(user4, serviceId2, roleId1);
+        databaseTestHelper.add(user1, roleId1);
+        databaseTestHelper.add(user2, roleId2);
+        databaseTestHelper.add(user3, roleId2);
+        databaseTestHelper.add(user4, roleId1);
 
         givenSetup()
                 .when()
