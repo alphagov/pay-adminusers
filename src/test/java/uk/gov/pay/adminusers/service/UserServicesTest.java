@@ -477,7 +477,7 @@ public class UserServicesTest {
     @Test
     public void shouldReturnEmptyAndDisable_whenAuthenticate2FA_ifUnsuccessfulMaxRetry() throws Exception {
         User user = aUser();
-        user.setLoginCounter(2);
+        user.setLoginCounter(3);
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.authorize(user.getOtpKey(), 123456)).thenReturn(false);
@@ -489,7 +489,7 @@ public class UserServicesTest {
         assertFalse(tokenOptional.isPresent());
 
         UserEntity savedUser = argumentCaptor.getValue();
-        assertThat(savedUser.getLoginCounter(), is(3));
+        assertThat(savedUser.getLoginCounter(), is(4));
         assertThat(savedUser.isDisabled(), is(true));
     }
 
