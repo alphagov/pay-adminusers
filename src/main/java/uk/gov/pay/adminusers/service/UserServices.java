@@ -183,7 +183,7 @@ public class UserServices {
                     } else {
                         userEntity.setLoginCounter(userEntity.getLoginCounter() + 1);
                         userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
-                        userEntity.setDisabled(userEntity.getLoginCounter() >= loginAttemptCap);
+                        userEntity.setDisabled(userEntity.getLoginCounter() > loginAttemptCap);
                         userDao.merge(userEntity);
                         if (userEntity.isDisabled()) {
                             logger.warn("User [{}] attempted a invalid second factor, and account currently locked", userEntity.getId());
