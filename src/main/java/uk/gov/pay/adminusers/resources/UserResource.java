@@ -138,41 +138,6 @@ public class UserResource {
 
     }
 
-    @Path(ATTEMPT_LOGIN_RESOURCE)
-    @Produces(APPLICATION_JSON)
-    @POST
-    public Response updateLoginAttempts(@PathParam("username") String username, @QueryParam("action") String resetAction) {
-        logger.info("User login attempt request");
-        if (isBlank(username)) {
-            return Response.status(NOT_FOUND).build();
-        }
-        if (isNotBlank(resetAction) && !resetAction.equals("reset")) {
-            return Response.status(BAD_REQUEST)
-                    .entity(ImmutableMap.of("errors", ImmutableList.of("Parameter [action] value is invalid"))).build();
-        }
-
-        Optional<User> userOptional;
-
-        if (isBlank(resetAction)) {
-            userOptional = userServices.recordLoginAttempt(username);
-        } else {
-            userOptional = userServices.resetLoginAttempts(username);
-        }
-
-        return userOptional
-                .map(user -> {
-                    if (user.isDisabled()) {
-                        logger.warn("user {} attempted a 2fa login/reset, but account currently locked", username);
-                        return Response.status(UNAUTHORIZED)
-                                .entity(ImmutableMap.of("errors", ImmutableList.of(format("user [%s] locked due to too many login attempts", username))))
-                                .build();
-                    }
-                    return Response.status(OK).entity(user).build();
-
-                })
-                .orElseGet(() -> Response.status(NOT_FOUND).build());
-    }
-
     @PATCH
     @Path(USER_RESOURCE)
     @Produces(APPLICATION_JSON)
