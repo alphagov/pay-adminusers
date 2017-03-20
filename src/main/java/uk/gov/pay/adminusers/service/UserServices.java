@@ -200,49 +200,6 @@ public class UserServices {
                 });
     }
 
-    /**
-     * increment login count if a user with given username found
-     *
-     * @param username
-     * @return {@link Optional<User>} if login count less that maximum allowed attempts. Or Optional.empty() if given username not found
-     * @throws javax.ws.rs.WebApplicationException if user account is disabled
-     */
-    @Transactional
-    public Optional<User> recordLoginAttempt(String username) {
-        return userDao.findByUsername(username)
-                .map(userEntity -> {
-                    userEntity.setLoginCounter(userEntity.getLoginCounter() + 1);
-                    //NOTE: the reason for this check is different to authenticate method above, is due to the way selfservice
-                    // is wired up. Currently increment login count is called before the second factor check,
-                    // whereas on username/password (first factor) it the increment happens afterwards.
-                    // FIXME: when we migrate the ToTp login to adminusers
-                    userEntity.setDisabled(userEntity.getLoginCounter() > loginAttemptCap);
-                    userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
-                    userDao.merge(userEntity);
-                    return Optional.of(linksBuilder.decorate(userEntity.toUser()));
-                })
-                .orElseGet(Optional::empty);
-    }
-
-    /**
-     * resets users login attempts to 0.
-     *
-     * @param username
-     * @return {@link Optional<User>} if user found and resets to 0. Or Optional.empty() if given username not found
-     */
-    @Transactional
-    public Optional<User> resetLoginAttempts(String username) {
-        return userDao.findByUsername(username)
-                .map(userEntity -> {
-                    userEntity.setLoginCounter(0);
-                    userEntity.setDisabled(false);
-                    userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
-                    userDao.merge(userEntity);
-                    return Optional.of(linksBuilder.decorate(userEntity.toUser()));
-                })
-                .orElseGet(Optional::empty);
-    }
-
     @Transactional
     public Optional<User> patchUser(String username, PatchRequest patchRequest) {
         if (PATH_SESSION_VERSION.equals(patchRequest.getPath())) {
