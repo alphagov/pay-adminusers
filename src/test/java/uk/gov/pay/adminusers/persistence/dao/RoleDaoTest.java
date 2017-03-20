@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.persistence.dao;
 
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.pay.adminusers.fixtures.RoleDbFixture;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
@@ -24,17 +25,14 @@ public class RoleDaoTest extends DaoTestBase {
 
     @Test
     public void shouldFindARoleByRoleName() throws Exception {
-        Permission perm1 = aPermission();
-        Permission perm2 = aPermission();
-        Permission perm3 = aPermission();
-        Permission perm4 = aPermission();
-        Role role1 = aRole();
-        Role role2 = aRole();
-        role1.setPermissions(asList(perm1, perm2));
-        role2.setPermissions(asList(perm3, perm4));
 
-        databaseTestHelper.add(perm1).add(perm2).add(perm3).add(perm4);
-        databaseTestHelper.add(role1).add(role2);
+        Role role1 = RoleDbFixture
+                .aRole(databaseTestHelper)
+                .build();
+
+        Role role2 = RoleDbFixture
+                .aRole(databaseTestHelper)
+                .build();
 
         Optional<RoleEntity> optionalRole1 = roleDao.findByRoleName(role1.getName());
         assertTrue(optionalRole1.isPresent());
