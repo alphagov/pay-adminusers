@@ -17,8 +17,6 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 | [```/v1/api/users/{username}```](/docs/api_specification.md#get-v1apiusersusername)              | GET    |  Gets a user with the associated username            |
 | [```/v1/api/users/{username}```](/docs/api_specification.md#patch-v1apiusersusername)              | PATCH    |  amend a specific user attribute            |
 | [```/v1/api/users/authenticate```](/docs/api_specification.md#post-v1apiusersauthenticate)              | POST    |  Authenticate a given username/password            |
-| [```/v1/api/users/{username}/attempt-login```](/docs/api_specification.md#post-v1apiusersusernameattempt-login)              | POST    |  Records login attempts and locks account if necessary            |
-| [```/v1/api/users/{username}/attempt-login?action=reset```](/docs/api_specification.md#post-v1apiusersusernameattemptLoginActionReset)              | POST    |  Resets login attempts to `0` and enables the user account            |
 | [```/v1/api/forgotten-passwords```](/docs/api_specification.md#post-v1apiforgottenpasswords)              | POST    |  Create a new forgotten password request            |
 | [```/v1/api/forgotten-passwords/{code}```](/docs/api_specification.md#get-v1apiforgottenpasswordscode)              | GET    |  GETs a forgotten password record by code            |
 
