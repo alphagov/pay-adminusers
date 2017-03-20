@@ -21,18 +21,17 @@ public class UserDbFixture {
     private String telephoneNumber = "374628482";
 
     public UserDbFixture(DatabaseTestHelper databaseTestHelper) {
-
         this.databaseTestHelper = databaseTestHelper;
     }
 
-    public static UserDbFixture aUser(DatabaseTestHelper databaseTestHelper) {
+    public static UserDbFixture userDbFixture(DatabaseTestHelper databaseTestHelper) {
         return new UserDbFixture(databaseTestHelper);
     }
 
-    public User build() {
+    public User insertUser() {
         if (serviceId == null) {
-            serviceId = ServiceDbFixture.aService(databaseTestHelper).build();
-            roleId = RoleDbFixture.aRole(databaseTestHelper).build().getId();
+            serviceId = ServiceDbFixture.serviceDbFixture(databaseTestHelper).insertService();
+            roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
         }
         User user = User.from(randomInt(), username, password, email, newArrayList(), asList(valueOf(serviceId)), otpKey, telephoneNumber);
         databaseTestHelper.add(user, roleId);

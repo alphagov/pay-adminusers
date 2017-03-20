@@ -2,9 +2,6 @@ package uk.gov.pay.adminusers.persistence.dao;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.pay.adminusers.fixtures.RoleDbFixture;
-import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
-import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
@@ -25,6 +22,9 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
+import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
+import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 public class UserDaoTest extends DaoTestBase {
 
@@ -42,12 +42,10 @@ public class UserDaoTest extends DaoTestBase {
     @Test
     public void shouldCreateAUserSuccessfully() throws Exception {
 
-        Role role = RoleDbFixture
-                .aRole(databaseTestHelper)
-                .build();
+        Role role = roleDbFixture(databaseHelper).insertRole();
         String gatewayAccountId = randomInt().toString();
-        int serviceId = ServiceDbFixture.aService(databaseTestHelper)
-                .withGatewayAccountIds(gatewayAccountId).build();
+        int serviceId = serviceDbFixture(databaseHelper)
+                .withGatewayAccountIds(gatewayAccountId).insertService();
 
         String username = valueOf(nextInt());
 
@@ -74,7 +72,7 @@ public class UserDaoTest extends DaoTestBase {
         userDao.persist(userEntity);
 
         assertThat(userEntity.getId(), is(notNullValue()));
-        List<Map<String, Object>> savedUserData = databaseTestHelper.findUser(userEntity.getId());
+        List<Map<String, Object>> savedUserData = databaseHelper.findUser(userEntity.getId());
         assertThat(savedUserData.size(), is(1));
         assertThat(savedUserData.get(0).get("username"), is(userEntity.getUsername()));
         assertThat(savedUserData.get(0).get("password"), is(userEntity.getPassword()));
@@ -86,7 +84,7 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(savedUserData.get(0).get("createdAt"), is(java.sql.Timestamp.from(timeNow.toInstant())));
         assertThat(savedUserData.get(0).get("updatedAt"), is(java.sql.Timestamp.from(timeNow.toInstant())));
 
-        List<Map<String, Object>> serviceRolesForUser = databaseTestHelper.findServiceRoleForUser(userEntity.getId());
+        List<Map<String, Object>> serviceRolesForUser = databaseHelper.findServiceRoleForUser(userEntity.getId());
         assertThat(serviceRolesForUser.size(), is(1));
         assertThat(serviceRolesForUser.get(0).get("id"), is(role.getId()));
         assertThat(serviceRolesForUser.get(0).get("service_id"), is(serviceId));
@@ -97,16 +95,12 @@ public class UserDaoTest extends DaoTestBase {
     @Test
     public void shouldFindUserBy_Username() throws Exception {
 
-        Role role = RoleDbFixture
-                .aRole(databaseTestHelper)
-                .build();
+        Role role = roleDbFixture(databaseHelper).insertRole();
+        int serviceId = serviceDbFixture(databaseHelper)
+                .insertService();
+        User user = userDbFixture(databaseHelper)
+                .withServiceRole(serviceId, role.getId()).insertUser();
 
-
-        int serviceId = ServiceDbFixture.aService(databaseTestHelper)
-                .build();
-
-        User user = UserDbFixture.aUser(databaseTestHelper)
-                .withServiceRole(serviceId, role.getId()).build();
         String username = user.getUsername();
         String otpKey = user.getOtpKey();
 
@@ -128,15 +122,11 @@ public class UserDaoTest extends DaoTestBase {
     @Test
     public void shouldFindUser_ByEmail() throws Exception {
 
-        Role role = RoleDbFixture
-                .aRole(databaseTestHelper)
-                .build();
+        Role role = roleDbFixture(databaseHelper).insertRole();
+        int serviceId = serviceDbFixture(databaseHelper).insertService();
+        User user = userDbFixture(databaseHelper)
+                .withServiceRole(serviceId, role.getId()).insertUser();
 
-        int serviceId = ServiceDbFixture.aService(databaseTestHelper)
-                .build();
-
-        User user = UserDbFixture.aUser(databaseTestHelper)
-                .withServiceRole(serviceId, role.getId()).build();
         String username = user.getUsername();
         String otpKey = user.getOtpKey();
         String email = user.getEmail();
@@ -159,26 +149,21 @@ public class UserDaoTest extends DaoTestBase {
     @Test
     public void shouldOverrideServiceRoleOfAnExistingUser_whenSettingANewServiceRole() {
 
-        Role role1 = RoleDbFixture
-                .aRole(databaseTestHelper)
-                .build();
-        Role role2 = RoleDbFixture
-                .aRole(databaseTestHelper)
-                .build();
+        Role role1 = roleDbFixture(databaseHelper).insertRole();
+        Role role2 = roleDbFixture(databaseHelper).insertRole();
 
         String gatewayAccountId1 = randomInt().toString();
         String gatewayAccountId2 = randomInt().toString();
 
-        int serviceId1 = ServiceDbFixture.aService(databaseTestHelper)
-                .withGatewayAccountIds(gatewayAccountId1).build();
+        int serviceId1 = serviceDbFixture(databaseHelper)
+                .withGatewayAccountIds(gatewayAccountId1).insertService();
+        serviceDbFixture(databaseHelper)
+                .withGatewayAccountIds(gatewayAccountId2).insertService();
 
-        ServiceDbFixture.aService(databaseTestHelper)
-                .withGatewayAccountIds(gatewayAccountId2).build();
+        User user = userDbFixture(databaseHelper)
+                .withServiceRole(serviceId1, role1.getId()).insertUser();
 
-        User user = UserDbFixture.aUser(databaseTestHelper)
-                .withServiceRole(serviceId1, role1.getId()).build();
         String username = user.getUsername();
-
         UserEntity existingUser = userDao.findByUsername(username).get();
 
         assertThat(existingUser.getGatewayAccountId(), is(gatewayAccountId1));
@@ -202,25 +187,19 @@ public class UserDaoTest extends DaoTestBase {
     @Test
     public void shouldFindUsers_ByServiceId_OrderedByRoleName() {
 
-        Role role1 = RoleDbFixture
-                .aRole(databaseTestHelper)
-                .withName("view")
-                .build();
+        Role role1 = roleDbFixture(databaseHelper)
+                        .withName("view")
+                        .insertRole();
+        Role role2 = roleDbFixture(databaseHelper)
+                        .withName("admin")
+                        .insertRole();
 
-        Role role2 = RoleDbFixture
-                .aRole(databaseTestHelper)
-                .withName("admin")
-                .build();
+        int serviceId = serviceDbFixture(databaseHelper).insertService();
 
-
-        int serviceId = ServiceDbFixture.aService(databaseTestHelper)
-                .build();
-
-        User user1 = UserDbFixture.aUser(databaseTestHelper)
-                .withServiceRole(serviceId, role1.getId()).build();
-
-        User user2 = UserDbFixture.aUser(databaseTestHelper)
-                .withServiceRole(serviceId, role2.getId()).build();
+        User user1 = userDbFixture(databaseHelper)
+                .withServiceRole(serviceId, role1.getId()).insertUser();
+        User user2 = userDbFixture(databaseHelper)
+                .withServiceRole(serviceId, role2.getId()).insertUser();
 
         List<UserEntity> users = userDao.findByServiceId(serviceId);
 
@@ -232,7 +211,7 @@ public class UserDaoTest extends DaoTestBase {
     @Test
     public void shouldNotFindAnyUser() {
 
-        int serviceId = ServiceDbFixture.aService(databaseTestHelper).build();
+        int serviceId = serviceDbFixture(databaseHelper).insertService();
 
         List<UserEntity> users = userDao.findByServiceId(serviceId);
 

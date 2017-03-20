@@ -57,7 +57,7 @@ public class DropwizardAppWithPostgresRule implements TestRule {
                 configFilePath,
                 cfgOverrideList.toArray(new ConfigOverride[cfgOverrideList.size()])
         );
-        JpaPersistModule persistModule = createJpaModule(postgres);
+        createJpaModule(postgres);
         rules = RuleChain.outerRule(postgres).around(app);
         registerShutdownHook();
     }

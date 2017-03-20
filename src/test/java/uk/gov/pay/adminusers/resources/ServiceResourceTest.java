@@ -1,41 +1,39 @@
 package uk.gov.pay.adminusers.resources;
 
 import org.junit.Test;
-import uk.gov.pay.adminusers.fixtures.RoleDbFixture;
-import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
-import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.model.Role;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
+import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
+import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 public class ServiceResourceTest extends IntegrationTest {
 
     @Test
     public void shouldReturnListOfAllUsersWithRolesForAGivenServiceOrderedByRoleName() {
 
-        Role role1 = RoleDbFixture
-                .aRole(databaseTestHelper)
+        Role role1 = roleDbFixture(databaseHelper)
                 .withName("roleB")
-                .build();
-        Role role2 = RoleDbFixture
-                .aRole(databaseTestHelper)
+                .insertRole();
+        Role role2 = roleDbFixture(databaseHelper)
                 .withName("roleA")
-                .build();
+                .insertRole();
 
-        int serviceId1 = ServiceDbFixture.aService(databaseTestHelper).build();
-        int serviceId2 = ServiceDbFixture.aService(databaseTestHelper).build();
+        int serviceId1 = serviceDbFixture(databaseHelper).insertService();
+        int serviceId2 = serviceDbFixture(databaseHelper).insertService();
 
-        String username1 = UserDbFixture.aUser(databaseTestHelper)
-                .withServiceRole(serviceId1, role1.getId()).build().getUsername();
+        String username1 = userDbFixture(databaseHelper)
+                .withServiceRole(serviceId1, role1.getId()).insertUser().getUsername();
 
-        String username2 = UserDbFixture.aUser(databaseTestHelper)
-                .withServiceRole(serviceId1, role2.getId()).build().getUsername();
-        String username3 = UserDbFixture.aUser(databaseTestHelper)
-                .withServiceRole(serviceId1, role2.getId()).build().getUsername();
-        UserDbFixture.aUser(databaseTestHelper)
-                .withServiceRole(serviceId2, role1.getId()).build();
+        String username2 = userDbFixture(databaseHelper)
+                .withServiceRole(serviceId1, role2.getId()).insertUser().getUsername();
+        String username3 = userDbFixture(databaseHelper)
+                .withServiceRole(serviceId1, role2.getId()).insertUser().getUsername();
+        userDbFixture(databaseHelper)
+                .withServiceRole(serviceId2, role1.getId()).insertUser();
 
         givenSetup()
                 .when()

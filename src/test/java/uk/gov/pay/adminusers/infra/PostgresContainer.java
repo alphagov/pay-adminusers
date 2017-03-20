@@ -11,7 +11,6 @@ import com.spotify.docker.client.messages.PortBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -32,11 +31,11 @@ public class PostgresContainer {
     private String host;
     private volatile boolean stopped = false;
 
-    public static final String DB_PASSWORD = "mysecretpassword";
-    public static final String DB_USERNAME = "postgres";
-    public static final int DB_TIMEOUT_SEC = 15;
-    public static final String GOVUK_POSTGRES_IMAGE = "govukpay/postgres:9.4.4";
-    public static final String INTERNAL_PORT = "5432";
+    private static final String DB_PASSWORD = "mysecretpassword";
+    private static final String DB_USERNAME = "postgres";
+    private static final int DB_TIMEOUT_SEC = 15;
+    private static final String GOVUK_POSTGRES_IMAGE = "govukpay/postgres:9.4.4";
+    private static final String INTERNAL_PORT = "5432";
 
     public PostgresContainer(DockerClient docker, String host) throws InterruptedException, IOException, ClassNotFoundException, DockerException {
         Class.forName("org.postgresql.Driver");

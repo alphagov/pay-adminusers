@@ -2,29 +2,25 @@ package uk.gov.pay.adminusers.resources;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.Test;
-import uk.gov.pay.adminusers.fixtures.RoleDbFixture;
-import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
-import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.jayway.restassured.http.ContentType.JSON;
-import static java.lang.String.*;
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang3.RandomUtils.*;
+import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
+import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
+import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 public class UserResourceCreateAndGetTest extends IntegrationTest {
 
@@ -72,15 +68,15 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
 
         //TODO - WIP This will be removed when PP-1612 is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
-        List<Map<String, Object>> userByName = databaseTestHelper.findUserByName(username);
-        List<Map<String, Object>> servicesAssociatedToUser = databaseTestHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
+        List<Map<String, Object>> userByName = databaseHelper.findUserByName(username);
+        List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
     }
 
     @Test
     public void shouldCreateAUserWithinAServiceIfServiceIdIsInPayloadIgnoringGatewayAccountIds() throws Exception {
 
-        int serviceId = ServiceDbFixture.aService(databaseTestHelper).withGatewayAccountIds("1","2").build();
+        int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds("1", "2").insertService();
         String username = randomAlphanumeric(10) + randomUUID().toString();
 
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
@@ -124,8 +120,8 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
 
         //TODO - WIP This will be removed when PP-1612 is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
-        List<Map<String, Object>> userByName = databaseTestHelper.findUserByName(username);
-        List<Map<String, Object>> servicesAssociatedToUser = databaseTestHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
+        List<Map<String, Object>> userByName = databaseHelper.findUserByName(username);
+        List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
     }
 
@@ -158,7 +154,7 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
     public void shouldAddUserToAServiceWhenCreatingTheUserWithAnAlreadyExistingGatewayAccount() throws Exception {
 
         String gatewayAccount = "666";
-        int serviceId = ServiceDbFixture.aService(databaseTestHelper).withGatewayAccountIds(gatewayAccount).build();
+        int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount).insertService();
 
         String username = randomAlphanumeric(10) + randomUUID().toString();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
@@ -185,12 +181,12 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
 
         //TODO - WIP PP-1483 This will be amended when the story is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
-        List<Map<String, Object>> userByName = databaseTestHelper.findUserByName(username);
-        List<Map<String, Object>> servicesAssociatedToUser = databaseTestHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
+        List<Map<String, Object>> userByName = databaseHelper.findUserByName(username);
+        List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
         assertThat(servicesAssociatedToUser.get(0).get("service_id"), is(serviceId));
 
-        List<Map<String, Object>> gatewayAccountsAssociatedToUser = databaseTestHelper.findGatewayAccountsByService(((Integer) servicesAssociatedToUser.get(0).get("service_id")).longValue());
+        List<Map<String, Object>> gatewayAccountsAssociatedToUser = databaseHelper.findGatewayAccountsByService(((Integer) servicesAssociatedToUser.get(0).get("service_id")).longValue());
         assertThat(gatewayAccountsAssociatedToUser.size(), is(1));
         assertThat(gatewayAccountsAssociatedToUser.get(0).get("gateway_account_id"), is(gatewayAccount));
     }
@@ -244,8 +240,8 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
     public void shouldError409_IfUsernameAlreadyExists() throws Exception {
 
         String gatewayAccount = valueOf(nextInt());
-        ServiceDbFixture.aService(databaseTestHelper).withGatewayAccountIds(gatewayAccount).build();
-        String username = UserDbFixture.aUser(databaseTestHelper).build().getUsername();
+        serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount).insertService();
+        String username = userDbFixture(databaseHelper).insertUser().getUsername();
 
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
@@ -292,9 +288,9 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
     @Test
     public void shouldReturnUser_whenGetUserWithUsername() throws Exception {
 
-        int serviceId = ServiceDbFixture.aService(databaseTestHelper).withGatewayAccountIds("1", "2").build();
-        Role role = RoleDbFixture.aRole(databaseTestHelper).build();
-        User user = UserDbFixture.aUser(databaseTestHelper).withServiceRole(serviceId, role.getId()).build();
+        int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds("1", "2").insertService();
+        Role role = roleDbFixture(databaseHelper).insertRole();
+        User user = userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
 
         givenSetup()
                 .when()

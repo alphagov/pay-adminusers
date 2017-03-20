@@ -4,12 +4,12 @@ import com.google.common.collect.ImmutableMap;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 
 import static com.google.common.io.BaseEncoding.base32;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 public class UserResourceSecondFactorAuthenticationTest extends IntegrationTest {
 
@@ -19,7 +19,7 @@ public class UserResourceSecondFactorAuthenticationTest extends IntegrationTest 
 
     @Before
     public void createValidUser() throws Exception {
-        username = UserDbFixture.aUser(databaseTestHelper).withOtpKey(OTP_KEY).build().getUsername();
+        username = userDbFixture(databaseHelper).withOtpKey(OTP_KEY).insertUser().getUsername();
     }
 
     @Test
@@ -82,7 +82,7 @@ public class UserResourceSecondFactorAuthenticationTest extends IntegrationTest 
     @Test
     public void shouldReturnUnauthorizedAndAccountLocked_during2FAAuth_ifMaxRetryExceeded() throws Exception {
 
-        databaseTestHelper.updateLoginCount(username, 10);
+        databaseHelper.updateLoginCount(username, 10);
 
         int invalidPasscode = 111111;
         ImmutableMap<String, Integer> authBody = ImmutableMap.of("code", invalidPasscode);

@@ -246,7 +246,7 @@ public class UserRequestValidatorTest {
             JsonNode fieldMock = mock(JsonNode.class);
             when(fieldMock.asText()).thenReturn(mockFieldValue.getRight());
             when(mockJsonNode.get(mockFieldValue.getLeft())).thenReturn(fieldMock);
-        };
+        }
         when(mockJsonNode.fieldNames()).thenReturn(Arrays.stream(mockFieldValues).map(Pair::getKey).iterator());
     }
 }

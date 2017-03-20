@@ -20,12 +20,12 @@ public class IntegrationTest {
     @ClassRule
     public static DropwizardAppWithPostgresRule app = new DropwizardAppWithPostgresRule();
 
-    protected DatabaseTestHelper databaseTestHelper;
+    protected DatabaseTestHelper databaseHelper;
     protected ObjectMapper mapper;
 
     @Before
     public void setUp() {
-        databaseTestHelper = app.getDatabaseTestHelper();
+        databaseHelper = app.getDatabaseTestHelper();
         mapper = new ObjectMapper();
     }
 

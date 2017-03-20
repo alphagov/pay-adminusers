@@ -22,11 +22,11 @@ public class ForgottenPasswordDbFixture {
         this.userId = userId;
     }
 
-    public static ForgottenPasswordDbFixture aForgottenPassword(DatabaseTestHelper databaseTestHelper, int userId) {
-        return new ForgottenPasswordDbFixture(databaseTestHelper, userId);
+    public static ForgottenPasswordDbFixture forgottenPasswordDbFixture(DatabaseTestHelper databaseHelper, int userId) {
+        return new ForgottenPasswordDbFixture(databaseHelper, userId);
     }
 
-    public String build() {
+    public String insertForgottenPassword() {
         databaseTestHelper.add(forgottenPassword(nextInt(), forgottenPasswordCode, null, date), userId);
         return forgottenPasswordCode;
     }

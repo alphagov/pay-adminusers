@@ -19,11 +19,11 @@ import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.resources.UserResource.CONSTRAINT_VIOLATION_MESSAGE;
 
 public class UserResourceTest {
-    private UserServices userService= mock(UserServices.class);
-    private UserRequestValidator validator= mock(UserRequestValidator.class);
-    UserResource userResource = new UserResource(userService, validator);
 
-    JsonNode validUserNode = new ObjectMapper().valueToTree( ImmutableMap.builder()
+    private UserServices userService = mock(UserServices.class);
+    private UserRequestValidator validator = mock(UserRequestValidator.class);
+    private UserResource userResource = new UserResource(userService, validator);
+    private JsonNode validUserNode = new ObjectMapper().valueToTree(ImmutableMap.builder()
             .put("username", "fred")
             .put("email", "user-@example.com")
             .put("gateway_account_ids", new String[]{"1", "2"})
@@ -33,7 +33,7 @@ public class UserResourceTest {
             .build());
 
     @Rule
-    public ExpectedException thrown= ExpectedException.none();
+    public ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void shouldThrowConflictExceptionIfUserNameExists() throws Exception {
@@ -56,17 +56,14 @@ public class UserResourceTest {
         userResource.createUser(validUserNode);
 
     }
+
     @Test
     public void shouldThrowWebApplicationExceptionIfRoleNameDoesNotExist() throws Exception {
-        
+
         when(validator.validateCreateRequest(validUserNode)).thenReturn(Optional.empty());
         when(userService.createUser(any(User.class), eq("admin"))).thenThrow(new WebApplicationException("Expected Error"));
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("Expected Error");
         userResource.createUser(validUserNode);
-
     }
-
-
-
 }

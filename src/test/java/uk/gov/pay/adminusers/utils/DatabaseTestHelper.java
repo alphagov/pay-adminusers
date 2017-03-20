@@ -5,9 +5,6 @@ import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
-import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
-import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
-import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.sql.Timestamp;
 import java.time.ZoneId;

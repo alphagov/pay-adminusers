@@ -18,10 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.lang.String.format;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingUsername;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
@@ -33,13 +31,12 @@ public class UserResource {
 
     public static final String API_VERSION_PATH = "/v1";
     public static final String USERS_RESOURCE = API_VERSION_PATH + "/api/users";
-    public static final String AUTHENTICATE_RESOURCE = USERS_RESOURCE + "/authenticate";
-    public static final String USER_RESOURCE = USERS_RESOURCE + "/{username}";
-    public static final String SECOND_FACTOR_RESOURCE = USER_RESOURCE + "/second-factor";
-    public static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/authenticate";
-
     public static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
 
+    private static final String AUTHENTICATE_RESOURCE = USERS_RESOURCE + "/authenticate";
+    private static final String USER_RESOURCE = USERS_RESOURCE + "/{username}";
+    private static final String SECOND_FACTOR_RESOURCE = USER_RESOURCE + "/second-factor";
+    private static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/authenticate";
 
     private final UserServices userServices;
     private final UserRequestValidator validator;

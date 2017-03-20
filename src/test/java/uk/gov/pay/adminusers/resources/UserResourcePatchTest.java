@@ -5,16 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.pay.adminusers.fixtures.RoleDbFixture;
-import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
-import uk.gov.pay.adminusers.fixtures.UserDbFixture;
-import uk.gov.pay.adminusers.model.Role;
-import uk.gov.pay.adminusers.model.User;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 public class UserResourcePatchTest extends IntegrationTest {
 
@@ -22,7 +18,7 @@ public class UserResourcePatchTest extends IntegrationTest {
 
     @Before
     public void createAUser() {
-        username = UserDbFixture.aUser(databaseTestHelper).build().getUsername();
+        username = userDbFixture(databaseHelper).insertUser().getUsername();
     }
 
     @Test
