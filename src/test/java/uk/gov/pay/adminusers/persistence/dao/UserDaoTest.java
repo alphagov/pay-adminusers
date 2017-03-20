@@ -47,7 +47,7 @@ public class UserDaoTest extends DaoTestBase {
                 .build();
         String gatewayAccountId = randomInt().toString();
         int serviceId = ServiceDbFixture.aService(databaseTestHelper)
-                .withGatewayAccountId(gatewayAccountId).build();
+                .withGatewayAccountIds(gatewayAccountId).build();
 
         String username = valueOf(nextInt());
 
@@ -170,10 +170,10 @@ public class UserDaoTest extends DaoTestBase {
         String gatewayAccountId2 = randomInt().toString();
 
         int serviceId1 = ServiceDbFixture.aService(databaseTestHelper)
-                .withGatewayAccountId(gatewayAccountId1).build();
+                .withGatewayAccountIds(gatewayAccountId1).build();
 
         ServiceDbFixture.aService(databaseTestHelper)
-                .withGatewayAccountId(gatewayAccountId2).build();
+                .withGatewayAccountIds(gatewayAccountId2).build();
 
         User user = UserDbFixture.aUser(databaseTestHelper)
                 .withServiceRole(serviceId1, role1.getId()).build();

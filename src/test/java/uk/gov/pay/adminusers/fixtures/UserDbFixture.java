@@ -11,10 +11,14 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 
 public class UserDbFixture {
 
-
     private final DatabaseTestHelper databaseTestHelper;
     private Integer serviceId;
     private Integer roleId;
+    private String username = RandomStringUtils.randomAlphabetic(10);
+    private String otpKey = RandomStringUtils.randomAlphabetic(10);
+    private String password = "password-" + username;
+    private String email= username + "@example.com";
+    private String telephoneNumber = "374628482";
 
     public UserDbFixture(DatabaseTestHelper databaseTestHelper) {
 
@@ -26,13 +30,11 @@ public class UserDbFixture {
     }
 
     public User build() {
-        String username = RandomStringUtils.randomAlphabetic(10);
-        String otpKey = RandomStringUtils.randomAlphabetic(10);
-        if(serviceId == null) {
+        if (serviceId == null) {
             serviceId = ServiceDbFixture.aService(databaseTestHelper).build();
             roleId = RoleDbFixture.aRole(databaseTestHelper).build().getId();
         }
-        User user = User.from(randomInt(), username, "password-" + username, username + "@example.com", newArrayList(), asList(valueOf(serviceId)), otpKey, "374628482");
+        User user = User.from(randomInt(), username, password, email, newArrayList(), asList(valueOf(serviceId)), otpKey, telephoneNumber);
         databaseTestHelper.add(user, roleId);
         return user;
     }
@@ -40,6 +42,16 @@ public class UserDbFixture {
     public UserDbFixture withServiceRole(int serviceId, int roleId) {
         this.serviceId = serviceId;
         this.roleId = roleId;
+        return this;
+    }
+
+    public UserDbFixture withPassword(String password) {
+        this.password = password;
+        return this;
+    }
+
+    public UserDbFixture withOtpKey(String otpKey) {
+        this.otpKey = otpKey;
         return this;
     }
 }

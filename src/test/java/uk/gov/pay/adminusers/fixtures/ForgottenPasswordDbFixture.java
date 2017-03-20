@@ -1,0 +1,38 @@
+package uk.gov.pay.adminusers.fixtures;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+import static java.time.temporal.ChronoUnit.MINUTES;
+import static org.apache.commons.lang3.RandomUtils.nextInt;
+import static uk.gov.pay.adminusers.model.ForgottenPassword.forgottenPassword;
+
+public class ForgottenPasswordDbFixture {
+
+    private DatabaseTestHelper databaseTestHelper;
+    private int userId;
+    private ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
+    private String forgottenPasswordCode = RandomStringUtils.randomAlphanumeric(100);
+
+    public ForgottenPasswordDbFixture(DatabaseTestHelper databaseTestHelper, int userId) {
+        this.databaseTestHelper = databaseTestHelper;
+        this.userId = userId;
+    }
+
+    public static ForgottenPasswordDbFixture aForgottenPassword(DatabaseTestHelper databaseTestHelper, int userId) {
+        return new ForgottenPasswordDbFixture(databaseTestHelper, userId);
+    }
+
+    public String build() {
+        databaseTestHelper.add(forgottenPassword(nextInt(), forgottenPasswordCode, null, date), userId);
+        return forgottenPasswordCode;
+    }
+
+    public ForgottenPasswordDbFixture expired() {
+        date = ZonedDateTime.now(ZoneId.of("UTC")).minus(91, MINUTES);
+        return this;
+    }
+}

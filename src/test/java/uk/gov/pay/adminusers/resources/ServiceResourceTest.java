@@ -1,63 +1,41 @@
 package uk.gov.pay.adminusers.resources;
 
-import org.hamcrest.core.Is;
 import org.junit.Test;
-import uk.gov.pay.adminusers.model.Permission;
+import uk.gov.pay.adminusers.fixtures.RoleDbFixture;
+import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
+import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.model.Role;
-import uk.gov.pay.adminusers.model.User;
 
-import java.util.Arrays;
-
-import static com.google.common.collect.Lists.newArrayList;
 import static com.jayway.restassured.http.ContentType.JSON;
-import static java.lang.String.format;
-import static java.lang.String.valueOf;
-import static java.util.Arrays.asList;
-import static java.util.UUID.randomUUID;
-import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.core.Is.*;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
-import static uk.gov.pay.adminusers.model.Role.role;
+import static org.hamcrest.core.Is.is;
 
 public class ServiceResourceTest extends IntegrationTest {
 
     @Test
     public void shouldReturnListOfAllUsersWithRolesForAGivenServiceOrderedByRoleName() {
 
-        int serviceId1 = nextInt();
-        int serviceId2 = nextInt();
-        int roleId1 = nextInt();
-        int roleId2 = nextInt();
-        String username1 = "user-1-roleB-" + randomUUID().toString();
-        String username2 = "user-2-roleA-" + randomUUID().toString();
-        String username3 = "user-3-roleA-" + randomUUID().toString();
-        String username4 = "user-4-roleB-" + randomUUID().toString();
-        Integer user1Id = randomInt();
-        User user1 = User.from(user1Id, username1, format("%s-password", username1), format("%s@email.com", username1), asList("1"), asList(String.valueOf(serviceId1)), "784rh", "8948924");
-        User user2 = User.from(user1Id + 1, username2, format("%s-password", username2), format("%s@email.com", username2), asList("1"), asList(String.valueOf(serviceId1)), "784rh", "8948924");
-        User user3 = User.from(user1Id + 2, username3, format("%s-password", username3), format("%s@email.com", username3), asList("1"), asList(String.valueOf(serviceId1)), "784rh", "8948924");
-        User user4 = User.from(user1Id + 3, username4, format("%s-password", username4), format("%s@email.com", username4), asList("1"), asList(String.valueOf(serviceId2)), "784rh", "8948924");
+        Role role1 = RoleDbFixture
+                .aRole(databaseTestHelper)
+                .withName("roleB")
+                .build();
+        Role role2 = RoleDbFixture
+                .aRole(databaseTestHelper)
+                .withName("roleA")
+                .build();
 
-        String gatewayAccountId1 = valueOf(nextInt());
-        String gatewayAccountId2 = valueOf(nextInt());
-        Role role1 = role(roleId1, "roleB", "role-desc-B");
-        Role role2 = role(roleId2, "roleA", "role-desc-A");
-        Permission permission1 = Permission.permission(nextInt(), "perm1-name", "perm1-desc");
-        Permission permission2 = Permission.permission(nextInt(), "perm2-name", "perm2-desc");
-        role1.setPermissions(newArrayList(permission1));
-        role2.setPermissions(newArrayList(permission2));
+        int serviceId1 = ServiceDbFixture.aService(databaseTestHelper).build();
+        int serviceId2 = ServiceDbFixture.aService(databaseTestHelper).build();
 
-        databaseTestHelper.addService(serviceId1, gatewayAccountId1);
-        databaseTestHelper.addService(serviceId2, gatewayAccountId2);
-        databaseTestHelper.add(permission1);
-        databaseTestHelper.add(permission2);
-        databaseTestHelper.add(role1);
-        databaseTestHelper.add(role2);
-        databaseTestHelper.add(user1, roleId1);
-        databaseTestHelper.add(user2, roleId2);
-        databaseTestHelper.add(user3, roleId2);
-        databaseTestHelper.add(user4, roleId1);
+        String username1 = UserDbFixture.aUser(databaseTestHelper)
+                .withServiceRole(serviceId1, role1.getId()).build().getUsername();
+
+        String username2 = UserDbFixture.aUser(databaseTestHelper)
+                .withServiceRole(serviceId1, role2.getId()).build().getUsername();
+        String username3 = UserDbFixture.aUser(databaseTestHelper)
+                .withServiceRole(serviceId1, role2.getId()).build().getUsername();
+        UserDbFixture.aUser(databaseTestHelper)
+                .withServiceRole(serviceId2, role1.getId()).build();
 
         givenSetup()
                 .when()

@@ -2,13 +2,17 @@ package uk.gov.pay.adminusers.fixtures;
 
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
+import java.util.Arrays;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 
 
 public class ServiceDbFixture {
     private final DatabaseTestHelper databaseTestHelper;
-    private String gatewayAccountId = valueOf(nextInt());
+    private String[] gatewayAccountIds = new String[]{valueOf(nextInt())};
 
     public ServiceDbFixture(DatabaseTestHelper databaseTestHelper) {
 
@@ -19,15 +23,14 @@ public class ServiceDbFixture {
        return new ServiceDbFixture(databaseTestHelper);
     }
 
-    public ServiceDbFixture withGatewayAccountId(String gatewayAccountId) {
-        this.gatewayAccountId = gatewayAccountId;
+    public ServiceDbFixture withGatewayAccountIds(String... gatewayAccountIds) {
+        this.gatewayAccountIds = gatewayAccountIds;
         return this;
     }
 
     public int build() {
-
         int serviceId = nextInt();
-        databaseTestHelper.addService(serviceId, gatewayAccountId);
+        databaseTestHelper.addService(serviceId, gatewayAccountIds);
         return serviceId;
     }
 }

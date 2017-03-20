@@ -4,20 +4,22 @@ import com.google.common.collect.ImmutableMap;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 
 import static com.google.common.io.BaseEncoding.base32;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static org.hamcrest.core.Is.is;
 
-public class UserResourceSecondFactorAuthenticationTest extends UserResourceTestBase {
+public class UserResourceSecondFactorAuthenticationTest extends IntegrationTest {
 
     private static final String USER_2FA_AUTHENTICATE_URL = USER_2FA_URL + "/authenticate";
+    private static final String OTP_KEY = "34f34";
     private String username;
 
     @Before
     public void createValidUser() throws Exception {
-        username = createAValidUser();
+        username = UserDbFixture.aUser(databaseTestHelper).withOtpKey(OTP_KEY).build().getUsername();
     }
 
     @Test
@@ -34,10 +36,8 @@ public class UserResourceSecondFactorAuthenticationTest extends UserResourceTest
     @Test
     public void shouldAuthenticate2FA_onForAValid2FAAuthRequest() throws Exception {
 
-        String otpSecret = "34f34";
-
         GoogleAuthenticator testAuthenticator = new GoogleAuthenticator();
-        int passcode = testAuthenticator.getTotpPassword(base32().encode(otpSecret.getBytes()));
+        int passcode = testAuthenticator.getTotpPassword(base32().encode(OTP_KEY.getBytes()));
         ImmutableMap<String, Integer> authBody = ImmutableMap.of("code", passcode);
 
         givenSetup()
