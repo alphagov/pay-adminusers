@@ -22,9 +22,9 @@ import static org.mockito.Mockito.*;
 
 public class ForgottenPasswordServicesTest {
 
-    ForgottenPasswordServices forgottenPasswordServices;
-    ForgottenPasswordDao forgottenPasswordDao;
-    UserDao userDao;
+    private ForgottenPasswordServices forgottenPasswordServices;
+    private ForgottenPasswordDao forgottenPasswordDao;
+    private UserDao userDao;
 
     @Before
     public void before() throws Exception {

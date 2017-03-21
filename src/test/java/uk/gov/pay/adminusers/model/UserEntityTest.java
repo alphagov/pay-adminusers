@@ -8,15 +8,13 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
-import java.util.Arrays;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
-import static uk.gov.pay.adminusers.model.Permission.*;
-import static uk.gov.pay.adminusers.model.Role.*;
+import static uk.gov.pay.adminusers.model.Permission.permission;
+import static uk.gov.pay.adminusers.model.Role.role;
 
 public class UserEntityTest {
 

@@ -16,7 +16,6 @@ import static org.mockito.Mockito.when;
 
 public class ForgottenPasswordValidatorTest {
 
-
     private ForgottenPasswordValidator validator;
 
     @Before

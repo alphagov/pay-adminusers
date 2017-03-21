@@ -3,19 +3,27 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import org.junit.Before;
 import org.junit.Test;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
-public class UserResourcePatchTest extends UserResourceTestBase {
+public class UserResourcePatchTest extends IntegrationTest {
+
+    private String username;
+
+    @Before
+    public void createAUser() {
+        username = userDbFixture(databaseHelper).insertUser().getUsername();
+    }
 
     @Test
     public void shouldIncreaseSessionVersion_whenPatchAttempt() throws Exception {
 
-        String username = createAValidUser();
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "append", "path", "sessionVersion", "value", 2));
 
         givenSetup()
@@ -30,8 +38,6 @@ public class UserResourcePatchTest extends UserResourceTestBase {
 
     @Test
     public void shouldDisableUser_whenPatchAttempt() throws Exception {
-
-        String username = createAValidUser();
 
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "disabled", "value", "true"));
 
@@ -61,8 +67,6 @@ public class UserResourcePatchTest extends UserResourceTestBase {
 
     @Test
     public void shouldError_whenPatchRequiredFieldsAreMissing() throws Exception {
-
-        String username = createAValidUser();
 
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("blah", "sessionVersion", "value", 1));
 

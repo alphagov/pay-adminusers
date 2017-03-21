@@ -9,15 +9,17 @@ import static com.google.common.io.BaseEncoding.base32;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
-public class UserResourceSecondFactorAuthenticationTest extends UserResourceTestBase {
+public class UserResourceSecondFactorAuthenticationTest extends IntegrationTest {
 
     private static final String USER_2FA_AUTHENTICATE_URL = USER_2FA_URL + "/authenticate";
+    private static final String OTP_KEY = "34f34";
     private String username;
 
     @Before
     public void createValidUser() throws Exception {
-        username = createAValidUser();
+        username = userDbFixture(databaseHelper).withOtpKey(OTP_KEY).insertUser().getUsername();
     }
 
     @Test
@@ -34,10 +36,8 @@ public class UserResourceSecondFactorAuthenticationTest extends UserResourceTest
     @Test
     public void shouldAuthenticate2FA_onForAValid2FAAuthRequest() throws Exception {
 
-        String otpSecret = "34f34";
-
         GoogleAuthenticator testAuthenticator = new GoogleAuthenticator();
-        int passcode = testAuthenticator.getTotpPassword(base32().encode(otpSecret.getBytes()));
+        int passcode = testAuthenticator.getTotpPassword(base32().encode(OTP_KEY.getBytes()));
         ImmutableMap<String, Integer> authBody = ImmutableMap.of("code", passcode);
 
         givenSetup()
@@ -82,7 +82,7 @@ public class UserResourceSecondFactorAuthenticationTest extends UserResourceTest
     @Test
     public void shouldReturnUnauthorizedAndAccountLocked_during2FAAuth_ifMaxRetryExceeded() throws Exception {
 
-        databaseTestHelper.updateLoginCount(username, 10);
+        databaseHelper.updateLoginCount(username, 10);
 
         int invalidPasscode = 111111;
         ImmutableMap<String, Integer> authBody = ImmutableMap.of("code", invalidPasscode);

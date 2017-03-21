@@ -2,11 +2,14 @@ package uk.gov.pay.adminusers.persistence.dao;
 
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
+import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Transactional
 public class UserDao extends JpaDao<UserEntity> {
@@ -36,4 +39,16 @@ public class UserDao extends JpaDao<UserEntity> {
                 .getResultList().stream().findFirst();
     }
 
+    public List<UserEntity> findByServiceId(Integer serviceId){
+
+        String query = "SELECT s FROM ServiceRoleEntity s " +
+                "WHERE s.service.id = :serviceId ORDER BY s.role.name";
+
+        return entityManager.get()
+                .createQuery(query, ServiceRoleEntity.class)
+                .setParameter("serviceId", serviceId)
+                .getResultList().stream()
+                .map(ServiceRoleEntity::getUser)
+                .collect(Collectors.toList());
+    }
 }

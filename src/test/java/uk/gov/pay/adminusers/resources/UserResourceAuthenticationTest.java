@@ -1,13 +1,17 @@
 package uk.gov.pay.adminusers.resources;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
+
+import java.util.UUID;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 
-public class UserResourceAuthenticationTest extends UserResourceTestBase {
+public class UserResourceAuthenticationTest extends IntegrationTest {
 
     @Test
     public void shouldAuthenticateUser_onAValidUsernamePasswordCombination() throws Exception {
@@ -62,5 +66,30 @@ public class UserResourceAuthenticationTest extends UserResourceTestBase {
                 .body("errors", hasSize(1))
                 .body("errors[0]", is("invalid username and/or password"));
 
+    }
+
+    private String createAValidUser() throws JsonProcessingException {
+
+        String username = RandomStringUtils.randomAlphanumeric(10) + UUID.randomUUID();
+        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
+                .put("username", username)
+                .put("password", "password-" + username)
+                .put("email", "user-" + username + "@example.com")
+                .put("gateway_account_ids", new String[]{"1", "2"})
+                .put("telephone_number", "45334534634")
+                .put("otp_key", "34f34")
+                .put("role_name", "admin")
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(userPayload))
+                .contentType(JSON)
+                .accept(JSON)
+                .post(USERS_RESOURCE_URL)
+                .then()
+                .statusCode(201);
+
+        return username;
     }
 }

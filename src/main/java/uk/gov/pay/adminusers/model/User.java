@@ -46,11 +46,6 @@ public class User {
     private Integer sessionVersion = 0;
 
     public static User from(Integer id, String username, String password, String email,
-                            List<String> gatewayAccountIds, String otpKey, String telephoneNumber) {
-        return new User(id, username, password, email, gatewayAccountIds, otpKey, telephoneNumber);
-    }
-
-    public static User from(Integer id, String username, String password, String email,
                             List<String> gatewayAccountIds, List<String> serviceIds, String otpKey, String telephoneNumber) {
         return new User(id, username, password, email, gatewayAccountIds, serviceIds, otpKey, telephoneNumber);
     }
@@ -160,7 +155,6 @@ public class User {
         return sessionVersion;
     }
 
-    @JsonIgnore
     public List<String> getServiceIds() {
         return serviceIds;
     }

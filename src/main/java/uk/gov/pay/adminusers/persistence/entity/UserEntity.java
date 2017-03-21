@@ -11,7 +11,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Boolean.FALSE;
+import static java.lang.String.*;
 
 @Entity
 @Table(name = "users")
@@ -169,19 +171,20 @@ public class UserEntity extends AbstractEntity {
     }
 
     public User toUser() {
-        List<String> gatewayAccountIds = this.servicesRoles.stream()
-                .map(service -> service.getService().getGatewayAccountIds().stream()
-                        .map(gatewayAccountEntity -> gatewayAccountEntity.getGatewayAccountId())
-                        .collect(Collectors.toList()))
-                .flatMap(List::stream)
+
+        ServiceEntity service = this.servicesRoles.get(0).getService();
+        List<String> gatewayAccountIds = service.getGatewayAccountIds().stream()
+                .map(GatewayAccountIdEntity::getGatewayAccountId)
                 .distinct()
                 .sorted(Comparators.usingNumericComparator())
                 .collect(Collectors.toList());
-        User user = User.from(getId(), username, password, email, gatewayAccountIds, otpKey, telephoneNumber);
+
+        User user = User.from(getId(), username, password, email, gatewayAccountIds, newArrayList(valueOf(service.getId())), otpKey, telephoneNumber);
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);
         user.setRoles(this.getRoles().stream().map(RoleEntity::toRole).collect(Collectors.toList()));
+
         return user;
     }
 

@@ -4,14 +4,12 @@ import com.google.common.collect.ImmutableList;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.Link;
 import uk.gov.pay.adminusers.model.Link.Rel;
-import uk.gov.pay.adminusers.model.SecondFactorToken;
 import uk.gov.pay.adminusers.model.User;
 
 import java.net.URI;
 
 import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.resources.ForgottenPasswordResource.FORGOTTEN_PASSWORDS_RESOURCE;
-import static uk.gov.pay.adminusers.resources.UserResource.SECOND_FACTOR_RESOURCE;
 import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
 
 public class LinksBuilder {
