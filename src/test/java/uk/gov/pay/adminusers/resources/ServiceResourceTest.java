@@ -43,7 +43,25 @@ public class ServiceResourceTest extends IntegrationTest {
                 .statusCode(200)
                 .body("$", hasSize(3))
                 .body("[0].username", is(username3))
+                .body("[0]._links", hasSize(1))
+                .body("[0]._links[0].href", is("http://localhost:8080/v1/api/users/" + username3))
+                .body("[0]._links[0].method", is("GET"))
+                .body("[0]._links[0].rel", is("self"))
                 .body("[1].username", is(username2))
+                .body("[1]._links", hasSize(1))
+                .body("[1]._links[0].href", is("http://localhost:8080/v1/api/users/" + username2))
+                .body("[1]._links[0].method", is("GET"))
+                .body("[1]._links[0].rel", is("self"))
                 .body("[2].username", is(username1));
+    }
+
+    @Test
+    public void shouldReturn404WhenServiceDoesNotExist() {
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .get("/v1/api/services/999/users")
+                .then()
+                .statusCode(404);
     }
 }

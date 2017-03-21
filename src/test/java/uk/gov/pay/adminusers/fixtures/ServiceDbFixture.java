@@ -6,11 +6,13 @@ import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 
 public class ServiceDbFixture {
-    private final DatabaseTestHelper databaseTestHelper;
-    private String[] gatewayAccountIds = new String[]{valueOf(nextInt())};
 
-    public ServiceDbFixture(DatabaseTestHelper databaseTestHelper) {
-        this.databaseTestHelper = databaseTestHelper;
+    private final DatabaseTestHelper databaseHelper;
+    private String[] gatewayAccountIds = new String[]{valueOf(nextInt())};
+    private Integer id;
+
+    private ServiceDbFixture(DatabaseTestHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
     }
 
     public static ServiceDbFixture serviceDbFixture(DatabaseTestHelper databaseTestHelper) {
@@ -23,8 +25,13 @@ public class ServiceDbFixture {
     }
 
     public int insertService() {
-        int serviceId = nextInt();
-        databaseTestHelper.addService(serviceId, gatewayAccountIds);
+        int serviceId = id == null ? nextInt() : id;
+        databaseHelper.addService(serviceId, gatewayAccountIds);
         return serviceId;
+    }
+
+    public ServiceDbFixture withId(int id) {
+        this.id = id;
+        return this;
     }
 }

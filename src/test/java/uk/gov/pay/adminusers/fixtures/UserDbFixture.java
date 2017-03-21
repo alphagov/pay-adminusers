@@ -20,7 +20,7 @@ public class UserDbFixture {
     private String email= username + "@example.com";
     private String telephoneNumber = "374628482";
 
-    public UserDbFixture(DatabaseTestHelper databaseTestHelper) {
+    private UserDbFixture(DatabaseTestHelper databaseTestHelper) {
         this.databaseTestHelper = databaseTestHelper;
     }
 

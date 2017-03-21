@@ -10,13 +10,11 @@ import au.com.dius.pact.provider.junit.target.TestTarget;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import uk.gov.pay.adminusers.infra.DropwizardAppWithPostgresRule;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
-import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.util.List;
@@ -24,7 +22,9 @@ import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
-import static java.lang.String.valueOf;
+import static org.apache.commons.lang3.RandomUtils.nextInt;
+import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
+import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
 @RunWith(PactRunner.class)
 @Provider("AdminUsers")
@@ -41,7 +41,8 @@ public class UsersApiTest {
     public static void setUpService() throws Exception {
         target = new HttpTarget(app.getLocalPort());
         dbHelper = app.getDatabaseTestHelper();
-        createUserWithinAService("existing-user", "password");
+        int serviceId = 12345;
+        createUserWithinAService("existing-user", serviceId, "password");
     }
 
     @TestTarget
@@ -72,12 +73,13 @@ public class UsersApiTest {
     }
 
     private static void createUserWithinAService(String username, String password) throws Exception {
+        createUserWithinAService(username, nextInt(), password);
+    }
 
-        int serviceId = RandomUtils.nextInt();
-        int roleId = RandomUtils.nextInt();
+    private static void createUserWithinAService(String username, int serviceId, String password) throws Exception {
 
-        dbHelper.addService(serviceId, valueOf(RandomUtils.nextInt()), valueOf(RandomUtils.nextInt()));
-        dbHelper.add(Role.role(roleId, "admin", "Admin role"));
+        roleDbFixture(dbHelper).withName("admin").insertRole();
+        serviceDbFixture(dbHelper).withId(serviceId).withGatewayAccountIds("1", "2").insertService();
 
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)

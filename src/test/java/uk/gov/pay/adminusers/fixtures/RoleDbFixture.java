@@ -16,7 +16,7 @@ public class RoleDbFixture {
     private final DatabaseTestHelper databaseHelper;
     private String name = "role-name-" + random(5);
 
-    public RoleDbFixture(DatabaseTestHelper databaseHelper) {
+    private RoleDbFixture(DatabaseTestHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
     }
 

@@ -17,7 +17,7 @@ public class ForgottenPasswordDbFixture {
     private ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
     private String forgottenPasswordCode = RandomStringUtils.randomAlphanumeric(100);
 
-    public ForgottenPasswordDbFixture(DatabaseTestHelper databaseTestHelper, int userId) {
+    private ForgottenPasswordDbFixture(DatabaseTestHelper databaseTestHelper, int userId) {
         this.databaseTestHelper = databaseTestHelper;
         this.userId = userId;
     }
