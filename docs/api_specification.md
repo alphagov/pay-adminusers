@@ -38,6 +38,7 @@ Content-Type: application/json
 201 OK
 Content-Type: application/json
 {
+    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "username": "abcd1234",
     "email": "email@email.com",
     "gateway_account_ids": ["1"],
@@ -58,6 +59,7 @@ Content-Type: application/json
 
 | Field                    | always present | Description                                   |
 | ------------------------ |:--------------:| --------------------------------------------- |
+| `external_id`     | X              | External id for the user       |
 | `username`     | X              | Username for the user       |
 | `gateway_account_ids`     | X              | The account Ids created by the connector       |
 | `email`                   | X              | email address     |
@@ -69,14 +71,14 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## GET /v1/api/users/{username}
+## GET /v1/api/users/{externalId}
 
-This endpoint finds and return a user with the given username.
+This endpoint finds and return a user with the given external id.
 
 ### Request example
 
 ```
-GET /v1/api/users/abcd1234
+GET /v1/api/users/7d19aff33f8948deb97ed16b2912dcd3
 ```
 
 ### Response example
@@ -85,6 +87,7 @@ GET /v1/api/users/abcd1234
 200 OK
 Content-Type: application/json
 {
+    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "username": "abcd1234",
     "email": "email@email.com",
     "gateway_account_ids": ["1"],
@@ -106,6 +109,7 @@ Content-Type: application/json
 
 | Field                    | always present | Description                                   |
 | ------------------------ |:--------------:| --------------------------------------------- |
+| `external_id`     | X              | External id for the user       |
 | `username`     | X              | Username for the user       |
 | `gateway_account_ids`     | X              | The account Ids created by the connector       |
 | `email`                   | X              | email address     |
@@ -117,14 +121,14 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## PATCH /v1/api/users/{username}
+## PATCH /v1/api/users/{externalId}
 
 This endpoint amends a specific attribute in user resource.
 
 ### Request example
 
 ```
-PATCH /v1/api/users/abcd1234
+PATCH /v1/api/users/7d19aff33f8948deb97ed16b2912dcd3
 Content-Type: application/json
 {
     "path": "sessionVersion",
@@ -139,6 +143,7 @@ Content-Type: application/json
 200 OK
 Content-Type: application/json
 {
+    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "username": "abcd1234",
     "email": "email@email.com",
     "gateway_account_ids": ["1"],
@@ -198,6 +203,7 @@ if authorised:
 200 OK
 Content-Type: application/json
 {
+    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "username": "abcd1234",
     "email": "email@email.com",
     "gateway_account_ids": ["1"],
@@ -262,6 +268,7 @@ Content-Type: application/json
 201 Created
 Content-Type: application/json
 {
+    "user_external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "username": "abcd1234",
     "code": "6fg77h67g497r5ivcdtdh",
     "date": "23-12-2015 13:23:12Z",
@@ -292,6 +299,7 @@ GET /v1/api/forgotten-passwords/xyz1234
 200 OK
 Content-Type: application/json
 {
+    "user_external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "username": "abcd1234",
     "code": "xyz1234",
     "date": "23-12-2015 13:23:12Z",
@@ -305,14 +313,14 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## PUT /v1/api/users/{username}/services/{service-id}
+## PUT /v1/api/users/{externalId}/services/{service-id}
 
 This endpoint updates a service role of a perticular user.
 
 ### Request example
 
 ```
-PUT /v1/api/users/abcd1234/services/111
+PUT /v1/api/users/7d19aff33f8948deb97ed16b2912dcd3/services/111
 Content-Type: application/json
 {
     "role_name": "view-and-refund"
@@ -325,6 +333,7 @@ Content-Type: application/json
 200 OK
 Content-Type: application/json
 {
+    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "username": "abcd1234",
     "email": "email@email.com",
     "gateway_account_ids": ["1"],
@@ -361,7 +370,7 @@ if provided the user does not have access to the given service id:
 409 Conflict
 Content-Type: application/json
 {
-  "errors": "user [abcd1234] does not belong to service [123]"
+  "errors": "user [7d19aff33f8948deb97ed16b2912dcd3] does not belong to service [123]"
 }
 ```
 
