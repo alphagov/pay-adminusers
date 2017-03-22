@@ -21,7 +21,10 @@ import static java.lang.String.valueOf;
 @SequenceGenerator(name = "users_id_seq", sequenceName = "users_id_seq", allocationSize = 1)
 public class UserEntity extends AbstractEntity {
 
-    @Column(name = "username") //also our externalId
+    @Column(name = "external_id", insertable = false, updatable = false)
+    private String externalId;
+
+    @Column(name = "username")
     private String username;
 
     @Column(name = "password")
@@ -59,6 +62,14 @@ public class UserEntity extends AbstractEntity {
 
     public UserEntity() {
         //for jpa
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 
     public String getUsername() {
@@ -157,6 +168,7 @@ public class UserEntity extends AbstractEntity {
      */
     public static UserEntity from(User user) {
         UserEntity userEntity = new UserEntity();
+        userEntity.setExternalId(user.getExternalId());
         userEntity.setUsername(user.getUsername());
         userEntity.setPassword(user.getPassword());
         userEntity.setEmail(user.getEmail());
@@ -172,7 +184,6 @@ public class UserEntity extends AbstractEntity {
     }
 
     public User toUser() {
-
         ServiceEntity service = this.servicesRoles.get(0).getService();
         List<String> gatewayAccountIds = service.getGatewayAccountIds().stream()
                 .map(GatewayAccountIdEntity::getGatewayAccountId)
@@ -180,7 +191,7 @@ public class UserEntity extends AbstractEntity {
                 .sorted(Comparators.usingNumericComparator())
                 .collect(Collectors.toList());
 
-        User user = User.from(getId(), username, password, email, gatewayAccountIds, newArrayList(valueOf(service.getId())), otpKey, telephoneNumber);
+        User user = User.from(getId(), externalId, username, password, email, gatewayAccountIds, newArrayList(valueOf(service.getId())), otpKey, telephoneNumber);
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);

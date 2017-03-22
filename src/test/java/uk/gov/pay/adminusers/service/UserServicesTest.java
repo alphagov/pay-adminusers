@@ -34,6 +34,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.Permission.permission;
 import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
@@ -58,6 +59,9 @@ public class UserServicesTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     private UserServices userServices;
+
+    private static final String USER_EXTERNAL_ID = randomUuid();
+    private static final String USER_USERNAME = "random-name";
 
     @Before
     public void before() throws Exception {
@@ -147,25 +151,48 @@ public class UserServicesTest {
     }
 
     @Test
+    public void shouldFindAUserByExternalId() throws Exception {
+        User user = aUser();
+
+        UserEntity userEntity = aUserEntityWithTrimmings(user);
+
+        Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
+        when(userDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(userEntityOptional);
+
+        Optional<User> userOptional = userServices.findUserByExternalId(USER_EXTERNAL_ID);
+        assertTrue(userOptional.isPresent());
+
+        assertThat(userOptional.get().getExternalId(), is(USER_EXTERNAL_ID));
+    }
+
+    @Test
+    public void shouldReturnEmpty_WhenFindByExternalId_ifNotFound() throws Exception {
+        when(userDao.findByExternalId(USER_USERNAME)).thenReturn(Optional.empty());
+
+        Optional<User> userOptional = userServices.findUserByExternalId(USER_USERNAME);
+        assertFalse(userOptional.isPresent());
+    }
+
+    @Test
     public void shouldFindAUserByUserName() throws Exception {
         User user = aUser();
 
         UserEntity userEntity = aUserEntityWithTrimmings(user);
 
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
-        when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+        when(userDao.findByUsername(USER_USERNAME)).thenReturn(userEntityOptional);
 
-        Optional<User> userOptional = userServices.findUser("random-name");
+        Optional<User> userOptional = userServices.findUserByUsername(USER_USERNAME);
         assertTrue(userOptional.isPresent());
 
-        assertThat(userOptional.get().getUsername(), is("random-name"));
+        assertThat(userOptional.get().getUsername(), is(USER_USERNAME));
     }
 
     @Test
     public void shouldReturnEmpty_WhenFindByUserName_ifNotFound() throws Exception {
-        when(userDao.findByUsername("random-name")).thenReturn(Optional.empty());
+        when(userDao.findByUsername(USER_USERNAME)).thenReturn(Optional.empty());
 
-        Optional<User> userOptional = userServices.findUser("random-name");
+        Optional<User> userOptional = userServices.findUserByUsername(USER_USERNAME);
         assertFalse(userOptional.isPresent());
     }
 
@@ -178,15 +205,15 @@ public class UserServicesTest {
         userEntity.setPassword("hashed-password");
 
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(true);
-        when(userDao.findByUsername("random-name")).thenReturn(Optional.of(userEntity));
+        when(userDao.findByUsername(USER_USERNAME)).thenReturn(Optional.of(userEntity));
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        Optional<User> userOptional = userServices.authenticate("random-name", "random-password");
+        Optional<User> userOptional = userServices.authenticate(USER_USERNAME, "random-password");
         assertTrue(userOptional.isPresent());
 
         User authenticatedUser = userOptional.get();
-        assertThat(authenticatedUser.getUsername(), is("random-name"));
+        assertThat(authenticatedUser.getUsername(), is(USER_USERNAME));
         assertThat(authenticatedUser.getLinks().size(), is(1));
         assertThat(argumentCaptor.getValue().getLoginCounter(), is(0));
     }
@@ -199,11 +226,11 @@ public class UserServicesTest {
         userEntity.setPassword("hashed-password");
 
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(false);
-        when(userDao.findByUsername("random-name")).thenReturn(Optional.of(UserEntity.from(user)));
+        when(userDao.findByUsername(USER_USERNAME)).thenReturn(Optional.of(UserEntity.from(user)));
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        Optional<User> userOptional = userServices.authenticate("random-name", "random-password");
+        Optional<User> userOptional = userServices.authenticate(USER_USERNAME, "random-password");
         assertFalse(userOptional.isPresent());
 
         UserEntity savedUser = argumentCaptor.getValue();
@@ -220,16 +247,15 @@ public class UserServicesTest {
         userEntity.setPassword("hashed-password");
 
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(false);
-        when(userDao.findByUsername("random-name")).thenReturn(Optional.of(UserEntity.from(user)));
+        when(userDao.findByUsername(USER_USERNAME)).thenReturn(Optional.of(UserEntity.from(user)));
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        userServices.authenticate("random-name", "random-password");
+        userServices.authenticate(USER_USERNAME, "random-password");
         UserEntity savedUser = argumentCaptor.getValue();
         assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
         assertThat(savedUser.getLoginCounter(), is(3));
         assertThat(savedUser.isDisabled(), is(true));
-
     }
 
     @Test
@@ -240,15 +266,14 @@ public class UserServicesTest {
         UserEntity userEntity = UserEntity.from(user);
         userEntity.setPassword("hashed-password");
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(true);
-        when(userDao.findByUsername("random-name")).thenReturn(Optional.of(userEntity));
+        when(userDao.findByUsername(USER_USERNAME)).thenReturn(Optional.of(userEntity));
 
         try {
-            userServices.authenticate("random-name", "random-password");
+            userServices.authenticate(USER_USERNAME, "random-password");
             fail();
         } catch (WebApplicationException e) {
             assertThat(e.getResponse().getStatus(), is(401));
         }
-
     }
 
     @Test
@@ -259,12 +284,12 @@ public class UserServicesTest {
         UserEntity userEntity = aUserEntityWithTrimmings(user);
 
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
-        when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+        when(userDao.findByUsername(USER_USERNAME)).thenReturn(userEntityOptional);
 
-        Optional<User> userOptional = userServices.patchUser("random-name", PatchRequest.from(node));
+        Optional<User> userOptional = userServices.patchUser(USER_USERNAME, PatchRequest.from(node));
         assertTrue(userOptional.isPresent());
 
-        assertThat(userOptional.get().getUsername(), is("random-name"));
+        assertThat(userOptional.get().getUsername(), is(USER_USERNAME));
         assertThat(userOptional.get().getSessionVersion(), is(2));
     }
 
@@ -277,14 +302,14 @@ public class UserServicesTest {
         UserEntity userEntity = aUserEntityWithTrimmings(user);
 
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
-        when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+        when(userDao.findByUsername(USER_USERNAME)).thenReturn(userEntityOptional);
 
         assertFalse(user.isDisabled());
 
-        Optional<User> userOptional = userServices.patchUser("random-name", PatchRequest.from(node));
+        Optional<User> userOptional = userServices.patchUser(USER_USERNAME, PatchRequest.from(node));
         assertTrue(userOptional.isPresent());
 
-        assertThat(userOptional.get().getUsername(), is("random-name"));
+        assertThat(userOptional.get().getUsername(), is(USER_USERNAME));
         assertTrue(userOptional.get().isDisabled());
     }
 
@@ -297,12 +322,12 @@ public class UserServicesTest {
         JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "disabled", "op", "replace", "value", "false"));
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
-        when(userDao.findByUsername("random-name")).thenReturn(userEntityOptional);
+        when(userDao.findByUsername(USER_USERNAME)).thenReturn(userEntityOptional);
 
         assertTrue(user.isDisabled());
         assertThat(user.getLoginCounter(), is(11));
 
-        Optional<User> userOptional = userServices.patchUser("random-name", PatchRequest.from(node));
+        Optional<User> userOptional = userServices.patchUser(USER_USERNAME, PatchRequest.from(node));
         assertTrue(userOptional.isPresent());
 
         assertFalse(userOptional.get().isDisabled());
@@ -349,10 +374,11 @@ public class UserServicesTest {
 
     @Test
     public void shouldReturnEmpty_whenCreate2FA_ifUserNotFound() throws Exception {
-        String username = "non-existent";
-        when(userDao.findByUsername(username)).thenReturn(Optional.empty());
+        String usernameOrExternalId = "non-existent";
+        when(userDao.findByUsername(usernameOrExternalId)).thenReturn(Optional.empty());
+        when(userDao.findByExternalId(usernameOrExternalId)).thenReturn(Optional.empty());
 
-        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(username);
+        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(usernameOrExternalId);
 
         assertFalse(tokenOptional.isPresent());
     }
@@ -413,19 +439,19 @@ public class UserServicesTest {
 
     @Test
     public void shouldReturnEmpty_whenAuthenticate2FA_ifUserNotFound() throws Exception {
-        String username = "non-existent";
-        when(userDao.findByUsername(username)).thenReturn(Optional.empty());
+        String usernameOrExternalId = "non-existent";
+        when(userDao.findByUsername(usernameOrExternalId)).thenReturn(Optional.empty());
+        when(userDao.findByExternalId(usernameOrExternalId)).thenReturn(Optional.empty());
 
-        Optional<User> tokenOptional = userServices.authenticateSecondFactor(username, 111111);
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(usernameOrExternalId, 111111);
 
         assertFalse(tokenOptional.isPresent());
     }
 
     @Test
     public void createUser_shouldError_whenAddingAUserToDifferentGatewayAccountsBelongingToDifferentServices() {
-
         ArrayList<String> gatewayAccountIds = newArrayList("1", "2", "3");
-        User user = User.from(1, "random-name", "random-password", "random@email.com", gatewayAccountIds, newArrayList(), "784rh", "8948924");
+        User user = User.from(1, USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", gatewayAccountIds, newArrayList(), "784rh", "8948924");
         String roleName = "admin";
         Role role = Role.role(2, roleName, "admin role");
         ArgumentCaptor<ServiceEntity> expectedService = ArgumentCaptor.forClass(ServiceEntity.class);
@@ -451,7 +477,7 @@ public class UserServicesTest {
     public void createUser_shouldError_whenListOfGatewayAccountsContainsSomeNotBelongingToAnything() {
         ArrayList<String> gatewayAccountIds = newArrayList("1", "2", "3");
 
-        User user = User.from(1, "random-name", "random-password", "random@email.com", gatewayAccountIds, newArrayList(), "784rh", "8948924");
+        User user = User.from(1, USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", gatewayAccountIds, newArrayList(), "784rh", "8948924");
         String roleName = "admin";
         Role role = Role.role(2, roleName, "admin role");
         ArgumentCaptor<ServiceEntity> expectedService = ArgumentCaptor.forClass(ServiceEntity.class);
@@ -479,7 +505,7 @@ public class UserServicesTest {
     public void createUser_shouldPersist_aUserSuccessfully_andCreateANewServiceAssociatingAllNonExistingGatewayAccounts() throws Exception {
         ArrayList<String> gatewayAccountIds = newArrayList("1", "2", "3");
 
-        User user = User.from(1, "random-name", "random-password", "random@email.com", gatewayAccountIds, newArrayList(), "784rh", "8948924");
+        User user = User.from(1, USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", gatewayAccountIds, newArrayList(), "784rh", "8948924");
         Role role = Role.role(2, "admin", "admin role");
 
         ArgumentCaptor<UserEntity> expectedUser = ArgumentCaptor.forClass(UserEntity.class);
@@ -523,7 +549,7 @@ public class UserServicesTest {
     }
 
     private User aUser() {
-        return User.from(randomInt(), "random-name", "random-password", "random@email.com", asList("1"), newArrayList(), "784rh", "8948924");
+        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", asList("1"), newArrayList(), "784rh", "8948924");
     }
 
     private Role aRole() {

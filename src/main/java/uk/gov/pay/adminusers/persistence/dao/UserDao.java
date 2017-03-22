@@ -19,6 +19,16 @@ public class UserDao extends JpaDao<UserEntity> {
         super(entityManager, UserEntity.class);
     }
 
+    public Optional<UserEntity> findByExternalId(String externalId) {
+        String query = "SELECT u FROM UserEntity u " +
+                "WHERE u.externalId = :externalId";
+
+        return entityManager.get()
+                .createQuery(query, UserEntity.class)
+                .setParameter("externalId", externalId)
+                .getResultList().stream().findFirst();
+    }
+
     public Optional<UserEntity> findByUsername(String username) {
         String query = "SELECT u FROM UserEntity u " +
                 "WHERE u.username = :username";

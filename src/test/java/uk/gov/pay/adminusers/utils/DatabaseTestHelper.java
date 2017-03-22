@@ -22,7 +22,7 @@ public class DatabaseTestHelper {
 
     public List<Map<String, Object>> findUserByName(String username) {
         List<Map<String, Object>> ret = jdbi.withHandle(h ->
-                h.createQuery("SELECT id, username, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
+                h.createQuery("SELECT id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
                         "FROM users " +
                         "WHERE username = :username")
                         .bind("username", username)
@@ -32,7 +32,7 @@ public class DatabaseTestHelper {
 
     public List<Map<String, Object>> findUser(long userId) {
         List<Map<String, Object>> ret = jdbi.withHandle(h ->
-                h.createQuery("SELECT id, username, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
+                h.createQuery("SELECT id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
                         "FROM users " +
                         "WHERE id = :userId")
                         .bind("userId", userId)
@@ -77,9 +77,10 @@ public class DatabaseTestHelper {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO users(" +
-                                "id, username, password, email, otp_key, telephone_number, disabled, login_counter, version, \"createdAt\", \"updatedAt\", session_version) " +
-                                "VALUES (:id, :username, :password, :email, :otpKey, :telephoneNumber, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version)")
+                                "id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, version, \"createdAt\", \"updatedAt\", session_version) " +
+                                "VALUES (:id, :external_id, :username, :password, :email, :otpKey, :telephoneNumber, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version)")
                         .bind("id", user.getId())
+                        .bind("external_id", user.getExternalId())
                         .bind("username", user.getUsername())
                         .bind("password", user.getPassword())
                         .bind("email", user.getEmail())
@@ -101,9 +102,10 @@ public class DatabaseTestHelper {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO users(" +
-                                "id, username, password, email, otp_key, telephone_number, disabled, login_counter, version, \"createdAt\", \"updatedAt\", session_version) " +
-                                "VALUES (:id, :username, :password, :email, :otpKey, :telephoneNumber, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version)")
+                                "id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, version, \"createdAt\", \"updatedAt\", session_version) " +
+                                "VALUES (:id, :external_id, :username, :password, :email, :otpKey, :telephoneNumber, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version)")
                         .bind("id", user.getId())
+                        .bind("external_id", user.getExternalId())
                         .bind("username", user.getUsername())
                         .bind("password", user.getPassword())
                         .bind("email", user.getEmail())
@@ -197,7 +199,6 @@ public class DatabaseTestHelper {
     }
 
     public DatabaseTestHelper addService(int serviceId, String... gatewayAccountIds) {
-
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO services(id) " +
