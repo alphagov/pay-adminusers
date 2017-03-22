@@ -302,3 +302,79 @@ Content-Type: application/json
           }]
 }
 ```
+
+-----------------------------------------------------------------------------------------------------------
+
+## PUT /v1/api/users/{username}/services/{service-id}
+
+This endpoint updates a service role of a perticular user.
+
+### Request example
+
+```
+PUT /v1/api/users/abcd1234/services/111
+Content-Type: application/json
+{
+    "role_name": "view-and-refund"
+}
+```
+
+### Response example
+
+```
+200 OK
+Content-Type: application/json
+{
+    "username": "abcd1234",
+    "email": "email@email.com",
+    "gateway_account_ids": ["1"],
+    "telephone_number": "49875792",
+    "otp_key": "43c3c4t",
+    "sessionVersion": 2,
+    "role": {"view-and-refund","View and Refund"},
+    "permissions":["perm-1","perm-2","perm-3"], 
+    "_links": [{
+        "href": "http://adminusers.service/v1/api/users/abcd1234",
+        "rel" : "self",
+        "method" : "GET"
+    }]
+    
+}
+```
+
+if user not found:
+```
+404 Not found
+```
+
+if provided role name not valid:
+```
+400 Bad request
+Content-Type: application/json
+{
+  "errors": "role [xyz] not recognised"
+}
+```
+
+if provided the user does not have access to the given service id:
+```
+409 Conflict
+Content-Type: application/json
+{
+  "errors": "user [abcd1234] does not belong to service [123]"
+}
+```
+
+if no of administrators for the given service is less than or equal to 1:
+```
+412 Precondition Failed
+Content-Type: application/json
+{
+  "errors": "Service admin limit reached. At least 1 admin(s) required"
+}
+```
+#### Request field description
+
+| Field                    | required | Description                                                | Supported Values     |
+| ------------------------ |:--------:| ---------------------------------------------------------- |----------------------|
+| `role_name`              |   X      | the name of an existing valid role                         | e.g. admin           |
