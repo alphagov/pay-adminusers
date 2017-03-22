@@ -18,7 +18,7 @@ public class LinksBuilderTest {
 
     @Test
     public void shouldConstruct_userSelfLinkCorrectly() throws Exception {
-        User user = User.from(randomInt(), "a-username", "a-password", "email@example.com", Arrays.asList("1"), Arrays.asList("2"), "4wrwef", "123435");
+        User user = User.from(randomInt(), "7d19aff33f8948deb97ed16b2912dcd3", "a-username", "a-password", "email@example.com", Arrays.asList("1"), Arrays.asList("2"), "4wrwef", "123435");
         User decoratedUser = linksBuilder.decorate(user);
 
         String linkJson = new ObjectMapper().writeValueAsString(decoratedUser.getLinks().get(0));
@@ -27,7 +27,7 @@ public class LinksBuilderTest {
 
     @Test
     public void shouldConstruct_forgottenPasswordSelfLinkCorrectly() throws Exception {
-        ForgottenPassword forgottenPassword = ForgottenPassword.forgottenPassword(1, "a-code", "a-name", ZonedDateTime.now());
+        ForgottenPassword forgottenPassword = ForgottenPassword.forgottenPassword(1, "a-code", "7d19aff33f8948deb97ed16b2912dcd3", "a-name", ZonedDateTime.now());
         ForgottenPassword decorated = linksBuilder.decorate(forgottenPassword);
 
         String linkJson = new ObjectMapper().writeValueAsString(decorated.getLinks().get(0));

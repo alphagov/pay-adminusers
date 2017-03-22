@@ -20,7 +20,7 @@ public class DatabaseTestHelper {
         this.jdbi = jdbi;
     }
 
-    public List<Map<String, Object>> findUserByName(String username) {
+    public List<Map<String, Object>> findUserByUsername(String username) {
         List<Map<String, Object>> ret = jdbi.withHandle(h ->
                 h.createQuery("SELECT id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
                         "FROM users " +

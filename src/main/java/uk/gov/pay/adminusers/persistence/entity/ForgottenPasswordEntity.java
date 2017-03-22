@@ -96,6 +96,6 @@ public class ForgottenPasswordEntity extends AbstractEntity {
     }
 
     public ForgottenPassword toForgottenPassword() {
-        return forgottenPassword(getId(), code, user.getUsername(), date);
+        return forgottenPassword(getId(), code, user.getExternalId(), user.getUsername(), date);
     }
 }

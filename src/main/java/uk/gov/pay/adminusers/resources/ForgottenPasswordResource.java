@@ -39,11 +39,14 @@ public class ForgottenPasswordResource {
     public Response createForgottenPassword(JsonNode payload) {
         logger.info("ForgottenPassword CREATE request - [ {} ]", payload);
         Optional<Errors> errorsOptional = validator.validateCreateRequest(payload);
+        final String usernameOrExternalId = payload.get("username") != null ?
+                payload.get("username").asText() :
+                payload.get("external_id").asText();
         return errorsOptional
                 .map(errors ->
                         Response.status(BAD_REQUEST).type(APPLICATION_JSON).entity(errors).build())
                 .orElseGet(() ->
-                        forgottenPasswordServices.create(payload.get("username").asText())
+                        forgottenPasswordServices.create(usernameOrExternalId)
                                 .map(forgottenPassword ->
                                         Response.status(CREATED).type(APPLICATION_JSON).entity(forgottenPassword).build())
                                 .orElseGet(() ->
