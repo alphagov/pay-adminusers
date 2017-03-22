@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.app.util;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Random;
+import java.util.UUID;
 
 public class RandomIdGenerator {
 
@@ -28,7 +29,11 @@ public class RandomIdGenerator {
         return (long) Math.floor(Math.random() * 9000000000L) + 1000000000L;
     }
 
-    public static Integer randomInt(){
+    public static Integer randomInt() {
         return RANDOM.nextInt(Integer.MAX_VALUE);
+    }
+
+    public static String randomUuid() {
+        return UUID.randomUUID().toString().replace("-", "");
     }
 }
