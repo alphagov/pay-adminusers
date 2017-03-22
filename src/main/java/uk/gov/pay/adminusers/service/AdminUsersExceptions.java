@@ -28,6 +28,11 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 
+    public static WebApplicationException conflictingServiceForUser(Integer userId, Integer serviceId) {
+        String error = format("user [%d] does not belong to service [%d]", userId, serviceId);
+        return buildWebApplicationException(error, CONFLICT.getStatusCode());
+    }
+
     public static WebApplicationException notFoundServiceError(String serviceId) {
         String error = format("Service %s provided does not exist", serviceId);
         return buildWebApplicationException(error, BAD_REQUEST.getStatusCode());
@@ -40,6 +45,11 @@ public class AdminUsersExceptions {
 
     public static WebApplicationException internalServerError(String message) {
         return buildWebApplicationException(message, INTERNAL_SERVER_ERROR.getStatusCode());
+    }
+
+    public static WebApplicationException adminRoleLimitException(int adminLimit) {
+        String error = format("Service admin limit reached. At least %d admin(s) required", adminLimit);
+        return buildWebApplicationException(error, PRECONDITION_FAILED.getStatusCode());
     }
 
     public static RuntimeException userNotificationError(Exception e) {

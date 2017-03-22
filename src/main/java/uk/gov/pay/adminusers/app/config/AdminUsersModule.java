@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
 import com.google.inject.persist.jpa.JpaPersistModule;
 import io.dropwizard.db.DataSourceFactory;
@@ -47,6 +48,7 @@ public class AdminUsersModule extends AbstractModule {
         bind(ResetPasswordService.class).in(Singleton.class);
 
         install(jpaModule(configuration));
+        install(new FactoryModuleBuilder().build(UserServicesFactory.class));
     }
 
     private JpaPersistModule jpaModule(AdminUsersConfig configuration) {

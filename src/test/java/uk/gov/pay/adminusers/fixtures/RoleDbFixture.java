@@ -29,14 +29,19 @@ public class RoleDbFixture {
     }
 
     public Role insertRole() {
-        Permission permission1 = aPermission();
-        Permission permission2 = aPermission();
-        databaseHelper.add(permission1).add(permission2);
+        return insert(role(randomInt(), name, "role-description" + newId()), aPermission(), aPermission());
+    }
 
-        Role role = role(randomInt(), name, "role-description" + newId());
-        role.setPermissions(newArrayList(permission1, permission2));
+    public Role insertAdmin() {
+        return insert(role(2, "Admin", "Administrator"), aPermission(), aPermission());
+    }
+
+    private Role insert(Role role, Permission... permissions) {
+        for (Permission permission : permissions) {
+            databaseHelper.add(permission);
+        }
+        role.setPermissions(newArrayList(permissions));
         databaseHelper.add(role);
-
         return role;
     }
 

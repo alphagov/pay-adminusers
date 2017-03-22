@@ -128,11 +128,14 @@ public class DatabaseTestHelper {
         return this;
     }
 
+    //inserting if not exist, just to be safe for fixed value inserts like Admin role
     public DatabaseTestHelper add(Role role) {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO roles(id, name, description) " +
-                                "VALUES (:id, :name, :description)")
+                                "SELECT :id, :name, :description " +
+                                "WHERE NOT EXISTS (SELECT id FROM roles WHERE id=:id) " +
+                                "RETURNING id")
                         .bind("id", role.getId())
                         .bind("name", role.getName())
                         .bind("description", role.getDescription())
@@ -211,6 +214,16 @@ public class DatabaseTestHelper {
                             .execute()
             );
         }
+        return this;
+    }
+
+    public DatabaseTestHelper addUserServiceRole(Integer userId, Integer serviceId, Integer roleId) {
+        jdbi.withHandle(handle -> handle
+                .createStatement("INSERT INTO user_services_roles(user_id, service_id, role_id) VALUES(:userId, :serviceId, :roleId)")
+                .bind("userId", userId)
+                .bind("serviceId", serviceId)
+                .bind("roleId", roleId)
+                .execute());
         return this;
     }
 }

@@ -16,7 +16,7 @@ public class IntegrationTest {
     static final String USER_RESOURCE_URL = "/v1/api/users/%s";
     static final String USERS_AUTHENTICATE_URL = "/v1/api/users/authenticate";
     static final String USER_2FA_URL = "/v1/api/users/%s/second-factor";
-
+    static final String USER_SERVICE_RESOURCE = USER_RESOURCE_URL + "/services/%d";
     @ClassRule
     public static DropwizardAppWithPostgresRule app = new DropwizardAppWithPostgresRule();
 

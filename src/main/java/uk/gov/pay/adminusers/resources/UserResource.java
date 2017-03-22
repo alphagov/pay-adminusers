@@ -11,6 +11,7 @@ import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.service.UserServices;
+import uk.gov.pay.adminusers.service.UserServicesFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -31,21 +32,27 @@ public class UserResource {
 
     public static final String API_VERSION_PATH = "/v1";
     public static final String USERS_RESOURCE = API_VERSION_PATH + "/api/users";
-    public static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
-
     private static final String AUTHENTICATE_RESOURCE = USERS_RESOURCE + "/authenticate";
     private static final String USER_RESOURCE = USERS_RESOURCE + "/{username}";
     private static final String SECOND_FACTOR_RESOURCE = USER_RESOURCE + "/second-factor";
     private static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/authenticate";
+    private static final String USER_SERVICES_RESOURCE = USER_RESOURCE + "/services";
+    private static final String USER_SERVICE_RESOURCE = USER_SERVICES_RESOURCE + "/{service-id}";
+
+    public static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
+
 
     private final UserServices userServices;
+    private final UserServicesFactory userServicesFactory;
+
     private final UserRequestValidator validator;
     private static final int MAX_LENGTH = 255;
 
     @Inject
-    public UserResource(UserServices userServices, UserRequestValidator validator) {
+    public UserResource(UserServices userServices, UserRequestValidator validator, UserServicesFactory userServicesFactory) {
         this.userServices = userServices;
         this.validator = validator;
+        this.userServicesFactory = userServicesFactory;
     }
 
     @Path(USER_RESOURCE)
@@ -145,6 +152,22 @@ public class UserResource {
                 .orElseGet(() -> userServices.patchUser(username, PatchRequest.from(node))
                         .map(user -> Response.status(OK).entity(user).build())
                         .orElseGet(() -> Response.status(NOT_FOUND).build()));
+    }
+
+    @PUT
+    @Path(USER_SERVICE_RESOURCE)
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response updateServiceRole(@PathParam("username") String username, @PathParam("service-id") Integer serviceId, JsonNode payload) {
+        logger.info("User update service role request");
+        return validator.validateServiceRole(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> {
+                    String roleName = payload.get(User.FIELD_ROLE_NAME).asText();
+                    return userServicesFactory.serviceRoleUpdater().doUpdate(username, serviceId, roleName)
+                            .map(user -> Response.status(OK).entity(user).build())
+                            .orElseGet(() -> Response.status(NOT_FOUND).build());
+                });
     }
 
     private Response handleCreateUserException(String userName, Exception e) {
