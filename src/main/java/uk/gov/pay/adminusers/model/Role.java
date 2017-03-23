@@ -13,6 +13,8 @@ import static org.apache.commons.collections.CollectionUtils.isEqualCollection;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class Role {
 
+    public static final Integer ROLE_ADMIN_ID = 2;
+
     @JsonIgnore
     private Integer id;
     private String name;

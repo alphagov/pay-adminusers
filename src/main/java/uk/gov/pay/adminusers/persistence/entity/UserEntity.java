@@ -9,11 +9,12 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Boolean.FALSE;
-import static java.lang.String.*;
+import static java.lang.String.valueOf;
 
 @Entity
 @Table(name = "users")
@@ -192,5 +193,9 @@ public class UserEntity extends AbstractEntity {
         this.servicesRoles.clear();
         service.setUser(this);
         this.servicesRoles.add(service);
+    }
+
+    public Optional<ServiceRoleEntity> getServicesRole(Integer serviceId) {
+        return servicesRoles.stream().filter(serviceRoleEntity -> serviceId.equals(serviceRoleEntity.getService().getId())).findFirst();
     }
 }

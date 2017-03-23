@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.service.UserServices;
+import uk.gov.pay.adminusers.service.UserServicesFactory;
 
 import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
@@ -22,7 +23,8 @@ public class UserResourceTest {
 
     private UserServices userService = mock(UserServices.class);
     private UserRequestValidator validator = mock(UserRequestValidator.class);
-    private UserResource userResource = new UserResource(userService, validator);
+    private UserServicesFactory userServiceFactory = mock(UserServicesFactory.class);
+    private UserResource userResource = new UserResource(userService, validator, userServiceFactory);
     private JsonNode validUserNode = new ObjectMapper().valueToTree(ImmutableMap.builder()
             .put("username", "fred")
             .put("email", "user-@example.com")

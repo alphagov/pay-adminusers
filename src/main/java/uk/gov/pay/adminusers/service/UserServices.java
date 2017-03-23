@@ -74,7 +74,7 @@ public class UserServices {
                 .map(roleEntity -> {
                     UserEntity userEntity = UserEntity.from(user);
                     userEntity.setPassword(passwordHasher.hash(user.getPassword()));
-                    if(user.getServiceIds().isEmpty()){
+                    if (user.getServiceIds().isEmpty()) {
                         addServiceRoleToUser(userEntity, roleEntity, user.getGatewayAccountIds());
                     } else {
                         addServiceRoleToUser(userEntity, roleEntity, user.getServiceIds().get(0));
@@ -128,6 +128,7 @@ public class UserServices {
         }
     }
 
+
     /**
      * finds a user by username
      *
@@ -141,7 +142,6 @@ public class UserServices {
                         linksBuilder.decorate(userEntity.toUser())))
                 .orElse(Optional.empty());
     }
-
 
     public Optional<SecondFactorToken> newSecondFactorPasscode(String username) {
         return userDao.findByUsername(username)

@@ -71,6 +71,14 @@ public class UserRequestValidator {
         return Optional.empty();
     }
 
+    public Optional<Errors> validateServiceRole(JsonNode payload) {
+        Optional<List<String>> missingMandatoryFields =  requestValidations.checkIfExists(payload, "role_name");
+        if (missingMandatoryFields.isPresent()) {
+            return Optional.of(Errors.from(missingMandatoryFields.get()));
+        }
+        return Optional.empty();
+    }
+
     public Optional<Errors> validatePatchRequest(JsonNode payload) {
         Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, "op", "path", "value");
         if (missingMandatoryFields.isPresent()) {
