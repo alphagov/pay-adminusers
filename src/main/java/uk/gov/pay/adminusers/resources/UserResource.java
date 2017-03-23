@@ -171,13 +171,13 @@ public class UserResource {
     @Path(USER_SERVICE_RESOURCE)
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response updateServiceRole(@PathParam("username") String username, @PathParam("service-id") Integer serviceId, JsonNode payload) {
+    public Response updateServiceRole(@PathParam("externalId") String externalId, @PathParam("service-id") Integer serviceId, JsonNode payload) {
         logger.info("User update service role request");
         return validator.validateServiceRole(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
                     String roleName = payload.get(User.FIELD_ROLE_NAME).asText();
-                    return userServicesFactory.serviceRoleUpdater().doUpdate(username, serviceId, roleName)
+                    return userServicesFactory.serviceRoleUpdater().doUpdate(externalId, serviceId, roleName)
                             .map(user -> Response.status(OK).entity(user).build())
                             .orElseGet(() -> Response.status(NOT_FOUND).build());
                 });

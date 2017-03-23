@@ -28,6 +28,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.Role.ROLE_ADMIN_ID;
 
 
@@ -53,10 +54,11 @@ public class ServiceRoleUpdaterTest {
 
     @Test
     public void shouldReturnEmpty_ifUserNotFound_whenUpdatingServiceRole() throws Exception {
-        String username = "non-existent";
-        when(userDao.findByUsername(username)).thenReturn(Optional.empty());
+        String usernameOrExternalId = "non-existent";
+        when(userDao.findByUsername(usernameOrExternalId)).thenReturn(Optional.empty());
+        when(userDao.findByExternalId(usernameOrExternalId)).thenReturn(Optional.empty());
 
-        Optional<User> userOptional = serviceRoleUpdater.doUpdate(username, randomInt(), "randomRole");
+        Optional<User> userOptional = serviceRoleUpdater.doUpdate(usernameOrExternalId, randomInt(), "randomRole");
         assertFalse(userOptional.isPresent());
     }
 
@@ -131,6 +133,6 @@ public class ServiceRoleUpdaterTest {
     }
 
     private User aUser(String username) {
-        return User.from(randomInt(), username, "random-password", "random@email.com", asList("1"), newArrayList(), "784rh", "8948924");
+        return User.from(randomInt(), randomUuid(), username, "random-password", "random@example.com", asList("1"), newArrayList(), "784rh", "8948924");
     }
 }
