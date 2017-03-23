@@ -34,24 +34,7 @@ public class ForgottenPasswordServicesTest {
     }
 
     @Test
-    public void shouldReturnANewForgottenPassword_whenCreatingUsingUserExternalId_ifUserFound() throws Exception {
-        String existingUserExternalId = "7d19aff33f8948deb97ed16b2912dcd3";
-        UserEntity mockUser = mock(UserEntity.class);
-        when(mockUser.getExternalId()).thenReturn(existingUserExternalId);
-
-        when(userDao.findByUsername(existingUserExternalId)).thenReturn(Optional.empty());
-        when(userDao.findByExternalId(existingUserExternalId)).thenReturn(Optional.of(mockUser));
-        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.create(existingUserExternalId);
-
-        verify(forgottenPasswordDao, times(1)).persist(any(ForgottenPasswordEntity.class));
-        assertTrue(forgottenPasswordOptional.isPresent());
-        assertThat(forgottenPasswordOptional.get().getUserExternalId(), is(existingUserExternalId));
-        assertThat(forgottenPasswordOptional.get().getCode(), is(notNullValue()));
-        assertThat(forgottenPasswordOptional.get().getLinks().size(), is(1));
-    }
-
-    @Test
-    public void shouldReturnANewForgottenPassword_whenCreatingUsingUsername_ifUserFound() throws Exception {
+    public void shouldReturnANewForgottenPassword_whenCreating_ifUserFound() throws Exception {
         String existingUser = "existing-user";
         UserEntity mockUser = mock(UserEntity.class);
         when(mockUser.getUsername()).thenReturn(existingUser);

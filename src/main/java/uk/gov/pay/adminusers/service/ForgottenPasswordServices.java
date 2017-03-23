@@ -8,7 +8,6 @@ import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ForgottenPasswordEntity;
-import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.time.ZonedDateTime;
 import java.util.Optional;
@@ -30,19 +29,15 @@ public class ForgottenPasswordServices {
     }
 
     @Transactional
-    public Optional<ForgottenPassword> create(String usernameOrExternalId) {
-        Optional<UserEntity> userEntityOptional = userDao.findByUsername(usernameOrExternalId);
-        if (!userEntityOptional.isPresent()) {
-            userEntityOptional = userDao.findByExternalId(usernameOrExternalId);
-        }
-        return userEntityOptional
+    public Optional<ForgottenPassword> create(String username) {
+        return userDao.findByUsername(username)
                 .map(userEntity -> {
                     ForgottenPasswordEntity forgottenPasswordEntity = new ForgottenPasswordEntity(newId(), ZonedDateTime.now(), userEntity);
                     forgottenPasswordDao.persist(forgottenPasswordEntity);
                     return Optional.of(linksBuilder.decorate(forgottenPasswordEntity.toForgottenPassword()));
                 })
                 .orElseGet(() -> {
-                    logger.warn("Attempted forgotten password for non existent user {}", usernameOrExternalId);
+                    logger.warn("Attempted forgotten password for non existent user {}", username);
                     return Optional.empty();
                 });
     }

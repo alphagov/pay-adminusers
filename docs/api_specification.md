@@ -268,7 +268,6 @@ Content-Type: application/json
 201 Created
 Content-Type: application/json
 {
-    "user_external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "username": "abcd1234",
     "code": "6fg77h67g497r5ivcdtdh",
     "date": "23-12-2015 13:23:12Z",
@@ -299,7 +298,6 @@ GET /v1/api/forgotten-passwords/xyz1234
 200 OK
 Content-Type: application/json
 {
-    "user_external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "username": "abcd1234",
     "code": "xyz1234",
     "date": "23-12-2015 13:23:12Z",

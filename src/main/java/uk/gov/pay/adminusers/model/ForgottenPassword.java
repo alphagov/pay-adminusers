@@ -18,32 +18,26 @@ public class ForgottenPassword {
     private Integer id;
     private String code;
     private ZonedDateTime date;
-    private String userExternalId;
     private String username;
     private List<Link> links;
 
-    public static ForgottenPassword forgottenPassword(String code, String userExternalId, String username) {
-        return forgottenPassword(randomInt(), code, userExternalId, username, ZonedDateTime.now(ZoneId.of("UTC")));
+    public static ForgottenPassword forgottenPassword(String code, String username) {
+        return forgottenPassword(randomInt(), code, username, ZonedDateTime.now(ZoneId.of("UTC")));
     }
 
-    public static ForgottenPassword forgottenPassword(Integer id, String code, String userExternalId, String username, ZonedDateTime date) {
-        return new ForgottenPassword(id, code, date, userExternalId, username);
+    public static ForgottenPassword forgottenPassword(Integer id, String code, String username, ZonedDateTime date) {
+        return new ForgottenPassword(id, code, date, username);
     }
 
-    private ForgottenPassword(Integer id, String code, ZonedDateTime date, String userExternalId, String username) {
+    private ForgottenPassword(Integer id, String code, ZonedDateTime date, String username) {
         this.id = id;
         this.code = code;
         this.date = date;
-        this.userExternalId = userExternalId;
         this.username = username;
     }
 
     public Integer getId() {
         return id;
-    }
-
-    public String getUserExternalId() {
-        return userExternalId;
     }
 
     public String getCode() {

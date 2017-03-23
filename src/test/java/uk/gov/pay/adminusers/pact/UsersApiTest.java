@@ -54,7 +54,7 @@ public class UsersApiTest {
         String username = RandomStringUtils.randomAlphabetic(20);
         createUserWithinAService(username, "password");
         List<Map<String, Object>> userByUsername = dbHelper.findUserByUsername(username);
-        dbHelper.add(ForgottenPassword.forgottenPassword(code, null, username), (Integer) userByUsername.get(0).get("id"));
+        dbHelper.add(ForgottenPassword.forgottenPassword(code, username), (Integer) userByUsername.get(0).get("id"));
     }
 
     @State("a user exists with max login attempts")
@@ -69,7 +69,7 @@ public class UsersApiTest {
         String code = "existing-code";
         String username = "existing-user";
         List<Map<String, Object>> userByName = dbHelper.findUserByUsername(username);
-        dbHelper.add(ForgottenPassword.forgottenPassword(code, null, username), (Integer) userByName.get(0).get("id"));
+        dbHelper.add(ForgottenPassword.forgottenPassword(code, username), (Integer) userByName.get(0).get("id"));
     }
 
     private static void createUserWithinAService(String username, String password) throws Exception {
