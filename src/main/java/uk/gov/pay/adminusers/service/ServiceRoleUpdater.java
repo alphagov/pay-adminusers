@@ -35,14 +35,17 @@ public class ServiceRoleUpdater {
     /**
      * updates user's service role.
      *
-     * @param username
+     * @param usernameOrExternalId
      * @param serviceId
      * @param roleName
      * @return Updated User if successful or Optional.empty() if user not found
      */
     @Transactional
-    public Optional<User> doUpdate(String username, Integer serviceId, String roleName){
-        Optional<UserEntity> userMaybe = userDao.findByUsername(username);
+    public Optional<User> doUpdate(String usernameOrExternalId, Integer serviceId, String roleName){
+        Optional<UserEntity> userMaybe = userDao.findByUsername(usernameOrExternalId);
+        if (!userMaybe.isPresent()) {
+            userMaybe = userDao.findByExternalId(usernameOrExternalId);
+        }
         if(!userMaybe.isPresent()){
             return Optional.empty();
         }

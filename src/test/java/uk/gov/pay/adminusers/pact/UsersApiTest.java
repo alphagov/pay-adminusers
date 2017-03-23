@@ -53,8 +53,8 @@ public class UsersApiTest {
         String code = "avalidforgottenpasswordtoken";
         String username = RandomStringUtils.randomAlphabetic(20);
         createUserWithinAService(username, "password");
-        List<Map<String, Object>> userByName = dbHelper.findUserByName(username);
-        dbHelper.add(ForgottenPassword.forgottenPassword(code, username), (Integer) userByName.get(0).get("id"));
+        List<Map<String, Object>> userByUsername = dbHelper.findUserByUsername(username);
+        dbHelper.add(ForgottenPassword.forgottenPassword(code, username), (Integer) userByUsername.get(0).get("id"));
     }
 
     @State("a user exists with max login attempts")
@@ -68,7 +68,7 @@ public class UsersApiTest {
     public void aForgottenPasswordEntryExist() throws Exception {
         String code = "existing-code";
         String username = "existing-user";
-        List<Map<String, Object>> userByName = dbHelper.findUserByName(username);
+        List<Map<String, Object>> userByName = dbHelper.findUserByUsername(username);
         dbHelper.add(ForgottenPassword.forgottenPassword(code, username), (Integer) userByName.get(0).get("id"));
     }
 
@@ -77,7 +77,6 @@ public class UsersApiTest {
     }
 
     private static void createUserWithinAService(String username, int serviceId, String password) throws Exception {
-
         roleDbFixture(dbHelper).withName("admin").insertRole();
         serviceDbFixture(dbHelper).withId(serviceId).withGatewayAccountIds("1", "2").insertService();
 

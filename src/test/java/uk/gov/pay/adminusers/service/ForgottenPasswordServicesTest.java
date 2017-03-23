@@ -35,7 +35,6 @@ public class ForgottenPasswordServicesTest {
 
     @Test
     public void shouldReturnANewForgottenPassword_whenCreating_ifUserFound() throws Exception {
-
         String existingUser = "existing-user";
         UserEntity mockUser = mock(UserEntity.class);
         when(mockUser.getUsername()).thenReturn(existingUser);
@@ -48,13 +47,13 @@ public class ForgottenPasswordServicesTest {
         assertThat(forgottenPasswordOptional.get().getUsername(), is(existingUser));
         assertThat(forgottenPasswordOptional.get().getCode(), is(notNullValue()));
         assertThat(forgottenPasswordOptional.get().getLinks().size(), is(1));
-
     }
 
     @Test
     public void shouldReturnEmpty_whenCreating_ifUserNotFound() throws Exception {
         String nonExistingUser = "non-existent-user";
         when(userDao.findByUsername(nonExistingUser)).thenReturn(Optional.empty());
+        when(userDao.findByExternalId(nonExistingUser)).thenReturn(Optional.empty());
 
         Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.create(nonExistingUser);
         assertFalse(forgottenPasswordOptional.isPresent());

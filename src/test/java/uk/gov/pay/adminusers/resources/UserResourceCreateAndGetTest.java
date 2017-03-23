@@ -26,7 +26,6 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
 
     @Test
     public void shouldCreateAUserWithSortedGatewayAccountIdsArraySuccessfully() throws Exception {
-
         String username = randomAlphanumeric(10) + randomUUID().toString();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
@@ -46,6 +45,7 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .then()
                 .statusCode(201)
                 .body("id", nullValue())
+                .body("external_id", not(isEmptyOrNullString()))
                 .body("username", is(username))
                 .body("password", nullValue())
                 .body("email", is("user-" + username + "@example.com"))
@@ -68,14 +68,13 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
 
         //TODO - WIP This will be removed when PP-1612 is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
-        List<Map<String, Object>> userByName = databaseHelper.findUserByName(username);
+        List<Map<String, Object>> userByName = databaseHelper.findUserByUsername(username);
         List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
     }
 
     @Test
     public void shouldCreateAUserWithinAServiceIfServiceIdIsInPayloadIgnoringGatewayAccountIds() throws Exception {
-
         int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds("1", "2").insertService();
         String username = randomAlphanumeric(10) + randomUUID().toString();
 
@@ -120,14 +119,13 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
 
         //TODO - WIP This will be removed when PP-1612 is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
-        List<Map<String, Object>> userByName = databaseHelper.findUserByName(username);
+        List<Map<String, Object>> userByName = databaseHelper.findUserByUsername(username);
         List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
     }
 
     @Test
     public void shouldFailCreatingAUserForAServiceThatDoesNotExist() throws Exception {
-
         String username = randomAlphanumeric(10) + randomUUID().toString();
 
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
@@ -152,7 +150,6 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
 
     @Test
     public void shouldAddUserToAServiceWhenCreatingTheUserWithAnAlreadyExistingGatewayAccount() throws Exception {
-
         String gatewayAccount = "666";
         int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount).insertService();
 
@@ -181,7 +178,7 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
 
         //TODO - WIP PP-1483 This will be amended when the story is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
-        List<Map<String, Object>> userByName = databaseHelper.findUserByName(username);
+        List<Map<String, Object>> userByName = databaseHelper.findUserByUsername(username);
         List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
         assertThat(servicesAssociatedToUser.get(0).get("service_id"), is(serviceId));
@@ -238,7 +235,6 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
 
     @Test
     public void shouldError409_IfUsernameAlreadyExists() throws Exception {
-
         String gatewayAccount = valueOf(nextInt());
         serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount).insertService();
         String username = userDbFixture(databaseHelper).insertUser().getUsername();
@@ -265,7 +261,6 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
 
     @Test
     public void shouldReturn404_whenGetUserWithNonExistentUsername() throws Exception {
-
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -276,7 +271,6 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
 
     @Test
     public void shouldReturn404_whenGetUser_withInvalidMaxLengthUsername() throws Exception {
-
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -287,7 +281,6 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
 
     @Test
     public void shouldReturnUser_whenGetUserWithUsername() throws Exception {
-
         int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds("1", "2").insertService();
         Role role = roleDbFixture(databaseHelper).insertRole();
         User user = userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
@@ -299,6 +292,7 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .get(format(USER_RESOURCE_URL, user.getUsername()))
                 .then()
                 .statusCode(200)
+                .body("external_id", is(user.getExternalId()))
                 .body("username", is(user.getUsername()))
                 .body("password", nullValue())
                 .body("email", is(user.getEmail()))

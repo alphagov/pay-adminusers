@@ -74,7 +74,7 @@ public class UserServices {
                 .map(roleEntity -> {
                     UserEntity userEntity = UserEntity.from(user);
                     userEntity.setPassword(passwordHasher.hash(user.getPassword()));
-                    if (user.getServiceIds().isEmpty()) {
+                    if(user.getServiceIds().isEmpty()) {
                         addServiceRoleToUser(userEntity, roleEntity, user.getGatewayAccountIds());
                     } else {
                         addServiceRoleToUser(userEntity, roleEntity, user.getServiceIds().get(0));
@@ -128,6 +128,19 @@ public class UserServices {
         }
     }
 
+    /**
+     * finds a user by externalId
+     *
+     * @param externalId
+     * @return {@link User} as an {@link Optional} if found. Otherwise Optional.empty() will be returned.
+     */
+    public Optional<User> findUserByExternalId(String externalId) {
+        Optional<UserEntity> userEntityOptional = userDao.findByExternalId(externalId);
+        return userEntityOptional
+                .map(userEntity -> Optional.of(
+                        linksBuilder.decorate(userEntity.toUser())))
+                .orElse(Optional.empty());
+    }
 
     /**
      * finds a user by username
@@ -135,7 +148,7 @@ public class UserServices {
      * @param username
      * @return {@link User} as an {@link Optional} if found. Otherwise Optional.empty() will be returned.
      */
-    public Optional<User> findUser(String username) {
+    public Optional<User> findUserByUsername(String username) {
         Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
         return userEntityOptional
                 .map(userEntity -> Optional.of(
@@ -143,42 +156,50 @@ public class UserServices {
                 .orElse(Optional.empty());
     }
 
-    public Optional<SecondFactorToken> newSecondFactorPasscode(String username) {
-        return userDao.findByUsername(username)
+    public Optional<SecondFactorToken> newSecondFactorPasscode(String usernameOrExternalId) {
+        Optional<UserEntity> userEntityOptional = userDao.findByUsername(usernameOrExternalId);
+        if (!userEntityOptional.isPresent()) {
+            userEntityOptional = userDao.findByExternalId(usernameOrExternalId);
+        }
+        return userEntityOptional
                 .map(userEntity -> {
                     int newPassCode = secondFactorAuthenticator.newPassCode(userEntity.getOtpKey());
-                    SecondFactorToken token = SecondFactorToken.from(username, newPassCode);
-                    final Integer userId = userEntity.getId();
+                    SecondFactorToken token = SecondFactorToken.from(usernameOrExternalId, newPassCode);
+                    final String userExternalId = userEntity.getExternalId();
                     userNotificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), newPassCode)
                             .thenAcceptAsync(notificationId -> logger.info("sent 2FA token successfully to user [{}], notification id [{}]",
-                                    userId, notificationId))
+                                    userExternalId, notificationId))
                             .exceptionally(exception -> {
-                                logger.error(format("error sending 2FA token to user [%s]", userId), exception);
+                                logger.error(format("error sending 2FA token to user [%s]", userExternalId), exception);
                                 return null;
                             });
-                    logger.info("New 2FA token generated for User [{}]", userId);
+                    logger.info("New 2FA token generated for User [{}]", userExternalId);
                     return Optional.of(token);
                 })
                 .orElseGet(() -> {
                     //this cannot happen unless a bug in selfservice
-                    logger.error("New 2FA token attempted for non-existent User [{}]", username);
+                    logger.error("New 2FA token attempted for non-existent User [{}]", usernameOrExternalId);
                     return Optional.empty();
                 });
     }
 
     @Transactional
-    public Optional<User> authenticateSecondFactor(String username, int code) {
-        return userDao.findByUsername(username)
+    public Optional<User> authenticateSecondFactor(String usernameOrExternalId, int code) {
+        Optional<UserEntity> userEntityOptional = userDao.findByUsername(usernameOrExternalId);
+        if (!userEntityOptional.isPresent()) {
+            userEntityOptional = userDao.findByExternalId(usernameOrExternalId);
+        }
+        return userEntityOptional
                 .map(userEntity -> {
                     if (userEntity.isDisabled()) {
-                        logger.warn("Authenticate Second Factor attempted for disabled User [{}]", userEntity.getId());
+                        logger.warn("Authenticate Second Factor attempted for disabled User [{}]", userEntity.getExternalId());
                         return Optional.<User>empty();
                     }
                     if (secondFactorAuthenticator.authorize(userEntity.getOtpKey(), code)) {
                         userEntity.setLoginCounter(0);
                         userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                         userDao.merge(userEntity);
-                        logger.info("Authenticate Second Factor successful for User [{}]", userEntity.getId());
+                        logger.info("Authenticate Second Factor successful for User [{}]", userEntity.getExternalId());
                         return Optional.of(linksBuilder.decorate(userEntity.toUser()));
                     } else {
                         userEntity.setLoginCounter(userEntity.getLoginCounter() + 1);
@@ -186,26 +207,26 @@ public class UserServices {
                         userEntity.setDisabled(userEntity.getLoginCounter() > loginAttemptCap);
                         userDao.merge(userEntity);
                         if (userEntity.isDisabled()) {
-                            logger.warn("User [{}] attempted a invalid second factor, and account currently locked", userEntity.getId());
+                            logger.warn("User [{}] attempted a invalid second factor, and account currently locked", userEntity.getExternalId());
                         } else {
-                            logger.warn("User [{}] attempted a invalid second factor", userEntity.getId());
+                            logger.warn("User [{}] attempted a invalid second factor", userEntity.getExternalId());
                         }
                         return Optional.<User>empty();
                     }
                 })
                 .orElseGet(() -> {
                     //this cannot happen unless a bug in selfservice
-                    logger.error("Authenticate 2FA token attempted for non-existent User [{}]", username);
+                    logger.error("Authenticate 2FA token attempted for non-existent User [{}]", usernameOrExternalId);
                     return Optional.empty();
                 });
     }
 
     @Transactional
-    public Optional<User> patchUser(String username, PatchRequest patchRequest) {
+    public Optional<User> patchUser(String usernameOrExternalId, PatchRequest patchRequest) {
         if (PATH_SESSION_VERSION.equals(patchRequest.getPath())) {
-            return incrementSessionVersion(username, parseInt(patchRequest.getValue()));
+            return incrementSessionVersion(usernameOrExternalId, parseInt(patchRequest.getValue()));
         } else if (PATH_DISABLED.equals(patchRequest.getPath())) {
-            return changeUserDisabled(username, parseBoolean(patchRequest.getValue()));
+            return changeUserDisabled(usernameOrExternalId, parseBoolean(patchRequest.getValue()));
         } else {
             String error = format("Invalid patch request with path [%s]", patchRequest.getPath());
             logger.error(error);
@@ -213,8 +234,12 @@ public class UserServices {
         }
     }
 
-    private Optional<User> changeUserDisabled(String username, Boolean value) {
-        return userDao.findByUsername(username)
+    private Optional<User> changeUserDisabled(String usernameOrExternalId, Boolean value) {
+        Optional<UserEntity> userEntityOptional = userDao.findByUsername(usernameOrExternalId);
+        if (!userEntityOptional.isPresent()) {
+            userEntityOptional = userDao.findByExternalId(usernameOrExternalId);
+        }
+        return userEntityOptional
                 .map(userEntity -> {
                     userEntity.setLoginCounter(0);
                     userEntity.setDisabled(value);
@@ -225,8 +250,12 @@ public class UserServices {
                 .orElseGet(Optional::empty);
     }
 
-    private Optional<User> incrementSessionVersion(String username, Integer value) {
-        return userDao.findByUsername(username)
+    private Optional<User> incrementSessionVersion(String usernameOrExternalId, Integer value) {
+        Optional<UserEntity> userEntityOptional = userDao.findByUsername(usernameOrExternalId);
+        if (!userEntityOptional.isPresent()) {
+            userEntityOptional = userDao.findByExternalId(usernameOrExternalId);
+        }
+        return userEntityOptional
                 .map(userEntity -> {
                     userEntity.setSessionVersion(userEntity.getSessionVersion() + value);
                     userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));

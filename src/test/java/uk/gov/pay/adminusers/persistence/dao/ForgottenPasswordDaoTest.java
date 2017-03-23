@@ -39,7 +39,6 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
 
     @Test
     public void shouldPersistAForgottenPasswordEntity() throws Exception {
-
         String forgottenPasswordCode = random(10);
         String username = userDbFixture(databaseHelper).insertUser().getUsername();
         UserEntity userEntity = userDao.findByUsername(username).get();
@@ -62,7 +61,6 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
 
     @Test
     public void shouldFindForgottenPasswordByCode_ifNotExpired() throws Exception {
-
         String forgottenPasswordCode = random(10);
         String username = userDbFixture(databaseHelper).insertUser().getUsername();
         UserEntity userEntity = userDao.findByUsername(username).get();

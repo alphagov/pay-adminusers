@@ -33,7 +33,7 @@ public class UserResource {
     public static final String API_VERSION_PATH = "/v1";
     public static final String USERS_RESOURCE = API_VERSION_PATH + "/api/users";
     private static final String AUTHENTICATE_RESOURCE = USERS_RESOURCE + "/authenticate";
-    private static final String USER_RESOURCE = USERS_RESOURCE + "/{username}";
+    private static final String USER_RESOURCE = USERS_RESOURCE + "/{externalId}";
     private static final String SECOND_FACTOR_RESOURCE = USER_RESOURCE + "/second-factor";
     private static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/authenticate";
     private static final String USER_SERVICES_RESOURCE = USER_RESOURCE + "/services";
@@ -46,7 +46,11 @@ public class UserResource {
     private final UserServicesFactory userServicesFactory;
 
     private final UserRequestValidator validator;
-    private static final int MAX_LENGTH = 255;
+
+    private static final int USER_EXTERNAL_ID_LENGTH = 32;
+    private static final int USER_USERNAME_MAX_LENGTH = 255;
+
+    private static final String IS_NEW_API_REQUEST_PARAMETER_KEY = "is_new_api_request";
 
     @Inject
     public UserResource(UserServices userServices, UserRequestValidator validator, UserServicesFactory userServicesFactory) {
@@ -59,16 +63,25 @@ public class UserResource {
     @GET
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response getUser(@PathParam("username") String username) {
-        logger.info("User GET request - [ {} ]", username);
+    public Response getUser(@PathParam("externalId") String externalId, @QueryParam(IS_NEW_API_REQUEST_PARAMETER_KEY) String isNewApiRequest) {
+        logger.info("User GET request - [ {} ]", externalId);
+        if (isNotBlank(isNewApiRequest)) {
+            if (isNotBlank(externalId) && (externalId.length() != USER_EXTERNAL_ID_LENGTH)) {
+                return Response.status(NOT_FOUND).build();
+            }
 
-        if (isNotBlank(username) && username.length() > MAX_LENGTH) {
-            return Response.status(NOT_FOUND).build();
+            return userServices.findUserByExternalId(externalId)
+                    .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
+                    .orElseGet(() -> Response.status(NOT_FOUND).build());
+        } else {
+            if (isNotBlank(externalId) && (externalId.length() > USER_USERNAME_MAX_LENGTH)) {
+                return Response.status(NOT_FOUND).build();
+            }
+
+            return userServices.findUserByUsername(externalId)
+                    .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
+                    .orElseGet(() -> Response.status(NOT_FOUND).build());
         }
-
-        return userServices.findUser(username)
-                .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
-                .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
     @Path(USERS_RESOURCE)
@@ -84,7 +97,7 @@ public class UserResource {
                     String userName = node.get(User.FIELD_USERNAME).asText();
                     try {
                         User newUser = userServices.createUser(User.from(node), roleName);
-                        logger.info("User created successfully [{}] for gateway accounts [{}]", newUser.getUsername(), String.join(", ", newUser.getGatewayAccountIds()));
+                        logger.info("User created successfully [{}] for gateway accounts [{}]", newUser.getExternalId(), String.join(", ", newUser.getGatewayAccountIds()));
                         return Response.status(CREATED).type(APPLICATION_JSON)
                                 .entity(newUser).build();
                     } catch (Exception e) {
@@ -119,9 +132,9 @@ public class UserResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response newSecondFactorPasscode(@PathParam("username") String username) {
+    public Response newSecondFactorPasscode(@PathParam("externalId") String externalId) {
         logger.info("User 2FA new passcode request");
-        return userServices.newSecondFactorPasscode(username)
+        return userServices.newSecondFactorPasscode(externalId)
                 .map(twoFAToken -> Response.status(OK).type(APPLICATION_JSON).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
@@ -131,11 +144,11 @@ public class UserResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response authenticateSecondFactor(@PathParam("username") String username, JsonNode payload) {
+    public Response authenticateSecondFactor(@PathParam("externalId") String externalId, JsonNode payload) {
         logger.info("User 2FA authenticate passcode request");
         return validator.validate2FAAuthRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> userServices.authenticateSecondFactor(username, payload.get("code").asInt())
+                .orElseGet(() -> userServices.authenticateSecondFactor(externalId, payload.get("code").asInt())
                         .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                         .orElseGet(() -> Response.status(UNAUTHORIZED).build()));
 
@@ -145,11 +158,11 @@ public class UserResource {
     @Path(USER_RESOURCE)
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response updateUserAttribute(@PathParam("username") String username, JsonNode node) {
+    public Response updateUserAttribute(@PathParam("externalId") String externalId, JsonNode node) {
         logger.info("User update attribute attempt request");
         return validator.validatePatchRequest(node)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> userServices.patchUser(username, PatchRequest.from(node))
+                .orElseGet(() -> userServices.patchUser(externalId, PatchRequest.from(node))
                         .map(user -> Response.status(OK).entity(user).build())
                         .orElseGet(() -> Response.status(NOT_FOUND).build()));
     }
@@ -158,13 +171,13 @@ public class UserResource {
     @Path(USER_SERVICE_RESOURCE)
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response updateServiceRole(@PathParam("username") String username, @PathParam("service-id") Integer serviceId, JsonNode payload) {
+    public Response updateServiceRole(@PathParam("externalId") String externalId, @PathParam("service-id") Integer serviceId, JsonNode payload) {
         logger.info("User update service role request");
         return validator.validateServiceRole(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
                     String roleName = payload.get(User.FIELD_ROLE_NAME).asText();
-                    return userServicesFactory.serviceRoleUpdater().doUpdate(username, serviceId, roleName)
+                    return userServicesFactory.serviceRoleUpdater().doUpdate(externalId, serviceId, roleName)
                             .map(user -> Response.status(OK).entity(user).build())
                             .orElseGet(() -> Response.status(NOT_FOUND).build());
                 });
