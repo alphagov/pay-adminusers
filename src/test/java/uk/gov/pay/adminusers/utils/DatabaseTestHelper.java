@@ -1,10 +1,7 @@
 package uk.gov.pay.adminusers.utils;
 
 import org.skife.jdbi.v2.DBI;
-import uk.gov.pay.adminusers.model.ForgottenPassword;
-import uk.gov.pay.adminusers.model.Permission;
-import uk.gov.pay.adminusers.model.Role;
-import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.model.*;
 
 import java.sql.Timestamp;
 import java.time.ZoneId;
@@ -226,5 +223,16 @@ public class DatabaseTestHelper {
                 .bind("roleId", roleId)
                 .execute());
         return this;
+    }
+
+    public Map<String, Object> findServiceByServiceId(Integer serviceId){
+        Map<String, Object> ret = jdbi.withHandle(h ->
+                h.createQuery("SELECT id, name " +
+                        "FROM services " +
+                        "WHERE id=:id")
+                        .bind("id", serviceId)
+                        .first());
+        return ret;
+
     }
 }

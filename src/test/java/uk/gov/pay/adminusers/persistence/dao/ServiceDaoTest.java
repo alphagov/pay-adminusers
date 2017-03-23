@@ -1,11 +1,18 @@
 package uk.gov.pay.adminusers.persistence.dao;
 
+import org.apache.commons.lang3.RandomStringUtils;
+import org.hamcrest.core.IsNot;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+
+import java.util.Map;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.IntStream.range;
@@ -35,7 +42,22 @@ public class ServiceDaoTest extends DaoTestBase {
 
     }
 
+    @Test
+    public void shouldChangeServiceName() throws Exception {
+        Integer serviceId = ServiceDbFixture.serviceDbFixture(databaseHelper).insertService();
+        String newServiceName = RandomStringUtils.randomAlphanumeric(20);
+
+        Optional<ServiceEntity> optionalServiceEntity = serviceDao.updateServiceName(serviceId, newServiceName);
+        Map<String, Object> finds = databaseHelper.findServiceByServiceId(serviceId);
+        //TODO why does it differ?
+        assertThat(finds.get("name"), is(newServiceName));
+        assertThat(optionalServiceEntity.isPresent(), is(true));
+        assertThat(optionalServiceEntity.get().getName(), is(newServiceName));
+
+    }
+
     private void setupUsersForServiceAndRole(int serviceId, int roleId, int noOfUsers) {
+
         Permission perm1 = aPermission();
         Permission perm2 = aPermission();
         databaseHelper.add(perm1).add(perm2);

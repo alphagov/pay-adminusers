@@ -38,6 +38,7 @@ public class User {
     private List<Role> roles = new ArrayList<>();
     private List<Link> links = new ArrayList<>();
     private Integer sessionVersion = 0;
+    private String serviceName;
 
     public static User from(Integer id, String externalId, String username, String password, String email,
                             List<String> gatewayAccountIds, List<String> serviceIds, String otpKey, String telephoneNumber) {
@@ -179,5 +180,13 @@ public class User {
                 ", disabled=" + disabled +
                 ", roles=" + roles +
                 '}';
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 }

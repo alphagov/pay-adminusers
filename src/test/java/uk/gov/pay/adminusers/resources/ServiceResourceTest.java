@@ -1,9 +1,13 @@
 package uk.gov.pay.adminusers.resources;
 
+import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
+import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
 import uk.gov.pay.adminusers.model.Role;
 
 import static com.jayway.restassured.http.ContentType.JSON;
+import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
@@ -62,5 +66,41 @@ public class ServiceResourceTest extends IntegrationTest {
                 .get("/v1/api/services/999/users")
                 .then()
                 .statusCode(404);
+    }
+
+    @Test
+    public void shouldReturn_202_whenUpdatingServiceNameWithValidId() throws Exception{
+        Integer serviceId = ServiceDbFixture.serviceDbFixture(databaseHelper).insertService();
+
+        ImmutableMap<Object, Object> payload = ImmutableMap.builder()
+                .put("new_service_name", RandomStringUtils.randomAlphanumeric(20))
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(payload))
+                .contentType(JSON)
+                .accept(JSON)
+                .put(String.format("/v1/api/services/%s", serviceId))
+                .then()
+                .statusCode(202);
+    }
+
+    @Test
+    public void shouldReturn_400_whenUpdatingServiceNameWithInvalidId() throws Exception {
+        Integer serviceId = nextInt();
+
+        ImmutableMap<Object, Object> payload = ImmutableMap.builder()
+                .put("new_service_name", RandomStringUtils.randomAlphanumeric(20))
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(payload))
+                .contentType(JSON)
+                .accept(JSON)
+                .put(String.format("/v1/api/services/%s", serviceId))
+                .then()
+                .statusCode(400);
     }
 }

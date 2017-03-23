@@ -15,6 +15,9 @@ public class ServiceEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "services_seq_gen")
     private Integer id;
 
+    @Column(name = "name", insertable = false, updatable = false)
+    private String name;
+
     @OneToMany(mappedBy = "service", targetEntity = GatewayAccountIdEntity.class, fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private List<GatewayAccountIdEntity> gatewayAccountIds = new ArrayList<>();
 
@@ -33,6 +36,14 @@ public class ServiceEntity {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getName(){
+        return name;
+    }
+
+    public void setName(String name){
+        this.name = name;
     }
 
     public List<GatewayAccountIdEntity> getGatewayAccountIds() {

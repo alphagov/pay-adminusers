@@ -41,4 +41,15 @@ public class ServiceDao extends JpaDao<ServiceEntity> {
                 .setParameter(2, roleId)
                 .getSingleResult();
     }
+
+    public Optional<ServiceEntity> updateServiceName(Integer id, String serviceName){
+        ServiceEntity serviceEntity = entityManager.get().find(ServiceEntity.class, id);
+        if(null != serviceEntity){
+            serviceEntity.setName(serviceName);
+            //TODO test if needed
+            ServiceEntity serviceEntityUpdated = entityManager.get().merge(serviceEntity);
+            return Optional.of(serviceEntityUpdated);
+        }
+        return Optional.empty();
+    }
 }

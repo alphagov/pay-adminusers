@@ -106,6 +106,7 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("gateway_account_ids", hasItems(gatewayAccount1,gatewayAccount2))
                 .body("service_ids", hasSize(1))
                 .body("service_ids[0]", is(valueOf(serviceId)))
+                .body("service_name", is("System Generated"))
                 .body("telephone_number", is("45334534634"))
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
@@ -175,7 +176,8 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("username", is(username))
                 .body("gateway_account_ids", hasSize(1))
                 .body("gateway_account_ids[0]", is(gatewayAccount))
-                .body("service_ids[0]", is(valueOf(serviceId)));
+                .body("service_ids[0]", is(valueOf(serviceId)))
+                .body("service_name", is("System Generated"));
 
         //TODO - WIP PP-1483 This will be amended when the story is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
@@ -359,6 +361,7 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("gateway_account_ids", hasItems(gatewayAccount1, gatewayAccount2))
                 .body("service_ids", hasSize(1))
                 .body("service_ids[0]", is(valueOf(serviceId)))
+                .body("service_name", is("System Generated"))
                 .body("telephone_number", is(user.getTelephoneNumber()))
                 .body("otp_key", is(user.getOtpKey()))
                 .body("login_counter", is(0))

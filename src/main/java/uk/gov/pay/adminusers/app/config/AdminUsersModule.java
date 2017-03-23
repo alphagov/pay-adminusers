@@ -10,8 +10,10 @@ import com.google.inject.persist.jpa.JpaPersistModule;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.setup.Environment;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
+import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.resources.ResetPasswordValidator;
+import uk.gov.pay.adminusers.resources.ServiceRequestValidator;
 import uk.gov.pay.adminusers.resources.UserRequestValidator;
 import uk.gov.pay.adminusers.service.*;
 import uk.gov.pay.adminusers.validations.RequestValidations;
@@ -47,6 +49,8 @@ public class AdminUsersModule extends AbstractModule {
         bind(ForgottenPasswordDao.class).in(Singleton.class);
         bind(ForgottenPasswordServices.class).in(Singleton.class);
         bind(ResetPasswordService.class).in(Singleton.class);
+        bind(ServiceDao.class).in(Singleton.class);
+        bind(ServiceRequestValidator.class).in(Singleton.class);
 
         install(jpaModule(configuration));
         install(new FactoryModuleBuilder().build(UserServicesFactory.class));
