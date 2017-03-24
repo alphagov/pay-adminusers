@@ -13,7 +13,7 @@ import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 public class ServiceResourceTest extends IntegrationTest {
 
     @Test
-    public void shouldReturnListOfAllUsersWithRolesForAGivenServiceOrderedByRoleName() {
+    public void shouldReturnListOfAllUsersWithRolesForAGivenServiceOrderedByUsername() {
 
         Role role1 = roleDbFixture(databaseHelper)
                 .withName("roleB")
@@ -26,12 +26,15 @@ public class ServiceResourceTest extends IntegrationTest {
         int serviceId2 = serviceDbFixture(databaseHelper).insertService();
 
         String username1 = userDbFixture(databaseHelper)
+                .withUsername("zoe")
                 .withServiceRole(serviceId1, role1.getId()).insertUser().getUsername();
-
         String username2 = userDbFixture(databaseHelper)
+                .withUsername("tim")
                 .withServiceRole(serviceId1, role2.getId()).insertUser().getUsername();
         String username3 = userDbFixture(databaseHelper)
+                .withUsername("bob")
                 .withServiceRole(serviceId1, role2.getId()).insertUser().getUsername();
+
         userDbFixture(databaseHelper)
                 .withServiceRole(serviceId2, role1.getId()).insertUser();
 
@@ -48,10 +51,6 @@ public class ServiceResourceTest extends IntegrationTest {
                 .body("[0]._links[0].method", is("GET"))
                 .body("[0]._links[0].rel", is("self"))
                 .body("[1].username", is(username2))
-                .body("[1]._links", hasSize(1))
-                .body("[1]._links[0].href", is("http://localhost:8080/v1/api/users/" + username2))
-                .body("[1]._links[0].method", is("GET"))
-                .body("[1]._links[0].rel", is("self"))
                 .body("[2].username", is(username1));
     }
 
