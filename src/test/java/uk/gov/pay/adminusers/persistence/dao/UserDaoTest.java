@@ -214,10 +214,12 @@ public class UserDaoTest extends DaoTestBase {
     }
 
     @Test
-    public void shouldFindUsers_ByServiceId_OrderedByRoleName() {
+    public void shouldFindUsers_ByServiceId_OrderedByUsername() {
+
         Role role1 = roleDbFixture(databaseHelper)
                         .withName("view")
                         .insertRole();
+
         Role role2 = roleDbFixture(databaseHelper)
                         .withName("admin")
                         .insertRole();
@@ -225,8 +227,11 @@ public class UserDaoTest extends DaoTestBase {
         int serviceId = serviceDbFixture(databaseHelper).insertService();
 
         User user1 = userDbFixture(databaseHelper)
+                .withUsername("thomas")
                 .withServiceRole(serviceId, role1.getId()).insertUser();
+
         User user2 = userDbFixture(databaseHelper)
+                .withUsername("bob")
                 .withServiceRole(serviceId, role2.getId()).insertUser();
 
         List<UserEntity> users = userDao.findByServiceId(serviceId);

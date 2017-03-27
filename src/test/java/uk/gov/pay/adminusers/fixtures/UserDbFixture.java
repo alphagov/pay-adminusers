@@ -60,4 +60,9 @@ public class UserDbFixture {
         this.otpKey = otpKey;
         return this;
     }
+
+    public UserDbFixture withUsername(String username) {
+        this.username = username;
+        return this;
+    }
 }
