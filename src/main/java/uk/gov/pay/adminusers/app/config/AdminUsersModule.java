@@ -40,11 +40,9 @@ public class AdminUsersModule extends AbstractModule {
         bind(RequestValidations.class).in(Singleton.class);
         bind(UserRequestValidator.class).in(Singleton.class);
         bind(ResetPasswordValidator.class).in(Singleton.class);
-        bind(UserDao.class).in(Singleton.class);
         bind(Integer.class).annotatedWith(Names.named("LOGIN_ATTEMPT_CAP")).toInstance(configuration.getLoginAttemptCap());
         bind(SecondFactorAuthenticator.class).in(Singleton.class);
         bind(UserServices.class).in(Singleton.class);
-        bind(ForgottenPasswordDao.class).in(Singleton.class);
         bind(ForgottenPasswordServices.class).in(Singleton.class);
         bind(ResetPasswordService.class).in(Singleton.class);
 

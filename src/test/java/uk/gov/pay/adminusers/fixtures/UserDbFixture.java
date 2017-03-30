@@ -18,7 +18,7 @@ public class UserDbFixture {
     private String username = RandomStringUtils.randomAlphabetic(10);
     private String otpKey = RandomStringUtils.randomAlphabetic(10);
     private String password = "password-" + username;
-    private String email= username + "@example.com";
+    private String email = username + "@example.com";
     private String telephoneNumber = "374628482";
 
     private UserDbFixture(DatabaseTestHelper databaseTestHelper) {
@@ -57,6 +57,11 @@ public class UserDbFixture {
 
     public UserDbFixture withUsername(String username) {
         this.username = username;
+        return this;
+    }
+
+    public UserDbFixture withEmail(String email) {
+        this.email = email;
         return this;
     }
 }

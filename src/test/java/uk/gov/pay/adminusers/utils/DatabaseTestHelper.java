@@ -51,13 +51,21 @@ public class DatabaseTestHelper {
     }
 
     public List<Map<String, Object>> findForgottenPasswordById(Integer forgottenPasswordId) {
-        List<Map<String, Object>> ret = jdbi.withHandle(h ->
+        return jdbi.withHandle(h ->
                 h.createQuery("SELECT id, date, code, \"userId\" " +
                         "FROM forgotten_passwords " +
                         "WHERE id=:id")
                         .bind("id", forgottenPasswordId)
                         .list());
-        return ret;
+    }
+
+    public List<Map<String, Object>> findInviteById(Integer inviteId) {
+        return jdbi.withHandle(h ->
+                h.createQuery("SELECT id, date, code, email, role_id " +
+                        "FROM invites " +
+                        "WHERE id=:id")
+                        .bind("id", inviteId)
+                        .list());
     }
 
     public DatabaseTestHelper updateLoginCount(String username, int loginCount) {
@@ -67,31 +75,6 @@ public class DatabaseTestHelper {
                                 "WHERE username=:username")
                         .bind("loginCount", loginCount)
                         .bind("username", username)
-                        .execute()
-        );
-        return this;
-    }
-
-    public DatabaseTestHelper add(User user) {
-        Timestamp now = Timestamp.from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant());
-        jdbi.withHandle(handle ->
-                handle
-                        .createStatement("INSERT INTO users(" +
-                                "id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, version, \"createdAt\", \"updatedAt\", session_version) " +
-                                "VALUES (:id, :external_id, :username, :password, :email, :otpKey, :telephoneNumber, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version)")
-                        .bind("id", user.getId())
-                        .bind("external_id", user.getExternalId())
-                        .bind("username", user.getUsername())
-                        .bind("password", user.getPassword())
-                        .bind("email", user.getEmail())
-                        .bind("otpKey", user.getOtpKey())
-                        .bind("telephoneNumber", user.getTelephoneNumber())
-                        .bind("disabled", user.isDisabled())
-                        .bind("loginCounter", user.getLoginCounter())
-                        .bind("version", 0)
-                        .bind("session_version", user.getSessionVersion())
-                        .bind("createdAt", now)
-                        .bind("updatedAt", now)
                         .execute()
         );
         return this;
