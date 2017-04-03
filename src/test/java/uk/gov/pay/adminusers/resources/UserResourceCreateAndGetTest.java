@@ -75,7 +75,9 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
 
     @Test
     public void shouldCreateAUserWithinAServiceIfServiceIdIsInPayloadIgnoringGatewayAccountIds() throws Exception {
-        int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds("1", "2").insertService();
+        String gatewayAccount1 = valueOf(nextInt());
+        String gatewayAccount2 = valueOf(nextInt());
+        int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
         String username = randomAlphanumeric(10) + randomUUID().toString();
 
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
@@ -101,8 +103,7 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("password", nullValue())
                 .body("email", is("user-" + username + "@example.com"))
                 .body("gateway_account_ids", hasSize(2))
-                .body("gateway_account_ids[0]", is("1"))
-                .body("gateway_account_ids[1]", is("2"))
+                .body("gateway_account_ids", hasItems(gatewayAccount1,gatewayAccount2))
                 .body("service_ids", hasSize(1))
                 .body("service_ids[0]", is(valueOf(serviceId)))
                 .body("telephone_number", is("45334534634"))
@@ -281,7 +282,9 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
 
     @Test
     public void shouldReturnUser_whenGetUserWithUsername() throws Exception {
-        int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds("1", "2").insertService();
+        String gatewayAccount1 = valueOf(nextInt());
+        String gatewayAccount2 = valueOf(nextInt());
+        int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
         Role role = roleDbFixture(databaseHelper).insertRole();
         User user = userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
 
@@ -297,8 +300,7 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("password", nullValue())
                 .body("email", is(user.getEmail()))
                 .body("gateway_account_ids", hasSize(2))
-                .body("gateway_account_ids[0]", is("1"))
-                .body("gateway_account_ids[1]", is("2"))
+                .body("gateway_account_ids", hasItems(gatewayAccount1, gatewayAccount2))
                 .body("service_ids", hasSize(1))
                 .body("service_ids[0]", is(valueOf(serviceId)))
                 .body("telephone_number", is(user.getTelephoneNumber()))
