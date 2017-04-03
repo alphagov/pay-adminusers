@@ -22,6 +22,7 @@ import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
+import static org.apache.commons.lang3.RandomStringUtils.*;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
@@ -51,7 +52,7 @@ public class UsersApiTest {
     @State("a valid forgotten password entry and a related user exists")
     public void aUserExistsWithAForgottenPasswordRequest() throws Exception {
         String code = "avalidforgottenpasswordtoken";
-        String username = RandomStringUtils.randomAlphabetic(20);
+        String username = randomAlphabetic(20);
         createUserWithinAService(username, "password");
         List<Map<String, Object>> userByUsername = dbHelper.findUserByUsername(username);
         dbHelper.add(ForgottenPassword.forgottenPassword(code, username), (Integer) userByUsername.get(0).get("id"));
@@ -77,14 +78,16 @@ public class UsersApiTest {
     }
 
     private static void createUserWithinAService(String username, int serviceId, String password) throws Exception {
+        String gatewayAccount1 = randomNumeric(5);
+        String gatewayAccount2 = randomNumeric(5);
         roleDbFixture(dbHelper).withName("admin").insertRole();
-        serviceDbFixture(dbHelper).withId(serviceId).withGatewayAccountIds("1", "2").insertService();
+        serviceDbFixture(dbHelper).withId(serviceId).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
 
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
                 .put("password", password)
                 .put("email", "user-" + username + "@example.com")
-                .put("gateway_account_ids", new String[]{"1", "2"})
+                .put("gateway_account_ids", new String[]{gatewayAccount1, gatewayAccount2})
                 .put("telephone_number", "45334534634")
                 .put("otp_key", "34f34")
                 .put("role_name", "admin")
