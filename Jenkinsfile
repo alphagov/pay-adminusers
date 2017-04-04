@@ -42,7 +42,7 @@ pipeline {
         branch 'master'
       }
       steps {
-        deploy("adminusers", "test")
+        deploy("adminusers", "test", null, true)
       }
     }
   }
