@@ -125,7 +125,7 @@ public class UserDaoTest extends DaoTestBase {
     }
 
     @Test
-    public void shouldFindUserBy_Username() throws Exception {
+    public void shouldFindUserBy_Username_caseInsensitive() throws Exception {
         Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId = serviceDbFixture(databaseHelper)
                 .insertService();
@@ -135,7 +135,7 @@ public class UserDaoTest extends DaoTestBase {
         String username = user.getUsername();
         String otpKey = user.getOtpKey();
 
-        Optional<UserEntity> userEntityMaybe = userDao.findByUsername(username);
+        Optional<UserEntity> userEntityMaybe = userDao.findByUsername(username.toUpperCase());
         assertTrue(userEntityMaybe.isPresent());
 
         UserEntity foundUser = userEntityMaybe.get();
@@ -151,7 +151,7 @@ public class UserDaoTest extends DaoTestBase {
     }
 
     @Test
-    public void shouldFindUser_ByEmail() throws Exception {
+    public void shouldFindUser_ByEmail_caseInsensitive() throws Exception {
         Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId = serviceDbFixture(databaseHelper).insertService();
         User user = userDbFixture(databaseHelper)
@@ -161,7 +161,7 @@ public class UserDaoTest extends DaoTestBase {
         String otpKey = user.getOtpKey();
         String email = user.getEmail();
 
-        Optional<UserEntity> userEntityMaybe = userDao.findByEmail(username + "@example.com");
+        Optional<UserEntity> userEntityMaybe = userDao.findByEmail(username + "@EXAMPLE.com");
         assertTrue(userEntityMaybe.isPresent());
 
         UserEntity foundUser = userEntityMaybe.get();
