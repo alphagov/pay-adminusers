@@ -31,21 +31,21 @@ public class UserDao extends JpaDao<UserEntity> {
 
     public Optional<UserEntity> findByUsername(String username) {
         String query = "SELECT u FROM UserEntity u " +
-                "WHERE u.username = :username";
+                "WHERE LOWER(u.username) = :username";
 
         return entityManager.get()
                 .createQuery(query, UserEntity.class)
-                .setParameter("username", username)
+                .setParameter("username", username.toLowerCase())
                 .getResultList().stream().findFirst();
     }
 
     public Optional<UserEntity> findByEmail(String email) {
         String query = "SELECT u FROM UserEntity u " +
-                "WHERE u.email = :email";
+                "WHERE LOWER(u.email) = :email";
 
         return entityManager.get()
                 .createQuery(query, UserEntity.class)
-                .setParameter("email", email)
+                .setParameter("email", email.toLowerCase())
                 .getResultList().stream().findFirst();
     }
 
