@@ -341,13 +341,30 @@ public class UserServicesTest {
         when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(123456);
         CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
-        when(userNotificationService.sendSecondFactorPasscodeSms(any(String.class), anyInt()))
+        when(userNotificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456")))
                 .thenReturn(notifyPromise);
 
         Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getUsername());
 
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is("123456"));
+        assertTrue(notifyPromise.isDone());
+    }
+
+    @Test
+    public void shouldZeroPad2FATokenTo6Digits_whenCreate2FA() throws Exception {
+        User user = aUser();
+        UserEntity userEntity = UserEntity.from(user);
+        when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
+        when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(12345);
+        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
+        when(userNotificationService.sendSecondFactorPasscodeSms(any(String.class), eq("012345")))
+                .thenReturn(notifyPromise);
+
+        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getUsername());
+
+        assertTrue(tokenOptional.isPresent());
+        assertThat(tokenOptional.get().getPasscode(), is("012345"));
         assertTrue(notifyPromise.isDone());
     }
 
@@ -361,7 +378,7 @@ public class UserServicesTest {
             throw new RuntimeException("some error from notify");
         });
 
-        when(userNotificationService.sendSecondFactorPasscodeSms(any(String.class), anyInt()))
+        when(userNotificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456")))
                 .thenReturn(errorPromise);
 
         Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getUsername());

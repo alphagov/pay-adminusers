@@ -26,10 +26,10 @@ public class UserNotificationService {
         this.metricRegistry = metricRegistry;
     }
 
-    public CompletableFuture<String> sendSecondFactorPasscodeSms(String phoneNumber, int passcode) {
+    public CompletableFuture<String> sendSecondFactorPasscodeSms(String phoneNumber, String passcode) {
         return CompletableFuture.supplyAsync(() -> {
             HashMap<String, String> personalisation = newHashMap();
-            personalisation.put("code", String.valueOf(passcode));
+            personalisation.put("code", passcode);
             Stopwatch responseTimeStopwatch = Stopwatch.createStarted();
             try {
                 NotificationResponse notificationResponse = notifyClientProvider.get().sendSms(secondFactorSmsTemplateId, phoneNumber, personalisation);
