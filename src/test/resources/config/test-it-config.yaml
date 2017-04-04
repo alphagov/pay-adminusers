@@ -60,8 +60,7 @@ proxy:
   port: 1234
 
 notify:
-  secret: ${NOTIFY_SECRET:-pay-notify-secret-needs-to-be-32-chars-fsghdngfhmhfkrgsfs}
-  serviceId: ${NOTIFY_SERVICE_ID:-pay-notify-service-id}
+  apiKey: ${NOTIFY_API_KEY:-pay-notify-api-key}
   notificationBaseURL: ${NOTIFY_BASE_URL:-https://stubs.pymnt.localdomain/notify}
   secondFactorSmsTemplateId: ${NOTIFY_2FA_TEMPLATE_ID:-pay-notify-two-factor-template-id}
 
