@@ -166,7 +166,7 @@ public class UserServices {
                     int newPassCode = secondFactorAuthenticator.newPassCode(userEntity.getOtpKey());
                     SecondFactorToken token = SecondFactorToken.from(usernameOrExternalId, newPassCode);
                     final String userExternalId = userEntity.getExternalId();
-                    userNotificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), newPassCode)
+                    userNotificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), token.getPasscode())
                             .thenAcceptAsync(notificationId -> logger.info("sent 2FA token successfully to user [{}], notification id [{}]",
                                     userExternalId, notificationId))
                             .exceptionally(exception -> {
