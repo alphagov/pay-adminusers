@@ -37,6 +37,15 @@ pipeline {
         runEndToEnd("adminusers")
       }
     }
+    stage('Docker Tag') {
+      steps {
+        script {
+          dockerTag {
+            app = "adminusers"
+          }
+        }
+      }
+    }
     stage('Deploy') {
       when {
         branch 'master'
