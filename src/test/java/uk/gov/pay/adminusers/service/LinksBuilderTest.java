@@ -11,6 +11,7 @@ import java.util.Arrays;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class LinksBuilderTest {
 
@@ -18,7 +19,7 @@ public class LinksBuilderTest {
 
     @Test
     public void shouldConstruct_userSelfLinkCorrectly() throws Exception {
-        User user = User.from(randomInt(), "7d19aff33f8948deb97ed16b2912dcd3", "a-username", "a-password", "email@example.com", Arrays.asList("1"), Arrays.asList("2"), "4wrwef", "123435");
+        User user = User.from(randomInt(), randomUuid(), "a-username", "a-password", "email@example.com", Arrays.asList("1"), Arrays.asList("2"), "4wrwef", "123435");
         User decoratedUser = linksBuilder.decorate(user);
 
         String linkJson = new ObjectMapper().writeValueAsString(decoratedUser.getLinks().get(0));

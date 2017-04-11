@@ -21,7 +21,7 @@ import static java.lang.String.valueOf;
 @SequenceGenerator(name = "users_id_seq", sequenceName = "users_id_seq", allocationSize = 1)
 public class UserEntity extends AbstractEntity {
 
-    @Column(name = "external_id", insertable = false, updatable = false)
+    @Column(name = "external_id")
     private String externalId;
 
     @Column(name = "username")

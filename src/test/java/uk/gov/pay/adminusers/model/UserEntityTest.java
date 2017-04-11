@@ -21,7 +21,6 @@ public class UserEntityTest {
     @Test
     public void shouldConstructAUser_fromMinimalValidUserJson() throws Exception {
         String minimumUserJson = "{" +
-                "\"external_id\": \"7d19aff33f8948deb97ed16b2912dcd3\"," +
                 "\"username\": \"a-username\"," +
                 "\"telephone_number\": \"2123524\"," +
                 "\"gateway_account_ids\": [\"1\", \"2\"]," +
@@ -33,7 +32,6 @@ public class UserEntityTest {
 
         UserEntity userEntity = UserEntity.from(user);
 
-        assertEquals(user.getExternalId(), userEntity.getExternalId());
         assertEquals(user.getUsername(), userEntity.getUsername());
         assertEquals(user.getPassword(), userEntity.getPassword());
         assertEquals(user.getOtpKey(), userEntity.getOtpKey());

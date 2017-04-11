@@ -5,6 +5,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
+import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.SecondFactorToken;
@@ -74,6 +75,7 @@ public class UserServices {
                 .map(roleEntity -> {
                     UserEntity userEntity = UserEntity.from(user);
                     userEntity.setPassword(passwordHasher.hash(user.getPassword()));
+                    userEntity.setExternalId(RandomIdGenerator.randomUuid());
                     if(user.getServiceIds().isEmpty()) {
                         addServiceRoleToUser(userEntity, roleEntity, user.getGatewayAccountIds());
                     } else {
