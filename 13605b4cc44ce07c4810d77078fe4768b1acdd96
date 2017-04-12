@@ -49,3 +49,5 @@ production-2.FAILED-61.status=failed
 production-2.tag=alpha_production-2-61
 
 production-2.alpha_production-2-61.date=2017-04-12:17:00:55
+
+production-2.alpha_production-2-61.status=success
