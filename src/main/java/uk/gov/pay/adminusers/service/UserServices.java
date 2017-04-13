@@ -5,8 +5,8 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.SecondFactorToken;
 import uk.gov.pay.adminusers.model.User;
@@ -63,23 +63,22 @@ public class UserServices {
     /**
      * persists a new user
      *
-     * @param user
+     * @param createUserRequest
      * @param roleName initial role to be assigned
      * @return {@link User} with associated links
      * @throws javax.ws.rs.WebApplicationException with status 409-Conflict if the username is already taken
      * @throws javax.ws.rs.WebApplicationException with status 500 for any unknown error during persistence
      */
     @Transactional
-    public User createUser(User user, String roleName) {
+    public User createUser(CreateUserRequest createUserRequest, String roleName) {
         return roleDao.findByRoleName(roleName)
                 .map(roleEntity -> {
-                    UserEntity userEntity = UserEntity.from(user);
-                    userEntity.setPassword(passwordHasher.hash(user.getPassword()));
-                    userEntity.setExternalId(RandomIdGenerator.randomUuid());
-                    if(user.getServiceIds().isEmpty()) {
-                        addServiceRoleToUser(userEntity, roleEntity, user.getGatewayAccountIds());
+                    UserEntity userEntity = UserEntity.from(createUserRequest);
+                    userEntity.setPassword(passwordHasher.hash(createUserRequest.getPassword()));
+                    if(createUserRequest.getServiceIds().isEmpty()) {
+                        addServiceRoleToUser(userEntity, roleEntity, createUserRequest.getGatewayAccountIds());
                     } else {
-                        addServiceRoleToUser(userEntity, roleEntity, user.getServiceIds().get(0));
+                        addServiceRoleToUser(userEntity, roleEntity, createUserRequest.getServiceIds().get(0));
                     }
                     userDao.persist(userEntity);
                     return linksBuilder.decorate(userEntity.toUser());

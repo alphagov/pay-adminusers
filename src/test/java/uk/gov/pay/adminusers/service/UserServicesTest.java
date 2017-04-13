@@ -72,36 +72,36 @@ public class UserServicesTest {
 
     @Test(expected = WebApplicationException.class)
     public void shouldError_ifRoleNameDoesNotExist() throws Exception {
-        User user = aUser();
+        CreateUserRequest createUserRequest = aCreateUserRequest();
         String nonExistentRole = "nonExistentRole";
         when(roleDao.findByRoleName(nonExistentRole)).thenReturn(Optional.empty());
-        userServices.createUser(user, nonExistentRole);
+        userServices.createUser(createUserRequest, nonExistentRole);
     }
 
     @Test
     public void shouldPersistAUser_creatingANewServiceForTheUsersGatewayAccount_whenPersistingTheUserWithNoServiceRelatedToTheGivenGateway() throws Exception {
-        User user = aUser();
+        CreateUserRequest createUserRequest = aCreateUserRequest();
         Role role = Role.role(2, "admin", "admin role");
         ArgumentCaptor<UserEntity> expectedUser = ArgumentCaptor.forClass(UserEntity.class);
         ArgumentCaptor<ServiceEntity> expectedService = ArgumentCaptor.forClass(ServiceEntity.class);
 
         when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
         when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
-        when(serviceDao.findByGatewayAccountId(user.getGatewayAccountIds().get(0))).thenReturn(Optional.empty());
+        when(serviceDao.findByGatewayAccountId(createUserRequest.getGatewayAccountIds().get(0))).thenReturn(Optional.empty());
 
         doNothing().when(serviceDao).persist(any(ServiceEntity.class));
         doNothing().when(userDao).persist(any(UserEntity.class));
 
-        User persistedUser = userServices.createUser(user, role.getName());
+        User persistedUser = userServices.createUser(createUserRequest, role.getName());
         Link selfLink = Link.from(Link.Rel.self, "GET", "http://localhost" + USERS_RESOURCE + "/random-name");
 
-        assertThat(persistedUser.getUsername(), is(user.getUsername()));
-        assertThat(persistedUser.getPassword(), is(not(user.getPassword())));
-        assertThat(persistedUser.getEmail(), is(user.getEmail()));
+        assertThat(persistedUser.getUsername(), is(createUserRequest.getUsername()));
+        assertThat(persistedUser.getPassword(), is(not(createUserRequest.getPassword())));
+        assertThat(persistedUser.getEmail(), is(createUserRequest.getEmail()));
         assertThat(persistedUser.getGatewayAccountIds().size(), is(1));
         assertThat(persistedUser.getGatewayAccountIds().get(0), is("1"));
-        assertThat(persistedUser.getTelephoneNumber(), is(user.getTelephoneNumber()));
-        assertThat(persistedUser.getOtpKey(), is(user.getOtpKey()));
+        assertThat(persistedUser.getTelephoneNumber(), is(createUserRequest.getTelephoneNumber()));
+        assertThat(persistedUser.getOtpKey(), is(createUserRequest.getOtpKey()));
         assertThat(persistedUser.getRoles().size(), is(1));
         assertThat(persistedUser.getRoles().get(0), is(role));
         assertThat(persistedUser.getLinks().get(0), is(selfLink));
@@ -110,44 +110,44 @@ public class UserServicesTest {
         verify(userDao).persist(expectedUser.capture());
 
         UserEntity savedUser = expectedUser.getValue();
-        assertThat(savedUser.getGatewayAccountId(), is(user.getGatewayAccountIds().get(0)));
+        assertThat(savedUser.getGatewayAccountId(), is(createUserRequest.getGatewayAccountIds().get(0)));
 
-        assertThat(expectedService.getValue().getGatewayAccountId().getGatewayAccountId(), is(user.getGatewayAccountIds().get(0)));
+        assertThat(expectedService.getValue().getGatewayAccountId().getGatewayAccountId(), is(createUserRequest.getGatewayAccountIds().get(0)));
     }
 
     @Test
     public void shouldPersist_aUserSuccessfully_andAssociateToTheServiceRelatedToExistingGatewayAccount() throws Exception {
-        User user = aUser();
+        CreateUserRequest createUserRequest = aCreateUserRequest();
         Role role = Role.role(2, "admin", "admin role");
-        ServiceEntity serviceEntity = new ServiceEntity(newArrayList(user.getGatewayAccountIds().get(0)));
+        ServiceEntity serviceEntity = new ServiceEntity(newArrayList(createUserRequest.getGatewayAccountIds().get(0)));
 
         ArgumentCaptor<UserEntity> expectedUser = ArgumentCaptor.forClass(UserEntity.class);
 
         when(roleDao.findByRoleName(role.getName())).thenReturn(Optional.of(new RoleEntity(role)));
         when(passwordHasher.hash("random-password")).thenReturn("the hashed random-password");
-        when(serviceDao.findByGatewayAccountId(user.getGatewayAccountIds().get(0)))
+        when(serviceDao.findByGatewayAccountId(createUserRequest.getGatewayAccountIds().get(0)))
                 .thenReturn(Optional.of(serviceEntity));
         doNothing().when(userDao).persist(any(UserEntity.class));
 
-        User persistedUser = userServices.createUser(user, role.getName());
+        User persistedUser = userServices.createUser(createUserRequest, role.getName());
         Link selfLink = Link.from(Link.Rel.self, "GET", "http://localhost" + USERS_RESOURCE + "/random-name");
 
-        assertThat(persistedUser.getUsername(), is(user.getUsername()));
-        assertThat(persistedUser.getPassword(), is(not(user.getPassword())));
-        assertThat(persistedUser.getEmail(), is(user.getEmail()));
+        assertThat(persistedUser.getUsername(), is(createUserRequest.getUsername()));
+        assertThat(persistedUser.getPassword(), is(not(createUserRequest.getPassword())));
+        assertThat(persistedUser.getEmail(), is(createUserRequest.getEmail()));
         assertThat(persistedUser.getGatewayAccountIds().size(), is(1));
         assertThat(persistedUser.getGatewayAccountIds().get(0), is("1"));
-        assertThat(persistedUser.getTelephoneNumber(), is(user.getTelephoneNumber()));
-        assertThat(persistedUser.getOtpKey(), is(user.getOtpKey()));
+        assertThat(persistedUser.getTelephoneNumber(), is(createUserRequest.getTelephoneNumber()));
+        assertThat(persistedUser.getOtpKey(), is(createUserRequest.getOtpKey()));
         assertThat(persistedUser.getRoles().size(), is(1));
         assertThat(persistedUser.getRoles().get(0), is(role));
         assertThat(persistedUser.getLinks().get(0), is(selfLink));
 
-        verify(serviceDao).findByGatewayAccountId(user.getGatewayAccountIds().get(0));
+        verify(serviceDao).findByGatewayAccountId(createUserRequest.getGatewayAccountIds().get(0));
         verifyNoMoreInteractions(serviceDao);
         verify(userDao).persist(expectedUser.capture());
 
-        assertThat(expectedUser.getValue().toUser().getGatewayAccountIds().get(0), is(user.getGatewayAccountIds().get(0)));
+        assertThat(expectedUser.getValue().toUser().getGatewayAccountIds().get(0), is(createUserRequest.getGatewayAccountIds().get(0)));
     }
 
     @Test
@@ -468,7 +468,7 @@ public class UserServicesTest {
     @Test
     public void createUser_shouldError_whenAddingAUserToDifferentGatewayAccountsBelongingToDifferentServices() {
         ArrayList<String> gatewayAccountIds = newArrayList("1", "2", "3");
-        User user = User.from(1, USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", gatewayAccountIds, newArrayList(), "784rh", "8948924");
+        CreateUserRequest createUserRequest = CreateUserRequest.from(USER_USERNAME, "random-password", "email@example.com", gatewayAccountIds, newArrayList(), "784rh", "8948924");
         String roleName = "admin";
         Role role = Role.role(2, roleName, "admin role");
         ArgumentCaptor<ServiceEntity> expectedService = ArgumentCaptor.forClass(ServiceEntity.class);
@@ -483,7 +483,7 @@ public class UserServicesTest {
         expectedException.expect(WebApplicationException.class);
         expectedException.expectMessage("409 Conflict");
 
-        userServices.createUser(user, roleName);
+        userServices.createUser(createUserRequest, roleName);
 
         verify(serviceDao).findByGatewayAccountId("1");
         verifyNoMoreInteractions(serviceDao);
@@ -494,7 +494,7 @@ public class UserServicesTest {
     public void createUser_shouldError_whenListOfGatewayAccountsContainsSomeNotBelongingToAnything() {
         ArrayList<String> gatewayAccountIds = newArrayList("1", "2", "3");
 
-        User user = User.from(1, USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", gatewayAccountIds, newArrayList(), "784rh", "8948924");
+        CreateUserRequest createUserRequest = CreateUserRequest.from(USER_USERNAME, "random-password", "email@example.com", gatewayAccountIds, newArrayList(), "784rh", "8948924");
         String roleName = "admin";
         Role role = Role.role(2, roleName, "admin role");
         ArgumentCaptor<ServiceEntity> expectedService = ArgumentCaptor.forClass(ServiceEntity.class);
@@ -510,7 +510,7 @@ public class UserServicesTest {
         expectedException.expect(WebApplicationException.class);
         expectedException.expectMessage("409 Conflict");
 
-        userServices.createUser(user, roleName);
+        userServices.createUser(createUserRequest, roleName);
 
         verify(serviceDao).findByGatewayAccountId("1");
         verify(serviceDao).findByGatewayAccountId("2");
@@ -522,7 +522,7 @@ public class UserServicesTest {
     public void createUser_shouldPersist_aUserSuccessfully_andCreateANewServiceAssociatingAllNonExistingGatewayAccounts() throws Exception {
         ArrayList<String> gatewayAccountIds = newArrayList("1", "2", "3");
 
-        User user = User.from(1, USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", gatewayAccountIds, newArrayList(), "784rh", "8948924");
+        CreateUserRequest createUserRequest = CreateUserRequest.from(USER_USERNAME, "random-password", "email@example.com", gatewayAccountIds, newArrayList(), "784rh", "8948924");
         Role role = Role.role(2, "admin", "admin role");
 
         ArgumentCaptor<UserEntity> expectedUser = ArgumentCaptor.forClass(UserEntity.class);
@@ -537,18 +537,18 @@ public class UserServicesTest {
         doNothing().when(userDao).persist(any(UserEntity.class));
         doNothing().when(serviceDao).persist(any(ServiceEntity.class));
 
-        User persistedUser = userServices.createUser(user, role.getName());
+        User persistedUser = userServices.createUser(createUserRequest, role.getName());
         Link selfLink = Link.from(Link.Rel.self, "GET", "http://localhost" + USERS_RESOURCE + "/random-name");
 
-        assertThat(persistedUser.getUsername(), is(user.getUsername()));
-        assertThat(persistedUser.getPassword(), is(not(user.getPassword())));
-        assertThat(persistedUser.getEmail(), is(user.getEmail()));
+        assertThat(persistedUser.getUsername(), is(createUserRequest.getUsername()));
+        assertThat(persistedUser.getPassword(), is(not(createUserRequest.getPassword())));
+        assertThat(persistedUser.getEmail(), is(createUserRequest.getEmail()));
         assertThat(persistedUser.getGatewayAccountIds().size(), is(3));
         assertThat(persistedUser.getGatewayAccountIds().get(0), is("1"));
         assertThat(persistedUser.getGatewayAccountIds().get(1), is("2"));
         assertThat(persistedUser.getGatewayAccountIds().get(2), is("3"));
-        assertThat(persistedUser.getTelephoneNumber(), is(user.getTelephoneNumber()));
-        assertThat(persistedUser.getOtpKey(), is(user.getOtpKey()));
+        assertThat(persistedUser.getTelephoneNumber(), is(createUserRequest.getTelephoneNumber()));
+        assertThat(persistedUser.getOtpKey(), is(createUserRequest.getOtpKey()));
         assertThat(persistedUser.getRoles().size(), is(1));
         assertThat(persistedUser.getRoles().get(0), is(role));
         assertThat(persistedUser.getLinks().get(0), is(selfLink));
@@ -563,6 +563,10 @@ public class UserServicesTest {
         assertThat(expectedService.getValue().getGatewayAccountIds().get(0).getGatewayAccountId(), is("1"));
         assertThat(expectedService.getValue().getGatewayAccountIds().get(1).getGatewayAccountId(), is("2"));
         assertThat(expectedService.getValue().getGatewayAccountIds().get(2).getGatewayAccountId(), is("3"));
+    }
+
+    private CreateUserRequest aCreateUserRequest() {
+        return CreateUserRequest.from(USER_USERNAME, "random-password", "email@example.com", asList("1"), newArrayList(), "784rh", "8948924");
     }
 
     private User aUser() {

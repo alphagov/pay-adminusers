@@ -28,15 +28,15 @@ public class UserEntityTest {
                 "}";
 
         JsonNode jsonNode = new ObjectMapper().readTree(minimumUserJson);
-        User user = User.from(jsonNode);
+        CreateUserRequest createUserRequest = CreateUserRequest.from(jsonNode);
 
-        UserEntity userEntity = UserEntity.from(user);
+        UserEntity userEntity = UserEntity.from(createUserRequest);
 
-        assertEquals(user.getUsername(), userEntity.getUsername());
-        assertEquals(user.getPassword(), userEntity.getPassword());
-        assertEquals(user.getOtpKey(), userEntity.getOtpKey());
-        assertEquals(user.getTelephoneNumber(), userEntity.getTelephoneNumber());
-        assertEquals(user.getEmail(), userEntity.getEmail());
+        assertEquals(createUserRequest.getUsername(), userEntity.getUsername());
+        assertEquals(createUserRequest.getPassword(), userEntity.getPassword());
+        assertEquals(createUserRequest.getOtpKey(), userEntity.getOtpKey());
+        assertEquals(createUserRequest.getTelephoneNumber(), userEntity.getTelephoneNumber());
+        assertEquals(createUserRequest.getEmail(), userEntity.getEmail());
         assertThat(userEntity.getCreatedAt(), is(notNullValue()));
         assertThat(userEntity.getUpdatedAt(), is(notNullValue()));
         // Since role and gatewayAccountId will be set up after won't be unit-testing from JSON to entity.

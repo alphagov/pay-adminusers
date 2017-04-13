@@ -1,5 +1,7 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
+import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
+import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.utils.Comparators;
 
@@ -13,7 +15,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.Boolean.FALSE;
 import static java.lang.String.valueOf;
 
 @Entity
@@ -40,7 +41,7 @@ public class UserEntity extends AbstractEntity {
     private String telephoneNumber;
 
     @Column(name = "disabled")
-    private Boolean disabled = FALSE;
+    private Boolean disabled = Boolean.FALSE;
 
     @Column(name = "login_counter")
     private Integer loginCounter = 0;
@@ -177,6 +178,29 @@ public class UserEntity extends AbstractEntity {
         userEntity.setLoginCounter(user.getLoginCounter());
         userEntity.setDisabled(user.isDisabled());
         userEntity.setSessionVersion(user.getSessionVersion());
+        ZonedDateTime timeNow = ZonedDateTime.now(ZoneId.of("UTC"));
+        userEntity.setCreatedAt(timeNow);
+        userEntity.setUpdatedAt(timeNow);
+        return userEntity;
+    }
+
+    /**
+     * Creates UserEntity object from CreateUserRequest object
+     *
+     * @param createUserRequest
+     * @return persistable UserEntity object not bounded to entity manager
+     */
+    public static UserEntity from(CreateUserRequest createUserRequest) {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setExternalId(RandomIdGenerator.randomUuid());
+        userEntity.setUsername(createUserRequest.getUsername());
+        userEntity.setPassword(createUserRequest.getPassword());
+        userEntity.setEmail(createUserRequest.getEmail());
+        userEntity.setOtpKey(createUserRequest.getOtpKey());
+        userEntity.setTelephoneNumber(createUserRequest.getTelephoneNumber());
+        userEntity.setLoginCounter(0);
+        userEntity.setDisabled(Boolean.FALSE);
+        userEntity.setSessionVersion(0);
         ZonedDateTime timeNow = ZonedDateTime.now(ZoneId.of("UTC"));
         userEntity.setCreatedAt(timeNow);
         userEntity.setUpdatedAt(timeNow);

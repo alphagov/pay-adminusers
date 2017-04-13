@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import io.dropwizard.jersey.PATCH;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.service.UserServices;
@@ -93,10 +94,10 @@ public class UserResource {
         return validator.validateCreateRequest(node)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
-                    String roleName = node.get(User.FIELD_ROLE_NAME).asText();
-                    String userName = node.get(User.FIELD_USERNAME).asText();
+                    String roleName = node.get(CreateUserRequest.FIELD_ROLE_NAME).asText();
+                    String userName = node.get(CreateUserRequest.FIELD_USERNAME).asText();
                     try {
-                        User newUser = userServices.createUser(User.from(node), roleName);
+                        User newUser = userServices.createUser(CreateUserRequest.from(node), roleName);
                         logger.info("User created successfully [{}] for gateway accounts [{}]", newUser.getExternalId(), String.join(", ", newUser.getGatewayAccountIds()));
                         return Response.status(CREATED).type(APPLICATION_JSON)
                                 .entity(newUser).build();

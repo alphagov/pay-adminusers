@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.pay.adminusers.service.UserServicesFactory;
 
@@ -41,7 +41,7 @@ public class UserResourceTest {
     public void shouldThrowConflictExceptionIfUserNameExists() throws Exception {
 
         when(validator.validateCreateRequest(validUserNode)).thenReturn(Optional.empty());
-        when(userService.createUser(any(User.class), eq("admin"))).thenThrow(new RuntimeException(CONSTRAINT_VIOLATION_MESSAGE));
+        when(userService.createUser(any(CreateUserRequest.class), eq("admin"))).thenThrow(new RuntimeException(CONSTRAINT_VIOLATION_MESSAGE));
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 409 Conflict");
         userResource.createUser(validUserNode);
@@ -52,7 +52,7 @@ public class UserResourceTest {
     public void shouldThrowUnknownErrorForAnyOtherReason() throws Exception {
 
         when(validator.validateCreateRequest(validUserNode)).thenReturn(Optional.empty());
-        when(userService.createUser(any(User.class), eq("admin"))).thenThrow(new RuntimeException("Unexpected Error"));
+        when(userService.createUser(any(CreateUserRequest.class), eq("admin"))).thenThrow(new RuntimeException("Unexpected Error"));
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 500");
         userResource.createUser(validUserNode);
@@ -63,7 +63,7 @@ public class UserResourceTest {
     public void shouldThrowWebApplicationExceptionIfRoleNameDoesNotExist() throws Exception {
 
         when(validator.validateCreateRequest(validUserNode)).thenReturn(Optional.empty());
-        when(userService.createUser(any(User.class), eq("admin"))).thenThrow(new WebApplicationException("Expected Error"));
+        when(userService.createUser(any(CreateUserRequest.class), eq("admin"))).thenThrow(new WebApplicationException("Expected Error"));
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("Expected Error");
         userResource.createUser(validUserNode);

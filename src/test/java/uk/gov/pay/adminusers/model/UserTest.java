@@ -1,7 +1,5 @@
 package uk.gov.pay.adminusers.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
@@ -10,57 +8,10 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class UserTest {
-
-    @Test
-    public void shouldConstructAUser_fromMinimalValidUserJson() throws Exception {
-        String minimumUserJson = "{" +
-                "\"username\": \"a-username\"," +
-                "\"telephone_number\": \"2123524\"," +
-                "\"gateway_account_ids\": [\"1\", \"2\"]," +
-                "\"email\": \"email@example.com\"" +
-                "}";
-
-        JsonNode jsonNode = new ObjectMapper().readTree(minimumUserJson);
-        User user = User.from(jsonNode);
-
-        assertThat(user.getUsername(), is("a-username"));
-        assertThat(user.getPassword(), notNullValue());
-        assertThat(user.getOtpKey(), notNullValue());
-        assertThat(user.getGatewayAccountIds().size(), is(2));
-        assertThat(user.getGatewayAccountIds().get(0), is("1"));
-        assertThat(user.getGatewayAccountIds().get(1), is("2"));
-        assertThat(user.getTelephoneNumber(), is("2123524"));
-        assertThat(user.getEmail(), is("email@example.com"));
-    }
-
-    @Test
-    public void shouldConstructAUser_fromCompleteValidUserJson() throws Exception {
-        String minimunUserJson = "{" +
-                "\"username\": \"a-username\"," +
-                "\"password\": \"a-password\"," +
-                "\"telephone_number\": \"2123524\"," +
-                "\"gateway_account_ids\": [\"1\", \"2\"]," +
-                "\"otp_key\": \"fr6ysdf\"," +
-                "\"email\": \"email@example.com\"" +
-                "}";
-
-        JsonNode jsonNode = new ObjectMapper().readTree(minimunUserJson);
-        User user = User.from(jsonNode);
-
-        assertThat(user.getUsername(), is("a-username"));
-        assertThat(user.getPassword(), is("a-password"));
-        assertThat(user.getGatewayAccountIds().size(), is(2));
-        assertThat(user.getGatewayAccountIds().get(0), is("1"));
-        assertThat(user.getGatewayAccountIds().get(1), is("2"));
-        assertThat(user.getTelephoneNumber(), is("2123524"));
-        assertThat(user.getOtpKey(), is("fr6ysdf"));
-        assertThat(user.getEmail(), is("email@example.com"));
-    }
 
     @Test
     public void shouldFlatten_permissionsOfAUser() throws Exception {
