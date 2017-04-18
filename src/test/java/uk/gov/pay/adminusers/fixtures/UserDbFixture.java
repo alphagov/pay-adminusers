@@ -15,7 +15,6 @@ public class UserDbFixture {
     private final DatabaseTestHelper databaseTestHelper;
     private Integer serviceId;
     private Integer roleId;
-    private String externalId = randomUuid();
     private String username = RandomStringUtils.randomAlphabetic(10);
     private String otpKey = RandomStringUtils.randomAlphabetic(10);
     private String password = "password-" + username;
@@ -35,14 +34,9 @@ public class UserDbFixture {
             serviceId = ServiceDbFixture.serviceDbFixture(databaseTestHelper).insertService();
             roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
         }
-        User user = User.from(randomInt(), externalId, username, password, email, newArrayList(), asList(valueOf(serviceId)), otpKey, telephoneNumber);
+        User user = User.from(randomInt(), randomUuid(), username, password, email, newArrayList(), asList(valueOf(serviceId)), otpKey, telephoneNumber);
         databaseTestHelper.add(user, roleId);
         return user;
-    }
-
-    public UserDbFixture withExternalId(String externalId) {
-        this.externalId = externalId;
-        return this;
     }
 
     public UserDbFixture withServiceRole(int serviceId, int roleId) {

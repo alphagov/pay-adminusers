@@ -25,15 +25,11 @@ public class RandomIdGenerator {
         return new BigInteger(130, SECURE_RANDOM).toString(32);
     }
 
-    public static Long newLongId() {
-        return (long) Math.floor(Math.random() * 9000000000L) + 1000000000L;
-    }
-
     public static Integer randomInt() {
         return RANDOM.nextInt(Integer.MAX_VALUE);
     }
 
     public static String randomUuid() {
-        return UUID.randomUUID().toString().replace("-", "");
+        return UUID.randomUUID().toString().replace("-", "").toLowerCase();
     }
 }

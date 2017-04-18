@@ -3,27 +3,18 @@ package uk.gov.pay.adminusers.model;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.google.common.collect.ImmutableList;
-import uk.gov.pay.adminusers.utils.Comparators;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.lang.Boolean.FALSE;
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class User {
 
-    public static final String FIELD_EXTERNAL_ID = "external_id";
     public static final String FIELD_USERNAME = "username";
     public static final String FIELD_PASSWORD = "password";
     public static final String FIELD_EMAIL = "email";
@@ -42,7 +33,7 @@ public class User {
     private String telephoneNumber;
     private List<String> serviceIds = new ArrayList<>();
     private String otpKey;
-    private Boolean disabled = FALSE;
+    private Boolean disabled = Boolean.FALSE;
     private Integer loginCounter = 0;
     private List<Role> roles = new ArrayList<>();
     private List<Link> links = new ArrayList<>();
@@ -53,53 +44,9 @@ public class User {
         return new User(id, externalId, username, password, email, gatewayAccountIds, serviceIds, otpKey, telephoneNumber);
     }
 
-    public static User from(JsonNode node) {
-        List<String> serviceIds = new ArrayList<>();
-        try {
-            List<String> gatewayAccountIds =
-                    ImmutableList.copyOf(node.get(FIELD_GATEWAY_ACCOUNT_IDS).iterator())
-                            .stream().map(JsonNode::asText)
-                            .sorted(Comparators.usingNumericComparator())
-                            .collect(Collectors.toList());
-            JsonNode serviceIdsNode = node.get(FIELD_SERVICE_IDS);
-            if (serviceIdsNode != null) {
-               serviceIds =
-                        ImmutableList.copyOf(serviceIdsNode.iterator())
-                                .stream().map(JsonNode::asText)
-                                .sorted(Comparators.usingNumericComparator())
-                                .collect(Collectors.toList());
-            }
-            String externalId = getOrElseRandom(node.get(FIELD_EXTERNAL_ID), randomUuid());
-            String username = node.get(FIELD_USERNAME).asText();
-            String password = getOrElseRandom(node.get(FIELD_PASSWORD), newId());
-            String email = node.get(FIELD_EMAIL).asText();
-            String telephoneNumber = node.get(FIELD_TELEPHONE_NUMBER).asText();
-            String otpKey = getOrElseRandom(node.get(FIELD_OTP_KEY), newId());
-            return from(randomInt(), externalId, username, password, email, gatewayAccountIds, serviceIds, otpKey, telephoneNumber);
-        } catch (NullPointerException e) {
-            throw new RuntimeException("Error retrieving required fields for creating a user", e);
-        }
-    }
-
-    private static String getOrElseRandom(JsonNode elementNode, String randomValue) {
-        return elementNode == null || isBlank(elementNode.asText()) ? randomValue : elementNode.asText();
-    }
-
     private User(Integer id, @JsonProperty("external_id") String externalId, @JsonProperty("username") String username, @JsonProperty("password") String password,
                  @JsonProperty("email") String email, @JsonProperty("gateway_account_ids") List<String> gatewayAccountIds,
-                 @JsonProperty("otp_key") String otpKey, @JsonProperty("telephone_number") String telephoneNumber) {
-        this.id = id;
-        this.externalId = externalId;
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.gatewayAccountIds = gatewayAccountIds;
-        this.otpKey = otpKey;
-        this.telephoneNumber = telephoneNumber;
-    }
-
-    private User(Integer id, String externalId, String username, String password, String email, List<String> gatewayAccountIds,
-                 List<String> serviceIds, String otpKey, String telephoneNumber) {
+                 List<String> serviceIds, @JsonProperty("otp_key") String otpKey, @JsonProperty("telephone_number") String telephoneNumber) {
         this.id = id;
         this.externalId = externalId;
         this.username = username;
@@ -109,6 +56,11 @@ public class User {
         this.serviceIds = serviceIds;
         this.otpKey = otpKey;
         this.telephoneNumber = telephoneNumber;
+    }
+
+    @JsonIgnore
+    public Integer getId() {
+        return id;
     }
 
     public String getExternalId() {
@@ -203,11 +155,6 @@ public class User {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
-    }
-
-    @JsonIgnore
-    public Integer getId() {
-        return id;
     }
 
     @JsonProperty("_links")
