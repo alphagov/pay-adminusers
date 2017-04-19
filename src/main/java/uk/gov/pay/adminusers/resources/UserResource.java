@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.resources;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -51,6 +50,7 @@ public class UserResource {
     private static final int USER_EXTERNAL_ID_LENGTH = 32;
     private static final int USER_USERNAME_MAX_LENGTH = 255;
 
+    private static final String USERNAME_FILTER_PARAMETER_KEY = "username";
     private static final String IS_NEW_API_REQUEST_PARAMETER_KEY = "is_new_api_request";
 
     @Inject
@@ -58,6 +58,21 @@ public class UserResource {
         this.userServices = userServices;
         this.validator = validator;
         this.userServicesFactory = userServicesFactory;
+    }
+
+    @Path(USERS_RESOURCE)
+    @GET
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response getUserByUsername(@QueryParam(USERNAME_FILTER_PARAMETER_KEY) String username) {
+        logger.info("User filter GET request - [ {} ]", username);
+        if (isNotBlank(username) && (username.length() > USER_USERNAME_MAX_LENGTH)) {
+            return Response.status(NOT_FOUND).build();
+        }
+
+        return userServices.findUserByUsername(username)
+                .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
+                .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
     @Path(USER_RESOURCE)
