@@ -261,7 +261,63 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn404_whenGetUserWithNonExistentUsername() throws Exception {
+    public void shouldReturn404_whenGetUserByUsername_withNonExistentUsername() throws Exception {
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .get(USERS_RESOURCE_URL + "?username=non-existent-user")
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
+    public void shouldReturn404_whenGetUserByUsername_withInvalidMaxLengthUsername() throws Exception {
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .get(USERS_RESOURCE_URL + "?username=" + RandomStringUtils.randomAlphanumeric(256))
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
+    public void shouldReturnUser_whenGetUserByUsernameWithUsername() throws Exception {
+        String gatewayAccount1 = valueOf(nextInt());
+        String gatewayAccount2 = valueOf(nextInt());
+        int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
+        Role role = roleDbFixture(databaseHelper).insertRole();
+        User user = userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .accept(JSON)
+                .get(USERS_RESOURCE_URL +"?username=" +  user.getUsername())
+                .then()
+                .statusCode(200)
+                .body("external_id", is(user.getExternalId()))
+                .body("username", is(user.getUsername()))
+                .body("password", nullValue())
+                .body("email", is(user.getEmail()))
+                .body("gateway_account_ids", hasSize(2))
+                .body("gateway_account_ids", hasItems(gatewayAccount1, gatewayAccount2))
+                .body("service_ids", hasSize(1))
+                .body("service_ids[0]", is(valueOf(serviceId)))
+                .body("telephone_number", is(user.getTelephoneNumber()))
+                .body("otp_key", is(user.getOtpKey()))
+                .body("login_counter", is(0))
+                .body("disabled", is(false))
+                .body("_links", hasSize(1))
+                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + user.getUsername()))
+                .body("_links[0].method", is("GET"))
+                .body("_links[0].rel", is("self"))
+                .body("role.name", is(role.getName()))
+                .body("role.description", is(role.getDescription()))
+                .body("permissions", hasSize(role.getPermissions().size()));
+    }
+
+    @Test
+    public void shouldReturn404_whenGetUser_withNonExistentUsername() throws Exception {
         givenSetup()
                 .when()
                 .accept(JSON)
