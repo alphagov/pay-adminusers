@@ -18,7 +18,11 @@ public class ServiceEntity {
     @OneToMany(mappedBy = "service", targetEntity = GatewayAccountIdEntity.class, fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private List<GatewayAccountIdEntity> gatewayAccountIds = new ArrayList<>();
 
-    public ServiceEntity() {}
+    @OneToMany(mappedBy = "service", targetEntity = InviteEntity.class, fetch = FetchType.LAZY)
+    private List<InviteEntity> invites = new ArrayList<>();
+
+    public ServiceEntity() {
+    }
 
     public ServiceEntity(List<String> gatewayAccountIds) {
         this.gatewayAccountIds.clear();
@@ -41,6 +45,10 @@ public class ServiceEntity {
 
     public GatewayAccountIdEntity getGatewayAccountId() {
         return gatewayAccountIds.get(0);
+    }
+
+    public List<InviteEntity> getInvites() {
+        return invites;
     }
 
     public boolean hasExactGatewayAccountIds(List<String> gatewayAccountIds) {

@@ -1,5 +1,7 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
+import uk.gov.pay.adminusers.model.Invite;
+
 import javax.persistence.*;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -18,6 +20,10 @@ public class InviteEntity extends AbstractEntity {
     @JoinColumn(name = "role_id")
     private RoleEntity role;
 
+    @ManyToOne
+    @JoinColumn(name = "service_id")
+    private ServiceEntity service;
+
     @Column(name = "email")
     private String email;
 
@@ -28,7 +34,8 @@ public class InviteEntity extends AbstractEntity {
         //for jpa
     }
 
-    public InviteEntity(String email, String code, RoleEntity role) {
+    public InviteEntity(String email, String code, ServiceEntity service, RoleEntity role) {
+        this.service = service;
         this.date = now(ZoneId.of("UTC"));
         this.code = code;
         this.email = email;
@@ -59,11 +66,23 @@ public class InviteEntity extends AbstractEntity {
         this.role = role;
     }
 
+    public ServiceEntity getService() {
+        return service;
+    }
+
+    public void setService(ServiceEntity service) {
+        this.service = service;
+    }
+
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Invite toInvite() {
+        return new Invite(email, code);
     }
 }

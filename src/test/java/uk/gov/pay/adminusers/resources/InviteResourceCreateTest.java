@@ -6,7 +6,7 @@ import org.apache.commons.lang3.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.String.valueOf;
+import static java.lang.String.format;
 import static javax.ws.rs.core.Response.Status.ACCEPTED;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
@@ -49,7 +49,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .when()
                 .body(mapper.writeValueAsString(invitationRequest))
                 .contentType(ContentType.JSON)
-                .post(String.format(INVITES_RESOURCE_URL, serviceId))
+                .post(format(INVITES_RESOURCE_URL, serviceId))
                 .then()
                 .statusCode(ACCEPTED.getStatusCode())
                 .body(isEmptyString());
@@ -58,6 +58,8 @@ public class InviteResourceCreateTest extends IntegrationTest {
     @Test
     public void createInvitation_shouldFail_whenEmailAlreadyExists() throws Exception {
 
+        // This test will be removed when users can be added to existing services (multiple services supported) but
+        // not at the moment.
         String existingUserEmail = randomAlphanumeric(5) + "-invite@example.com";
 
         userDbFixture(databaseHelper)
@@ -66,7 +68,6 @@ public class InviteResourceCreateTest extends IntegrationTest {
 
         ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
                 .put("email", existingUserEmail)
-                .put("service_id", valueOf(serviceId))
                 .put("role_name", roleName)
                 .build();
 
@@ -75,19 +76,19 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .body(mapper.writeValueAsString(invitationRequest))
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .post(INVITES_RESOURCE_URL)
+                .post(format(INVITES_RESOURCE_URL, serviceId))
                 .then()
                 .statusCode(409)
                 .body("errors", hasSize(1))
-                .body("errors", hasItems("email already exists"));
+                .body("errors", hasItems(format("email [%s] already exists", existingUserEmail)));
     }
 
     @Test
     public void createInvitation_shouldFail_whenServiceDoesNotExist() throws Exception {
 
+        int nonExistentServiceId = 99999;
         ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
                 .put("email", randomAlphanumeric(5) + "-invite@example.com")
-                .put("service_id", valueOf(999999))
                 .put("role_name", roleName)
                 .build();
 
@@ -96,11 +97,10 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .body(mapper.writeValueAsString(invitationRequest))
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .post(INVITES_RESOURCE_URL)
+                .post(format(INVITES_RESOURCE_URL, nonExistentServiceId))
                 .then()
-                .statusCode(400)
-                .body("errors", hasSize(1))
-                .body("errors", hasItems("service_id does not exist"));
+                .statusCode(404)
+                .body(isEmptyString());
     }
 
     @Test
@@ -108,7 +108,6 @@ public class InviteResourceCreateTest extends IntegrationTest {
 
         ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
                 .put("email", randomAlphanumeric(5) + "-invite@example.com")
-                .put("service_id", valueOf(serviceId))
                 .put("role_name", "non-existing-role")
                 .build();
 
@@ -117,10 +116,10 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .body(mapper.writeValueAsString(invitationRequest))
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .post(INVITES_RESOURCE_URL)
+                .post(format(INVITES_RESOURCE_URL, serviceId))
                 .then()
                 .statusCode(400)
                 .body("errors", hasSize(1))
-                .body("errors", hasItems("role_name does not exist"));
+                .body("errors", hasItems("role [non-existing-role] not recognised"));
     }
 }

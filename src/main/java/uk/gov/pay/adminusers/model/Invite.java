@@ -1,28 +1,26 @@
 package uk.gov.pay.adminusers.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Invite {
 
     private String email;
-    private final String roleName;
+    private List<Link> links = new ArrayList<>();
 
-    private Invite(String email, String roleName) {
+    public Invite(String email, String code) {
         this.email = email;
-        this.roleName = roleName;
-    }
-
-    public static Invite from(JsonNode json) {
-        String email = json.get("email").asText();
-        String roleName = json.get("role_name").asText();
-        return new Invite(email, roleName);
     }
 
     public String getEmail() {
         return email;
     }
 
-    public String getRoleName() {
-        return roleName;
+
+    @JsonProperty("_links")
+    public List<Link> getLinks() {
+        return links;
     }
 }

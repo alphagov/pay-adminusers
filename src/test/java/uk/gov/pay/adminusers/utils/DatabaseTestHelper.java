@@ -61,7 +61,7 @@ public class DatabaseTestHelper {
 
     public List<Map<String, Object>> findInviteById(Integer inviteId) {
         return jdbi.withHandle(h ->
-                h.createQuery("SELECT id, date, code, email, role_id " +
+                h.createQuery("SELECT id, date, code, email, role_id, service_id " +
                         "FROM invites " +
                         "WHERE id=:id")
                         .bind("id", inviteId)

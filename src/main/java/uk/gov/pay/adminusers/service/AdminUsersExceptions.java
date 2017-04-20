@@ -23,6 +23,11 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 
+    public static WebApplicationException conflictingEmail(String email) {
+        String error = format("email [%s] already exists", email);
+        return buildWebApplicationException(error, CONFLICT.getStatusCode());
+    }
+
     public static WebApplicationException conflictingServiceGatewayAccounts() {
         String error = format("List of gateway accounts not matching one of the existing services");
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
@@ -36,6 +41,11 @@ public class AdminUsersExceptions {
     public static WebApplicationException notFoundServiceError(String serviceId) {
         String error = format("Service %s provided does not exist", serviceId);
         return buildWebApplicationException(error, BAD_REQUEST.getStatusCode());
+    }
+
+    public static WebApplicationException notFoundService(String serviceId) {
+        String error = format("Service %s provided does not exist", serviceId);
+        return buildWebApplicationException(error, NOT_FOUND.getStatusCode());
     }
 
     public static WebApplicationException userLockedException(String username) {

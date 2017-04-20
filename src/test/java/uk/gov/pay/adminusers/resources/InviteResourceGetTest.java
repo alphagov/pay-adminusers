@@ -1,10 +1,12 @@
 package uk.gov.pay.adminusers.resources;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 
+@Ignore("Pending implementation")
 public class InviteResourceGetTest extends IntegrationTest {
 
     @Test
