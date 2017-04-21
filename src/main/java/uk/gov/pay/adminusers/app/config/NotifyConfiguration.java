@@ -9,11 +9,7 @@ public class NotifyConfiguration extends Configuration {
 
     @Valid
     @NotNull
-    private String secret;
-
-    @Valid
-    @NotNull
-    private String serviceId;
+    private String apiKey;
 
     @Valid
     @NotNull
@@ -23,12 +19,8 @@ public class NotifyConfiguration extends Configuration {
     @NotNull
     private String secondFactorSmsTemplateId;
 
-    public String getSecret() {
-        return secret;
-    }
-
-    public String getServiceId() {
-        return serviceId;
+    public String getApiKey() {
+        return apiKey;
     }
 
     public String getNotificationBaseURL() {

@@ -15,11 +15,13 @@ import uk.gov.pay.adminusers.resources.ResetPasswordValidator;
 import uk.gov.pay.adminusers.resources.UserRequestValidator;
 import uk.gov.pay.adminusers.service.*;
 import uk.gov.pay.adminusers.validations.RequestValidations;
-import uk.gov.service.notify.NotificationClient;
 
 import java.util.Properties;
 
+import static uk.gov.pay.adminusers.app.util.TrustStoreLoader.*;
+
 public class AdminUsersModule extends AbstractModule {
+
     final AdminUsersConfig configuration;
     final Environment environment;
 
@@ -32,7 +34,6 @@ public class AdminUsersModule extends AbstractModule {
     protected void configure() {
         bind(AdminUsersConfig.class).toInstance(configuration);
         bind(Environment.class).toInstance(environment);
-        bind(NotificationClient.class).toProvider(NotifyClientProvider.class);
         bind(LinksBuilder.class).toInstance(new LinksBuilder(configuration.getBaseUrl()));
 
         bind(PasswordHasher.class).in(Singleton.class);
@@ -77,7 +78,7 @@ public class AdminUsersModule extends AbstractModule {
     private UserNotificationService provideUserNotificationService() {
         return new UserNotificationService(
                 environment.lifecycle().executorService("2fa-sms-%d").build(),
-                new NotifyClientProvider(configuration.getNotifyConfiguration()),
+                new NotifyClientProvider(configuration.getNotifyConfiguration(), getSSLContext()),
                 configuration.getNotifyConfiguration().getSecondFactorSmsTemplateId(),
                 environment.metrics());
     }

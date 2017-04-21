@@ -3,7 +3,7 @@ package uk.gov.pay.adminusers.service;
 
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Stopwatch;
-import uk.gov.service.notify.NotificationResponse;
+import uk.gov.service.notify.SendSmsResponse;
 
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
@@ -32,8 +32,8 @@ public class UserNotificationService {
             personalisation.put("code", passcode);
             Stopwatch responseTimeStopwatch = Stopwatch.createStarted();
             try {
-                NotificationResponse notificationResponse = notifyClientProvider.get().sendSms(secondFactorSmsTemplateId, phoneNumber, personalisation);
-                return notificationResponse.getNotificationId();
+                SendSmsResponse response = notifyClientProvider.get().sendSms(secondFactorSmsTemplateId, phoneNumber, personalisation, null);
+                return response.getNotificationId().toString();
             } catch (Exception e) {
                 metricRegistry.counter("notify-operations.sms.failures").inc();
                 throw AdminUsersExceptions.userNotificationError(e);
