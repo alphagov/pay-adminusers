@@ -47,7 +47,7 @@ Content-Type: application/json
     "role": {"admin","Administrator"},
     "permissions":["perm-1","perm-2","perm-3"], 
     "_links": [{
-        "href": "http://adminusers.service/v1/api/users/abcd1234",
+        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
         "rel" : "self",
         "method" : "GET"
     }]
@@ -97,7 +97,7 @@ Content-Type: application/json
     "sessionVersion": 0,
     "permissions":["perm-1","perm-2","perm-3"], 
     "_links": [{
-        "href": "http://adminusers.service/v1/api/users/abcd1234",
+        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
         "rel" : "self",
         "method" : "GET"
     }]
@@ -153,7 +153,7 @@ Content-Type: application/json
     "role": {"admin","Administrator"},
     "permissions":["perm-1","perm-2","perm-3"], 
     "_links": [{
-        "href": "http://adminusers.service/v1/api/users/abcd1234",
+        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
         "rel" : "self",
         "method" : "GET"
     }]
@@ -212,7 +212,7 @@ Content-Type: application/json
     "role": {"admin","Administrator"},
     "permissions":["perm-1","perm-2","perm-3"], 
     "_links": [{
-        "href": "http://adminusers.service/v1/api/users/abcd1234",
+        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
         "rel" : "self",
         "method" : "GET"
     }]
@@ -311,7 +311,7 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## PUT /v1/api/users/{externalId}/services/{service-id}
+## PUT /v1/api/users/{externalId}/services/{serviceId}
 
 This endpoint updates a service role of a perticular user.
 
@@ -341,7 +341,7 @@ Content-Type: application/json
     "role": {"view-and-refund","View and Refund"},
     "permissions":["perm-1","perm-2","perm-3"], 
     "_links": [{
-        "href": "http://adminusers.service/v1/api/users/abcd1234",
+        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
         "rel" : "self",
         "method" : "GET"
     }]
