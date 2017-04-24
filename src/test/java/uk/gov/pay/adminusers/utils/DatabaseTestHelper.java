@@ -22,6 +22,16 @@ public class DatabaseTestHelper {
         this.jdbi = jdbi;
     }
 
+    public List<Map<String, Object>> findUserByExternalId(String externalId) {
+        List<Map<String, Object>> ret = jdbi.withHandle(h ->
+                h.createQuery("SELECT id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
+                        "FROM users " +
+                        "WHERE external_id = :externalId")
+                        .bind("externalId", externalId)
+                        .list());
+        return ret;
+    }
+
     public List<Map<String, Object>> findUserByUsername(String username) {
         List<Map<String, Object>> ret = jdbi.withHandle(h ->
                 h.createQuery("SELECT id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
@@ -46,7 +56,7 @@ public class DatabaseTestHelper {
         List<Map<String, Object>> ret = jdbi.withHandle(h ->
                 h.createQuery("SELECT r.id, r.name, r.description, ur.service_id " +
                         "FROM roles r INNER JOIN user_services_roles ur " +
-                        "ON ur.user_id = :userId AND ur.role_id=r.id")
+                        "ON ur.user_id = :userId AND ur.role_id = r.id")
                         .bind("userId", userId)
                         .list());
         return ret;
@@ -56,7 +66,7 @@ public class DatabaseTestHelper {
         return jdbi.withHandle(h ->
                 h.createQuery("SELECT id, date, code, \"userId\" " +
                         "FROM forgotten_passwords " +
-                        "WHERE id=:id")
+                        "WHERE id = :id")
                         .bind("id", forgottenPasswordId)
                         .list());
     }
@@ -65,7 +75,7 @@ public class DatabaseTestHelper {
         return jdbi.withHandle(h ->
                 h.createQuery("SELECT id, sender_id, date, code, email, role_id, service_id, otp_key, telephone_number " +
                         "FROM invites " +
-                        "WHERE id=:id")
+                        "WHERE id = :id")
                         .bind("id", inviteId)
                         .list());
     }
@@ -73,8 +83,8 @@ public class DatabaseTestHelper {
     public DatabaseTestHelper updateLoginCount(String username, int loginCount) {
         jdbi.withHandle(handle ->
                 handle
-                        .createStatement("UPDATE users SET login_counter=:loginCount " +
-                                "WHERE username=:username")
+                        .createStatement("UPDATE users SET login_counter = :loginCount " +
+                                "WHERE username = :username")
                         .bind("loginCount", loginCount)
                         .bind("username", username)
                         .execute()
@@ -88,9 +98,9 @@ public class DatabaseTestHelper {
                 handle
                         .createStatement("INSERT INTO users(" +
                                 "id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, version, \"createdAt\", \"updatedAt\", session_version) " +
-                                "VALUES (:id, :external_id, :username, :password, :email, :otpKey, :telephoneNumber, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version)")
+                                "VALUES (:id, :externalId, :username, :password, :email, :otpKey, :telephoneNumber, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version)")
                         .bind("id", user.getId())
-                        .bind("external_id", user.getExternalId())
+                        .bind("externalId", user.getExternalId())
                         .bind("username", user.getUsername())
                         .bind("password", user.getPassword())
                         .bind("email", user.getEmail())
@@ -121,7 +131,7 @@ public class DatabaseTestHelper {
                 handle
                         .createStatement("INSERT INTO roles(id, name, description) " +
                                 "SELECT :id, :name, :description " +
-                                "WHERE NOT EXISTS (SELECT id FROM roles WHERE id=:id) " +
+                                "WHERE NOT EXISTS (SELECT id FROM roles WHERE id = :id) " +
                                 "RETURNING id")
                         .bind("id", role.getId())
                         .bind("name", role.getName())

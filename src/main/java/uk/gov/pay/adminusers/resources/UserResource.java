@@ -37,21 +37,19 @@ public class UserResource {
     private static final String SECOND_FACTOR_RESOURCE = USER_RESOURCE + "/second-factor";
     private static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/authenticate";
     private static final String USER_SERVICES_RESOURCE = USER_RESOURCE + "/services";
-    private static final String USER_SERVICE_RESOURCE = USER_SERVICES_RESOURCE + "/{service-id}";
-
-    public static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
-
-
-    private final UserServices userServices;
-    private final UserServicesFactory userServicesFactory;
-
-    private final UserRequestValidator validator;
+    private static final String USER_SERVICE_RESOURCE = USER_SERVICES_RESOURCE + "/{serviceId}";
 
     private static final int USER_EXTERNAL_ID_LENGTH = 32;
     private static final int USER_USERNAME_MAX_LENGTH = 255;
 
     private static final String USERNAME_FILTER_PARAMETER_KEY = "username";
-    private static final String IS_NEW_API_REQUEST_PARAMETER_KEY = "is_new_api_request";
+
+    public static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
+
+    private final UserServices userServices;
+    private final UserServicesFactory userServicesFactory;
+
+    private final UserRequestValidator validator;
 
     @Inject
     public UserResource(UserServices userServices, UserRequestValidator validator, UserServicesFactory userServicesFactory) {
@@ -79,25 +77,15 @@ public class UserResource {
     @GET
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response getUser(@PathParam("externalId") String externalId, @QueryParam(IS_NEW_API_REQUEST_PARAMETER_KEY) String isNewApiRequest) {
+    public Response getUser(@PathParam("externalId") String externalId) {
         logger.info("User GET request - [ {} ]", externalId);
-        if (isNotBlank(isNewApiRequest)) {
-            if (isNotBlank(externalId) && (externalId.length() != USER_EXTERNAL_ID_LENGTH)) {
-                return Response.status(NOT_FOUND).build();
-            }
-
-            return userServices.findUserByExternalId(externalId)
-                    .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
-                    .orElseGet(() -> Response.status(NOT_FOUND).build());
-        } else {
-            if (isNotBlank(externalId) && (externalId.length() > USER_USERNAME_MAX_LENGTH)) {
-                return Response.status(NOT_FOUND).build();
-            }
-
-            return userServices.findUserByUsername(externalId)
-                    .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
-                    .orElseGet(() -> Response.status(NOT_FOUND).build());
+        if (isNotBlank(externalId) && (externalId.length() != USER_EXTERNAL_ID_LENGTH)) {
+            return Response.status(NOT_FOUND).build();
         }
+
+        return userServices.findUserByExternalId(externalId)
+                .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
+                .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
     @Path(USERS_RESOURCE)
@@ -187,7 +175,7 @@ public class UserResource {
     @Path(USER_SERVICE_RESOURCE)
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response updateServiceRole(@PathParam("externalId") String externalId, @PathParam("service-id") Integer serviceId, JsonNode payload) {
+    public Response updateServiceRole(@PathParam("externalId") String externalId, @PathParam("serviceId") Integer serviceId, JsonNode payload) {
         logger.info("User update service role request");
         return validator.validateServiceRole(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())

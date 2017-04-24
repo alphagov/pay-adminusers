@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.google.common.collect.ImmutableMap;
+import com.jayway.restassured.response.ValidatableResponse;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Role;
@@ -36,16 +37,19 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .put("role_name", "admin")
                 .build();
 
-        givenSetup()
-                .when()
+        ValidatableResponse response = givenSetup().when()
                 .body(mapper.writeValueAsString(userPayload))
                 .contentType(JSON)
                 .accept(JSON)
                 .post(USERS_RESOURCE_URL)
-                .then()
+                .then();
+
+        String externalId = response.extract().path("external_id");
+
+        response
                 .statusCode(201)
                 .body("id", nullValue())
-                .body("external_id", not(isEmptyOrNullString()))
+                .body("external_id", is(externalId))
                 .body("username", is(username))
                 .body("password", nullValue())
                 .body("email", is("user-" + username + "@example.com"))
@@ -58,18 +62,19 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
                 .body("disabled", is(false))
-                .body("_links", hasSize(1))
-                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + username))
-                .body("_links[0].method", is("GET"))
-                .body("_links[0].rel", is("self"))
                 .body("role.name", is("admin"))
                 .body("role.description", is("Administrator"))
                 .body("permissions", hasSize(30)); //we could consider removing this assertion if the permissions constantly changing
+        response
+                .body("_links", hasSize(1))
+                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + externalId))
+                .body("_links[0].method", is("GET"))
+                .body("_links[0].rel", is("self"));
 
         //TODO - WIP This will be removed when PP-1612 is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
-        List<Map<String, Object>> userByName = databaseHelper.findUserByUsername(username);
-        List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
+        List<Map<String, Object>> userByExternalId = databaseHelper.findUserByExternalId(externalId);
+        List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByExternalId.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
     }
 
@@ -90,15 +95,19 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .put("role_name", "admin")
                 .build();
 
-        givenSetup()
-                .when()
+        ValidatableResponse response = givenSetup().when()
                 .body(mapper.writeValueAsString(userPayload))
                 .contentType(JSON)
                 .accept(JSON)
                 .post(USERS_RESOURCE_URL)
-                .then()
+                .then();
+
+        String externalId = response.extract().path("external_id");
+
+        response
                 .statusCode(201)
                 .body("id", nullValue())
+                .body("external_id", is(externalId))
                 .body("username", is(username))
                 .body("password", nullValue())
                 .body("email", is("user-" + username + "@example.com"))
@@ -110,18 +119,19 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
                 .body("disabled", is(false))
-                .body("_links", hasSize(1))
-                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + username))
-                .body("_links[0].method", is("GET"))
-                .body("_links[0].rel", is("self"))
                 .body("role.name", is("admin"))
                 .body("role.description", is("Administrator"))
                 .body("permissions", hasSize(30)); //we could consider removing this assertion if the permissions constantly changing
+        response
+                .body("_links", hasSize(1))
+                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + externalId))
+                .body("_links[0].method", is("GET"))
+                .body("_links[0].rel", is("self"));
 
         //TODO - WIP This will be removed when PP-1612 is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
-        List<Map<String, Object>> userByName = databaseHelper.findUserByUsername(username);
-        List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
+        List<Map<String, Object>> userByExternalId = databaseHelper.findUserByExternalId(externalId);
+        List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByExternalId.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
     }
 
@@ -150,6 +160,42 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
     }
 
     @Test
+    public void shouldReturnUser_whenGetUserWithExternalId() throws Exception {
+        String gatewayAccount1 = valueOf(nextInt());
+        String gatewayAccount2 = valueOf(nextInt());
+        int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
+        Role role = roleDbFixture(databaseHelper).insertRole();
+        User user = userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .accept(JSON)
+                .get(format(USER_RESOURCE_URL, user.getExternalId()))
+                .then()
+                .statusCode(200)
+                .body("external_id", is(user.getExternalId()))
+                .body("username", is(user.getUsername()))
+                .body("password", nullValue())
+                .body("email", is(user.getEmail()))
+                .body("gateway_account_ids", hasSize(2))
+                .body("gateway_account_ids", hasItems(gatewayAccount1, gatewayAccount2))
+                .body("service_ids", hasSize(1))
+                .body("service_ids[0]", is(valueOf(serviceId)))
+                .body("telephone_number", is(user.getTelephoneNumber()))
+                .body("otp_key", is(user.getOtpKey()))
+                .body("login_counter", is(0))
+                .body("disabled", is(false))
+                .body("role.name", is(role.getName()))
+                .body("role.description", is(role.getDescription()))
+                .body("permissions", hasSize(role.getPermissions().size()))
+                .body("_links", hasSize(1))
+                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + user.getExternalId()))
+                .body("_links[0].method", is("GET"))
+                .body("_links[0].rel", is("self"));
+    }
+
+    @Test
     public void shouldAddUserToAServiceWhenCreatingTheUserWithAnAlreadyExistingGatewayAccount() throws Exception {
         String gatewayAccount = "666";
         int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount).insertService();
@@ -164,14 +210,18 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .put("role_name", "admin")
                 .build();
 
-        givenSetup()
-                .when()
+        ValidatableResponse response = givenSetup().when()
                 .body(mapper.writeValueAsString(userPayload))
                 .contentType(JSON)
                 .accept(JSON)
                 .post(USERS_RESOURCE_URL)
-                .then()
+                .then();
+
+        String externalId = response.extract().path("external_id");
+
+        response
                 .statusCode(201)
+                .body("external_id", is(externalId))
                 .body("username", is(username))
                 .body("gateway_account_ids", hasSize(1))
                 .body("gateway_account_ids[0]", is(gatewayAccount))
@@ -179,8 +229,8 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
 
         //TODO - WIP PP-1483 This will be amended when the story is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
-        List<Map<String, Object>> userByName = databaseHelper.findUserByUsername(username);
-        List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByName.get(0).get("id"));
+        List<Map<String, Object>> userByExternalId = databaseHelper.findUserByExternalId(externalId);
+        List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByExternalId.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
         assertThat(servicesAssociatedToUser.get(0).get("service_id"), is(serviceId));
 
@@ -288,12 +338,16 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
         Role role = roleDbFixture(databaseHelper).insertRole();
         User user = userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
 
-        givenSetup()
+        ValidatableResponse response = givenSetup()
                 .when()
                 .contentType(JSON)
                 .accept(JSON)
                 .get(USERS_RESOURCE_URL +"?username=" +  user.getUsername())
-                .then()
+                .then();
+
+        String externalId = response.extract().path("external_id");
+
+        response
                 .statusCode(200)
                 .body("external_id", is(user.getExternalId()))
                 .body("username", is(user.getUsername()))
@@ -307,13 +361,14 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("otp_key", is(user.getOtpKey()))
                 .body("login_counter", is(0))
                 .body("disabled", is(false))
-                .body("_links", hasSize(1))
-                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + user.getUsername()))
-                .body("_links[0].method", is("GET"))
-                .body("_links[0].rel", is("self"))
                 .body("role.name", is(role.getName()))
                 .body("role.description", is(role.getDescription()))
                 .body("permissions", hasSize(role.getPermissions().size()));
+        response
+                .body("_links", hasSize(1))
+                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + externalId))
+                .body("_links[0].method", is("GET"))
+                .body("_links[0].rel", is("self"));
     }
 
     @Test
@@ -334,41 +389,5 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .get(format(USER_RESOURCE_URL, RandomStringUtils.randomAlphanumeric(256)))
                 .then()
                 .statusCode(404);
-    }
-
-    @Test
-    public void shouldReturnUser_whenGetUserWithUsername() throws Exception {
-        String gatewayAccount1 = valueOf(nextInt());
-        String gatewayAccount2 = valueOf(nextInt());
-        int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
-        Role role = roleDbFixture(databaseHelper).insertRole();
-        User user = userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
-
-        givenSetup()
-                .when()
-                .contentType(JSON)
-                .accept(JSON)
-                .get(format(USER_RESOURCE_URL, user.getUsername()))
-                .then()
-                .statusCode(200)
-                .body("external_id", is(user.getExternalId()))
-                .body("username", is(user.getUsername()))
-                .body("password", nullValue())
-                .body("email", is(user.getEmail()))
-                .body("gateway_account_ids", hasSize(2))
-                .body("gateway_account_ids", hasItems(gatewayAccount1, gatewayAccount2))
-                .body("service_ids", hasSize(1))
-                .body("service_ids[0]", is(valueOf(serviceId)))
-                .body("telephone_number", is(user.getTelephoneNumber()))
-                .body("otp_key", is(user.getOtpKey()))
-                .body("login_counter", is(0))
-                .body("disabled", is(false))
-                .body("_links", hasSize(1))
-                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + user.getUsername()))
-                .body("_links[0].method", is("GET"))
-                .body("_links[0].rel", is("self"))
-                .body("role.name", is(role.getName()))
-                .body("role.description", is(role.getDescription()))
-                .body("permissions", hasSize(role.getPermissions().size()));
     }
 }

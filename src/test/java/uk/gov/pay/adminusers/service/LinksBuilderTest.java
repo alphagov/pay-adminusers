@@ -23,7 +23,7 @@ public class LinksBuilderTest {
         User decoratedUser = linksBuilder.decorate(user);
 
         String linkJson = new ObjectMapper().writeValueAsString(decoratedUser.getLinks().get(0));
-        assertThat(linkJson, is("{\"rel\":\"self\",\"method\":\"GET\",\"href\":\"http://localhost:8080/v1/api/users/a-username\"}"));
+        assertThat(linkJson, is("{\"rel\":\"self\",\"method\":\"GET\",\"href\":\"http://localhost:8080/v1/api/users/" + decoratedUser.getExternalId() + "\"}"));
     }
 
     @Test

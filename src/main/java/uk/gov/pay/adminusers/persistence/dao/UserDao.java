@@ -21,7 +21,7 @@ public class UserDao extends JpaDao<UserEntity> {
 
     public Optional<UserEntity> findByExternalId(String externalId) {
         String query = "SELECT u FROM UserEntity u " +
-                "WHERE u.externalId = :externalId";
+                "WHERE LOWER(u.externalId) = LOWER(:externalId)";
 
         return entityManager.get()
                 .createQuery(query, UserEntity.class)
