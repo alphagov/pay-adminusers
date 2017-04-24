@@ -8,7 +8,6 @@ import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
-import javax.xml.ws.Service;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +15,7 @@ import static java.sql.Timestamp.from;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 
 public class InviteDaoTest extends DaoTestBase {
@@ -40,7 +40,7 @@ public class InviteDaoTest extends DaoTestBase {
         RoleEntity roleEntity = roleDao.findByRoleName(role.getName()).get();
         ServiceEntity serviceEntity = serviceDao.findById(serviceId).get();
 
-        String email = "user@example.com";
+        String email = "USER@example.com";
         String code = randomAlphanumeric(10);
 
         InviteEntity invite = new InviteEntity(email, code, serviceEntity, roleEntity);
@@ -50,10 +50,12 @@ public class InviteDaoTest extends DaoTestBase {
         List<Map<String, Object>> savedInvite = databaseHelper.findInviteById(invite.getId());
 
         assertThat(savedInvite.size(), is(1));
-        assertThat(savedInvite.get(0).get("email"), is(email));
+        assertThat(savedInvite.get(0).get("email"), is("user@example.com"));
         assertThat(savedInvite.get(0).get("role_id"), is(roleEntity.getId()));
         assertThat(savedInvite.get(0).get("service_id"), is(serviceId));
         assertThat(savedInvite.get(0).get("code"), is(code));
+        assertThat(savedInvite.get(0).get("otp_key"), is(notNullValue()));
+        assertThat(savedInvite.get(0).get("otp_key"), is(invite.getOtpKey()));
         assertThat(savedInvite.get(0).get("date"), is(from(invite.getDate().toInstant())));
     }
 }

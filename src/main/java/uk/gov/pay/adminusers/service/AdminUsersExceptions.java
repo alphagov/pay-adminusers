@@ -43,11 +43,6 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, BAD_REQUEST.getStatusCode());
     }
 
-    public static WebApplicationException notFoundService(String serviceId) {
-        String error = format("Service %s provided does not exist", serviceId);
-        return buildWebApplicationException(error, NOT_FOUND.getStatusCode());
-    }
-
     public static WebApplicationException userLockedException(String username) {
         String error = format("user [%s] locked due to too many login attempts", username);
         return buildWebApplicationException(error, UNAUTHORIZED.getStatusCode());
@@ -64,6 +59,11 @@ public class AdminUsersExceptions {
 
     public static RuntimeException userNotificationError(Exception e) {
         return new RuntimeException("error sending user notification", e);
+    }
+
+    public static WebApplicationException resourceHasExpired(){
+        String error = format("Resource has expired");
+        return buildWebApplicationException(error, GONE.getStatusCode());
     }
 
     private static WebApplicationException buildWebApplicationException(String error, int status) {

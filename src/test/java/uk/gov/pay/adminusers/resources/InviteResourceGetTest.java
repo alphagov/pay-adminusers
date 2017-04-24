@@ -1,12 +1,10 @@
 package uk.gov.pay.adminusers.resources;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 
-@Ignore("Pending implementation")
 public class InviteResourceGetTest extends IntegrationTest {
 
     @Test
@@ -32,7 +30,7 @@ public class InviteResourceGetTest extends IntegrationTest {
                 .accept(JSON)
                 .get(INVITES_RESOURCE_URL + "/" + expiredCode)
                 .then()
-                .statusCode(400);
+                .statusCode(410);
     }
 
     @Test

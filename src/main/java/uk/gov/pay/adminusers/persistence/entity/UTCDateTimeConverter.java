@@ -8,6 +8,9 @@ import java.time.ZonedDateTime;
 
 @Converter
 public class UTCDateTimeConverter implements AttributeConverter<ZonedDateTime, Timestamp> {
+
+    public static final ZoneId UTC = ZoneId.of("UTC");
+
     @Override
     public Timestamp convertToDatabaseColumn(ZonedDateTime dateTime) {
         return Timestamp.from(dateTime.toInstant());
@@ -18,7 +21,7 @@ public class UTCDateTimeConverter implements AttributeConverter<ZonedDateTime, T
         if (s == null) {
             return null;
         } else {
-            return ZonedDateTime.ofInstant(s.toInstant(), ZoneId.of("UTC"));
+            return ZonedDateTime.ofInstant(s.toInstant(), UTC);
         }
     }
 }

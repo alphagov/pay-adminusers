@@ -14,8 +14,7 @@ import javax.inject.Inject;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmail;
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.undefinedRoleException;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
 
 public class InviteService {
 
@@ -23,7 +22,6 @@ public class InviteService {
     private final ServiceDao serviceDao;
     private final UserDao userDao;
     private final InviteDao inviteDao;
-
 
     @Inject
     public InviteService(RoleDao roleDao, ServiceDao serviceDao, UserDao userDao, InviteDao inviteDao) {
@@ -35,7 +33,7 @@ public class InviteService {
 
     public Optional<Invite> createInvite(int serviceId, String roleName, String email) {
 
-        if(userDao.findByEmail(email).isPresent()) {
+        if (userDao.findByEmail(email).isPresent()) {
             throw conflictingEmail(email);
         }
 
@@ -51,5 +49,15 @@ public class InviteService {
             inviteDao.persist(inviteEntity);
             return Optional.of(inviteEntity.toInvite());
         };
+    }
+
+    public Optional<Invite> findByCode(String code) {
+        return inviteDao.findByCode(code)
+                .map(inviteEntity -> {
+                    if (inviteEntity.isExpired()) {
+                        throw resourceHasExpired();
+                    }
+                    return Optional.of(inviteEntity.toInvite());
+                }).orElseGet(Optional::empty);
     }
 }
