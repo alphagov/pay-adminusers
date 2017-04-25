@@ -29,11 +29,9 @@ public class RoleDao {
         String query = "SELECT r FROM RoleEntity r " +
                 "WHERE r.name = :roleName";
 
-        Optional<RoleEntity> roleName1 = entityManager.get()
+        return entityManager.get()
                 .createQuery(query, RoleEntity.class)
                 .setParameter("roleName", roleName)
                 .getResultList().stream().findFirst();
-        System.out.println("roleName1.isPresent() = " + roleName1.isPresent());
-        return roleName1;
     }
 }

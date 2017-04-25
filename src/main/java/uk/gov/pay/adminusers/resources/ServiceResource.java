@@ -13,18 +13,15 @@ import uk.gov.pay.adminusers.service.LinksBuilder;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.net.URI;
 import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
-import static javax.ws.rs.core.UriBuilder.fromUri;
 
 @Path("/v1/api/services")
 public class ServiceResource {
 
     private static final Logger LOGGER = PayLoggerFactory.getLogger(ServiceResource.class);
-    private final String selfServiceUrl;
     private UserDao userDao;
     private ServiceDao serviceDao;
     private final InviteService inviteService;
@@ -42,7 +39,6 @@ public class ServiceResource {
         this.serviceDao = serviceDao;
         this.inviteService = inviteService;
         this.inviteValidator = inviteValidator;
-        this.selfServiceUrl = config.getLinks().getSelfserviceUrl();
         this.linksBuilder = linksBuilder;
     }
 

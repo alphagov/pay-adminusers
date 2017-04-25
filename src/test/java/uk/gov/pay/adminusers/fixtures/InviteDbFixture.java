@@ -17,6 +17,7 @@ public class InviteDbFixture {
     private ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
     private String code = randomAlphanumeric(100);
     private String otpKey = randomAlphanumeric(100);
+    private String telephoneNumber;
 
     private InviteDbFixture(DatabaseTestHelper databaseTestHelper) {
         this.databaseTestHelper = databaseTestHelper;
@@ -37,7 +38,17 @@ public class InviteDbFixture {
         int serviceId = ServiceDbFixture.serviceDbFixture(databaseTestHelper).insertService();
         int roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
         int userId = UserDbFixture.userDbFixture(databaseTestHelper).insertUser().getId();
-        databaseTestHelper.addInvite(nextInt(), userId, serviceId, roleId, email, code, otpKey, date);
+        databaseTestHelper.addInvite(nextInt(), userId, serviceId, roleId, email, code, otpKey, date, telephoneNumber);
         return code;
+    }
+
+    public InviteDbFixture withTelephoneNumber(String telephoneNumber) {
+        this.telephoneNumber = telephoneNumber;
+        return this;
+    }
+
+    public InviteDbFixture withEmail(String email) {
+        this.email = email;
+        return this;
     }
 }

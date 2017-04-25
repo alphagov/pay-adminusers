@@ -42,6 +42,9 @@ public class InviteEntity extends AbstractEntity {
     @Column(name = "otp_key")
     private String otpKey;
 
+    @Column(name = "telephone_number")
+    private String telephoneNumber;
+
     public InviteEntity() {
         //for jpa
     }
@@ -112,12 +115,22 @@ public class InviteEntity extends AbstractEntity {
         this.sender = sender;
     }
 
+    public String getTelephoneNumber() {
+        return telephoneNumber;
+    }
+
+    public void setTelephoneNumber(String telephoneNumber) {
+        this.telephoneNumber = telephoneNumber;
+    }
+
     public Invite toInvite(String inviteUrl) {
-        return new Invite(email, inviteUrl);
+        Invite invite = new Invite(email);
+        invite.setInviteLink(inviteUrl);
+        return invite;
     }
 
     public Invite toInvite() {
-        return new Invite(email);
+        return new Invite(email, telephoneNumber);
     }
 
     /**

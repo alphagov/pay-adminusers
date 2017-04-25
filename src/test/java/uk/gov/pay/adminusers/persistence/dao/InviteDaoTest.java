@@ -17,6 +17,7 @@ import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.*;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.*;
@@ -64,6 +65,7 @@ public class InviteDaoTest extends DaoTestBase {
         assertThat(savedInvite.get(0).get("code"), is(code));
         assertThat(savedInvite.get(0).get("otp_key"), is(notNullValue()));
         assertThat(savedInvite.get(0).get("otp_key"), is(invite.getOtpKey()));
+        assertThat(savedInvite.get(0).get("telephone_number"), is(nullValue()));
         assertThat(savedInvite.get(0).get("date"), is(from(invite.getDate().toInstant())));
     }
 }

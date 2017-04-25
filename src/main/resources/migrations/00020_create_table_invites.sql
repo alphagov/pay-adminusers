@@ -7,6 +7,7 @@ CREATE TABLE invites (
     role_id INTEGER NOT NULL,
     sender_id INTEGER NOT NULL,
     email VARCHAR(255) NOT NULL,
+    telephone_number VARCHAR(255),
     code VARCHAR(255) NOT NULL UNIQUE,
     otp_key VARCHAR(255) NOT NULL,
     date TIMESTAMP WITH TIME ZONE DEFAULT (now() AT TIME ZONE 'utc') NOT NULL,

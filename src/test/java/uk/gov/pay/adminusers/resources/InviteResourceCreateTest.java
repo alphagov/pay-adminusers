@@ -9,8 +9,7 @@ import static java.lang.String.format;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.IsEmptyString.isEmptyString;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
@@ -58,6 +57,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .then()
                 .statusCode(CREATED.getStatusCode())
                 .body("email", is(email.toLowerCase()))
+                .body("telephone_number", is(nullValue()))
                 .body("_links", hasSize(1))
                 .body("_links[0].href", matchesPattern("^http://selfservice/invites/[0-9a-z]{20,30}$"))
                 .body("_links[0].method", is("GET"))
