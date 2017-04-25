@@ -9,8 +9,6 @@ import com.google.inject.name.Names;
 import com.google.inject.persist.jpa.JpaPersistModule;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.setup.Environment;
-import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
-import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.resources.ResetPasswordValidator;
 import uk.gov.pay.adminusers.resources.UserRequestValidator;
 import uk.gov.pay.adminusers.service.*;
@@ -73,11 +71,12 @@ public class AdminUsersModule extends AbstractModule {
     }
 
     @Provides
-    private UserNotificationService provideUserNotificationService() {
-        return new UserNotificationService(
+    private NotificationService provideUserNotificationService() {
+        return new NotificationService(
                 environment.lifecycle().executorService("2fa-sms-%d").build(),
                 new NotifyClientProvider(configuration.getNotifyConfiguration(), getSSLContext()),
                 configuration.getNotifyConfiguration().getSecondFactorSmsTemplateId(),
+                configuration.getNotifyConfiguration().getInviteEmailTemplateId(),
                 environment.metrics());
     }
 

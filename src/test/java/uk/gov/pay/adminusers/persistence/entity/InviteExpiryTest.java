@@ -14,7 +14,7 @@ public class InviteExpiryTest {
     @Test
     public void isExpired_shouldNotBeExpire_whenRecentlyCreated() throws Exception {
 
-        InviteEntity inviteEntity = new InviteEntity("user@example.com", "code", new ServiceEntity(), new RoleEntity());
+        InviteEntity inviteEntity = new InviteEntity("user@example.com", "code", new UserEntity(), new ServiceEntity(), new RoleEntity());
 
         assertThat(inviteEntity.isExpired(), is(false));
     }
@@ -36,7 +36,7 @@ public class InviteExpiryTest {
      */
     public void isExpired_shouldNotExpireWhenCreatedOnMidnightTheDayBefore() {
 
-        InviteEntity inviteEntity = new InviteEntity("user@example.com", "code", new ServiceEntity(), new RoleEntity());
+        InviteEntity inviteEntity = new InviteEntity("user@example.com", "code", new UserEntity(), new ServiceEntity(), new RoleEntity());
         inviteEntity.setDate(ZonedDateTime.now().truncatedTo(DAYS).minus(1, DAYS));
 
         assertThat(inviteEntity.isExpired(), is(false));
@@ -59,7 +59,7 @@ public class InviteExpiryTest {
      */
     public void isExpired_shouldExpireWhenCreatedTwoDaysBeforeNowOneMillisecondBeforeMidnight() {
 
-        InviteEntity inviteEntity = new InviteEntity("user@example.com", "code", new ServiceEntity(), new RoleEntity());
+        InviteEntity inviteEntity = new InviteEntity("user@example.com", "code", new UserEntity(), new ServiceEntity(), new RoleEntity());
         inviteEntity.setDate(ZonedDateTime.now().truncatedTo(DAYS).minus(1, DAYS).minus(1, MILLIS));
 
         assertThat(inviteEntity.isExpired(), is(true));

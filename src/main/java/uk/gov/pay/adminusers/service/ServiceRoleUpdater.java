@@ -6,13 +6,13 @@ import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.persistence.entity.Role;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.util.Optional;
 
-import static uk.gov.pay.adminusers.model.Role.ROLE_ADMIN_ID;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
 
 public class ServiceRoleUpdater {
@@ -64,8 +64,8 @@ public class ServiceRoleUpdater {
 
         ServiceRoleEntity serviceRoleEntity = servicesRoleMaybe.get();
 
-        if (!roleEntity.getId().equals(ROLE_ADMIN_ID)) {
-            if (serviceDao.countOfRolesForService(serviceId, ROLE_ADMIN_ID) <= adminsPerServiceLimit) {
+        if (!roleEntity.isAdmin()) {
+            if (serviceDao.countOfRolesForService(serviceId, Role.ADMIN.getId()) <= adminsPerServiceLimit) {
                 throw adminRoleLimitException(adminsPerServiceLimit);
             }
         }

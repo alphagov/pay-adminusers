@@ -63,7 +63,7 @@ public class DatabaseTestHelper {
 
     public List<Map<String, Object>> findInviteById(Integer inviteId) {
         return jdbi.withHandle(h ->
-                h.createQuery("SELECT id, date, code, email, role_id, service_id, otp_key " +
+                h.createQuery("SELECT id, sender_id, date, code, email, role_id, service_id, otp_key " +
                         "FROM invites " +
                         "WHERE id=:id")
                         .bind("id", inviteId)
@@ -213,12 +213,13 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public DatabaseTestHelper addInvite(int id, int serviceId, int roleId, String email, String code, String otpKey, ZonedDateTime date) {
+    public DatabaseTestHelper addInvite(int id, int senderId, int serviceId, int roleId, String email, String code, String otpKey, ZonedDateTime date) {
         jdbi.withHandle(handle ->
                 handle
-                        .createStatement("INSERT INTO invites(id, service_id, role_id, email, code, otp_key, date) " +
-                                "VALUES (:id, :serviceId, :roleId, :email, :code, :otpKey, :date)")
+                        .createStatement("INSERT INTO invites(id, sender_id, service_id, role_id, email, code, otp_key, date) " +
+                                "VALUES (:id, :senderId, :serviceId, :roleId, :email, :code, :otpKey, :date)")
                         .bind("id", id)
+                        .bind("senderId", senderId)
                         .bind("serviceId", serviceId)
                         .bind("roleId", roleId)
                         .bind("email", email)

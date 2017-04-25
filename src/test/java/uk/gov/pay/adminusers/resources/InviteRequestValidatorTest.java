@@ -36,8 +36,9 @@ public class InviteRequestValidatorTest {
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
 
-        assertThat(errors.getErrors().size(), is(2));
+        assertThat(errors.getErrors().size(), is(3));
         assertThat(errors.getErrors(), hasItems(
+                "Field [sender] is required",
                 "Field [email] is required",
                 "Field [role_name] is required"));
     }
@@ -46,6 +47,7 @@ public class InviteRequestValidatorTest {
     public void shouldError_ifRoleNameFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
+                "\"sender\": \"12345abc\"," +
                 "\"email\": \"email@example.com\"" +
                 "}";
         JsonNode jsonNode = objectMapper.readTree(invalidPayload);
@@ -64,6 +66,7 @@ public class InviteRequestValidatorTest {
     public void shouldError_ifEmailFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
+                "\"sender\": \"12345abc\"," +
                 "\"role_name\": \"admin\"" +
                 "}";
         JsonNode jsonNode = objectMapper.readTree(invalidPayload);
@@ -76,5 +79,24 @@ public class InviteRequestValidatorTest {
         assertThat(errors.getErrors().size(), is(1));
         assertThat(errors.getErrors(), hasItems(
                 "Field [email] is required"));
+    }
+
+    @Test
+    public void shouldError_ifSenderFieldIsMissing() throws Exception {
+
+        String invalidPayload = "{" +
+                "\"email\": \"email@example.com\"," +
+                "\"role_name\": \"admin\"" +
+                "}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+
+        Optional<Errors> optionalErrors = validator.validateCreateRequest(jsonNode);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems(
+                "Field [sender] is required"));
     }
 }

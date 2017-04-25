@@ -29,6 +29,10 @@ public class InviteEntity extends AbstractEntity {
     @JoinColumn(name = "service_id")
     private ServiceEntity service;
 
+    @ManyToOne
+    @JoinColumn(name = "sender_id")
+    private UserEntity sender;
+
     @Column(name = "email")
     private String email;
 
@@ -42,11 +46,12 @@ public class InviteEntity extends AbstractEntity {
         //for jpa
     }
 
-    public InviteEntity(String email, String code, ServiceEntity service, RoleEntity role) {
+    public InviteEntity(String email, String code, UserEntity sender, ServiceEntity service, RoleEntity role) {
         this.service = service;
         this.date = now(ZoneId.of("UTC"));
         this.code = code;
         this.otpKey = newId();
+        this.sender = sender;
         this.email = email.toLowerCase();
         this.role = role;
     }
@@ -99,8 +104,20 @@ public class InviteEntity extends AbstractEntity {
         this.email = email;
     }
 
+    public UserEntity getSender() {
+        return sender;
+    }
+
+    public void setSender(UserEntity sender) {
+        this.sender = sender;
+    }
+
+    public Invite toInvite(String inviteUrl) {
+        return new Invite(email, inviteUrl);
+    }
+
     public Invite toInvite() {
-        return new Invite(email, code);
+        return new Invite(email);
     }
 
     /**

@@ -20,6 +20,7 @@ public class UserDbFixture {
     private String password = "password-" + username;
     private String email = username + "@example.com";
     private String telephoneNumber = "374628482";
+    private String externalId = randomUuid();
 
     private UserDbFixture(DatabaseTestHelper databaseTestHelper) {
         this.databaseTestHelper = databaseTestHelper;
@@ -34,7 +35,7 @@ public class UserDbFixture {
             serviceId = ServiceDbFixture.serviceDbFixture(databaseTestHelper).insertService();
             roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
         }
-        User user = User.from(randomInt(), randomUuid(), username, password, email, newArrayList(), asList(valueOf(serviceId)), otpKey, telephoneNumber);
+        User user = User.from(randomInt(), externalId, username, password, email, newArrayList(), asList(valueOf(serviceId)), otpKey, telephoneNumber);
         databaseTestHelper.add(user, roleId);
         return user;
     }

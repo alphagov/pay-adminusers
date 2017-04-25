@@ -2,11 +2,12 @@ package uk.gov.pay.adminusers.persistence.dao;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -17,39 +18,46 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
+import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.*;
+import static uk.gov.pay.adminusers.fixtures.UserDbFixture.*;
 
 public class InviteDaoTest extends DaoTestBase {
 
     private InviteDao inviteDao;
     private RoleDao roleDao;
     private ServiceDao serviceDao;
+    private UserDao userDao;
 
     @Before
     public void before() throws Exception {
         inviteDao = env.getInstance(InviteDao.class);
         roleDao = env.getInstance(RoleDao.class);
         serviceDao = env.getInstance(ServiceDao.class);
+        userDao = env.getInstance(UserDao.class);
     }
 
     @Test
     public void create_shouldCreateAnInvite() {
 
         Role role = roleDbFixture(databaseHelper).insertRole();
-        int serviceId = ServiceDbFixture.serviceDbFixture(databaseHelper).insertService();
+        int serviceId = serviceDbFixture(databaseHelper).insertService();
+        User sender = userDbFixture(databaseHelper).insertUser();
 
         RoleEntity roleEntity = roleDao.findByRoleName(role.getName()).get();
         ServiceEntity serviceEntity = serviceDao.findById(serviceId).get();
+        UserEntity userSenderEntity = userDao.findById(sender.getId()).get();
 
         String email = "USER@example.com";
         String code = randomAlphanumeric(10);
 
-        InviteEntity invite = new InviteEntity(email, code, serviceEntity, roleEntity);
+        InviteEntity invite = new InviteEntity(email, code, userSenderEntity, serviceEntity, roleEntity);
 
         inviteDao.persist(invite);
 
         List<Map<String, Object>> savedInvite = databaseHelper.findInviteById(invite.getId());
 
         assertThat(savedInvite.size(), is(1));
+        assertThat(savedInvite.get(0).get("sender_id"), is(userSenderEntity.getId()));
         assertThat(savedInvite.get(0).get("email"), is("user@example.com"));
         assertThat(savedInvite.get(0).get("role_id"), is(roleEntity.getId()));
         assertThat(savedInvite.get(0).get("service_id"), is(serviceId));

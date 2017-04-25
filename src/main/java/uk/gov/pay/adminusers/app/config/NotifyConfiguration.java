@@ -19,6 +19,10 @@ public class NotifyConfiguration extends Configuration {
     @NotNull
     private String secondFactorSmsTemplateId;
 
+    @Valid
+    @NotNull
+    private String inviteEmailTemplateId;
+
     public String getApiKey() {
         return apiKey;
     }
@@ -29,5 +33,9 @@ public class NotifyConfiguration extends Configuration {
 
     public String getSecondFactorSmsTemplateId() {
         return secondFactorSmsTemplateId;
+    }
+
+    public String getInviteEmailTemplateId() {
+        return inviteEmailTemplateId;
     }
 }

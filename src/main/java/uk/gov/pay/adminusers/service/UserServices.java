@@ -40,7 +40,7 @@ public class UserServices {
     private final PasswordHasher passwordHasher;
     private final LinksBuilder linksBuilder;
     private final Integer loginAttemptCap;
-    private final UserNotificationService userNotificationService;
+    private final NotificationService notificationService;
     private final SecondFactorAuthenticator secondFactorAuthenticator;
 
     @Inject
@@ -49,14 +49,14 @@ public class UserServices {
                         PasswordHasher passwordHasher,
                         LinksBuilder linksBuilder,
                         @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap,
-                        Provider<UserNotificationService> userNotificationService, SecondFactorAuthenticator secondFactorAuthenticator) {
+                        Provider<NotificationService> userNotificationService, SecondFactorAuthenticator secondFactorAuthenticator) {
         this.userDao = userDao;
         this.roleDao = roleDao;
         this.serviceDao = serviceDao;
         this.passwordHasher = passwordHasher;
         this.linksBuilder = linksBuilder;
         this.loginAttemptCap = loginAttemptCap;
-        this.userNotificationService = userNotificationService.get();
+        this.notificationService = userNotificationService.get();
         this.secondFactorAuthenticator = secondFactorAuthenticator;
     }
 
@@ -167,7 +167,7 @@ public class UserServices {
                     int newPassCode = secondFactorAuthenticator.newPassCode(userEntity.getOtpKey());
                     SecondFactorToken token = SecondFactorToken.from(usernameOrExternalId, newPassCode);
                     final String userExternalId = userEntity.getExternalId();
-                    userNotificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), token.getPasscode())
+                    notificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), token.getPasscode())
                             .thenAcceptAsync(notificationId -> logger.info("sent 2FA token successfully to user [{}], notification id [{}]",
                                     userExternalId, notificationId))
                             .exceptionally(exception -> {

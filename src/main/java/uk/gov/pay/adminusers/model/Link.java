@@ -12,7 +12,8 @@ import java.util.Map;
 public class Link {
 
     public enum Rel {
-        self
+        self,
+        invite
     }
 
     private Rel rel;
