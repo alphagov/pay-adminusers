@@ -37,7 +37,7 @@ public class RoleDbFixture {
         return insert(role(ADMIN.getId(), "admin", "Administrator"), aPermission(), aPermission());
     }
 
-    private Role insert(Role role, Permission... permissions) {
+    public Role insert(Role role, Permission... permissions) {
         for (Permission permission : permissions) {
             databaseHelper.add(permission);
         }

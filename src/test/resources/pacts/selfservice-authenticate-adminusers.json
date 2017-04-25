@@ -26,10 +26,14 @@
           "Content-Type": "application/json"
         },
         "body": {
+          "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
           "username": "existing-user",
           "email": "existing-user@example.com",
           "gateway_account_ids": [
-            "918"
+            "134"
+          ],
+          "service_ids": [
+            "258"
           ],
           "otp_key": "43c3c4t",
           "role": {
@@ -44,13 +48,16 @@
           ],
           "_links": [
             {
-              "href": "http://adminusers.service/v1/api/users/existing-user",
+              "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
               "rel": "self",
               "method": "GET"
             }
           ]
         },
         "matchingRules": {
+          "$.body.external_id": {
+            "match": "type"
+          },
           "$.body.username": {
             "match": "type"
           },
@@ -64,6 +71,15 @@
             "match": "type"
           },
           "$.body.gateway_account_ids[*]": {
+            "match": "type"
+          },
+          "$.body.service_ids": {
+            "min": 1
+          },
+          "$.body.service_ids[*].*": {
+            "match": "type"
+          },
+          "$.body.service_ids[*]": {
             "match": "type"
           },
           "$.body.otp_key": {
