@@ -311,6 +311,16 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
     }
 
     @Test
+    public void shouldReturn404_whenGetUserByUsername_withEmptyUsername() throws Exception {
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .get(USERS_RESOURCE_URL + "?username=")
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
     public void shouldReturn404_whenGetUserByUsername_withNonExistentUsername() throws Exception {
         givenSetup()
                 .when()

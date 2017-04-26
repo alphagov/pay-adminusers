@@ -21,7 +21,6 @@ import java.util.Optional;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingUsername;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 
@@ -38,9 +37,6 @@ public class UserResource {
     private static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/authenticate";
     private static final String USER_SERVICES_RESOURCE = USER_RESOURCE + "/services";
     private static final String USER_SERVICE_RESOURCE = USER_SERVICES_RESOURCE + "/{serviceId}";
-
-    private static final int USER_EXTERNAL_ID_LENGTH = 32;
-    private static final int USER_USERNAME_MAX_LENGTH = 255;
 
     private static final String USERNAME_FILTER_PARAMETER_KEY = "username";
 
@@ -63,11 +59,7 @@ public class UserResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response getUserByUsername(@QueryParam(USERNAME_FILTER_PARAMETER_KEY) String username) {
-        logger.info("User filter GET request - [ {} ]", username);
-        if (isNotBlank(username) && (username.length() > USER_USERNAME_MAX_LENGTH)) {
-            return Response.status(NOT_FOUND).build();
-        }
-
+        logger.info("User username filter GET request - [ {} ]", username);
         return userServices.findUserByUsername(username)
                 .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
@@ -79,10 +71,6 @@ public class UserResource {
     @Consumes(APPLICATION_JSON)
     public Response getUser(@PathParam("externalId") String externalId) {
         logger.info("User GET request - [ {} ]", externalId);
-        if (isNotBlank(externalId) && (externalId.length() != USER_EXTERNAL_ID_LENGTH)) {
-            return Response.status(NOT_FOUND).build();
-        }
-
         return userServices.findUserByExternalId(externalId)
                 .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
