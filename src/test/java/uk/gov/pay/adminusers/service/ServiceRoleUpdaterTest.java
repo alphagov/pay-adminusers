@@ -29,7 +29,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.model.Role.ROLE_ADMIN_ID;
+import static uk.gov.pay.adminusers.persistence.entity.Role.*;
+import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -100,7 +101,7 @@ public class ServiceRoleUpdaterTest {
 
         when(userDao.findByUsername(username)).thenReturn(Optional.of(userEntity));
         when(roleDao.findByRoleName(role)).thenReturn(Optional.of(roleEntity));
-        when(serviceDao.countOfRolesForService(serviceId,ROLE_ADMIN_ID)).thenReturn(1l);
+        when(serviceDao.countOfRolesForService(serviceId, ADMIN.getId())).thenReturn(1l);
 
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 412 Precondition Failed");
@@ -121,11 +122,11 @@ public class ServiceRoleUpdaterTest {
 
         when(userDao.findByUsername(username)).thenReturn(Optional.of(userEntity));
         when(roleDao.findByRoleName(role)).thenReturn(Optional.of(roleEntity));
-        when(serviceDao.countOfRolesForService(serviceId,ROLE_ADMIN_ID)).thenReturn(2l);
+        when(serviceDao.countOfRolesForService(serviceId, ADMIN.getId())).thenReturn(2l);
 
         Optional<User> userOptional = serviceRoleUpdater.doUpdate(username, serviceId, role);
         assertTrue(userOptional.isPresent());
-        assertThat(userOptional.get().getRole().getId(),is(10));
+        assertThat(userOptional.get().getRole().getId(), is(10));
     }
 
     private Role aRole(int roleId, String roleName) {

@@ -29,6 +29,10 @@ public class AdminUsersConfig extends Configuration {
     @NotNull
     private String baseUrl;
 
+    @Valid
+    @NotNull
+    private LinksConfig links = new LinksConfig();
+
     @NotNull
     private Integer loginAttemptCap;
 
@@ -67,6 +71,10 @@ public class AdminUsersConfig extends Configuration {
 
     public Integer getLoginAttemptCap() {
         return loginAttemptCap;
+    }
+
+    public LinksConfig getLinks() {
+        return links;
     }
 
     @JsonProperty("notify")

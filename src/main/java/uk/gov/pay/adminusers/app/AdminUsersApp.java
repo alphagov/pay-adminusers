@@ -70,12 +70,11 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(injector.getInstance(UserResource.class));
         environment.jersey().register(injector.getInstance(ServiceResource.class));
         environment.jersey().register(injector.getInstance(ForgottenPasswordResource.class));
+        environment.jersey().register(injector.getInstance(InviteResource.class));
         environment.jersey().register(injector.getInstance(ResetPasswordResource.class));
-
         environment.jersey().register(injector.getInstance(HealthCheckResource.class));
 
         setGlobalProxies(configuration);
-
     }
 
     private void initialiseMetrics(AdminUsersConfig configuration, Environment environment) {

@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
+
 /**
  * Represents a Role of a selfservice user (Government department user)
  * <p>
@@ -84,5 +86,9 @@ public class RoleEntity {
         Role role = Role.role(id, name, description);
         role.setPermissions(permissions.stream().map(PermissionEntity::toPermission).collect(Collectors.toList()));
         return role;
+    }
+
+    public boolean isAdmin() {
+        return this.id.equals(ADMIN.getId());
     }
 }

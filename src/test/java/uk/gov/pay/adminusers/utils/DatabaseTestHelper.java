@@ -12,6 +12,8 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
+import static java.sql.Timestamp.from;
+
 public class DatabaseTestHelper {
 
     private DBI jdbi;
@@ -51,13 +53,21 @@ public class DatabaseTestHelper {
     }
 
     public List<Map<String, Object>> findForgottenPasswordById(Integer forgottenPasswordId) {
-        List<Map<String, Object>> ret = jdbi.withHandle(h ->
+        return jdbi.withHandle(h ->
                 h.createQuery("SELECT id, date, code, \"userId\" " +
                         "FROM forgotten_passwords " +
                         "WHERE id=:id")
                         .bind("id", forgottenPasswordId)
                         .list());
-        return ret;
+    }
+
+    public List<Map<String, Object>> findInviteById(Integer inviteId) {
+        return jdbi.withHandle(h ->
+                h.createQuery("SELECT id, sender_id, date, code, email, role_id, service_id, otp_key, telephone_number " +
+                        "FROM invites " +
+                        "WHERE id=:id")
+                        .bind("id", inviteId)
+                        .list());
     }
 
     public DatabaseTestHelper updateLoginCount(String username, int loginCount) {
@@ -72,33 +82,8 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public DatabaseTestHelper add(User user) {
-        Timestamp now = Timestamp.from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant());
-        jdbi.withHandle(handle ->
-                handle
-                        .createStatement("INSERT INTO users(" +
-                                "id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, version, \"createdAt\", \"updatedAt\", session_version) " +
-                                "VALUES (:id, :external_id, :username, :password, :email, :otpKey, :telephoneNumber, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version)")
-                        .bind("id", user.getId())
-                        .bind("external_id", user.getExternalId())
-                        .bind("username", user.getUsername())
-                        .bind("password", user.getPassword())
-                        .bind("email", user.getEmail())
-                        .bind("otpKey", user.getOtpKey())
-                        .bind("telephoneNumber", user.getTelephoneNumber())
-                        .bind("disabled", user.isDisabled())
-                        .bind("loginCounter", user.getLoginCounter())
-                        .bind("version", 0)
-                        .bind("session_version", user.getSessionVersion())
-                        .bind("createdAt", now)
-                        .bind("updatedAt", now)
-                        .execute()
-        );
-        return this;
-    }
-
     public DatabaseTestHelper add(User user, int roleId) {
-        Timestamp now = Timestamp.from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant());
+        Timestamp now = from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant());
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO users(" +
@@ -173,7 +158,7 @@ public class DatabaseTestHelper {
                         .createStatement("INSERT INTO forgotten_passwords(id, date, code, \"userId\") " +
                                 "VALUES (:id, :date, :code, :userId)")
                         .bind("id", forgottenPassword.getId())
-                        .bind("date", Timestamp.from(forgottenPassword.getDate().toInstant()))
+                        .bind("date", from(forgottenPassword.getDate().toInstant()))
                         .bind("code", forgottenPassword.getCode())
                         .bind("userId", userId)
                         .execute()
@@ -225,6 +210,25 @@ public class DatabaseTestHelper {
                 .bind("serviceId", serviceId)
                 .bind("roleId", roleId)
                 .execute());
+        return this;
+    }
+
+    public DatabaseTestHelper addInvite(int id, int senderId, int serviceId, int roleId, String email, String code, String otpKey, ZonedDateTime date, String telephoneNumber) {
+        jdbi.withHandle(handle ->
+                handle
+                        .createStatement("INSERT INTO invites(id, sender_id, service_id, role_id, email, code, otp_key, date, telephone_number) " +
+                                "VALUES (:id, :senderId, :serviceId, :roleId, :email, :code, :otpKey, :date, :telephoneNumber)")
+                        .bind("id", id)
+                        .bind("senderId", senderId)
+                        .bind("serviceId", serviceId)
+                        .bind("roleId", roleId)
+                        .bind("email", email)
+                        .bind("code", code)
+                        .bind("otpKey", otpKey)
+                        .bind("telephoneNumber", telephoneNumber)
+                        .bind("date", from(date.toInstant()))
+                        .execute()
+        );
         return this;
     }
 }

@@ -10,6 +10,7 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.model.Permission.permission;
 import static uk.gov.pay.adminusers.model.Role.role;
+import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
 public class RoleDbFixture {
 
@@ -33,7 +34,7 @@ public class RoleDbFixture {
     }
 
     public Role insertAdmin() {
-        return insert(role(2, "Admin", "Administrator"), aPermission(), aPermission());
+        return insert(role(ADMIN.getId(), "admin", "Administrator"), aPermission(), aPermission());
     }
 
     private Role insert(Role role, Permission... permissions) {

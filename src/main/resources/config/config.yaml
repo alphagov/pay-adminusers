@@ -63,10 +63,13 @@ notify:
   apiKey: ${NOTIFY_API_KEY:-api_key-pay-notify-service-id-pay-notify-secret-needs-to-be-32-chars-fsghdngfhmhfkrgsfs}
   notificationBaseURL: ${NOTIFY_BASE_URL:-https://stubs.pymnt.localdomain/notify}
   secondFactorSmsTemplateId: ${NOTIFY_2FA_TEMPLATE_ID:-pay-notify-two-factor-template-id}
+  inviteEmailTemplateId: ${NOTIFY_INVITE_EMAIL_TEMPLATE_ID:-pay-notify-invite-email-template-id}
 
 graphiteHost: ${METRICS_HOST:-localhost}
 graphitePort: ${METRICS_PORT:-8092}
 
-baseUrl: ${BASE_URL:-http://localhost:8080}
+links:
+  selfserviceUrl: ${SELFSERVICE_URL}
 
+baseUrl: ${BASE_URL:-http://localhost:8080}
 loginAttemptCap: ${LOGIN_ATTEMPT_CAP:-10}

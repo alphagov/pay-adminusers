@@ -23,6 +23,16 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 
+    public static WebApplicationException conflictingEmail(String email) {
+        String error = format("email [%s] already exists", email);
+        return buildWebApplicationException(error, CONFLICT.getStatusCode());
+    }
+
+    public static WebApplicationException conflictingInvite(String email) {
+        String error = format("invite with email [%s] already exists", email);
+        return buildWebApplicationException(error, CONFLICT.getStatusCode());
+    }
+
     public static WebApplicationException conflictingServiceGatewayAccounts() {
         String error = format("List of gateway accounts not matching one of the existing services");
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
@@ -43,6 +53,11 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, UNAUTHORIZED.getStatusCode());
     }
 
+    public static WebApplicationException forbiddenOperationException(String externalId, String operation, int serviceId) {
+        String error = format("user [%s] not authorised to perform operation [%s] in service [%d]", externalId, operation, serviceId);
+        return buildWebApplicationException(error, FORBIDDEN.getStatusCode());
+    }
+
     public static WebApplicationException internalServerError(String message) {
         return buildWebApplicationException(message, INTERNAL_SERVER_ERROR.getStatusCode());
     }
@@ -54,6 +69,11 @@ public class AdminUsersExceptions {
 
     public static RuntimeException userNotificationError(Exception e) {
         return new RuntimeException("error sending user notification", e);
+    }
+
+    public static WebApplicationException resourceHasExpired(){
+        String error = format("Resource has expired");
+        return buildWebApplicationException(error, GONE.getStatusCode());
     }
 
     private static WebApplicationException buildWebApplicationException(String error, int status) {
