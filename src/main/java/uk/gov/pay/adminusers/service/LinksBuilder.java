@@ -21,7 +21,7 @@ public class LinksBuilder {
     }
 
     public User decorate(User user) {
-        URI uri = fromUri(baseUrl).path(USERS_RESOURCE).path(user.getUsername())
+        URI uri = fromUri(baseUrl).path(USERS_RESOURCE).path(user.getExternalId())
                 .build();
         Link selfLink = Link.from(Rel.self, "GET", uri.toString());
         user.setLinks(ImmutableList.of(selfLink));

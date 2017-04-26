@@ -157,15 +157,11 @@ public class UserServices {
                 .orElse(Optional.empty());
     }
 
-    public Optional<SecondFactorToken> newSecondFactorPasscode(String usernameOrExternalId) {
-        Optional<UserEntity> userEntityOptional = userDao.findByUsername(usernameOrExternalId);
-        if (!userEntityOptional.isPresent()) {
-            userEntityOptional = userDao.findByExternalId(usernameOrExternalId);
-        }
-        return userEntityOptional
+    public Optional<SecondFactorToken> newSecondFactorPasscode(String externalId) {
+        return userDao.findByExternalId(externalId)
                 .map(userEntity -> {
                     int newPassCode = secondFactorAuthenticator.newPassCode(userEntity.getOtpKey());
-                    SecondFactorToken token = SecondFactorToken.from(usernameOrExternalId, newPassCode);
+                    SecondFactorToken token = SecondFactorToken.from(externalId, newPassCode);
                     final String userExternalId = userEntity.getExternalId();
                     notificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), token.getPasscode())
                             .thenAcceptAsync(notificationId -> logger.info("sent 2FA token successfully to user [{}], notification id [{}]",
@@ -179,18 +175,14 @@ public class UserServices {
                 })
                 .orElseGet(() -> {
                     //this cannot happen unless a bug in selfservice
-                    logger.error("New 2FA token attempted for non-existent User [{}]", usernameOrExternalId);
+                    logger.error("New 2FA token attempted for non-existent User [{}]", externalId);
                     return Optional.empty();
                 });
     }
 
     @Transactional
-    public Optional<User> authenticateSecondFactor(String usernameOrExternalId, int code) {
-        Optional<UserEntity> userEntityOptional = userDao.findByUsername(usernameOrExternalId);
-        if (!userEntityOptional.isPresent()) {
-            userEntityOptional = userDao.findByExternalId(usernameOrExternalId);
-        }
-        return userEntityOptional
+    public Optional<User> authenticateSecondFactor(String externalId, int code) {
+        return userDao.findByExternalId(externalId)
                 .map(userEntity -> {
                     if (userEntity.isDisabled()) {
                         logger.warn("Authenticate Second Factor attempted for disabled User [{}]", userEntity.getExternalId());
@@ -217,17 +209,17 @@ public class UserServices {
                 })
                 .orElseGet(() -> {
                     //this cannot happen unless a bug in selfservice
-                    logger.error("Authenticate 2FA token attempted for non-existent User [{}]", usernameOrExternalId);
+                    logger.error("Authenticate 2FA token attempted for non-existent User [{}]", externalId);
                     return Optional.empty();
                 });
     }
 
     @Transactional
-    public Optional<User> patchUser(String usernameOrExternalId, PatchRequest patchRequest) {
+    public Optional<User> patchUser(String externalId, PatchRequest patchRequest) {
         if (PATH_SESSION_VERSION.equals(patchRequest.getPath())) {
-            return incrementSessionVersion(usernameOrExternalId, parseInt(patchRequest.getValue()));
+            return incrementSessionVersion(externalId, parseInt(patchRequest.getValue()));
         } else if (PATH_DISABLED.equals(patchRequest.getPath())) {
-            return changeUserDisabled(usernameOrExternalId, parseBoolean(patchRequest.getValue()));
+            return changeUserDisabled(externalId, parseBoolean(patchRequest.getValue()));
         } else {
             String error = format("Invalid patch request with path [%s]", patchRequest.getPath());
             logger.error(error);
@@ -235,12 +227,8 @@ public class UserServices {
         }
     }
 
-    private Optional<User> changeUserDisabled(String usernameOrExternalId, Boolean value) {
-        Optional<UserEntity> userEntityOptional = userDao.findByUsername(usernameOrExternalId);
-        if (!userEntityOptional.isPresent()) {
-            userEntityOptional = userDao.findByExternalId(usernameOrExternalId);
-        }
-        return userEntityOptional
+    private Optional<User> changeUserDisabled(String externalId, Boolean value) {
+        return userDao.findByExternalId(externalId)
                 .map(userEntity -> {
                     userEntity.setLoginCounter(0);
                     userEntity.setDisabled(value);
@@ -251,12 +239,8 @@ public class UserServices {
                 .orElseGet(Optional::empty);
     }
 
-    private Optional<User> incrementSessionVersion(String usernameOrExternalId, Integer value) {
-        Optional<UserEntity> userEntityOptional = userDao.findByUsername(usernameOrExternalId);
-        if (!userEntityOptional.isPresent()) {
-            userEntityOptional = userDao.findByExternalId(usernameOrExternalId);
-        }
-        return userEntityOptional
+    private Optional<User> incrementSessionVersion(String externalId, Integer value) {
+        return userDao.findByExternalId(externalId)
                 .map(userEntity -> {
                     userEntity.setSessionVersion(userEntity.getSessionVersion() + value);
                     userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));

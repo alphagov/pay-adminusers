@@ -31,6 +31,7 @@
           "Content-Type": "application/json"
         },
         "body": {
+          "external_id": "72dadb5019f4447595f57643304b54a8",
           "username": "wjq68lqaz1in72pgb9",
           "email": "wjq68lqaz1in72pgb9@example.com",
           "gateway_account_ids": [
@@ -49,13 +50,16 @@
           ],
           "_links": [
             {
-              "href": "http://adminusers.service/v1/api/users/wjq68lqaz1in72pgb9",
+              "href": "http://adminusers.service/v1/api/users/72dadb5019f4447595f57643304b54a8",
               "rel": "self",
               "method": "GET"
             }
           ]
         },
         "matchingRules": {
+          "$.body.external_id": {
+            "match": "type"
+          },
           "$.body.username": {
             "match": "type"
           },

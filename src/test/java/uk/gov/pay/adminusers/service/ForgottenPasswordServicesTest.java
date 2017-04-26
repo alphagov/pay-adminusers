@@ -35,48 +35,47 @@ public class ForgottenPasswordServicesTest {
 
     @Test
     public void shouldReturnANewForgottenPassword_whenCreating_ifUserFound() throws Exception {
-        String existingUser = "existing-user";
+        String existingUsername = "existing-user";
         UserEntity mockUser = mock(UserEntity.class);
-        when(mockUser.getUsername()).thenReturn(existingUser);
+        when(mockUser.getUsername()).thenReturn(existingUsername);
 
-        when(userDao.findByUsername(existingUser)).thenReturn(Optional.of(mockUser));
-        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.create(existingUser);
+        when(userDao.findByUsername(existingUsername)).thenReturn(Optional.of(mockUser));
+        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.create(existingUsername);
 
         verify(forgottenPasswordDao, times(1)).persist(any(ForgottenPasswordEntity.class));
         assertTrue(forgottenPasswordOptional.isPresent());
-        assertThat(forgottenPasswordOptional.get().getUsername(), is(existingUser));
+        assertThat(forgottenPasswordOptional.get().getUsername(), is(existingUsername));
         assertThat(forgottenPasswordOptional.get().getCode(), is(notNullValue()));
         assertThat(forgottenPasswordOptional.get().getLinks().size(), is(1));
     }
 
     @Test
     public void shouldReturnEmpty_whenCreating_ifUserNotFound() throws Exception {
-        String nonExistingUser = "non-existent-user";
-        when(userDao.findByUsername(nonExistingUser)).thenReturn(Optional.empty());
-        when(userDao.findByExternalId(nonExistingUser)).thenReturn(Optional.empty());
+        String nonExistentUser = "non-existent-user";
+        when(userDao.findByUsername(nonExistentUser)).thenReturn(Optional.empty());
 
-        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.create(nonExistingUser);
+        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.create(nonExistentUser);
         assertFalse(forgottenPasswordOptional.isPresent());
     }
 
     @Test
     public void shouldFindForgottenPassword_whenFindByCode_ifFound() throws Exception {
-        String code = "an-existent-code";
-        ForgottenPasswordEntity forgottenPasswordEntity = mockForgottenPassword(code);
-        when(forgottenPasswordDao.findNonExpiredByCode(code)).thenReturn(Optional.of(forgottenPasswordEntity));
+        String existingCode = "existing-code";
+        ForgottenPasswordEntity forgottenPasswordEntity = mockForgottenPassword(existingCode);
+        when(forgottenPasswordDao.findNonExpiredByCode(existingCode)).thenReturn(Optional.of(forgottenPasswordEntity));
 
-        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.findNonExpired(code);
+        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.findNonExpired(existingCode);
         assertTrue(forgottenPasswordOptional.isPresent());
-        assertThat(forgottenPasswordOptional.get().getCode(), is(code));
+        assertThat(forgottenPasswordOptional.get().getCode(), is(existingCode));
         assertThat(forgottenPasswordOptional.get().getLinks(), hasSize(1));
     }
 
     @Test
     public void shouldReturnEmpty_whenFindByCode_ifNotFound() throws Exception {
-        String code = "non-existent-code";
-        when(forgottenPasswordDao.findNonExpiredByCode(code)).thenReturn(Optional.empty());
+        String nonExistentCode = "non-existent-code";
+        when(forgottenPasswordDao.findNonExpiredByCode(nonExistentCode)).thenReturn(Optional.empty());
 
-        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.findNonExpired(code);
+        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.findNonExpired(nonExistentCode);
         assertFalse(forgottenPasswordOptional.isPresent());
     }
 

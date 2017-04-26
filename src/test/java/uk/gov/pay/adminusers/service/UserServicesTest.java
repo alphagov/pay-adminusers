@@ -35,7 +35,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.Permission.permission;
 import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
@@ -61,7 +60,7 @@ public class UserServicesTest {
 
     private UserServices userServices;
 
-    private static final String USER_EXTERNAL_ID = randomUuid();
+    private static final String USER_EXTERNAL_ID = "7d19aff33f8948deb97ed16b2912dcd3";
     private static final String USER_USERNAME = "random-name";
 
     @Before
@@ -94,7 +93,7 @@ public class UserServicesTest {
         doNothing().when(userDao).persist(any(UserEntity.class));
 
         User persistedUser = userServices.createUser(createUserRequest, role.getName());
-        Link selfLink = Link.from(Link.Rel.self, "GET", "http://localhost" + USERS_RESOURCE + "/random-name");
+        Link selfLink = Link.from(Link.Rel.self, "GET", "http://localhost" + USERS_RESOURCE + "/" + persistedUser.getExternalId());
 
         assertThat(persistedUser.getUsername(), is(createUserRequest.getUsername()));
         assertThat(persistedUser.getPassword(), is(not(createUserRequest.getPassword())));
@@ -131,7 +130,7 @@ public class UserServicesTest {
         doNothing().when(userDao).persist(any(UserEntity.class));
 
         User persistedUser = userServices.createUser(createUserRequest, role.getName());
-        Link selfLink = Link.from(Link.Rel.self, "GET", "http://localhost" + USERS_RESOURCE + "/random-name");
+        Link selfLink = Link.from(Link.Rel.self, "GET", "http://localhost" + USERS_RESOURCE + "/" + persistedUser.getExternalId());
 
         assertThat(persistedUser.getUsername(), is(createUserRequest.getUsername()));
         assertThat(persistedUser.getPassword(), is(not(createUserRequest.getPassword())));
@@ -168,9 +167,9 @@ public class UserServicesTest {
 
     @Test
     public void shouldReturnEmpty_WhenFindByExternalId_ifNotFound() throws Exception {
-        when(userDao.findByExternalId(USER_USERNAME)).thenReturn(Optional.empty());
+        when(userDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(Optional.empty());
 
-        Optional<User> userOptional = userServices.findUserByExternalId(USER_USERNAME);
+        Optional<User> userOptional = userServices.findUserByExternalId(USER_EXTERNAL_ID);
         assertFalse(userOptional.isPresent());
     }
 
@@ -285,12 +284,12 @@ public class UserServicesTest {
         UserEntity userEntity = aUserEntityWithTrimmings(user);
 
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
-        when(userDao.findByUsername(USER_USERNAME)).thenReturn(userEntityOptional);
+        when(userDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(userEntityOptional);
 
-        Optional<User> userOptional = userServices.patchUser(USER_USERNAME, PatchRequest.from(node));
+        Optional<User> userOptional = userServices.patchUser(USER_EXTERNAL_ID, PatchRequest.from(node));
         assertTrue(userOptional.isPresent());
 
-        assertThat(userOptional.get().getUsername(), is(USER_USERNAME));
+        assertThat(userOptional.get().getExternalId(), is(USER_EXTERNAL_ID));
         assertThat(userOptional.get().getSessionVersion(), is(2));
     }
 
@@ -303,14 +302,14 @@ public class UserServicesTest {
         UserEntity userEntity = aUserEntityWithTrimmings(user);
 
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
-        when(userDao.findByUsername(USER_USERNAME)).thenReturn(userEntityOptional);
+        when(userDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(userEntityOptional);
 
         assertFalse(user.isDisabled());
 
-        Optional<User> userOptional = userServices.patchUser(USER_USERNAME, PatchRequest.from(node));
+        Optional<User> userOptional = userServices.patchUser(USER_EXTERNAL_ID, PatchRequest.from(node));
         assertTrue(userOptional.isPresent());
 
-        assertThat(userOptional.get().getUsername(), is(USER_USERNAME));
+        assertThat(userOptional.get().getExternalId(), is(USER_EXTERNAL_ID));
         assertTrue(userOptional.get().isDisabled());
     }
 
@@ -323,12 +322,12 @@ public class UserServicesTest {
         JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "disabled", "op", "replace", "value", "false"));
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
-        when(userDao.findByUsername(USER_USERNAME)).thenReturn(userEntityOptional);
+        when(userDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(userEntityOptional);
 
         assertTrue(user.isDisabled());
         assertThat(user.getLoginCounter(), is(11));
 
-        Optional<User> userOptional = userServices.patchUser(USER_USERNAME, PatchRequest.from(node));
+        Optional<User> userOptional = userServices.patchUser(USER_EXTERNAL_ID, PatchRequest.from(node));
         assertTrue(userOptional.isPresent());
 
         assertFalse(userOptional.get().isDisabled());
@@ -339,13 +338,13 @@ public class UserServicesTest {
     public void shouldReturn2FAToken_whenCreate2FA_ifUserFound() throws Exception {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
-        when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(123456);
         CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
         when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456")))
                 .thenReturn(notifyPromise);
 
-        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getUsername());
+        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId());
 
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is("123456"));
@@ -356,13 +355,13 @@ public class UserServicesTest {
     public void shouldZeroPad2FATokenTo6Digits_whenCreate2FA() throws Exception {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
-        when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(12345);
         CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
         when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("012345")))
                 .thenReturn(notifyPromise);
 
-        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getUsername());
+        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId());
 
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is("012345"));
@@ -373,7 +372,7 @@ public class UserServicesTest {
     public void shouldReturn2FAToken_whenCreate2FA_evenIfNotifyThrowsAnError() throws Exception {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
-        when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(123456);
         CompletableFuture<String> errorPromise = CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException("some error from notify");
@@ -382,7 +381,7 @@ public class UserServicesTest {
         when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456")))
                 .thenReturn(errorPromise);
 
-        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getUsername());
+        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId());
 
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is("123456"));
@@ -392,11 +391,10 @@ public class UserServicesTest {
 
     @Test
     public void shouldReturnEmpty_whenCreate2FA_ifUserNotFound() throws Exception {
-        String usernameOrExternalId = "non-existent";
-        when(userDao.findByUsername(usernameOrExternalId)).thenReturn(Optional.empty());
-        when(userDao.findByExternalId(usernameOrExternalId)).thenReturn(Optional.empty());
+        String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+        when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
 
-        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(usernameOrExternalId);
+        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(nonExistentExternalId);
 
         assertFalse(tokenOptional.isPresent());
     }
@@ -406,14 +404,13 @@ public class UserServicesTest {
         User user = aUser();
         int newPassCode = 123456;
         UserEntity userEntity = aUserEntityWithTrimmings(user);
-        when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.authorize(user.getOtpKey(), newPassCode)).thenReturn(true);
 
-
-        Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getUsername(), newPassCode);
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getExternalId(), newPassCode);
 
         assertTrue(tokenOptional.isPresent());
-        assertThat(tokenOptional.get().getUsername(), is(user.getUsername()));
+        assertThat(tokenOptional.get().getExternalId(), is(user.getExternalId()));
         assertThat(tokenOptional.get().getLoginCounter(), is(0));
     }
 
@@ -421,12 +418,12 @@ public class UserServicesTest {
     public void shouldReturnEmpty_whenAuthenticate2FA_ifUnsuccessful() throws Exception {
         User user = aUser();
         UserEntity userEntity = aUserEntityWithTrimmings(user);
-        when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.authorize(user.getOtpKey(), 123456)).thenReturn(false);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getUsername(), 123456);
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getExternalId(), 123456);
 
         assertFalse(tokenOptional.isPresent());
 
@@ -441,12 +438,12 @@ public class UserServicesTest {
         User user = aUser();
         user.setLoginCounter(3);
         UserEntity userEntity = aUserEntityWithTrimmings(user);
-        when(userDao.findByUsername(user.getUsername())).thenReturn(Optional.of(userEntity));
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.authorize(user.getOtpKey(), 123456)).thenReturn(false);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getUsername(), 123456);
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getExternalId(), 123456);
 
         assertFalse(tokenOptional.isPresent());
 
@@ -457,11 +454,10 @@ public class UserServicesTest {
 
     @Test
     public void shouldReturnEmpty_whenAuthenticate2FA_ifUserNotFound() throws Exception {
-        String usernameOrExternalId = "non-existent";
-        when(userDao.findByUsername(usernameOrExternalId)).thenReturn(Optional.empty());
-        when(userDao.findByExternalId(usernameOrExternalId)).thenReturn(Optional.empty());
+        String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+        when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
 
-        Optional<User> tokenOptional = userServices.authenticateSecondFactor(usernameOrExternalId, 111111);
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(nonExistentExternalId, 111111);
 
         assertFalse(tokenOptional.isPresent());
     }
@@ -539,7 +535,7 @@ public class UserServicesTest {
         doNothing().when(serviceDao).persist(any(ServiceEntity.class));
 
         User persistedUser = userServices.createUser(createUserRequest, role.getName());
-        Link selfLink = Link.from(Link.Rel.self, "GET", "http://localhost" + USERS_RESOURCE + "/random-name");
+        Link selfLink = Link.from(Link.Rel.self, "GET", "http://localhost" + USERS_RESOURCE + "/" + persistedUser.getExternalId());
 
         assertThat(persistedUser.getUsername(), is(createUserRequest.getUsername()));
         assertThat(persistedUser.getPassword(), is(not(createUserRequest.getPassword())));
