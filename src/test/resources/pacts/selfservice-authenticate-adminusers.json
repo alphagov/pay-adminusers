@@ -3,7 +3,7 @@
     "name": "Selfservice-authenticate"
   },
   "provider": {
-    "name": "AdminUsers"
+    "name": "adminusers"
   },
   "interactions": [
     {

@@ -3,7 +3,7 @@
     "name": "Selfservice-get-user"
   },
   "provider": {
-    "name": "AdminUsers"
+    "name": "adminusers"
   },
   "interactions": [
     {

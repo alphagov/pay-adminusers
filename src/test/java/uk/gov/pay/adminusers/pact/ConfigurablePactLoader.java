@@ -20,10 +20,7 @@ public class ConfigurablePactLoader implements PactLoader {
 
     @Override
     public List<Pact> load(String providerName) throws IOException {
-        if ("local".equals(System.getProperty("pactSource"))) {
-            PactFolderLoader pfl = new PactFolderLoader("pacts");
-            return pfl.load(providerName);
-        } else {
+        if ("broker".equals(System.getProperty("pactSource"))) {
             Properties properties = new Properties();
 
             properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("config/pact.properties"));
@@ -38,6 +35,9 @@ public class ConfigurablePactLoader implements PactLoader {
             PactBrokerLoader pbl = new PactBrokerLoader(new PactBrokerImpl(host, port, protocol, username, password, tagsList));
 
             return pbl.load(providerName);
+        } else {
+            PactFolderLoader pfl = new PactFolderLoader("pacts");
+            return pfl.load(providerName);
         }
     }
 

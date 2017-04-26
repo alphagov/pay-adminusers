@@ -80,6 +80,23 @@ public class UsersApiTest {
         createUserWithinAService(externalId, username, nextInt(), password);
     }
 
+    @State({"a forgotten password does not exists",
+            "a user does not exist",
+            "a user exists",
+            "no user exits with the given name",
+            "a user exits with the given name",
+            "a valid (non-expired) forgotten password entry does not exist",
+            "default",
+            "a user exist",
+            "a user exists with a given username password",
+            "a user not exists with a given username password",
+            "a user not exists with a given username password",
+            "no user exits with the given external id",
+            "a user exits with the given external id"
+    })
+    public void noSetUp() {
+    }
+    
     private static void createUserWithinAService(String externalId, String username, int serviceId, String password) throws Exception {
         String gatewayAccount1 = randomNumeric(5);
         String gatewayAccount2 = randomNumeric(5);
