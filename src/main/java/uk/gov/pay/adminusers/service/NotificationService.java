@@ -33,7 +33,7 @@ public class NotificationService {
         this.metricRegistry = metricRegistry;
     }
 
-    public CompletableFuture<String> sendSecondFactorPasscodeSms(String phoneNumber, String passcode) {
+    CompletableFuture<String> sendSecondFactorPasscodeSms(String phoneNumber, String passcode) {
         return CompletableFuture.supplyAsync(() -> {
             HashMap<String, String> personalisation = newHashMap();
             personalisation.put("code", passcode);
@@ -51,7 +51,7 @@ public class NotificationService {
         }, executorService);
     }
 
-    public CompletableFuture<String> sendInviteEmail(String sender, String email, String inviteUrl) {
+    CompletableFuture<String> sendInviteEmail(String sender, String email, String inviteUrl) {
         return CompletableFuture.supplyAsync(() -> {
             HashMap<String, String> personalisation = newHashMap();
             personalisation.put("username", sender);

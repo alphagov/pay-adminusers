@@ -45,6 +45,9 @@ public class InviteEntity extends AbstractEntity {
     @Column(name = "telephone_number")
     private String telephoneNumber;
 
+    @Column(name = "password")
+    private String password;
+
     public InviteEntity() {
         //for jpa
     }
@@ -121,6 +124,14 @@ public class InviteEntity extends AbstractEntity {
 
     public void setTelephoneNumber(String telephoneNumber) {
         this.telephoneNumber = telephoneNumber;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Invite toInvite(String inviteUrl) {
