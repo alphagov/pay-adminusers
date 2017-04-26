@@ -26,4 +26,15 @@ public class InviteDao extends JpaDao<InviteEntity> {
                 .setParameter("code", code)
                 .getResultList().stream().findFirst();
     }
+
+    public Optional<InviteEntity> findByEmail(String email) {
+
+        String query = "SELECT invite FROM InviteEntity invite " +
+                "WHERE invite.email = :email";
+
+        return entityManager.get()
+                .createQuery(query, InviteEntity.class)
+                .setParameter("email", email)
+                .getResultList().stream().findFirst();
+    }
 }

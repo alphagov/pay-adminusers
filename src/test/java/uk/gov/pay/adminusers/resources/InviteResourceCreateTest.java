@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.http.ContentType;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.pay.adminusers.fixtures.InviteDbFixture;
 
 import static java.lang.String.format;
 import static javax.ws.rs.core.Response.Status.CREATED;
@@ -13,6 +14,7 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.IsEmptyString.isEmptyString;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
+import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.*;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
@@ -65,7 +67,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
     }
 
     @Test
-    public void createInvitation_shouldFail_whenEmailAlreadyExists() throws Exception {
+    public void createInvitation_shouldFail_whenUserWithTheGivenEmailAlreadyExists() throws Exception {
 
         // This test will be removed when users can be added to existing services (multiple services supported) but
         // not at the moment.
@@ -91,6 +93,33 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .statusCode(409)
                 .body("errors", hasSize(1))
                 .body("errors", hasItems(format("email [%s] already exists", existingUserEmail)));
+    }
+
+    @Test
+    public void createInvitation_shouldFail_whenAnInviteWithTheGivenEmailAlreadyExists() throws Exception {
+
+        String existingUserEmail = randomAlphanumeric(5) + "-invite@example.com";
+
+        inviteDbFixture(databaseHelper)
+                .withEmail(existingUserEmail)
+                .insertInvite();
+
+        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
+                .put("sender", senderExternalId)
+                .put("email", existingUserEmail)
+                .put("role_name", roleAdminName)
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(invitationRequest))
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .post(format(SERVICE_INVITES_RESOURCE_URL, serviceId))
+                .then()
+                .statusCode(409)
+                .body("errors", hasSize(1))
+                .body("errors", hasItems(format("invite with email [%s] already exists", existingUserEmail)));
     }
 
     @Test

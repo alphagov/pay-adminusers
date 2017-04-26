@@ -68,6 +68,7 @@ public class InviteServiceTest {
         service.setId(serviceId);
 
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
+        when(mockInviteDao.findByEmail(email)).thenReturn(Optional.empty());
         when(mockServiceDao.findById(serviceId)).thenReturn(Optional.of(service));
         when(mockRoleDao.findByRoleName(roleName)).thenReturn(Optional.of(new RoleEntity()));
 

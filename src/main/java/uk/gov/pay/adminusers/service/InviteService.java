@@ -56,6 +56,12 @@ public class InviteService {
             throw conflictingEmail(invite.getEmail());
         }
 
+        if(inviteDao.findByEmail(invite.getEmail()).isPresent()) {
+            // When multiple services support is implemented
+            // then this should include serviceId
+            throw conflictingInvite(invite.getEmail());
+        }
+
         return serviceDao.findById(serviceId)
                 .flatMap(serviceEntity -> roleDao.findByRoleName(invite.getRoleName())
                         .map(doInvite(invite.getSender(), invite.getEmail(), serviceEntity))

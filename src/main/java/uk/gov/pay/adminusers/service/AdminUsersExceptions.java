@@ -28,6 +28,11 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 
+    public static WebApplicationException conflictingInvite(String email) {
+        String error = format("invite with email [%s] already exists", email);
+        return buildWebApplicationException(error, CONFLICT.getStatusCode());
+    }
+
     public static WebApplicationException conflictingServiceGatewayAccounts() {
         String error = format("List of gateway accounts not matching one of the existing services");
         return buildWebApplicationException(error, CONFLICT.getStatusCode());

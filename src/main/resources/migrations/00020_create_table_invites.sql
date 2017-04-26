@@ -9,6 +9,7 @@ CREATE TABLE invites (
     email VARCHAR(255) NOT NULL,
     telephone_number VARCHAR(255),
     code VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255),
     otp_key VARCHAR(255) NOT NULL,
     date TIMESTAMP WITH TIME ZONE DEFAULT (now() AT TIME ZONE 'utc') NOT NULL,
     version INTEGER DEFAULT 0 NOT NULL
