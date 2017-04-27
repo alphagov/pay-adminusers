@@ -3,7 +3,7 @@ package uk.gov.pay.adminusers.pact;
 import au.com.dius.pact.provider.junit.PactRunner;
 import au.com.dius.pact.provider.junit.Provider;
 import au.com.dius.pact.provider.junit.State;
-import au.com.dius.pact.provider.junit.loader.PactFolder;
+import au.com.dius.pact.provider.junit.loader.PactSource;
 import au.com.dius.pact.provider.junit.target.HttpTarget;
 import au.com.dius.pact.provider.junit.target.Target;
 import au.com.dius.pact.provider.junit.target.TestTarget;
@@ -23,15 +23,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.commons.lang3.RandomStringUtils.*;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
 @RunWith(PactRunner.class)
-@Provider("AdminUsers")
-@PactFolder("pacts")
+@Provider("adminusers")
+@PactSource(ConfigurablePactLoader.class)
 public class UsersApiTest {
 
     @ClassRule
@@ -79,6 +80,23 @@ public class UsersApiTest {
         createUserWithinAService(externalId, username, nextInt(), password);
     }
 
+    @State({"a forgotten password does not exists",
+            "a user does not exist",
+            "a user exists",
+            "no user exits with the given name",
+            "a user exits with the given name",
+            "a valid (non-expired) forgotten password entry does not exist",
+            "default",
+            "a user exist",
+            "a user exists with a given username password",
+            "a user not exists with a given username password",
+            "a user not exists with a given username password",
+            "no user exits with the given external id",
+            "a user exits with the given external id"
+    })
+    public void noSetUp() {
+    }
+    
     private static void createUserWithinAService(String externalId, String username, int serviceId, String password) throws Exception {
         String gatewayAccount1 = randomNumeric(5);
         String gatewayAccount2 = randomNumeric(5);

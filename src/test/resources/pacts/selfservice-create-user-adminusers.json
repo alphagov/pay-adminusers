@@ -3,7 +3,7 @@
     "name": "Selfservice-create-user"
   },
   "provider": {
-    "name": "AdminUsers"
+    "name": "adminusers"
   },
   "interactions": [
     {
