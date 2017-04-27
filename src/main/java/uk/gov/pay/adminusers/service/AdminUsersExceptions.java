@@ -48,6 +48,10 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, BAD_REQUEST.getStatusCode());
     }
 
+    public static WebApplicationException notFoundException() {
+        return new WebApplicationException(Response.status(NOT_FOUND.getStatusCode()).build());
+    }
+
     public static WebApplicationException userLockedException(String username) {
         String error = format("user [%s] locked due to too many login attempts", username);
         return buildWebApplicationException(error, UNAUTHORIZED.getStatusCode());

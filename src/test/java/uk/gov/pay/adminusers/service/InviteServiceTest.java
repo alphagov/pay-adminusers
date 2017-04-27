@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
+import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
@@ -20,12 +21,15 @@ import uk.gov.pay.adminusers.persistence.entity.*;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static java.lang.String.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
+import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_PASSWORD;
+import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_TELEPHONE_NUMBER;
 import static uk.gov.pay.adminusers.model.InviteRequest.*;
 import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
@@ -47,6 +51,10 @@ public class InviteServiceTest {
     private AdminUsersConfig mockConfig;
     @Mock
     private NotificationService mockNotificationService;
+    @Mock
+    private PasswordHasher mockPasswordHasher;
+    @Mock
+    private SecondFactorAuthenticator mockSecondFactorAuthenticator;
 
     private InviteService inviteService;
     private ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
@@ -58,11 +66,13 @@ public class InviteServiceTest {
 
     @Before
     public void setup() {
-
         LinksConfig mockLinks = mock(LinksConfig.class);
         when(mockLinks.getSelfserviceUrl()).thenReturn(SELFSERVICE_URL);
         when(mockConfig.getLinks()).thenReturn(mockLinks);
-        inviteService = new InviteService(mockRoleDao, mockServiceDao, mockUserDao, mockInviteDao, mockConfig, mockNotificationService);
+        inviteService = new InviteService(mockRoleDao, mockServiceDao, mockUserDao, mockInviteDao, mockConfig, mockPasswordHasher, mockNotificationService, mockSecondFactorAuthenticator);
+    }
+
+    private void mocksCreateInvite() {
 
         ServiceEntity service = new ServiceEntity();
         service.setId(serviceId);
@@ -83,6 +93,8 @@ public class InviteServiceTest {
     @Test
     public void create_shouldSendNotificationOnSuccessfulInvite() throws Exception {
 
+        mocksCreateInvite();
+
         CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
 
         when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{20,30}$")))
@@ -100,7 +112,9 @@ public class InviteServiceTest {
     }
 
     @Test
-    public void create_shouldStillCreateTheInviteOnUnSuccessfulNotification() throws Exception {
+    public void create_shouldStillCreateTheInviteFailingOnSendingEmail() throws Exception {
+
+        mocksCreateInvite();
 
         CompletableFuture<String> errorPromise = CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException("some error from notify");
@@ -120,11 +134,78 @@ public class InviteServiceTest {
         assertThat(errorPromise.isCompletedExceptionally(), is(true));
     }
 
+    @Test
+    public void generateOtp_shouldSendNotificationOnSuccessfulInviteUpdate() {
+
+        String code = "code";
+        String telephoneNumber = "+4498765423";
+        String plainPassword = "my-secure-pass";
+        String encryptedPassword = "my-secure-pass-encrypted";
+        String otpKey = "otpKey";
+        int passcode = 123456;
+
+        InviteEntity inviteEntity = new InviteEntity();
+        inviteEntity.setOtpKey(otpKey);
+        when(mockInviteDao.findByCode(code)).thenReturn(Optional.of(inviteEntity));
+        when(mockPasswordHasher.hash(plainPassword)).thenReturn(encryptedPassword);
+        when(mockSecondFactorAuthenticator.newPassCode(otpKey)).thenReturn(passcode);
+        when(mockInviteDao.merge(any(InviteEntity.class))).thenReturn(inviteEntity);
+        CompletableFuture<String> errorPromise = CompletableFuture.supplyAsync(() -> {
+            throw new RuntimeException("some error from notify");
+        });
+        when(mockNotificationService.sendSecondFactorPasscodeSms(eq(telephoneNumber), eq(valueOf(passcode))))
+                .thenReturn(errorPromise);
+
+        inviteService.generateOtp(inviteOtpRequestFrom(code, telephoneNumber, plainPassword));
+
+        verify(mockInviteDao).merge(expectedInvite.capture());
+        InviteEntity updatedInvite = expectedInvite.getValue();
+        assertThat(updatedInvite.getTelephoneNumber(), is(telephoneNumber));
+        assertThat(updatedInvite.getPassword(), is(encryptedPassword));
+        assertThat(errorPromise.isCompletedExceptionally(), is(true));
+    }
+
+    @Test
+    public void generateOtp_shouldStillUpdateTheInviteWhen2FAFails() {
+
+        String code = "code";
+        String telephoneNumber = "+4498765423";
+        String plainPassword = "my-secure-pass";
+        String encryptedPassword = "my-secure-pass-encrypted";
+        String otpKey = "otpKey";
+        int passcode = 123456;
+
+        InviteEntity inviteEntity = new InviteEntity();
+        inviteEntity.setOtpKey(otpKey);
+        when(mockInviteDao.findByCode(code)).thenReturn(Optional.of(inviteEntity));
+        when(mockPasswordHasher.hash(plainPassword)).thenReturn(encryptedPassword);
+        when(mockSecondFactorAuthenticator.newPassCode(otpKey)).thenReturn(passcode);
+        when(mockInviteDao.merge(any(InviteEntity.class))).thenReturn(inviteEntity);
+        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
+        when(mockNotificationService.sendSecondFactorPasscodeSms(eq(telephoneNumber), eq(valueOf(passcode))))
+                .thenReturn(notifyPromise);
+
+        inviteService.generateOtp(inviteOtpRequestFrom(code, telephoneNumber, plainPassword));
+
+        verify(mockInviteDao).merge(expectedInvite.capture());
+        InviteEntity updatedInvite = expectedInvite.getValue();
+        assertThat(updatedInvite.getTelephoneNumber(), is(telephoneNumber));
+        assertThat(updatedInvite.getPassword(), is(encryptedPassword));
+        assertThat(notifyPromise.isDone(), is(true));
+    }
+
     private InviteRequest inviteRequestFrom(String sender, String email, String roleName) {
         ObjectNode json = JsonNodeFactory.instance.objectNode();
         json.put(FIELD_SENDER, sender);
         json.put(FIELD_EMAIL, email);
         json.put(FIELD_ROLE_NAME, roleName);
-        return from(json);
+        return InviteRequest.from(json);
+    }
+
+    private InviteOtpRequest inviteOtpRequestFrom(String code, String telephoneNumber, String password) {
+        ObjectNode json = JsonNodeFactory.instance.objectNode();
+        json.put(FIELD_TELEPHONE_NUMBER, telephoneNumber);
+        json.put(FIELD_PASSWORD, password);
+        return InviteOtpRequest.from(code, json);
     }
 }
