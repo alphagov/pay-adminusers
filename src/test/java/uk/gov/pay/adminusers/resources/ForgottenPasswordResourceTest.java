@@ -21,6 +21,7 @@ import static uk.gov.pay.adminusers.utils.DateTimeUtils.toUTCZonedDateTime;
 public class ForgottenPasswordResourceTest extends IntegrationTest {
 
     private static final String FORGOTTEN_PASSWORDS_RESOURCE_URL = "/v1/api/forgotten-passwords";
+    private static final String FORGOTTEN_PASSWORDS_RESOURCE_URL_V2 = "/v2/api/forgotten-passwords";
 
     @Test
     public void shouldGetForgottenPasswordReference_whenCreate_forAnExistingUser() throws Exception {
@@ -33,6 +34,32 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
                 .contentType(JSON)
                 .accept(JSON)
                 .post(FORGOTTEN_PASSWORDS_RESOURCE_URL)
+                .then()
+                .statusCode(201);
+
+        validatableResponse
+                .body("username", is(username))
+                .body("code", is(notNullValue()))
+                .body("_links", hasSize(1))
+                .body("_links[0].href", is("http://localhost:8080/v1/api/forgotten-passwords/" + validatableResponse.extract().body().path("code").toString()))
+                .body("_links[0].method", is("GET"))
+                .body("_links[0].rel", is("self"));
+
+        String dateTimeString = validatableResponse.extract().body().path("date");
+        assertThat(toUTCZonedDateTime(dateTimeString).get(), within(1, ChronoUnit.MINUTES, now()));
+    }
+
+    @Test
+    public void shouldGetForgottenPasswordReference_whenCreate_forAnExistingUser_Legacy() throws Exception {
+
+        String username = userDbFixture(databaseHelper).insertUser().getUsername();
+
+        ValidatableResponse validatableResponse = givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(of("username", username)))
+                .contentType(JSON)
+                .accept(JSON)
+                .post(FORGOTTEN_PASSWORDS_RESOURCE_URL_V2)
                 .then()
                 .statusCode(201);
 
