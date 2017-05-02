@@ -284,7 +284,7 @@ Content-Type: application/json
 
 ## GET /v1/api/forgotten-passwords/{code}
 
-This endpoint creates a new forgotten password request
+Verify that the code is valid
 
 ### Request example
 
@@ -292,7 +292,7 @@ This endpoint creates a new forgotten password request
 GET /v1/api/forgotten-passwords/xyz1234
 ```
 
-### Response example
+### Response example (valid)
 
 ```
 200 OK
@@ -307,6 +307,12 @@ Content-Type: application/json
             "method" : "GET"
           }]
 }
+```
+
+### Response example (invalid)
+
+```
+404 OK
 ```
 
 -----------------------------------------------------------------------------------------------------------
