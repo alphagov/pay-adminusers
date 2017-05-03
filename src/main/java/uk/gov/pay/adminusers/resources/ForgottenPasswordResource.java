@@ -37,18 +37,16 @@ public class ForgottenPasswordResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response createForgottenPassword(JsonNode payload) {
+    public Response sendForgottenPassword(JsonNode payload) {
         logger.info("ForgottenPassword CREATE request - [ {} ]", payload);
         Optional<Errors> errorsOptional = validator.validateCreateRequest(payload);
         return errorsOptional
                 .map(errors ->
                         Response.status(BAD_REQUEST).type(APPLICATION_JSON).entity(errors).build())
-                .orElseGet(() ->
-                        forgottenPasswordServices.create(payload.get("username").asText())
-                                .map(forgottenPassword ->
-                                        Response.status(CREATED).type(APPLICATION_JSON).entity(forgottenPassword).build())
-                                .orElseGet(() ->
-                                        Response.status(NOT_FOUND).build()));
+                .orElseGet(() -> {
+                    forgottenPasswordServices.create(payload.get("username").asText());
+                    return Response.status(Response.Status.OK).build();
+                });
     }
 
     @Path(FORGOTTEN_PASSWORDS_RESOURCE_V2)
@@ -62,7 +60,7 @@ public class ForgottenPasswordResource {
                 .map(errors ->
                         Response.status(BAD_REQUEST).type(APPLICATION_JSON).entity(errors).build())
                 .orElseGet(() ->
-                        forgottenPasswordServices.create(payload.get("username").asText())
+                        forgottenPasswordServices.createWithoutNotification(payload.get("username").asText())
                                 .map(forgottenPassword ->
                                         Response.status(CREATED).type(APPLICATION_JSON).entity(forgottenPassword).build())
                                 .orElseGet(() ->
@@ -75,7 +73,7 @@ public class ForgottenPasswordResource {
     public Response findNonExpiredForgottenPassword(@PathParam("code") String code) {
         logger.info("ForgottenPassword GET request - [ {} ]", code);
 
-        if(isNotBlank(code) && code.length() > MAX_LENGTH) {
+        if (isNotBlank(code) && code.length() > MAX_LENGTH) {
             return Response.status(NOT_FOUND).build();
         }
         return forgottenPasswordServices.findNonExpired(code)

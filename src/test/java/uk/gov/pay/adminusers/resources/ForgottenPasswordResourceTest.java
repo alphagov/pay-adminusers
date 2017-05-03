@@ -3,11 +3,13 @@ package uk.gov.pay.adminusers.resources;
 import com.jayway.restassured.response.ValidatableResponse;
 import org.junit.Test;
 
+import javax.ws.rs.core.Response.Status;
 import java.time.temporal.ChronoUnit;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.time.ZonedDateTime.now;
+import static javax.ws.rs.core.Response.Status.*;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -28,25 +30,14 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
 
         String username = userDbFixture(databaseHelper).insertUser().getUsername();
 
-        ValidatableResponse validatableResponse = givenSetup()
+        givenSetup()
                 .when()
                 .body(mapper.writeValueAsString(of("username", username)))
                 .contentType(JSON)
                 .accept(JSON)
                 .post(FORGOTTEN_PASSWORDS_RESOURCE_URL)
                 .then()
-                .statusCode(201);
-
-        validatableResponse
-                .body("username", is(username))
-                .body("code", is(notNullValue()))
-                .body("_links", hasSize(1))
-                .body("_links[0].href", is("http://localhost:8080/v1/api/forgotten-passwords/" + validatableResponse.extract().body().path("code").toString()))
-                .body("_links[0].method", is("GET"))
-                .body("_links[0].rel", is("self"));
-
-        String dateTimeString = validatableResponse.extract().body().path("date");
-        assertThat(toUTCZonedDateTime(dateTimeString).get(), within(1, ChronoUnit.MINUTES, now()));
+                .statusCode(OK.getStatusCode());
     }
 
     @Test
@@ -61,7 +52,7 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
                 .accept(JSON)
                 .post(FORGOTTEN_PASSWORDS_RESOURCE_URL_V2)
                 .then()
-                .statusCode(201);
+                .statusCode(CREATED.getStatusCode());
 
         validatableResponse
                 .body("username", is(username))
@@ -85,7 +76,7 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
                 .accept(JSON)
                 .post(FORGOTTEN_PASSWORDS_RESOURCE_URL)
                 .then()
-                .statusCode(404);
+                .statusCode(NOT_FOUND.getStatusCode());
 
     }
 
@@ -100,7 +91,7 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
                 .accept(JSON)
                 .get(FORGOTTEN_PASSWORDS_RESOURCE_URL + "/" + forgottenPasswordCode)
                 .then()
-                .statusCode(200)
+                .statusCode(OK.getStatusCode())
                 .body("code", is(forgottenPasswordCode));
 
     }
@@ -113,7 +104,7 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
                 .accept(JSON)
                 .get(FORGOTTEN_PASSWORDS_RESOURCE_URL + "/non-existent-code")
                 .then()
-                .statusCode(404);
+                .statusCode(NOT_FOUND.getStatusCode());
 
     }
 
@@ -125,7 +116,7 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
                 .accept(JSON)
                 .get(FORGOTTEN_PASSWORDS_RESOURCE_URL + "/" + randomAlphanumeric(256))
                 .then()
-                .statusCode(404);
+                .statusCode(NOT_FOUND.getStatusCode());
 
     }
 }
