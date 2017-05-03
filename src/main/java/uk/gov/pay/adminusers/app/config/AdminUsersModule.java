@@ -16,8 +16,6 @@ import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.util.Properties;
 
-import static uk.gov.pay.adminusers.app.util.TrustStoreLoader.getSSLContext;
-
 public class AdminUsersModule extends AbstractModule {
 
     final AdminUsersConfig configuration;
@@ -74,10 +72,7 @@ public class AdminUsersModule extends AbstractModule {
     private NotificationService provideUserNotificationService() {
         return new NotificationService(
                 environment.lifecycle().executorService("2fa-sms-%d").build(),
-                new NotifyClientProvider(configuration.getNotifyConfiguration(), getSSLContext()),
-                configuration.getNotifyConfiguration().getSecondFactorSmsTemplateId(),
-                configuration.getNotifyConfiguration().getInviteEmailTemplateId(),
-                configuration.getNotifyConfiguration().getForgottenPasswordEmailTemplateId(),
+                configuration.getNotifyConfiguration(),
                 environment.metrics());
     }
 

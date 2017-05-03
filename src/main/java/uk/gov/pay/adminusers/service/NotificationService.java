@@ -1,8 +1,8 @@
 package uk.gov.pay.adminusers.service;
 
-
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Stopwatch;
+import uk.gov.pay.adminusers.app.config.NotifyConfiguration;
 import uk.gov.service.notify.SendEmailResponse;
 import uk.gov.service.notify.SendSmsResponse;
 
@@ -13,27 +13,28 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static uk.gov.pay.adminusers.app.util.TrustStoreLoader.getSSLContext;
 
 public class NotificationService {
 
     private final ExecutorService executorService;
     private final NotifyClientProvider notifyClientProvider;
+    private final MetricRegistry metricRegistry;
+
     private final String secondFactorSmsTemplateId;
     private final String inviteEmailTemplateId;
     private final String forgottenPasswordEmailTemplateId;
-    private final MetricRegistry metricRegistry;
 
     public NotificationService(ExecutorService executorService,
-                               NotifyClientProvider notificationClientProvider,
-                               String secondFactorSmsTemplateId,
-                               String inviteEmailTemplateId,
-                               String forgottenPasswordEmailTemplateId,
+                               NotifyConfiguration notifyConfiguration,
                                MetricRegistry metricRegistry) {
         this.executorService = executorService;
-        this.notifyClientProvider = notificationClientProvider;
-        this.secondFactorSmsTemplateId = secondFactorSmsTemplateId;
-        this.inviteEmailTemplateId = inviteEmailTemplateId;
-        this.forgottenPasswordEmailTemplateId = forgottenPasswordEmailTemplateId;
+
+        this.notifyClientProvider = new NotifyClientProvider(notifyConfiguration, getSSLContext());
+        this.secondFactorSmsTemplateId = notifyConfiguration.getSecondFactorSmsTemplateId();
+        this.inviteEmailTemplateId = notifyConfiguration.getInviteEmailTemplateId();
+        this.forgottenPasswordEmailTemplateId = notifyConfiguration.getForgottenPasswordEmailTemplateId();
+
         this.metricRegistry = metricRegistry;
     }
 
