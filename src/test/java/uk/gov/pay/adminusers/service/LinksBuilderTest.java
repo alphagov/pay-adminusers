@@ -28,7 +28,7 @@ public class LinksBuilderTest {
 
     @Test
     public void shouldConstruct_forgottenPasswordSelfLinkCorrectly() throws Exception {
-        ForgottenPassword forgottenPassword = ForgottenPassword.forgottenPassword(1, "a-code", "a-name", ZonedDateTime.now());
+        ForgottenPassword forgottenPassword = ForgottenPassword.forgottenPassword(1, "a-code", "a-name", ZonedDateTime.now(), "7d19aff33f8948deb97ed16b2912dcd3");
         ForgottenPassword decorated = linksBuilder.decorate(forgottenPassword);
 
         String linkJson = new ObjectMapper().writeValueAsString(decorated.getLinks().get(0));

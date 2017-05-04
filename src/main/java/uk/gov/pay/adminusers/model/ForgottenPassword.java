@@ -14,26 +14,29 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class ForgottenPassword {
+
     @JsonIgnore
     private Integer id;
     private String code;
     private ZonedDateTime date;
     private String username;
+    private String userExternalId;
     private List<Link> links;
 
-    public static ForgottenPassword forgottenPassword(String code, String username) {
-        return forgottenPassword(randomInt(), code, username, ZonedDateTime.now(ZoneId.of("UTC")));
+    public static ForgottenPassword forgottenPassword(String code, String username, String userExternalId) {
+        return forgottenPassword(randomInt(), code, username, ZonedDateTime.now(ZoneId.of("UTC")), userExternalId);
     }
 
-    public static ForgottenPassword forgottenPassword(Integer id, String code, String username, ZonedDateTime date) {
-        return new ForgottenPassword(id, code, date, username);
+    public static ForgottenPassword forgottenPassword(Integer id, String code, String username, ZonedDateTime date, String userExternalId) {
+        return new ForgottenPassword(id, code, date, username, userExternalId);
     }
 
-    private ForgottenPassword(Integer id, String code, ZonedDateTime date, String username) {
+    private ForgottenPassword(Integer id, String code, ZonedDateTime date, String username, String userExternalId) {
         this.id = id;
         this.code = code;
         this.date = date;
         this.username = username;
+        this.userExternalId = userExternalId;
     }
 
     public Integer getId() {
@@ -51,6 +54,10 @@ public class ForgottenPassword {
 
     public String getUsername() {
         return username;
+    }
+
+    public String getUserExternalId() {
+        return userExternalId;
     }
 
     public void setLinks(List<Link> links) {

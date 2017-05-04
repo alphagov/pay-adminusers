@@ -55,8 +55,10 @@ public class ForgottenPasswordServicesTest {
     @Deprecated
     public void shouldReturnANewForgottenPassword_whenCreating_ifUserFound_Legacy() throws Exception {
         String existingUsername = "existing-user";
+        String existingExternalId = "7d19aff33f8948deb97ed16b2912dcd3";
         UserEntity mockUser = mock(UserEntity.class);
         when(mockUser.getUsername()).thenReturn(existingUsername);
+        when(mockUser.getExternalId()).thenReturn(existingExternalId);
 
         when(userDao.findByUsername(existingUsername)).thenReturn(Optional.of(mockUser));
         Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.createWithoutNotification(existingUsername);
@@ -64,6 +66,7 @@ public class ForgottenPasswordServicesTest {
         verify(forgottenPasswordDao, times(1)).persist(any(ForgottenPasswordEntity.class));
         assertTrue(forgottenPasswordOptional.isPresent());
         assertThat(forgottenPasswordOptional.get().getUsername(), is(existingUsername));
+        assertThat(forgottenPasswordOptional.get().getUserExternalId(), is(existingExternalId));
         assertThat(forgottenPasswordOptional.get().getCode(), is(notNullValue()));
         assertThat(forgottenPasswordOptional.get().getLinks().size(), is(1));
         verifyZeroInteractions(mockNotificationService);
