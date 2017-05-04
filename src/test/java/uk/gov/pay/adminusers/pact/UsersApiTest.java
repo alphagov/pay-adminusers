@@ -56,9 +56,10 @@ public class UsersApiTest {
     public void aUserExistsWithAForgottenPasswordRequest() throws Exception {
         String code = "avalidforgottenpasswordtoken";
         String username = randomAlphabetic(20);
-        createUserWithinAService(RandomIdGenerator.randomUuid(), username, "password");
+        String externalId = RandomIdGenerator.randomUuid();
+        createUserWithinAService(externalId, username, "password");
         List<Map<String, Object>> userByUsername = dbHelper.findUserByUsername(username);
-        dbHelper.add(ForgottenPassword.forgottenPassword(code, username), (Integer) userByUsername.get(0).get("id"));
+        dbHelper.add(ForgottenPassword.forgottenPassword(code, username, externalId), (Integer) userByUsername.get(0).get("id"));
     }
 
     @State("a user exists with max login attempts")
@@ -72,8 +73,9 @@ public class UsersApiTest {
     public void aForgottenPasswordEntryExist() throws Exception {
         String code = "existing-code";
         String username = "existing-user";
+        String existingExternalId = "7d19aff33f8948deb97ed16b2912dcd3";
         List<Map<String, Object>> userByName = dbHelper.findUserByUsername(username);
-        dbHelper.add(ForgottenPassword.forgottenPassword(code, username), (Integer) userByName.get(0).get("id"));
+        dbHelper.add(ForgottenPassword.forgottenPassword(code, username, existingExternalId), (Integer) userByName.get(0).get("id"));
     }
 
     private static void createUserWithinAService(String externalId, String username, String password) throws Exception {

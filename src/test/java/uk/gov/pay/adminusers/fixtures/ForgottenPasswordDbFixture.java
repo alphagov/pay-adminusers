@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.fixtures;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.time.ZoneId;
@@ -27,7 +28,7 @@ public class ForgottenPasswordDbFixture {
     }
 
     public String insertForgottenPassword() {
-        databaseTestHelper.add(forgottenPassword(nextInt(), forgottenPasswordCode, null, date), userId);
+        databaseTestHelper.add(forgottenPassword(nextInt(), forgottenPasswordCode, null, date, RandomIdGenerator.randomUuid()), userId);
         return forgottenPasswordCode;
     }
 
