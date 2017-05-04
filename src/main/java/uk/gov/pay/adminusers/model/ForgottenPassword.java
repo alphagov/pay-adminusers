@@ -19,23 +19,21 @@ public class ForgottenPassword {
     private Integer id;
     private String code;
     private ZonedDateTime date;
-    private String username;
     private String userExternalId;
     private List<Link> links;
 
-    public static ForgottenPassword forgottenPassword(String code, String username, String userExternalId) {
-        return forgottenPassword(randomInt(), code, username, ZonedDateTime.now(ZoneId.of("UTC")), userExternalId);
+    public static ForgottenPassword forgottenPassword(String code, String userExternalId) {
+        return forgottenPassword(randomInt(), code, ZonedDateTime.now(ZoneId.of("UTC")), userExternalId);
     }
 
-    public static ForgottenPassword forgottenPassword(Integer id, String code, String username, ZonedDateTime date, String userExternalId) {
-        return new ForgottenPassword(id, code, date, username, userExternalId);
+    public static ForgottenPassword forgottenPassword(Integer id, String code, ZonedDateTime date, String userExternalId) {
+        return new ForgottenPassword(id, code, date, userExternalId);
     }
 
-    private ForgottenPassword(Integer id, String code, ZonedDateTime date, String username, String userExternalId) {
+    private ForgottenPassword(Integer id, String code, ZonedDateTime date, String userExternalId) {
         this.id = id;
         this.code = code;
         this.date = date;
-        this.username = username;
         this.userExternalId = userExternalId;
     }
 
@@ -50,10 +48,6 @@ public class ForgottenPassword {
     @JsonSerialize(using = ZonedDateTimeSerializer.class)
     public ZonedDateTime getDate() {
         return date;
-    }
-
-    public String getUsername() {
-        return username;
     }
 
     public String getUserExternalId() {

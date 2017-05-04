@@ -55,11 +55,10 @@ public class UsersApiTest {
     @State("a valid forgotten password entry and a related user exists")
     public void aUserExistsWithAForgottenPasswordRequest() throws Exception {
         String code = "avalidforgottenpasswordtoken";
-        String username = randomAlphabetic(20);
-        String externalId = RandomIdGenerator.randomUuid();
-        createUserWithinAService(externalId, username, "password");
-        List<Map<String, Object>> userByUsername = dbHelper.findUserByUsername(username);
-        dbHelper.add(ForgottenPassword.forgottenPassword(code, username, externalId), (Integer) userByUsername.get(0).get("id"));
+        String userExternalId = RandomIdGenerator.randomUuid();
+        createUserWithinAService(userExternalId, randomAlphabetic(20), "password");
+        List<Map<String, Object>> userByExternalId = dbHelper.findUserByExternalId(userExternalId);
+        dbHelper.add(ForgottenPassword.forgottenPassword(code, userExternalId), (Integer) userByExternalId.get(0).get("id"));
     }
 
     @State("a user exists with max login attempts")
@@ -72,10 +71,9 @@ public class UsersApiTest {
     @State("a forgotten password entry exist")
     public void aForgottenPasswordEntryExist() throws Exception {
         String code = "existing-code";
-        String username = "existing-user";
-        String existingExternalId = "7d19aff33f8948deb97ed16b2912dcd3";
-        List<Map<String, Object>> userByName = dbHelper.findUserByUsername(username);
-        dbHelper.add(ForgottenPassword.forgottenPassword(code, username, existingExternalId), (Integer) userByName.get(0).get("id"));
+        String existingUserExternalId = "7d19aff33f8948deb97ed16b2912dcd3";
+        List<Map<String, Object>> userByName = dbHelper.findUserByExternalId(existingUserExternalId);
+        dbHelper.add(ForgottenPassword.forgottenPassword(code, existingUserExternalId), (Integer) userByName.get(0).get("id"));
     }
 
     private static void createUserWithinAService(String externalId, String username, String password) throws Exception {

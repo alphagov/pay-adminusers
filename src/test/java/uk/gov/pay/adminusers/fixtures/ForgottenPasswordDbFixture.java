@@ -28,7 +28,7 @@ public class ForgottenPasswordDbFixture {
     }
 
     public String insertForgottenPassword() {
-        databaseTestHelper.add(forgottenPassword(nextInt(), forgottenPasswordCode, null, date, RandomIdGenerator.randomUuid()), userId);
+        databaseTestHelper.add(forgottenPassword(nextInt(), forgottenPasswordCode, date, RandomIdGenerator.randomUuid()), userId);
         return forgottenPasswordCode;
     }
 
