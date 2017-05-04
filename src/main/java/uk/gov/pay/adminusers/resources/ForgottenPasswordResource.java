@@ -18,7 +18,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @Path("/")
 public class ForgottenPasswordResource {
 
-    public static final String FORGOTTEN_PASSWORDS_RESOURCE_V2 = "/v2/api/forgotten-passwords";
     public static final String FORGOTTEN_PASSWORDS_RESOURCE = "/v1/api/forgotten-passwords";
     private static final String FORGOTTEN_PASSWORD_RESOURCE = FORGOTTEN_PASSWORDS_RESOURCE + "/{code}";
     private static final Logger logger = PayLoggerFactory.getLogger(ForgottenPasswordResource.class);
@@ -47,24 +46,6 @@ public class ForgottenPasswordResource {
                     forgottenPasswordServices.create(payload.get("username").asText());
                     return Response.status(Response.Status.OK).build();
                 });
-    }
-
-    @Path(FORGOTTEN_PASSWORDS_RESOURCE_V2)
-    @POST
-    @Produces(APPLICATION_JSON)
-    @Consumes(APPLICATION_JSON)
-    public Response createForgottenPasswordLegacy(JsonNode payload) {
-        logger.info("ForgottenPassword CREATE request - [ {} ]", payload);
-        Optional<Errors> errorsOptional = validator.validateCreateRequest(payload);
-        return errorsOptional
-                .map(errors ->
-                        Response.status(BAD_REQUEST).type(APPLICATION_JSON).entity(errors).build())
-                .orElseGet(() ->
-                        forgottenPasswordServices.createWithoutNotification(payload.get("username").asText())
-                                .map(forgottenPassword ->
-                                        Response.status(CREATED).type(APPLICATION_JSON).entity(forgottenPassword).build())
-                                .orElseGet(() ->
-                                        Response.status(NOT_FOUND).build()));
     }
 
     @Path(FORGOTTEN_PASSWORD_RESOURCE)

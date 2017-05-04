@@ -1,29 +1,18 @@
 package uk.gov.pay.adminusers.resources;
 
-import com.jayway.restassured.response.ValidatableResponse;
 import org.junit.Test;
-
-import javax.ws.rs.core.Response.Status;
-import java.time.temporal.ChronoUnit;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static com.jayway.restassured.http.ContentType.JSON;
-import static java.time.ZonedDateTime.now;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
-import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
 import static uk.gov.pay.adminusers.fixtures.ForgottenPasswordDbFixture.forgottenPasswordDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
-import static uk.gov.pay.adminusers.utils.DateTimeUtils.toUTCZonedDateTime;
 
 public class ForgottenPasswordResourceTest extends IntegrationTest {
 
     private static final String FORGOTTEN_PASSWORDS_RESOURCE_URL = "/v1/api/forgotten-passwords";
-    private static final String FORGOTTEN_PASSWORDS_RESOURCE_URL_V2 = "/v2/api/forgotten-passwords";
 
     @Test
     public void shouldGetForgottenPasswordReference_whenCreate_forAnExistingUser() throws Exception {
@@ -38,32 +27,6 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
                 .post(FORGOTTEN_PASSWORDS_RESOURCE_URL)
                 .then()
                 .statusCode(OK.getStatusCode());
-    }
-
-    @Test
-    public void shouldGetForgottenPasswordReference_whenCreate_forAnExistingUser_Legacy() throws Exception {
-
-        String username = userDbFixture(databaseHelper).insertUser().getUsername();
-
-        ValidatableResponse validatableResponse = givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(of("username", username)))
-                .contentType(JSON)
-                .accept(JSON)
-                .post(FORGOTTEN_PASSWORDS_RESOURCE_URL_V2)
-                .then()
-                .statusCode(CREATED.getStatusCode());
-
-        validatableResponse
-                .body("username", is(username))
-                .body("code", is(notNullValue()))
-                .body("_links", hasSize(1))
-                .body("_links[0].href", is("http://localhost:8080/v1/api/forgotten-passwords/" + validatableResponse.extract().body().path("code").toString()))
-                .body("_links[0].method", is("GET"))
-                .body("_links[0].rel", is("self"));
-
-        String dateTimeString = validatableResponse.extract().body().path("date");
-        assertThat(toUTCZonedDateTime(dateTimeString).get(), within(1, ChronoUnit.MINUTES, now()));
     }
 
     @Test
