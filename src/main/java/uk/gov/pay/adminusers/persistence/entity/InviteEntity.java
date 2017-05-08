@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
+import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.Invite;
 
 import javax.persistence.*;
@@ -8,7 +9,6 @@ import java.time.ZonedDateTime;
 
 import static java.time.ZonedDateTime.now;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.persistence.entity.UTCDateTimeConverter.UTC;
 
 @Entity
@@ -20,6 +20,10 @@ public class InviteEntity extends AbstractEntity {
     @Column(name = "date")
     @Convert(converter = UTCDateTimeConverter.class)
     private ZonedDateTime date;
+
+    @Column(name = "expiry_date")
+    @Convert(converter = UTCDateTimeConverter.class)
+    private ZonedDateTime expiryDate;
 
     @ManyToOne
     @JoinColumn(name = "role_id")
@@ -52,14 +56,33 @@ public class InviteEntity extends AbstractEntity {
         //for jpa
     }
 
-    public InviteEntity(String email, String code, UserEntity sender, ServiceEntity service, RoleEntity role) {
+    public InviteEntity(String email, String code, String otpKey, UserEntity sender, ServiceEntity service, RoleEntity role) {
         this.service = service;
         this.date = now(ZoneId.of("UTC"));
+        initializeExpiry();
         this.code = code;
-        this.otpKey = newId();
+        this.otpKey = otpKey;
         this.sender = sender;
         this.email = email.toLowerCase();
         this.role = role;
+    }
+
+    /**
+     * Being:
+     * <p>
+     * 'X' the moment the invite is created and
+     * '|' = 00:00 of the following day
+     * '^' the moment it expires
+     * 'N' = Now
+     * <p>
+     * <-------Day 0---------><-------Day 1---------><-------Day 2--------->
+     * |----------------------|----------------------|----------------------|
+     * X                               N             ^
+     * <p>
+     * Invite created Day 1 -> 00:00:00:000 will expired at Day 3 -> 00:00:00:000
+     */
+    private void initializeExpiry() {
+        this.expiryDate = this.date.truncatedTo(DAYS).plus(EXPIRY_DAYS, DAYS);
     }
 
     public ZonedDateTime getDate() {
@@ -68,6 +91,14 @@ public class InviteEntity extends AbstractEntity {
 
     public void setDate(ZonedDateTime date) {
         this.date = date;
+    }
+
+    public void setExpiryDate(ZonedDateTime expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    public ZonedDateTime getExpiryDate() {
+        return expiryDate;
     }
 
     public String getCode() {
@@ -144,27 +175,25 @@ public class InviteEntity extends AbstractEntity {
         return new Invite(email, telephoneNumber);
     }
 
-    /**
-     * isExpired()
-     * <p>
-     * Calculates expire based on midnight (hence the truncation to days that sets the day to Midnight)
-     * It takes the date when the Invite was created and truncate it to days (set it to Midnight), adds the EXPIRY_DAYS
-     * calculates if this date result is after Now. IE:
-     * <p>
-     * - Invite created 01-05-2017 10:15:20
-     * - isExpired() checked on 02-05-2017 17:50:10
-     * <p>
-     * - Truncating Invite created -> 01-05-2017 00:00:00
-     * - Being EXPIRY_DAYS = 2, SUM these to the previous days -> 03-05-2017 00:00:00
-     * <p>
-     * - Note: EXPIRY_DAYS = 2 is equivalent to next day Midnight (the following day after next at 00:00:00) so the
-     * Invite will be valid until next day until 23:59:59:999
-     * <p>
-     * - Invite is not expired because 02-05-2017 17:50:10 < 03-05-2017 00:00:00
-     *
-     * @return true if expired
-     */
     public boolean isExpired() {
-        return now(UTC).isAfter(date.truncatedTo(DAYS).plus(EXPIRY_DAYS, DAYS));
+        return now(UTC).isAfter(expiryDate);
+    }
+
+    public UserEntity mapToUser() {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setExternalId(RandomIdGenerator.randomUuid());
+        userEntity.setUsername(email);
+        userEntity.setPassword(password);
+        userEntity.setEmail(email);
+        userEntity.setOtpKey(otpKey);
+        userEntity.setTelephoneNumber(telephoneNumber);
+        userEntity.setLoginCounter(0);
+        userEntity.setDisabled(Boolean.FALSE);
+        userEntity.setSessionVersion(0);
+        userEntity.setServiceRole(new ServiceRoleEntity(service, role));
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
+        userEntity.setCreatedAt(now);
+        userEntity.setUpdatedAt(now);
+        return userEntity;
     }
 }

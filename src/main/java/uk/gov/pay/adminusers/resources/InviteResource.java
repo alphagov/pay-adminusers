@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
+import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.service.InviteService;
 
 import javax.ws.rs.*;
@@ -46,20 +47,33 @@ public class InviteResource {
     }
 
     @POST
-    @Path("/{code}/otp")
+    @Path("/otp/generate")
     @Consumes(APPLICATION_JSON)
-    public Response generateOtp(@PathParam("code") String code, JsonNode payload) {
+    @Produces(APPLICATION_JSON)
+    public Response generateOtp(JsonNode payload) {
 
-        LOGGER.info("Invite POST request for generating for code - [ {} ]", code);
-
-        if (isNotBlank(code) && code.length() > MAX_LENGTH_CODE) {
-            return Response.status(NOT_FOUND).build();
-        }
+        LOGGER.info("Invite POST request for generating otp");
 
         return inviteValidator.validateOtpRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
-                    inviteService.generateOtp(InviteOtpRequest.from(code, payload));
+                    inviteService.generateOtp(InviteOtpRequest.from(payload));
+                    return Response.status(OK).build();
+                });
+    }
+
+    @POST
+    @Path("/otp/validate")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    public Response createUserUponOtpValidation(JsonNode payload) {
+
+        LOGGER.info("Invite POST request for validating otp and creating user");
+
+        return inviteValidator.validateOtpValidationRequest(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> {
+                    inviteService.createInvitedUser(InviteValidateOtpRequest.from(payload));
                     return Response.status(OK).build();
                 });
     }

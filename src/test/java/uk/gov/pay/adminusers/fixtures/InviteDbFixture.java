@@ -15,9 +15,11 @@ public class InviteDbFixture {
     private DatabaseTestHelper databaseTestHelper;
     private String email = randomAlphanumeric(5) + "-invite@example.com";
     private ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
+    private ZonedDateTime expiryDate = this.date.plus(1, DAYS);
     private String code = randomAlphanumeric(100);
     private String otpKey = randomAlphanumeric(100);
     private String telephoneNumber;
+    private String password;
 
     private InviteDbFixture(DatabaseTestHelper databaseTestHelper) {
         this.databaseTestHelper = databaseTestHelper;
@@ -28,9 +30,7 @@ public class InviteDbFixture {
     }
 
     public InviteDbFixture expired() {
-        date = ZonedDateTime.now(ZoneId.of("UTC")).truncatedTo(DAYS)
-                .minus(1, DAYS)
-                .minus(1, SECONDS);
+        this.expiryDate = this.date.minus(1, SECONDS);
         return this;
     }
 
@@ -38,7 +38,7 @@ public class InviteDbFixture {
         int serviceId = ServiceDbFixture.serviceDbFixture(databaseTestHelper).insertService();
         int roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
         int userId = UserDbFixture.userDbFixture(databaseTestHelper).insertUser().getId();
-        databaseTestHelper.addInvite(nextInt(), userId, serviceId, roleId, email, code, otpKey, date, telephoneNumber);
+        databaseTestHelper.addInvite(nextInt(), userId, serviceId, roleId, email, code, otpKey, date, expiryDate, telephoneNumber, password);
         return code;
     }
 
@@ -49,6 +49,16 @@ public class InviteDbFixture {
 
     public InviteDbFixture withEmail(String email) {
         this.email = email;
+        return this;
+    }
+
+    public InviteDbFixture withOtpKey(String otpKey) {
+        this.otpKey = otpKey;
+        return this;
+    }
+
+    public InviteDbFixture withPassword(String password) {
+        this.password = password;
         return this;
     }
 }

@@ -23,6 +23,14 @@ public class RequestValidations {
         return applyCheck(payload, notExist(), fieldNames, "Field [%s] is required");
     }
 
+    public Optional<List<String>> checkMaxLength(JsonNode payload, int maxLength, String... fieldNames) {
+        return applyCheck(payload, exceedsMaxLength(maxLength), fieldNames, "Field [%s] must have a maximum length of " + maxLength + " characters");
+    }
+
+    private Function<JsonNode, Boolean> exceedsMaxLength(int maxLength) {
+        return jsonNode -> jsonNode.asText().length() > maxLength;
+    }
+
     public Optional<List<String>> applyCheck(JsonNode payload, Function<JsonNode, Boolean> check, String[] fieldNames, String errorMessage) {
         List<String> errors = newArrayList();
         for (String fieldName : fieldNames) {
@@ -46,7 +54,7 @@ public class RequestValidations {
     private static Function<JsonNode, Boolean> notExistOrEmptyArray() {
         return jsonElement -> (
                 jsonElement == null ||
-                ((jsonElement instanceof ArrayNode) && (jsonElement.size() == 0))
+                        ((jsonElement instanceof ArrayNode) && (jsonElement.size() == 0))
         );
     }
 

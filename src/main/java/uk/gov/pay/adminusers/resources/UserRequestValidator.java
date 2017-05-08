@@ -19,6 +19,7 @@ import static uk.gov.pay.adminusers.validations.UserPatchValidations.*;
 
 public class UserRequestValidator {
 
+    private static final int MAX_LENGTH_FIELD_USERNAME = 255;
     private final RequestValidations requestValidations;
 
     @Inject
@@ -28,10 +29,7 @@ public class UserRequestValidator {
 
     public Optional<Errors> validateAuthenticateRequest(JsonNode payload) {
         Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_USERNAME, FIELD_PASSWORD);
-        if (missingMandatoryFields.isPresent()) {
-            return Optional.of(Errors.from(missingMandatoryFields.get()));
-        }
-        return Optional.empty();
+        return missingMandatoryFields.map(Errors::from);
     }
 
     public Optional<Errors> validateCreateRequest(JsonNode payload) {
@@ -43,19 +41,8 @@ public class UserRequestValidator {
         if (invalidData.isPresent()) {
             return Optional.of(Errors.from(invalidData.get()));
         }
-        Optional<List<String>> invalidLength = checkLength(payload, FIELD_USERNAME);
-        if (invalidLength.isPresent()) {
-            return Optional.of(Errors.from(invalidLength.get()));
-        }
-        return Optional.empty();
-    }
-
-    private Optional<List<String>> checkLength(JsonNode payload, String... fieldNames) {
-        return requestValidations.applyCheck(payload, exceedsMaxLength(), fieldNames, "Field [%s] must have a maximum length of 255 characters");
-    }
-
-    private Function<JsonNode, Boolean> exceedsMaxLength() {
-        return jsonNode -> jsonNode.asText().length() > 255;
+        Optional<List<String>> invalidLength = requestValidations.checkMaxLength(payload, MAX_LENGTH_FIELD_USERNAME, FIELD_USERNAME);
+        return invalidLength.map(Errors::from);
     }
 
     public Optional<Errors> validate2FAAuthRequest(JsonNode payload) {
@@ -63,20 +50,13 @@ public class UserRequestValidator {
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
-
         Optional<List<String>> notNumeric = requestValidations.checkIsNumeric(payload, "code");
-        if(notNumeric.isPresent()){
-            return Optional.of(Errors.from(notNumeric.get()));
-        }
-        return Optional.empty();
+        return notNumeric.map(Errors::from);
     }
 
     public Optional<Errors> validateServiceRole(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields =  requestValidations.checkIfExists(payload, "role_name");
-        if (missingMandatoryFields.isPresent()) {
-            return Optional.of(Errors.from(missingMandatoryFields.get()));
-        }
-        return Optional.empty();
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, "role_name");
+        return missingMandatoryFields.map(Errors::from);
     }
 
     public Optional<Errors> validatePatchRequest(JsonNode payload) {
@@ -111,6 +91,6 @@ public class UserRequestValidator {
                 errors.add(validationPair.getRight());
             }
         });
-        return errors.size() !=0 ? Optional.of(errors) : Optional.empty() ;
+        return errors.size() != 0 ? Optional.of(errors) : Optional.empty();
     }
 }
