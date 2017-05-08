@@ -58,7 +58,7 @@ public class ForgottenPasswordServices {
             ForgottenPasswordEntity forgottenPasswordEntity = new ForgottenPasswordEntity(newId(), ZonedDateTime.now(), userEntity);
             forgottenPasswordDao.persist(forgottenPasswordEntity);
             String forgottenPasswordUrl = fromUri(selfserviceBaseUrl).path(SELFSERVICE_FORGOTTEN_PASSWORD_PATH).path(forgottenPasswordEntity.getCode()).build().toString();
-            notificationService.sendForgottenPasswordEmail(username, forgottenPasswordUrl)
+            notificationService.sendForgottenPasswordEmail(userEntity.getEmail(), forgottenPasswordUrl)
                     .thenAcceptAsync(notificationId -> logger.info("sent forgot password email successfully user [{}], notification id [{}]", userEntity.getExternalId(), notificationId))
                     .exceptionally(exception -> {
                         logger.error(format("error sending forgotten password email for user [%s]", userEntity.getExternalId()), exception);

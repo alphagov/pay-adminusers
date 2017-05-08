@@ -1,7 +1,9 @@
 package uk.gov.pay.adminusers.service;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -14,6 +16,7 @@ import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ForgottenPasswordEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
+import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -31,6 +34,9 @@ import static org.mockito.Mockito.*;
 public class ForgottenPasswordServicesTest {
 
     private static final String SELFSERVICE_URL = "http://selfservice";
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private ForgottenPasswordDao forgottenPasswordDao;
@@ -88,16 +94,17 @@ public class ForgottenPasswordServicesTest {
 
         ArgumentCaptor<ForgottenPasswordEntity> expectedForgottenPassword = ArgumentCaptor.forClass(ForgottenPasswordEntity.class);
 
-        String existingUsername = "existing-user";
+        String username = "existing-user";
+        String email = "existing-user@example.com";
         UserEntity mockUser = mock(UserEntity.class);
-        when(mockUser.getUsername()).thenReturn(existingUsername);
-        when(userDao.findByUsername(existingUsername)).thenReturn(Optional.of(mockUser));
+        when(mockUser.getEmail()).thenReturn(email);
+        when(userDao.findByUsername(username)).thenReturn(Optional.of(mockUser));
         CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
-        when(mockNotificationService.sendForgottenPasswordEmail(eq(existingUsername), matches("^http://selfservice/reset-password/[0-9a-z]{20,30}$")))
+        when(mockNotificationService.sendForgottenPasswordEmail(eq(email), matches("^http://selfservice/reset-password/[0-9a-z]{20,30}$")))
                 .thenReturn(notifyPromise);
         doNothing().when(forgottenPasswordDao).persist(any(ForgottenPasswordEntity.class));
 
-        forgottenPasswordServices.create(existingUsername);
+        forgottenPasswordServices.create(username);
 
         assertThat(notifyPromise.isDone(), is(true));
         verify(forgottenPasswordDao).persist(expectedForgottenPassword.capture());
@@ -111,18 +118,19 @@ public class ForgottenPasswordServicesTest {
 
         ArgumentCaptor<ForgottenPasswordEntity> expectedForgottenPassword = ArgumentCaptor.forClass(ForgottenPasswordEntity.class);
 
-        String existingUsername = "existing-user";
+        String username = "existing-user";
+        String email = "existing-user@example.com";
         UserEntity mockUser = mock(UserEntity.class);
-        when(mockUser.getUsername()).thenReturn(existingUsername);
-        when(userDao.findByUsername(existingUsername)).thenReturn(Optional.of(mockUser));
+        when(mockUser.getEmail()).thenReturn(email);
+        when(userDao.findByUsername(username)).thenReturn(Optional.of(mockUser));
         CompletableFuture<String> errorPromise = CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException("some error from notify");
         });
-        when(mockNotificationService.sendForgottenPasswordEmail(eq(existingUsername), matches("^http://selfservice/reset-password/[0-9a-z]{20,30}$")))
+        when(mockNotificationService.sendForgottenPasswordEmail(eq(email), matches("^http://selfservice/reset-password/[0-9a-z]{20,30}$")))
                 .thenReturn(errorPromise);
         doNothing().when(forgottenPasswordDao).persist(any(ForgottenPasswordEntity.class));
 
-        forgottenPasswordServices.create(existingUsername);
+        forgottenPasswordServices.create(username);
 
         assertThat(errorPromise.isCompletedExceptionally(), is(true));
         verify(forgottenPasswordDao).persist(expectedForgottenPassword.capture());
@@ -133,11 +141,14 @@ public class ForgottenPasswordServicesTest {
 
     @Test
     public void shouldReturnEmpty_whenCreating_ifUserNotFound() throws Exception {
+
         String nonExistentUser = "non-existent-user";
         when(userDao.findByUsername(nonExistentUser)).thenReturn(Optional.empty());
 
-       /* Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.create(nonExistentUser);
-        assertFalse(forgottenPasswordOptional.isPresent());*/
+        expectedException.expect(WebApplicationException.class);
+        expectedException.expectMessage(is("HTTP 404 Not Found"));
+
+        forgottenPasswordServices.create(nonExistentUser);
     }
 
     @Test
