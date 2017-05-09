@@ -21,8 +21,12 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 public class InviteResourceOtpTest extends IntegrationTest {
 
     private String code;
+
     private static final String OTP_KEY = newId();
+    private static final int PASSCODE = new GoogleAuthenticator().getTotpPassword(base32().encode(OTP_KEY.getBytes()));
     private static final String EMAIL = "invited-" + random(5) + "@example.com";
+    private static final String TELEPHONE_NUMBER = "+447999999999";
+    private static final String PASSWORD = "a-secure-password";
 
     @Before
     public void givenAnExistingInvite() {
@@ -36,12 +40,10 @@ public class InviteResourceOtpTest extends IntegrationTest {
     @Test
     public void generateOtp_shouldSucceed_evenWhenTokenIsExpired_sinceItShouldBeValidatedOnGetInvite() throws Exception {
 
-        String telephoneNumber = "+447999999999";
-
         ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
                 .put("code", code)
-                .put("telephone_number", telephoneNumber)
-                .put("password", "a-secure-password")
+                .put("telephone_number", TELEPHONE_NUMBER)
+                .put("password", PASSWORD)
                 .build();
 
         givenSetup()
@@ -56,12 +58,10 @@ public class InviteResourceOtpTest extends IntegrationTest {
     @Test
     public void generateOtp_shouldFail_whenInviteDoesNotExist() throws Exception {
 
-        String telephoneNumber = "+447999999999";
-
         ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
                 .put("code", "not-existing-code")
-                .put("telephone_number", telephoneNumber)
-                .put("password", "a-secure-password")
+                .put("telephone_number", TELEPHONE_NUMBER)
+                .put("password", PASSWORD)
                 .build();
 
         givenSetup()
@@ -74,25 +74,21 @@ public class InviteResourceOtpTest extends IntegrationTest {
     }
 
     @Test
-    public void createUserUponOtpValidation_shouldCreateUserWhenValidOtp() throws Exception {
+    public void validateOtp_shouldCreateUserWhenValidOtp() throws Exception {
 
-        String password = "AsuperEncriptedPassword";
-        String telephoneNumber = "+44123456543";
-
+        // create an invitation
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
                 .withEmail(EMAIL)
                 .withOtpKey(OTP_KEY)
-                .withTelephoneNumber(telephoneNumber)
-                .withPassword(password)
+                .withTelephoneNumber(TELEPHONE_NUMBER)
+                .withPassword(PASSWORD)
                 .expired()
                 .insertInvite();
 
-        GoogleAuthenticator testAuthenticator = new GoogleAuthenticator();
-        int passcode = testAuthenticator.getTotpPassword(base32().encode(OTP_KEY.getBytes()));
-
+        // generate valid invitationOtpRequest and execute it
         ImmutableMap<Object, Object> invitationOtpRequest = ImmutableMap.builder()
                 .put("code", code)
-                .put("otp", passcode)
+                .put("otp", PASSCODE)
                 .build();
 
         assertThat(databaseHelper.findInviteByCode(code).size(), is(1));
@@ -105,6 +101,7 @@ public class InviteResourceOtpTest extends IntegrationTest {
                 .then()
                 .statusCode(OK.getStatusCode());
 
+        // check if the user has been created and it is not disabled
         List<Map<String, Object>> users = databaseHelper.findUserByUsername(EMAIL);
 
         assertThat(users.size(), is(1));
@@ -112,19 +109,16 @@ public class InviteResourceOtpTest extends IntegrationTest {
         Map<String, Object> createdUser = users.get(0);
         assertThat(createdUser.get("username"), is(EMAIL));
         assertThat(createdUser.get("email"), is(EMAIL));
-        assertThat(createdUser.get("password"), is(password));
+        assertThat(createdUser.get("password"), is(PASSWORD));
         assertThat(createdUser.get("disabled"), is(false));
     }
 
     @Test
-    public void createUserUponOtpValidation_shouldFail_whenInvalidCode() throws Exception {
-
-        GoogleAuthenticator testAuthenticator = new GoogleAuthenticator();
-        int passcode = testAuthenticator.getTotpPassword(base32().encode(OTP_KEY.getBytes()));
+    public void validateOtp_shouldFail_whenInvalidCode() throws Exception {
 
         ImmutableMap<Object, Object> invitationOtpRequest = ImmutableMap.builder()
                 .put("code", "non-existent-code")
-                .put("otp", passcode)
+                .put("otp", PASSCODE)
                 .build();
 
         givenSetup()
@@ -134,20 +128,21 @@ public class InviteResourceOtpTest extends IntegrationTest {
                 .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(BAD_REQUEST.getStatusCode());
-
     }
 
     @Test
-    public void createUserUponOtpValidation_shouldFail_whenInvalidOtp() throws Exception {
+    public void validateOtp_shouldFail_whenInvalidOtpAuthCode() throws Exception {
 
+        // create an invitation
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
                 .withEmail(EMAIL)
                 .withOtpKey(OTP_KEY)
-                .withTelephoneNumber("+44123456543")
-                .withPassword("AsuperEncriptedPassword")
+                .withTelephoneNumber(TELEPHONE_NUMBER)
+                .withPassword(PASSWORD)
                 .expired()
                 .insertInvite();
 
+        // generate invalid invitationOtpRequest and execute it
         ImmutableMap<Object, Object> invitationOtpRequest = ImmutableMap.builder()
                 .put("code", code)
                 .put("otp", 123456)
@@ -160,5 +155,40 @@ public class InviteResourceOtpTest extends IntegrationTest {
                 .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void resendOtp_shouldUpdateTelephoneNumber_whenValidOtp() throws Exception {
+
+        // create an invitation with initial telephone number
+        String initialTelephoneNumber = "+447451111111";
+        code = InviteDbFixture.inviteDbFixture(databaseHelper)
+                .withEmail(EMAIL)
+                .withOtpKey(OTP_KEY)
+                .withTelephoneNumber(initialTelephoneNumber)
+                .withPassword(PASSWORD)
+                .expired()
+                .insertInvite();
+
+        // generate new invitationOtpRequest with new telephone number
+        String newTelephoneNumber = "+447452222222";
+        ImmutableMap<Object, Object> resendRequest = ImmutableMap.builder()
+                .put("code", code)
+                .put("telephone_number", newTelephoneNumber)
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(resendRequest))
+                .contentType(ContentType.JSON)
+                .post(INVITES_RESEND_OTP_RESOURCE_URL)
+                .then()
+                .statusCode(OK.getStatusCode());
+
+        // check if we are using the newTelephoneNumber in the invitation
+        List<Map<String, Object>> foundInvites = databaseHelper.findInviteByCode(code);
+        assertThat(foundInvites.size(), is(1));
+        Map<String, Object> foundInvite = foundInvites.get(0);
+        assertThat(foundInvite.get("telephone_number"), is(newTelephoneNumber));
     }
 }

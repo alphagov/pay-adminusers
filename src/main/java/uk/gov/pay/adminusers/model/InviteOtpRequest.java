@@ -19,7 +19,8 @@ public class InviteOtpRequest {
     }
 
     public static InviteOtpRequest from(JsonNode jsonNode) {
-        return new InviteOtpRequest(jsonNode.get(FIELD_CODE).asText(), jsonNode.get(FIELD_TELEPHONE_NUMBER).asText(), jsonNode.get(FIELD_PASSWORD).asText());
+        String password = (jsonNode.get(FIELD_PASSWORD) != null) ? jsonNode.get(FIELD_PASSWORD).asText() : null;
+        return new InviteOtpRequest(jsonNode.get(FIELD_CODE).asText(), jsonNode.get(FIELD_TELEPHONE_NUMBER).asText(), password);
     }
 
     public String getCode() {

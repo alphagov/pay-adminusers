@@ -28,8 +28,17 @@ public class InviteRequestValidator {
         return missingMandatoryFields.map(Errors::from);
     }
 
-    public Optional<Errors> validateOtpRequest(JsonNode payload) {
+    public Optional<Errors> validateGenerateOtpRequest(JsonNode payload) {
         Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_CODE, FIELD_TELEPHONE_NUMBER, FIELD_PASSWORD);
+        if (missingMandatoryFields.isPresent()) {
+            return Optional.of(Errors.from(missingMandatoryFields.get()));
+        }
+        Optional<List<String>> invalidLength = requestValidations.checkMaxLength(payload, MAX_LENGTH_CODE, FIELD_CODE);
+        return invalidLength.map(Errors::from);
+    }
+
+    public Optional<Errors> validateResendOtpRequest(JsonNode payload) {
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_CODE, FIELD_TELEPHONE_NUMBER);
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
