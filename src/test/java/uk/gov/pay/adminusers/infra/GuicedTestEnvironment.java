@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
+import com.google.inject.name.Names;
 import com.google.inject.persist.PersistService;
 import com.google.inject.persist.jpa.JpaPersistModule;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
@@ -40,6 +41,7 @@ public class GuicedTestEnvironment {
 
         @Override
         protected void configure() {
+            bind(Integer.class).annotatedWith(Names.named("FORGOTTEN_PASSWORD_EXPIRY_MINUTES")).toInstance(90);
             bind(UserDao.class).in(Singleton.class);
             bind(ForgottenPasswordDao.class).in(Singleton.class);
             bind(RoleDao.class).in(Singleton.class);

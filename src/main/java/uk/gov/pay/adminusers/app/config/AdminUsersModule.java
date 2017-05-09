@@ -42,6 +42,8 @@ public class AdminUsersModule extends AbstractModule {
         bind(ForgottenPasswordServices.class).in(Singleton.class);
         bind(ResetPasswordService.class).in(Singleton.class);
 
+        bind(Integer.class).annotatedWith(Names.named("FORGOTTEN_PASSWORD_EXPIRY_MINUTES")).toInstance(configuration.getForgottenPasswordExpiryMinutes());
+
         install(jpaModule(configuration));
         install(new FactoryModuleBuilder().build(UserServicesFactory.class));
     }
