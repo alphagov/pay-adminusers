@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.resources;
 
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.ValidatableResponse;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,9 +12,13 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.io.BaseEncoding.base32;
+import static com.jayway.restassured.http.ContentType.JSON;
+import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.RandomStringUtils.random;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
@@ -93,15 +98,35 @@ public class InviteResourceOtpTest extends IntegrationTest {
 
         assertThat(databaseHelper.findInviteByCode(code).size(), is(1));
 
-        givenSetup()
+        ValidatableResponse response = givenSetup()
                 .when()
                 .body(mapper.writeValueAsString(invitationOtpRequest))
-                .contentType(ContentType.JSON)
+                .contentType(JSON)
+                .accept(JSON)
                 .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
-                .statusCode(OK.getStatusCode());
+                .statusCode(CREATED.getStatusCode());
 
-        // check if the user has been created and it is not disabled
+        String externalId = response.extract().path("external_id");
+
+        // check the response
+        response
+                .statusCode(201)
+                .body("id", nullValue())
+                .body("external_id", is(externalId))
+                .body("username", is(EMAIL))
+                .body("password", nullValue())
+                .body("email", is(EMAIL))
+                .body("telephone_number", is(TELEPHONE_NUMBER))
+                .body("otp_key", is(OTP_KEY))
+                .body("login_counter", is(0))
+                .body("disabled", is(false))
+                .body("_links", hasSize(1))
+                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + externalId))
+                .body("_links[0].method", is("GET"))
+                .body("_links[0].rel", is("self"));
+
+        // check if the user has been created and it is not disabled in the database
         List<Map<String, Object>> users = databaseHelper.findUserByUsername(EMAIL);
 
         assertThat(users.size(), is(1));

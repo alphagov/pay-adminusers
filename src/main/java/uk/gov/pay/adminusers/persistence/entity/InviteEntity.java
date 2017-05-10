@@ -179,7 +179,7 @@ public class InviteEntity extends AbstractEntity {
         return now(UTC).isAfter(expiryDate);
     }
 
-    public UserEntity mapToUser() {
+    public UserEntity mapToUserEntity() {
         UserEntity userEntity = new UserEntity();
         userEntity.setExternalId(RandomIdGenerator.randomUuid());
         userEntity.setUsername(email);

@@ -70,7 +70,17 @@ public class InviteServiceTest {
         LinksConfig mockLinks = mock(LinksConfig.class);
         when(mockLinks.getSelfserviceUrl()).thenReturn(SELFSERVICE_URL);
         when(mockConfig.getLinks()).thenReturn(mockLinks);
-        inviteService = new InviteService(mockRoleDao, mockServiceDao, mockUserDao, mockInviteDao, mockConfig, mockPasswordHasher, mockNotificationService, mockSecondFactorAuthenticator);
+        inviteService = new InviteService(
+                mockRoleDao,
+                mockServiceDao,
+                mockUserDao,
+                mockInviteDao,
+                mockConfig,
+                mockPasswordHasher,
+                mockNotificationService,
+                mockSecondFactorAuthenticator,
+                new LinksBuilder("http://localhost")
+        );
     }
 
     private void mocksCreateInvite() {

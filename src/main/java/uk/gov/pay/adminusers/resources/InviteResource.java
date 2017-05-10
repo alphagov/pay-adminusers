@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
+import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.service.InviteService;
 
 import javax.ws.rs.*;
@@ -89,8 +90,9 @@ public class InviteResource {
         return inviteValidator.validateOtpValidationRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
-                    inviteService.createInvitedUser(InviteValidateOtpRequest.from(payload));
-                    return Response.status(OK).build();
+                    User createdUser = inviteService.createInvitedUser(InviteValidateOtpRequest.from(payload));
+                    LOGGER.info("User created successfully from invitation [{}] for gateway accounts [{}]", createdUser.getExternalId(), String.join(", ", createdUser.getGatewayAccountIds()));
+                    return Response.status(CREATED).type(APPLICATION_JSON).entity(createdUser).build();
                 });
     }
 }

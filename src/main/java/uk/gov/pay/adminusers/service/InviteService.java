@@ -4,10 +4,7 @@ import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
-import uk.gov.pay.adminusers.model.Invite;
-import uk.gov.pay.adminusers.model.InviteOtpRequest;
-import uk.gov.pay.adminusers.model.InviteRequest;
-import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
+import uk.gov.pay.adminusers.model.*;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -41,6 +38,7 @@ public class InviteService {
     private final PasswordHasher passwordHasher;
     private final NotificationService notificationService;
     private final SecondFactorAuthenticator secondFactorAuthenticator;
+    private final LinksBuilder linksBuilder;
     private final String selfserviceBaseUrl;
 
     @Inject
@@ -50,15 +48,18 @@ public class InviteService {
                          InviteDao inviteDao,
                          AdminUsersConfig config,
                          PasswordHasher passwordHasher,
-                         NotificationService notificationService, SecondFactorAuthenticator secondFactorAuthenticator) {
+                         NotificationService notificationService,
+                         SecondFactorAuthenticator secondFactorAuthenticator,
+                         LinksBuilder linksBuilder) {
         this.roleDao = roleDao;
         this.serviceDao = serviceDao;
         this.userDao = userDao;
         this.inviteDao = inviteDao;
-        this.selfserviceBaseUrl = config.getLinks().getSelfserviceUrl();
         this.passwordHasher = passwordHasher;
         this.notificationService = notificationService;
         this.secondFactorAuthenticator = secondFactorAuthenticator;
+        this.selfserviceBaseUrl = config.getLinks().getSelfserviceUrl();
+        this.linksBuilder = linksBuilder;
     }
 
     public Optional<Invite> create(InviteRequest invite, int serviceId) {
@@ -138,12 +139,14 @@ public class InviteService {
     }
 
     @Transactional
-    public void createInvitedUser(InviteValidateOtpRequest inviteValidateOtpRequest) {
+    public User createInvitedUser(InviteValidateOtpRequest inviteValidateOtpRequest) {
         Optional<InviteEntity> inviteOptional = inviteDao.findByCode(inviteValidateOtpRequest.getCode());
         if (inviteOptional.isPresent() && secondFactorAuthenticator.authorize(inviteOptional.get().getOtpKey(), inviteValidateOtpRequest.getOtpCode())) {
             InviteEntity inviteEntity = inviteOptional.get();
-            userDao.persist(inviteEntity.mapToUser());
+            UserEntity userEntity = inviteEntity.mapToUserEntity();
+            userDao.persist(userEntity);
             inviteDao.remove(inviteEntity);
+            return linksBuilder.decorate(userEntity.toUser());
         } else {
             throw notFoundInviteException(inviteValidateOtpRequest.getCode());
         }
