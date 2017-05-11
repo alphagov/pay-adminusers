@@ -37,20 +37,6 @@ public class ForgottenPasswordServices {
         this.selfserviceBaseUrl = config.getLinks().getSelfserviceUrl();
     }
 
-    @Deprecated
-    public Optional<ForgottenPassword> createWithoutNotification(String username) {
-        return userDao.findByUsername(username)
-                .map(userEntity -> {
-                    ForgottenPasswordEntity forgottenPasswordEntity = new ForgottenPasswordEntity(newId(), ZonedDateTime.now(), userEntity);
-                    forgottenPasswordDao.persist(forgottenPasswordEntity);
-                    return Optional.of(linksBuilder.decorate(forgottenPasswordEntity.toForgottenPassword()));
-                })
-                .orElseGet(() -> {
-                    logger.warn("Attempted forgotten password for non existent user {}", username);
-                    return Optional.empty();
-                });
-    }
-
     public void create(String username) {
         Optional<UserEntity> userOptional = userDao.findByUsername(username);
         if (userOptional.isPresent()) {

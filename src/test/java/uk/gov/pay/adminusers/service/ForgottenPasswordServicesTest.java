@@ -58,38 +58,6 @@ public class ForgottenPasswordServicesTest {
     }
 
     @Test
-    @Deprecated
-    public void shouldReturnANewForgottenPassword_whenCreating_ifUserFound_Legacy() throws Exception {
-        String existingUsername = "existing-user";
-        String existingExternalId = "7d19aff33f8948deb97ed16b2912dcd3";
-        UserEntity mockUser = mock(UserEntity.class);
-        when(mockUser.getUsername()).thenReturn(existingUsername);
-        when(mockUser.getExternalId()).thenReturn(existingExternalId);
-
-        when(userDao.findByUsername(existingUsername)).thenReturn(Optional.of(mockUser));
-        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.createWithoutNotification(existingUsername);
-
-        verify(forgottenPasswordDao, times(1)).persist(any(ForgottenPasswordEntity.class));
-        assertTrue(forgottenPasswordOptional.isPresent());
-        assertThat(forgottenPasswordOptional.get().getUsername(), is(existingUsername));
-        assertThat(forgottenPasswordOptional.get().getUserExternalId(), is(existingExternalId));
-        assertThat(forgottenPasswordOptional.get().getCode(), is(notNullValue()));
-        assertThat(forgottenPasswordOptional.get().getLinks().size(), is(1));
-        verifyZeroInteractions(mockNotificationService);
-    }
-
-    @Test
-    @Deprecated
-    public void shouldReturnEmpty_whenCreating_ifUserNotFound_Legacy() throws Exception {
-        String nonExistentUser = "non-existent-user";
-        when(userDao.findByUsername(nonExistentUser)).thenReturn(Optional.empty());
-
-        Optional<ForgottenPassword> forgottenPasswordOptional = forgottenPasswordServices.createWithoutNotification(nonExistentUser);
-        assertFalse(forgottenPasswordOptional.isPresent());
-        verifyZeroInteractions(mockNotificationService);
-    }
-
-    @Test
     public void shouldSendAForgottenPasswordNotification_whenCreating_ifUserFound() throws Exception {
 
         ArgumentCaptor<ForgottenPasswordEntity> expectedForgottenPassword = ArgumentCaptor.forClass(ForgottenPasswordEntity.class);
