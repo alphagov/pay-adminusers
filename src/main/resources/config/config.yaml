@@ -66,6 +66,8 @@ notify:
   inviteEmailTemplateId: ${NOTIFY_INVITE_EMAIL_TEMPLATE_ID:-pay-notify-invite-email-template-id}
   forgottenPasswordEmailTemplateId: ${NOTIFY_FORGOTTEN_PASSWORD_EMAIL_TEMPLATE_ID:-pay-notify-forgotten-password-email-template-id}
 
+forgottenPasswordExpiryMinutes: ${FORGOTTEN_PASSWORD_EXPIRY_MINUTES:-90}
+
 graphiteHost: ${METRICS_HOST:-localhost}
 graphitePort: ${METRICS_PORT:-8092}
 

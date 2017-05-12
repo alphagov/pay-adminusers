@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.persistence.dao;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.persistence.entity.ForgottenPasswordEntity;
 
@@ -13,19 +14,20 @@ import java.util.Optional;
 @Transactional
 public class ForgottenPasswordDao extends JpaDao<ForgottenPasswordEntity> {
 
-    public static final int FP_CODE_VALIDITY_IN_MINUTES = 90;
+    private final Integer forgottenPasswordExpiryMinutes;
 
     @Inject
-    protected ForgottenPasswordDao(Provider<EntityManager> entityManager) {
+    protected ForgottenPasswordDao(Provider<EntityManager> entityManager,
+                                   @Named("FORGOTTEN_PASSWORD_EXPIRY_MINUTES") Integer forgottenPasswordExpiryMinutes) {
         super(entityManager, ForgottenPasswordEntity.class);
+        this.forgottenPasswordExpiryMinutes = forgottenPasswordExpiryMinutes;
     }
-
 
     public Optional<ForgottenPasswordEntity> findNonExpiredByCode(String code) {
         String query = "SELECT fp FROM ForgottenPasswordEntity fp " +
                 "WHERE fp.code = :code AND fp.date >= :expiry";
 
-        ZonedDateTime expiryDateTime = ZonedDateTime.now(ZoneId.of("UTC")).minusMinutes(FP_CODE_VALIDITY_IN_MINUTES);
+        ZonedDateTime expiryDateTime = ZonedDateTime.now(ZoneId.of("UTC")).minusMinutes(forgottenPasswordExpiryMinutes);
 
         return entityManager.get()
                 .createQuery(query, ForgottenPasswordEntity.class)

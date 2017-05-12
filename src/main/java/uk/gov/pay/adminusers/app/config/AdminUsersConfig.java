@@ -40,7 +40,10 @@ public class AdminUsersConfig extends Configuration {
     private NotifyConfiguration notifyConfiguration;
 
     @NotNull
-    private  ProxyConfiguration proxyConfiguration;
+    private ProxyConfiguration proxyConfiguration;
+
+    @NotNull
+    private Integer forgottenPasswordExpiryMinutes;
 
     @JsonProperty("proxy")
     public ProxyConfiguration getProxyConfiguration() {
@@ -82,4 +85,7 @@ public class AdminUsersConfig extends Configuration {
         return notifyConfiguration;
     }
 
+    public Integer getForgottenPasswordExpiryMinutes() {
+        return forgottenPasswordExpiryMinutes;
+    }
 }
