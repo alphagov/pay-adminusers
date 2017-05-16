@@ -62,6 +62,7 @@ public class InviteService {
         this.linksBuilder = linksBuilder;
     }
 
+    @Transactional
     public Optional<Invite> create(InviteRequest invite, int serviceId) {
 
         if (userDao.findByEmail(invite.getEmail()).isPresent()) {
@@ -116,6 +117,7 @@ public class InviteService {
                 }).orElseGet(Optional::empty);
     }
 
+    @Transactional
     public void generateOtp(InviteOtpRequest inviteOtpRequest) {
         Optional<InviteEntity> inviteOptional = inviteDao.findByCode(inviteOtpRequest.getCode());
         if (inviteOptional.isPresent()) {
@@ -141,7 +143,10 @@ public class InviteService {
     @Transactional
     public User createInvitedUser(InviteValidateOtpRequest inviteValidateOtpRequest) {
         Optional<InviteEntity> inviteOptional = inviteDao.findByCode(inviteValidateOtpRequest.getCode());
-        if (inviteOptional.isPresent() && secondFactorAuthenticator.authorize(inviteOptional.get().getOtpKey(), inviteValidateOtpRequest.getOtpCode())) {
+        if (inviteOptional.isPresent()) {
+            if (!secondFactorAuthenticator.authorize(inviteOptional.get().getOtpKey(), inviteValidateOtpRequest.getOtpCode())) {
+                throw invalidOtpAuthCodeInviteException(inviteValidateOtpRequest.getCode());
+            }
             InviteEntity inviteEntity = inviteOptional.get();
             UserEntity userEntity = inviteEntity.mapToUserEntity();
             userDao.persist(userEntity);

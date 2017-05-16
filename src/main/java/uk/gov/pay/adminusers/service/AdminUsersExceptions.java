@@ -54,7 +54,12 @@ public class AdminUsersExceptions {
 
     public static WebApplicationException notFoundInviteException(String inviteCode) {
         String error = format("Invite for code %s provided does not exist", inviteCode);
-        return buildWebApplicationException(error, BAD_REQUEST.getStatusCode());
+        return buildWebApplicationException(error, NOT_FOUND.getStatusCode());
+    }
+
+    public static WebApplicationException invalidOtpAuthCodeInviteException(String inviteCode) {
+        String error = format("Invite for code %s provided invalid otp auth code", inviteCode);
+        return buildWebApplicationException(error, UNAUTHORIZED.getStatusCode());
     }
 
     public static WebApplicationException userLockedException(String username) {
