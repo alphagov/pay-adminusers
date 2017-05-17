@@ -28,6 +28,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
+import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_CODE;
 import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_PASSWORD;
 import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_TELEPHONE_NUMBER;
 import static uk.gov.pay.adminusers.model.InviteRequest.*;
@@ -69,7 +70,17 @@ public class InviteServiceTest {
         LinksConfig mockLinks = mock(LinksConfig.class);
         when(mockLinks.getSelfserviceUrl()).thenReturn(SELFSERVICE_URL);
         when(mockConfig.getLinks()).thenReturn(mockLinks);
-        inviteService = new InviteService(mockRoleDao, mockServiceDao, mockUserDao, mockInviteDao, mockConfig, mockPasswordHasher, mockNotificationService, mockSecondFactorAuthenticator);
+        inviteService = new InviteService(
+                mockRoleDao,
+                mockServiceDao,
+                mockUserDao,
+                mockInviteDao,
+                mockConfig,
+                mockPasswordHasher,
+                mockNotificationService,
+                mockSecondFactorAuthenticator,
+                new LinksBuilder("http://localhost")
+        );
     }
 
     private void mocksCreateInvite() {
@@ -204,8 +215,9 @@ public class InviteServiceTest {
 
     private InviteOtpRequest inviteOtpRequestFrom(String code, String telephoneNumber, String password) {
         ObjectNode json = JsonNodeFactory.instance.objectNode();
+        json.put(FIELD_CODE, code);
         json.put(FIELD_TELEPHONE_NUMBER, telephoneNumber);
         json.put(FIELD_PASSWORD, password);
-        return InviteOtpRequest.from(code, json);
+        return InviteOtpRequest.from(json);
     }
 }

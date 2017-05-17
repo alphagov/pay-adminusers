@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.persistence.dao;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.pay.adminusers.fixtures.InviteDbFixture;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
@@ -20,10 +19,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
-import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.*;
+import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
-import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.*;
-import static uk.gov.pay.adminusers.fixtures.UserDbFixture.*;
+import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
+import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 public class InviteDaoTest extends DaoTestBase {
 
@@ -53,8 +52,9 @@ public class InviteDaoTest extends DaoTestBase {
 
         String email = "USER@example.com";
         String code = randomAlphanumeric(10);
+        String otpKey = randomAlphanumeric(10);
 
-        InviteEntity invite = new InviteEntity(email, code, userSenderEntity, serviceEntity, roleEntity);
+        InviteEntity invite = new InviteEntity(email, code, otpKey, userSenderEntity, serviceEntity, roleEntity);
 
         inviteDao.persist(invite);
 

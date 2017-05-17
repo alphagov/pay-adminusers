@@ -18,10 +18,8 @@ public class User {
     public static final String FIELD_USERNAME = "username";
     public static final String FIELD_PASSWORD = "password";
     public static final String FIELD_EMAIL = "email";
-    public static final String FIELD_SERVICE_IDS = "service_ids";
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
     public static final String FIELD_TELEPHONE_NUMBER = "telephone_number";
-    public static final String FIELD_OTP_KEY = "otp_key";
     public static final String FIELD_ROLE_NAME = "role_name";
 
     private Integer id;

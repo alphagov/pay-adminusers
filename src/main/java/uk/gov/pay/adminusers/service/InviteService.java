@@ -1,12 +1,10 @@
 package uk.gov.pay.adminusers.service;
 
+import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
-import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
-import uk.gov.pay.adminusers.model.Invite;
-import uk.gov.pay.adminusers.model.InviteOtpRequest;
-import uk.gov.pay.adminusers.model.InviteRequest;
+import uk.gov.pay.adminusers.model.*;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -23,6 +21,7 @@ import java.util.function.Function;
 
 import static java.lang.String.format;
 import static javax.ws.rs.core.UriBuilder.fromUri;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
 
 public class InviteService {
@@ -39,6 +38,7 @@ public class InviteService {
     private final PasswordHasher passwordHasher;
     private final NotificationService notificationService;
     private final SecondFactorAuthenticator secondFactorAuthenticator;
+    private final LinksBuilder linksBuilder;
     private final String selfserviceBaseUrl;
 
     @Inject
@@ -48,17 +48,21 @@ public class InviteService {
                          InviteDao inviteDao,
                          AdminUsersConfig config,
                          PasswordHasher passwordHasher,
-                         NotificationService notificationService, SecondFactorAuthenticator secondFactorAuthenticator) {
+                         NotificationService notificationService,
+                         SecondFactorAuthenticator secondFactorAuthenticator,
+                         LinksBuilder linksBuilder) {
         this.roleDao = roleDao;
         this.serviceDao = serviceDao;
         this.userDao = userDao;
         this.inviteDao = inviteDao;
-        this.selfserviceBaseUrl = config.getLinks().getSelfserviceUrl();
         this.passwordHasher = passwordHasher;
         this.notificationService = notificationService;
         this.secondFactorAuthenticator = secondFactorAuthenticator;
+        this.selfserviceBaseUrl = config.getLinks().getSelfserviceUrl();
+        this.linksBuilder = linksBuilder;
     }
 
+    @Transactional
     public Optional<Invite> create(InviteRequest invite, int serviceId) {
 
         if (userDao.findByEmail(invite.getEmail()).isPresent()) {
@@ -73,21 +77,21 @@ public class InviteService {
 
         return serviceDao.findById(serviceId)
                 .flatMap(serviceEntity -> roleDao.findByRoleName(invite.getRoleName())
-                        .map(doInvite(invite.getSender(), invite.getEmail(), serviceEntity))
+                        .map(doInvite(invite, serviceEntity))
                         .orElseThrow(() -> undefinedRoleException(invite.getRoleName())));
     }
 
-    private Function<RoleEntity, Optional<Invite>> doInvite(String senderExternalId, String email, ServiceEntity serviceEntity) {
+    private Function<RoleEntity, Optional<Invite>> doInvite(InviteRequest invite, ServiceEntity serviceEntity) {
         return role -> {
-            Optional<UserEntity> userSender = userDao.findByExternalId(senderExternalId);
+            Optional<UserEntity> userSender = userDao.findByExternalId(invite.getSender());
             if (userSender.isPresent() && userSender.get().canInviteUsersTo(serviceEntity.getId())) {
-                InviteEntity inviteEntity = new InviteEntity(email, RandomIdGenerator.newId(), userSender.get(), serviceEntity, role);
+                InviteEntity inviteEntity = new InviteEntity(invite.getEmail(), newId(), invite.getOtpKey(), userSender.get(), serviceEntity, role);
                 inviteDao.persist(inviteEntity);
                 String inviteUrl = fromUri(selfserviceBaseUrl).path(SELFSERVICE_INVITES_PATH).path(inviteEntity.getCode()).build().toString();
                 sendInviteNotification(inviteEntity, inviteUrl);
                 return Optional.of(inviteEntity.toInvite(inviteUrl));
             } else {
-                throw forbiddenOperationException(senderExternalId, "invite", serviceEntity.getId());
+                throw forbiddenOperationException(invite.getSender(), "invite", serviceEntity.getId());
             }
         };
     }
@@ -113,6 +117,7 @@ public class InviteService {
                 }).orElseGet(Optional::empty);
     }
 
+    @Transactional
     public void generateOtp(InviteOtpRequest inviteOtpRequest) {
         Optional<InviteEntity> inviteOptional = inviteDao.findByCode(inviteOtpRequest.getCode());
         if (inviteOptional.isPresent()) {
@@ -131,7 +136,24 @@ public class InviteService {
                     });
             LOGGER.info("New 2FA token generated for invite code [{}]", inviteOtpRequest.getCode());
         } else {
-            throw notFoundException();
+            throw notFoundInviteException(inviteOtpRequest.getCode());
+        }
+    }
+
+    @Transactional
+    public User createInvitedUser(InviteValidateOtpRequest inviteValidateOtpRequest) {
+        Optional<InviteEntity> inviteOptional = inviteDao.findByCode(inviteValidateOtpRequest.getCode());
+        if (inviteOptional.isPresent()) {
+            if (!secondFactorAuthenticator.authorize(inviteOptional.get().getOtpKey(), inviteValidateOtpRequest.getOtpCode())) {
+                throw invalidOtpAuthCodeInviteException(inviteValidateOtpRequest.getCode());
+            }
+            InviteEntity inviteEntity = inviteOptional.get();
+            UserEntity userEntity = inviteEntity.mapToUserEntity();
+            userDao.persist(userEntity);
+            inviteDao.remove(inviteEntity);
+            return linksBuilder.decorate(userEntity.toUser());
+        } else {
+            throw notFoundInviteException(inviteValidateOtpRequest.getCode());
         }
     }
 }

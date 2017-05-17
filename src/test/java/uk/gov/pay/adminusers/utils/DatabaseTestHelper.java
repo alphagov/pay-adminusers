@@ -223,11 +223,11 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public DatabaseTestHelper addInvite(int id, int senderId, int serviceId, int roleId, String email, String code, String otpKey, ZonedDateTime date, String telephoneNumber) {
+    public DatabaseTestHelper addInvite(int id, int senderId, int serviceId, int roleId, String email, String code, String otpKey, ZonedDateTime date, ZonedDateTime expiryDate, String telephoneNumber, String password) {
         jdbi.withHandle(handle ->
                 handle
-                        .createStatement("INSERT INTO invites(id, sender_id, service_id, role_id, email, code, otp_key, date, telephone_number) " +
-                                "VALUES (:id, :senderId, :serviceId, :roleId, :email, :code, :otpKey, :date, :telephoneNumber)")
+                        .createStatement("INSERT INTO invites(id, sender_id, service_id, role_id, email, code, otp_key, date, expiry_date, telephone_number, password) " +
+                                "VALUES (:id, :senderId, :serviceId, :roleId, :email, :code, :otpKey, :date, :expiryDate, :telephoneNumber, :password)")
                         .bind("id", id)
                         .bind("senderId", senderId)
                         .bind("serviceId", serviceId)
@@ -236,9 +236,19 @@ public class DatabaseTestHelper {
                         .bind("code", code)
                         .bind("otpKey", otpKey)
                         .bind("telephoneNumber", telephoneNumber)
+                        .bind("password", password)
                         .bind("date", from(date.toInstant()))
+                        .bind("expiryDate", from(expiryDate.toInstant()))
                         .execute()
         );
         return this;
+    }
+
+    public List<Map<String, Object>> findInviteByCode(String code) {
+        return jdbi.withHandle(h ->
+                h.createQuery("SELECT id, sender_id, service_id, role_id, email, code, otp_key, date, telephone_number FROM invites " +
+                        "WHERE code = :code")
+                        .bind("code", code)
+                        .list());
     }
 }

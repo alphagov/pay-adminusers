@@ -52,6 +52,16 @@ public class AdminUsersExceptions {
         return new WebApplicationException(Response.status(NOT_FOUND.getStatusCode()).build());
     }
 
+    public static WebApplicationException notFoundInviteException(String inviteCode) {
+        String error = format("Invite for code %s provided does not exist", inviteCode);
+        return buildWebApplicationException(error, NOT_FOUND.getStatusCode());
+    }
+
+    public static WebApplicationException invalidOtpAuthCodeInviteException(String inviteCode) {
+        String error = format("Invite for code %s provided invalid otp auth code", inviteCode);
+        return buildWebApplicationException(error, UNAUTHORIZED.getStatusCode());
+    }
+
     public static WebApplicationException userLockedException(String username) {
         String error = format("user [%s] locked due to too many login attempts", username);
         return buildWebApplicationException(error, UNAUTHORIZED.getStatusCode());
@@ -75,7 +85,7 @@ public class AdminUsersExceptions {
         return new RuntimeException("error sending user notification", e);
     }
 
-    public static WebApplicationException resourceHasExpired(){
+    public static WebApplicationException resourceHasExpired() {
         String error = format("Resource has expired");
         return buildWebApplicationException(error, GONE.getStatusCode());
     }

@@ -18,9 +18,11 @@ public class IntegrationTest {
     static final String USER_2FA_URL = "/v1/api/users/%s/second-factor";
     static final String USER_SERVICE_RESOURCE = USER_RESOURCE_URL + "/services/%d";
 
-    static final String SERVICE_INVITES_RESOURCE_URL = "/v1/api/services/%d/invites";
-    static final String INVITES_OTP_RESOURCE_URL = "/v1/api/invites/%s/otp";
     static final String INVITES_RESOURCE_URL = "/v1/api/invites";
+    static final String INVITES_GENERATE_OTP_RESOURCE_URL = "/v1/api/invites/otp/generate";
+    static final String INVITES_RESEND_OTP_RESOURCE_URL = "/v1/api/invites/otp/resend";
+    static final String INVITES_VALIDATE_OTP_RESOURCE_URL = "/v1/api/invites/otp/validate";
+    static final String SERVICE_INVITES_RESOURCE_URL = "/v1/api/services/%d/invites";
 
     @ClassRule
     public static DropwizardAppWithPostgresRule app = new DropwizardAppWithPostgresRule();
