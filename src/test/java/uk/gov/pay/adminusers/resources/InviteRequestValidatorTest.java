@@ -27,7 +27,7 @@ public class InviteRequestValidatorTest {
     }
 
     @Test
-    public void shouldError_ifAllMandatoryFieldsAreMissing() throws Exception {
+    public void validateCreateRequest_shouldError_ifAllMandatoryFieldsAreMissing() throws Exception {
 
         String invalidPayload = "{}";
         JsonNode jsonNode = objectMapper.readTree(invalidPayload);
@@ -44,7 +44,7 @@ public class InviteRequestValidatorTest {
     }
 
     @Test
-    public void shouldError_ifRoleNameFieldIsMissing() throws Exception {
+    public void validateCreateRequest_shouldError_ifRoleNameFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
                 "\"sender\": \"12345abc\"," +
@@ -63,7 +63,7 @@ public class InviteRequestValidatorTest {
     }
 
     @Test
-    public void shouldError_ifEmailFieldIsMissing() throws Exception {
+    public void validateCreateRequest_shouldError_ifEmailFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
                 "\"sender\": \"12345abc\"," +
@@ -82,7 +82,7 @@ public class InviteRequestValidatorTest {
     }
 
     @Test
-    public void shouldError_ifSenderFieldIsMissing() throws Exception {
+    public void validateCreateRequest_shouldError_ifSenderFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
                 "\"email\": \"email@example.com\"," +
@@ -98,5 +98,181 @@ public class InviteRequestValidatorTest {
         assertThat(errors.getErrors().size(), is(1));
         assertThat(errors.getErrors(), hasItems(
                 "Field [sender] is required"));
+    }
+
+    @Test
+    public void validateGenerateOtpRequest_shouldError_ifAllMandatoryFieldsAreMissing() throws Exception {
+
+        String invalidPayload = "{}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+        Optional<Errors> optionalErrors = validator.validateGenerateOtpRequest(jsonNode);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(3));
+        assertThat(errors.getErrors(), hasItems(
+                "Field [code] is required",
+                "Field [telephone_number] is required",
+                "Field [password] is required"));
+    }
+
+    @Test
+    public void validateGenerateOtpRequest_shouldError_ifCodeFieldIsMissing() throws Exception {
+
+        String invalidPayload = "{" +
+                "\"telephone_number\": \"a-telephone_number\"," +
+                "\"password\": \"a-password\"" +
+                "}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+
+        Optional<Errors> optionalErrors = validator.validateGenerateOtpRequest(jsonNode);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems(
+                "Field [code] is required"));
+    }
+
+    @Test
+    public void validateGenerateOtpRequest_shouldError_ifTelephoneNumberFieldIsMissing() throws Exception {
+
+        String invalidPayload = "{" +
+                "\"code\": \"a-code\"," +
+                "\"password\": \"a-password\"" +
+                "}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+
+        Optional<Errors> optionalErrors = validator.validateGenerateOtpRequest(jsonNode);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems(
+                "Field [telephone_number] is required"));
+    }
+
+    @Test
+    public void validateGenerateOtpRequest_shouldError_ifPasswordFieldIsMissing() throws Exception {
+
+        String invalidPayload = "{" +
+                "\"code\": \"a-code\"," +
+                "\"telephone_number\": \"a-telephone_number\"" +
+                "}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+
+        Optional<Errors> optionalErrors = validator.validateGenerateOtpRequest(jsonNode);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems(
+                "Field [password] is required"));
+    }
+
+    @Test
+    public void validateResendOtpRequest_shouldError_ifAllMandatoryFieldsAreMissing() throws Exception {
+
+        String invalidPayload = "{}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+        Optional<Errors> optionalErrors = validator.validateResendOtpRequest(jsonNode);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(2));
+        assertThat(errors.getErrors(), hasItems(
+                "Field [code] is required",
+                "Field [telephone_number] is required"));
+    }
+
+    @Test
+    public void validateResendOtpRequest_shouldError_ifCodeFieldIsMissing() throws Exception {
+
+        String invalidPayload = "{" +
+                "\"telephone_number\": \"a-telephone_number\"" +
+                "}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+
+        Optional<Errors> optionalErrors = validator.validateResendOtpRequest(jsonNode);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems(
+                "Field [code] is required"));
+    }
+
+    @Test
+    public void validateResendOtpRequest_shouldError_ifTelephoneNumberFieldIsMissing() throws Exception {
+
+        String invalidPayload = "{" +
+                "\"code\": \"a-code\"" +
+                "}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+
+        Optional<Errors> optionalErrors = validator.validateResendOtpRequest(jsonNode);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems(
+                "Field [telephone_number] is required"));
+    }
+
+    @Test
+    public void validateOtpValidationRequest_shouldError_ifAllMandatoryFieldsAreMissing() throws Exception {
+
+        String invalidPayload = "{}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+        Optional<Errors> optionalErrors = validator.validateOtpValidationRequest(jsonNode);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(2));
+        assertThat(errors.getErrors(), hasItems(
+                "Field [code] is required",
+                "Field [otp] is required"));
+    }
+
+    @Test
+    public void validateOtpValidationRequest_shouldError_ifCodeFieldIsMissing() throws Exception {
+
+        String invalidPayload = "{" +
+                "\"otp\": \"an-otp-code\"" +
+                "}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+        Optional<Errors> optionalErrors = validator.validateOtpValidationRequest(jsonNode);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems(
+                "Field [code] is required"));
+    }
+
+    @Test
+    public void validateOtpValidationRequest_shouldError_ifOtpFieldIsMissing() throws Exception {
+
+        String invalidPayload = "{" +
+                "\"code\": \"a-code\"" +
+                "}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+        Optional<Errors> optionalErrors = validator.validateOtpValidationRequest(jsonNode);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems(
+                "Field [otp] is required"));
     }
 }
