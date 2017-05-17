@@ -52,6 +52,9 @@ public class InviteEntity extends AbstractEntity {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "disabled")
+    private Boolean disabled = Boolean.FALSE;
+
     public InviteEntity() {
         //for jpa
     }
@@ -163,6 +166,14 @@ public class InviteEntity extends AbstractEntity {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Boolean isDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(Boolean disabled) {
+        this.disabled = disabled;
     }
 
     public Invite toInvite(String inviteUrl) {
