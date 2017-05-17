@@ -90,7 +90,7 @@ public class InviteResource {
         return inviteValidator.validateOtpValidationRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
-                    User createdUser = inviteService.createInvitedUser(InviteValidateOtpRequest.from(payload));
+                    User createdUser = inviteService.createInvitedUserAndInvalidateInvite(InviteValidateOtpRequest.from(payload));
                     LOGGER.info("User created successfully from invitation [{}] for gateway accounts [{}]", createdUser.getExternalId(), String.join(", ", createdUser.getGatewayAccountIds()));
                     return Response.status(CREATED).type(APPLICATION_JSON).entity(createdUser).build();
                 });

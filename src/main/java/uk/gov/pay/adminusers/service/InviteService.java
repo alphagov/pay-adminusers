@@ -141,16 +141,20 @@ public class InviteService {
     }
 
     @Transactional
-    public User createInvitedUser(InviteValidateOtpRequest inviteValidateOtpRequest) {
+    public User createInvitedUserAndInvalidateInvite(InviteValidateOtpRequest inviteValidateOtpRequest) {
         Optional<InviteEntity> inviteOptional = inviteDao.findByCode(inviteValidateOtpRequest.getCode());
         if (inviteOptional.isPresent()) {
             if (!secondFactorAuthenticator.authorize(inviteOptional.get().getOtpKey(), inviteValidateOtpRequest.getOtpCode())) {
                 throw invalidOtpAuthCodeInviteException(inviteValidateOtpRequest.getCode());
             }
             InviteEntity inviteEntity = inviteOptional.get();
+            // persist the new User
             UserEntity userEntity = inviteEntity.mapToUserEntity();
             userDao.persist(userEntity);
-            inviteDao.remove(inviteEntity);
+            // Invalidate the Invite
+            inviteEntity.setDisabled(Boolean.TRUE);
+            inviteDao.persist(inviteEntity);
+            // return the new User with "links" property
             return linksBuilder.decorate(userEntity.toUser());
         } else {
             throw notFoundInviteException(inviteValidateOtpRequest.getCode());
