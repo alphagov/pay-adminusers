@@ -20,6 +20,8 @@ public class InviteDbFixture {
     private String otpKey = randomAlphanumeric(100);
     private String telephoneNumber;
     private String password;
+    private Boolean disabled = Boolean.FALSE;
+    private Integer loginCounter = 0;
 
     private InviteDbFixture(DatabaseTestHelper databaseTestHelper) {
         this.databaseTestHelper = databaseTestHelper;
@@ -34,11 +36,20 @@ public class InviteDbFixture {
         return this;
     }
 
+    public InviteDbFixture disabled() {
+        this.disabled = Boolean.TRUE;
+        return this;
+    }
+
     public String insertInvite() {
         int serviceId = ServiceDbFixture.serviceDbFixture(databaseTestHelper).insertService();
         int roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
         int userId = UserDbFixture.userDbFixture(databaseTestHelper).insertUser().getId();
-        databaseTestHelper.addInvite(nextInt(), userId, serviceId, roleId, email, code, otpKey, date, expiryDate, telephoneNumber, password);
+        databaseTestHelper.addInvite(
+                nextInt(), userId, serviceId, roleId,
+                email, code, otpKey, date, expiryDate, telephoneNumber, password,
+                disabled, loginCounter
+        );
         return code;
     }
 

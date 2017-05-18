@@ -81,23 +81,6 @@ public class InviteResourceOtpTest extends IntegrationTest {
     }
 
     @Test
-    public void generateOtp_shouldFail_whenSomeMandatoryFieldsAreMissing() throws Exception {
-
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .put("telephone_number", TELEPHONE_NUMBER)
-                .put("password", PASSWORD)
-                .build();
-
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(invitationRequest))
-                .contentType(ContentType.JSON)
-                .post(INVITES_GENERATE_OTP_RESOURCE_URL)
-                .then()
-                .statusCode(BAD_REQUEST.getStatusCode());
-    }
-
-    @Test
     public void generateOtp_shouldFail_whenAllMandatoryFieldsAreMissing() throws Exception {
 
         ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()

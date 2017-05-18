@@ -223,11 +223,16 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public DatabaseTestHelper addInvite(int id, int senderId, int serviceId, int roleId, String email, String code, String otpKey, ZonedDateTime date, ZonedDateTime expiryDate, String telephoneNumber, String password) {
+    public DatabaseTestHelper addInvite(int id, int senderId, int serviceId, int roleId,
+                                        String email, String code, String otpKey,
+                                        ZonedDateTime date, ZonedDateTime expiryDate,
+                                        String telephoneNumber, String password,
+                                        Boolean disabled,
+                                        Integer loginCounter) {
         jdbi.withHandle(handle ->
                 handle
-                        .createStatement("INSERT INTO invites(id, sender_id, service_id, role_id, email, code, otp_key, date, expiry_date, telephone_number, password) " +
-                                "VALUES (:id, :senderId, :serviceId, :roleId, :email, :code, :otpKey, :date, :expiryDate, :telephoneNumber, :password)")
+                        .createStatement("INSERT INTO invites(id, sender_id, service_id, role_id, email, code, otp_key, date, expiry_date, telephone_number, password, disabled, login_counter) " +
+                                "VALUES (:id, :senderId, :serviceId, :roleId, :email, :code, :otpKey, :date, :expiryDate, :telephoneNumber, :password, :disabled, :loginCounter)")
                         .bind("id", id)
                         .bind("senderId", senderId)
                         .bind("serviceId", serviceId)
@@ -239,6 +244,8 @@ public class DatabaseTestHelper {
                         .bind("password", password)
                         .bind("date", from(date.toInstant()))
                         .bind("expiryDate", from(expiryDate.toInstant()))
+                        .bind("disabled", disabled)
+                        .bind("loginCounter", loginCounter)
                         .execute()
         );
         return this;
