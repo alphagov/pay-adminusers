@@ -55,6 +55,9 @@ public class InviteEntity extends AbstractEntity {
     @Column(name = "disabled")
     private Boolean disabled = Boolean.FALSE;
 
+    @Column(name = "login_counter")
+    private Integer loginCounter = 0;
+
     public InviteEntity() {
         //for jpa
     }
@@ -174,6 +177,14 @@ public class InviteEntity extends AbstractEntity {
 
     public void setDisabled(Boolean disabled) {
         this.disabled = disabled;
+    }
+
+    public Integer getLoginCounter() {
+        return loginCounter;
+    }
+
+    public void setLoginCounter(Integer loginCount) {
+        this.loginCounter = loginCount;
     }
 
     public Invite toInvite(String inviteUrl) {
