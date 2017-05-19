@@ -74,10 +74,15 @@ public class InviteService {
             throw conflictingEmail(invite.getEmail());
         }
 
-        if (inviteDao.findByEmail(invite.getEmail()).isPresent()) {
+        Optional<InviteEntity> inviteOptional = inviteDao.findByEmail(invite.getEmail());
+        if (inviteOptional.isPresent()) {
             // When multiple services support is implemented
             // then this should include serviceId
-            throw conflictingInvite(invite.getEmail());
+            InviteEntity foundInvite = inviteOptional.get();
+            if (Boolean.FALSE.equals(foundInvite.isExpired()) &&
+                    Boolean.FALSE.equals(foundInvite.isDisabled())) {
+                throw conflictingInvite(invite.getEmail());
+            }
         }
 
         return serviceDao.findById(serviceId)

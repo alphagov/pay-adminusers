@@ -14,6 +14,7 @@ import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
+import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -24,10 +25,10 @@ import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.*;
-import static javax.ws.rs.core.Response.Status.GONE;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static java.util.Arrays.asList;
+import static javax.ws.rs.core.Response.Status.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -35,6 +36,8 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_CODE;
 import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_PASSWORD;
 import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_TELEPHONE_NUMBER;
@@ -162,6 +165,37 @@ public class InviteServiceTest {
         assertThat(savedInvite.getOtpKey(), is(notNullValue()));
         assertThat(savedInvite.getCode(), is(notNullValue()));
         assertThat(errorPromise.isCompletedExceptionally(), is(true));
+    }
+
+    @Test
+    public void create_shouldFailWithConflictWhenUserExists() throws Exception {
+
+        String existingUserEmail = "existing-user@example.com";
+        User existingUser = aUser(existingUserEmail);
+        when(mockUserDao.findByEmail(existingUserEmail)).thenReturn(Optional.of(UserEntity.from(existingUser)));
+
+        InviteRequest inviteRequest = inviteRequestFrom(senderEmail, existingUserEmail, roleName);
+        try {
+            inviteService.create(inviteRequest, serviceId);
+            fail();
+        } catch (WebApplicationException e) {
+            MatcherAssert.assertThat(e.getResponse().getStatus(), is(CONFLICT.getStatusCode()));
+        }
+    }
+
+    @Test
+    public void create_shouldFailWithConflictWhenInviteExistsAndNotExpiredAndNotDisabled() throws Exception {
+
+        InviteEntity anInvite = mocksCreateInvite();
+        when(mockInviteDao.findByEmail(email)).thenReturn(Optional.of(anInvite));
+
+        InviteRequest inviteRequest = inviteRequestFrom(senderEmail, email, roleName);
+        try {
+            inviteService.create(inviteRequest, serviceId);
+            fail();
+        } catch (WebApplicationException e) {
+            MatcherAssert.assertThat(e.getResponse().getStatus(), is(CONFLICT.getStatusCode()));
+        }
     }
 
     @Test
@@ -372,5 +406,9 @@ public class InviteServiceTest {
 
     private InviteEntity anInvite(String email, String code, String otpKey, UserEntity userEntity, ServiceEntity serviceEntity, RoleEntity roleEntity) {
         return new InviteEntity(email, code, otpKey, userEntity, serviceEntity, roleEntity);
+    }
+
+    private User aUser(String email) {
+        return User.from(randomInt(), randomUuid(), "a-username", "random-password", email, asList(Integer.toString(serviceId)), newArrayList(), "784rh", "8948924");
     }
 }
