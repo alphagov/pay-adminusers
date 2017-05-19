@@ -27,7 +27,9 @@ public class InviteResourceGetTest extends IntegrationTest {
                 .then()
                 .statusCode(OK.getStatusCode())
                 .body("email", is(email))
-                .body("telephone_number", is(nullValue()));
+                .body("telephone_number", is(nullValue()))
+                .body("disabled", is(false))
+                .body("login_counter", is(0));
     }
 
     @Test
@@ -52,7 +54,9 @@ public class InviteResourceGetTest extends IntegrationTest {
                 .then()
                 .statusCode(OK.getStatusCode())
                 .body("email", is(email))
-                .body("telephone_number", is(telephoneNumber));
+                .body("telephone_number", is(telephoneNumber))
+                .body("disabled", is(false))
+                .body("login_counter", is(0));
     }
 
     @Test

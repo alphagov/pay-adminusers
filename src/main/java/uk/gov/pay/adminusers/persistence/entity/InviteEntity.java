@@ -194,7 +194,7 @@ public class InviteEntity extends AbstractEntity {
     }
 
     public Invite toInvite() {
-        return new Invite(email, telephoneNumber);
+        return new Invite(email, telephoneNumber, disabled, loginCounter);
     }
 
     public boolean isExpired() {
