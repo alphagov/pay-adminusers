@@ -8,6 +8,7 @@ import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.service.InviteService;
+import uk.gov.pay.adminusers.service.ValidateOtpAndCreateUserResult;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -90,9 +91,17 @@ public class InviteResource {
         return inviteValidator.validateOtpValidationRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
-                    User createdUser = inviteService.validateOtpAndCreateUser(InviteValidateOtpRequest.from(payload));
-                    LOGGER.info("User created successfully from invitation [{}] for gateway accounts [{}]", createdUser.getExternalId(), String.join(", ", createdUser.getGatewayAccountIds()));
-                    return Response.status(CREATED).type(APPLICATION_JSON).entity(createdUser).build();
+                    ValidateOtpAndCreateUserResult validateOtpAndCreateUserResult = inviteService.validateOtpAndCreateUser(InviteValidateOtpRequest.from(payload));
+                    if (!validateOtpAndCreateUserResult.isError()) {
+                        User createdUser = validateOtpAndCreateUserResult.getUser();
+                        LOGGER.info("User created successfully from invitation [{}] for gateway accounts [{}]", createdUser.getExternalId(), String.join(", ", createdUser.getGatewayAccountIds()));
+                        return Response.status(CREATED).type(APPLICATION_JSON).entity(createdUser).build();
+                    }
+                    return handleValidateOtpAndCreateUserException(validateOtpAndCreateUserResult.getError());
                 });
+    }
+
+    private Response handleValidateOtpAndCreateUserException(WebApplicationException error) {
+        throw error;
     }
 }

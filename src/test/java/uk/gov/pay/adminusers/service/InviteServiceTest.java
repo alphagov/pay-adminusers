@@ -237,12 +237,10 @@ public class InviteServiceTest {
         when(mockSecondFactorAuthenticator.authorize(otpKey, passCode)).thenReturn(true);
 
         InviteValidateOtpRequest inviteValidateOtpRequest = inviteValidateOtpRequest(inviteCode, passCode);
-        try {
-            inviteService.validateOtpAndCreateUser(inviteValidateOtpRequest);
-            fail();
-        } catch (WebApplicationException e) {
-            MatcherAssert.assertThat(e.getResponse().getStatus(), is(GONE.getStatusCode()));
-        }
+        ValidateOtpAndCreateUserResult validateOtpAndCreateUserResult =
+                inviteService.validateOtpAndCreateUser(inviteValidateOtpRequest);
+        assertThat(validateOtpAndCreateUserResult.isError(), is(true));
+        assertThat(validateOtpAndCreateUserResult.getError().getResponse().getStatus(), is(GONE.getStatusCode()));
     }
 
     @Test
@@ -255,12 +253,10 @@ public class InviteServiceTest {
         when(mockSecondFactorAuthenticator.authorize(otpKey, invalidPassCode)).thenReturn(false);
 
         InviteValidateOtpRequest inviteValidateOtpRequest = inviteValidateOtpRequest(inviteCode, invalidPassCode);
-        try {
-            inviteService.validateOtpAndCreateUser(inviteValidateOtpRequest);
-            fail();
-        } catch (WebApplicationException e) {
-            MatcherAssert.assertThat(e.getResponse().getStatus(), is(GONE.getStatusCode()));
-        }
+        ValidateOtpAndCreateUserResult validateOtpAndCreateUserResult =
+                inviteService.validateOtpAndCreateUser(inviteValidateOtpRequest);
+        assertThat(validateOtpAndCreateUserResult.isError(), is(true));
+        assertThat(validateOtpAndCreateUserResult.getError().getResponse().getStatus(), is(GONE.getStatusCode()));
 
         verify(mockInviteDao).merge(expectedInvite.capture());
         InviteEntity savedInvite = expectedInvite.getValue();
@@ -278,12 +274,10 @@ public class InviteServiceTest {
         when(mockSecondFactorAuthenticator.authorize(otpKey, invalidPassCode)).thenReturn(false);
 
         InviteValidateOtpRequest inviteValidateOtpRequest = inviteValidateOtpRequest(inviteCode, invalidPassCode);
-        try {
-            inviteService.validateOtpAndCreateUser(inviteValidateOtpRequest);
-            fail();
-        } catch (WebApplicationException e) {
-            MatcherAssert.assertThat(e.getResponse().getStatus(), is(UNAUTHORIZED.getStatusCode()));
-        }
+        ValidateOtpAndCreateUserResult validateOtpAndCreateUserResult =
+                inviteService.validateOtpAndCreateUser(inviteValidateOtpRequest);
+        assertThat(validateOtpAndCreateUserResult.isError(), is(true));
+        assertThat(validateOtpAndCreateUserResult.getError().getResponse().getStatus(), is(UNAUTHORIZED.getStatusCode()));
 
         verify(mockInviteDao).merge(expectedInvite.capture());
         InviteEntity savedInvite = expectedInvite.getValue();
@@ -319,12 +313,10 @@ public class InviteServiceTest {
         String notFoundInviteCode = "not-found-invite-code";
         when(mockInviteDao.findByCode(notFoundInviteCode)).thenReturn(Optional.empty());
         InviteValidateOtpRequest inviteValidateOtpRequest = inviteValidateOtpRequest(notFoundInviteCode, passCode);
-        try {
-            inviteService.validateOtpAndCreateUser(inviteValidateOtpRequest);
-            fail();
-        } catch (WebApplicationException e) {
-            MatcherAssert.assertThat(e.getResponse().getStatus(), is(NOT_FOUND.getStatusCode()));
-        }
+        ValidateOtpAndCreateUserResult validateOtpAndCreateUserResult =
+                inviteService.validateOtpAndCreateUser(inviteValidateOtpRequest);
+        assertThat(validateOtpAndCreateUserResult.isError(), is(true));
+        assertThat(validateOtpAndCreateUserResult.getError().getResponse().getStatus(), is(NOT_FOUND.getStatusCode()));
     }
 
     @Test

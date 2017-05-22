@@ -219,13 +219,12 @@ public class InviteResourceOtpTest extends IntegrationTest {
                 .then()
                 .statusCode(GONE.getStatusCode());
 
-        // TODO
         // check if "login_counter" and "disabled" columns are properly updated
-        /*List<Map<String, Object>> foundInvites = databaseHelper.findInviteByCode(code);
+        List<Map<String, Object>> foundInvites = databaseHelper.findInviteByCode(code);
         assertThat(foundInvites.size(), is(1));
         Map<String, Object> foundInvite = foundInvites.get(0);
         assertThat(foundInvite.get("disabled"), is(Boolean.TRUE));
-        assertThat(foundInvite.get("login_counter"), is(10));*/
+        assertThat(foundInvite.get("login_counter"), is(10));
     }
 
     @Test
