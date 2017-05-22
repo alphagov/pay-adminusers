@@ -151,7 +151,7 @@ public class InviteService {
     }
 
     @Transactional
-    public User createInvitedUserAndInvalidateInvite(InviteValidateOtpRequest inviteValidateOtpRequest) {
+    public User validateOtpAndCreateUser(InviteValidateOtpRequest inviteValidateOtpRequest) {
         Optional<InviteEntity> inviteOptional = inviteDao.findByCode(inviteValidateOtpRequest.getCode());
         if (inviteOptional.isPresent()) {
             InviteEntity inviteEntity = inviteOptional.get();
@@ -160,7 +160,11 @@ public class InviteService {
                 inviteEntity.setLoginCounter(inviteEntity.getLoginCounter() + 1);
                 inviteEntity.setDisabled(inviteEntity.getLoginCounter() >= loginAttemptCap);
                 inviteDao.merge(inviteEntity);
-                // throw UNAUTHORIZED / 401 exception if the otp validation failed
+                // check if the Invite is locked and throw GONE / 410 exception if it is
+                if (inviteEntity.isDisabled()) {
+                    throw inviteLockedException(inviteEntity.getCode());
+                }
+                // otherwise, throw UNAUTHORIZED / 401 exception if the otp validation failed
                 throw invalidOtpAuthCodeInviteException(inviteEntity.getCode());
             } else {
                 // "successful login attempt" logic

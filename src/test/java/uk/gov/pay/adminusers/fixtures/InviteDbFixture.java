@@ -31,16 +31,6 @@ public class InviteDbFixture {
         return new InviteDbFixture(databaseHelper);
     }
 
-    public InviteDbFixture expired() {
-        this.expiryDate = this.date.minus(1, SECONDS);
-        return this;
-    }
-
-    public InviteDbFixture disabled() {
-        this.disabled = Boolean.TRUE;
-        return this;
-    }
-
     public String insertInvite() {
         int serviceId = ServiceDbFixture.serviceDbFixture(databaseTestHelper).insertService();
         int roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
@@ -51,6 +41,21 @@ public class InviteDbFixture {
                 disabled, loginCounter
         );
         return code;
+    }
+
+    public InviteDbFixture expired() {
+        this.expiryDate = this.date.minus(1, SECONDS);
+        return this;
+    }
+
+    public InviteDbFixture disabled() {
+        this.disabled = Boolean.TRUE;
+        return this;
+    }
+
+    public InviteDbFixture withLoginCounter(Integer loginCounter) {
+        this.loginCounter = loginCounter;
+        return this;
     }
 
     public InviteDbFixture withTelephoneNumber(String telephoneNumber) {

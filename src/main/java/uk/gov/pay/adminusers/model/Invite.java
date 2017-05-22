@@ -44,7 +44,7 @@ public class Invite {
     }
 
     @JsonProperty("disabled")
-    public Boolean getDisabled() {
+    public Boolean isDisabled() {
         return disabled;
     }
 

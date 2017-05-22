@@ -253,7 +253,7 @@ public class DatabaseTestHelper {
 
     public List<Map<String, Object>> findInviteByCode(String code) {
         return jdbi.withHandle(h ->
-                h.createQuery("SELECT id, sender_id, service_id, role_id, email, code, otp_key, date, telephone_number FROM invites " +
+                h.createQuery("SELECT id, sender_id, service_id, role_id, email, code, otp_key, date, telephone_number, disabled, login_counter FROM invites " +
                         "WHERE code = :code")
                         .bind("code", code)
                         .list());
