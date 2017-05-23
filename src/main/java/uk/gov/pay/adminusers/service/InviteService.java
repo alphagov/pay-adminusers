@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.service;
 
+import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
@@ -41,6 +42,8 @@ public class InviteService {
     private final LinksBuilder linksBuilder;
     private final String selfserviceBaseUrl;
 
+    private final Integer loginAttemptCap;
+
     @Inject
     public InviteService(RoleDao roleDao,
                          ServiceDao serviceDao,
@@ -50,7 +53,8 @@ public class InviteService {
                          PasswordHasher passwordHasher,
                          NotificationService notificationService,
                          SecondFactorAuthenticator secondFactorAuthenticator,
-                         LinksBuilder linksBuilder) {
+                         LinksBuilder linksBuilder,
+                         @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap) {
         this.roleDao = roleDao;
         this.serviceDao = serviceDao;
         this.userDao = userDao;
@@ -60,6 +64,7 @@ public class InviteService {
         this.secondFactorAuthenticator = secondFactorAuthenticator;
         this.selfserviceBaseUrl = config.getLinks().getSelfserviceUrl();
         this.linksBuilder = linksBuilder;
+        this.loginAttemptCap = loginAttemptCap;
     }
 
     @Transactional
@@ -69,10 +74,15 @@ public class InviteService {
             throw conflictingEmail(invite.getEmail());
         }
 
-        if (inviteDao.findByEmail(invite.getEmail()).isPresent()) {
+        Optional<InviteEntity> inviteOptional = inviteDao.findByEmail(invite.getEmail());
+        if (inviteOptional.isPresent()) {
             // When multiple services support is implemented
             // then this should include serviceId
-            throw conflictingInvite(invite.getEmail());
+            InviteEntity foundInvite = inviteOptional.get();
+            if (Boolean.FALSE.equals(foundInvite.isExpired()) &&
+                    Boolean.FALSE.equals(foundInvite.isDisabled())) {
+                throw conflictingInvite(invite.getEmail());
+            }
         }
 
         return serviceDao.findById(serviceId)
@@ -110,8 +120,8 @@ public class InviteService {
     public Optional<Invite> findByCode(String code) {
         return inviteDao.findByCode(code)
                 .map(inviteEntity -> {
-                    if (inviteEntity.isExpired()) {
-                        throw resourceHasExpired();
+                    if (inviteEntity.isExpired() || inviteEntity.isDisabled()) {
+                        throw inviteLockedException(inviteEntity.getCode());
                     }
                     return Optional.of(inviteEntity.toInvite());
                 }).orElseGet(Optional::empty);
@@ -141,19 +151,39 @@ public class InviteService {
     }
 
     @Transactional
-    public User createInvitedUser(InviteValidateOtpRequest inviteValidateOtpRequest) {
+    public ValidateOtpAndCreateUserResult validateOtpAndCreateUser(InviteValidateOtpRequest inviteValidateOtpRequest) {
         Optional<InviteEntity> inviteOptional = inviteDao.findByCode(inviteValidateOtpRequest.getCode());
         if (inviteOptional.isPresent()) {
-            if (!secondFactorAuthenticator.authorize(inviteOptional.get().getOtpKey(), inviteValidateOtpRequest.getOtpCode())) {
-                throw invalidOtpAuthCodeInviteException(inviteValidateOtpRequest.getCode());
-            }
             InviteEntity inviteEntity = inviteOptional.get();
+            if (!secondFactorAuthenticator.authorize(inviteEntity.getOtpKey(), inviteValidateOtpRequest.getOtpCode())) {
+                // "failed login attempt" logic
+                inviteEntity.setLoginCounter(inviteEntity.getLoginCounter() + 1);
+                inviteEntity.setDisabled(inviteEntity.getLoginCounter() >= loginAttemptCap);
+                inviteDao.merge(inviteEntity);
+                // check if the Invite is locked and fail with GONE / 410 exception if it is
+                if (inviteEntity.isDisabled()) {
+                    return new ValidateOtpAndCreateUserResult(inviteLockedException(inviteEntity.getCode()));
+                }
+                // otherwise, fail with UNAUTHORIZED / 401 exception if the otp validation failed
+                return new ValidateOtpAndCreateUserResult(invalidOtpAuthCodeInviteException(inviteEntity.getCode()));
+            } else {
+                // "successful login attempt" logic
+                inviteEntity.setLoginCounter(0);
+            }
+            // check if the Invite is locked and fail with UNAUTHORIZED / 401 exception if it is
+            if (inviteEntity.isDisabled()) {
+                return new ValidateOtpAndCreateUserResult(inviteLockedException(inviteEntity.getCode()));
+            }
+            // persist the new User
             UserEntity userEntity = inviteEntity.mapToUserEntity();
             userDao.persist(userEntity);
-            inviteDao.remove(inviteEntity);
-            return linksBuilder.decorate(userEntity.toUser());
+            // Deactivate the Invite
+            inviteEntity.setDisabled(Boolean.TRUE);
+            inviteDao.merge(inviteEntity);
+            // return the new User with "links" property
+            return new ValidateOtpAndCreateUserResult(linksBuilder.decorate(userEntity.toUser()));
         } else {
-            throw notFoundInviteException(inviteValidateOtpRequest.getCode());
+            return new ValidateOtpAndCreateUserResult(notFoundInviteException(inviteValidateOtpRequest.getCode()));
         }
     }
 }

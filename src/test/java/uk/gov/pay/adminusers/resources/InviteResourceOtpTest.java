@@ -13,11 +13,7 @@ import java.util.Map;
 
 import static com.google.common.io.BaseEncoding.base32;
 import static com.jayway.restassured.http.ContentType.JSON;
-import static javax.ws.rs.core.Response.Status.OK;
-import static javax.ws.rs.core.Response.Status.CREATED;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.*;
 import static org.apache.commons.lang3.RandomStringUtils.random;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
@@ -81,23 +77,6 @@ public class InviteResourceOtpTest extends IntegrationTest {
     }
 
     @Test
-    public void generateOtp_shouldFail_whenSomeMandatoryFieldsAreMissing() throws Exception {
-
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .put("telephone_number", TELEPHONE_NUMBER)
-                .put("password", PASSWORD)
-                .build();
-
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(invitationRequest))
-                .contentType(ContentType.JSON)
-                .post(INVITES_GENERATE_OTP_RESOURCE_URL)
-                .then()
-                .statusCode(BAD_REQUEST.getStatusCode());
-    }
-
-    @Test
     public void generateOtp_shouldFail_whenAllMandatoryFieldsAreMissing() throws Exception {
 
         ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
@@ -121,7 +100,6 @@ public class InviteResourceOtpTest extends IntegrationTest {
                 .withOtpKey(OTP_KEY)
                 .withTelephoneNumber(TELEPHONE_NUMBER)
                 .withPassword(PASSWORD)
-                .expired()
                 .insertInvite();
 
         // generate valid invitationOtpRequest and execute it
@@ -190,37 +168,6 @@ public class InviteResourceOtpTest extends IntegrationTest {
     }
 
     @Test
-    public void validateOtp_shouldFail_whenSomeMandatoryFieldsAreMissing() throws Exception {
-
-        ImmutableMap<Object, Object> invitationOtpRequest = ImmutableMap.builder()
-                .put("code", code)
-                .build();
-
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(invitationOtpRequest))
-                .contentType(ContentType.JSON)
-                .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
-                .then()
-                .statusCode(BAD_REQUEST.getStatusCode());
-    }
-
-    @Test
-    public void validateOtp_shouldFail_whenAllMandatoryFieldsAreMissing() throws Exception {
-
-        ImmutableMap<Object, Object> invitationOtpRequest = ImmutableMap.builder()
-                .build();
-
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(invitationOtpRequest))
-                .contentType(ContentType.JSON)
-                .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
-                .then()
-                .statusCode(BAD_REQUEST.getStatusCode());
-    }
-
-    @Test
     public void validateOtp_shouldFail_whenInvalidOtpAuthCode() throws Exception {
 
         // create an invitation
@@ -229,7 +176,6 @@ public class InviteResourceOtpTest extends IntegrationTest {
                 .withOtpKey(OTP_KEY)
                 .withTelephoneNumber(TELEPHONE_NUMBER)
                 .withPassword(PASSWORD)
-                .expired()
                 .insertInvite();
 
         // generate invalid invitationOtpRequest and execute it
@@ -245,6 +191,55 @@ public class InviteResourceOtpTest extends IntegrationTest {
                 .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(UNAUTHORIZED.getStatusCode());
+    }
+
+    @Test
+    public void validateOtp_shouldFailAndLockInvite_whenInvalidOtpAuthCode_ifMaxRetryExceeded() throws Exception {
+
+        // create an invitation
+        code = InviteDbFixture.inviteDbFixture(databaseHelper)
+                .withEmail(EMAIL)
+                .withOtpKey(OTP_KEY)
+                .withTelephoneNumber(TELEPHONE_NUMBER)
+                .withPassword(PASSWORD)
+                .withLoginCounter(9)
+                .insertInvite();
+
+        // generate invalid invitationOtpRequest and execute it
+        ImmutableMap<Object, Object> invitationOtpRequest = ImmutableMap.builder()
+                .put("code", code)
+                .put("otp", 123456)
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(invitationOtpRequest))
+                .contentType(ContentType.JSON)
+                .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
+                .then()
+                .statusCode(GONE.getStatusCode());
+
+        // check if "login_counter" and "disabled" columns are properly updated
+        List<Map<String, Object>> foundInvites = databaseHelper.findInviteByCode(code);
+        assertThat(foundInvites.size(), is(1));
+        Map<String, Object> foundInvite = foundInvites.get(0);
+        assertThat(foundInvite.get("disabled"), is(Boolean.TRUE));
+        assertThat(foundInvite.get("login_counter"), is(10));
+    }
+
+    @Test
+    public void validateOtp_shouldFail_whenAllMandatoryFieldsAreMissing() throws Exception {
+
+        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(invitationRequest))
+                .contentType(ContentType.JSON)
+                .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
+                .then()
+                .statusCode(BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -280,5 +275,20 @@ public class InviteResourceOtpTest extends IntegrationTest {
         assertThat(foundInvites.size(), is(1));
         Map<String, Object> foundInvite = foundInvites.get(0);
         assertThat(foundInvite.get("telephone_number"), is(newTelephoneNumber));
+    }
+
+    @Test
+    public void resendOtp_shouldFail_whenAllMandatoryFieldsAreMissing() throws Exception {
+
+        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(invitationRequest))
+                .contentType(ContentType.JSON)
+                .post(INVITES_RESEND_OTP_RESOURCE_URL)
+                .then()
+                .statusCode(BAD_REQUEST.getStatusCode());
     }
 }

@@ -3,6 +3,9 @@ package uk.gov.pay.adminusers.resources;
 import org.junit.Test;
 
 import static com.jayway.restassured.http.ContentType.JSON;
+import static javax.ws.rs.core.Response.Status.GONE;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
@@ -22,9 +25,11 @@ public class InviteResourceGetTest extends IntegrationTest {
                 .accept(JSON)
                 .get(INVITES_RESOURCE_URL + "/" + inviteCode)
                 .then()
-                .statusCode(200)
+                .statusCode(OK.getStatusCode())
                 .body("email", is(email))
-                .body("telephone_number", is(nullValue()));
+                .body("telephone_number", is(nullValue()))
+                .body("disabled", is(false))
+                .body("login_counter", is(0));
     }
 
     @Test
@@ -47,9 +52,11 @@ public class InviteResourceGetTest extends IntegrationTest {
                 .accept(JSON)
                 .get(INVITES_RESOURCE_URL + "/" + inviteCode)
                 .then()
-                .statusCode(200)
+                .statusCode(OK.getStatusCode())
                 .body("email", is(email))
-                .body("telephone_number", is(telephoneNumber));
+                .body("telephone_number", is(telephoneNumber))
+                .body("disabled", is(false))
+                .body("login_counter", is(0));
     }
 
     @Test
@@ -62,7 +69,20 @@ public class InviteResourceGetTest extends IntegrationTest {
                 .accept(JSON)
                 .get(INVITES_RESOURCE_URL + "/" + expiredCode)
                 .then()
-                .statusCode(410);
+                .statusCode(GONE.getStatusCode());
+    }
+
+    @Test
+    public void getInvitation_shouldFail_whenDisabled() throws Exception {
+
+        String expiredCode = inviteDbFixture(databaseHelper).disabled().insertInvite();
+
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .get(INVITES_RESOURCE_URL + "/" + expiredCode)
+                .then()
+                .statusCode(GONE.getStatusCode());
     }
 
     @Test
@@ -73,6 +93,6 @@ public class InviteResourceGetTest extends IntegrationTest {
                 .accept(JSON)
                 .get(INVITES_RESOURCE_URL + "/fake-code")
                 .then()
-                .statusCode(404);
+                .statusCode(NOT_FOUND.getStatusCode());
     }
 }

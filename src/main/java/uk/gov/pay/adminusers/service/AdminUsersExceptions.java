@@ -62,6 +62,11 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, UNAUTHORIZED.getStatusCode());
     }
 
+    public static WebApplicationException inviteLockedException(String inviteCode) {
+        String error = format("Invite for code %s locked due to too many otp auth attempts", inviteCode);
+        return buildWebApplicationException(error, GONE.getStatusCode());
+    }
+
     public static WebApplicationException userLockedException(String username) {
         String error = format("user [%s] locked due to too many login attempts", username);
         return buildWebApplicationException(error, UNAUTHORIZED.getStatusCode());

@@ -16,6 +16,8 @@ public class Invite {
 
     private final String email;
     private String telephoneNumber;
+    private Boolean disabled = Boolean.FALSE;
+    private Integer loginCounter = 0;
 
     private List<Link> links = new ArrayList<>();
 
@@ -23,9 +25,12 @@ public class Invite {
         this.email = email;
     }
 
-    public Invite(String email, String telephoneNumber) {
+    public Invite(String email, String telephoneNumber,
+                  Boolean disabled, Integer loginCounter) {
         this.email = email;
         this.telephoneNumber = telephoneNumber;
+        this.disabled = disabled;
+        this.loginCounter = loginCounter;
     }
 
     @JsonProperty("email")
@@ -36,6 +41,16 @@ public class Invite {
     @JsonProperty("telephone_number")
     public String getTelephoneNumber() {
         return telephoneNumber;
+    }
+
+    @JsonProperty("disabled")
+    public Boolean isDisabled() {
+        return disabled;
+    }
+
+    @JsonProperty("login_counter")
+    public Integer getLoginCounter() {
+        return loginCounter;
     }
 
     @JsonProperty("_links")
