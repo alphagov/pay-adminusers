@@ -4,11 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.http.ContentType;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.pay.adminusers.fixtures.InviteDbFixture;
 
 import static java.lang.String.format;
-import static javax.ws.rs.core.Response.Status.CREATED;
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.*;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
@@ -90,7 +88,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .accept(ContentType.JSON)
                 .post(format(SERVICE_INVITES_RESOURCE_URL, serviceId))
                 .then()
-                .statusCode(409)
+                .statusCode(CONFLICT.getStatusCode())
                 .body("errors", hasSize(1))
                 .body("errors", hasItems(format("email [%s] already exists", existingUserEmail)));
     }
@@ -117,7 +115,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .accept(ContentType.JSON)
                 .post(format(SERVICE_INVITES_RESOURCE_URL, serviceId))
                 .then()
-                .statusCode(409)
+                .statusCode(CONFLICT.getStatusCode())
                 .body("errors", hasSize(1))
                 .body("errors", hasItems(format("invite with email [%s] already exists", existingUserEmail)));
     }
@@ -139,7 +137,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .accept(ContentType.JSON)
                 .post(format(SERVICE_INVITES_RESOURCE_URL, nonExistentServiceId))
                 .then()
-                .statusCode(404)
+                .statusCode(NOT_FOUND.getStatusCode())
                 .body(isEmptyString());
     }
 
@@ -159,7 +157,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .accept(ContentType.JSON)
                 .post(format(SERVICE_INVITES_RESOURCE_URL, serviceId))
                 .then()
-                .statusCode(400)
+                .statusCode(BAD_REQUEST.getStatusCode())
                 .body("errors", hasSize(1))
                 .body("errors", hasItems("role [non-existing-role] not recognised"));
     }

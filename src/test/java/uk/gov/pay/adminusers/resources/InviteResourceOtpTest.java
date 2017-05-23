@@ -228,6 +228,21 @@ public class InviteResourceOtpTest extends IntegrationTest {
     }
 
     @Test
+    public void validateOtp_shouldFail_whenAllMandatoryFieldsAreMissing() throws Exception {
+
+        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(invitationRequest))
+                .contentType(ContentType.JSON)
+                .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
+                .then()
+                .statusCode(BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
     public void resendOtp_shouldUpdateTelephoneNumber_whenValidOtp() throws Exception {
 
         // create an invitation with initial telephone number
@@ -260,5 +275,20 @@ public class InviteResourceOtpTest extends IntegrationTest {
         assertThat(foundInvites.size(), is(1));
         Map<String, Object> foundInvite = foundInvites.get(0);
         assertThat(foundInvite.get("telephone_number"), is(newTelephoneNumber));
+    }
+
+    @Test
+    public void resendOtp_shouldFail_whenAllMandatoryFieldsAreMissing() throws Exception {
+
+        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(invitationRequest))
+                .contentType(ContentType.JSON)
+                .post(INVITES_RESEND_OTP_RESOURCE_URL)
+                .then()
+                .statusCode(BAD_REQUEST.getStatusCode());
     }
 }
