@@ -1,5 +1,7 @@
 package uk.gov.pay.adminusers.utils.email;
 
+import com.google.common.base.Joiner;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,27 +39,33 @@ public class EmailValidator {
     }
     private static final Pattern PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERN;
     static {
-        StringBuilder domainRegExPatternStringBuilder = new StringBuilder();
-        for (int i = 0, size = PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS.size(); i < size; i++) {
-            if (i != 0) {
-                domainRegExPatternStringBuilder.append("|");
-            }
-            domainRegExPatternStringBuilder.append(PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS.get(i));
-        }
-        String domainRegExPatternString = domainRegExPatternStringBuilder.toString();
+        String domainRegExPatternString = Joiner.on("|").join(PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS);
 
-        // We are splitting the logic into two parts
-        // for domains and subdomains
-        String regExDomainsOnlyPart = "(" + domainRegExPatternString + ")"; // this is "OR" of all domains
-        // the subdomain part:
-        // - cannot start with "-"
-        // - can have any alphanumeric letter or -
-        // - cannot end with "-"
+        // We are splitting the logic into two parts for whitelisted domains and subdomains
+        String regExDomainsOnlyPart = "(" + domainRegExPatternString + ")";
         String regExSubdomainsPart = "(((?!-)[A-Za-z0-9-]+(?<!-)\\.)+(" + domainRegExPatternString + "))";
         PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERN =
                 Pattern.compile("^" + regExDomainsOnlyPart +  "|" + regExSubdomainsPart + "$");
     }
 
+    /**
+     * This method checks that an email belongs to a public sector domain name
+     * <p>
+     * The logic is split into two parts:
+     * <ol>
+     *   <li>checks the subdomains and that they:</li>
+     *   <ul>
+     *     <li>don't start with "-" </li>
+     *     <li>only have any alphanumeric characters or "-"</li>
+     *     <li>don't end with "-"</li>
+     *   </ul>
+     *   <li>checks the whitelisted domains</li>
+     * </ol>
+     * </p>
+     *
+     * @param email the email to check
+     * @return <b>boolean</b> whether or not it is from a public sector domain
+     */
     public static boolean isPublicSectorEmail(String email) {
         email = email.toLowerCase();
         String[] emailParts = email.split("@");
