@@ -28,7 +28,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
     public void givenAnExistingServiceAndARole() {
 
         serviceId = serviceDbFixture(databaseHelper)
-                .insertService();
+                .insertService().getId();
 
         roleAdminName = roleDbFixture(databaseHelper)
                 .insertAdmin().getName();
@@ -212,7 +212,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
     public void createInvitation_shouldFail_whenSenderDoesNotBelongToTheGivenService() throws Exception {
 
         int otherServiceId = serviceDbFixture(databaseHelper)
-                .insertService();
+                .insertService().getId();
 
         String senderExternalId = userDbFixture(databaseHelper)
                 .withServiceRole(otherServiceId, ADMIN.getId())

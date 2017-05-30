@@ -5,6 +5,7 @@ import org.junit.Test;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 
 import static java.util.Arrays.asList;
@@ -45,7 +46,8 @@ public class ServiceDaoTest extends DaoTestBase {
         databaseHelper.add(role);
 
         String gatewayAccountId1 = randomInt().toString();
-        databaseHelper.addService(serviceId, gatewayAccountId1);
+        Service service1 = Service.from(serviceId, Service.DEFAULT_NAME_VALUE);
+        databaseHelper.addService(service1, gatewayAccountId1);
 
         range(0, noOfUsers - 1).forEach(i -> {
             UserDbFixture.userDbFixture(databaseHelper).withServiceRole(serviceId, roleId).insertUser();
@@ -54,7 +56,8 @@ public class ServiceDaoTest extends DaoTestBase {
         //unmatching service
         String gatewayAccountId2 = randomInt().toString();
         Integer serviceId2 = randomInt();
-        databaseHelper.addService(serviceId2, gatewayAccountId2);
+        Service service2 = Service.from(serviceId2, Service.DEFAULT_NAME_VALUE);
+        databaseHelper.addService(service2, gatewayAccountId2);
 
         //same user 2 diff services - should count only once
         User user3 = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(serviceId, roleId).insertUser();

@@ -1,10 +1,7 @@
 package uk.gov.pay.adminusers.utils;
 
 import org.skife.jdbi.v2.DBI;
-import uk.gov.pay.adminusers.model.ForgottenPassword;
-import uk.gov.pay.adminusers.model.Permission;
-import uk.gov.pay.adminusers.model.Role;
-import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.model.*;
 
 import java.sql.Timestamp;
 import java.time.ZoneId;
@@ -193,19 +190,20 @@ public class DatabaseTestHelper {
                         .list());
     }
 
-    public DatabaseTestHelper addService(int serviceId, String... gatewayAccountIds) {
+    public DatabaseTestHelper addService(Service service, String... gatewayAccountIds) {
         jdbi.withHandle(handle ->
                 handle
-                        .createStatement("INSERT INTO services(id) " +
-                                "VALUES (:id)")
-                        .bind("id", serviceId)
+                        .createStatement("INSERT INTO services(id, name) " +
+                                "VALUES (:id, :name)")
+                        .bind("id", service.getId())
+                        .bind("name", service.getName())
                         .execute()
         );
 
         for (String gatewayAccountId : gatewayAccountIds) {
             jdbi.withHandle(handle ->
                     handle.createStatement("INSERT INTO service_gateway_accounts(service_id, gateway_account_id) VALUES (:serviceId, :gatewayAccountId)")
-                            .bind("serviceId", serviceId)
+                            .bind("serviceId", service.getId())
                             .bind("gatewayAccountId", gatewayAccountId)
                             .execute()
             );

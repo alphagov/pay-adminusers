@@ -20,7 +20,7 @@ public class UserResourceUpdateServiceRoleTest extends IntegrationTest {
     @Test
     public void shouldUpdateUserServiceRole() throws Exception {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
-        int serviceId = serviceDbFixture(databaseHelper).insertService();
+        int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
         User user = userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
         userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
 
@@ -40,7 +40,7 @@ public class UserResourceUpdateServiceRoleTest extends IntegrationTest {
 
     @Test
     public void shouldError404_ifUserNotFound_whenUpdatingServiceRole() throws Exception {
-        int serviceId = serviceDbFixture(databaseHelper).insertService();
+        int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("role_name", "view-and-refund"));
 
         givenSetup()
@@ -55,7 +55,7 @@ public class UserResourceUpdateServiceRoleTest extends IntegrationTest {
     @Test
     public void shouldError412_ifNoOfMinimumAdminsLimitReached_whenUpdatingServiceRole() throws Exception {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
-        int serviceId = serviceDbFixture(databaseHelper).insertService();
+        int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
         User user = userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
 
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("role_name", "view-and-refund"));

@@ -22,8 +22,8 @@ public class ServiceResourceTest extends IntegrationTest {
                 .withName("roleA")
                 .insertRole();
 
-        int serviceId1 = serviceDbFixture(databaseHelper).insertService();
-        int serviceId2 = serviceDbFixture(databaseHelper).insertService();
+        int serviceId1 = serviceDbFixture(databaseHelper).insertService().getId();
+        int serviceId2 = serviceDbFixture(databaseHelper).insertService().getId();
 
         User user1 = userDbFixture(databaseHelper)
                 .withUsername("zoe")

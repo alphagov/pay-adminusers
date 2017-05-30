@@ -29,7 +29,7 @@ public class User {
     private String email;
     private List<String> gatewayAccountIds = new ArrayList<>();
     private String telephoneNumber;
-    private List<String> serviceIds = new ArrayList<>();
+    private List<Service> services = new ArrayList<>();
     private String otpKey;
     private Boolean disabled = Boolean.FALSE;
     private Integer loginCounter = 0;
@@ -38,20 +38,20 @@ public class User {
     private Integer sessionVersion = 0;
 
     public static User from(Integer id, String externalId, String username, String password, String email,
-                            List<String> gatewayAccountIds, List<String> serviceIds, String otpKey, String telephoneNumber) {
-        return new User(id, externalId, username, password, email, gatewayAccountIds, serviceIds, otpKey, telephoneNumber);
+                            List<String> gatewayAccountIds, List<Service> services, String otpKey, String telephoneNumber) {
+        return new User(id, externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber);
     }
 
     private User(Integer id, @JsonProperty("external_id") String externalId, @JsonProperty("username") String username, @JsonProperty("password") String password,
                  @JsonProperty("email") String email, @JsonProperty("gateway_account_ids") List<String> gatewayAccountIds,
-                 List<String> serviceIds, @JsonProperty("otp_key") String otpKey, @JsonProperty("telephone_number") String telephoneNumber) {
+                 List<Service> services, @JsonProperty("otp_key") String otpKey, @JsonProperty("telephone_number") String telephoneNumber) {
         this.id = id;
         this.externalId = externalId;
         this.username = username;
         this.password = password;
         this.email = email;
         this.gatewayAccountIds = gatewayAccountIds;
-        this.serviceIds = serviceIds;
+        this.services = services;
         this.otpKey = otpKey;
         this.telephoneNumber = telephoneNumber;
     }
@@ -115,8 +115,12 @@ public class User {
         return sessionVersion;
     }
 
+    public List<Service> getServices() {
+        return services;
+    }
+
     public List<String> getServiceIds() {
-        return serviceIds;
+        return services.stream().map(service -> String.valueOf(service.getId())).collect(Collectors.toList());
     }
 
     /**

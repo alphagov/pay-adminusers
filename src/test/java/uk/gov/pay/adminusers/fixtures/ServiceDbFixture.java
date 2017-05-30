@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.fixtures;
 
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import static java.lang.String.valueOf;
@@ -10,6 +11,7 @@ public class ServiceDbFixture {
     private final DatabaseTestHelper databaseHelper;
     private String[] gatewayAccountIds = new String[]{valueOf(nextInt())};
     private Integer id;
+    private String name = Service.DEFAULT_NAME_VALUE;
 
     private ServiceDbFixture(DatabaseTestHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
@@ -24,10 +26,13 @@ public class ServiceDbFixture {
         return this;
     }
 
-    public int insertService() {
+    public Service insertService() {
         int serviceId = id == null ? nextInt() : id;
-        databaseHelper.addService(serviceId, gatewayAccountIds);
-        return serviceId;
+
+        Service service = Service.from(serviceId, name);
+        databaseHelper.addService(service, gatewayAccountIds);
+
+        return service;
     }
 
     public ServiceDbFixture withId(int id) {

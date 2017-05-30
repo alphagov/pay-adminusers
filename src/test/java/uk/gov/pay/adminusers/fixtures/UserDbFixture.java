@@ -1,13 +1,13 @@
 package uk.gov.pay.adminusers.fixtures;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -15,6 +15,7 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 public class UserDbFixture {
 
     private final DatabaseTestHelper databaseTestHelper;
+    private Service service;
     private Integer serviceId;
     private Integer roleId;
     private String externalId = randomUuid();
@@ -35,15 +36,17 @@ public class UserDbFixture {
 
     public User insertUser() {
         if (serviceId == null) {
-            serviceId = ServiceDbFixture.serviceDbFixture(databaseTestHelper).insertService();
+            service = ServiceDbFixture.serviceDbFixture(databaseTestHelper).insertService();
+            serviceId = service.getId();
             roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
         }
-        User user = User.from(randomInt(), externalId, username, password, email, gatewayAccountIds, asList(valueOf(serviceId)), otpKey, telephoneNumber);
+        User user = User.from(randomInt(), externalId, username, password, email, gatewayAccountIds, asList(service), otpKey, telephoneNumber);
         databaseTestHelper.add(user, roleId);
         return user;
     }
 
     public UserDbFixture withServiceRole(int serviceId, int roleId) {
+        this.service = Service.from(serviceId, Service.DEFAULT_NAME_VALUE);
         this.serviceId = serviceId;
         this.roleId = roleId;
         return this;

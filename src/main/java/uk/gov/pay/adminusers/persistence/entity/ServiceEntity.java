@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
 import com.google.common.collect.ImmutableList;
+import uk.gov.pay.adminusers.model.Service;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -14,6 +15,9 @@ public class ServiceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "services_seq_gen")
     private Integer id;
+
+    @Column(name = "name")
+    private String name = Service.DEFAULT_NAME_VALUE;
 
     @OneToMany(mappedBy = "service", targetEntity = GatewayAccountIdEntity.class, fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private List<GatewayAccountIdEntity> gatewayAccountIds = new ArrayList<>();
@@ -39,6 +43,14 @@ public class ServiceEntity {
         this.id = id;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public List<GatewayAccountIdEntity> getGatewayAccountIds() {
         return ImmutableList.copyOf(this.gatewayAccountIds);
     }
@@ -49,6 +61,11 @@ public class ServiceEntity {
 
     public List<InviteEntity> getInvites() {
         return invites;
+    }
+
+    public Service toService() {
+        Service service = Service.from(id, name);
+        return service;
     }
 
     public boolean hasExactGatewayAccountIds(List<String> gatewayAccountIds) {

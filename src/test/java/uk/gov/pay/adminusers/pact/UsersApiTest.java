@@ -45,6 +45,8 @@ public class UsersApiTest {
     public static void setUpService() throws Exception {
         target = new HttpTarget(app.getLocalPort());
         dbHelper = app.getDatabaseTestHelper();
+        // make sure we create services(including gateway account ids) before users
+        serviceDbFixture(dbHelper).withGatewayAccountIds("268").insertService();
         int serviceId = 12345;
         createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", serviceId, "password");
     }
