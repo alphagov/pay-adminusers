@@ -9,14 +9,19 @@ import java.util.UUID;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
 public class UserResourceAuthenticationTest extends IntegrationTest {
 
     @Test
     public void shouldAuthenticateUser_onAValidUsernamePasswordCombination() throws Exception {
 
-        String username = createAValidUser();
+        String[] gatewayAccountIds = new String[]{"1", "2"};
+        serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccountIds).insertService();
+
+        String username = createAValidUser(gatewayAccountIds);
 
         ImmutableMap<Object, Object> authPayload = ImmutableMap.builder()
                 .put("username", username)
@@ -36,6 +41,11 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
                 .body("gateway_account_ids", hasSize(2))
                 .body("gateway_account_ids[0]", is("1"))
                 .body("gateway_account_ids[1]", is("2"))
+                .body("service_ids", hasSize(1))
+                .body("service_ids[0]", is(notNullValue()))
+                .body("services", hasSize(1))
+                .body("services[0].id", is(notNullValue()))
+                .body("services[0].name", is(notNullValue()))
                 .body("telephone_number", is("45334534634"))
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
@@ -48,7 +58,10 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
     @Test
     public void shouldAuthenticateFail_onAInvalidUsernamePasswordCombination() throws Exception {
 
-        String username = createAValidUser();
+        String[] gatewayAccountIds = new String[]{"3", "4"};
+        serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccountIds).insertService();
+
+        String username = createAValidUser(gatewayAccountIds);
 
         ImmutableMap<Object, Object> authPayload = ImmutableMap.builder()
                 .put("username", username)
@@ -68,14 +81,14 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
 
     }
 
-    private String createAValidUser() throws JsonProcessingException {
+    private String createAValidUser(String[] gatewayAccountIds) throws JsonProcessingException {
 
         String username = RandomStringUtils.randomAlphanumeric(10) + UUID.randomUUID();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
                 .put("password", "password-" + username)
                 .put("email", "user-" + username + "@example.com")
-                .put("gateway_account_ids", new String[]{"1", "2"})
+                .put("gateway_account_ids", gatewayAccountIds)
                 .put("telephone_number", "45334534634")
                 .put("otp_key", "34f34")
                 .put("role_name", "admin")

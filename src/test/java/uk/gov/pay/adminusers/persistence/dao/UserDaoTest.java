@@ -48,7 +48,7 @@ public class UserDaoTest extends DaoTestBase {
         Role role = roleDbFixture(databaseHelper).insertRole();
         String gatewayAccountId = randomInt().toString();
         int serviceId = serviceDbFixture(databaseHelper)
-                .withGatewayAccountIds(gatewayAccountId).insertService();
+                .withGatewayAccountIds(gatewayAccountId).insertService().getId();
 
         String username = valueOf(nextInt());
 
@@ -102,7 +102,7 @@ public class UserDaoTest extends DaoTestBase {
     public void shouldFindUserBy_ExternalId() throws Exception {
         Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId = serviceDbFixture(databaseHelper)
-                .insertService();
+                .insertService().getId();
         User user = userDbFixture(databaseHelper)
                 .withServiceRole(serviceId, role.getId()).insertUser();
 
@@ -130,7 +130,7 @@ public class UserDaoTest extends DaoTestBase {
     public void shouldFindUserBy_Username_caseInsensitive() throws Exception {
         Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId = serviceDbFixture(databaseHelper)
-                .insertService();
+                .insertService().getId();
         User user = userDbFixture(databaseHelper)
                 .withServiceRole(serviceId, role.getId()).insertUser();
 
@@ -155,7 +155,7 @@ public class UserDaoTest extends DaoTestBase {
     @Test
     public void shouldFindUser_ByEmail_caseInsensitive() throws Exception {
         Role role = roleDbFixture(databaseHelper).insertRole();
-        int serviceId = serviceDbFixture(databaseHelper).insertService();
+        int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
         User user = userDbFixture(databaseHelper)
                 .withServiceRole(serviceId, role.getId()).insertUser();
 
@@ -187,7 +187,7 @@ public class UserDaoTest extends DaoTestBase {
         String gatewayAccountId2 = randomInt().toString();
 
         int serviceId1 = serviceDbFixture(databaseHelper)
-                .withGatewayAccountIds(gatewayAccountId1).insertService();
+                .withGatewayAccountIds(gatewayAccountId1).insertService().getId();
         serviceDbFixture(databaseHelper)
                 .withGatewayAccountIds(gatewayAccountId2).insertService();
 
@@ -226,7 +226,7 @@ public class UserDaoTest extends DaoTestBase {
                         .withName("admin")
                         .insertRole();
 
-        int serviceId = serviceDbFixture(databaseHelper).insertService();
+        int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
 
         User user1 = userDbFixture(databaseHelper)
                 .withUsername("thomas")
@@ -245,7 +245,7 @@ public class UserDaoTest extends DaoTestBase {
 
     @Test
     public void shouldNotFindAnyUser() {
-        int serviceId = serviceDbFixture(databaseHelper).insertService();
+        int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
 
         List<UserEntity> users = userDao.findByServiceId(serviceId);
 

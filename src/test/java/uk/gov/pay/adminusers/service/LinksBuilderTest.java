@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 
 import java.time.ZonedDateTime;
@@ -19,7 +20,7 @@ public class LinksBuilderTest {
 
     @Test
     public void shouldConstruct_userSelfLinkCorrectly() throws Exception {
-        User user = User.from(randomInt(), randomUuid(), "a-username", "a-password", "email@example.com", Arrays.asList("1"), Arrays.asList("2"), "4wrwef", "123435");
+        User user = User.from(randomInt(), randomUuid(), "a-username", "a-password", "email@example.com", Arrays.asList("1"), Arrays.asList(Service.from(2, Service.DEFAULT_NAME_VALUE)), "4wrwef", "123435");
         User decoratedUser = linksBuilder.decorate(user);
 
         String linkJson = new ObjectMapper().writeValueAsString(decoratedUser.getLinks().get(0));

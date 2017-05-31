@@ -43,7 +43,7 @@ public class InviteDaoTest extends DaoTestBase {
     public void create_shouldCreateAnInvite() {
 
         Role role = roleDbFixture(databaseHelper).insertRole();
-        int serviceId = serviceDbFixture(databaseHelper).insertService();
+        int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
         User sender = userDbFixture(databaseHelper).insertUser();
 
         RoleEntity roleEntity = roleDao.findByRoleName(role.getName()).get();

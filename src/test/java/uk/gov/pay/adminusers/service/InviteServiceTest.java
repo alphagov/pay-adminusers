@@ -11,17 +11,16 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
-import uk.gov.pay.adminusers.model.InviteOtpRequest;
-import uk.gov.pay.adminusers.model.InviteRequest;
-import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
-import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.model.*;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.*;
+import uk.gov.pay.adminusers.persistence.entity.Role;
 
 import javax.ws.rs.WebApplicationException;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -401,6 +400,6 @@ public class InviteServiceTest {
     }
 
     private User aUser(String email) {
-        return User.from(randomInt(), randomUuid(), "a-username", "random-password", email, asList(Integer.toString(serviceId)), newArrayList(), "784rh", "8948924");
+        return User.from(randomInt(), randomUuid(), "a-username", "random-password", email, asList("1"), asList(Service.from(serviceId, Service.DEFAULT_NAME_VALUE)), "784rh", "8948924");
     }
 }

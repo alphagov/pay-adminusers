@@ -32,7 +32,7 @@ public class InviteDbFixture {
     }
 
     public String insertInvite() {
-        int serviceId = ServiceDbFixture.serviceDbFixture(databaseTestHelper).insertService();
+        int serviceId = ServiceDbFixture.serviceDbFixture(databaseTestHelper).insertService().getId();
         int roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
         int userId = UserDbFixture.userDbFixture(databaseTestHelper).insertUser().getId();
         databaseTestHelper.addInvite(

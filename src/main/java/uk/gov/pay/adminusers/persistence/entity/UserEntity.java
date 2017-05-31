@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.valueOf;
 
 @Entity
 @Table(name = "users")
@@ -215,7 +214,7 @@ public class UserEntity extends AbstractEntity {
                 .sorted(Comparators.usingNumericComparator())
                 .collect(Collectors.toList());
 
-        User user = User.from(getId(), externalId, username, password, email, gatewayAccountIds, newArrayList(valueOf(service.getId())), otpKey, telephoneNumber);
+        User user = User.from(getId(), externalId, username, password, email, gatewayAccountIds, newArrayList(service.toService()), otpKey, telephoneNumber);
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);

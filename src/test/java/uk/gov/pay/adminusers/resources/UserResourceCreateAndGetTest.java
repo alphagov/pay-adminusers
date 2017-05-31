@@ -5,6 +5,7 @@ import com.jayway.restassured.response.ValidatableResponse;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 
 import java.util.List;
@@ -27,11 +28,14 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
 
     @Test
     public void shouldCreateAUserWithSortedGatewayAccountIdsArraySuccessfully() throws Exception {
+        String [] gatewayAccountIds = new String[]{"111111", "222"};
+        serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccountIds).insertService();
+
         String username = randomAlphanumeric(10) + randomUUID().toString();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
                 .put("email", "user-" + username + "@example.com")
-                .put("gateway_account_ids", new String[]{"111111", "222"})
+                .put("gateway_account_ids", gatewayAccountIds)
                 .put("telephone_number", "45334534634")
                 .put("otp_key", "34f34")
                 .put("role_name", "admin")
@@ -58,6 +62,9 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("gateway_account_ids[1]", is("111111"))
                 .body("service_ids", hasSize(1))
                 .body("service_ids[0]", is(notNullValue()))
+                .body("services", hasSize(1))
+                .body("services[0].id", is(notNullValue()))
+                .body("services[0].name", is(notNullValue()))
                 .body("telephone_number", is("45334534634"))
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
@@ -82,7 +89,8 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
     public void shouldCreateAUserWithinAServiceIfServiceIdIsInPayloadIgnoringGatewayAccountIds() throws Exception {
         String gatewayAccount1 = valueOf(nextInt());
         String gatewayAccount2 = valueOf(nextInt());
-        int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
+        Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
+        int serviceId = service.getId();
         String username = randomAlphanumeric(10) + randomUUID().toString();
 
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
@@ -115,6 +123,9 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("gateway_account_ids", hasItems(gatewayAccount1,gatewayAccount2))
                 .body("service_ids", hasSize(1))
                 .body("service_ids[0]", is(valueOf(serviceId)))
+                .body("services", hasSize(1))
+                .body("services[0].id", is(serviceId))
+                .body("services[0].name", is(service.getName()))
                 .body("telephone_number", is("45334534634"))
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
@@ -163,7 +174,8 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
     public void shouldReturnUser_whenGetUserWithExternalId() throws Exception {
         String gatewayAccount1 = valueOf(nextInt());
         String gatewayAccount2 = valueOf(nextInt());
-        int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
+        Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
+        int serviceId = service.getId();
         Role role = roleDbFixture(databaseHelper).insertRole();
         User user = userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
 
@@ -182,6 +194,9 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("gateway_account_ids", hasItems(gatewayAccount1, gatewayAccount2))
                 .body("service_ids", hasSize(1))
                 .body("service_ids[0]", is(valueOf(serviceId)))
+                .body("services", hasSize(1))
+                .body("services[0].id", is(serviceId))
+                .body("services[0].name", is(service.getName()))
                 .body("telephone_number", is(user.getTelephoneNumber()))
                 .body("otp_key", is(user.getOtpKey()))
                 .body("login_counter", is(0))
@@ -198,7 +213,8 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
     @Test
     public void shouldAddUserToAServiceWhenCreatingTheUserWithAnAlreadyExistingGatewayAccount() throws Exception {
         String gatewayAccount = "666";
-        int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount).insertService();
+        Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount).insertService();
+        int serviceId = service.getId();
 
         String username = randomAlphanumeric(10) + randomUUID().toString();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
@@ -225,7 +241,10 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("username", is(username))
                 .body("gateway_account_ids", hasSize(1))
                 .body("gateway_account_ids[0]", is(gatewayAccount))
-                .body("service_ids[0]", is(valueOf(serviceId)));
+                .body("service_ids[0]", is(valueOf(serviceId)))
+                .body("services", hasSize(1))
+                .body("services[0].id", is(serviceId))
+                .body("services[0].name", is(service.getName()));
 
         //TODO - WIP PP-1483 This will be amended when the story is done.
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
@@ -344,7 +363,8 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
     public void shouldReturnUser_whenGetUserByUsernameWithUsername() throws Exception {
         String gatewayAccount1 = valueOf(nextInt());
         String gatewayAccount2 = valueOf(nextInt());
-        int serviceId = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
+        Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
+        int serviceId = service.getId();
         Role role = roleDbFixture(databaseHelper).insertRole();
         User user = userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
 
@@ -367,6 +387,9 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("gateway_account_ids", hasItems(gatewayAccount1, gatewayAccount2))
                 .body("service_ids", hasSize(1))
                 .body("service_ids[0]", is(valueOf(serviceId)))
+                .body("services", hasSize(1))
+                .body("services[0].id", is(serviceId))
+                .body("services[0].name", is(service.getName()))
                 .body("telephone_number", is(user.getTelephoneNumber()))
                 .body("otp_key", is(user.getOtpKey()))
                 .body("login_counter", is(0))
