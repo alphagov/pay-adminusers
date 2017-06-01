@@ -3,20 +3,24 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.InviteRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.service.InviteService;
 import uk.gov.pay.adminusers.service.LinksBuilder;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
+import static uk.gov.pay.adminusers.model.Service.FIELD_SERVICE_NAME;
 
 @Path("/v1/api/services")
 public class ServiceResource {
@@ -27,20 +31,49 @@ public class ServiceResource {
     private final InviteService inviteService;
     private final InviteRequestValidator inviteValidator;
     private LinksBuilder linksBuilder;
+    private final ServiceRequestValidator serviceRequestValidator;
 
     @Inject
     public ServiceResource(UserDao userDao,
                            ServiceDao serviceDao,
                            InviteService inviteService,
                            InviteRequestValidator inviteValidator,
-                           AdminUsersConfig config,
-                           LinksBuilder linksBuilder) {
+                           LinksBuilder linksBuilder,
+                           ServiceRequestValidator serviceRequestValidator
+    ) {
         this.userDao = userDao;
         this.serviceDao = serviceDao;
         this.inviteService = inviteService;
         this.inviteValidator = inviteValidator;
         this.linksBuilder = linksBuilder;
+        this.serviceRequestValidator = serviceRequestValidator;
     }
+
+    @POST
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response createService(JsonNode payload) {
+        LOGGER.info("Create Service POST request - [ {} ]", payload);
+        return serviceRequestValidator.validateCreateRequest(payload)
+                .map(errors -> Response.status(Response.Status.BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> {
+
+                    List<String> gatewayAccountIds = new ArrayList<String>(payload.get("gateway_account_ids").size());
+                    for (JsonNode id : payload.get("gateway_account_ids")) {
+                        gatewayAccountIds.add(id.asText());
+                    }
+
+                    ServiceEntity serviceEntity = new ServiceEntity(gatewayAccountIds);
+                    serviceEntity.setName(payload.get(FIELD_SERVICE_NAME).asText());
+
+                    serviceEntity.setExternalId(newId());
+                    serviceDao.persist(serviceEntity);
+                    return Response.status(Response.Status.CREATED).entity(serviceEntity.toService()).build();
+                });
+
+    }
+
+
 
     @Path("/{serviceId}/users")
     @GET

@@ -9,6 +9,8 @@ public class Service {
 
     public static String DEFAULT_NAME_VALUE = "System Generated";
 
+    public static final String FIELD_SERVICE_NAME = "name";
+
     private Integer id;
 
     private String externalId;
@@ -20,7 +22,7 @@ public class Service {
     }
 
     private Service(@JsonProperty("id") Integer id,
-                    @JsonProperty("externalId") String externalId,
+                    @JsonProperty("external_id") String externalId,
                     @JsonProperty("name") String name) {
         this.id = id;
         this.externalId = externalId;
