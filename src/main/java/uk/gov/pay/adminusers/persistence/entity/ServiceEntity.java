@@ -16,6 +16,9 @@ public class ServiceEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "services_seq_gen")
     private Integer id;
 
+    @Column(name = "external_id")
+    private String externalId;
+
     @Column(name = "name")
     private String name = Service.DEFAULT_NAME_VALUE;
 
@@ -33,6 +36,14 @@ public class ServiceEntity {
         for (String gatewayAccountId : gatewayAccountIds) {
             this.gatewayAccountIds.add(new GatewayAccountIdEntity(gatewayAccountId, this));
         }
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 
     public Integer getId() {
@@ -64,7 +75,7 @@ public class ServiceEntity {
     }
 
     public Service toService() {
-        Service service = Service.from(id, name);
+        Service service = Service.from(id, externalId, name);
         return service;
     }
 

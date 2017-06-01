@@ -75,6 +75,7 @@ public class InviteServiceTest {
     private String senderEmail = "sender@example.com";
     private String email = "invited@example.com";
     private int serviceId = 1;
+    private String serviceExternalId = "3453rmeuty87t";
     private String senderExternalId = "12345";
     private String roleName = "view-only";
 
@@ -400,6 +401,6 @@ public class InviteServiceTest {
     }
 
     private User aUser(String email) {
-        return User.from(randomInt(), randomUuid(), "a-username", "random-password", email, asList("1"), asList(Service.from(serviceId, Service.DEFAULT_NAME_VALUE)), "784rh", "8948924");
+        return User.from(randomInt(), randomUuid(), "a-username", "random-password", email, asList("1"), asList(Service.from(serviceId, serviceExternalId, Service.DEFAULT_NAME_VALUE)), "784rh", "8948924");
     }
 }

@@ -11,15 +11,28 @@ public class Service {
 
     private Integer id;
 
+    private String externalId;
+
     private String name = DEFAULT_NAME_VALUE;
 
-    public static Service from(Integer id, String name) {
-        return new Service(id, name);
+    public static Service from(Integer id, String externalId, String name) {
+        return new Service(id, externalId, name);
     }
 
-    private Service(@JsonProperty("id") Integer id, @JsonProperty("name") String name) {
+    private Service(@JsonProperty("id") Integer id,
+                    @JsonProperty("externalId") String externalId,
+                    @JsonProperty("name") String name) {
         this.id = id;
+        this.externalId = externalId;
         this.name = name;
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 
     public Integer getId() {

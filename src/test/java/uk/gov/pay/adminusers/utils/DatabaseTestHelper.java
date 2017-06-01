@@ -193,10 +193,11 @@ public class DatabaseTestHelper {
     public DatabaseTestHelper addService(Service service, String... gatewayAccountIds) {
         jdbi.withHandle(handle ->
                 handle
-                        .createStatement("INSERT INTO services(id, name) " +
-                                "VALUES (:id, :name)")
+                        .createStatement("INSERT INTO services(id, name, external_id) " +
+                                "VALUES (:id, :name, :externalId)")
                         .bind("id", service.getId())
                         .bind("name", service.getName())
+                        .bind("externalId", service.getExternalId())
                         .execute()
         );
 
