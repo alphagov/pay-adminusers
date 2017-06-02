@@ -84,4 +84,24 @@ public class ServiceResourceCreateTest extends IntegrationTest {
         assertThat(gatewayAccountIds, hasItems("1","2"));
     }
 
+    @Test
+    public void shouldError400_whenCreateAServiceWithInvalidGatewayAccounts() throws Exception{
+
+        ImmutableMap<Object, Object> payload = ImmutableMap.builder()
+                .put("name", "some service name")
+                .put("gateway_account_ids", new String[]{"blah", "blahblah"})
+                .build();
+
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .body(mapper.writeValueAsString(payload))
+                .post("/v1/api/services")
+                .then()
+                .statusCode(400)
+                .body("errors", hasSize(1))
+                .body("errors", hasItems("Field [gateway_account_ids] must contain numeric values"));
+
+    }
+
 }
