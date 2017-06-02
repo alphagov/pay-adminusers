@@ -281,7 +281,7 @@ public class UserServices {
                 if (serviceOptional.get().hasExactGatewayAccountIds(gatewayAccountIds)) {
                     return serviceOptional;
                 } else {
-                    throw conflictingServiceGatewayAccounts();
+                    throw conflictingServiceGatewayAccountsForUser();
                 }
             }
         }

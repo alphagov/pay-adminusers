@@ -4,7 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.response.ValidatableResponse;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,6 +19,8 @@ import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
@@ -44,7 +48,6 @@ public class ServiceResourceCreateTest extends IntegrationTest {
     public void shouldSuccess_whenCreateAServiceWithValidGatewayAccounts() throws Exception{
 
         ImmutableMap<Object, Object> payload = ImmutableMap.builder()
-                .put("name", "some service name")
                 .put("gateway_account_ids", new String[]{"1", "2"})
                 .build();
 
@@ -57,7 +60,7 @@ public class ServiceResourceCreateTest extends IntegrationTest {
                 .statusCode(201);
 
         validatableResponse
-                .body("name", is("some service name"))
+                .body("name", is("System Generated"))
                 .body("external_id", notNullValue());
 
         String serviceExternalId = validatableResponse.extract().jsonPath().getString("external_id");
@@ -89,5 +92,29 @@ public class ServiceResourceCreateTest extends IntegrationTest {
                 .body("errors", hasItems("Field [gateway_account_ids] must contain numeric values"));
 
     }
+
+    @Test
+    public void shouldError409_whenGatewayAccountsAreAlreadyAssignedToAService() throws Exception{
+        int serviceId = randomInt();
+        String gatewayAccountId = String.valueOf(randomInt());
+        databaseHelper.addService(Service.from(serviceId, newId(), "test-service-1"), gatewayAccountId);
+
+        ImmutableMap<Object, Object> payload = ImmutableMap.builder()
+                .put("name", "some service name")
+                .put("gateway_account_ids", new String[]{gatewayAccountId})
+                .build();
+
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .body(mapper.writeValueAsString(payload))
+                .post("/v1/api/services")
+                .then()
+                .statusCode(409)
+                .body("errors", hasSize(1))
+                .body("errors", hasItems(format("One or more of the following gateway account ids has already assigned to another service: [%s]", gatewayAccountId)));
+
+    }
+
 
 }

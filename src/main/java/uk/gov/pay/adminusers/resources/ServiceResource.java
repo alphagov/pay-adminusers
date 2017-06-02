@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.InviteRequest;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.service.InviteService;
@@ -65,9 +66,8 @@ public class ServiceResource {
                     Optional<String> serviceName = extractServiceName(payload);
                     Optional<List<String>> gatewayAccountIds = extractGatewayAccountIds(payload);
 
-                    return serviceServicesFactory.serviceCreator().doCreate(serviceName, gatewayAccountIds)
-                            .map(service -> Response.status(CREATED).entity(service).build())
-                            .orElseGet(() -> Response.status(CONFLICT).build());
+                    Service service = serviceServicesFactory.serviceCreator().doCreate(serviceName, gatewayAccountIds);
+                    return Response.status(CREATED).entity(service).build();
                 });
 
     }

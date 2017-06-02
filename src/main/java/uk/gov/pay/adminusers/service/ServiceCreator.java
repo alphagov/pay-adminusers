@@ -9,6 +9,8 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import java.util.List;
 import java.util.Optional;
 
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingServiceGatewayAccounts;
+
 public class ServiceCreator {
 
     private final ServiceDao serviceDao;
@@ -18,17 +20,22 @@ public class ServiceCreator {
         this.serviceDao = serviceDao;
     }
 
+
     @Transactional
-    public Optional<Service> doCreate(Optional<String> serviceName, Optional<List<String>> gatewayAccountIds) {
+    public Service doCreate(Optional<String> serviceName, Optional<List<String>> gatewayAccountIdsOptional) {
         Service service = serviceName
                 .map(name -> Service.from(name))
                 .orElseGet(() -> Service.from());
 
         ServiceEntity serviceEntity = ServiceEntity.from(service);
-        if(gatewayAccountIds.isPresent()) {
-            serviceEntity.addGatewayAccountIds(gatewayAccountIds.get().toArray(new String[0]));
+        if (gatewayAccountIdsOptional.isPresent()) {
+            List<String> gatewayAccountsIds = gatewayAccountIdsOptional.get();
+            if (serviceDao.checkIfGatewayAccountsUsed(gatewayAccountsIds)) {
+                throw conflictingServiceGatewayAccounts(gatewayAccountsIds);
+            }
+            serviceEntity.addGatewayAccountIds(gatewayAccountsIds.toArray(new String[0]));
         }
         serviceDao.persist(serviceEntity);
-        return Optional.of(serviceEntity.toService());
+        return serviceEntity.toService();
     }
 }
