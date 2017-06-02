@@ -64,7 +64,7 @@ public class UserServices {
      * persists a new user
      *
      * @param createUserRequest
-     * @param roleName initial role to be assigned
+     * @param roleName          initial role to be assigned
      * @return {@link User} with associated links
      * @throws javax.ws.rs.WebApplicationException with status 409-Conflict if the username is already taken
      * @throws javax.ws.rs.WebApplicationException with status 500 for any unknown error during persistence
@@ -75,7 +75,7 @@ public class UserServices {
                 .map(roleEntity -> {
                     UserEntity userEntity = UserEntity.from(createUserRequest);
                     userEntity.setPassword(passwordHasher.hash(createUserRequest.getPassword()));
-                    if(createUserRequest.getServiceIds().isEmpty()) {
+                    if (createUserRequest.getServiceIds().isEmpty()) {
                         addServiceRoleToUser(userEntity, roleEntity, createUserRequest.getGatewayAccountIds());
                     } else {
                         addServiceRoleToUser(userEntity, roleEntity, createUserRequest.getServiceIds().get(0));
@@ -100,31 +100,32 @@ public class UserServices {
     @Transactional
     public Optional<User> authenticate(String username, String password) {
         Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
-        logger.warn("Attempting to find user {}", username);
-
+        logger.debug("Login attempt - username={}", username);
         if (userEntityOptional.isPresent()) { //interestingly java cannot map/orElseGet this block properly, without getting the compiler confused. :)
             UserEntity userEntity = userEntityOptional.get();
             if (passwordHasher.isEqual(password, userEntity.getPassword())) {
                 if (userEntity.isDisabled()) {
-                    logger.warn("user {} attempted a valid login, but account currently locked", username);
+                    logger.info("Failed login attempt - user_id={}. Valid login, but account is currently locked", userEntity.getExternalId());
                     throw userLockedException(username);
                 }
                 userEntity.setLoginCounter(0);
                 userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                 userDao.merge(userEntity);
+                logger.info("Successful Login - user_id={}", userEntity.getExternalId());
                 return Optional.of(linksBuilder.decorate(userEntity.toUser()));
             } else {
                 userEntity.setLoginCounter(userEntity.getLoginCounter() + 1);
                 userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
-                //currently we can only unlock an account by script, manually
                 userEntity.setDisabled(userEntity.getLoginCounter() >= loginAttemptCap);
+                logger.info("Failed login attempt - user_id={}, login_counter={}", userEntity.getExternalId(), userEntity.getLoginCounter());
                 userDao.merge(userEntity);
                 if (userEntity.isDisabled()) {
-                    logger.warn("user {} attempted a invalid login, but account currently locked", username);
+                    logger.warn("Account locked due to exceeding {} attempts - user_id={}", loginAttemptCap, userEntity.getExternalId());
                 }
                 return Optional.empty();
             }
         } else {
+            logger.info("Failed login attempt - user_id='Not matched'");
             return Optional.empty();
         }
     }
@@ -182,17 +183,18 @@ public class UserServices {
 
     @Transactional
     public Optional<User> authenticateSecondFactor(String externalId, int code) {
+        logger.debug("OTP attempt - user_id={}", externalId);
         return userDao.findByExternalId(externalId)
                 .map(userEntity -> {
                     if (userEntity.isDisabled()) {
-                        logger.warn("Authenticate Second Factor attempted for disabled User [{}]", userEntity.getExternalId());
+                        logger.warn("Failed OTP attempt - user_id={}, login_counter={}. Authenticate Second Factor attempted for a disabled User", userEntity.getExternalId(), userEntity.getLoginCounter());
                         return Optional.<User>empty();
                     }
                     if (secondFactorAuthenticator.authorize(userEntity.getOtpKey(), code)) {
                         userEntity.setLoginCounter(0);
                         userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
                         userDao.merge(userEntity);
-                        logger.info("Authenticate Second Factor successful for User [{}]", userEntity.getExternalId());
+                        logger.info("Successful OTP. user_id={}", userEntity.getExternalId());
                         return Optional.of(linksBuilder.decorate(userEntity.toUser()));
                     } else {
                         userEntity.setLoginCounter(userEntity.getLoginCounter() + 1);
@@ -200,9 +202,9 @@ public class UserServices {
                         userEntity.setDisabled(userEntity.getLoginCounter() > loginAttemptCap);
                         userDao.merge(userEntity);
                         if (userEntity.isDisabled()) {
-                            logger.warn("User [{}] attempted a invalid second factor, and account currently locked", userEntity.getExternalId());
+                            logger.warn("Failed OTP attempt - user_id={}, login_counter={}. Invalid second factor in an account currently locked", userEntity.getExternalId(), userEntity.getLoginCounter());
                         } else {
-                            logger.warn("User [{}] attempted a invalid second factor", userEntity.getExternalId());
+                            logger.warn("Failed OTP attempt - user_id={}, login_counter={}. Invalid second factor attempt.", userEntity.getExternalId(), userEntity.getLoginCounter());
                         }
                         return Optional.<User>empty();
                     }
