@@ -5,7 +5,10 @@ import uk.gov.pay.adminusers.model.Service;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static java.util.Arrays.asList;
 
 @Entity
 @Table(name = "services")
@@ -33,9 +36,7 @@ public class ServiceEntity {
 
     public ServiceEntity(List<String> gatewayAccountIds) {
         this.gatewayAccountIds.clear();
-        for (String gatewayAccountId : gatewayAccountIds) {
-            this.gatewayAccountIds.add(new GatewayAccountIdEntity(gatewayAccountId, this));
-        }
+        populateGatewayAccountIds(gatewayAccountIds);
     }
 
     public String getExternalId() {
@@ -74,6 +75,10 @@ public class ServiceEntity {
         return invites;
     }
 
+    public void addGatewayAccountIds(String ... gatewayAccountIds) {
+        populateGatewayAccountIds(asList(gatewayAccountIds));
+    }
+
     public Service toService() {
         Service service = Service.from(id, externalId, name);
         return service;
@@ -92,5 +97,18 @@ public class ServiceEntity {
         }
 
         return true;
+    }
+
+    public static ServiceEntity from(Service service) {
+        ServiceEntity serviceEntity = new ServiceEntity();
+        serviceEntity.setName(service.getName());
+        serviceEntity.setExternalId(service.getExternalId());
+        return serviceEntity;
+    }
+
+    private void populateGatewayAccountIds(List<String> gatewayAccountIds) {
+        for (String gatewayAccountId : gatewayAccountIds) {
+            this.gatewayAccountIds.add(new GatewayAccountIdEntity(gatewayAccountId, this));
+        }
     }
 }

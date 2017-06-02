@@ -1,8 +1,16 @@
 package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.Optional;
+
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class Service {
@@ -12,10 +20,16 @@ public class Service {
     public static final String FIELD_SERVICE_NAME = "name";
 
     private Integer id;
-
     private String externalId;
-
     private String name = DEFAULT_NAME_VALUE;
+
+    public static Service from() {
+        return from(DEFAULT_NAME_VALUE);
+    }
+
+    public static Service from(String name) {
+        return from(randomInt(), newId(), name);
+    }
 
     public static Service from(Integer id, String externalId, String name) {
         return new Service(id, externalId, name);

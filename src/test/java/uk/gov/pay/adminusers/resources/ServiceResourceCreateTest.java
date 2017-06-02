@@ -41,20 +41,6 @@ public class ServiceResourceCreateTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldError400_whenCreateAServiceWithoutName() throws Exception{
-
-        givenSetup()
-                .when()
-                .accept(JSON)
-                .body("{}")
-                .post("/v1/api/services")
-                .then()
-                .statusCode(400)
-                .body("errors", hasSize(1))
-                .body("errors", hasItems("Field [name] is required"));
-
-    }
-    @Test
     public void shouldSuccess_whenCreateAServiceWithValidGatewayAccounts() throws Exception{
 
         ImmutableMap<Object, Object> payload = ImmutableMap.builder()
