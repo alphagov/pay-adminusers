@@ -4,12 +4,14 @@ import com.google.common.collect.ImmutableList;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.Link;
 import uk.gov.pay.adminusers.model.Link.Rel;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 
 import java.net.URI;
 
 import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.resources.ForgottenPasswordResource.FORGOTTEN_PASSWORDS_RESOURCE;
+import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
 import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
 
 public class LinksBuilder {
@@ -26,6 +28,15 @@ public class LinksBuilder {
         Link selfLink = Link.from(Rel.self, "GET", uri.toString());
         user.setLinks(ImmutableList.of(selfLink));
         return user;
+    }
+
+    public Service decorate(Service service) {
+        //TODO: fix to use the externalId, after getting rid of the primary key based GET
+        URI uri = fromUri(baseUrl).path(SERVICES_RESOURCE).path(String.valueOf(service.getId()))
+                .build();
+        Link selfLink = Link.from(Rel.self, "GET", uri.toString());
+        service.setLinks(ImmutableList.of(selfLink));
+        return service;
     }
 
     public ForgottenPassword decorate(ForgottenPassword forgottenPassword) {

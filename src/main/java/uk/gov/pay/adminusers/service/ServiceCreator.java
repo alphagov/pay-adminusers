@@ -14,10 +14,12 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingServ
 public class ServiceCreator {
 
     private final ServiceDao serviceDao;
+    private final LinksBuilder linksBuilder;
 
     @Inject
-    public ServiceCreator(ServiceDao serviceDao) {
+    public ServiceCreator(ServiceDao serviceDao, LinksBuilder linksBuilder) {
         this.serviceDao = serviceDao;
+        this.linksBuilder = linksBuilder;
     }
 
 
@@ -36,6 +38,6 @@ public class ServiceCreator {
             serviceEntity.addGatewayAccountIds(gatewayAccountsIds.toArray(new String[0]));
         }
         serviceDao.persist(serviceEntity);
-        return serviceEntity.toService();
+        return linksBuilder.decorate(serviceEntity.toService());
     }
 }

@@ -36,7 +36,7 @@ public class ServiceCreatorTest {
 
     @Before
     public void before() throws Exception {
-        serviceCreator = new ServiceCreator(serviceDao);
+        serviceCreator = new ServiceCreator(serviceDao, new LinksBuilder("http://localhost"));
     }
 
     @Test

@@ -391,3 +391,46 @@ Content-Type: application/json
 | Field                    | required | Description                                                | Supported Values     |
 | ------------------------ |:--------:| ---------------------------------------------------------- |----------------------|
 | `role_name`              |   X      | the name of an existing valid role                         | e.g. admin           |
+
+-----------------------------------------------------------------------------------------------------------
+
+## POST /v1/api/services
+
+This endpoint creates a new service. And assigns to gateway account ids (Optional)
+
+### Request example
+
+```
+POST /v1/api/services
+Content-Type: application/json
+
+{
+    "name": "abcd1234",
+    "gateway_account_ids": ["1"],
+}
+```
+
+#### Request body description
+
+| Field                    | required | Description                                                      | Supported Values     |
+| ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
+| `name`       |         | a name for the service          |  |
+| `gateway_account_ids`            |          | valid gateway account IDs from connector | |
+
+### Response example
+
+```
+201 OK
+Content-Type: application/json
+{
+    "id": 123
+    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
+    "name": "abcd1234",
+    "_links": [{
+        "href": "http://adminusers.service/v1/api/services/123",
+        "rel" : "self",
+        "method" : "GET"
+    }]
+    
+}
+```

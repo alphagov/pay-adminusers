@@ -24,8 +24,9 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
 import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_GATEWAY_ACCOUNT_IDS;
 import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_SERVICE_NAME;
+import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
 
-@Path("/v1/api/services")
+@Path(SERVICES_RESOURCE)
 public class ServiceResource {
 
     private static final Logger LOGGER = PayLoggerFactory.getLogger(ServiceResource.class);
@@ -36,6 +37,9 @@ public class ServiceResource {
     private LinksBuilder linksBuilder;
     private final ServiceRequestValidator serviceRequestValidator;
     private final ServiceServicesFactory serviceServicesFactory;
+
+    public static final String API_VERSION_PATH = "/v1";
+    public static final String SERVICES_RESOURCE = API_VERSION_PATH + "/api/services";
 
     @Inject
     public ServiceResource(UserDao userDao,

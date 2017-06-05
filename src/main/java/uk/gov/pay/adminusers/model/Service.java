@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +23,7 @@ public class Service {
     private Integer id;
     private String externalId;
     private String name = DEFAULT_NAME_VALUE;
+    private List<Link> links = new ArrayList<>();
 
     public static Service from() {
         return from(DEFAULT_NAME_VALUE);
@@ -65,5 +67,14 @@ public class Service {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @JsonProperty("_links")
+    public List<Link> getLinks() {
+        return links;
+    }
+
+    public void setLinks(List<Link> links) {
+        this.links = links;
     }
 }
