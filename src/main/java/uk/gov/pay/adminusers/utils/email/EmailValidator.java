@@ -14,6 +14,7 @@ public class EmailValidator {
      * - <a href="https://github.com/alphagov/notifications-admin/blob/9391181b2c7d077ea8fe0a72c718ab8f7fdbcd0c/app/config.py#L67">alphagov/notifications-admin</a><br>
      */
     private static final List<String> PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS;
+    private static final org.apache.commons.validator.routines.EmailValidator commonsEmailValidator = org.apache.commons.validator.routines.EmailValidator.getInstance();
     static {
         PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS = Collections.unmodifiableList(Arrays.asList(
                 "assembly\\.wales",
@@ -46,6 +47,10 @@ public class EmailValidator {
         String regExSubdomainsPart = "(((?!-)[A-Za-z0-9-]+(?<!-)\\.)+(" + domainRegExPatternString + "))";
         PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERN =
                 Pattern.compile("^" + regExDomainsOnlyPart +  "|" + regExSubdomainsPart + "$");
+    }
+
+    public static final boolean isValid(String email) {
+        return commonsEmailValidator.isValid(email);
     }
 
     /**

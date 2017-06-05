@@ -2,19 +2,22 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
+import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
 
+import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 
-public class InviteRequestValidatorTest {
+public class InviteUserRequestValidatorTest {
 
     private InviteRequestValidator validator;
 
@@ -274,5 +277,54 @@ public class InviteRequestValidatorTest {
         assertThat(errors.getErrors().size(), is(1));
         assertThat(errors.getErrors(), hasItems(
                 "Field [otp] is required"));
+    }
+
+    @Test
+    public void shouldSuccess_ifAllFieldsArePresentAndValidEmailDomain() throws Exception {
+        ImmutableMap<String, String> payload = ImmutableMap.of("email", "example@example.gov.uk", "telephone_number", "08000001066", "password", "super-secure-password");
+        JsonNode payloadNode = objectMapper.valueToTree(payload);
+        Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
+
+        assertFalse(errors.isPresent());
+    }
+
+    @Test
+    public void shouldFail_ifMissingRequiredField() throws Exception {
+        ImmutableMap<String, String> payload = ImmutableMap.of( "telephone_number", "08000001066", "password", "super-secure-password");
+        JsonNode payloadNode = objectMapper.valueToTree(payload);
+        Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
+
+        assertTrue(errors.isPresent());
+        assertThat(errors.get().getErrors(),hasItems("Field [email] is required"));
+        assertThat(errors.get().getErrors().size(),is(1));
+    }
+
+    @Test
+    public void shouldFail_ifInvalidEmailFormat() throws Exception {
+        ImmutableMap<String, String> payload = ImmutableMap.of( "email", "exampleatexample.com", "telephone_number", "08000001066", "password", "super-secure-password");
+        JsonNode payloadNode = objectMapper.valueToTree(payload);
+        Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
+
+        assertTrue(errors.isPresent());
+        assertThat(errors.get().getErrors(),hasItems("Field [email] must be a valid email address"));
+        assertThat(errors.get().getErrors().size(),is(1));
+    }
+
+    @Test(expected = WebApplicationException.class)
+    public void shouldFail_ifEmailAddressNotPublicSector() throws Exception {
+        ImmutableMap<String, String> payload = ImmutableMap.of( "email", "example@example.co.uk","telephone_number", "08000001066", "password", "super-secure-password");
+        JsonNode payloadNode = objectMapper.valueToTree(payload);
+        validator.validateCreateServiceRequest(payloadNode);
+    }
+
+    @Test
+    public void shouldFail_ifInvalidTelephoneNumber() throws Exception {
+        ImmutableMap<String, String> payload = ImmutableMap.of( "email", "example@example.gov.uk","telephone_number", "A800001066", "password", "super-secure-password");
+        JsonNode payloadNode = objectMapper.valueToTree(payload);
+        Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
+
+        assertTrue(errors.isPresent());
+        assertThat(errors.get().getErrors(),hasItems("Field [telephone_number] must be a valid telephone number"));
+        assertThat(errors.get().getErrors().size(),is(1));
     }
 }

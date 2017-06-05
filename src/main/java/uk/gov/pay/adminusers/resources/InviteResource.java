@@ -4,10 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
-import uk.gov.pay.adminusers.model.InviteOtpRequest;
-import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
-import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.model.*;
 import uk.gov.pay.adminusers.service.InviteService;
+import uk.gov.pay.adminusers.service.InviteServiceFactory;
 import uk.gov.pay.adminusers.service.ValidateOtpAndCreateUserResult;
 
 import javax.ws.rs.*;
@@ -25,10 +24,12 @@ public class InviteResource {
 
     private final InviteService inviteService;
     private final InviteRequestValidator inviteValidator;
+    private final InviteServiceFactory inviteServiceFactory;
 
     @Inject
-    public InviteResource(InviteService service, InviteRequestValidator inviteValidator) {
+    public InviteResource(InviteService service, InviteRequestValidator inviteValidator, InviteServiceFactory inviteServiceFactory) {
         inviteService = service;
+        this.inviteServiceFactory = inviteServiceFactory;
         this.inviteValidator = inviteValidator;
     }
 
@@ -46,6 +47,20 @@ public class InviteResource {
         return inviteService.findByCode(code)
                 .map(invite -> Response.status(OK).type(APPLICATION_JSON).entity(invite).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
+    }
+
+    @POST
+    @Path("/service")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    public Response createServiceInvite(JsonNode payload) {
+        LOGGER.info("Initiating create service invitation request");
+        return inviteValidator.validateCreateServiceRequest(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> {
+                    Invite invite = inviteServiceFactory.serviceInvite().doCreate(InviteServiceRequest.from(payload));
+                    return Response.status(CREATED).entity(invite).build();
+                });
     }
 
     @POST

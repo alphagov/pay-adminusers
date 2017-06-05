@@ -20,6 +20,7 @@ public class NotificationService {
     private final ExecutorService executorService;
     private final NotifyClientProvider notifyClientProvider;
     private final MetricRegistry metricRegistry;
+    private final NotifyConfiguration notifyConfiguration;
 
     private final String secondFactorSmsTemplateId;
     private final String inviteEmailTemplateId;
@@ -29,6 +30,7 @@ public class NotificationService {
                                NotifyConfiguration notifyConfiguration,
                                MetricRegistry metricRegistry) {
         this.executorService = executorService;
+        this.notifyConfiguration = notifyConfiguration;
 
         this.notifyClientProvider = new NotifyClientProvider(notifyConfiguration, getSSLContext());
         this.secondFactorSmsTemplateId = notifyConfiguration.getSecondFactorSmsTemplateId();
@@ -61,6 +63,13 @@ public class NotificationService {
         personalisation.put("username", sender);
         personalisation.put("link", inviteUrl);
         return sendEmailAsync(inviteEmailTemplateId, email, personalisation);
+    }
+
+    CompletableFuture<String> sendServiceInviteEmail(String email, String inviteUrl) {
+        HashMap<String, String> personalisation = newHashMap();
+        personalisation.put("name", email);
+        personalisation.put("link", inviteUrl);
+        return sendEmailAsync(notifyConfiguration.getCreateServiceInvitationEmailTemplateId(), email, personalisation);
     }
 
     CompletableFuture<String> sendForgottenPasswordEmail(String email, String forgottenPasswordUrl) {

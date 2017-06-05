@@ -20,17 +20,19 @@ public class Invite {
     private Integer loginCounter = 0;
 
     private List<Link> links = new ArrayList<>();
+    private String type;
 
     public Invite(String email) {
         this.email = email;
     }
 
     public Invite(String email, String telephoneNumber,
-                  Boolean disabled, Integer loginCounter) {
+                  Boolean disabled, Integer loginCounter, String type) {
         this.email = email;
         this.telephoneNumber = telephoneNumber;
         this.disabled = disabled;
         this.loginCounter = loginCounter;
+        this.type = type;
     }
 
     @JsonProperty("email")
@@ -61,5 +63,13 @@ public class Invite {
     public void setInviteLink(String targetUrl) {
         Link inviteLink = Link.from(Link.Rel.invite, "GET", targetUrl);
         this.links = ImmutableList.of(inviteLink);
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

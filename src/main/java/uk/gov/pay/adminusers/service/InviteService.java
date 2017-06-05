@@ -7,7 +7,7 @@ import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
-import uk.gov.pay.adminusers.model.InviteRequest;
+import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
@@ -71,7 +71,7 @@ public class InviteService {
     }
 
     @Transactional
-    public Optional<Invite> create(InviteRequest invite, int serviceId) {
+    public Optional<Invite> create(InviteUserRequest invite, int serviceId) {
 
         if (userDao.findByEmail(invite.getEmail()).isPresent()) {
             throw conflictingEmail(invite.getEmail());
@@ -94,7 +94,7 @@ public class InviteService {
                         .orElseThrow(() -> undefinedRoleException(invite.getRoleName())));
     }
 
-    private Function<RoleEntity, Optional<Invite>> doInvite(InviteRequest invite, ServiceEntity serviceEntity) {
+    private Function<RoleEntity, Optional<Invite>> doInvite(InviteUserRequest invite, ServiceEntity serviceEntity) {
         return role -> {
             Optional<UserEntity> userSender = userDao.findByExternalId(invite.getSender());
             if (userSender.isPresent() && userSender.get().canInviteUsersTo(serviceEntity.getId())) {
