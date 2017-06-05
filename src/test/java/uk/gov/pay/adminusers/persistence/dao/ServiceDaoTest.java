@@ -8,7 +8,6 @@ import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
-import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.util.Optional;
 
@@ -16,8 +15,8 @@ import static java.util.Arrays.asList;
 import static java.util.stream.IntStream.range;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.Role.role;
 
 public class ServiceDaoTest extends DaoTestBase {
@@ -34,7 +33,7 @@ public class ServiceDaoTest extends DaoTestBase {
 
         String gatewayAccountId = randomInt().toString();
         Integer serviceId = randomInt();
-        String serviceExternalId = newId();
+        String serviceExternalId = randomUuid();
         String name = "name";
         databaseHelper.addService(Service.from(serviceId,serviceExternalId, name), gatewayAccountId);
 
@@ -50,7 +49,7 @@ public class ServiceDaoTest extends DaoTestBase {
     public void shouldGetRoleCountForAService() throws Exception {
         Integer serviceId = randomInt();
         Integer roleId = randomInt();
-        String externalId = newId();
+        String externalId = randomUuid();
         setupUsersForServiceAndRole(serviceId, externalId, roleId, 3);
 
         Long count = serviceDao.countOfRolesForService(serviceId, roleId);
@@ -79,7 +78,7 @@ public class ServiceDaoTest extends DaoTestBase {
         //unmatching service
         String gatewayAccountId2 = randomInt().toString();
         Integer serviceId2 = randomInt();
-        String externalId2 = newId();
+        String externalId2 = randomUuid();
         Service service2 = Service.from(serviceId2, externalId2 ,Service.DEFAULT_NAME_VALUE);
         databaseHelper.addService(service2, gatewayAccountId2);
 

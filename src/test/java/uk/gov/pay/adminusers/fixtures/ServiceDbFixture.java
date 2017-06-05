@@ -5,7 +5,7 @@ import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class ServiceDbFixture {
 
@@ -30,7 +30,7 @@ public class ServiceDbFixture {
 
     public Service insertService() {
         int serviceId = id == null ? nextInt() : id;
-        String extId = externalId == null ? newId() : externalId;
+        String extId = externalId == null ? randomUuid() : externalId;
 
         Service service = Service.from(serviceId, extId, name);
         databaseHelper.addService(service, gatewayAccountIds);

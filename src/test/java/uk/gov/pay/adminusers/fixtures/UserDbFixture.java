@@ -9,7 +9,8 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.*;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class UserDbFixture {
 
@@ -45,7 +46,7 @@ public class UserDbFixture {
     }
 
     public UserDbFixture withServiceRole(int serviceId, int roleId) {
-        this.service = Service.from(serviceId, newId(), Service.DEFAULT_NAME_VALUE);
+        this.service = Service.from(serviceId, randomUuid(), Service.DEFAULT_NAME_VALUE);
         this.serviceId = serviceId;
         this.roleId = roleId;
         return this;

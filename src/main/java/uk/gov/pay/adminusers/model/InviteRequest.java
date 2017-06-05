@@ -3,7 +3,7 @@ package uk.gov.pay.adminusers.model;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class InviteRequest {
 
@@ -45,6 +45,6 @@ public class InviteRequest {
     }
 
     private static String getOrElseRandom(JsonNode elementNode) {
-        return elementNode == null || isBlank(elementNode.asText()) ? newId() : elementNode.asText();
+        return elementNode == null || isBlank(elementNode.asText()) ? randomUuid() : elementNode.asText();
     }
 }

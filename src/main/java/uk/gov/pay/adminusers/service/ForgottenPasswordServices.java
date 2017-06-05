@@ -15,7 +15,7 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 import static javax.ws.rs.core.UriBuilder.fromUri;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class ForgottenPasswordServices {
 
@@ -41,7 +41,7 @@ public class ForgottenPasswordServices {
         Optional<UserEntity> userOptional = userDao.findByUsername(username);
         if (userOptional.isPresent()) {
             UserEntity userEntity = userOptional.get();
-            ForgottenPasswordEntity forgottenPasswordEntity = new ForgottenPasswordEntity(newId(), ZonedDateTime.now(), userEntity);
+            ForgottenPasswordEntity forgottenPasswordEntity = new ForgottenPasswordEntity(randomUuid(), ZonedDateTime.now(), userEntity);
             forgottenPasswordDao.persist(forgottenPasswordEntity);
             String forgottenPasswordUrl = fromUri(selfserviceBaseUrl).path(SELFSERVICE_FORGOTTEN_PASSWORD_PATH).path(forgottenPasswordEntity.getCode()).build().toString();
             notificationService.sendForgottenPasswordEmail(userEntity.getEmail(), forgottenPasswordUrl)

@@ -3,27 +3,19 @@ package uk.gov.pay.adminusers.resources;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.response.ValidatableResponse;
 import org.junit.Test;
-import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.model.User;
-import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
-import static java.lang.String.valueOf;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
-import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
-import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
-import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class ServiceResourceCreateTest extends IntegrationTest {
 
@@ -97,7 +89,7 @@ public class ServiceResourceCreateTest extends IntegrationTest {
     public void shouldError409_whenGatewayAccountsAreAlreadyAssignedToAService() throws Exception{
         int serviceId = randomInt();
         String gatewayAccountId = String.valueOf(randomInt());
-        databaseHelper.addService(Service.from(serviceId, newId(), "test-service-1"), gatewayAccountId);
+        databaseHelper.addService(Service.from(serviceId, randomUuid(), "test-service-1"), gatewayAccountId);
 
         ImmutableMap<Object, Object> payload = ImmutableMap.builder()
                 .put("name", "some service name")

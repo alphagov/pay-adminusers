@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 @Entity
 @Table(name = "services")
@@ -36,7 +36,7 @@ public class ServiceEntity {
 
     public ServiceEntity(List<String> gatewayAccountIds) {
         this.gatewayAccountIds.clear();
-        this.externalId = newId();
+        this.externalId = randomUuid();
         populateGatewayAccountIds(gatewayAccountIds);
     }
 

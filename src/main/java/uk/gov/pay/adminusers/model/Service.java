@@ -1,24 +1,19 @@
 package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class Service {
 
     public static String DEFAULT_NAME_VALUE = "System Generated";
-
-    public static final String FIELD_SERVICE_NAME = "name";
 
     private Integer id;
     private String externalId;
@@ -30,7 +25,7 @@ public class Service {
     }
 
     public static Service from(String name) {
-        return from(randomInt(), newId(), name);
+        return from(randomInt(), randomUuid(), name);
     }
 
     public static Service from(Integer id, String externalId, String name) {

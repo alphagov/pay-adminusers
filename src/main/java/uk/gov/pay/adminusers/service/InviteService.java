@@ -5,7 +5,10 @@ import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
-import uk.gov.pay.adminusers.model.*;
+import uk.gov.pay.adminusers.model.Invite;
+import uk.gov.pay.adminusers.model.InviteOtpRequest;
+import uk.gov.pay.adminusers.model.InviteRequest;
+import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -22,7 +25,7 @@ import java.util.function.Function;
 
 import static java.lang.String.format;
 import static javax.ws.rs.core.UriBuilder.fromUri;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
 
 public class InviteService {
@@ -95,7 +98,7 @@ public class InviteService {
         return role -> {
             Optional<UserEntity> userSender = userDao.findByExternalId(invite.getSender());
             if (userSender.isPresent() && userSender.get().canInviteUsersTo(serviceEntity.getId())) {
-                InviteEntity inviteEntity = new InviteEntity(invite.getEmail(), newId(), invite.getOtpKey(), userSender.get(), serviceEntity, role);
+                InviteEntity inviteEntity = new InviteEntity(invite.getEmail(), randomUuid(), invite.getOtpKey(), userSender.get(), serviceEntity, role);
                 inviteDao.persist(inviteEntity);
                 String inviteUrl = fromUri(selfserviceBaseUrl).path(SELFSERVICE_INVITES_PATH).path(inviteEntity.getCode()).build().toString();
                 sendInviteNotification(inviteEntity, inviteUrl);

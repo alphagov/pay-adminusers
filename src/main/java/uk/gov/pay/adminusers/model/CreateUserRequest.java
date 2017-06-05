@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class CreateUserRequest {
@@ -57,7 +58,7 @@ public class CreateUserRequest {
                                 .collect(Collectors.toList());
             }
             String username = node.get(FIELD_USERNAME).asText();
-            String password = getOrElseRandom(node.get(FIELD_PASSWORD), newId());
+            String password = getOrElseRandom(node.get(FIELD_PASSWORD), randomUuid());
             String email = node.get(FIELD_EMAIL).asText();
             String telephoneNumber = node.get(FIELD_TELEPHONE_NUMBER).asText();
             String otpKey = getOrElseRandom(node.get(FIELD_OTP_KEY), newId());

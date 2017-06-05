@@ -68,7 +68,7 @@ public class ForgottenPasswordServicesTest {
         when(mockUser.getEmail()).thenReturn(email);
         when(userDao.findByUsername(username)).thenReturn(Optional.of(mockUser));
         CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
-        when(mockNotificationService.sendForgottenPasswordEmail(eq(email), matches("^http://selfservice/reset-password/[0-9a-z]{20,30}$")))
+        when(mockNotificationService.sendForgottenPasswordEmail(eq(email), matches("^http://selfservice/reset-password/[0-9a-z]{32}$")))
                 .thenReturn(notifyPromise);
         doNothing().when(forgottenPasswordDao).persist(any(ForgottenPasswordEntity.class));
 
@@ -94,7 +94,7 @@ public class ForgottenPasswordServicesTest {
         CompletableFuture<String> errorPromise = CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException("some error from notify");
         });
-        when(mockNotificationService.sendForgottenPasswordEmail(eq(email), matches("^http://selfservice/reset-password/[0-9a-z]{20,30}$")))
+        when(mockNotificationService.sendForgottenPasswordEmail(eq(email), matches("^http://selfservice/reset-password/[0-9a-z]{32}$")))
                 .thenReturn(errorPromise);
         doNothing().when(forgottenPasswordDao).persist(any(ForgottenPasswordEntity.class));
 

@@ -130,7 +130,7 @@ public class InviteServiceTest {
 
         CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
 
-        when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{20,30}$")))
+        when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
                 .thenReturn(notifyPromise);
 
         inviteService.create(inviteRequestFrom(senderExternalId, email, roleName), serviceId);
@@ -153,7 +153,7 @@ public class InviteServiceTest {
             throw new RuntimeException("some error from notify");
         });
 
-        when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{20,30}$")))
+        when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
                 .thenReturn(errorPromise);
 
         inviteService.create(inviteRequestFrom(senderExternalId, email, roleName), serviceId);
