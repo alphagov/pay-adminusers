@@ -234,6 +234,7 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .then();
 
         String externalId = response.extract().path("external_id");
+        String serviceExternalId = response.extract().path("services[0].external_id");
 
         response
                 .statusCode(201)
@@ -253,7 +254,7 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
         assertThat(servicesAssociatedToUser.size(), is(1));
         assertThat(servicesAssociatedToUser.get(0).get("service_id"), is(serviceId));
 
-        List<Map<String, Object>> gatewayAccountsAssociatedToUser = databaseHelper.findGatewayAccountsByService(((Integer) servicesAssociatedToUser.get(0).get("service_id")).longValue());
+        List<Map<String, Object>> gatewayAccountsAssociatedToUser = databaseHelper.findGatewayAccountsByService(serviceExternalId);
         assertThat(gatewayAccountsAssociatedToUser.size(), is(1));
         assertThat(gatewayAccountsAssociatedToUser.get(0).get("gateway_account_id"), is(gatewayAccount));
     }

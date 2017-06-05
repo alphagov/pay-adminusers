@@ -41,7 +41,7 @@ public class RequestValidations {
         return errors.size() > 0 ? Optional.of(errors) : Optional.empty();
     }
 
-    public static Function<JsonNode, Boolean> notExist() {
+    public Function<JsonNode, Boolean> notExist() {
         return (jsonElement) -> {
             if (jsonElement instanceof ArrayNode) {
                 return notExistOrEmptyArray().apply(jsonElement);
@@ -51,7 +51,7 @@ public class RequestValidations {
         };
     }
 
-    private static Function<JsonNode, Boolean> notExistOrEmptyArray() {
+    public Function<JsonNode, Boolean> notExistOrEmptyArray() {
         return jsonElement -> (
                 jsonElement == null ||
                         ((jsonElement instanceof ArrayNode) && (jsonElement.size() == 0))

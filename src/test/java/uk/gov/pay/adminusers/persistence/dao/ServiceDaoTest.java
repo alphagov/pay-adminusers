@@ -7,12 +7,16 @@ import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.IntStream.range;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.Role.role;
 
 public class ServiceDaoTest extends DaoTestBase {
@@ -25,10 +29,28 @@ public class ServiceDaoTest extends DaoTestBase {
     }
 
     @Test
+    public void shouldFindByGatewayAccountId() throws Exception {
+
+        String gatewayAccountId = randomInt().toString();
+        Integer serviceId = randomInt();
+        String serviceExternalId = randomUuid();
+        String name = "name";
+        databaseHelper.addService(Service.from(serviceId,serviceExternalId, name), gatewayAccountId);
+
+        Optional<ServiceEntity> optionalService = serviceDao.findByGatewayAccountId(gatewayAccountId);
+
+        assertThat(optionalService.isPresent(), is(true));
+        assertThat(optionalService.get().getExternalId(), is(serviceExternalId));
+        assertThat(optionalService.get().getName(), is(name));
+
+    }
+
+    @Test
     public void shouldGetRoleCountForAService() throws Exception {
         Integer serviceId = randomInt();
         Integer roleId = randomInt();
-        setupUsersForServiceAndRole(serviceId, roleId, 3);
+        String externalId = randomUuid();
+        setupUsersForServiceAndRole(serviceId, externalId, roleId, 3);
 
         Long count = serviceDao.countOfRolesForService(serviceId, roleId);
 
@@ -36,7 +58,7 @@ public class ServiceDaoTest extends DaoTestBase {
 
     }
 
-    private void setupUsersForServiceAndRole(int serviceId, int roleId, int noOfUsers) {
+    private void setupUsersForServiceAndRole(int serviceId, String externalId, int roleId, int noOfUsers) {
         Permission perm1 = aPermission();
         Permission perm2 = aPermission();
         databaseHelper.add(perm1).add(perm2);
@@ -46,7 +68,7 @@ public class ServiceDaoTest extends DaoTestBase {
         databaseHelper.add(role);
 
         String gatewayAccountId1 = randomInt().toString();
-        Service service1 = Service.from(serviceId, Service.DEFAULT_NAME_VALUE);
+        Service service1 = Service.from(serviceId, externalId, Service.DEFAULT_NAME_VALUE);
         databaseHelper.addService(service1, gatewayAccountId1);
 
         range(0, noOfUsers - 1).forEach(i -> {
@@ -56,12 +78,13 @@ public class ServiceDaoTest extends DaoTestBase {
         //unmatching service
         String gatewayAccountId2 = randomInt().toString();
         Integer serviceId2 = randomInt();
-        Service service2 = Service.from(serviceId2, Service.DEFAULT_NAME_VALUE);
+        String externalId2 = randomUuid();
+        Service service2 = Service.from(serviceId2, externalId2 ,Service.DEFAULT_NAME_VALUE);
         databaseHelper.addService(service2, gatewayAccountId2);
 
         //same user 2 diff services - should count only once
         User user3 = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(serviceId, roleId).insertUser();
-        databaseHelper.addUserServiceRole(user3.getId(),serviceId2, role.getId());
+        databaseHelper.addUserServiceRole(user3.getId(), serviceId2, role.getId());
     }
 
 

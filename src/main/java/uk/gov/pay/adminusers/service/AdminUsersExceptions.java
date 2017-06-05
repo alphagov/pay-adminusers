@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.service;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 
 import javax.ws.rs.WebApplicationException;
@@ -33,7 +34,7 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 
-    public static WebApplicationException conflictingServiceGatewayAccounts() {
+    public static WebApplicationException conflictingServiceGatewayAccountsForUser() {
         String error = format("List of gateway accounts not matching one of the existing services");
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
@@ -86,13 +87,13 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, PRECONDITION_FAILED.getStatusCode());
     }
 
-    public static RuntimeException userNotificationError(Exception e) {
-        return new RuntimeException("error sending user notification", e);
+    public static WebApplicationException conflictingServiceGatewayAccounts(List<String> gatewayAccountsIds) {
+        String error = format("One or more of the following gateway account ids has already assigned to another service: [%s]", Joiner.on(",").join(gatewayAccountsIds));
+        return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 
-    public static WebApplicationException resourceHasExpired() {
-        String error = format("Resource has expired");
-        return buildWebApplicationException(error, GONE.getStatusCode());
+    public static RuntimeException userNotificationError(Exception e) {
+        return new RuntimeException("error sending user notification", e);
     }
 
     private static WebApplicationException buildWebApplicationException(String error, int status) {

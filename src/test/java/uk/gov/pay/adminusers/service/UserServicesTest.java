@@ -33,8 +33,8 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.Permission.permission;
 import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
@@ -571,11 +571,11 @@ public class UserServicesTest {
     }
 
     private Role aRole() {
-        return role(randomInt(), "role-name-" + newId(), "role-description" + newId());
+        return role(randomInt(), "role-name-" + randomUuid(), "role-description" + randomUuid());
     }
 
     private Permission aPermission() {
-        return permission(randomInt(), "permission-name-" + newId(), "permission-description" + newId());
+        return permission(randomInt(), "permission-name-" + randomUuid(), "permission-description" + randomUuid());
     }
 
     private UserEntity aUserEntityWithTrimmings(User user) {

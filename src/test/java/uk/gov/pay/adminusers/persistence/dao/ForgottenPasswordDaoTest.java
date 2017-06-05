@@ -22,8 +22,8 @@ import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 import static uk.gov.pay.adminusers.model.ForgottenPassword.forgottenPassword;
 
@@ -83,7 +83,7 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
 
     @Test
     public void shouldNotFindForgottenPasswordByCode_ifExpired() throws Exception {
-        String forgottenPasswordCode = newId();
+        String forgottenPasswordCode = randomUuid();
         User user = userDbFixture(databaseHelper).insertUser();
         String userExternalId = user.getExternalId();
         UserEntity userEntity = userDao.findByExternalId(userExternalId).get();
@@ -99,7 +99,7 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
 
     @Test
     public void shouldRemoveForgottenPasswordEntity() {
-        String forgottenPasswordCode = newId();
+        String forgottenPasswordCode = randomUuid();
         User user = userDbFixture(databaseHelper).insertUser();
         String userExternalId = user.getExternalId();
         UserEntity userEntity = userDao.findByExternalId(userExternalId).get();

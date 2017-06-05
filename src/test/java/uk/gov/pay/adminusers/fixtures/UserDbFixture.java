@@ -46,7 +46,7 @@ public class UserDbFixture {
     }
 
     public UserDbFixture withServiceRole(int serviceId, int roleId) {
-        this.service = Service.from(serviceId, Service.DEFAULT_NAME_VALUE);
+        this.service = Service.from(serviceId, randomUuid(), Service.DEFAULT_NAME_VALUE);
         this.serviceId = serviceId;
         this.roleId = roleId;
         return this;

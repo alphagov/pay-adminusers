@@ -182,21 +182,22 @@ public class DatabaseTestHelper {
                         .list());
     }
 
-    public List<Map<String, Object>> findGatewayAccountsByService(Long serviceId) {
+    public List<Map<String, Object>> findGatewayAccountsByService(String serviceExternalId) {
         return jdbi.withHandle(h ->
-                h.createQuery("SELECT gateway_account_id FROM service_gateway_accounts " +
-                        "WHERE service_id = :serviceId")
-                        .bind("serviceId", serviceId)
+                h.createQuery("SELECT sga.gateway_account_id FROM service_gateway_accounts sga, services s " +
+                        "WHERE s.id = sga.service_id AND s.external_id = :serviceExternalId")
+                        .bind("serviceExternalId", serviceExternalId)
                         .list());
     }
 
     public DatabaseTestHelper addService(Service service, String... gatewayAccountIds) {
         jdbi.withHandle(handle ->
                 handle
-                        .createStatement("INSERT INTO services(id, name) " +
-                                "VALUES (:id, :name)")
+                        .createStatement("INSERT INTO services(id, name, external_id) " +
+                                "VALUES (:id, :name, :externalId)")
                         .bind("id", service.getId())
                         .bind("name", service.getName())
+                        .bind("externalId", service.getExternalId())
                         .execute()
         );
 

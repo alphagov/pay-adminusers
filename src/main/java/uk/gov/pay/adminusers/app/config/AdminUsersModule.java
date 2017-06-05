@@ -46,6 +46,7 @@ public class AdminUsersModule extends AbstractModule {
 
         install(jpaModule(configuration));
         install(new FactoryModuleBuilder().build(UserServicesFactory.class));
+        install(new FactoryModuleBuilder().build(ServiceServicesFactory.class));
     }
 
     private JpaPersistModule jpaModule(AdminUsersConfig configuration) {

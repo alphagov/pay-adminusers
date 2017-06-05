@@ -6,8 +6,8 @@ import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.apache.commons.lang3.RandomStringUtils.random;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.Permission.permission;
 import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
@@ -26,11 +26,11 @@ public class RoleDbFixture {
     }
 
     private Permission aPermission() {
-        return permission(randomInt(), "permission-name-" + newId(), "permission-description" + newId());
+        return permission(randomInt(), "permission-name-" + randomUuid(), "permission-description" + randomUuid());
     }
 
     public Role insertRole() {
-        return insert(role(randomInt(), name, "role-description" + newId()), aPermission(), aPermission());
+        return insert(role(randomInt(), name, "role-description" + randomUuid()), aPermission(), aPermission());
     }
 
     public Role insertAdmin() {

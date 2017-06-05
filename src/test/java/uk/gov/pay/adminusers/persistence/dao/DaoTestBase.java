@@ -20,8 +20,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
 
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.Permission.permission;
 import static uk.gov.pay.adminusers.model.Role.role;
 
@@ -82,14 +82,14 @@ public class DaoTestBase {
     }
 
     protected Role aRole() {
-        return aRole("role-name-" + newId());
+        return aRole("role-name-" + randomUuid());
     }
 
     protected Role aRole(String name) {
-        return role(randomInt(), name, "role-description" + newId());
+        return role(randomInt(), name, "role-description" + randomUuid());
     }
 
     protected Permission aPermission() {
-        return permission(randomInt(), "permission-name-" + newId(), "permission-description" + newId());
+        return permission(randomInt(), "permission-name-" + randomUuid(), "permission-description" + randomUuid());
     }
 }

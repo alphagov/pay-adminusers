@@ -75,6 +75,7 @@ public class InviteServiceTest {
     private String senderEmail = "sender@example.com";
     private String email = "invited@example.com";
     private int serviceId = 1;
+    private String serviceExternalId = "3453rmeuty87t";
     private String senderExternalId = "12345";
     private String roleName = "view-only";
 
@@ -129,7 +130,7 @@ public class InviteServiceTest {
 
         CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
 
-        when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{20,30}$")))
+        when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
                 .thenReturn(notifyPromise);
 
         inviteService.create(inviteRequestFrom(senderExternalId, email, roleName), serviceId);
@@ -152,7 +153,7 @@ public class InviteServiceTest {
             throw new RuntimeException("some error from notify");
         });
 
-        when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{20,30}$")))
+        when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
                 .thenReturn(errorPromise);
 
         inviteService.create(inviteRequestFrom(senderExternalId, email, roleName), serviceId);
@@ -400,6 +401,6 @@ public class InviteServiceTest {
     }
 
     private User aUser(String email) {
-        return User.from(randomInt(), randomUuid(), "a-username", "random-password", email, asList("1"), asList(Service.from(serviceId, Service.DEFAULT_NAME_VALUE)), "784rh", "8948924");
+        return User.from(randomInt(), randomUuid(), "a-username", "random-password", email, asList("1"), asList(Service.from(serviceId, serviceExternalId, Service.DEFAULT_NAME_VALUE)), "784rh", "8948924");
     }
 }
