@@ -5,10 +5,10 @@ import uk.gov.pay.adminusers.model.Service;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 
 @Entity
 @Table(name = "services")
@@ -36,6 +36,7 @@ public class ServiceEntity {
 
     public ServiceEntity(List<String> gatewayAccountIds) {
         this.gatewayAccountIds.clear();
+        this.externalId = newId();
         populateGatewayAccountIds(gatewayAccountIds);
     }
 
