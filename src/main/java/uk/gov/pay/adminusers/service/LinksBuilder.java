@@ -1,16 +1,14 @@
 package uk.gov.pay.adminusers.service;
 
 import com.google.common.collect.ImmutableList;
-import uk.gov.pay.adminusers.model.ForgottenPassword;
-import uk.gov.pay.adminusers.model.Link;
+import uk.gov.pay.adminusers.model.*;
 import uk.gov.pay.adminusers.model.Link.Rel;
-import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.model.User;
 
 import java.net.URI;
 
 import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.resources.ForgottenPasswordResource.FORGOTTEN_PASSWORDS_RESOURCE;
+import static uk.gov.pay.adminusers.resources.InviteResource.INVITES_RESOURCE;
 import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
 import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
 
@@ -45,5 +43,13 @@ public class LinksBuilder {
         Link selfLink = Link.from(Rel.self, "GET", uri.toString());
         forgottenPassword.setLinks(ImmutableList.of(selfLink));
         return forgottenPassword;
+    }
+
+    public Invite decorate(Invite invite) {
+        URI uri = fromUri(baseUrl).path(INVITES_RESOURCE).path(invite.getCode())
+                .build();
+        Link selfLink = Link.from(Rel.self, "GET", uri.toString());
+        invite.getLinks().add(selfLink);
+        return invite;
     }
 }

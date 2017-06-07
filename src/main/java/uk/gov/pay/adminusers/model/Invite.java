@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,6 +15,7 @@ import java.util.List;
 @JsonInclude(Include.NON_NULL)
 public class Invite {
 
+    private String code;
     private final String email;
     private String telephoneNumber;
     private Boolean disabled = Boolean.FALSE;
@@ -22,12 +24,9 @@ public class Invite {
     private List<Link> links = new ArrayList<>();
     private String type;
 
-    public Invite(String email) {
-        this.email = email;
-    }
-
-    public Invite(String email, String telephoneNumber,
+    public Invite(String code, String email, String telephoneNumber,
                   Boolean disabled, Integer loginCounter, String type) {
+        this.code = code;
         this.email = email;
         this.telephoneNumber = telephoneNumber;
         this.disabled = disabled;
@@ -71,5 +70,14 @@ public class Invite {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    @JsonIgnore
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

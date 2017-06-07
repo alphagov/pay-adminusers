@@ -16,8 +16,11 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-@Path("/v1/api/invites")
+@Path(InviteResource.INVITES_RESOURCE)
 public class InviteResource {
+
+    public static final String INVITES_RESOURCE = "/v1/api/invites";
+    public static final String INVITE_RESOURCE = INVITES_RESOURCE + "/{code}";
 
     private static final Logger LOGGER = PayLoggerFactory.getLogger(InviteResource.class);
     private static final int MAX_LENGTH_CODE = 255;
@@ -34,7 +37,7 @@ public class InviteResource {
     }
 
     @GET
-    @Path("/{code}")
+    @Path(INVITE_RESOURCE)
     @Produces(APPLICATION_JSON)
     public Response getInvite(@PathParam("code") String code) {
 

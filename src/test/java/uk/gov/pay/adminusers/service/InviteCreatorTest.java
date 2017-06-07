@@ -5,6 +5,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteServiceRequest;
 import uk.gov.pay.adminusers.model.Role;
@@ -31,6 +32,7 @@ public class InviteCreatorTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
     private NotificationService notificationService = mock(NotificationService.class);
+    private LinksConfig linksConfig = mock(LinksConfig.class);
     private InviteDao inviteDao = mock(InviteDao.class);
     private UserDao userDao = mock(UserDao.class);
     private RoleDao roleDao = mock(RoleDao.class);
@@ -39,7 +41,7 @@ public class InviteCreatorTest {
 
     @Before
     public void before() throws Exception {
-        inviteCreator = new InviteCreator(inviteDao, userDao, roleDao, new LinksBuilder("http://localhost/"), "http://selfservice/", notificationService);
+        inviteCreator = new InviteCreator(inviteDao, userDao, roleDao, new LinksBuilder("http://localhost/"), linksConfig, notificationService);
     }
 
     @Test
@@ -51,6 +53,8 @@ public class InviteCreatorTest {
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
         when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn(CompletableFuture.completedFuture("done"));
+        when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
+
         Invite invite = inviteCreator.doCreate(request);
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
@@ -72,6 +76,7 @@ public class InviteCreatorTest {
         when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn(CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException("done");
         }));
+        when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
         Invite invite = inviteCreator.doCreate(request);
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
@@ -88,6 +93,10 @@ public class InviteCreatorTest {
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
         UserEntity existingUserEntity = new UserEntity();
         when(userDao.findByEmail(email)).thenReturn(Optional.of(existingUserEntity));
+        when(linksConfig.getFrontendUrl()).thenReturn("http://frontend");
+        when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
+        when(notificationService.sendServiceInviteUserExistsEmail(eq(email), anyString(),anyString(),anyString()))
+                .thenReturn(CompletableFuture.completedFuture("done"));
 
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 409 Conflict");

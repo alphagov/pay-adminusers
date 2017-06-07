@@ -9,6 +9,7 @@ import uk.gov.service.notify.SendSmsResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -76,6 +77,14 @@ public class NotificationService {
         HashMap<String, String> personalisation = newHashMap();
         personalisation.put("code", forgottenPasswordUrl);
         return sendEmailAsync(forgottenPasswordEmailTemplateId, email, personalisation);
+    }
+
+    CompletionStage<String> sendServiceInviteUserExistsEmail(String email, String signInLink, String forgottenPasswordLink, String feedbackLink) {
+        HashMap<String, String> personalisation = newHashMap();
+        personalisation.put("signin_link", signInLink);
+        personalisation.put("forgotten_password_link", forgottenPasswordLink);
+        personalisation.put("feedback_link", feedbackLink);
+        return sendEmailAsync(notifyConfiguration.getCreateServiceInvitationUserExistsEmailTemplateId(), email, personalisation);
     }
 
     private CompletableFuture<String> sendEmailAsync(final String templateId, final String email, final Map<String, String> personalisation) {

@@ -66,6 +66,7 @@ notify:
   inviteEmailTemplateId: ${NOTIFY_INVITE_EMAIL_TEMPLATE_ID:-pay-notify-invite-email-template-id}
   createServiceInvitationEmailTemplateId: ${NOTIFY_INVITE_EMAIL_TEMPLATE_ID:-pay-notify-create-service-invitation-email-template-id}
   forgottenPasswordEmailTemplateId: ${NOTIFY_FORGOTTEN_PASSWORD_EMAIL_TEMPLATE_ID:-pay-notify-forgotten-password-email-template-id}
+  createServiceInvitationUserExistsEmailTemplateId: ${NOTIFY_SERVICE_INVITE_USER_EXITS_EMAIL_TEMPLATE_ID:-pay-notify-create-service-invitation-user-exists-email-template-id}
 
 forgottenPasswordExpiryMinutes: ${FORGOTTEN_PASSWORD_EXPIRY_MINUTES:-90}
 
@@ -74,6 +75,7 @@ graphitePort: ${METRICS_PORT:-8092}
 
 links:
   selfserviceUrl: ${SELFSERVICE_URL}
+  frontendUrl: ${FRONTEND_URL}
 
 baseUrl: ${BASE_URL:-http://localhost:8080}
 loginAttemptCap: ${LOGIN_ATTEMPT_CAP:-10}

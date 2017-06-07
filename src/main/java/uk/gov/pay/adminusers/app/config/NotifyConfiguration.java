@@ -31,6 +31,10 @@ public class NotifyConfiguration extends Configuration {
     @NotNull
     private String forgottenPasswordEmailTemplateId;
 
+    @Valid
+    @NotNull
+    private String createServiceInvitationUserExistsEmailTemplateId;
+
     public String getApiKey() {
         return apiKey;
     }
@@ -53,5 +57,9 @@ public class NotifyConfiguration extends Configuration {
 
     public String getCreateServiceInvitationEmailTemplateId() {
         return createServiceInvitationEmailTemplateId;
+    }
+
+    public String getCreateServiceInvitationUserExistsEmailTemplateId() {
+        return createServiceInvitationUserExistsEmailTemplateId;
     }
 }

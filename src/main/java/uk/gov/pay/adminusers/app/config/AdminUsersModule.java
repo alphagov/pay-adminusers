@@ -31,13 +31,13 @@ public class AdminUsersModule extends AbstractModule {
         bind(AdminUsersConfig.class).toInstance(configuration);
         bind(Environment.class).toInstance(environment);
         bind(LinksBuilder.class).toInstance(new LinksBuilder(configuration.getBaseUrl()));
+        bind(LinksConfig.class).toInstance(configuration.getLinks());
 
         bind(PasswordHasher.class).in(Singleton.class);
         bind(RequestValidations.class).in(Singleton.class);
         bind(UserRequestValidator.class).in(Singleton.class);
         bind(ResetPasswordValidator.class).in(Singleton.class);
         bind(Integer.class).annotatedWith(Names.named("LOGIN_ATTEMPT_CAP")).toInstance(configuration.getLoginAttemptCap());
-        bind(String.class).annotatedWith(Names.named("SELFSERVICE_BASE_URL")).toInstance(configuration.getLinks().getSelfserviceUrl());
         bind(SecondFactorAuthenticator.class).in(Singleton.class);
         bind(UserServices.class).in(Singleton.class);
         bind(ForgottenPasswordServices.class).in(Singleton.class);
