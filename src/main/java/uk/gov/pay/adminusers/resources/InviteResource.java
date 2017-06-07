@@ -20,7 +20,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class InviteResource {
 
     public static final String INVITES_RESOURCE = "/v1/api/invites";
-    public static final String INVITE_RESOURCE = INVITES_RESOURCE + "/{code}";
 
     private static final Logger LOGGER = PayLoggerFactory.getLogger(InviteResource.class);
     private static final int MAX_LENGTH_CODE = 255;
@@ -37,7 +36,7 @@ public class InviteResource {
     }
 
     @GET
-    @Path(INVITE_RESOURCE)
+    @Path("/{code}")
     @Produces(APPLICATION_JSON)
     public Response getInvite(@PathParam("code") String code) {
 

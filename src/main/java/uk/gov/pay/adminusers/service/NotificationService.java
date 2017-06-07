@@ -35,7 +35,7 @@ public class NotificationService {
 
         this.notifyClientProvider = new NotifyClientProvider(notifyConfiguration, getSSLContext());
         this.secondFactorSmsTemplateId = notifyConfiguration.getSecondFactorSmsTemplateId();
-        this.inviteEmailTemplateId = notifyConfiguration.getInviteEmailTemplateId();
+        this.inviteEmailTemplateId = notifyConfiguration.getInviteUserEmailTemplateId();
         this.forgottenPasswordEmailTemplateId = notifyConfiguration.getForgottenPasswordEmailTemplateId();
 
         this.metricRegistry = metricRegistry;
@@ -70,7 +70,7 @@ public class NotificationService {
         HashMap<String, String> personalisation = newHashMap();
         personalisation.put("name", email);
         personalisation.put("link", inviteUrl);
-        return sendEmailAsync(notifyConfiguration.getCreateServiceInvitationEmailTemplateId(), email, personalisation);
+        return sendEmailAsync(notifyConfiguration.getInviteServiceEmailTemplateId(), email, personalisation);
     }
 
     CompletableFuture<String> sendForgottenPasswordEmail(String email, String forgottenPasswordUrl) {
@@ -84,7 +84,7 @@ public class NotificationService {
         personalisation.put("signin_link", signInLink);
         personalisation.put("forgotten_password_link", forgottenPasswordLink);
         personalisation.put("feedback_link", feedbackLink);
-        return sendEmailAsync(notifyConfiguration.getCreateServiceInvitationUserExistsEmailTemplateId(), email, personalisation);
+        return sendEmailAsync(notifyConfiguration.getInviteServiceUserExistsEmailTemplateId(), email, personalisation);
     }
 
     private CompletableFuture<String> sendEmailAsync(final String templateId, final String email, final Map<String, String> personalisation) {
