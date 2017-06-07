@@ -61,7 +61,7 @@ public class Invite {
 
     public void setInviteLink(String targetUrl) {
         Link inviteLink = Link.from(Link.Rel.invite, "GET", targetUrl);
-        this.links = ImmutableList.of(inviteLink);
+        this.links.add(inviteLink);
     }
 
     public String getType() {
