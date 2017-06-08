@@ -74,8 +74,11 @@ graphiteHost: ${METRICS_HOST:-localhost}
 graphitePort: ${METRICS_PORT:-8092}
 
 links:
-  selfserviceUrl: ${SELFSERVICE_URL}
-  frontendUrl: ${FRONTEND_URL}
+  selfserviceUrl: ${SELFSERVICE_URL:-https://selfservice.pymnt.localdomain}
+  selfserviceInvitesUrl: ${SELFSERVICE_INVITES_URL:-https://selfservice.pymnt.localdomain/invites}
+  selfserviceLoginUrl: ${SELFSERVICE_LOGIN_URL:-https://selfservice.pymnt.localdomain/login}
+  selfserviceForgottenPasswordUrl: ${SELFSERVICE_FORGOTTEN_PASSWORD_URL:-https://selfservice.pymnt.localdomain/reset-password}
+  supportUrl: ${SUPPORT_URL:-https://frontend.pymnt.localdomain/support.html}
 
 baseUrl: ${BASE_URL:-http://localhost:8080}
 loginAttemptCap: ${LOGIN_ATTEMPT_CAP:-10}

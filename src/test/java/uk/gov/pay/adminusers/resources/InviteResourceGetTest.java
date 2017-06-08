@@ -27,7 +27,7 @@ public class InviteResourceGetTest extends IntegrationTest {
                 .body("email", is(email))
                 .body("telephone_number", is(nullValue()))
                 .body("disabled", is(false))
-                .body("login_counter", is(0));
+                .body("attempt_counter", is(0));
     }
 
     @Test
@@ -54,7 +54,7 @@ public class InviteResourceGetTest extends IntegrationTest {
                 .body("email", is(email))
                 .body("telephone_number", is(telephoneNumber))
                 .body("disabled", is(false))
-                .body("login_counter", is(0));
+                .body("attempt_counter", is(0));
     }
 
     @Test

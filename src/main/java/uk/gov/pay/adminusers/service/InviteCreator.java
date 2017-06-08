@@ -13,11 +13,9 @@ import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.UriBuilder;
 import java.util.Optional;
 
 import static java.lang.String.format;
-import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.InviteType.SERVICE;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
@@ -25,10 +23,6 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
 public class InviteCreator {
 
     private static final Logger LOGGER = PayLoggerFactory.getLogger(InviteCreator.class);
-    private static final String SELFSERVICE_INVITES_PATH = "invites";
-    private static final String SELFSERVICE_LOGIN_PATH = "login";
-    private static final String SELFSERVICE_FORGOTTEN_PASSWORD_PATH = "reset-password";
-    private static final String FEEDBACK_PATH = "support.html";
 
     private final InviteDao inviteDao;
     private final UserDao userDao;
@@ -77,7 +71,7 @@ public class InviteCreator {
                     inviteEntity.setTelephoneNumber(inviteServiceRequest.getTelephoneNumber());
                     inviteEntity.setType(SERVICE);
                     inviteDao.persist(inviteEntity);
-                    String inviteUrl = toUri(linksConfig.getSelfserviceUrl(), SELFSERVICE_INVITES_PATH, inviteEntity.getCode());
+                    String inviteUrl = format("%s/%s", linksConfig.getSelfserviceInvitesUrl(), inviteEntity.getCode());
                     sendInviteNotification(inviteEntity, inviteUrl);
                     return linksBuilder.decorate(inviteEntity.toInvite(inviteUrl));
                 })
@@ -86,10 +80,7 @@ public class InviteCreator {
     }
 
     private void sendUserExitsNotification(String email, String userExternalId) {
-        String signInLink = toUri(linksConfig.getSelfserviceUrl(), SELFSERVICE_LOGIN_PATH);
-        String forgottenPasswordLink = toUri(linksConfig.getSelfserviceUrl(), SELFSERVICE_FORGOTTEN_PASSWORD_PATH);
-        String feedbackLink = toUri(linksConfig.getFrontendUrl(), FEEDBACK_PATH);
-        notificationService.sendServiceInviteUserExistsEmail(email, signInLink, forgottenPasswordLink, feedbackLink)
+        notificationService.sendServiceInviteUserExistsEmail(email, linksConfig.getSelfserviceLoginUrl(), linksConfig.getSelfserviceForgottenPasswordUrl(), linksConfig.getSupportUrl())
                 .thenAcceptAsync(notificationId -> LOGGER.info("sent create service, user exists email successfully, notification id [{}]", notificationId))
                 .exceptionally(exception -> {
                     LOGGER.error("error sending service creation, users exists email", exception);
@@ -108,11 +99,4 @@ public class InviteCreator {
         LOGGER.info("New service creation invitation created");
     }
 
-    private String toUri(String baseUrl, String... pathParams) {
-        UriBuilder uriBuilder = fromUri(baseUrl);
-        for (String pathParam : pathParams) {
-            uriBuilder.path(pathParam);
-        }
-        return uriBuilder.build().toString();
-    }
 }

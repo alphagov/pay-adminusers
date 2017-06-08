@@ -53,6 +53,7 @@ public class InviteCreatorTest {
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
         when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn(CompletableFuture.completedFuture("done"));
+        when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
 
         Invite invite = inviteCreator.doCreate(request);
@@ -77,6 +78,7 @@ public class InviteCreatorTest {
             throw new RuntimeException("done");
         }));
         when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
+        when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         Invite invite = inviteCreator.doCreate(request);
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
@@ -93,7 +95,10 @@ public class InviteCreatorTest {
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
         UserEntity existingUserEntity = new UserEntity();
         when(userDao.findByEmail(email)).thenReturn(Optional.of(existingUserEntity));
-        when(linksConfig.getFrontendUrl()).thenReturn("http://frontend");
+        when(linksConfig.getSupportUrl()).thenReturn("http://frontend");
+        when(linksConfig.getSelfserviceForgottenPasswordUrl()).thenReturn("http://selfservice/forgotten-password");
+        when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
+        when(linksConfig.getSelfserviceLoginUrl()).thenReturn("http://selfservice/login");
         when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
         when(notificationService.sendServiceInviteUserExistsEmail(eq(email), anyString(),anyString(),anyString()))
                 .thenReturn(CompletableFuture.completedFuture("done"));

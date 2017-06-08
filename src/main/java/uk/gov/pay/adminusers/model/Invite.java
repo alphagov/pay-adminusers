@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,18 +18,18 @@ public class Invite {
     private final String email;
     private String telephoneNumber;
     private Boolean disabled = Boolean.FALSE;
-    private Integer loginCounter = 0;
+    private Integer attemptCounter = 0;
 
     private List<Link> links = new ArrayList<>();
     private String type;
 
     public Invite(String code, String email, String telephoneNumber,
-                  Boolean disabled, Integer loginCounter, String type) {
+                  Boolean disabled, Integer attemptCounter, String type) {
         this.code = code;
         this.email = email;
         this.telephoneNumber = telephoneNumber;
         this.disabled = disabled;
-        this.loginCounter = loginCounter;
+        this.attemptCounter = attemptCounter;
         this.type = type;
     }
 
@@ -49,9 +48,9 @@ public class Invite {
         return disabled;
     }
 
-    @JsonProperty("login_counter")
-    public Integer getLoginCounter() {
-        return loginCounter;
+    @JsonProperty("attempt_counter")
+    public Integer getAttemptCounter() {
+        return attemptCounter;
     }
 
     @JsonProperty("_links")
