@@ -31,6 +31,7 @@ public class AdminUsersModule extends AbstractModule {
         bind(AdminUsersConfig.class).toInstance(configuration);
         bind(Environment.class).toInstance(environment);
         bind(LinksBuilder.class).toInstance(new LinksBuilder(configuration.getBaseUrl()));
+        bind(LinksConfig.class).toInstance(configuration.getLinks());
 
         bind(PasswordHasher.class).in(Singleton.class);
         bind(RequestValidations.class).in(Singleton.class);
@@ -47,6 +48,8 @@ public class AdminUsersModule extends AbstractModule {
         install(jpaModule(configuration));
         install(new FactoryModuleBuilder().build(UserServicesFactory.class));
         install(new FactoryModuleBuilder().build(ServiceServicesFactory.class));
+        install(new FactoryModuleBuilder().build(InviteServiceFactory.class));
+
     }
 
     private JpaPersistModule jpaModule(AdminUsersConfig configuration) {

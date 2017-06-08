@@ -21,11 +21,19 @@ public class NotifyConfiguration extends Configuration {
 
     @Valid
     @NotNull
-    private String inviteEmailTemplateId;
+    private String inviteUserEmailTemplateId;
+
+    @Valid
+    @NotNull
+    private String inviteServiceEmailTemplateId;
 
     @Valid
     @NotNull
     private String forgottenPasswordEmailTemplateId;
+
+    @Valid
+    @NotNull
+    private String inviteServiceUserExistsEmailTemplateId;
 
     public String getApiKey() {
         return apiKey;
@@ -39,11 +47,19 @@ public class NotifyConfiguration extends Configuration {
         return secondFactorSmsTemplateId;
     }
 
-    public String getInviteEmailTemplateId() {
-        return inviteEmailTemplateId;
+    public String getInviteUserEmailTemplateId() {
+        return inviteUserEmailTemplateId;
     }
 
     public String getForgottenPasswordEmailTemplateId() {
         return forgottenPasswordEmailTemplateId;
+    }
+
+    public String getInviteServiceEmailTemplateId() {
+        return inviteServiceEmailTemplateId;
+    }
+
+    public String getInviteServiceUserExistsEmailTemplateId() {
+        return inviteServiceUserExistsEmailTemplateId;
     }
 }

@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.persistence.entity;
 
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.Invite;
+import uk.gov.pay.adminusers.model.InviteType;
 
 import javax.persistence.*;
 import java.time.ZoneId;
@@ -9,6 +10,7 @@ import java.time.ZonedDateTime;
 
 import static java.time.ZonedDateTime.now;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static uk.gov.pay.adminusers.model.InviteType.USER;
 import static uk.gov.pay.adminusers.persistence.entity.UTCDateTimeConverter.UTC;
 
 @Entity
@@ -57,6 +59,9 @@ public class InviteEntity extends AbstractEntity {
 
     @Column(name = "login_counter")
     private Integer loginCounter = 0;
+
+    @Column(name = "type")
+    private String type = USER.getType();
 
     public InviteEntity() {
         //for jpa
@@ -187,14 +192,22 @@ public class InviteEntity extends AbstractEntity {
         this.loginCounter = loginCount;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(InviteType type) {
+        this.type = type.getType();
+    }
+
     public Invite toInvite(String inviteUrl) {
-        Invite invite = new Invite(email);
+        Invite invite = toInvite();
         invite.setInviteLink(inviteUrl);
         return invite;
     }
 
     public Invite toInvite() {
-        return new Invite(email, telephoneNumber, disabled, loginCounter);
+        return new Invite(code, email, telephoneNumber, disabled, loginCounter, type);
     }
 
     public boolean isExpired() {

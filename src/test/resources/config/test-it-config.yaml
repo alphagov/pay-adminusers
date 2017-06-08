@@ -60,9 +60,13 @@ proxy:
   port: 1234
 
 notify:
-  apiKey: ${NOTIFY_API_KEY:-pay-notify-api-key}
+  apiKey: ${NOTIFY_API_KEY:-api_key-pay-notify-service-id-pay-notify-secret-needs-to-be-32-chars-fsghdngfhmhfkrgsfs}
   notificationBaseURL: ${NOTIFY_BASE_URL:-https://stubs.pymnt.localdomain/notify}
   secondFactorSmsTemplateId: ${NOTIFY_2FA_TEMPLATE_ID:-pay-notify-two-factor-template-id}
+  inviteUserEmailTemplateId: ${NOTIFY_INVITE_USER_EMAIL_TEMPLATE_ID:-pay-notify-invite-user-email-template-id}
+  forgottenPasswordEmailTemplateId: ${NOTIFY_FORGOTTEN_PASSWORD_EMAIL_TEMPLATE_ID:-pay-notify-forgotten-password-email-template-id}
+  inviteServiceEmailTemplateId: ${NOTIFY_INVITE_SERVICE_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-email-template-id}
+  inviteServiceUserExistsEmailTemplateId: ${NOTIFY_INVITE_SERVICE_USER_EXITS_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-user-exists-email-template-id}
 
 forgottenPasswordExpiryMinutes: ${FORGOTTEN_PASSWORD_EXPIRY_MINUTES:-90}
 
@@ -70,7 +74,11 @@ graphiteHost: ${METRICS_HOST:-localhost}
 graphitePort: ${METRICS_PORT:-8092}
 
 links:
-  selfserviceUrl: ${SELFSERVICE_URL:-http://selfservice}
+  selfserviceUrl: ${SELFSERVICE_URL:-https://selfservice.pymnt.localdomain}
+  selfserviceInvitesUrl: ${SELFSERVICE_INVITES_URL:-https://selfservice.pymnt.localdomain/invites}
+  selfserviceLoginUrl: ${SELFSERVICE_LOGIN_URL:-https://selfservice.pymnt.localdomain/login}
+  selfserviceForgottenPasswordUrl: ${SELFSERVICE_FORGOTTEN_PASSWORD_URL:-https://selfservice.pymnt.localdomain/reset-password}
+  supportUrl: ${SUPPORT_URL:-https://frontend.pymnt.localdomain/support.html}
 
 baseUrl: ${BASE_URL:-http://localhost:8080}
 loginAttemptCap: ${LOGIN_ATTEMPT_CAP:-10}

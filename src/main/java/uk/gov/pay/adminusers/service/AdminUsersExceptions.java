@@ -103,4 +103,9 @@ public class AdminUsersExceptions {
                 .build();
         return new WebApplicationException(response);
     }
+
+    public static WebApplicationException invalidPublicSectorEmail(String email) {
+        String error = format("Email [%s] is not a valid public sector email", email);
+        return buildWebApplicationException(error, FORBIDDEN.getStatusCode());
+    }
 }

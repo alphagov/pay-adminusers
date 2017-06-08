@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
-import uk.gov.pay.adminusers.model.InviteRequest;
+import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
@@ -117,7 +117,7 @@ public class ServiceResource {
 
         return inviteValidator.validateCreateRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> inviteService.create(InviteRequest.from(payload), serviceId)
+                .orElseGet(() -> inviteService.create(InviteUserRequest.from(payload), serviceId)
                         .map(invite -> Response.status(CREATED).entity(invite).build())
                         .orElseGet(() -> Response.status(NOT_FOUND).build()));
     }

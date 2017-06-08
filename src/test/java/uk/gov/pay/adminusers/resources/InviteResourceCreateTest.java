@@ -59,7 +59,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .body("email", is(email.toLowerCase()))
                 .body("telephone_number", is(nullValue()))
                 .body("_links", hasSize(1))
-                .body("_links[0].href", matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"))
+                .body("_links[0].href", matchesPattern("^https://selfservice.pymnt.localdomain/invites/[0-9a-z]{32}$"))
                 .body("_links[0].method", is("GET"))
                 .body("_links[0].rel", is("invite"));
     }

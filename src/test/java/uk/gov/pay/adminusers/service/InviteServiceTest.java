@@ -17,10 +17,8 @@ import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.*;
-import uk.gov.pay.adminusers.persistence.entity.Role;
 
 import javax.ws.rs.WebApplicationException;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -40,7 +38,7 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_CODE;
 import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_PASSWORD;
 import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_TELEPHONE_NUMBER;
-import static uk.gov.pay.adminusers.model.InviteRequest.*;
+import static uk.gov.pay.adminusers.model.InviteUserRequest.*;
 import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
@@ -174,9 +172,9 @@ public class InviteServiceTest {
         User existingUser = aUser(existingUserEmail);
         when(mockUserDao.findByEmail(existingUserEmail)).thenReturn(Optional.of(UserEntity.from(existingUser)));
 
-        InviteRequest inviteRequest = inviteRequestFrom(senderEmail, existingUserEmail, roleName);
+        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderEmail, existingUserEmail, roleName);
         try {
-            inviteService.create(inviteRequest, serviceId);
+            inviteService.create(inviteUserRequest, serviceId);
             fail();
         } catch (WebApplicationException e) {
             MatcherAssert.assertThat(e.getResponse().getStatus(), is(CONFLICT.getStatusCode()));
@@ -189,9 +187,9 @@ public class InviteServiceTest {
         InviteEntity anInvite = mocksCreateInvite();
         when(mockInviteDao.findByEmail(email)).thenReturn(Optional.of(anInvite));
 
-        InviteRequest inviteRequest = inviteRequestFrom(senderEmail, email, roleName);
+        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderEmail, email, roleName);
         try {
-            inviteService.create(inviteRequest, serviceId);
+            inviteService.create(inviteUserRequest, serviceId);
             fail();
         } catch (WebApplicationException e) {
             MatcherAssert.assertThat(e.getResponse().getStatus(), is(CONFLICT.getStatusCode()));
@@ -373,12 +371,12 @@ public class InviteServiceTest {
         assertThat(notifyPromise.isDone(), is(true));
     }
 
-    private InviteRequest inviteRequestFrom(String sender, String email, String roleName) {
+    private InviteUserRequest inviteRequestFrom(String sender, String email, String roleName) {
         ObjectNode json = JsonNodeFactory.instance.objectNode();
         json.put(FIELD_SENDER, sender);
         json.put(FIELD_EMAIL, email);
         json.put(FIELD_ROLE_NAME, roleName);
-        return InviteRequest.from(json);
+        return InviteUserRequest.from(json);
     }
 
     private InviteOtpRequest inviteOtpRequestFrom(String code, String telephoneNumber, String password) {

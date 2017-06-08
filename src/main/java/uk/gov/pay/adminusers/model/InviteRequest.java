@@ -5,31 +5,20 @@ import com.fasterxml.jackson.databind.JsonNode;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
-public class InviteRequest {
+public abstract class InviteRequest {
 
-    public static final String FIELD_SENDER = "sender";
     public static final String FIELD_EMAIL = "email";
     public static final String FIELD_ROLE_NAME = "role_name";
     public static final String FIELD_OTP_KEY = "otp_key";
 
-    private final String sender;
-    private final String email;
-    private final String roleName;
-    private final String otpKey;
+    protected final String roleName;
+    protected final String email;
+    protected final String otpKey;
 
-    private InviteRequest(String sender, String email, String roleName, String otpKey) {
-        this.sender = sender;
-        this.email = email;
+    public InviteRequest(String roleName, String email, String otpKey) {
         this.roleName = roleName;
+        this.email = email;
         this.otpKey = otpKey;
-    }
-
-    public static InviteRequest from(JsonNode jsonNode) {
-        return new InviteRequest(jsonNode.get(FIELD_SENDER).asText(), jsonNode.get(FIELD_EMAIL).asText(), jsonNode.get(FIELD_ROLE_NAME).asText(), getOrElseRandom(jsonNode.get(FIELD_OTP_KEY)));
-    }
-
-    public String getSender() {
-        return sender;
     }
 
     public String getEmail() {
@@ -44,7 +33,7 @@ public class InviteRequest {
         return otpKey;
     }
 
-    private static String getOrElseRandom(JsonNode elementNode) {
+    protected static String getOrElseRandom(JsonNode elementNode) {
         return elementNode == null || isBlank(elementNode.asText()) ? randomUuid() : elementNode.asText();
     }
 }
