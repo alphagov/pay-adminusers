@@ -2,11 +2,13 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
+import io.dropwizard.jersey.PATCH;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.service.InviteService;
@@ -82,8 +84,8 @@ public class ServiceResource {
         }
         List<JsonNode> gatewayAccountIds = newArrayList(payload.get(FIELD_GATEWAY_ACCOUNT_IDS).elements());
         return Optional.of(gatewayAccountIds.stream()
-                        .map(idNode -> idNode.textValue())
-                        .collect(Collectors.toList()));
+                .map(idNode -> idNode.textValue())
+                .collect(Collectors.toList()));
     }
 
     private Optional<String> extractServiceName(JsonNode payload) {
@@ -91,6 +93,20 @@ public class ServiceResource {
             return Optional.empty();
         }
         return Optional.of(payload.get(FIELD_SERVICE_NAME).textValue());
+    }
+
+    @Path("/{serviceExternalId}")
+    @PATCH
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response updateServiceAttribute(@PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
+        LOGGER.info("Service PATCH request - [ {} ]", serviceExternalId);
+        return serviceRequestValidator.validateUpdateAttributeRequest(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> serviceServicesFactory.serviceUpdater().doUpdate(serviceExternalId, ServiceUpdateRequest.from(payload))
+                        .map(service -> Response.status(OK).entity(service).build())
+                        .orElseGet(() -> Response.status(NOT_FOUND).build()));
+
     }
 
 

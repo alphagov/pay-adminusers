@@ -52,4 +52,14 @@ public class ServiceDao extends JpaDao<ServiceEntity> {
                 .getSingleResult();
         return count > 0;
     }
+
+    public Optional<ServiceEntity> findByExternalId(String serviceExternalId) {
+        String query = "SELECT s FROM ServiceEntity as s WHERE s.externalId = :externalId";
+        return entityManager.get()
+                .createQuery(query, ServiceEntity.class)
+                .setParameter("externalId", serviceExternalId)
+                .getResultList()
+                .stream()
+                .findFirst();
+    }
 }
