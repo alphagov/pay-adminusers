@@ -14,15 +14,14 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.*;
 
 
 public class ServiceRequestValidator {
 
     public static final String FIELD_SERVICE_NAME = "name";
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
-    private static final String FIELD_OP = "op";
-    private static final String FIELD_PATH = "path";
-    private static final String FIELD_VALUE = "value";
+
     private final RequestValidations requestValidations;
     private static final Map<String, List<String>> VALID_ATTRIBUTE_UPDATE_OPERATIONS = new HashMap<String, List<String>>(){{
         put(FIELD_SERVICE_NAME, asList("replace"));
@@ -64,15 +63,11 @@ public class ServiceRequestValidator {
             return Optional.of(Errors.from(format("Path [%s] is invalid", path)));
         }
 
-
         String op = payload.get("op").asText();
-
         if (!VALID_ATTRIBUTE_UPDATE_OPERATIONS.get(path).contains(op)) {
             return Optional.of(Errors.from(format("Operation [%s] is invalid for path [%s]", op, path)));
         }
 
-
         return Optional.empty();
-
     }
 }

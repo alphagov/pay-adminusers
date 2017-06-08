@@ -49,7 +49,14 @@ public class EmailValidator {
                 Pattern.compile("^" + regExDomainsOnlyPart +  "|" + regExSubdomainsPart + "$");
     }
 
-    public static final boolean isValid(String email) {
+    /**
+     * <p>Checks if a field has a valid e-mail address.</p>
+     *
+     * @param email The value validation is being performed on.  A <code>null</code>
+     *              value is considered invalid.
+     * @return true if the email address is valid.
+     */
+    public static boolean isValid(String email) {
         return commonsEmailValidator.isValid(email);
     }
 
