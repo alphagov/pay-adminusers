@@ -233,10 +233,18 @@ public class UserEntity extends AbstractEntity {
         return servicesRoles.stream().filter(serviceRoleEntity -> serviceId.equals(serviceRoleEntity.getService().getId())).findFirst();
     }
 
+    public Optional<ServiceRoleEntity> getServicesRole(String serviceExternalId) {
+        return servicesRoles.stream().filter(serviceRoleEntity -> serviceExternalId.equals(serviceRoleEntity.getService().getExternalId())).findFirst();
+    }
+
     public boolean canInviteUsersTo(Integer serviceId) {
         Optional<ServiceRoleEntity> serviceRole = this.getServicesRole(serviceId);
         return serviceRole.isPresent() &&
                 serviceRole.get().getRole().isAdmin() &&
                 serviceRole.get().getService().getId().equals(serviceId);
+    }
+
+    public void remove(ServiceRoleEntity serviceRole) {
+        servicesRoles.remove(serviceRole);
     }
 }

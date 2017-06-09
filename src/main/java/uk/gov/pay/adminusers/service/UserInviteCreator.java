@@ -81,7 +81,7 @@ public class UserInviteCreator {
                         invite.setInviteLink(inviteUrl);
                         return Optional.of(invite);
                     } else {
-                        throw forbiddenOperationException(inviteUserRequest.getSender(), "invite", serviceEntity.getId());
+                        throw forbiddenOperationException(inviteUserRequest.getSender(), "invite", serviceEntity.getExternalId());
                     }
                 })
                 .orElseThrow(() -> undefinedRoleException(inviteUserRequest.getRoleName()));
