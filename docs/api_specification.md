@@ -434,3 +434,101 @@ Content-Type: application/json
     
 }
 ```
+
+-----------------------------------------------------------------------------------------------------------
+
+## POST /v1/api/invites/service
+
+This endpoint creates an invitation to allow self provisioning new service with Pay.
+
+### Request example
+
+```
+POST /v1/api/invites/service
+Content-Type: application/json
+{
+"telephone_number":"088882345689",
+"email": "example@example.gov.uk",
+"password" : "plain-txt-passsword"
+}
+
+```
+
+#### Request body description
+
+| Field                    | required | Description                                                      | Supported Values     |
+| ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
+| `telephone_number`       |   X      | the phone number of the user                                     |   |
+| `email`                  |   X      | the email (mut be a public sector email)                         | |
+| `password`               |   X      | password for the new user                                        | |
+
+### Response example
+
+```
+201 OK
+Content-Type: application/json
+{  
+   "type":"service",
+   "email":"example@example.gov.uk",
+   "telephone_number":"088882345689",
+   "disabled":false,
+   "attempt_counter":0,
+   "_links":[  
+      {  
+         "rel":"invite",
+         "method":"GET",
+         "href":"https://selfservice.pymnt.localdomain/invites/04f431f18c3243f5bb29d10c01659e9c"
+      },
+      {  
+         "rel":"self",
+         "method":"GET",
+         "href":"http://localhost:8080/v1/api/invites/04f431f18c3243f5bb29d10c01659e9c"
+      }
+   ]
+}
+```
+
+-----------------------------------------------------------------------------------------------------------
+
+## PATCH /v1/api/services/{serviceExternalId}
+
+This endpoint creates an invitation to allow self provisioning new service with Pay.
+
+### Request example
+
+```
+PATCH /v1/api/services/7d19aff33f8948deb97ed16b2912dcd3
+Content-Type: application/json
+{
+ "op": "replace",
+ "path": "name", 
+ "value": "updated-service-name" 
+}
+
+```
+
+#### Request body description
+
+| Field                    | required | Description                                                      | Supported Values     |
+| ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
+| `op`                     |   X      | operation to perform on attribute                                | `replace`, `add`     |
+| `path`                   |   X      | attribute that is affecting                                      | `gateway_account_ids` , `name` |
+| `value`                  |   X         | value to be replaced                                             |                      |
+
+### Response example
+
+```
+200 OK
+Content-Type: application/json
+{
+    "id": 123
+    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
+    "name": "updated-service-name",
+    "_links": [{
+        "href": "http://adminusers.service/v1/api/services/123",
+        "rel" : "self",
+        "method" : "GET"
+    }]
+    
+}
+```
