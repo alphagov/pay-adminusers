@@ -492,7 +492,9 @@ Content-Type: application/json
 
 ## PATCH /v1/api/services/{serviceExternalId}
 
-This endpoint creates an invitation to allow self provisioning new service with Pay.
+This endpoint modifies updatable attributes of a Service. Currently supports
+ - Update the name of a service
+ - Add new gateway account(s) to a service.
 
 ### Request example
 
