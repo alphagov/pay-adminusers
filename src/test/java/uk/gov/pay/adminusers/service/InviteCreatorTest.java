@@ -14,6 +14,7 @@ import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.ws.rs.WebApplicationException;
@@ -48,9 +49,9 @@ public class InviteCreatorTest {
     public void shouldSuccess_serviceInvite_IfEmailDoesNotConflict() throws Exception {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
+        RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(Optional.empty());
-        RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
         when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn(CompletableFuture.completedFuture("done"));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
@@ -70,9 +71,9 @@ public class InviteCreatorTest {
     public void shouldSuccess_serviceInvite_evenIfNotifyThrowsAnError() throws Exception {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
+        RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(Optional.empty());
-        RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
         when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn(CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException("done");
@@ -100,7 +101,7 @@ public class InviteCreatorTest {
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         when(linksConfig.getSelfserviceLoginUrl()).thenReturn("http://selfservice/login");
         when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
-        when(notificationService.sendServiceInviteUserExistsEmail(eq(email), anyString(),anyString(),anyString()))
+        when(notificationService.sendServiceInviteUserExistsEmail(eq(email), anyString(), anyString(), anyString()))
                 .thenReturn(CompletableFuture.completedFuture("done"));
 
         thrown.expect(WebApplicationException.class);
@@ -132,11 +133,18 @@ public class InviteCreatorTest {
     public void shouldError_ifUserAlreadyHasAValidInvitationWithGivenEmail() throws Exception {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
+        UserEntity sender = mock(UserEntity.class);
+        ServiceEntity service = mock(ServiceEntity.class);
+        RoleEntity role = mock(RoleEntity.class);
+        InviteEntity validInvite = new InviteEntity(email, "code", "otpKey", sender, service, role);
+
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
-        InviteEntity validInvite = mock(InviteEntity.class);
-        when(validInvite.isExpired()).thenReturn(false);
-        when(validInvite.isDisabled()).thenReturn(false);
+        when(sender.getExternalId()).thenReturn("inviter-id");
+        when(sender.getEmail()).thenReturn("inviter@example.com");
         when(inviteDao.findByEmail(email)).thenReturn(Optional.of(validInvite));
+        when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
+        when(notificationService.sendInviteEmail(eq("inviter@example.com"),eq(email), anyString()))
+                .thenReturn(CompletableFuture.completedFuture("done"));
 
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 409 Conflict");
