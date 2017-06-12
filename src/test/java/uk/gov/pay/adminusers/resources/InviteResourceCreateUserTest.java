@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.http.ContentType;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.pay.adminusers.model.Service;
 
 import static java.lang.String.format;
 import static javax.ws.rs.core.Response.Status.*;
@@ -12,29 +13,28 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.IsEmptyString.isEmptyString;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
-import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.*;
+import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
-@Deprecated // until selfservice is migrated to use new endpoint
-public class InviteResourceCreateTest extends IntegrationTest {
 
-    private int serviceId;
+public class InviteResourceCreateUserTest extends IntegrationTest {
+    private Service service;
     private String roleAdminName;
     private String senderExternalId;
 
     @Before
     public void givenAnExistingServiceAndARole() {
 
-        serviceId = serviceDbFixture(databaseHelper)
-                .insertService().getId();
+        service = serviceDbFixture(databaseHelper)
+                .insertService();
 
         roleAdminName = roleDbFixture(databaseHelper)
                 .insertAdmin().getName();
 
         senderExternalId = userDbFixture(databaseHelper)
-                .withServiceRole(serviceId, ADMIN.getId())
+                .withServiceRole(service.getId(), ADMIN.getId())
                 .insertUser().getExternalId();
     }
 
@@ -47,13 +47,14 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .put("sender", senderExternalId)
                 .put("email", email)
                 .put("role_name", roleAdminName)
+                .put("service_external_id", service.getExternalId())
                 .build();
 
         givenSetup()
                 .when()
                 .body(mapper.writeValueAsString(invitationRequest))
                 .contentType(ContentType.JSON)
-                .post(format(SERVICE_INVITES_RESOURCE_URL, serviceId))
+                .post(INVITE_USER_RESOURCE_URL)
                 .then()
                 .statusCode(CREATED.getStatusCode())
                 .body("email", is(email.toLowerCase()))
@@ -79,6 +80,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .put("sender", senderExternalId)
                 .put("email", existingUserEmail)
                 .put("role_name", roleAdminName)
+                .put("service_external_id", service.getExternalId())
                 .build();
 
         givenSetup()
@@ -86,7 +88,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .body(mapper.writeValueAsString(invitationRequest))
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .post(format(SERVICE_INVITES_RESOURCE_URL, serviceId))
+                .post(INVITE_USER_RESOURCE_URL)
                 .then()
                 .statusCode(CONFLICT.getStatusCode())
                 .body("errors", hasSize(1))
@@ -106,6 +108,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .put("sender", senderExternalId)
                 .put("email", existingUserEmail)
                 .put("role_name", roleAdminName)
+                .put("service_external_id", service.getExternalId())
                 .build();
 
         givenSetup()
@@ -113,7 +116,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .body(mapper.writeValueAsString(invitationRequest))
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .post(format(SERVICE_INVITES_RESOURCE_URL, serviceId))
+                .post(INVITE_USER_RESOURCE_URL)
                 .then()
                 .statusCode(CONFLICT.getStatusCode())
                 .body("errors", hasSize(1))
@@ -123,11 +126,12 @@ public class InviteResourceCreateTest extends IntegrationTest {
     @Test
     public void createInvitation_shouldFail_whenServiceDoesNotExist() throws Exception {
 
-        int nonExistentServiceId = 99999;
+        String nonExistentServiceId = "non existant service external id";
         ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
                 .put("sender", senderExternalId)
                 .put("email", randomAlphanumeric(5) + "-invite@example.com")
                 .put("role_name", roleAdminName)
+                .put("service_external_id", nonExistentServiceId)
                 .build();
 
         givenSetup()
@@ -135,7 +139,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .body(mapper.writeValueAsString(invitationRequest))
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .post(format(SERVICE_INVITES_RESOURCE_URL, nonExistentServiceId))
+                .post(INVITE_USER_RESOURCE_URL)
                 .then()
                 .statusCode(NOT_FOUND.getStatusCode())
                 .body(isEmptyString());
@@ -148,6 +152,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .put("sender", senderExternalId)
                 .put("email", randomAlphanumeric(5) + "-invite@example.com")
                 .put("role_name", "non-existing-role")
+                .put("service_external_id", service.getExternalId())
                 .build();
 
         givenSetup()
@@ -155,7 +160,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .body(mapper.writeValueAsString(invitationRequest))
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .post(format(SERVICE_INVITES_RESOURCE_URL, serviceId))
+                .post(INVITE_USER_RESOURCE_URL)
                 .then()
                 .statusCode(BAD_REQUEST.getStatusCode())
                 .body("errors", hasSize(1))
@@ -171,13 +176,14 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .put("sender", "does-not-exist")
                 .put("email", email)
                 .put("role_name", roleAdminName)
+                .put("service_external_id", service.getExternalId())
                 .build();
 
         givenSetup()
                 .when()
                 .body(mapper.writeValueAsString(invitationRequest))
                 .contentType(ContentType.JSON)
-                .post(format(SERVICE_INVITES_RESOURCE_URL, serviceId))
+                .post(INVITE_USER_RESOURCE_URL)
                 .then()
                 .statusCode(FORBIDDEN.getStatusCode());
     }
@@ -187,7 +193,7 @@ public class InviteResourceCreateTest extends IntegrationTest {
 
         int otherRoleId = roleDbFixture(databaseHelper).insertRole().getId();
         String senderWithNoAdminRole = userDbFixture(databaseHelper)
-                .withServiceRole(serviceId, otherRoleId)
+                .withServiceRole(service.getId(), otherRoleId)
                 .insertUser().getExternalId();
 
         String email = randomAlphanumeric(5) + "-invite@example.com";
@@ -196,13 +202,14 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .put("sender", senderWithNoAdminRole)
                 .put("email", email)
                 .put("role_name", roleAdminName)
+                .put("service_external_id", service.getExternalId())
                 .build();
 
         givenSetup()
                 .when()
                 .body(mapper.writeValueAsString(invitationRequest))
                 .contentType(ContentType.JSON)
-                .post(format(SERVICE_INVITES_RESOURCE_URL, serviceId))
+                .post(INVITE_USER_RESOURCE_URL)
                 .then()
                 .statusCode(FORBIDDEN.getStatusCode());
 
@@ -211,11 +218,11 @@ public class InviteResourceCreateTest extends IntegrationTest {
     @Test
     public void createInvitation_shouldFail_whenSenderDoesNotBelongToTheGivenService() throws Exception {
 
-        int otherServiceId = serviceDbFixture(databaseHelper)
-                .insertService().getId();
-
+        Service otherService = serviceDbFixture(databaseHelper)
+                .insertService();
+        
         String senderExternalId = userDbFixture(databaseHelper)
-                .withServiceRole(otherServiceId, ADMIN.getId())
+                .withServiceRole(otherService.getId(), ADMIN.getId())
                 .insertUser().getExternalId();
 
         String email = randomAlphanumeric(5) + "-invite@example.com";
@@ -224,13 +231,14 @@ public class InviteResourceCreateTest extends IntegrationTest {
                 .put("sender", senderExternalId)
                 .put("email", email)
                 .put("role_name", roleAdminName)
+                .put("service_external_id", service.getExternalId())
                 .build();
 
         givenSetup()
                 .when()
                 .body(mapper.writeValueAsString(invitationRequest))
                 .contentType(ContentType.JSON)
-                .post(format(SERVICE_INVITES_RESOURCE_URL, serviceId))
+                .post(INVITE_USER_RESOURCE_URL)
                 .then()
                 .statusCode(FORBIDDEN.getStatusCode());
     }

@@ -11,6 +11,7 @@ import uk.gov.pay.adminusers.model.InviteServiceRequest;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
+import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
@@ -29,7 +30,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
-public class InviteCreatorTest {
+public class ServiceInviteCreatorTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
     private NotificationService notificationService = mock(NotificationService.class);
@@ -38,11 +39,11 @@ public class InviteCreatorTest {
     private UserDao userDao = mock(UserDao.class);
     private RoleDao roleDao = mock(RoleDao.class);
     private ArgumentCaptor<InviteEntity> persistedInviteEntity = ArgumentCaptor.forClass(InviteEntity.class);
-    private InviteCreator inviteCreator;
+    private ServiceInviteCreator serviceInviteCreator;
 
     @Before
     public void before() throws Exception {
-        inviteCreator = new InviteCreator(inviteDao, userDao, roleDao, new LinksBuilder("http://localhost/"), linksConfig, notificationService);
+        serviceInviteCreator = new ServiceInviteCreator(inviteDao, userDao, roleDao, new LinksBuilder("http://localhost/"), linksConfig, notificationService);
     }
 
     @Test
@@ -57,7 +58,7 @@ public class InviteCreatorTest {
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
 
-        Invite invite = inviteCreator.doCreate(request);
+        Invite invite = serviceInviteCreator.doInvite(request);
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
@@ -80,7 +81,7 @@ public class InviteCreatorTest {
         }));
         when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
-        Invite invite = inviteCreator.doCreate(request);
+        Invite invite = serviceInviteCreator.doInvite(request);
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
@@ -107,7 +108,7 @@ public class InviteCreatorTest {
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 409 Conflict");
 
-        inviteCreator.doCreate(request);
+        serviceInviteCreator.doInvite(request);
 
     }
 
@@ -125,7 +126,7 @@ public class InviteCreatorTest {
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 409 Conflict");
 
-        inviteCreator.doCreate(request);
+        serviceInviteCreator.doInvite(request);
 
     }
 
@@ -149,7 +150,7 @@ public class InviteCreatorTest {
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 409 Conflict");
 
-        inviteCreator.doCreate(request);
+        serviceInviteCreator.doInvite(request);
     }
 
     @Test
@@ -163,6 +164,6 @@ public class InviteCreatorTest {
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 500 Internal Server Error");
 
-        inviteCreator.doCreate(request);
+        serviceInviteCreator.doInvite(request);
     }
 }

@@ -376,7 +376,7 @@ public class InviteServiceTest {
         json.put(FIELD_SENDER, sender);
         json.put(FIELD_EMAIL, email);
         json.put(FIELD_ROLE_NAME, roleName);
-        return InviteUserRequest.from(json);
+        return InviteUserRequest.from(json, randomUuid());
     }
 
     private InviteOtpRequest inviteOtpRequestFrom(String code, String telephoneNumber, String password) {

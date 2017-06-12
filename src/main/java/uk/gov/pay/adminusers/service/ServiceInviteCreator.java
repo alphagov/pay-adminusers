@@ -21,20 +21,19 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.InviteType.SERVICE;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
 
-public class InviteCreator {
+public class ServiceInviteCreator {
 
-    private static final Logger LOGGER = PayLoggerFactory.getLogger(InviteCreator.class);
-
+    private static final Logger LOGGER = PayLoggerFactory.getLogger(ServiceInviteCreator.class);
     private final InviteDao inviteDao;
     private final UserDao userDao;
-    private RoleDao roleDao;
+    private final RoleDao roleDao;
     private final LinksBuilder linksBuilder;
-    private LinksConfig linksConfig;
+    private final LinksConfig linksConfig;
     private final NotificationService notificationService;
 
     @Inject
-    public InviteCreator(InviteDao inviteDao, UserDao userDao, RoleDao roleDao, LinksBuilder linksBuilder,
-                         LinksConfig linksConfig, NotificationService notificationService) {
+    public ServiceInviteCreator(InviteDao inviteDao, UserDao userDao, RoleDao roleDao, LinksBuilder linksBuilder,
+                                LinksConfig linksConfig, NotificationService notificationService) {
         this.inviteDao = inviteDao;
         this.userDao = userDao;
         this.roleDao = roleDao;
@@ -44,7 +43,7 @@ public class InviteCreator {
     }
 
     @Transactional
-    public Invite doCreate(InviteServiceRequest inviteServiceRequest) {
+    public Invite doInvite(InviteServiceRequest inviteServiceRequest) {
         String requestEmail = inviteServiceRequest.getEmail();
         Optional<UserEntity> anExistingUser = userDao.findByEmail(requestEmail);
         if (anExistingUser.isPresent()) {
@@ -73,23 +72,21 @@ public class InviteCreator {
                     inviteEntity.setType(SERVICE);
                     inviteDao.persist(inviteEntity);
                     String inviteUrl = format("%s/%s", linksConfig.getSelfserviceInvitesUrl(), inviteEntity.getCode());
-                    sendInviteNotification(inviteEntity, inviteUrl);
+                    sendServiceInviteNotification(inviteEntity, inviteUrl);
                     return linksBuilder.decorate(inviteEntity.toInvite(inviteUrl));
                 })
                 .orElseThrow(() -> internalServerError(format("Role [%s] not a valid role for creating a invite service request", inviteServiceRequest.getRoleName())));
 
     }
 
-    private void sendUserInviteNotification(InviteEntity invite) {
-        String inviteUrl = fromUri(linksConfig.getSelfserviceInvitesUrl()).path(invite.getCode()).build().toString();
-        UserEntity sender = invite.getSender();
-        notificationService.sendInviteEmail(sender.getEmail(), invite.getEmail(), inviteUrl)
-                .thenAcceptAsync(notificationId -> LOGGER.info("invite resent successfully to user, notification id [{}]", notificationId))
+    private void sendServiceInviteNotification(InviteEntity invite, String targetUrl) {
+        notificationService.sendServiceInviteEmail(invite.getEmail(), targetUrl)
+                .thenAcceptAsync(notificationId -> LOGGER.info("sent create service invitation email successfully, notification id [{}]", notificationId))
                 .exceptionally(exception -> {
-                    LOGGER.error("error resending invite email to user for invite [{}]", invite.getCode(), exception);
+                    LOGGER.error("error sending create service invitation", exception);
                     return null;
                 });
-        LOGGER.info("Invitation resent [{}]", invite.getCode());
+        LOGGER.info("New service creation invitation created");
     }
 
     private void sendUserDisabledNotification(String email, String userExternalId) {
@@ -112,14 +109,15 @@ public class InviteCreator {
         LOGGER.info("Existing user tried to create a service - user_id={}", userExternalId);
     }
 
-    private void sendInviteNotification(InviteEntity invite, String targetUrl) {
-        notificationService.sendServiceInviteEmail(invite.getEmail(), targetUrl)
-                .thenAcceptAsync(notificationId -> LOGGER.info("sent create service invitation email successfully, notification id [{}]", notificationId))
+    private void sendUserInviteNotification(InviteEntity inviteEntity) {
+        String inviteUrl = fromUri(linksConfig.getSelfserviceInvitesUrl()).path(inviteEntity.getCode()).build().toString();
+        UserEntity sender = inviteEntity.getSender();
+        notificationService.sendInviteEmail(sender.getEmail(), inviteEntity.getEmail(), inviteUrl)
+                .thenAcceptAsync(notificationId -> LOGGER.info("invite resent successfully to user, notification id [{}]", notificationId))
                 .exceptionally(exception -> {
-                    LOGGER.error("error sending create service invitation", exception);
+                    LOGGER.error("error resending invite email to user for invite [{}]", inviteEntity.getCode(), exception);
                     return null;
                 });
-        LOGGER.info("New service creation invitation created");
+        LOGGER.info("Invitation resent [{}]", inviteEntity.getCode());
     }
-
 }

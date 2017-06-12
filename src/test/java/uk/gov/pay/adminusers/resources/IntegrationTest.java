@@ -22,7 +22,10 @@ public class IntegrationTest {
     static final String INVITES_GENERATE_OTP_RESOURCE_URL = "/v1/api/invites/otp/generate";
     static final String INVITES_RESEND_OTP_RESOURCE_URL = "/v1/api/invites/otp/resend";
     static final String INVITES_VALIDATE_OTP_RESOURCE_URL = "/v1/api/invites/otp/validate";
+    @Deprecated
     static final String SERVICE_INVITES_RESOURCE_URL = "/v1/api/services/%d/invites";
+    static final String INVITE_USER_RESOURCE_URL = "/v1/api/invites/user";
+    static final String INVITE_SERVICE_RESOURCE_URL = "/v1/api/invites/service";
 
     @ClassRule
     public static DropwizardAppWithPostgresRule app = new DropwizardAppWithPostgresRule();
