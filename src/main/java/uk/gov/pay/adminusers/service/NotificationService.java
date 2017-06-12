@@ -87,6 +87,12 @@ public class NotificationService {
         return sendEmailAsync(notifyConfiguration.getInviteServiceUserExistsEmailTemplateId(), email, personalisation);
     }
 
+    CompletableFuture<String> sendServiceInviteUserDisabledEmail(String email, String supportUrl) {
+        HashMap<String, String> personalisation = newHashMap();
+        personalisation.put("feedback_link", supportUrl);
+        return sendEmailAsync(notifyConfiguration.getInviteServiceUserDisabledEmailTemplateId(), email, personalisation);
+    }
+
     private CompletableFuture<String> sendEmailAsync(final String templateId, final String email, final Map<String, String> personalisation) {
         return CompletableFuture.supplyAsync(() -> {
             Stopwatch responseTimeStopwatch = Stopwatch.createStarted();

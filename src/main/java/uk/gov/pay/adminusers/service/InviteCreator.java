@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import java.util.Optional;
 
 import static java.lang.String.format;
+import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.InviteType.SERVICE;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
@@ -51,7 +52,7 @@ public class InviteCreator {
             if (!user.isDisabled()) {
                 sendUserExitsNotification(requestEmail, user.getExternalId());
             } else {
-                //TODO: what should we do here: Discuss with stephen m ??
+                sendUserDisabledNotification(requestEmail, user.getExternalId());
             }
             throw conflictingEmail(requestEmail);
         }
@@ -60,7 +61,7 @@ public class InviteCreator {
         if (inviteOptional.isPresent()) {
             InviteEntity foundInvite = inviteOptional.get();
             if (!foundInvite.isExpired() && !foundInvite.isDisabled()) {
-                //TODO: what should we do here: Discuss with stephen m ??
+                sendUserInviteNotification(foundInvite);
                 throw conflictingInvite(requestEmail);
             }
         }
@@ -77,6 +78,28 @@ public class InviteCreator {
                 })
                 .orElseThrow(() -> internalServerError(format("Role [%s] not a valid role for creating a invite service request", inviteServiceRequest.getRoleName())));
 
+    }
+
+    private void sendUserInviteNotification(InviteEntity invite) {
+        String inviteUrl = fromUri(linksConfig.getSelfserviceInvitesUrl()).path(invite.getCode()).build().toString();
+        UserEntity sender = invite.getSender();
+        notificationService.sendInviteEmail(sender.getEmail(), invite.getEmail(), inviteUrl)
+                .thenAcceptAsync(notificationId -> LOGGER.info("invite resent successfully to user, notification id [{}]", notificationId))
+                .exceptionally(exception -> {
+                    LOGGER.error("error resending invite email to user for invite [{}]", invite.getCode(), exception);
+                    return null;
+                });
+        LOGGER.info("Invitation resent [{}]", invite.getCode());
+    }
+
+    private void sendUserDisabledNotification(String email, String userExternalId) {
+        notificationService.sendServiceInviteUserDisabledEmail(email, linksConfig.getSupportUrl())
+                .thenAcceptAsync(notificationId -> LOGGER.info("sent create service, user account disabled email successfully, notification id [{}]", notificationId))
+                .exceptionally(exception -> {
+                    LOGGER.error("error sending service creation, user account disabled email", exception);
+                    return null;
+                });
+        LOGGER.info("Disabled existing user tried to create a service - user_id={}", userExternalId);
     }
 
     private void sendUserExitsNotification(String email, String userExternalId) {
