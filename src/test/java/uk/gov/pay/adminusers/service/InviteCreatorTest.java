@@ -111,6 +111,24 @@ public class InviteCreatorTest {
     }
 
     @Test
+    public void shouldError_ifUserAlreadyExistsAndDisabledWithGivenEmail() throws Exception {
+        String email = "email@example.gov.uk";
+        InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
+        UserEntity existingUserEntity = new UserEntity();
+        existingUserEntity.setDisabled(true);
+        when(userDao.findByEmail(email)).thenReturn(Optional.of(existingUserEntity));
+        when(linksConfig.getSupportUrl()).thenReturn("http://frontend");
+        when(notificationService.sendServiceInviteUserDisabledEmail(eq(email), anyString()))
+                .thenReturn(CompletableFuture.completedFuture("done"));
+
+        thrown.expect(WebApplicationException.class);
+        thrown.expectMessage("HTTP 409 Conflict");
+
+        inviteCreator.doCreate(request);
+
+    }
+
+    @Test
     public void shouldError_ifUserAlreadyHasAValidInvitationWithGivenEmail() throws Exception {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");

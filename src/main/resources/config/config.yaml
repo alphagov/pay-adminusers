@@ -67,6 +67,7 @@ notify:
   forgottenPasswordEmailTemplateId: ${NOTIFY_FORGOTTEN_PASSWORD_EMAIL_TEMPLATE_ID:-pay-notify-forgotten-password-email-template-id}
   inviteServiceEmailTemplateId: ${NOTIFY_INVITE_SERVICE_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-email-template-id}
   inviteServiceUserExistsEmailTemplateId: ${NOTIFY_INVITE_SERVICE_USER_EXITS_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-user-exists-email-template-id}
+  inviteServiceUserDisabledEmailTemplateId: ${NOTIFY_INVITE_SERVICE_USER_DISABLED_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-user-disabled-email-template-id}
 
 forgottenPasswordExpiryMinutes: ${FORGOTTEN_PASSWORD_EXPIRY_MINUTES:-90}
 

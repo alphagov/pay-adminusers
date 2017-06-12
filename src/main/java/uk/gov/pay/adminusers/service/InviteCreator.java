@@ -51,7 +51,7 @@ public class InviteCreator {
             if (!user.isDisabled()) {
                 sendUserExitsNotification(requestEmail, user.getExternalId());
             } else {
-                //TODO: what should we do here: Discuss with stephen m ??
+                sendUserDisabledNotification(requestEmail, user.getExternalId());
             }
             throw conflictingEmail(requestEmail);
         }
@@ -77,6 +77,16 @@ public class InviteCreator {
                 })
                 .orElseThrow(() -> internalServerError(format("Role [%s] not a valid role for creating a invite service request", inviteServiceRequest.getRoleName())));
 
+    }
+
+    private void sendUserDisabledNotification(String email, String userExternalId) {
+        notificationService.sendServiceInviteUserDisabledEmail(email, linksConfig.getSupportUrl())
+                .thenAcceptAsync(notificationId -> LOGGER.info("sent create service, user account disabled email successfully, notification id [{}]", notificationId))
+                .exceptionally(exception -> {
+                    LOGGER.error("error sending service creation, user account disabled email", exception);
+                    return null;
+                });
+        LOGGER.info("Disabled existing user tried to create a service - user_id={}", userExternalId);
     }
 
     private void sendUserExitsNotification(String email, String userExternalId) {
