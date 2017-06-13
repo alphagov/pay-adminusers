@@ -42,7 +42,6 @@ public class UserDbFixture {
         return user;
     }
 
-    @Deprecated // May be removed when all moved to using serviceExternalId instead of serviceId
     public UserDbFixture withServiceRole(int serviceId, int roleId) {
         this.service = Service.from(serviceId, randomUuid(), Service.DEFAULT_NAME_VALUE);
         this.roleId = roleId;

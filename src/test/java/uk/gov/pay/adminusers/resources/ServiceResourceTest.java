@@ -15,6 +15,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
@@ -55,8 +56,9 @@ public class ServiceResourceTest extends IntegrationTest {
                 .insertUser();
     }
 
+    @Deprecated // remove when support for serviceId is taken off
     @Test
-    public void getUsers_shouldReturnListOfAllUsersWithRolesForAGivenServiceOrderedByUsername() {
+    public void getUsers_shouldReturnListOfAllUsersWithRolesForAGivenServiceOrderedByUsername_usingServiceId() {
 
         givenSetup()
                 .when()
@@ -78,6 +80,55 @@ public class ServiceResourceTest extends IntegrationTest {
                 .body("[2].username", is(userWithRoleAdminInService1.getUsername()))
                 .body("[2]._links", hasSize(1))
                 .body("[2]._links[0].href", is("http://localhost:8080/v1/api/users/" + userWithRoleAdminInService1.getExternalId()))
+                .body("[2]._links[0].method", is("GET"))
+                .body("[2]._links[0].rel", is("self"));
+    }
+
+    @Test
+    public void shouldReturnListOfAllUsersWithRolesForAGivenServiceOrderedByUsername_identifiedByExternalid() {
+        Role role1 = roleDbFixture(databaseHelper)
+                .withName("role-"+randomUuid())
+                .insertRole();
+        Role role2 = roleDbFixture(databaseHelper)
+                .withName("role-"+randomUuid())
+                .insertRole();
+
+        Service service1 = serviceDbFixture(databaseHelper).insertService();
+        Service service2 = serviceDbFixture(databaseHelper).insertService();
+
+        User user1 = userDbFixture(databaseHelper)
+                .withUsername("zoe-"+randomUuid())
+                .withServiceRole(service1.getId(), role1.getId()).insertUser();
+        User user2 = userDbFixture(databaseHelper)
+                .withUsername("tim-"+randomUuid())
+                .withServiceRole(service1.getId(), role2.getId()).insertUser();
+        User user3 = userDbFixture(databaseHelper)
+                .withUsername("bob-"+randomUuid())
+                .withServiceRole(service1.getId(), role2.getId()).insertUser();
+
+        userDbFixture(databaseHelper)
+                .withServiceRole(service2.getId(), role1.getId()).insertUser();
+
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .get(String.format("/v1/api/services/%s/users", service1.getExternalId()))
+                .then()
+                .statusCode(200)
+                .body("$", hasSize(3))
+                .body("[0].username", is(user3.getUsername()))
+                .body("[0]._links", hasSize(1))
+                .body("[0]._links[0].href", is("http://localhost:8080/v1/api/users/" + user3.getExternalId()))
+                .body("[0]._links[0].method", is("GET"))
+                .body("[0]._links[0].rel", is("self"))
+                .body("[1].username", is(user2.getUsername()))
+                .body("[1]._links", hasSize(1))
+                .body("[1]._links[0].href", is("http://localhost:8080/v1/api/users/" + user2.getExternalId()))
+                .body("[1]._links[0].method", is("GET"))
+                .body("[1]._links[0].rel", is("self"))
+                .body("[2].username", is(user1.getUsername()))
+                .body("[2]._links", hasSize(1))
+                .body("[2]._links[0].href", is("http://localhost:8080/v1/api/users/" + user1.getExternalId()))
                 .body("[2]._links[0].method", is("GET"))
                 .body("[2]._links[0].rel", is("self"));
     }

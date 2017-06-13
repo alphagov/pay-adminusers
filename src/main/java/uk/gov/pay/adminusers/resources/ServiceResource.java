@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import io.dropwizard.jersey.PATCH;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
@@ -10,6 +11,7 @@ import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.service.InviteService;
 import uk.gov.pay.adminusers.service.LinksBuilder;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
@@ -111,14 +113,21 @@ public class ServiceResource {
     }
 
 
-    @Path("/{serviceId}/users")
+    @Path("/{serviceExternalId}/users")
     @GET
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response findUsersByServiceId(@PathParam("serviceId") Integer serviceId) {
-        LOGGER.info("Service users GET request - serviceId={} ", serviceId);
-        return serviceDao.findById(serviceId).map(serviceEntity ->
-                Response.status(200).entity(userDao.findByServiceId(serviceId).stream()
+    public Response findUsersByServiceId(@PathParam("serviceExternalId") String serviceExternalId) {
+        LOGGER.info("Service users GET request - [ {} ]", serviceExternalId);
+        Optional<ServiceEntity> serviceEntityOptional;
+        if(StringUtils.isNumeric(serviceExternalId)) {
+            serviceEntityOptional = serviceDao.findById(Integer.valueOf(serviceExternalId));
+        } else {
+            serviceEntityOptional = serviceDao.findByExternalId(serviceExternalId);
+        }
+
+        return serviceEntityOptional.map(serviceEntity ->
+                Response.status(200).entity(userDao.findByServiceId(serviceEntity.getId()).stream()
                         .map((userEntity) -> linksBuilder.decorate(userEntity.toUser()))
                         .collect(Collectors.toList())).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
@@ -150,7 +159,7 @@ public class ServiceResource {
     @Path("/{serviceId}/invites")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @Deprecated
+    @Deprecated // user InviteResource POST instead
     public Response createServiceInvite(@PathParam("serviceId") Integer serviceId, JsonNode payload) {
 
         LOGGER.info("Invite CREATE request for service - serviceId={}", serviceId);
