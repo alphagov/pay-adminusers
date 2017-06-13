@@ -70,6 +70,7 @@ public class InviteService {
         this.loginAttemptCap = loginAttemptCap;
     }
 
+    @Deprecated // user UserInviteCreator instead
     @Transactional
     public Optional<Invite> create(InviteUserRequest invite, int serviceId) {
 
@@ -92,42 +93,6 @@ public class InviteService {
                 .flatMap(serviceEntity -> roleDao.findByRoleName(invite.getRoleName())
                         .map(doInvite(invite, serviceEntity))
                         .orElseThrow(() -> undefinedRoleException(invite.getRoleName())));
-    }
-
-    private Function<RoleEntity, Optional<Invite>> doInvite(InviteUserRequest invite, ServiceEntity serviceEntity) {
-        return role -> {
-            Optional<UserEntity> userSender = userDao.findByExternalId(invite.getSender());
-            if (userSender.isPresent() && userSender.get().canInviteUsersTo(serviceEntity.getId())) {
-                InviteEntity inviteEntity = new InviteEntity(invite.getEmail(), randomUuid(), invite.getOtpKey(), userSender.get(), serviceEntity, role);
-                inviteDao.persist(inviteEntity);
-                String inviteUrl = fromUri(selfserviceBaseUrl).path(SELFSERVICE_INVITES_PATH).path(inviteEntity.getCode()).build().toString();
-                sendInviteNotification(inviteEntity, inviteUrl);
-                return Optional.of(inviteEntity.toInvite(inviteUrl));
-            } else {
-                throw forbiddenOperationException(invite.getSender(), "invite", serviceEntity.getId());
-            }
-        };
-    }
-
-    private void sendInviteNotification(InviteEntity invite, String targetUrl) {
-        String senderId = invite.getSender().getExternalId();
-        notificationService.sendInviteEmail(invite.getSender().getEmail(), invite.getEmail(), targetUrl)
-                .thenAcceptAsync(notificationId -> LOGGER.info("sent invite email successfully by user [{}], notification id [{}]", senderId, notificationId))
-                .exceptionally(exception -> {
-                    LOGGER.error(format("error sending email by user [%s]", senderId), exception);
-                    return null;
-                });
-        LOGGER.info("New invite created by User [{}]", senderId);
-    }
-
-    public Optional<Invite> findByCode(String code) {
-        return inviteDao.findByCode(code)
-                .map(inviteEntity -> {
-                    if (inviteEntity.isExpired() || inviteEntity.isDisabled()) {
-                        throw inviteLockedException(inviteEntity.getCode());
-                    }
-                    return Optional.of(inviteEntity.toInvite());
-                }).orElseGet(Optional::empty);
     }
 
     @Transactional
@@ -188,5 +153,41 @@ public class InviteService {
         } else {
             return new ValidateOtpAndCreateUserResult(notFoundInviteException(inviteValidateOtpRequest.getCode()));
         }
+    }
+
+    private Function<RoleEntity, Optional<Invite>> doInvite(InviteUserRequest invite, ServiceEntity serviceEntity) {
+        return role -> {
+            Optional<UserEntity> userSender = userDao.findByExternalId(invite.getSender());
+            if (userSender.isPresent() && userSender.get().canInviteUsersTo(serviceEntity.getId())) {
+                InviteEntity inviteEntity = new InviteEntity(invite.getEmail(), randomUuid(), invite.getOtpKey(), userSender.get(), serviceEntity, role);
+                inviteDao.persist(inviteEntity);
+                String inviteUrl = fromUri(selfserviceBaseUrl).path(SELFSERVICE_INVITES_PATH).path(inviteEntity.getCode()).build().toString();
+                sendInviteNotification(inviteEntity, inviteUrl);
+                return Optional.of(inviteEntity.toInvite(inviteUrl));
+            } else {
+                throw forbiddenOperationException(invite.getSender(), "invite", serviceEntity.getId());
+            }
+        };
+    }
+
+    private void sendInviteNotification(InviteEntity invite, String targetUrl) {
+        String senderId = invite.getSender().getExternalId();
+        notificationService.sendInviteEmail(invite.getSender().getEmail(), invite.getEmail(), targetUrl)
+                .thenAcceptAsync(notificationId -> LOGGER.info("sent invite email successfully by user [{}], notification id [{}]", senderId, notificationId))
+                .exceptionally(exception -> {
+                    LOGGER.error(format("error sending email by user [%s]", senderId), exception);
+                    return null;
+                });
+        LOGGER.info("New invite created by User [{}]", senderId);
+    }
+
+    public Optional<Invite> findByCode(String code) {
+        return inviteDao.findByCode(code)
+                .map(inviteEntity -> {
+                    if (inviteEntity.isExpired() || inviteEntity.isDisabled()) {
+                        throw inviteLockedException(inviteEntity.getCode());
+                    }
+                    return Optional.of(inviteEntity.toInvite());
+                }).orElseGet(Optional::empty);
     }
 }

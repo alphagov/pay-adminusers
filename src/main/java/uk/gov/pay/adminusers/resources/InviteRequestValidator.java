@@ -30,8 +30,14 @@ public class InviteRequestValidator {
         this.requestValidations = requestValidations;
     }
 
+    @Deprecated // Use the validateCreateUserRequest method instead
     public Optional<Errors> validateCreateRequest(JsonNode payload) {
         Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_EMAIL, FIELD_ROLE_NAME, FIELD_SENDER);
+        return missingMandatoryFields.map(Errors::from);
+    }
+
+    public Optional<Errors> validateCreateUserRequest(JsonNode payload) {
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_SERVICE_EXTERNAL_ID, FIELD_EMAIL, FIELD_ROLE_NAME, FIELD_SENDER);
         return missingMandatoryFields.map(Errors::from);
     }
 

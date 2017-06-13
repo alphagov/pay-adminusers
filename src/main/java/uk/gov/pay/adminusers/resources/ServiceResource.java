@@ -127,13 +127,14 @@ public class ServiceResource {
     @Path("/{serviceId}/invites")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
+    @Deprecated
     public Response createServiceInvite(@PathParam("serviceId") Integer serviceId, JsonNode payload) {
 
         LOGGER.info("Invite CREATE request for service - [ {} ]", serviceId);
 
         return inviteValidator.validateCreateRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> inviteService.create(InviteUserRequest.from(payload), serviceId)
+                .orElseGet(() -> inviteService.create(InviteUserRequest.from(payload, "deprecated method does not use external id"), serviceId)
                         .map(invite -> Response.status(CREATED).entity(invite).build())
                         .orElseGet(() -> Response.status(NOT_FOUND).build()));
     }

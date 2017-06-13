@@ -60,9 +60,23 @@ public class InviteResource {
         return inviteValidator.validateCreateServiceRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
-                    Invite invite = inviteServiceFactory.serviceInvite().doCreate(InviteServiceRequest.from(payload));
+                    Invite invite = inviteServiceFactory.serviceInvite().doInvite(InviteServiceRequest.from(payload));
                     return Response.status(CREATED).entity(invite).build();
                 });
+    }
+
+    @POST
+    @Path("/user")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    public Response createUserInvite(JsonNode payload) {
+        LOGGER.info("Initiating user invitation request");
+        return inviteValidator.validateCreateUserRequest(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> inviteServiceFactory.userInvite().doInvite(InviteUserRequest.from(payload))
+                        .map(invite -> Response.status(CREATED).entity(invite).build())
+                        .orElseGet(() -> Response.status(NOT_FOUND).build())
+                );
     }
 
     @POST

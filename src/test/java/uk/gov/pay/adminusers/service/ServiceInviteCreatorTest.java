@@ -8,6 +8,7 @@ import org.mockito.ArgumentCaptor;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteServiceRequest;
+import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
@@ -29,7 +30,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
-public class InviteCreatorTest {
+public class ServiceInviteCreatorTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
     private NotificationService notificationService = mock(NotificationService.class);
@@ -37,12 +38,13 @@ public class InviteCreatorTest {
     private InviteDao inviteDao = mock(InviteDao.class);
     private UserDao userDao = mock(UserDao.class);
     private RoleDao roleDao = mock(RoleDao.class);
+    private PasswordHasher passwordHasher = mock(PasswordHasher.class);
     private ArgumentCaptor<InviteEntity> persistedInviteEntity = ArgumentCaptor.forClass(InviteEntity.class);
-    private InviteCreator inviteCreator;
+    private ServiceInviteCreator serviceInviteCreator;
 
     @Before
     public void before() throws Exception {
-        inviteCreator = new InviteCreator(inviteDao, userDao, roleDao, new LinksBuilder("http://localhost/"), linksConfig, notificationService);
+        serviceInviteCreator = new ServiceInviteCreator(inviteDao, userDao, roleDao, new LinksBuilder("http://localhost/"), linksConfig, notificationService, passwordHasher);
     }
 
     @Test
@@ -56,8 +58,9 @@ public class InviteCreatorTest {
         when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn(CompletableFuture.completedFuture("done"));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
+        when(passwordHasher.hash("password")).thenReturn("encrypted-password");
 
-        Invite invite = inviteCreator.doCreate(request);
+        Invite invite = serviceInviteCreator.doInvite(request);
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
@@ -65,6 +68,7 @@ public class InviteCreatorTest {
         assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
 
+        assertThat(persistedInviteEntity.getValue().getPassword(), is("encrypted-password"));
     }
 
     @Test
@@ -80,7 +84,7 @@ public class InviteCreatorTest {
         }));
         when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
-        Invite invite = inviteCreator.doCreate(request);
+        Invite invite = serviceInviteCreator.doInvite(request);
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
@@ -88,6 +92,32 @@ public class InviteCreatorTest {
         assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
 
+    }
+
+    @Test
+    public void shouldSuccess_ifUserAlreadyHasAValidServiceInvitationWithGivenEmail() throws Exception {
+        String email = "email@example.gov.uk";
+        InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
+        UserEntity sender = mock(UserEntity.class);
+        ServiceEntity service = mock(ServiceEntity.class);
+        RoleEntity role = mock(RoleEntity.class);
+        InviteEntity validInvite = new InviteEntity(email, "code", "otpKey", sender, service, role);
+        validInvite.setType(InviteType.SERVICE);
+
+        when(userDao.findByEmail(email)).thenReturn(Optional.empty());
+        when(sender.getExternalId()).thenReturn("inviter-id");
+        when(sender.getEmail()).thenReturn("inviter@example.com");
+        when(inviteDao.findByEmail(email)).thenReturn(Optional.of(validInvite));
+        when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
+        when(notificationService.sendServiceInviteEmail(eq(email), anyString()))
+                .thenReturn(CompletableFuture.completedFuture("done"));
+
+        Invite invite = serviceInviteCreator.doInvite(request);
+
+        verify(inviteDao, times(1)).merge(persistedInviteEntity.capture());
+        assertThat(invite.getEmail(), is(request.getEmail()));
+        assertThat(invite.getType(), is("service"));
+        assertThat(invite.getLinks().get(0).getHref(), is("http://selfservice/invites/code"));
     }
 
     @Test
@@ -107,7 +137,7 @@ public class InviteCreatorTest {
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 409 Conflict");
 
-        inviteCreator.doCreate(request);
+        serviceInviteCreator.doInvite(request);
 
     }
 
@@ -125,12 +155,12 @@ public class InviteCreatorTest {
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 409 Conflict");
 
-        inviteCreator.doCreate(request);
+        serviceInviteCreator.doInvite(request);
 
     }
 
     @Test
-    public void shouldError_ifUserAlreadyHasAValidInvitationWithGivenEmail() throws Exception {
+    public void shouldError_ifUserAlreadyHasAValidUserInvitationWithGivenEmail() throws Exception {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
         UserEntity sender = mock(UserEntity.class);
@@ -149,7 +179,7 @@ public class InviteCreatorTest {
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 409 Conflict");
 
-        inviteCreator.doCreate(request);
+        serviceInviteCreator.doInvite(request);
     }
 
     @Test
@@ -163,6 +193,6 @@ public class InviteCreatorTest {
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 500 Internal Server Error");
 
-        inviteCreator.doCreate(request);
+        serviceInviteCreator.doInvite(request);
     }
 }

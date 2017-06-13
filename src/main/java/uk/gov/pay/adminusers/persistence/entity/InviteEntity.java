@@ -200,6 +200,7 @@ public class InviteEntity extends AbstractEntity {
         this.type = type.getType();
     }
 
+    @Deprecated //use toInvite() instead
     public Invite toInvite(String inviteUrl) {
         Invite invite = toInvite();
         invite.setInviteLink(inviteUrl);

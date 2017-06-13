@@ -490,6 +490,60 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
+## POST /v1/api/invites/user
+
+This endpoint creates an invitation to allow a new team member to join an existing service.
+
+### Request example
+
+```
+POST /v1/api/invites/user
+Content-Type: application/json
+{
+"email": "example@example.gov.uk",
+"sender": "sender@example.gov.uk",
+"service_external_id": "674tqnc4b7q64",
+"role_name": "view-only",
+}
+
+```
+
+#### Request body description
+
+| Field                    | required | Description                                                      | Supported Values     |
+| ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
+| `email`                  |   X      | the email (mut be a public sector email)                         | |
+| `sender`                 |   X      | external user id of the admin inviting                           | |
+| `service_external_id`    |   X      | external user id of the service                                  | |
+| `role_name`              |   X      | role to set for the invitee                                      | |
+
+### Response example
+
+```
+201 OK
+Content-Type: application/json
+{  
+   "type":"user",
+   "email":"example@example.gov.uk",
+   "disabled":false,
+   "attempt_counter":0,
+   "_links":[  
+      {  
+         "rel":"invite",
+         "method":"GET",
+         "href":"https://selfservice.pymnt.localdomain/invites/04f431f18c3243f5bb29d10c01659e9c"
+      },
+      {  
+         "rel":"self",
+         "method":"GET",
+         "href":"http://localhost:8080/v1/api/invites/04f431f18c3243f5bb29d10c01659e9c"
+      }
+   ]
+}
+```
+
+-----------------------------------------------------------------------------------------------------------
+
 ## PATCH /v1/api/services/{serviceExternalId}
 
 This endpoint modifies updatable attributes of a Service. Currently supports
