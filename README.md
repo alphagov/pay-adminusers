@@ -22,6 +22,7 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 | [```/v1/api/forgotten-passwords/{code}```](/docs/api_specification.md#get-v1apiforgottenpasswordscode)              | GET    |  GETs a forgotten password record by code            |
 | [```/v1/api/services```](/docs/api_specification.md#post-v1apiservices)              | POST   |  Creates a new service           |
 | [```/v1/api/invites/service```](/docs/api_specification.md#post-v1apiinvitesservice)               | POST   |  Creates a invitation for a new service     |
+| [```/v1/api/invites/user```](/docs/api_specification.md#post-v1apiinvitesuser)               | POST   |  Creates a user invitation     |
 | [```/v1/api/service/{externalId}```](/docs/api_specification.md#patch-v1apisservicesexternalId)               | PATCH   |  Updates the value of a service attribute     |
 
 
