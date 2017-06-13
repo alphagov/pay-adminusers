@@ -8,10 +8,10 @@ import org.mockito.ArgumentCaptor;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteServiceRequest;
+import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
-import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
@@ -92,6 +92,32 @@ public class ServiceInviteCreatorTest {
     }
 
     @Test
+    public void shouldSuccess_ifUserAlreadyHasAValidServiceInvitationWithGivenEmail() throws Exception {
+        String email = "email@example.gov.uk";
+        InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
+        UserEntity sender = mock(UserEntity.class);
+        ServiceEntity service = mock(ServiceEntity.class);
+        RoleEntity role = mock(RoleEntity.class);
+        InviteEntity validInvite = new InviteEntity(email, "code", "otpKey", sender, service, role);
+        validInvite.setType(InviteType.SERVICE);
+
+        when(userDao.findByEmail(email)).thenReturn(Optional.empty());
+        when(sender.getExternalId()).thenReturn("inviter-id");
+        when(sender.getEmail()).thenReturn("inviter@example.com");
+        when(inviteDao.findByEmail(email)).thenReturn(Optional.of(validInvite));
+        when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
+        when(notificationService.sendServiceInviteEmail(eq(email), anyString()))
+                .thenReturn(CompletableFuture.completedFuture("done"));
+
+        Invite invite = serviceInviteCreator.doInvite(request);
+
+        verify(inviteDao, times(1)).merge(persistedInviteEntity.capture());
+        assertThat(invite.getEmail(), is(request.getEmail()));
+        assertThat(invite.getType(), is("service"));
+        assertThat(invite.getLinks().get(0).getHref(), is("http://selfservice/invites/code"));
+    }
+
+    @Test
     public void shouldError_ifUserAlreadyExistsWithGivenEmail() throws Exception {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
@@ -131,7 +157,7 @@ public class ServiceInviteCreatorTest {
     }
 
     @Test
-    public void shouldError_ifUserAlreadyHasAValidInvitationWithGivenEmail() throws Exception {
+    public void shouldError_ifUserAlreadyHasAValidUserInvitationWithGivenEmail() throws Exception {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
         UserEntity sender = mock(UserEntity.class);

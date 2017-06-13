@@ -19,6 +19,7 @@ import static java.lang.String.format;
 import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.InviteType.SERVICE;
+import static uk.gov.pay.adminusers.model.InviteType.USER;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
 
 public class ServiceInviteCreator {
@@ -60,23 +61,37 @@ public class ServiceInviteCreator {
         if (inviteOptional.isPresent()) {
             InviteEntity foundInvite = inviteOptional.get();
             if (!foundInvite.isExpired() && !foundInvite.isDisabled()) {
-                sendUserInviteNotification(foundInvite);
-                throw conflictingInvite(requestEmail);
+                if (USER.getType().equals(foundInvite.getType())) {
+                    sendUserInviteNotification(foundInvite);
+                    throw conflictingInvite(requestEmail);
+                } else {
+                    return constructInviteAndSendEmail(inviteServiceRequest, foundInvite, true);
+                }
             }
         }
 
         return roleDao.findByRoleName(inviteServiceRequest.getRoleName())
                 .map(roleEntity -> {
                     InviteEntity inviteEntity = new InviteEntity(requestEmail, randomUuid(), inviteServiceRequest.getOtpKey(), null, null, roleEntity);
-                    inviteEntity.setTelephoneNumber(inviteServiceRequest.getTelephoneNumber());
-                    inviteEntity.setType(SERVICE);
-                    inviteDao.persist(inviteEntity);
-                    String inviteUrl = format("%s/%s", linksConfig.getSelfserviceInvitesUrl(), inviteEntity.getCode());
-                    sendServiceInviteNotification(inviteEntity, inviteUrl);
-                    return linksBuilder.decorate(inviteEntity.toInvite(inviteUrl));
+                    return constructInviteAndSendEmail(inviteServiceRequest, inviteEntity, false);
                 })
                 .orElseThrow(() -> internalServerError(format("Role [%s] not a valid role for creating a invite service request", inviteServiceRequest.getRoleName())));
 
+    }
+
+    private Invite constructInviteAndSendEmail(InviteServiceRequest inviteServiceRequest, InviteEntity inviteEntity, boolean toUpdate) {
+        String inviteUrl = format("%s/%s", linksConfig.getSelfserviceInvitesUrl(), inviteEntity.getCode());
+        inviteEntity.setTelephoneNumber(inviteServiceRequest.getTelephoneNumber());
+        inviteEntity.setType(SERVICE);
+        if (toUpdate) {
+            inviteDao.merge(inviteEntity);
+        } else {
+            inviteDao.persist(inviteEntity);
+        }
+        sendServiceInviteNotification(inviteEntity, inviteUrl);
+        Invite invite = inviteEntity.toInvite();
+        invite.setInviteLink(inviteUrl);
+        return linksBuilder.decorate(invite);
     }
 
     private void sendServiceInviteNotification(InviteEntity invite, String targetUrl) {
