@@ -14,6 +14,7 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.inject.Inject;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static java.lang.String.format;
 import static javax.ws.rs.core.UriBuilder.fromUri;
@@ -67,7 +68,10 @@ public class ServiceInviteCreator {
                     sendUserInviteNotification(foundInvite);
                     throw conflictingInvite(requestEmail);
                 } else {
-                    return constructInviteAndSendEmail(inviteServiceRequest, foundInvite, true);
+                    return constructInviteAndSendEmail(inviteServiceRequest, foundInvite, inviteEntity -> {
+                        inviteDao.merge(inviteEntity);
+                        return null;
+                    });
                 }
             }
         }
@@ -75,22 +79,21 @@ public class ServiceInviteCreator {
         return roleDao.findByRoleName(inviteServiceRequest.getRoleName())
                 .map(roleEntity -> {
                     InviteEntity inviteEntity = new InviteEntity(requestEmail, randomUuid(), inviteServiceRequest.getOtpKey(), null, null, roleEntity);
-                    return constructInviteAndSendEmail(inviteServiceRequest, inviteEntity, false);
+                    inviteEntity.setType(SERVICE);
+                    return constructInviteAndSendEmail(inviteServiceRequest, inviteEntity, inviteToPersist -> {
+                        inviteDao.persist(inviteToPersist);
+                        return null;
+                    });
                 })
                 .orElseThrow(() -> internalServerError(format("Role [%s] not a valid role for creating a invite service request", inviteServiceRequest.getRoleName())));
 
     }
 
-    private Invite constructInviteAndSendEmail(InviteServiceRequest inviteServiceRequest, InviteEntity inviteEntity, boolean toUpdate) {
+    private Invite constructInviteAndSendEmail(InviteServiceRequest inviteServiceRequest, InviteEntity inviteEntity, Function<InviteEntity, Void> saveOrUpdate) {
         String inviteUrl = format("%s/%s", linksConfig.getSelfserviceInvitesUrl(), inviteEntity.getCode());
         inviteEntity.setTelephoneNumber(inviteServiceRequest.getTelephoneNumber());
         inviteEntity.setPassword(passwordHasher.hash(inviteServiceRequest.getPassword()));
-        if (toUpdate) {
-            inviteDao.merge(inviteEntity);
-        } else {
-            inviteEntity.setType(SERVICE);
-            inviteDao.persist(inviteEntity);
-        }
+        saveOrUpdate.apply(inviteEntity);
         sendServiceInviteNotification(inviteEntity, inviteUrl);
         Invite invite = inviteEntity.toInvite();
         invite.setInviteLink(inviteUrl);
