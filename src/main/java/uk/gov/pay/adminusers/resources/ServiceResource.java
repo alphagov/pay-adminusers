@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.Response.Status;
 import static javax.ws.rs.core.Response.Status.*;
 import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_GATEWAY_ACCOUNT_IDS;
 import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_SERVICE_NAME;
@@ -32,16 +33,16 @@ import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
 public class ServiceResource {
 
     private static final Logger LOGGER = PayLoggerFactory.getLogger(ServiceResource.class);
-    private UserDao userDao;
-    private ServiceDao serviceDao;
+    public static final String SERVICES_RESOURCE = "/v1/api/services";
+    private static final String FIELD_REMOVER = "remover_id";
+
+    private final UserDao userDao;
+    private final ServiceDao serviceDao;
     private final InviteService inviteService;
     private final InviteRequestValidator inviteValidator;
-    private LinksBuilder linksBuilder;
+    private final LinksBuilder linksBuilder;
     private final ServiceRequestValidator serviceRequestValidator;
     private final ServiceServicesFactory serviceServicesFactory;
-
-    public static final String API_VERSION_PATH = "/v1";
-    public static final String SERVICES_RESOURCE = API_VERSION_PATH + "/api/services";
 
     @Inject
     public ServiceResource(UserDao userDao,
@@ -67,7 +68,7 @@ public class ServiceResource {
     public Response createService(JsonNode payload) {
         LOGGER.info("Create Service POST request - [ {} ]", payload);
         return serviceRequestValidator.validateCreateRequest(payload)
-                .map(errors -> Response.status(Response.Status.BAD_REQUEST).entity(errors).build())
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
                     Optional<String> serviceName = extractServiceName(payload);
                     Optional<List<String>> gatewayAccountIds = extractGatewayAccountIds(payload);
@@ -95,6 +96,13 @@ public class ServiceResource {
         return Optional.of(payload.get(FIELD_SERVICE_NAME).textValue());
     }
 
+    private Optional<String> extractRemover(JsonNode payload) {
+        if (payload == null || payload.get(FIELD_REMOVER) == null || StringUtils.isBlank(payload.get(FIELD_REMOVER).textValue())) {
+            return Optional.empty();
+        }
+        return Optional.of(payload.get(FIELD_REMOVER).textValue());
+    }
+
     @Path("/{serviceExternalId}")
     @PATCH
     @Produces(APPLICATION_JSON)
@@ -115,12 +123,31 @@ public class ServiceResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response findUsersByServiceId(@PathParam("serviceId") Integer serviceId) {
-        LOGGER.info("Service users GET request - [ {} ]", serviceId);
+        LOGGER.info("Service users GET request - serviceId={} ", serviceId);
         return serviceDao.findById(serviceId).map(serviceEntity ->
                 Response.status(200).entity(userDao.findByServiceId(serviceId).stream()
                         .map((userEntity) -> linksBuilder.decorate(userEntity.toUser()))
                         .collect(Collectors.toList())).build())
-                .orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
+                .orElseGet(() -> Response.status(NOT_FOUND).build());
+    }
+
+    @Path("/{serviceExternalId}/users/{userExternalId}")
+    @DELETE
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response removeUserFromService(@PathParam("serviceExternalId") String serviceId, @PathParam("userExternalId") String userId, JsonNode payload) {
+        LOGGER.info("Service users DELETE request - serviceId={}, userId={}", serviceId, userId);
+        return extractRemover(payload)
+                .map(remover -> {
+                    if (remover.equals(userId)) {
+                        LOGGER.info("Failed Service users DELETE request. User and Remover cannot be the same - serviceId={}, removerId={}, userId={}", serviceId, remover, userId);
+                        return Response.status(CONFLICT).build();
+                    }
+                    serviceServicesFactory.serviceUserRemover().remove(userId, remover, serviceId);
+                    LOGGER.info("Succeeded Service users DELETE request - serviceId={}, removerId={}, userId={}", serviceId, remover, userId);
+                    return Response.status(NO_CONTENT).build();
+                })
+                .orElseGet(() -> Response.status(Status.BAD_REQUEST).build());
     }
 
     @POST
@@ -130,7 +157,7 @@ public class ServiceResource {
     @Deprecated
     public Response createServiceInvite(@PathParam("serviceId") Integer serviceId, JsonNode payload) {
 
-        LOGGER.info("Invite CREATE request for service - [ {} ]", serviceId);
+        LOGGER.info("Invite CREATE request for service - serviceId={}", serviceId);
 
         return inviteValidator.validateCreateRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())

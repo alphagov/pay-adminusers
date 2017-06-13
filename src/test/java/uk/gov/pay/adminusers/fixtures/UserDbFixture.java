@@ -16,8 +16,6 @@ public class UserDbFixture {
 
     private final DatabaseTestHelper databaseTestHelper;
     private Service service;
-    private Integer serviceId;
-    private String serviceExternalId;
     private Integer roleId;
     private String externalId = randomUuid();
     private String username = RandomStringUtils.randomAlphabetic(10);
@@ -36,9 +34,8 @@ public class UserDbFixture {
     }
 
     public User insertUser() {
-        if (serviceId == null) {
+        if (service == null) {
             service = ServiceDbFixture.serviceDbFixture(databaseTestHelper).insertService();
-            serviceId = service.getId();
             roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
         }
         User user = User.from(randomInt(), externalId, username, password, email, gatewayAccountIds, asList(service), otpKey, telephoneNumber);
@@ -48,17 +45,13 @@ public class UserDbFixture {
 
     @Deprecated // May be removed when all moved to using serviceExternalId instead of serviceId
     public UserDbFixture withServiceRole(int serviceId, int roleId) {
-        this.serviceExternalId = randomUuid();
-        this.service = Service.from(serviceId, serviceExternalId, Service.DEFAULT_NAME_VALUE);
-        this.serviceId = serviceId;
+        this.service = Service.from(serviceId, randomUuid(), Service.DEFAULT_NAME_VALUE);
         this.roleId = roleId;
         return this;
     }
 
-    public UserDbFixture withServiceRole(String serviceExternalId, int roleId) {
-        this.serviceExternalId = serviceExternalId;
-        this.serviceId = randomInt();
-        this.service = Service.from(serviceId, serviceExternalId, Service.DEFAULT_NAME_VALUE);
+    public UserDbFixture withServiceRole(Service service, int roleId) {
+        this.service = service;
         this.roleId = roleId;
         return this;
     }

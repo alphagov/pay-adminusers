@@ -22,7 +22,6 @@ public class ServiceCreator {
         this.linksBuilder = linksBuilder;
     }
 
-
     @Transactional
     public Service doCreate(Optional<String> serviceName, Optional<List<String>> gatewayAccountIdsOptional) {
         Service service = serviceName

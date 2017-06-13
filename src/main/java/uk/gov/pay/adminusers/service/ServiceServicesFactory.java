@@ -5,4 +5,6 @@ public interface ServiceServicesFactory {
     ServiceCreator serviceCreator();
 
     ServiceUpdater serviceUpdater();
+
+    ServiceUserRemover serviceUserRemover();
 }

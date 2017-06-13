@@ -165,7 +165,7 @@ public class InviteService {
                 sendInviteNotification(inviteEntity, inviteUrl);
                 return Optional.of(inviteEntity.toInvite(inviteUrl));
             } else {
-                throw forbiddenOperationException(invite.getSender(), "invite", serviceEntity.getId());
+                throw forbiddenOperationException(invite.getSender(), "invite", serviceEntity.getExternalId());
             }
         };
     }

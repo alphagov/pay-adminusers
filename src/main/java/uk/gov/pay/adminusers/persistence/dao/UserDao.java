@@ -49,7 +49,7 @@ public class UserDao extends JpaDao<UserEntity> {
                 .getResultList().stream().findFirst();
     }
 
-    public List<UserEntity> findByServiceId(Integer serviceId){
+    public List<UserEntity> findByServiceId(Integer serviceId) {
 
         String query = "SELECT s FROM ServiceRoleEntity s " +
                 "WHERE s.service.id = :serviceId ORDER BY s.user.username";
