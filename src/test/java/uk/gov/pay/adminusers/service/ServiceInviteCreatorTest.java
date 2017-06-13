@@ -38,12 +38,13 @@ public class ServiceInviteCreatorTest {
     private InviteDao inviteDao = mock(InviteDao.class);
     private UserDao userDao = mock(UserDao.class);
     private RoleDao roleDao = mock(RoleDao.class);
+    private PasswordHasher passwordHasher = mock(PasswordHasher.class);
     private ArgumentCaptor<InviteEntity> persistedInviteEntity = ArgumentCaptor.forClass(InviteEntity.class);
     private ServiceInviteCreator serviceInviteCreator;
 
     @Before
     public void before() throws Exception {
-        serviceInviteCreator = new ServiceInviteCreator(inviteDao, userDao, roleDao, new LinksBuilder("http://localhost/"), linksConfig, notificationService);
+        serviceInviteCreator = new ServiceInviteCreator(inviteDao, userDao, roleDao, new LinksBuilder("http://localhost/"), linksConfig, notificationService, passwordHasher);
     }
 
     @Test
@@ -57,6 +58,7 @@ public class ServiceInviteCreatorTest {
         when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn(CompletableFuture.completedFuture("done"));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
+        when(passwordHasher.hash("password")).thenReturn("encrypted-password");
 
         Invite invite = serviceInviteCreator.doInvite(request);
 
@@ -66,6 +68,7 @@ public class ServiceInviteCreatorTest {
         assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
 
+        assertThat(persistedInviteEntity.getValue().getPassword(), is("encrypted-password"));
     }
 
     @Test

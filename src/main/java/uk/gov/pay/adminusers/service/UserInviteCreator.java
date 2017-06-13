@@ -20,6 +20,7 @@ import java.util.Optional;
 import static java.lang.String.format;
 import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
+import static uk.gov.pay.adminusers.model.InviteType.USER;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
 
 public class UserInviteCreator {
@@ -72,6 +73,7 @@ public class UserInviteCreator {
                     Optional<UserEntity> userSender = userDao.findByExternalId(inviteUserRequest.getSender());
                     if (userSender.isPresent() && userSender.get().canInviteUsersTo(serviceEntity.getId())) {
                         InviteEntity inviteEntity = new InviteEntity(inviteUserRequest.getEmail(), randomUuid(), inviteUserRequest.getOtpKey(), userSender.get(), serviceEntity, role);
+                        inviteEntity.setType(USER);
                         inviteDao.persist(inviteEntity);
                         String inviteUrl = fromUri(linksConfig.getSelfserviceInvitesUrl()).path(inviteEntity.getCode()).build().toString();
                         sendUserInviteNotification(inviteEntity, inviteUrl);

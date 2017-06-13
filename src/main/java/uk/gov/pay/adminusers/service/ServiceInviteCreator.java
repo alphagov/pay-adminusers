@@ -31,16 +31,18 @@ public class ServiceInviteCreator {
     private final LinksBuilder linksBuilder;
     private final LinksConfig linksConfig;
     private final NotificationService notificationService;
+    private final PasswordHasher passwordHasher;
 
     @Inject
     public ServiceInviteCreator(InviteDao inviteDao, UserDao userDao, RoleDao roleDao, LinksBuilder linksBuilder,
-                                LinksConfig linksConfig, NotificationService notificationService) {
+                                LinksConfig linksConfig, NotificationService notificationService, PasswordHasher passwordHasher) {
         this.inviteDao = inviteDao;
         this.userDao = userDao;
         this.roleDao = roleDao;
         this.linksBuilder = linksBuilder;
         this.linksConfig = linksConfig;
         this.notificationService = notificationService;
+        this.passwordHasher = passwordHasher;
     }
 
     @Transactional
@@ -82,10 +84,11 @@ public class ServiceInviteCreator {
     private Invite constructInviteAndSendEmail(InviteServiceRequest inviteServiceRequest, InviteEntity inviteEntity, boolean toUpdate) {
         String inviteUrl = format("%s/%s", linksConfig.getSelfserviceInvitesUrl(), inviteEntity.getCode());
         inviteEntity.setTelephoneNumber(inviteServiceRequest.getTelephoneNumber());
-        inviteEntity.setType(SERVICE);
+        inviteEntity.setPassword(passwordHasher.hash(inviteServiceRequest.getPassword()));
         if (toUpdate) {
             inviteDao.merge(inviteEntity);
         } else {
+            inviteEntity.setType(SERVICE);
             inviteDao.persist(inviteEntity);
         }
         sendServiceInviteNotification(inviteEntity, inviteUrl);
