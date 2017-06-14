@@ -71,7 +71,7 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("disabled", is(false))
                 .body("role.name", is("admin"))
                 .body("role.description", is("Administrator"))
-                .body("permissions", hasSize(30)); //we could consider removing this assertion if the permissions constantly changing
+                .body("permissions", hasSize(31)); //we could consider removing this assertion if the permissions constantly changing
         response
                 .body("_links", hasSize(1))
                 .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + externalId))
@@ -132,7 +132,7 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("disabled", is(false))
                 .body("role.name", is("admin"))
                 .body("role.description", is("Administrator"))
-                .body("permissions", hasSize(30)); //we could consider removing this assertion if the permissions constantly changing
+                .body("permissions", hasSize(31)); //we could consider removing this assertion if the permissions constantly changing
         response
                 .body("_links", hasSize(1))
                 .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + externalId))
