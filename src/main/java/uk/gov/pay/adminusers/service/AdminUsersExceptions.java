@@ -68,11 +68,6 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, GONE.getStatusCode());
     }
 
-    public static WebApplicationException userLockedException(String username) {
-        String error = format("user [%s] locked due to too many login attempts", username);
-        return buildWebApplicationException(error, UNAUTHORIZED.getStatusCode());
-    }
-
     public static WebApplicationException forbiddenOperationException(String externalId, String operation, String externalServiceId) {
         String error = format("user [%s] not authorised to perform operation [%s] in service [%s]", externalId, operation, externalServiceId);
         return buildWebApplicationException(error, FORBIDDEN.getStatusCode());
