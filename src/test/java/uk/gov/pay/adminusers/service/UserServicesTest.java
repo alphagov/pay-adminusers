@@ -197,7 +197,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUserAndResetLoginCount_ifAuthenticationSuccessful() throws Exception {
+    public void shouldReturnUserAndResetLoginCount_ifAuthenticationSuccessfulAndUserNotDisabled() throws Exception {
         User user = aUser();
         user.setLoginCounter(2);
 
@@ -216,6 +216,29 @@ public class UserServicesTest {
         assertThat(authenticatedUser.getUsername(), is(USER_USERNAME));
         assertThat(authenticatedUser.getLinks().size(), is(1));
         assertThat(argumentCaptor.getValue().getLoginCounter(), is(0));
+    }
+
+    @Test
+    public void shouldReturnUserAndNotResetLoginCount_ifAuthenticationSuccessfulButUserDisabled() throws Exception {
+        User user = aUser();
+        user.setLoginCounter(2);
+        user.setDisabled(true);
+
+        UserEntity userEntity = aUserEntityWithTrimmings(user);
+        userEntity.setPassword("hashed-password");
+
+        when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(true);
+        when(userDao.findByUsername(USER_USERNAME)).thenReturn(Optional.of(userEntity));
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+
+        Optional<User> userOptional = userServices.authenticate(USER_USERNAME, "random-password");
+        assertTrue(userOptional.isPresent());
+
+        User authenticatedUser = userOptional.get();
+        assertThat(authenticatedUser.getUsername(), is(USER_USERNAME));
+        assertThat(authenticatedUser.isDisabled(), is(true));
+        assertThat(authenticatedUser.getLinks().size(), is(1));
+        assertThat(userEntity.getLoginCounter(), is(2));
     }
 
     @Test
@@ -256,24 +279,6 @@ public class UserServicesTest {
         assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
         assertThat(savedUser.getLoginCounter(), is(3));
         assertThat(savedUser.isDisabled(), is(true));
-    }
-
-    @Test
-    public void shouldErrorWhenDisabled_evenIfUsernamePasswordMatches() throws Exception {
-        User user = aUser();
-        user.setDisabled(true);
-
-        UserEntity userEntity = UserEntity.from(user);
-        userEntity.setPassword("hashed-password");
-        when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(true);
-        when(userDao.findByUsername(USER_USERNAME)).thenReturn(Optional.of(userEntity));
-
-        try {
-            userServices.authenticate(USER_USERNAME, "random-password");
-            fail();
-        } catch (WebApplicationException e) {
-            assertThat(e.getResponse().getStatus(), is(401));
-        }
     }
 
     @Test

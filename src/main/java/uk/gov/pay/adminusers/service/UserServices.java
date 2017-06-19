@@ -104,13 +104,12 @@ public class UserServices {
         if (userEntityOptional.isPresent()) { //interestingly java cannot map/orElseGet this block properly, without getting the compiler confused. :)
             UserEntity userEntity = userEntityOptional.get();
             if (passwordHasher.isEqual(password, userEntity.getPassword())) {
-                if (userEntity.isDisabled()) {
-                    logger.info("Failed login attempt - user_id={}. Valid login, but account is currently locked", userEntity.getExternalId());
-                    throw userLockedException(username);
+                if (!userEntity.isDisabled()) {
+                    userEntity.setLoginCounter(0);
+                    userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+                    userDao.merge(userEntity);
                 }
-                userEntity.setLoginCounter(0);
-                userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
-                userDao.merge(userEntity);
+
                 logger.info("Successful Login - user_id={}", userEntity.getExternalId());
                 return Optional.of(linksBuilder.decorate(userEntity.toUser()));
             } else {
