@@ -2,7 +2,10 @@ package uk.gov.pay.adminusers.persistence.dao;
 
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.pay.adminusers.fixtures.RoleDbFixture;
+import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserServiceId;
@@ -25,7 +28,9 @@ public class ServiceRoleDaoTest extends DaoTestBase {
     @Test
     public void shouldRemoveAServiceRoleOfAUserSuccessfully() throws Exception {
 
-        User user = UserDbFixture.userDbFixture(databaseHelper).insertUser();
+        Service service = ServiceDbFixture.serviceDbFixture(databaseHelper).insertService();
+        int roleId = RoleDbFixture.roleDbFixture(databaseHelper).insertRole().getId();
+        User user = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service, roleId).insertUser();
         UserServiceId userServiceId = new UserServiceId();
         userServiceId.setServiceId(user.getServices().get(0).getId());
         userServiceId.setUserId(user.getId());

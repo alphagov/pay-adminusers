@@ -89,7 +89,7 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public DatabaseTestHelper add(User user, int roleId) {
+    public DatabaseTestHelper add(User user) {
         Timestamp now = from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant());
         jdbi.withHandle(handle ->
                 handle
@@ -111,14 +111,16 @@ public class DatabaseTestHelper {
                         .bind("updatedAt", now)
                         .execute()
         );
+        return this;
+    }
 
+    public DatabaseTestHelper addUserToAServiceRole(int userId, int serviceId, int roleId) {
         jdbi.withHandle(handle -> handle
                 .createStatement("INSERT INTO user_services_roleS(user_id, service_id, role_id) VALUES(:userId, :serviceId, :roleId)")
-                .bind("userId", user.getId())
-                .bind("serviceId", Integer.valueOf(user.getServiceIds().get(0)))
+                .bind("userId", userId)
+                .bind("serviceId", serviceId)
                 .bind("roleId", roleId)
                 .execute());
-
         return this;
     }
 

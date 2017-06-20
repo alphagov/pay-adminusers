@@ -2,19 +2,18 @@ package uk.gov.pay.adminusers.persistence.entity;
 
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.utils.Comparators;
 
 import javax.persistence.*;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.*;
 
 @Entity
 @Table(name = "users")
@@ -133,7 +132,7 @@ public class UserEntity extends AbstractEntity {
     }
 
     public List<RoleEntity> getRoles() {
-        return Arrays.asList(servicesRoles.get(0).getRole());
+        return servicesRoles.isEmpty() ? newArrayList() : singletonList(servicesRoles.get(0).getRole());
     }
 
     public ZonedDateTime getUpdatedAt() {
@@ -207,14 +206,20 @@ public class UserEntity extends AbstractEntity {
     }
 
     public User toUser() {
-        ServiceEntity service = this.servicesRoles.get(0).getService();
-        List<String> gatewayAccountIds = service.getGatewayAccountIds().stream()
-                .map(GatewayAccountIdEntity::getGatewayAccountId)
-                .distinct()
-                .sorted(Comparators.usingNumericComparator())
-                .collect(Collectors.toList());
 
-        User user = User.from(getId(), externalId, username, password, email, gatewayAccountIds, newArrayList(service.toService()), otpKey, telephoneNumber);
+        List<String> gatewayAccountIds = newArrayList();
+        List<Service> services = newArrayList();
+
+        if (!this.servicesRoles.isEmpty()) {
+            services = newArrayList(this.servicesRoles.get(0).getService().toService());
+            gatewayAccountIds = this.servicesRoles.get(0).getService().getGatewayAccountIds().stream()
+                    .map(GatewayAccountIdEntity::getGatewayAccountId)
+                    .distinct()
+                    .sorted(Comparators.usingNumericComparator())
+                    .collect(Collectors.toList());
+        }
+
+        User user = User.from(getId(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber);
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);

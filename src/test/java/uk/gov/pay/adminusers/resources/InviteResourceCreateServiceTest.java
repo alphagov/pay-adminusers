@@ -4,17 +4,13 @@ package uk.gov.pay.adminusers.resources;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.http.ContentType;
 import org.junit.Test;
-import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 
-import static java.util.Arrays.asList;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class InviteResourceCreateServiceTest extends IntegrationTest {
 
@@ -76,10 +72,10 @@ public class InviteResourceCreateServiceTest extends IntegrationTest {
 
     @Test
     public void shouldFail_WhenEmailIsAlreadyRegistered() throws Exception {
+
         String email = "example@example.gov.uk";
-        Service service = Service.from();
-        databaseHelper.addService(service,"1");
-        databaseHelper.add(User.from(randomInt(),randomUuid(),randomUuid(),randomUuid(),email,asList("1"),asList(service),randomUuid(),"12345678909"),2);
+        UserDbFixture.userDbFixture(databaseHelper).withEmail(email).insertUser();
+
         String telephoneNumber = "088882345689";
         ImmutableMap<String, String> payload = ImmutableMap.of("telephone_number", telephoneNumber, "email", email, "password", "plain_text_password");
 
