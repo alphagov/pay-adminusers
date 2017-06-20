@@ -11,11 +11,14 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
+import uk.gov.pay.adminusers.fixtures.RoleDbFixture;
+import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.infra.DropwizardAppWithPostgresRule;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.service.PasswordHasher;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
@@ -78,6 +81,20 @@ public class UsersApiTest {
         dbHelper.add(ForgottenPassword.forgottenPassword(code, existingUserExternalId), (Integer) userByName.get(0).get("id"));
     }
 
+    @State("a user and user admin exists in service with the given ids before a delete operation")
+    public void aUserAndUserAdminExistBeforeADelete() throws Exception {
+
+        String existingUserExternalId = "pact-delete-user-id";
+        String existingUserRemoverExternalId = "pact-delete-remover-id";
+        String existingServiceExternalId = "pact-delete-service-id";
+
+        Service service = ServiceDbFixture.serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
+        Role role = RoleDbFixture.roleDbFixture(dbHelper).insertAdmin();
+
+        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).insertUser();
+        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserRemoverExternalId).withServiceRole(service, role.getId()).insertUser();
+    }
+
     private static void createUserWithinAService(String externalId, String username, String password) throws Exception {
         createUserWithinAService(externalId, username, nextInt(), password);
     }
@@ -98,7 +115,7 @@ public class UsersApiTest {
     })
     public void noSetUp() {
     }
-    
+
     private static void createUserWithinAService(String externalId, String username, int serviceId, String password) throws Exception {
         String gatewayAccount1 = randomNumeric(5);
         String gatewayAccount2 = randomNumeric(5);

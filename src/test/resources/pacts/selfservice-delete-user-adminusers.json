@@ -1,0 +1,89 @@
+{
+  "consumer": {
+    "name": "Selfservice-delete-user"
+  },
+  "provider": {
+    "name": "adminusers-delete-with-body-no-supported-by-pact"
+  },
+  "interactions": [
+    {
+      "description": "a valid delete user from service request",
+      "provider_state": "a user and user admin exists in service with the given ids before a delete operation",
+      "request": {
+        "method": "POST",
+        "path": "/v1/api/services/pact-delete-service-id/users/pact-delete-user-id",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "body": {
+          "remover_id": "pact-delete-remover-id"
+        }
+      },
+      "response": {
+        "status": 204,
+        "headers": {
+        }
+      }
+    },
+    {
+      "description": "an invalid delete user from service request as remover is missing",
+      "provider_state": "default",
+      "request": {
+        "method": "DELETE",
+        "path": "/v1/api/services/pact-delete-service-id/users/pact-delete-user-id",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "body": {
+          "remover_id": " "
+        }
+      },
+      "response": {
+        "status": 400,
+        "headers": {
+        }
+      }
+    },
+    {
+      "description": "a valid delete user from service request but remover is equal to user to be removed",
+      "provider_state": "default",
+      "request": {
+        "method": "DELETE",
+        "path": "/v1/api/services/pact-delete-service-id/users/pact-delete-remover-id",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "body": {
+          "remover_id": "pact-delete-remover-id"
+        }
+      },
+      "response": {
+        "status": 409,
+        "headers": {
+        }
+      }
+    },
+    {
+      "description": "an invalid delete user from service request as user does not exist",
+      "provider_state": "default",
+      "request": {
+        "method": "DELETE",
+        "path": "/v1/api/services/pact-delete-service-id/users/user-does-not-exist",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "body": {
+          "remover_id": "pact-delete-remover-id"
+        }
+      },
+      "response": {
+        "status": 404,
+        "headers": {
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecificationVersion": "2.0.0"
+  }
+}
