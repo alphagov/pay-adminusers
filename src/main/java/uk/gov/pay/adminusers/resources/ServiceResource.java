@@ -133,7 +133,6 @@ public class ServiceResource {
 
     @Path("/{serviceExternalId}/users/{userExternalId}")
     @DELETE
-    @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response removeUserFromService(@PathParam("serviceExternalId") String serviceId, @PathParam("userExternalId") String userId, JsonNode payload) {
         LOGGER.info("Service users DELETE request - serviceId={}, userId={}", serviceId, userId);
