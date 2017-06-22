@@ -34,12 +34,11 @@ public class UserDbFixture {
     }
 
     public User insertUser() {
-        if (service == null) {
-            service = ServiceDbFixture.serviceDbFixture(databaseTestHelper).insertService();
-            roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
+        User user = User.from(randomInt(), externalId, username, password, email, gatewayAccountIds, service != null ? asList(service) : null, otpKey, telephoneNumber);
+        databaseTestHelper.add(user);
+        if (service != null) {
+            databaseTestHelper.addUserServiceRole(user.getId(), service.getId(), roleId);
         }
-        User user = User.from(randomInt(), externalId, username, password, email, gatewayAccountIds, asList(service), otpKey, telephoneNumber);
-        databaseTestHelper.add(user, roleId);
         return user;
     }
 

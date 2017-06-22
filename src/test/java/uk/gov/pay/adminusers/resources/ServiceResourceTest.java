@@ -8,10 +8,14 @@ import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 
+import java.util.List;
+import java.util.Map;
+
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
@@ -96,6 +100,9 @@ public class ServiceResourceTest extends IntegrationTest {
                 .put("remover_id", userWithRoleAdminInService1.getExternalId())
                 .build();
 
+        List<Map<String, Object>> serviceRoleForUserBefore = databaseHelper.findServiceRoleForUser(user1WithRoleViewInService1.getId());
+        assertThat(serviceRoleForUserBefore.size(), is(1));
+
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -104,6 +111,9 @@ public class ServiceResourceTest extends IntegrationTest {
                 .then()
                 .statusCode(204)
                 .body(isEmptyString());
+
+        List<Map<String, Object>> serviceRoleForUserAfter = databaseHelper.findServiceRoleForUser(user1WithRoleViewInService1.getId());
+        assertThat(serviceRoleForUserAfter.isEmpty(), is(true));
     }
 
     @Test

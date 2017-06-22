@@ -141,12 +141,12 @@ public class User {
      */
     @JsonProperty("role")
     public Role getRole() {
-        return roles != null ? roles.get(0) : null;
+        return !roles.isEmpty() ? roles.get(0) : null;
     }
 
     @JsonProperty("permissions")
     public List<String> getPermissions() {
-        return roles != null ?
+        return !roles.isEmpty() ?
                 roles.stream()
                         .flatMap(role -> role.getPermissions().stream())
                         .map(Permission::getName)
