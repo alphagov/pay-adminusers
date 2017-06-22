@@ -38,8 +38,6 @@ public class UserResource {
     private static final String USER_SERVICES_RESOURCE = USER_RESOURCE + "/services";
     private static final String USER_SERVICE_RESOURCE = USER_SERVICES_RESOURCE + "/{serviceId}";
 
-    private static final String USERNAME_FILTER_PARAMETER_KEY = "username";
-
     public static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
 
     private final UserServices userServices;
@@ -52,17 +50,6 @@ public class UserResource {
         this.userServices = userServices;
         this.validator = validator;
         this.userServicesFactory = userServicesFactory;
-    }
-
-    @Path(USERS_RESOURCE)
-    @GET
-    @Produces(APPLICATION_JSON)
-    @Consumes(APPLICATION_JSON)
-    public Response getUserByUsername(@QueryParam(USERNAME_FILTER_PARAMETER_KEY) String username) {
-        logger.info("User username filter GET request - [ {} ]", username);
-        return userServices.findUserByUsername(username)
-                .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
-                .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
     @Path(USER_RESOURCE)

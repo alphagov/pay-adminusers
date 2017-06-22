@@ -330,80 +330,6 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("errors[0]", is(format("username [%s] already exists", username)));
     }
 
-    @Test
-    public void shouldReturn404_whenGetUserByUsername_withEmptyUsername() throws Exception {
-        givenSetup()
-                .when()
-                .accept(JSON)
-                .get(USERS_RESOURCE_URL + "?username=")
-                .then()
-                .statusCode(404);
-    }
-
-    @Test
-    public void shouldReturn404_whenGetUserByUsername_withNonExistentUsername() throws Exception {
-        givenSetup()
-                .when()
-                .accept(JSON)
-                .get(USERS_RESOURCE_URL + "?username=non-existent-user")
-                .then()
-                .statusCode(404);
-    }
-
-    @Test
-    public void shouldReturn404_whenGetUserByUsername_withInvalidMaxLengthUsername() throws Exception {
-        givenSetup()
-                .when()
-                .accept(JSON)
-                .get(USERS_RESOURCE_URL + "?username=" + RandomStringUtils.randomAlphanumeric(256))
-                .then()
-                .statusCode(404);
-    }
-
-    @Test
-    public void shouldReturnUser_whenGetUserByUsernameWithUsername() throws Exception {
-        String gatewayAccount1 = valueOf(nextInt());
-        String gatewayAccount2 = valueOf(nextInt());
-        Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
-        int serviceId = service.getId();
-        Role role = roleDbFixture(databaseHelper).insertRole();
-        User user = userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
-
-        ValidatableResponse response = givenSetup()
-                .when()
-                .contentType(JSON)
-                .accept(JSON)
-                .get(USERS_RESOURCE_URL +"?username=" +  user.getUsername())
-                .then();
-
-        String externalId = response.extract().path("external_id");
-
-        response
-                .statusCode(200)
-                .body("external_id", is(user.getExternalId()))
-                .body("username", is(user.getUsername()))
-                .body("password", nullValue())
-                .body("email", is(user.getEmail()))
-                .body("gateway_account_ids", hasSize(2))
-                .body("gateway_account_ids", hasItems(gatewayAccount1, gatewayAccount2))
-                .body("service_ids", hasSize(1))
-                .body("service_ids[0]", is(valueOf(serviceId)))
-                .body("services", hasSize(1))
-                .body("services[0].id", is(serviceId))
-                .body("services[0].name", is(service.getName()))
-                .body("telephone_number", is(user.getTelephoneNumber()))
-                .body("otp_key", is(user.getOtpKey()))
-                .body("login_counter", is(0))
-                .body("disabled", is(false))
-                .body("role.name", is(role.getName()))
-                .body("role.description", is(role.getDescription()))
-                .body("permissions", hasSize(role.getPermissions().size()));
-        response
-                .body("_links", hasSize(1))
-                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + externalId))
-                .body("_links[0].method", is("GET"))
-                .body("_links[0].rel", is("self"));
-    }
 
     @Test
     public void shouldReturn404_whenGetUser_withNonExistentUsername() throws Exception {
@@ -425,3 +351,4 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .statusCode(404);
     }
 }
+
