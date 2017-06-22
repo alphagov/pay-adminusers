@@ -22,8 +22,7 @@ import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.*;
+import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.hamcrest.core.Is.is;
@@ -35,9 +34,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_CODE;
-import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_PASSWORD;
-import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_TELEPHONE_NUMBER;
+import static uk.gov.pay.adminusers.model.InviteOtpRequest.*;
 import static uk.gov.pay.adminusers.model.InviteUserRequest.*;
 import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
@@ -369,6 +366,49 @@ public class InviteServiceTest {
         assertThat(updatedInvite.getTelephoneNumber(), is(telephoneNumber));
         assertThat(updatedInvite.getPassword(), is(encryptedPassword));
         assertThat(notifyPromise.isDone(), is(true));
+    }
+
+    @Test
+    public void validateOtp_shouldReturnTrueOnValidInviteAndValidOtp() {
+        InviteEntity inviteEntity = new InviteEntity();
+        inviteEntity.setOtpKey(otpKey);
+
+        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+        when(mockSecondFactorAuthenticator.authorize(otpKey, passCode)).thenReturn(true);
+
+        Optional<WebApplicationException> validationResult = inviteService.validateOtp(inviteEntity, passCode);
+
+        assertThat(validationResult.isPresent(), is(false));
+    }
+
+    @Test
+    public void validateOtp_shouldReturnFalseOnValidInviteAndInValidOtp() {
+        int invalidPasscode = 1234;
+        InviteEntity inviteEntity = new InviteEntity();
+        inviteEntity.setOtpKey(otpKey);
+
+        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+        when(mockSecondFactorAuthenticator.authorize(otpKey, invalidPasscode)).thenReturn(false);
+
+        Optional<WebApplicationException> validationResult = inviteService.validateOtp(inviteEntity, passCode);
+
+        assertThat(validationResult.isPresent(), is(true));
+        assertThat(validationResult.get().getResponse().getStatus(), is(401));
+    }
+
+    @Test
+    public void validateOtp_shouldReturnFalseOnValidInviteAndValidOtpAndEntityDisabled() {
+        InviteEntity inviteEntity = new InviteEntity();
+        inviteEntity.setOtpKey(otpKey);
+        inviteEntity.setDisabled(true);
+
+        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+        when(mockSecondFactorAuthenticator.authorize(otpKey, passCode)).thenReturn(true);
+
+        Optional<WebApplicationException> validationResult = inviteService.validateOtp(inviteEntity, passCode);
+
+        assertThat(validationResult.isPresent(), is(true));
+        assertThat(validationResult.get().getResponse().getStatus(), is(410));
     }
 
     private InviteUserRequest inviteRequestFrom(String sender, String email, String roleName) {

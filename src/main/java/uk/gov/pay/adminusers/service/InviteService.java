@@ -19,6 +19,7 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
@@ -120,39 +121,42 @@ public class InviteService {
 
     @Transactional
     public ValidateOtpAndCreateUserResult validateOtpAndCreateUser(InviteValidateOtpRequest inviteValidateOtpRequest) {
-        Optional<InviteEntity> inviteOptional = inviteDao.findByCode(inviteValidateOtpRequest.getCode());
-        if (inviteOptional.isPresent()) {
-            InviteEntity inviteEntity = inviteOptional.get();
-            if (!secondFactorAuthenticator.authorize(inviteEntity.getOtpKey(), inviteValidateOtpRequest.getOtpCode())) {
-                // "failed login attempt" logic
-                inviteEntity.setLoginCounter(inviteEntity.getLoginCounter() + 1);
-                inviteEntity.setDisabled(inviteEntity.getLoginCounter() >= loginAttemptCap);
-                inviteDao.merge(inviteEntity);
-                // check if the Invite is locked and fail with GONE / 410 exception if it is
-                if (inviteEntity.isDisabled()) {
-                    return new ValidateOtpAndCreateUserResult(inviteLockedException(inviteEntity.getCode()));
-                }
-                // otherwise, fail with UNAUTHORIZED / 401 exception if the otp validation failed
-                return new ValidateOtpAndCreateUserResult(invalidOtpAuthCodeInviteException(inviteEntity.getCode()));
+        return inviteDao.findByCode(inviteValidateOtpRequest.getCode()).map(inviteEntity -> {
+            Optional<WebApplicationException> optionalException = validateOtp(inviteEntity, inviteValidateOtpRequest.getOtpCode());
+
+            if (optionalException.isPresent()) {
+                return new ValidateOtpAndCreateUserResult(optionalException.get());
             } else {
-                // "successful login attempt" logic
                 inviteEntity.setLoginCounter(0);
             }
-            // check if the Invite is locked and fail with UNAUTHORIZED / 401 exception if it is
-            if (inviteEntity.isDisabled()) {
-                return new ValidateOtpAndCreateUserResult(inviteLockedException(inviteEntity.getCode()));
-            }
-            // persist the new User
+
             UserEntity userEntity = inviteEntity.mapToUserEntity();
             userDao.persist(userEntity);
-            // Deactivate the Invite
             inviteEntity.setDisabled(Boolean.TRUE);
             inviteDao.merge(inviteEntity);
-            // return the new User with "links" property
             return new ValidateOtpAndCreateUserResult(linksBuilder.decorate(userEntity.toUser()));
-        } else {
-            return new ValidateOtpAndCreateUserResult(notFoundInviteException(inviteValidateOtpRequest.getCode()));
+        })
+                .orElseGet(() -> new ValidateOtpAndCreateUserResult(notFoundInviteException(inviteValidateOtpRequest.getCode())));
+    }
+
+    @Transactional
+    public Optional<WebApplicationException> validateOtp(InviteEntity inviteEntity, int otpCode) {
+        if (inviteEntity.isDisabled()) {
+            return Optional.of(inviteLockedException(inviteEntity.getCode()));
         }
+
+        if (!secondFactorAuthenticator.authorize(inviteEntity.getOtpKey(), otpCode)) {
+
+            inviteEntity.setLoginCounter(inviteEntity.getLoginCounter() + 1);
+            inviteEntity.setDisabled(inviteEntity.getLoginCounter() >= loginAttemptCap);
+            inviteDao.merge(inviteEntity);
+
+            if (inviteEntity.isDisabled()) {
+                return Optional.of(inviteLockedException(inviteEntity.getCode()));
+            }
+            return Optional.of(invalidOtpAuthCodeInviteException(inviteEntity.getCode()));
+        }
+        return Optional.empty();
     }
 
     private Function<RoleEntity, Optional<Invite>> doInvite(InviteUserRequest invite, ServiceEntity serviceEntity) {
