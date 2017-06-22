@@ -12,6 +12,8 @@ import uk.gov.pay.adminusers.service.ValidateOtpAndCreateUserResult;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
+import java.util.Optional;
+
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -130,6 +132,21 @@ public class InviteResource {
                     }
                     return handleValidateOtpAndCreateUserException(validateOtpAndCreateUserResult.getError());
                 });
+    }
+
+    @POST
+    @Path("/otp/validate/service")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    public Response validateOtpKeyForService(JsonNode payload){
+
+        LOGGER.info("Invite POST request for validating otp for service create");
+
+        return  inviteValidator.validateOtpValidationRequest(payload)
+                .map(errors -> Response.status((BAD_REQUEST)).entity(errors).build())
+                .orElseGet(() -> inviteService.validateOtp(InviteValidateOtpRequest.from(payload))
+                            .map(error -> handleValidateOtpAndCreateUserException(error))
+                            .orElseGet(() -> Response.status(OK).build()));
     }
 
     private Response handleValidateOtpAndCreateUserException(WebApplicationException error) {

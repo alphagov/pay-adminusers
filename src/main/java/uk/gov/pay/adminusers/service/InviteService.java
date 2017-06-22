@@ -121,32 +121,33 @@ public class InviteService {
 
     @Transactional
     public ValidateOtpAndCreateUserResult validateOtpAndCreateUser(InviteValidateOtpRequest inviteValidateOtpRequest) {
-        return inviteDao.findByCode(inviteValidateOtpRequest.getCode()).map(inviteEntity -> {
-            Optional<WebApplicationException> optionalException = validateOtp(inviteEntity, inviteValidateOtpRequest.getOtpCode());
-
-            if (optionalException.isPresent()) {
-                return new ValidateOtpAndCreateUserResult(optionalException.get());
-            } else {
-                inviteEntity.setLoginCounter(0);
-            }
-
-            UserEntity userEntity = inviteEntity.mapToUserEntity();
-            userDao.persist(userEntity);
-            inviteEntity.setDisabled(Boolean.TRUE);
-            inviteDao.merge(inviteEntity);
-            return new ValidateOtpAndCreateUserResult(linksBuilder.decorate(userEntity.toUser()));
-        })
+        return inviteDao.findByCode(inviteValidateOtpRequest.getCode())
+                .map(inviteEntity -> validateOtp(inviteEntity, inviteValidateOtpRequest.getOtpCode())
+                            .map(ValidateOtpAndCreateUserResult::new)
+                            .orElseGet(() -> {
+                                inviteEntity.setLoginCounter(0);
+                                UserEntity userEntity = inviteEntity.mapToUserEntity();
+                                userDao.persist(userEntity);
+                                inviteEntity.setDisabled(Boolean.TRUE);
+                                inviteDao.merge(inviteEntity);
+                                return new ValidateOtpAndCreateUserResult(linksBuilder.decorate(userEntity.toUser()));
+                }))
                 .orElseGet(() -> new ValidateOtpAndCreateUserResult(notFoundInviteException(inviteValidateOtpRequest.getCode())));
     }
 
     @Transactional
-    public Optional<WebApplicationException> validateOtp(InviteEntity inviteEntity, int otpCode) {
+    public Optional<WebApplicationException> validateOtp(InviteValidateOtpRequest inviteOtpRequest) {
+        return  inviteDao.findByCode(inviteOtpRequest.getCode())
+                .map(inviteEntity -> validateOtp(inviteEntity, inviteOtpRequest.getOtpCode()))
+                .orElseGet(() -> Optional.of(notFoundInviteException(inviteOtpRequest.getCode())));
+    }
+
+    Optional<WebApplicationException> validateOtp(InviteEntity inviteEntity, int otpCode) {
         if (inviteEntity.isDisabled()) {
             return Optional.of(inviteLockedException(inviteEntity.getCode()));
         }
 
         if (!secondFactorAuthenticator.authorize(inviteEntity.getOtpKey(), otpCode)) {
-
             inviteEntity.setLoginCounter(inviteEntity.getLoginCounter() + 1);
             inviteEntity.setDisabled(inviteEntity.getLoginCounter() >= loginAttemptCap);
             inviteDao.merge(inviteEntity);
