@@ -11,11 +11,14 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
+import uk.gov.pay.adminusers.fixtures.RoleDbFixture;
+import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.infra.DropwizardAppWithPostgresRule;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.service.PasswordHasher;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
@@ -76,6 +79,32 @@ public class UsersApiTest {
         String existingUserExternalId = "7d19aff33f8948deb97ed16b2912dcd3";
         List<Map<String, Object>> userByName = dbHelper.findUserByExternalId(existingUserExternalId);
         dbHelper.add(ForgottenPassword.forgottenPassword(code, existingUserExternalId), (Integer) userByName.get(0).get("id"));
+    }
+
+    @State("a user and user admin exists in service with the given ids before a delete operation")
+    public void aUserAndUserAdminExistBeforeADelete() throws Exception {
+
+        String existingUserExternalId = "pact-delete-user-id";
+        String existingUserRemoverExternalId = "pact-delete-remover-id";
+        String existingServiceExternalId = "pact-delete-service-id";
+
+        Service service = ServiceDbFixture.serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
+        Role role = RoleDbFixture.roleDbFixture(dbHelper).insertAdmin();
+
+        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).insertUser();
+        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserRemoverExternalId).withServiceRole(service, role.getId()).insertUser();
+    }
+
+    @State("a user exists but not the remover before a delete operation")
+    public void aUserExistButRemoverBeforeADelete() throws Exception {
+
+        String existingUserExternalId = "pact-user-no-remover-test";
+        String existingServiceExternalId = "pact-service-no-remover-test";
+
+        Service service = ServiceDbFixture.serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
+        Role role = RoleDbFixture.roleDbFixture(dbHelper).insertAdmin();
+
+        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).insertUser();
     }
 
     private static void createUserWithinAService(String externalId, String username, String password) throws Exception {

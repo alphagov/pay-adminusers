@@ -3,7 +3,6 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import io.dropwizard.jersey.PATCH;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
@@ -25,6 +24,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status;
 import static javax.ws.rs.core.Response.Status.*;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_GATEWAY_ACCOUNT_IDS;
 import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_SERVICE_NAME;
 import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
@@ -33,8 +33,8 @@ import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
 public class ServiceResource {
 
     private static final Logger LOGGER = PayLoggerFactory.getLogger(ServiceResource.class);
+    public static final String HEADER_USER_CONTEXT = "GovUkPay-User-Context";
     public static final String SERVICES_RESOURCE = "/v1/api/services";
-    private static final String FIELD_REMOVER = "remover_id";
 
     private final UserDao userDao;
     private final ServiceDao serviceDao;
@@ -90,17 +90,10 @@ public class ServiceResource {
     }
 
     private Optional<String> extractServiceName(JsonNode payload) {
-        if (payload == null || payload.get(FIELD_SERVICE_NAME) == null || StringUtils.isBlank(payload.get(FIELD_SERVICE_NAME).textValue())) {
+        if (payload == null || payload.get(FIELD_SERVICE_NAME) == null || isBlank(payload.get(FIELD_SERVICE_NAME).textValue())) {
             return Optional.empty();
         }
         return Optional.of(payload.get(FIELD_SERVICE_NAME).textValue());
-    }
-
-    private Optional<String> extractRemover(JsonNode payload) {
-        if (payload == null || payload.get(FIELD_REMOVER) == null || StringUtils.isBlank(payload.get(FIELD_REMOVER).textValue())) {
-            return Optional.empty();
-        }
-        return Optional.of(payload.get(FIELD_REMOVER).textValue());
     }
 
     @Path("/{serviceExternalId}")
@@ -131,23 +124,26 @@ public class ServiceResource {
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
+    // To consider for all the operations add @HeaderParam("GovUkPay-User-Context") and creating a filter
+    // so we could map permissions with Regex URLs and Http method passed on to this filter.
     @Path("/{serviceExternalId}/users/{userExternalId}")
     @DELETE
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response removeUserFromService(@PathParam("serviceExternalId") String serviceId, @PathParam("userExternalId") String userId, JsonNode payload) {
+    public Response removeUserFromService(@PathParam("serviceExternalId") String serviceId,
+                                          @PathParam("userExternalId") String userId,
+                                          @HeaderParam(HEADER_USER_CONTEXT) String userContext) {
         LOGGER.info("Service users DELETE request - serviceId={}, userId={}", serviceId, userId);
-        return extractRemover(payload)
-                .map(remover -> {
-                    if (remover.equals(userId)) {
-                        LOGGER.info("Failed Service users DELETE request. User and Remover cannot be the same - serviceId={}, removerId={}, userId={}", serviceId, remover, userId);
-                        return Response.status(CONFLICT).build();
-                    }
-                    serviceServicesFactory.serviceUserRemover().remove(userId, remover, serviceId);
-                    LOGGER.info("Succeeded Service users DELETE request - serviceId={}, removerId={}, userId={}", serviceId, remover, userId);
-                    return Response.status(NO_CONTENT).build();
-                })
-                .orElseGet(() -> Response.status(Status.BAD_REQUEST).build());
+        if (isBlank(userContext)) {
+            return Response.status(Status.FORBIDDEN).build();
+        } else if (userId.equals(userContext)) {
+            LOGGER.info("Failed Service users DELETE request. User and Remover cannot be the same - " +
+                    "serviceId={}, removerId={}, userId={}", serviceId, userContext, userId);
+            return Response.status(CONFLICT).build();
+        }
+        serviceServicesFactory.serviceUserRemover().remove(userId, userContext, serviceId);
+        LOGGER.info("Succeeded Service users DELETE request - serviceId={}, removerId={}, userId={}", serviceId, userContext, userId);
+        return Response.status(NO_CONTENT).build();
     }
 
     @POST

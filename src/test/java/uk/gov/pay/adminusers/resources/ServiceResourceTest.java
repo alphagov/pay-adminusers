@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.resources;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +18,7 @@ import static org.junit.Assert.assertThat;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
+import static uk.gov.pay.adminusers.resources.ServiceResource.HEADER_USER_CONTEXT;
 
 public class ServiceResourceTest extends IntegrationTest {
 
@@ -96,17 +96,13 @@ public class ServiceResourceTest extends IntegrationTest {
     @Test
     public void removeServiceUser_shouldRemoveAnUserFromAService() {
 
-        ImmutableMap<Object, Object> userRemoverPayload = ImmutableMap.builder()
-                .put("remover_id", userWithRoleAdminInService1.getExternalId())
-                .build();
-
         List<Map<String, Object>> serviceRoleForUserBefore = databaseHelper.findServiceRoleForUser(user1WithRoleViewInService1.getId());
         assertThat(serviceRoleForUserBefore.size(), is(1));
 
         givenSetup()
                 .when()
                 .accept(JSON)
-                .body(userRemoverPayload)
+                .header(HEADER_USER_CONTEXT, userWithRoleAdminInService1.getExternalId())
                 .delete(String.format("/v1/api/services/%s/users/%s", serviceExternalId, user1WithRoleViewInService1.getExternalId()))
                 .then()
                 .statusCode(204)
@@ -119,14 +115,10 @@ public class ServiceResourceTest extends IntegrationTest {
     @Test
     public void removeServiceUser_shouldNotBeAbleToRemoveAnUserItself() {
 
-        ImmutableMap<Object, Object> userRemoverPayload = ImmutableMap.builder()
-                .put("remover_id", userWithRoleAdminInService1.getExternalId())
-                .build();
-
         givenSetup()
                 .when()
                 .accept(JSON)
-                .body(userRemoverPayload)
+                .header(HEADER_USER_CONTEXT, userWithRoleAdminInService1.getExternalId())
                 .delete(String.format("/v1/api/services/%s/users/%s", serviceExternalId, userWithRoleAdminInService1.getExternalId()))
                 .then()
                 .statusCode(409)
@@ -134,19 +126,27 @@ public class ServiceResourceTest extends IntegrationTest {
     }
 
     @Test
-    public void removeServiceUser_shouldReturnBadRequestWhenRemoverIsMissing() {
-
-        ImmutableMap<Object, Object> userRemoverPayload = ImmutableMap.builder()
-                .put("remover_id", " ")
-                .build();
+    public void removeServiceUser_shouldReturnForbiddenWhenRemoverIsMissing() {
 
         givenSetup()
                 .when()
                 .accept(JSON)
-                .body(userRemoverPayload)
+                .header(HEADER_USER_CONTEXT, " ")
                 .delete(String.format("/v1/api/services/%s/users/%s", serviceExternalId, userWithRoleAdminInService1.getExternalId()))
                 .then()
-                .statusCode(400)
+                .statusCode(403)
+                .body(isEmptyString());
+    }
+
+    @Test
+    public void removeServiceUser_shouldReturnForbiddenWhenUserContextHeaderIsMissing() {
+
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .delete(String.format("/v1/api/services/%s/users/%s", serviceExternalId, userWithRoleAdminInService1.getExternalId()))
+                .then()
+                .statusCode(403)
                 .body(isEmptyString());
     }
 }
