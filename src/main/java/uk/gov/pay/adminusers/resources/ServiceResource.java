@@ -135,17 +135,15 @@ public class ServiceResource {
                                           @HeaderParam(HEADER_USER_CONTEXT) String userContext) {
         LOGGER.info("Service users DELETE request - serviceId={}, userId={}", serviceId, userId);
         if (isBlank(userContext)) {
-            return Response.status(Status.UNAUTHORIZED).build();
-        } else {
-            if (userId.equals(userContext)) {
-                LOGGER.info("Failed Service users DELETE request. User and Remover cannot be the same - " +
-                        "serviceId={}, removerId={}, userId={}", serviceId, userContext, userId);
-                return Response.status(CONFLICT).build();
-            }
-            serviceServicesFactory.serviceUserRemover().remove(userId, userContext, serviceId);
-            LOGGER.info("Succeeded Service users DELETE request - serviceId={}, removerId={}, userId={}", serviceId, userContext, userId);
-            return Response.status(NO_CONTENT).build();
+            return Response.status(Status.FORBIDDEN).build();
+        } else if (userId.equals(userContext)) {
+            LOGGER.info("Failed Service users DELETE request. User and Remover cannot be the same - " +
+                    "serviceId={}, removerId={}, userId={}", serviceId, userContext, userId);
+            return Response.status(CONFLICT).build();
         }
+        serviceServicesFactory.serviceUserRemover().remove(userId, userContext, serviceId);
+        LOGGER.info("Succeeded Service users DELETE request - serviceId={}, removerId={}, userId={}", serviceId, userContext, userId);
+        return Response.status(NO_CONTENT).build();
     }
 
     @POST

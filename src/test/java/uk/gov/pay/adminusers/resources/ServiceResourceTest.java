@@ -126,7 +126,7 @@ public class ServiceResourceTest extends IntegrationTest {
     }
 
     @Test
-    public void removeServiceUser_shouldReturnUnAuthorizeWhenRemoverIsMissing() {
+    public void removeServiceUser_shouldReturnForbiddenWhenRemoverIsMissing() {
 
         givenSetup()
                 .when()
@@ -134,19 +134,19 @@ public class ServiceResourceTest extends IntegrationTest {
                 .header(HEADER_USER_CONTEXT, " ")
                 .delete(String.format("/v1/api/services/%s/users/%s", serviceExternalId, userWithRoleAdminInService1.getExternalId()))
                 .then()
-                .statusCode(401)
+                .statusCode(403)
                 .body(isEmptyString());
     }
 
     @Test
-    public void removeServiceUser_shouldReturnUnAuthorizeWhenUserContextHeaderIsMissing() {
+    public void removeServiceUser_shouldReturnForbiddenWhenUserContextHeaderIsMissing() {
 
         givenSetup()
                 .when()
                 .accept(JSON)
                 .delete(String.format("/v1/api/services/%s/users/%s", serviceExternalId, userWithRoleAdminInService1.getExternalId()))
                 .then()
-                .statusCode(401)
+                .statusCode(403)
                 .body(isEmptyString());
     }
 }

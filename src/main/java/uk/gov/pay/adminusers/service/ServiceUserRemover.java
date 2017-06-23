@@ -27,17 +27,28 @@ public class ServiceUserRemover {
     }
 
     public void remove(String userExternalId, String removerExternalId, String serviceExternalId) {
+
         LOGGER.info("User remove from service requested - serviceId={}, removerId={}, userId={}", serviceExternalId, removerExternalId, userExternalId);
-        userDao.findByExternalId(userExternalId)
-                .flatMap(userEntity -> userEntity.getServicesRole(serviceExternalId)
-                        .map(serviceUserRole -> userDao.findByExternalId(removerExternalId)
-                                .map(removerEntity -> removerEntity.getServicesRole(serviceExternalId)
-                                        .filter(isRoleAdmin())
-                                        .map(serviceRemoverRole -> Optional.of(serviceUserRole))
-                                        .orElseThrow(() -> forbiddenOperationException(userExternalId, OPERATION, serviceExternalId)))
-                                .orElseThrow(() -> forbiddenOperationException(userExternalId, OPERATION, serviceExternalId))))
-                .orElseThrow(AdminUsersExceptions::notFoundException)
-                .ifPresent(serviceRoleDao::remove);
+
+        ServiceRoleEntity userServiceRoleToRemove = getServiceRoleEntityOf(userExternalId, serviceExternalId);
+
+        checkRemoverIsAdmin(removerExternalId, serviceExternalId)
+                .orElseThrow(() -> forbiddenOperationException(userExternalId, OPERATION, serviceExternalId));
+
+        serviceRoleDao.remove(userServiceRoleToRemove);
+    }
+
+    private Optional<ServiceRoleEntity> checkRemoverIsAdmin(String removerExternalId, String serviceExternalId) {
+        return userDao.findByExternalId(removerExternalId)
+                .flatMap(removerEntity -> removerEntity.getServicesRole(serviceExternalId))
+                .filter(isRoleAdmin());
+    }
+
+    private ServiceRoleEntity getServiceRoleEntityOf(String userExternalId, String serviceExternalId) {
+        return userDao.findByExternalId(userExternalId)
+                .map(userEntity -> userEntity.getServicesRole(serviceExternalId)
+                        .orElseThrow(AdminUsersExceptions::notFoundException))
+                .orElseThrow(AdminUsersExceptions::notFoundException);
     }
 
     private Predicate<ServiceRoleEntity> isRoleAdmin() {
