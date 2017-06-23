@@ -291,4 +291,48 @@ public class InviteResourceOtpTest extends IntegrationTest {
                 .then()
                 .statusCode(BAD_REQUEST.getStatusCode());
     }
+
+    @Test
+    public void validateServiceOtpKey_shouldSucceed_whenValidOtp() throws Exception {
+
+        code = InviteDbFixture.inviteDbFixture(databaseHelper)
+                .withOtpKey(OTP_KEY)
+                .insertInvite();
+
+        ImmutableMap<Object, Object> sendRequest = ImmutableMap.builder()
+                .put("code", code)
+                .put("otp", PASSCODE)
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(sendRequest))
+                .contentType(ContentType.JSON)
+                .post(SERVICE_INVITES_VALIDATE_OTP_RESOURCE_URL)
+                .then()
+                .statusCode(OK.getStatusCode());
+    }
+
+    @Test
+    public void validateServiceOtpKey_shouldFailWith401_whenInvalidOtp() throws Exception {
+
+        code = InviteDbFixture.inviteDbFixture(databaseHelper)
+                .withOtpKey(OTP_KEY)
+                .insertInvite();
+
+        int invalidOtp = 111111;
+
+        ImmutableMap<Object, Object> sendRequest = ImmutableMap.builder()
+                .put("code", code)
+                .put("otp", invalidOtp)
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(sendRequest))
+                .contentType(ContentType.JSON)
+                .post(SERVICE_INVITES_VALIDATE_OTP_RESOURCE_URL)
+                .then()
+                .statusCode(UNAUTHORIZED.getStatusCode());
+    }
 }
