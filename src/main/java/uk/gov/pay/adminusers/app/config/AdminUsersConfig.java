@@ -45,6 +45,14 @@ public class AdminUsersConfig extends Configuration {
     @NotNull
     private Integer forgottenPasswordExpiryMinutes;
 
+    @NotNull
+    private SecondFactorAuthConfiguration secondFactorAuthConfiguration;
+
+    @JsonProperty("secondFactorAuthentication")
+    public SecondFactorAuthConfiguration getSecondFactorAuthConfiguration() {
+        return secondFactorAuthConfiguration;
+    }
+
     @JsonProperty("proxy")
     public ProxyConfiguration getProxyConfiguration() {
         return proxyConfiguration;

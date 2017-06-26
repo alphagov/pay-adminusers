@@ -7,6 +7,7 @@ import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
 import com.google.inject.persist.jpa.JpaPersistModule;
+import com.warrenstrange.googleauth.GoogleAuthenticatorConfig;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.setup.Environment;
 import uk.gov.pay.adminusers.resources.ResetPasswordValidator;
@@ -14,15 +15,18 @@ import uk.gov.pay.adminusers.resources.UserRequestValidator;
 import uk.gov.pay.adminusers.service.*;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
+import java.time.Clock;
 import java.util.Properties;
 
 public class AdminUsersModule extends AbstractModule {
 
     final AdminUsersConfig configuration;
+    final SecondFactorAuthConfiguration secondFactorAuthConfig;
     final Environment environment;
 
     public AdminUsersModule(final AdminUsersConfig configuration, final Environment environment) {
         this.configuration = configuration;
+        this.secondFactorAuthConfig = configuration.getSecondFactorAuthConfiguration();
         this.environment = environment;
     }
 
@@ -31,7 +35,12 @@ public class AdminUsersModule extends AbstractModule {
         bind(AdminUsersConfig.class).toInstance(configuration);
         bind(Environment.class).toInstance(environment);
         bind(LinksBuilder.class).toInstance(new LinksBuilder(configuration.getBaseUrl()));
+        bind(GoogleAuthenticatorConfig.class).toInstance(new GoogleAuthenticatorConfig.GoogleAuthenticatorConfigBuilder()
+                .setWindowSize(secondFactorAuthConfig.getValidTimeWindows())
+                .setTimeStepSizeInMillis(secondFactorAuthConfig.getTimeWindowInMillis())
+                .build());
         bind(LinksConfig.class).toInstance(configuration.getLinks());
+        bind(Clock.class).toInstance(Clock.systemDefaultZone());
 
         bind(PasswordHasher.class).in(Singleton.class);
         bind(RequestValidations.class).in(Singleton.class);
@@ -42,6 +51,7 @@ public class AdminUsersModule extends AbstractModule {
         bind(UserServices.class).in(Singleton.class);
         bind(ForgottenPasswordServices.class).in(Singleton.class);
         bind(ResetPasswordService.class).in(Singleton.class);
+
 
         bind(Integer.class).annotatedWith(Names.named("FORGOTTEN_PASSWORD_EXPIRY_MINUTES")).toInstance(configuration.getForgottenPasswordExpiryMinutes());
 
