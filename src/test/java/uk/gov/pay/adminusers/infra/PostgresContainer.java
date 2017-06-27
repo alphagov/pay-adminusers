@@ -4,10 +4,7 @@ import com.google.common.base.Stopwatch;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.LogStream;
 import com.spotify.docker.client.exceptions.DockerException;
-import com.spotify.docker.client.messages.ContainerConfig;
-import com.spotify.docker.client.messages.ContainerInfo;
-import com.spotify.docker.client.messages.HostConfig;
-import com.spotify.docker.client.messages.PortBinding;
+import com.spotify.docker.client.messages.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +42,7 @@ public class PostgresContainer {
 
         docker.listImages(DockerClient.ListImagesParam.create("name", GOVUK_POSTGRES_IMAGE));
 
-        final HostConfig hostConfig = HostConfig.builder().publishAllPorts(true).build();
+        final HostConfig hostConfig = HostConfig.builder().logConfig(LogConfig.create("json-file")).publishAllPorts(true).build();
         ContainerConfig containerConfig = ContainerConfig.builder()
                 .image(GOVUK_POSTGRES_IMAGE)
                 .hostConfig(hostConfig)
