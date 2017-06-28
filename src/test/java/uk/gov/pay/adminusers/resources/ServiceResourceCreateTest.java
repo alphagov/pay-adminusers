@@ -49,8 +49,7 @@ public class ServiceResourceCreateTest extends IntegrationTest {
                 .body("name", is("System Generated"))
                 .body("external_id", notNullValue())
                 .body("gateway_account_ids", hasSize(2))
-                .body("gateway_account_ids[0]", is("1"))
-                .body("gateway_account_ids[1]", is("2"));
+                .body("gateway_account_ids", containsInAnyOrder("1","2"));
 
     }
 
