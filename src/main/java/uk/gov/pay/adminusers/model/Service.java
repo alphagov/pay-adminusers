@@ -19,6 +19,7 @@ public class Service {
     private String externalId;
     private String name = DEFAULT_NAME_VALUE;
     private List<Link> links = new ArrayList<>();
+    private List<String> gatewayAccountIds = new ArrayList<>();
 
     public static Service from() {
         return from(DEFAULT_NAME_VALUE);
@@ -71,5 +72,13 @@ public class Service {
 
     public void setLinks(List<Link> links) {
         this.links = links;
+    }
+
+    public List<String> getGatewayAccountIds() {
+        return gatewayAccountIds;
+    }
+
+    public void setGatewayAccountIds(List<String> gatewayAccountIds) {
+        this.gatewayAccountIds = gatewayAccountIds;
     }
 }

@@ -71,6 +71,7 @@ public class ServiceCreatorTest {
         List<String> persistedGatewayIds = persistedServiceEntity.getValue().getGatewayAccountIds().stream().map(gai -> gai.getGatewayAccountId()).collect(toList());
         assertThat(persistedGatewayIds.size(),is(2));
         assertThat(persistedGatewayIds,hasItems("1","2"));
+        assertThat(service.getGatewayAccountIds(), hasItems("1","2"));
     }
 
     @Test
@@ -83,7 +84,7 @@ public class ServiceCreatorTest {
         List<String> persistedGatewayIds = persistedServiceEntity.getValue().getGatewayAccountIds().stream().map(gai -> gai.getGatewayAccountId()).collect(toList());
         assertThat(persistedGatewayIds.size(),is(2));
         assertThat(persistedGatewayIds,hasItems("1","2"));
-
+        assertThat(service.getGatewayAccountIds(), hasItems("1","2"));
     }
 
     @Test(expected = WebApplicationException.class)
