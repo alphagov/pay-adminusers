@@ -6,6 +6,7 @@ import uk.gov.pay.adminusers.model.Service;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -76,12 +77,15 @@ public class ServiceEntity {
         return invites;
     }
 
-    public void addGatewayAccountIds(String ... gatewayAccountIds) {
+    public void addGatewayAccountIds(String... gatewayAccountIds) {
         populateGatewayAccountIds(asList(gatewayAccountIds));
     }
 
     public Service toService() {
         Service service = Service.from(id, externalId, name);
+        service.setGatewayAccountIds(gatewayAccountIds.stream()
+                .map(idEntity -> idEntity.getGatewayAccountId())
+                .collect(Collectors.toList()));
         return service;
     }
 

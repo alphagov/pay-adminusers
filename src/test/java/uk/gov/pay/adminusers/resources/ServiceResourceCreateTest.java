@@ -1,17 +1,13 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.google.common.collect.ImmutableMap;
-import com.jayway.restassured.response.ValidatableResponse;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
 
-import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
@@ -43,26 +39,19 @@ public class ServiceResourceCreateTest extends IntegrationTest {
                 .put("gateway_account_ids", new String[]{"1", "2"})
                 .build();
 
-        ValidatableResponse validatableResponse = givenSetup()
+        givenSetup()
                 .when()
                 .accept(JSON)
                 .body(mapper.writeValueAsString(payload))
                 .post("/v1/api/services")
                 .then()
-                .statusCode(201);
-
-        validatableResponse
+                .statusCode(201)
                 .body("name", is("System Generated"))
-                .body("external_id", notNullValue());
+                .body("external_id", notNullValue())
+                .body("gateway_account_ids", hasSize(2))
+                .body("gateway_account_ids[0]", is("1"))
+                .body("gateway_account_ids[1]", is("2"));
 
-        String serviceExternalId = validatableResponse.extract().jsonPath().getString("external_id");
-
-        List<Map<String, Object>> gatewayAccountsForService = databaseHelper.findGatewayAccountsByService(serviceExternalId);
-        List<String> gatewayAccountIds = gatewayAccountsForService.stream()
-                .map(gaEntry -> gaEntry.get("gateway_account_id").toString()).collect(toList());
-
-        assertThat(gatewayAccountIds.size(), is(2));
-        assertThat(gatewayAccountIds, hasItems("1","2"));
     }
 
     @Test
