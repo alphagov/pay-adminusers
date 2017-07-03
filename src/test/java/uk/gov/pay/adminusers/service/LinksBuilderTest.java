@@ -2,13 +2,11 @@ package uk.gov.pay.adminusers.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
-import uk.gov.pay.adminusers.model.ForgottenPassword;
-import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.model.*;
 
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
@@ -20,7 +18,10 @@ public class LinksBuilderTest {
 
     @Test
     public void shouldConstruct_userSelfLinkCorrectly() throws Exception {
-        User user = User.from(randomInt(), randomUuid(), "a-username", "a-password", "email@example.com", Arrays.asList("1"), Arrays.asList(Service.from(2, "34783g87ebg764r",Service.DEFAULT_NAME_VALUE)), "4wrwef", "123435");
+        Service service = Service.from(2, "34783g87ebg764r", Service.DEFAULT_NAME_VALUE);
+        Role role = Role.role(2, "blah", "blah");
+        User user = User.from(randomInt(), randomUuid(), "a-username", "a-password", "email@example.com",
+                asList("1"), asList(service), "4wrwef", "123435", asList(ServiceRole.from(service, role)));
         User decoratedUser = linksBuilder.decorate(user);
 
         String linkJson = new ObjectMapper().writeValueAsString(decoratedUser.getLinks().get(0));

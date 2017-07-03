@@ -1,5 +1,7 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
+import uk.gov.pay.adminusers.model.ServiceRole;
+
 import javax.persistence.*;
 
 @Entity
@@ -62,5 +64,9 @@ public class ServiceRoleEntity {
 
     public void setUser(UserEntity userEntity) {
         this.user = userEntity;
+    }
+
+    public ServiceRole toServiceRole() {
+        return ServiceRole.from(getService().toService(), getRole().toRole());
     }
 }

@@ -30,7 +30,8 @@ import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
@@ -572,7 +573,7 @@ public class UserServicesTest {
     }
 
     private User aUser() {
-        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", asList("1"), newArrayList(), "784rh", "8948924");
+        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", asList("1"), newArrayList(), "784rh", "8948924", newArrayList());
     }
 
     private Role aRole() {

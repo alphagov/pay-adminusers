@@ -17,12 +17,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import static java.lang.String.valueOf;
-import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertTrue;
@@ -128,7 +125,7 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(foundUser.getLoginCounter(), is(0));
         assertThat(foundUser.getSessionVersion(), is(0));
         assertThat(foundUser.getRoles().size(), is(1));
-        assertThat(foundUser.toUser().getServices().size(), is(2));
+        assertThat(foundUser.toUser().getServiceRoles().size(), is(2));
         assertThat(foundUser.getRoles().get(0).getId(), is(role.getId()));
     }
 

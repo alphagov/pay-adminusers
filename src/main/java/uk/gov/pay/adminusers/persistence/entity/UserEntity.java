@@ -3,17 +3,20 @@ package uk.gov.pay.adminusers.persistence.entity;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.utils.Comparators;
 
 import javax.persistence.*;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Collections.*;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 
 @Entity
 @Table(name = "users")
@@ -209,22 +212,24 @@ public class UserEntity extends AbstractEntity {
 
         List<String> gatewayAccountIds = newArrayList();
         List<Service> services = newArrayList();
+        List<ServiceRole> serviceRoles = newArrayList();
 
         if (!this.servicesRoles.isEmpty()) {
             services = this.servicesRoles.stream()
-                    .map(serviceRole -> serviceRole.getService().toService()).collect(Collectors.toList());
+                    .map(serviceRole -> serviceRole.getService().toService()).collect(toList());
+            serviceRoles = this.servicesRoles.stream().map(serviceRoleEntity -> serviceRoleEntity.toServiceRole()).collect(toList());
             gatewayAccountIds = services.stream()
                     .flatMap(service -> service.getGatewayAccountIds().stream())
                     .distinct()
                     .sorted(Comparators.usingNumericComparator())
-                    .collect(Collectors.toList());
+                    .collect(toList());
         }
 
-        User user = User.from(getId(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber);
+        User user = User.from(getId(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber, serviceRoles);
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);
-        user.setRoles(this.getRoles().stream().map(RoleEntity::toRole).collect(Collectors.toList()));
+        user.setRoles(this.getRoles().stream().map(RoleEntity::toRole).collect(toList()));
 
         return user;
     }

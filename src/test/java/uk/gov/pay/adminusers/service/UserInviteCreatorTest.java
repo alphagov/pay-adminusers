@@ -10,10 +10,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
-import uk.gov.pay.adminusers.model.Invite;
-import uk.gov.pay.adminusers.model.InviteUserRequest;
-import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.model.*;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -200,7 +197,9 @@ public class UserInviteCreatorTest {
     }
 
     private User aUser(String email) {
-        return User.from(randomInt(), randomUuid(), "a-username", "random-password", email, asList("1"), asList(Service.from(serviceId, serviceExternalId, Service.DEFAULT_NAME_VALUE)), "784rh", "8948924");
+        Service service = Service.from(serviceId, serviceExternalId, Service.DEFAULT_NAME_VALUE);
+        return User.from(randomInt(), randomUuid(), "a-username", "random-password", email, asList("1"),
+                asList(service), "784rh", "8948924", asList(ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"))));
     }
 
 }
