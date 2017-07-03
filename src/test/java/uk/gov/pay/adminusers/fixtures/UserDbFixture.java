@@ -1,22 +1,22 @@
 package uk.gov.pay.adminusers.fixtures;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Arrays.asList;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class UserDbFixture {
 
     private final DatabaseTestHelper databaseTestHelper;
-    private Service service;
-    private Integer roleId;
+    private List<Pair<Service, Integer>> serviceRoles = newArrayList();
     private String externalId = randomUuid();
     private String username = RandomStringUtils.randomAlphabetic(10);
     private String otpKey = RandomStringUtils.randomAlphabetic(10);
@@ -34,23 +34,22 @@ public class UserDbFixture {
     }
 
     public User insertUser() {
-        User user = User.from(randomInt(), externalId, username, password, email, gatewayAccountIds, service != null ? asList(service) : null, otpKey, telephoneNumber);
+        List<Service> services = serviceRoles.stream().map(servicePair -> servicePair.getLeft()).collect(Collectors.toList());
+        User user = User.from(randomInt(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber);
+
         databaseTestHelper.add(user);
-        if (service != null) {
-            databaseTestHelper.addUserServiceRole(user.getId(), service.getId(), roleId);
-        }
+        serviceRoles.forEach(serviceRole -> databaseTestHelper.addUserServiceRole(user.getId(), serviceRole.getLeft().getId(), serviceRole.getRight()));
+
         return user;
     }
 
     public UserDbFixture withServiceRole(int serviceId, int roleId) {
-        this.service = Service.from(serviceId, randomUuid(), Service.DEFAULT_NAME_VALUE);
-        this.roleId = roleId;
+        this.serviceRoles.add(Pair.of(Service.from(serviceId, randomUuid(), Service.DEFAULT_NAME_VALUE), roleId));
         return this;
     }
 
     public UserDbFixture withServiceRole(Service service, int roleId) {
-        this.service = service;
-        this.roleId = roleId;
+        this.serviceRoles.add(Pair.of(service, roleId));
         return this;
     }
 
@@ -74,6 +73,7 @@ public class UserDbFixture {
         return this;
     }
 
+    @Deprecated //Use gatewayAccountIds in service
     public UserDbFixture withGatewayAccountIds(List<String> gatewayAccountIds) {
         this.gatewayAccountIds = gatewayAccountIds;
         return this;

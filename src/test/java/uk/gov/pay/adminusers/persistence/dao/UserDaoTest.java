@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static java.lang.String.valueOf;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -101,10 +102,14 @@ public class UserDaoTest extends DaoTestBase {
     @Test
     public void shouldFindUserBy_ExternalId() throws Exception {
         Role role = roleDbFixture(databaseHelper).insertRole();
-        int serviceId = serviceDbFixture(databaseHelper)
+        int serviceId1 = serviceDbFixture(databaseHelper)
+                .insertService().getId();
+        int serviceId2 = serviceDbFixture(databaseHelper)
                 .insertService().getId();
         User user = userDbFixture(databaseHelper)
-                .withServiceRole(serviceId, role.getId()).insertUser();
+                .withServiceRole(serviceId1, role.getId())
+                .withServiceRole(serviceId2, role.getId())
+                .insertUser();
 
         String username = user.getUsername();
         String externalId = user.getExternalId();
@@ -123,6 +128,7 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(foundUser.getLoginCounter(), is(0));
         assertThat(foundUser.getSessionVersion(), is(0));
         assertThat(foundUser.getRoles().size(), is(1));
+        assertThat(foundUser.toUser().getServices().size(), is(2));
         assertThat(foundUser.getRoles().get(0).getId(), is(role.getId()));
     }
 

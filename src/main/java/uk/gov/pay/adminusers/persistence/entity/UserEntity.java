@@ -211,9 +211,10 @@ public class UserEntity extends AbstractEntity {
         List<Service> services = newArrayList();
 
         if (!this.servicesRoles.isEmpty()) {
-            services = newArrayList(this.servicesRoles.get(0).getService().toService());
-            gatewayAccountIds = this.servicesRoles.get(0).getService().getGatewayAccountIds().stream()
-                    .map(GatewayAccountIdEntity::getGatewayAccountId)
+            services = this.servicesRoles.stream()
+                    .map(serviceRole -> serviceRole.getService().toService()).collect(Collectors.toList());
+            gatewayAccountIds = services.stream()
+                    .flatMap(service -> service.getGatewayAccountIds().stream())
                     .distinct()
                     .sorted(Comparators.usingNumericComparator())
                     .collect(Collectors.toList());
