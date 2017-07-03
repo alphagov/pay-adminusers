@@ -2,7 +2,9 @@ package uk.gov.pay.adminusers.fixtures;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
@@ -16,7 +18,7 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 public class UserDbFixture {
 
     private final DatabaseTestHelper databaseTestHelper;
-    private List<Pair<Service, Integer>> serviceRoles = newArrayList();
+    private List<Pair<Service, Role>> serviceRolePairs = newArrayList();
     private String externalId = randomUuid();
     private String username = RandomStringUtils.randomAlphabetic(10);
     private String otpKey = RandomStringUtils.randomAlphabetic(10);
@@ -34,22 +36,23 @@ public class UserDbFixture {
     }
 
     public User insertUser() {
-        List<Service> services = serviceRoles.stream().map(servicePair -> servicePair.getLeft()).collect(Collectors.toList());
-        User user = User.from(randomInt(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber);
+        List<Service> services = serviceRolePairs.stream().map(servicePair -> servicePair.getLeft()).collect(Collectors.toList());
+        List<ServiceRole> serviceRoles = serviceRolePairs.stream().map(servicePair -> ServiceRole.from(servicePair.getLeft(), servicePair.getRight())).collect(Collectors.toList());
+        User user = User.from(randomInt(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber, serviceRoles);
 
         databaseTestHelper.add(user);
-        serviceRoles.forEach(serviceRole -> databaseTestHelper.addUserServiceRole(user.getId(), serviceRole.getLeft().getId(), serviceRole.getRight()));
+        serviceRoles.forEach(serviceRole -> databaseTestHelper.addUserServiceRole(user.getId(), serviceRole.getService().getId(), serviceRole.getRole().getId()));
 
         return user;
     }
 
     public UserDbFixture withServiceRole(int serviceId, int roleId) {
-        this.serviceRoles.add(Pair.of(Service.from(serviceId, randomUuid(), Service.DEFAULT_NAME_VALUE), roleId));
+        this.serviceRolePairs.add(Pair.of(Service.from(serviceId, randomUuid(), Service.DEFAULT_NAME_VALUE), Role.role(roleId, "roleName", "roleDescription")));
         return this;
     }
 
     public UserDbFixture withServiceRole(Service service, int roleId) {
-        this.serviceRoles.add(Pair.of(service, roleId));
+        this.serviceRolePairs.add(Pair.of(service, Role.role(roleId, "roleName", "roleDescription")));
         return this;
     }
 

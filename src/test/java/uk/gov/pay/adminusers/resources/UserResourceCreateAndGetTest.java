@@ -29,7 +29,9 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
     @Test
     public void shouldCreateAUserWithSortedGatewayAccountIdsArraySuccessfully() throws Exception {
         String [] gatewayAccountIds = new String[]{"111111", "222"};
-        serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccountIds).insertService();
+        String serviceExternalId = serviceDbFixture(databaseHelper)
+                .withGatewayAccountIds(gatewayAccountIds)
+                .insertService().getExternalId();
 
         String username = randomAlphanumeric(10) + randomUUID().toString();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
@@ -62,9 +64,10 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("gateway_account_ids[1]", is("111111"))
                 .body("service_ids", hasSize(1))
                 .body("service_ids[0]", is(notNullValue()))
-                .body("services", hasSize(1))
-                .body("services[0].id", is(notNullValue()))
-                .body("services[0].name", is(notNullValue()))
+                .body("service_roles", hasSize(1))
+                .body("service_roles[0].service.external_id", is(serviceExternalId))
+                .body("service_roles[0].service.name", is("System Generated"))
+                .body("service_roles[0].role.name", is("admin"))
                 .body("telephone_number", is("45334534634"))
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
