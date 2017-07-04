@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
+import org.apache.commons.lang3.StringUtils;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -35,34 +36,42 @@ public class ServiceRoleUpdater {
     /**
      * updates user's service role.
      *
-     * @param externalId
+     * @param userExternalId
      * @param serviceId
      * @param roleName
      * @return Updated User if successful or Optional.empty() if user not found
      */
     @Transactional
-    public Optional<User> doUpdate(String externalId, Integer serviceId, String roleName) {
-        Optional<UserEntity> userMaybe = userDao.findByExternalId(externalId);
-        if(!userMaybe.isPresent()) {
+    public Optional<User> doUpdate(String userExternalId, String serviceId, String roleName) {
+        String serviceExternalId = serviceId;
+        //Deprecated : Until selfservice is moved to use the service externalId.
+        if (StringUtils.isNumeric(serviceId)) {
+            serviceExternalId = serviceDao.findById(Integer.valueOf(serviceId))
+                    .map(serviceEntity -> serviceEntity.getExternalId())
+                    .orElseThrow(() -> notFoundServiceError(serviceId));
+        }
+
+        Optional<UserEntity> userMaybe = userDao.findByExternalId(userExternalId);
+        if (!userMaybe.isPresent()) {
             return Optional.empty();
         }
         UserEntity userEntity = userMaybe.get();
 
         Optional<RoleEntity> roleMaybe = roleDao.findByRoleName(roleName);
-        if(!roleMaybe.isPresent()){
+        if (!roleMaybe.isPresent()) {
             throw undefinedRoleException(roleName);
         }
         RoleEntity roleEntity = roleMaybe.get();
 
-        Optional<ServiceRoleEntity> servicesRoleMaybe = userEntity.getServicesRole(serviceId);
-        if(!servicesRoleMaybe.isPresent()) {
-            throw conflictingServiceForUser(userEntity.getId(), serviceId);
+        Optional<ServiceRoleEntity> servicesRoleMaybe = userEntity.getServicesRole(serviceExternalId);
+        if (!servicesRoleMaybe.isPresent()) {
+            throw conflictingServiceForUser(userEntity.getExternalId(), serviceExternalId);
         }
 
         ServiceRoleEntity serviceRoleEntity = servicesRoleMaybe.get();
 
         if (!roleEntity.isAdmin()) {
-            if (serviceDao.countOfRolesForService(serviceId, Role.ADMIN.getId()) <= adminsPerServiceLimit) {
+            if (serviceDao.countOfUsersWithRoleForService(serviceExternalId, Role.ADMIN.getId()) <= adminsPerServiceLimit) {
                 throw adminRoleLimitException(adminsPerServiceLimit);
             }
         }

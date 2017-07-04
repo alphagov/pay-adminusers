@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 
 import static com.jayway.restassured.http.ContentType.JSON;
@@ -20,9 +21,10 @@ public class UserResourceUpdateServiceRoleTest extends IntegrationTest {
     @Test
     public void shouldUpdateUserServiceRole() throws Exception {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
-        int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
-        User user = userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
-        userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
+        Service service = serviceDbFixture(databaseHelper).insertService();
+        String serviceExternalId = service.getExternalId();
+        User user = userDbFixture(databaseHelper).withServiceRole(service, role.getId()).insertUser();
+        userDbFixture(databaseHelper).withServiceRole(service, role.getId()).insertUser();
 
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("role_name", "view-and-refund"));
 
@@ -30,7 +32,7 @@ public class UserResourceUpdateServiceRoleTest extends IntegrationTest {
                 .when()
                 .contentType(JSON)
                 .body(payload)
-                .put(format(USER_SERVICE_RESOURCE, user.getExternalId(), serviceId))
+                .put(format(USER_SERVICE_RESOURCE, user.getExternalId(), serviceExternalId))
                 .then()
                 .statusCode(200)
                 .body("username", is(user.getUsername()))
@@ -40,14 +42,14 @@ public class UserResourceUpdateServiceRoleTest extends IntegrationTest {
 
     @Test
     public void shouldError404_ifUserNotFound_whenUpdatingServiceRole() throws Exception {
-        int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
+        String serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("role_name", "view-and-refund"));
 
         givenSetup()
                 .when()
                 .contentType(JSON)
                 .body(payload)
-                .put(format(USER_SERVICE_RESOURCE, "non-existent", serviceId))
+                .put(format(USER_SERVICE_RESOURCE, "non-existent", serviceExternalId))
                 .then()
                 .statusCode(404);
     }
@@ -55,8 +57,9 @@ public class UserResourceUpdateServiceRoleTest extends IntegrationTest {
     @Test
     public void shouldError412_ifNoOfMinimumAdminsLimitReached_whenUpdatingServiceRole() throws Exception {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
-        int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
-        User user = userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
+        Service service = serviceDbFixture(databaseHelper).insertService();
+        String serviceExternalId = service.getExternalId();
+        User user = userDbFixture(databaseHelper).withServiceRole(service, role.getId()).insertUser();
 
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("role_name", "view-and-refund"));
 
@@ -64,7 +67,7 @@ public class UserResourceUpdateServiceRoleTest extends IntegrationTest {
                 .when()
                 .contentType(JSON)
                 .body(payload)
-                .put(format(USER_SERVICE_RESOURCE, user.getExternalId(), serviceId))
+                .put(format(USER_SERVICE_RESOURCE, user.getExternalId(), serviceExternalId))
                 .then()
                 .statusCode(412)
                 .body("errors", hasSize(1))

@@ -35,12 +35,12 @@ public class ServiceDao extends JpaDao<ServiceEntity> {
         return Optional.empty();
     }
 
-    public Long countOfRolesForService(Integer serviceId, Integer roleId) {
+    public Long countOfUsersWithRoleForService(String serviceExternalId, Integer roleId) {
 
-        String query = "SELECT count(*) FROM user_services_roles usr WHERE usr.service_id=? AND usr.role_id=?";
+        String query = "SELECT count(*) FROM user_services_roles usr WHERE usr.role_id=? AND usr.service_id = (SELECT srv.id FROM services srv WHERE srv.external_id = ?)";
         return (long) entityManager.get().createNativeQuery(query)
-                .setParameter(1, serviceId)
-                .setParameter(2, roleId)
+                .setParameter(1, roleId)
+                .setParameter(2, serviceExternalId)
                 .getSingleResult();
     }
 

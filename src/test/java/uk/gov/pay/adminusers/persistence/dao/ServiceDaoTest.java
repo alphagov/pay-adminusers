@@ -60,18 +60,17 @@ public class ServiceDaoTest extends DaoTestBase {
 
     @Test
     public void shouldGetRoleCountForAService() throws Exception {
-        Integer serviceId = randomInt();
+        String serviceExternalId = randomUuid();
         Integer roleId = randomInt();
-        String externalId = randomUuid();
-        setupUsersForServiceAndRole(serviceId, externalId, roleId, 3);
+        setupUsersForServiceAndRole(serviceExternalId, roleId, 3);
 
-        Long count = serviceDao.countOfRolesForService(serviceId, roleId);
+        Long count = serviceDao.countOfUsersWithRoleForService(serviceExternalId, roleId);
 
         assertThat(count, is(3l));
 
     }
 
-    private void setupUsersForServiceAndRole(int serviceId, String externalId, int roleId, int noOfUsers) {
+    private void setupUsersForServiceAndRole(String externalId, int roleId, int noOfUsers) {
         Permission perm1 = aPermission();
         Permission perm2 = aPermission();
         databaseHelper.add(perm1).add(perm2);
@@ -81,11 +80,11 @@ public class ServiceDaoTest extends DaoTestBase {
         databaseHelper.add(role);
 
         String gatewayAccountId1 = randomInt().toString();
-        Service service1 = Service.from(serviceId, externalId, Service.DEFAULT_NAME_VALUE);
+        Service service1 = Service.from(randomInt(), externalId, Service.DEFAULT_NAME_VALUE);
         databaseHelper.addService(service1, gatewayAccountId1);
 
         range(0, noOfUsers - 1).forEach(i -> {
-            UserDbFixture.userDbFixture(databaseHelper).withServiceRole(serviceId, roleId).insertUser();
+            UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).insertUser();
         });
 
         //unmatching service
@@ -96,7 +95,7 @@ public class ServiceDaoTest extends DaoTestBase {
         databaseHelper.addService(service2, gatewayAccountId2);
 
         //same user 2 diff services - should count only once
-        User user3 = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(serviceId, roleId).insertUser();
+        User user3 = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).insertUser();
         databaseHelper.addUserServiceRole(user3.getId(), serviceId2, role.getId());
     }
 

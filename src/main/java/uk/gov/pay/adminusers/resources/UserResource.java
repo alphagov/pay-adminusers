@@ -36,7 +36,7 @@ public class UserResource {
     private static final String SECOND_FACTOR_RESOURCE = USER_RESOURCE + "/second-factor";
     private static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/authenticate";
     private static final String USER_SERVICES_RESOURCE = USER_RESOURCE + "/services";
-    private static final String USER_SERVICE_RESOURCE = USER_SERVICES_RESOURCE + "/{serviceId}";
+    private static final String USER_SERVICE_RESOURCE = USER_SERVICES_RESOURCE + "/{serviceExternalId}";
 
     public static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
 
@@ -150,13 +150,13 @@ public class UserResource {
     @Path(USER_SERVICE_RESOURCE)
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response updateServiceRole(@PathParam("externalId") String externalId, @PathParam("serviceId") Integer serviceId, JsonNode payload) {
+    public Response updateServiceRole(@PathParam("externalId") String userExternalId, @PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
         logger.info("User update service role request");
         return validator.validateServiceRole(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
                     String roleName = payload.get(User.FIELD_ROLE_NAME).asText();
-                    return userServicesFactory.serviceRoleUpdater().doUpdate(externalId, serviceId, roleName)
+                    return userServicesFactory.serviceRoleUpdater().doUpdate(userExternalId, serviceExternalId, roleName)
                             .map(user -> Response.status(OK).entity(user).build())
                             .orElseGet(() -> Response.status(NOT_FOUND).build());
                 });

@@ -240,6 +240,7 @@ public class UserEntity extends AbstractEntity {
         this.servicesRoles.add(service);
     }
 
+    @Deprecated // Use external Id version
     public Optional<ServiceRoleEntity> getServicesRole(Integer serviceId) {
         return servicesRoles.stream().filter(serviceRoleEntity -> serviceId.equals(serviceRoleEntity.getService().getId())).findFirst();
     }

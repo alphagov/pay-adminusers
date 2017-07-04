@@ -28,6 +28,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -57,7 +58,7 @@ public class ServiceRoleUpdaterTest {
     public void shouldReturnEmpty_ifUserNotFound_whenUpdatingServiceRole() throws Exception {
         when(userDao.findByExternalId(NON_EXISTENT_USER_EXTERNAL_ID)).thenReturn(Optional.empty());
 
-        Optional<User> userOptional = serviceRoleUpdater.doUpdate(NON_EXISTENT_USER_EXTERNAL_ID, randomInt(), "randomRole");
+        Optional<User> userOptional = serviceRoleUpdater.doUpdate(NON_EXISTENT_USER_EXTERNAL_ID, randomUuid(), "randomRole");
         assertFalse(userOptional.isPresent());
     }
 
@@ -69,7 +70,7 @@ public class ServiceRoleUpdaterTest {
 
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 400 Bad Request");
-        serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, randomInt(), randomRole);
+        serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, randomUuid(), randomRole);
     }
 
     @Test
@@ -80,45 +81,45 @@ public class ServiceRoleUpdaterTest {
 
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 409 Conflict");
-        serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, randomInt(), role);
+        serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, randomUuid(), role);
     }
 
     @Test
     public void shouldError_ifCountOfServiceAdminsLessThan1_whenUpdatingServiceRole() throws Exception {
         String role = "a-role";
-        Integer serviceId = 1;
+        String serviceExternalId = "sxrdctfvygbuhinj";
 
         UserEntity userEntity = UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID));
         RoleEntity roleEntity = new RoleEntity(aRole(10, role)); //non admin
         ServiceEntity serviceEntity = new ServiceEntity(asList("1"));
-        serviceEntity.setId(serviceId);
+        serviceEntity.setExternalId(serviceExternalId);
         userEntity.setServiceRole(new ServiceRoleEntity(serviceEntity, roleEntity));
 
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(userEntity));
         when(roleDao.findByRoleName(role)).thenReturn(Optional.of(roleEntity));
-        when(serviceDao.countOfRolesForService(serviceId, ADMIN.getId())).thenReturn(1L);
+        when(serviceDao.countOfUsersWithRoleForService(serviceExternalId, ADMIN.getId())).thenReturn(1L);
 
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 412 Precondition Failed");
-        serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, serviceId, role);
+        serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, serviceExternalId, role);
     }
 
     @Test
     public void shouldReturnUpdatedUser_whenUpdatingServiceRoleSuccess() throws Exception {
         String role = "a-role";
-        Integer serviceId = 1;
+        String serviceExternalId = "sxrdctfvygbuvoennj";;
 
         UserEntity userEntity = UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID));
         RoleEntity roleEntity = new RoleEntity(aRole(10, role)); //non admin
         ServiceEntity serviceEntity = new ServiceEntity(asList("1"));
-        serviceEntity.setId(serviceId);
+        serviceEntity.setExternalId(serviceExternalId);
         userEntity.setServiceRole(new ServiceRoleEntity(serviceEntity, roleEntity));
 
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(userEntity));
         when(roleDao.findByRoleName(role)).thenReturn(Optional.of(roleEntity));
-        when(serviceDao.countOfRolesForService(serviceId, ADMIN.getId())).thenReturn(2L);
+        when(serviceDao.countOfUsersWithRoleForService(serviceExternalId, ADMIN.getId())).thenReturn(2L);
 
-        Optional<User> userOptional = serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, serviceId, role);
+        Optional<User> userOptional = serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, serviceExternalId, role);
         assertTrue(userOptional.isPresent());
         assertThat(userOptional.get().getRole().getId(), is(10));
     }
