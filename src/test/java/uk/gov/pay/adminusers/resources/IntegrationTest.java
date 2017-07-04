@@ -16,7 +16,7 @@ public class IntegrationTest {
     static final String USER_RESOURCE_URL = "/v1/api/users/%s";
     static final String USERS_AUTHENTICATE_URL = "/v1/api/users/authenticate";
     static final String USER_2FA_URL = "/v1/api/users/%s/second-factor";
-    static final String USER_SERVICE_RESOURCE = USER_RESOURCE_URL + "/services/%d";
+    static final String USER_SERVICE_RESOURCE = USER_RESOURCE_URL + "/services/%s";
 
     static final String INVITES_RESOURCE_URL = "/v1/api/invites";
     static final String INVITES_GENERATE_OTP_RESOURCE_URL = "/v1/api/invites/otp/generate";
@@ -27,7 +27,6 @@ public class IntegrationTest {
     @Deprecated
     static final String SERVICE_INVITES_RESOURCE_URL = "/v1/api/services/%d/invites";
     static final String INVITE_USER_RESOURCE_URL = "/v1/api/invites/user";
-    static final String INVITE_SERVICE_RESOURCE_URL = "/v1/api/invites/service";
 
     @ClassRule
     public static DropwizardAppWithPostgresRule app = new DropwizardAppWithPostgresRule();

@@ -39,8 +39,8 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 
-    public static WebApplicationException conflictingServiceForUser(Integer userId, Integer serviceId) {
-        String error = format("user [%d] does not belong to service [%d]", userId, serviceId);
+    public static WebApplicationException conflictingServiceForUser(String userExternalId, String serviceExternalId) {
+        String error = format("user [%s] does not belong to service [%s]", userExternalId, serviceExternalId);
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 
