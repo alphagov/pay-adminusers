@@ -200,6 +200,14 @@ public class InviteEntity extends AbstractEntity {
         this.type = type.getType();
     }
 
+    public boolean isServiceType() {
+        return InviteType.SERVICE.equals(InviteType.from(type));
+    }
+
+    public boolean isUserType() {
+        return InviteType.USER.equals(InviteType.from(type));
+    }
+
     @Deprecated //use toInvite() instead
     public Invite toInvite(String inviteUrl) {
         Invite invite = toInvite();

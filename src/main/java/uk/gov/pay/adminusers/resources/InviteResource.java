@@ -54,6 +54,22 @@ public class InviteResource {
     }
 
     @POST
+    @Path("/{code}/complete")
+    @Produces(APPLICATION_JSON)
+    public Response completeInvite(@PathParam("code") String inviteCode) {
+
+        LOGGER.info("Invite  complete POST request for code - [ {} ]", inviteCode);
+
+        if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
+            return Response.status(NOT_FOUND).build();
+        }
+
+        return inviteServiceFactory.completeInvite().complete(inviteCode)
+                .map(invite -> Response.status(OK).type(APPLICATION_JSON).entity(invite).build())
+                .orElseGet(() -> Response.status(NOT_FOUND).build());
+    }
+
+    @POST
     @Path("/service")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
