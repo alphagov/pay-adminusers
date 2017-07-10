@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -17,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static java.lang.String.valueOf;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -69,7 +71,7 @@ public class UserDaoTest extends DaoTestBase {
         ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity, roleEntity);
         serviceRoleEntity.setUser(userEntity);
 
-        userEntity.setServiceRole(serviceRoleEntity);
+        userEntity.addServiceRole(serviceRoleEntity);
 
         userDao.persist(userEntity);
 
@@ -182,20 +184,20 @@ public class UserDaoTest extends DaoTestBase {
     }
 
     @Test
-    public void shouldOverrideServiceRoleOfAnExistingUser_whenSettingANewServiceRole() {
+    public void shouldAddServiceRoleOfAnExistingUser_whenSettingANewServiceRole() {
         Role role1 = roleDbFixture(databaseHelper).insertRole();
         Role role2 = roleDbFixture(databaseHelper).insertRole();
 
         String gatewayAccountId1 = randomInt().toString();
         String gatewayAccountId2 = randomInt().toString();
 
-        int serviceId1 = serviceDbFixture(databaseHelper)
-                .withGatewayAccountIds(gatewayAccountId1).insertService().getId();
+        Service service1 = serviceDbFixture(databaseHelper)
+                .withGatewayAccountIds(gatewayAccountId1).insertService();
         serviceDbFixture(databaseHelper)
                 .withGatewayAccountIds(gatewayAccountId2).insertService();
 
         User user = userDbFixture(databaseHelper)
-                .withServiceRole(serviceId1, role1.getId()).insertUser();
+                .withServiceRole(service1, role1.getId()).insertUser();
 
         String username = user.getUsername();
         UserEntity existingUser = userDao.findByUsername(username).get();
@@ -209,25 +211,26 @@ public class UserDaoTest extends DaoTestBase {
 
         ServiceRoleEntity serviceRole = new ServiceRoleEntity(serviceEntity2, roleEntity2);
         serviceRole.setUser(existingUser);
-        existingUser.setServiceRole(serviceRole);
-        userDao.persist(existingUser);
+        existingUser.addServiceRole(serviceRole);
+        userDao.merge(existingUser);
 
         UserEntity changedUser = userDao.findByUsername(username).get();
-        assertThat(changedUser.getGatewayAccountId(), is(gatewayAccountId2));
-        assertThat(changedUser.getRoles().size(), is(1));
-        assertThat(changedUser.getRoles().get(0).getId(), is(role2.getId()));
+        List<ServiceRoleEntity> servicesRoles = changedUser.getServicesRoles();
+        assertThat(servicesRoles.size(), is(2));
+        assertThat(servicesRoles.stream().map(sr -> sr.getService().getExternalId()).collect(toList()), hasItems(service1.getExternalId(), serviceEntity2.getExternalId()));
+        assertThat(servicesRoles.stream().map(sr -> sr.getRole().getName()).collect(toList()), hasItems(role1.getName(), role2.getName()));
     }
 
     @Test
     public void shouldFindUsers_ByServiceId_OrderedByUsername() {
 
         Role role1 = roleDbFixture(databaseHelper)
-                        .withName("view")
-                        .insertRole();
+                .withName("view")
+                .insertRole();
 
         Role role2 = roleDbFixture(databaseHelper)
-                        .withName("admin")
-                        .insertRole();
+                .withName("admin")
+                .insertRole();
 
         int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
 

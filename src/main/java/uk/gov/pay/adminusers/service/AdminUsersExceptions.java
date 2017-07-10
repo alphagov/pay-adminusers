@@ -39,12 +39,17 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 
+    public static WebApplicationException conflictingServiceRoleForUser(String userExternalId, String serviceExternalId) {
+        String error = format("Cannot assign service role. user [%s] already got access to service [%s].", userExternalId, serviceExternalId);
+        return buildWebApplicationException(error, CONFLICT.getStatusCode());
+    }
+
     public static WebApplicationException conflictingServiceForUser(String userExternalId, String serviceExternalId) {
         String error = format("user [%s] does not belong to service [%s]", userExternalId, serviceExternalId);
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 
-    public static WebApplicationException notFoundServiceError(String serviceId) {
+    public static WebApplicationException serviceDoesNotExistError(String serviceId) {
         String error = format("Service %s provided does not exist", serviceId);
         return buildWebApplicationException(error, BAD_REQUEST.getStatusCode());
     }

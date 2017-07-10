@@ -59,6 +59,11 @@ public class UserRequestValidator {
         return missingMandatoryFields.map(Errors::from);
     }
 
+    public Optional<Errors> validateAssignServiceRequest(JsonNode payload) {
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_SERVICE_EXTERNAL_ID,FIELD_ROLE_NAME);
+        return missingMandatoryFields.map(Errors::from);
+    }
+
     public Optional<Errors> validatePatchRequest(JsonNode payload) {
         Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, "op", "path", "value");
         if (missingMandatoryFields.isPresent()) {

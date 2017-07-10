@@ -226,7 +226,7 @@ public class InviteEntity extends AbstractEntity {
         userEntity.setLoginCounter(0);
         userEntity.setDisabled(Boolean.FALSE);
         userEntity.setSessionVersion(0);
-        userEntity.setServiceRole(new ServiceRoleEntity(service, role));
+        userEntity.addServiceRole(new ServiceRoleEntity(service, role));
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
         userEntity.setCreatedAt(now);
         userEntity.setUpdatedAt(now);

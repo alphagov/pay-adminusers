@@ -52,7 +52,7 @@ public class UserEntityTest {
         RoleEntity roleEntity = new RoleEntity(role);
         ServiceRoleEntity serviceRole = new ServiceRoleEntity(service, roleEntity);
 
-        userEntity.setServiceRole(serviceRole);
+        userEntity.addServiceRole(serviceRole);
 
         assertThat(userEntity.getRoles().size(), is(1));
         assertThat(userEntity.getRoles().get(0).getId(), is(1));

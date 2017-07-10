@@ -93,7 +93,7 @@ public class ServiceRoleUpdaterTest {
         RoleEntity roleEntity = new RoleEntity(aRole(10, role)); //non admin
         ServiceEntity serviceEntity = new ServiceEntity(asList("1"));
         serviceEntity.setExternalId(serviceExternalId);
-        userEntity.setServiceRole(new ServiceRoleEntity(serviceEntity, roleEntity));
+        userEntity.addServiceRole(new ServiceRoleEntity(serviceEntity, roleEntity));
 
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(userEntity));
         when(roleDao.findByRoleName(role)).thenReturn(Optional.of(roleEntity));
@@ -113,7 +113,7 @@ public class ServiceRoleUpdaterTest {
         RoleEntity roleEntity = new RoleEntity(aRole(10, role)); //non admin
         ServiceEntity serviceEntity = new ServiceEntity(asList("1"));
         serviceEntity.setExternalId(serviceExternalId);
-        userEntity.setServiceRole(new ServiceRoleEntity(serviceEntity, roleEntity));
+        userEntity.addServiceRole(new ServiceRoleEntity(serviceEntity, roleEntity));
 
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(userEntity));
         when(roleDao.findByRoleName(role)).thenReturn(Optional.of(roleEntity));

@@ -594,7 +594,7 @@ public class UserServicesTest {
         role.setPermissions(asList(aPermission()));
 
         ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity, new RoleEntity(role));
-        userEntity.setServiceRole(serviceRoleEntity);
+        userEntity.addServiceRole(serviceRoleEntity);
 
         return userEntity;
     }

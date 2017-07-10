@@ -28,7 +28,8 @@ import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_DISABLED;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingServiceGatewayAccountsForUser;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.undefinedRoleException;
 
 public class UserServices {
 
@@ -260,17 +261,17 @@ public class UserServices {
                     return new ServiceRoleEntity(service, role);
                 });
         serviceRole.setUser(user);
-        user.setServiceRole(serviceRole);
+        user.addServiceRole(serviceRole);
     }
 
     private void addServiceRoleToUser(UserEntity user, RoleEntity role, String serviceId) {
         ServiceRoleEntity serviceRole = serviceDao.findById(Integer.parseInt(serviceId))
                 .map(serviceEntity -> new ServiceRoleEntity(serviceEntity, role))
                 .orElseGet(() -> {
-                    throw AdminUsersExceptions.notFoundServiceError(serviceId);
+                    throw AdminUsersExceptions.serviceDoesNotExistError(serviceId);
                 });
         serviceRole.setUser(user);
-        user.setServiceRole(serviceRole);
+        user.addServiceRole(serviceRole);
     }
 
     private Optional<ServiceEntity> getServiceAssignedTo(List<String> gatewayAccountIds) {
