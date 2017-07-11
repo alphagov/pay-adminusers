@@ -162,6 +162,24 @@ public class UserResource {
                 });
     }
 
+    @POST
+    @Path(USER_SERVICES_RESOURCE)
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response createServiceRole(@PathParam("externalId") String userExternalId, JsonNode payload) {
+        logger.info("Assign service role to a user {} request", userExternalId);
+        return validator.validateAssignServiceRequest(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> {
+                    String serviceExternalId = payload.get(User.FIELD_SERVICE_EXTERNAL_ID).asText();
+                    String roleName = payload.get(User.FIELD_ROLE_NAME).asText();
+                    return userServicesFactory.serviceRoleCreator().doCreate(userExternalId, serviceExternalId, roleName)
+                            .map(user -> Response.status(OK).entity(user).build())
+                            .orElseGet(() -> Response.status(NOT_FOUND).build());
+                });
+
+    }
+
     private Response handleCreateUserException(String userName, Exception e) {
         if (e.getMessage().contains(CONSTRAINT_VIOLATION_MESSAGE)) {
             throw conflictingUsername(userName);

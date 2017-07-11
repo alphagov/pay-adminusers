@@ -234,10 +234,9 @@ public class UserEntity extends AbstractEntity {
         return user;
     }
 
-    public void setServiceRole(ServiceRoleEntity service) {
-        this.servicesRoles.clear();
-        service.setUser(this);
-        this.servicesRoles.add(service);
+    public void addServiceRole(ServiceRoleEntity serviceRole) {
+        serviceRole.setUser(this);
+        this.servicesRoles.add(serviceRole);
     }
 
     @Deprecated // Use external Id version
@@ -258,5 +257,9 @@ public class UserEntity extends AbstractEntity {
 
     public void remove(ServiceRoleEntity serviceRole) {
         servicesRoles.remove(serviceRole);
+    }
+
+    public List<ServiceRoleEntity> getServicesRoles() {
+        return servicesRoles;
     }
 }

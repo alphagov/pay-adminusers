@@ -394,6 +394,92 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
+## POST /v1/api/users/{externalId}/services
+
+This endpoint assigns a new service role to a user.
+
+### Request example
+
+```
+POST /v1/api/users/7d19aff33f8948deb97ed16b2912dcd3/services
+Content-Type: application/json
+{
+    "service_external_id": "ahq8745yq387"
+    "role_name": "view-and-refund"
+}
+```
+
+### Response example
+
+```
+200 OK
+Content-Type: application/json
+{
+    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
+    "username": "abcd1234",
+    "email": "email@email.com",
+    "gateway_account_ids": ["1"],
+    "telephone_number": "49875792",
+    "otp_key": "43c3c4t",
+    "sessionVersion": 2,
+    "service_role":[{
+        service:{external_id: "ahq8745yq387",name:"service-name"},
+        role:{
+            name:"view-and-refund", 
+            permissions:[{name:"perm-1", description:"perm-description"}]
+        }  
+    }],
+    "_links": [{
+        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
+        "rel" : "self",
+        "method" : "GET"
+    }]
+    
+}
+```
+
+if user not found:
+```
+404 Not found
+```
+
+if service id not found:
+```
+400 Bad request
+Content-Type: application/json
+{
+  "errors": "Service ahq8745yq387 provided does not exist"
+}
+```
+
+
+if provided role name not valid:
+```
+400 Bad request
+Content-Type: application/json
+{
+  "errors": "role [xyz] not recognised"
+}
+```
+
+if provided the user already has access to the given service
+```
+409 Conflict
+Content-Type: application/json
+{
+  "errors": "Cannot assign service role. user [7d19aff33f8948deb97ed16b2912dcd3] already got access to service [ahq8745yq387]."
+}
+```
+
+#### Request field description
+
+| Field                    | required | Description                                                | Supported Values     |
+| ------------------------ |:--------:| ---------------------------------------------------------- |----------------------|
+| `service_external_id`    |   X      | the external id of an existing service                     |                      |
+| `role_name`              |   X      | the name of an existing valid role                         | e.g. admin           |
+
+-----------------------------------------------------------------------------------------------------------
+
 ## POST /v1/api/services
 
 This endpoint creates a new service. And assigns to gateway account ids (Optional)

@@ -179,6 +179,25 @@ public class UserRequestValidatorTest {
     }
 
     @Test
+    public void shouldSuccess_whenAddingServiceRole() throws Exception {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("service_external_id", "blah-blah", "role_name", "blah"));
+        Optional<Errors> optionalErrors = validator.validateAssignServiceRequest(payload);
+
+        assertFalse(optionalErrors.isPresent());
+    }
+
+    @Test
+    public void shouldError_whenAddingServiceRole_ifRequiredParamMissing() throws Exception {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("service_external_id", "blah-blah"));
+        Optional<Errors> optionalErrors = validator.validateAssignServiceRequest(payload);
+
+        Errors errors = optionalErrors.get();
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems(
+                "Field [role_name] is required"));
+    }
+
+    @Test
     public void shouldError_ifNumericFieldsAreNotNumeric() throws Exception {
         String invalidPayload = "{" +
                 "\"username\": \"a-username\"," +

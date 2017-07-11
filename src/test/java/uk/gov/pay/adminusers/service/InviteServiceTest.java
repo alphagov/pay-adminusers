@@ -107,7 +107,7 @@ public class InviteServiceTest {
         senderUser.setExternalId(senderExternalId);
         senderUser.setEmail(senderEmail);
         RoleEntity role = new RoleEntity(role(ADMIN.getId(), "admin", "Admin Role"));
-        senderUser.setServiceRole(new ServiceRoleEntity(service, role));
+        senderUser.addServiceRole(new ServiceRoleEntity(service, role));
         when(mockUserDao.findByExternalId(senderExternalId)).thenReturn(Optional.of(senderUser));
 
         InviteEntity anInvite = anInvite(email, inviteCode, otpKey, senderUser, service, role);

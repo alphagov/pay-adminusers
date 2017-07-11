@@ -163,7 +163,7 @@ public class ServiceUserRemoverTest {
         final UserEntity user = new UserEntity();
         user.setExternalId(externalId);
         user.setExternalId(random(10));
-        user.setServiceRole(serviceRole);
+        user.addServiceRole(serviceRole);
         return user;
     }
 

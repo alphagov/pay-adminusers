@@ -10,4 +10,5 @@ public interface UserServicesFactory {
 
     ServiceRoleUpdater serviceRoleUpdater();
 
+    ServiceRoleCreator serviceRoleCreator();
 }

@@ -16,6 +16,7 @@ import static java.util.Collections.emptyList;
 public class User {
 
     public static final String FIELD_USERNAME = "username";
+    public static final String FIELD_SERVICE_EXTERNAL_ID = "service_external_id";
     public static final String FIELD_PASSWORD = "password";
     public static final String FIELD_EMAIL = "email";
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";

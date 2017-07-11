@@ -48,7 +48,7 @@ public class ServiceRoleUpdater {
         if (StringUtils.isNumeric(serviceId)) {
             serviceExternalId = serviceDao.findById(Integer.valueOf(serviceId))
                     .map(serviceEntity -> serviceEntity.getExternalId())
-                    .orElseThrow(() -> notFoundServiceError(serviceId));
+                    .orElseThrow(() -> serviceDoesNotExistError(serviceId));
         }
 
         Optional<UserEntity> userMaybe = userDao.findByExternalId(userExternalId);
@@ -76,7 +76,7 @@ public class ServiceRoleUpdater {
             }
         }
         serviceRoleEntity.setRole(roleEntity);
-        userEntity.setServiceRole(serviceRoleEntity);
+        userEntity.addServiceRole(serviceRoleEntity);
         userDao.persist(userEntity);
         return Optional.of(linksBuilder.decorate(userEntity.toUser()));
     }
