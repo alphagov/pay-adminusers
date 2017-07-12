@@ -177,7 +177,11 @@ public class InviteCompleterTest {
     }
 
     private InviteEntity anInvite(String email, String code, String otpKey, UserEntity userEntity, ServiceEntity serviceEntity, RoleEntity roleEntity) {
-        return new InviteEntity(email, code, otpKey, userEntity, serviceEntity, roleEntity);
+        InviteEntity anInvite = new InviteEntity(email, code, otpKey,roleEntity);
+        anInvite.setSender(userEntity);
+        anInvite.setService(serviceEntity);
+        
+        return anInvite;
     }
 
     private User aUser(String email) {

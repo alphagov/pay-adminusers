@@ -57,6 +57,7 @@ public class InviteCompleter {
                         serviceDao.persist(serviceEntity);
                         ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity, inviteEntity.getRole());
                         userEntity.addServiceRole(serviceRoleEntity);
+                        inviteEntity.setService(serviceEntity);
                     }
 
                     userDao.persist(userEntity);
