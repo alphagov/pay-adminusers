@@ -8,6 +8,7 @@ import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.util.Optional;
@@ -48,13 +49,16 @@ public class InviteCompleter {
                         throw conflictingEmail(inviteEntity.getEmail());
                     }
 
+                    UserEntity userEntity = inviteEntity.mapToUserEntity();
+
+                    //TODO: this needs looking at again - bit icky
                     if (inviteEntity.isServiceType()) {
                         ServiceEntity serviceEntity = ServiceEntity.from(Service.from());
                         serviceDao.persist(serviceEntity);
-                        inviteEntity.setService(serviceEntity);
+                        ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity, inviteEntity.getRole());
+                        userEntity.addServiceRole(serviceRoleEntity);
                     }
 
-                    UserEntity userEntity = inviteEntity.mapToUserEntity();
                     userDao.persist(userEntity);
 
                     inviteEntity.setDisabled(true);

@@ -44,7 +44,6 @@ public class InviteResourceCompleteTest extends IntegrationTest {
         Map<String, Object> invite = databaseHelper.findInviteByCode(inviteCode).stream().findFirst().get();
 
         assertThat(role.get("id"), is(invite.get("role_id")));
-        assertThat(role.get("service_id"), is(invite.get("service_id")));
 
         assertThat(createdUser.get("password"), is(password));
         assertThat(createdUser.get("email"), is(email));
