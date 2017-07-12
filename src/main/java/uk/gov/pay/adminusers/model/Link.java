@@ -13,7 +13,8 @@ public class Link {
 
     public enum Rel {
         self,
-        invite
+        invite,
+        user
     }
 
     private Rel rel;

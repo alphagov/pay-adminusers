@@ -52,4 +52,12 @@ public class LinksBuilder {
         invite.getLinks().add(selfLink);
         return invite;
     }
+
+    public Invite addUserLink(User user, Invite invite) {
+        URI uri = fromUri(baseUrl).path(USERS_RESOURCE).path(user.getExternalId())
+                .build();
+        Link userLink = Link.from(Rel.user, "GET", uri.toString());
+        invite.getLinks().add(userLink);
+        return invite;
+    }
 }

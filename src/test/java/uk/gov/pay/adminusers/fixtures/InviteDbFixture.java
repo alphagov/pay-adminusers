@@ -43,6 +43,17 @@ public class InviteDbFixture {
         return code;
     }
 
+    public String insertServiceInvite() {
+        int roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
+        int userId = UserDbFixture.userDbFixture(databaseTestHelper).insertUser().getId();
+        databaseTestHelper.addServiceInvite(
+                nextInt(), userId, roleId,
+                email, code, otpKey, date, expiryDate, telephoneNumber, password,
+                disabled, loginCounter
+        );
+        return code;
+    }
+
     public InviteDbFixture expired() {
         this.expiryDate = this.date.minus(1, SECONDS);
         return this;

@@ -200,6 +200,14 @@ public class InviteEntity extends AbstractEntity {
         this.type = type.getType();
     }
 
+    public boolean isServiceType() {
+        return InviteType.SERVICE.equals(InviteType.from(type));
+    }
+
+    public boolean isUserType() {
+        return InviteType.USER.equals(InviteType.from(type));
+    }
+
     @Deprecated //use toInvite() instead
     public Invite toInvite(String inviteUrl) {
         Invite invite = toInvite();
@@ -226,7 +234,9 @@ public class InviteEntity extends AbstractEntity {
         userEntity.setLoginCounter(0);
         userEntity.setDisabled(Boolean.FALSE);
         userEntity.setSessionVersion(0);
-        userEntity.addServiceRole(new ServiceRoleEntity(service, role));
+        if (service != null) {
+            userEntity.addServiceRole(new ServiceRoleEntity(service, role));
+        }
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
         userEntity.setCreatedAt(now);
         userEntity.setUpdatedAt(now);
