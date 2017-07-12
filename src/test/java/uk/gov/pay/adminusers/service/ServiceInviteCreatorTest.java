@@ -22,6 +22,7 @@ import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
@@ -53,7 +54,7 @@ public class ServiceInviteCreatorTest {
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(inviteDao.findByEmail(email)).thenReturn(Optional.empty());
+        when(inviteDao.findByEmail(email)).thenReturn(newArrayList());
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
         when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn(CompletableFuture.completedFuture("done"));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
@@ -77,7 +78,7 @@ public class ServiceInviteCreatorTest {
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(inviteDao.findByEmail(email)).thenReturn(Optional.empty());
+        when(inviteDao.findByEmail(email)).thenReturn(newArrayList());
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
         when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn(CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException("done");
@@ -101,13 +102,15 @@ public class ServiceInviteCreatorTest {
         UserEntity sender = mock(UserEntity.class);
         ServiceEntity service = mock(ServiceEntity.class);
         RoleEntity role = mock(RoleEntity.class);
-        InviteEntity validInvite = new InviteEntity(email, "code", "otpKey", sender, service, role);
+        InviteEntity validInvite = new InviteEntity(email, "code", "otpKey", role);
+        validInvite.setService(service);
+        validInvite.setSender(sender);
         validInvite.setType(InviteType.SERVICE);
 
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(sender.getExternalId()).thenReturn("inviter-id");
         when(sender.getEmail()).thenReturn("inviter@example.com");
-        when(inviteDao.findByEmail(email)).thenReturn(Optional.of(validInvite));
+        when(inviteDao.findByEmail(email)).thenReturn(newArrayList(validInvite));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         when(notificationService.sendServiceInviteEmail(eq(email), anyString()))
                 .thenReturn(CompletableFuture.completedFuture("done"));
@@ -118,6 +121,34 @@ public class ServiceInviteCreatorTest {
         assertThat(invite.getEmail(), is(request.getEmail()));
         assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref(), is("http://selfservice/invites/code"));
+    }
+
+    @Test
+    public void shouldSuccess_serviceInvite_evenIfUserAlreadyHasAValidUserInvitationWithGivenEmail() throws Exception {
+        String email = "email@example.gov.uk";
+        InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
+        UserEntity sender = mock(UserEntity.class);
+        ServiceEntity service = mock(ServiceEntity.class);
+        RoleEntity role = mock(RoleEntity.class);
+        InviteEntity validInvite = new InviteEntity(email, "code", "otpKey", role);
+        validInvite.setSender(sender);
+        validInvite.setService(service);
+
+        RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
+        when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
+        when(userDao.findByEmail(email)).thenReturn(Optional.empty());
+        when(sender.getExternalId()).thenReturn("inviter-id");
+        when(sender.getEmail()).thenReturn("inviter@example.com");
+        when(inviteDao.findByEmail(email)).thenReturn(newArrayList(validInvite));
+        when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
+        when(notificationService.sendServiceInviteEmail(eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
+                .thenReturn(CompletableFuture.completedFuture("done"));
+
+        Invite invite = serviceInviteCreator.doInvite(request);
+
+        assertThat(invite.getEmail(), is(request.getEmail()));
+        assertThat(invite.getType(), is("service"));
+        assertThat(invite.getLinks().get(0).getHref().matches("^http://selfservice/invites/[0-9a-z]{32}$"), is(true));
     }
 
     @Test
@@ -160,34 +191,11 @@ public class ServiceInviteCreatorTest {
     }
 
     @Test
-    public void shouldError_ifUserAlreadyHasAValidUserInvitationWithGivenEmail() throws Exception {
-        String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
-        UserEntity sender = mock(UserEntity.class);
-        ServiceEntity service = mock(ServiceEntity.class);
-        RoleEntity role = mock(RoleEntity.class);
-        InviteEntity validInvite = new InviteEntity(email, "code", "otpKey", sender, service, role);
-
-        when(userDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(sender.getExternalId()).thenReturn("inviter-id");
-        when(sender.getEmail()).thenReturn("inviter@example.com");
-        when(inviteDao.findByEmail(email)).thenReturn(Optional.of(validInvite));
-        when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
-        when(notificationService.sendInviteEmail(eq("inviter@example.com"),eq(email), anyString()))
-                .thenReturn(CompletableFuture.completedFuture("done"));
-
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 409 Conflict");
-
-        serviceInviteCreator.doInvite(request);
-    }
-
-    @Test
     public void shouldError_ifRoleDoesNotExists() throws Exception {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(inviteDao.findByEmail(email)).thenReturn(Optional.empty());
+        when(inviteDao.findByEmail(email)).thenReturn(newArrayList());
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.empty());
 
         thrown.expect(WebApplicationException.class);

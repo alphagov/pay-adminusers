@@ -71,31 +71,6 @@ public class InviteService {
         this.loginAttemptCap = loginAttemptCap;
     }
 
-    @Deprecated // user UserInviteCreator instead
-    @Transactional
-    public Optional<Invite> create(InviteUserRequest invite, int serviceId) {
-
-        if (userDao.findByEmail(invite.getEmail()).isPresent()) {
-            throw conflictingEmail(invite.getEmail());
-        }
-
-        Optional<InviteEntity> inviteOptional = inviteDao.findByEmail(invite.getEmail());
-        if (inviteOptional.isPresent()) {
-            // When multiple services support is implemented
-            // then this should include serviceId
-            InviteEntity foundInvite = inviteOptional.get();
-            if (Boolean.FALSE.equals(foundInvite.isExpired()) &&
-                    Boolean.FALSE.equals(foundInvite.isDisabled())) {
-                throw conflictingInvite(invite.getEmail());
-            }
-        }
-
-        return serviceDao.findById(serviceId)
-                .flatMap(serviceEntity -> roleDao.findByRoleName(invite.getRoleName())
-                        .map(doInvite(invite, serviceEntity))
-                        .orElseThrow(() -> undefinedRoleException(invite.getRoleName())));
-    }
-
     @Transactional
     public void generateOtp(InviteOtpRequest inviteOtpRequest) {
         Optional<InviteEntity> inviteOptional = inviteDao.findByCode(inviteOtpRequest.getCode());
@@ -164,7 +139,9 @@ public class InviteService {
         return role -> {
             Optional<UserEntity> userSender = userDao.findByExternalId(invite.getSender());
             if (userSender.isPresent() && userSender.get().canInviteUsersTo(serviceEntity.getId())) {
-                InviteEntity inviteEntity = new InviteEntity(invite.getEmail(), randomUuid(), invite.getOtpKey(), userSender.get(), serviceEntity, role);
+                InviteEntity inviteEntity = new InviteEntity(invite.getEmail(), randomUuid(), invite.getOtpKey(), role);
+                inviteEntity.setSender(userSender.get());
+                inviteEntity.setService(serviceEntity);
                 inviteDao.persist(inviteEntity);
                 String inviteUrl = fromUri(selfserviceBaseUrl).path(SELFSERVICE_INVITES_PATH).path(inviteEntity.getCode()).build().toString();
                 sendInviteNotification(inviteEntity, inviteUrl);

@@ -54,7 +54,9 @@ public class InviteDaoTest extends DaoTestBase {
         String code = randomAlphanumeric(10);
         String otpKey = randomAlphanumeric(10);
 
-        InviteEntity invite = new InviteEntity(email, code, otpKey, userSenderEntity, serviceEntity, roleEntity);
+        InviteEntity invite = new InviteEntity(email, code, otpKey, roleEntity);
+        invite.setService(serviceEntity);
+        invite.setSender(userSenderEntity);
 
         inviteDao.persist(invite);
 
@@ -91,8 +93,8 @@ public class InviteDaoTest extends DaoTestBase {
 
         inviteDbFixture(databaseHelper).withEmail(email).insertInvite();
 
-        Optional<InviteEntity> invite = inviteDao.findByEmail(email);
+        List<InviteEntity> invites = inviteDao.findByEmail(email);
 
-        assertThat(invite.isPresent(), is(true));
+        assertThat(invites.isEmpty(), is(false));
     }
 }

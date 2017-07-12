@@ -25,6 +25,10 @@ public class NotifyConfiguration extends Configuration {
 
     @Valid
     @NotNull
+    private String inviteUserExistingEmailTemplateId;
+
+    @Valid
+    @NotNull
     private String inviteServiceEmailTemplateId;
 
     @Valid
@@ -69,5 +73,9 @@ public class NotifyConfiguration extends Configuration {
 
     public String getInviteServiceUserDisabledEmailTemplateId() {
         return inviteServiceUserDisabledEmailTemplateId;
+    }
+
+    public String getInviteUserExistingEmailTemplateId() {
+        return inviteUserExistingEmailTemplateId;
     }
 }

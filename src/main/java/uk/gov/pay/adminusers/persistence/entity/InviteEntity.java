@@ -28,7 +28,7 @@ public class InviteEntity extends AbstractEntity {
     private ZonedDateTime expiryDate;
 
     @ManyToOne
-    @JoinColumn(name = "role_id")
+    @JoinColumn(name = "role_id", nullable = false)
     private RoleEntity role;
 
     @ManyToOne
@@ -67,13 +67,11 @@ public class InviteEntity extends AbstractEntity {
         //for jpa
     }
 
-    public InviteEntity(String email, String code, String otpKey, UserEntity sender, ServiceEntity service, RoleEntity role) {
-        this.service = service;
+    public InviteEntity(String email, String code, String otpKey, RoleEntity role) {
         this.date = now(ZoneId.of("UTC"));
         initializeExpiry();
         this.code = code;
         this.otpKey = otpKey;
-        this.sender = sender;
         this.email = email.toLowerCase();
         this.role = role;
     }

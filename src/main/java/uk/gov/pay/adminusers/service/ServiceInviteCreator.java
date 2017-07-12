@@ -13,15 +13,16 @@ import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.InviteType.SERVICE;
-import static uk.gov.pay.adminusers.model.InviteType.USER;
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmail;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 
 public class ServiceInviteCreator {
 
@@ -53,32 +54,29 @@ public class ServiceInviteCreator {
         if (anExistingUser.isPresent()) {
             UserEntity user = anExistingUser.get();
             if (!user.isDisabled()) {
-                sendUserExitsNotification(requestEmail, user.getExternalId());
+                sendUserExistsNotification(requestEmail, user.getExternalId());
             } else {
                 sendUserDisabledNotification(requestEmail, user.getExternalId());
             }
             throw conflictingEmail(requestEmail);
         }
 
-        Optional<InviteEntity> inviteOptional = inviteDao.findByEmail(requestEmail);
-        if (inviteOptional.isPresent()) {
-            InviteEntity foundInvite = inviteOptional.get();
-            if (!foundInvite.isExpired() && !foundInvite.isDisabled()) {
-                if (USER.getType().equals(foundInvite.getType())) {
-                    sendUserInviteNotification(foundInvite);
-                    throw conflictingInvite(requestEmail);
-                } else {
-                    return constructInviteAndSendEmail(inviteServiceRequest, foundInvite, inviteEntity -> {
-                        inviteDao.merge(inviteEntity);
-                        return null;
-                    });
-                }
-            }
+        List<InviteEntity> exitingInvites = inviteDao.findByEmail(requestEmail);
+        List<InviteEntity> existingValidServiceInvitesForSameEmail =  exitingInvites.stream()
+                .filter(inviteEntity -> !inviteEntity.isDisabled() && !inviteEntity.isExpired())
+                .filter(inviteEntity -> SERVICE.getType().equals(inviteEntity.getType())).collect(Collectors.toList());
+
+        if(!existingValidServiceInvitesForSameEmail.isEmpty()) {
+            InviteEntity foundInvite = existingValidServiceInvitesForSameEmail.get(0);
+            return constructInviteAndSendEmail(inviteServiceRequest, foundInvite, inviteEntity -> {
+                inviteDao.merge(inviteEntity);
+                return null;
+            });
         }
 
         return roleDao.findByRoleName(inviteServiceRequest.getRoleName())
                 .map(roleEntity -> {
-                    InviteEntity inviteEntity = new InviteEntity(requestEmail, randomUuid(), inviteServiceRequest.getOtpKey(), null, null, roleEntity);
+                    InviteEntity inviteEntity = new InviteEntity(requestEmail, randomUuid(), inviteServiceRequest.getOtpKey(), roleEntity);
                     inviteEntity.setType(SERVICE);
                     return constructInviteAndSendEmail(inviteServiceRequest, inviteEntity, inviteToPersist -> {
                         inviteDao.persist(inviteToPersist);
@@ -120,7 +118,7 @@ public class ServiceInviteCreator {
         LOGGER.info("Disabled existing user tried to create a service - user_id={}", userExternalId);
     }
 
-    private void sendUserExitsNotification(String email, String userExternalId) {
+    private void sendUserExistsNotification(String email, String userExternalId) {
         notificationService.sendServiceInviteUserExistsEmail(email, linksConfig.getSelfserviceLoginUrl(), linksConfig.getSelfserviceForgottenPasswordUrl(), linksConfig.getSupportUrl())
                 .thenAcceptAsync(notificationId -> LOGGER.info("sent create service, user exists email successfully, notification id [{}]", notificationId))
                 .exceptionally(exception -> {
@@ -128,17 +126,5 @@ public class ServiceInviteCreator {
                     return null;
                 });
         LOGGER.info("Existing user tried to create a service - user_id={}", userExternalId);
-    }
-
-    private void sendUserInviteNotification(InviteEntity inviteEntity) {
-        String inviteUrl = fromUri(linksConfig.getSelfserviceInvitesUrl()).path(inviteEntity.getCode()).build().toString();
-        UserEntity sender = inviteEntity.getSender();
-        notificationService.sendInviteEmail(sender.getEmail(), inviteEntity.getEmail(), inviteUrl)
-                .thenAcceptAsync(notificationId -> LOGGER.info("invite resent successfully to user, notification id [{}]", notificationId))
-                .exceptionally(exception -> {
-                    LOGGER.error("error resending invite email to user for invite [{}]", inviteEntity.getCode(), exception);
-                    return null;
-                });
-        LOGGER.info("Invitation resent [{}]", inviteEntity.getCode());
     }
 }

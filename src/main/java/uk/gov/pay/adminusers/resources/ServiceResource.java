@@ -6,7 +6,6 @@ import io.dropwizard.jersey.PATCH;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
-import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -153,21 +152,5 @@ public class ServiceResource {
         serviceServicesFactory.serviceUserRemover().remove(userId, userContext, serviceId);
         LOGGER.info("Succeeded Service users DELETE request - serviceId={}, removerId={}, userId={}", serviceId, userContext, userId);
         return Response.status(NO_CONTENT).build();
-    }
-
-    @POST
-    @Path("/{serviceId}/invites")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Deprecated // user InviteResource POST instead
-    public Response createServiceInvite(@PathParam("serviceId") Integer serviceId, JsonNode payload) {
-
-        LOGGER.info("Invite CREATE request for service - serviceId={}", serviceId);
-
-        return inviteValidator.validateCreateRequest(payload)
-                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> inviteService.create(InviteUserRequest.from(payload, "deprecated method does not use external id"), serviceId)
-                        .map(invite -> Response.status(CREATED).entity(invite).build())
-                        .orElseGet(() -> Response.status(NOT_FOUND).build()));
     }
 }

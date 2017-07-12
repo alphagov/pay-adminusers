@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.IsEmptyString.isEmptyString;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
@@ -66,49 +67,21 @@ public class InviteResourceCreateUserTest extends IntegrationTest {
     }
 
     @Test
-    public void createInvitation_shouldFail_whenUserWithTheGivenEmailAlreadyExists() throws Exception {
-
-        // This test will be removed when users can be added to existing services (multiple services supported) but
-        // not at the moment.
-        String existingUserEmail = randomAlphanumeric(5) + "-invite@example.com";
-
-        userDbFixture(databaseHelper)
-                .withEmail(existingUserEmail)
-                .insertUser();
-
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .put("sender", senderExternalId)
-                .put("email", existingUserEmail)
-                .put("role_name", roleAdminName)
-                .put("service_external_id", service.getExternalId())
-                .build();
-
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(invitationRequest))
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .post(INVITE_USER_RESOURCE_URL)
-                .then()
-                .statusCode(CONFLICT.getStatusCode())
-                .body("errors", hasSize(1))
-                .body("errors", hasItems(format("email [%s] already exists", existingUserEmail)));
-    }
-
-    @Test
     public void createInvitation_shouldFail_whenAnInviteWithTheGivenEmailAlreadyExists() throws Exception {
 
         String existingUserEmail = randomAlphanumeric(5) + "-invite@example.com";
 
+        String serviceExternalId = randomUuid();
         inviteDbFixture(databaseHelper)
                 .withEmail(existingUserEmail)
+                .withServiceExternalId(serviceExternalId)
                 .insertInvite();
 
         ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
                 .put("sender", senderExternalId)
                 .put("email", existingUserEmail)
                 .put("role_name", roleAdminName)
-                .put("service_external_id", service.getExternalId())
+                .put("service_external_id", serviceExternalId)
                 .build();
 
         givenSetup()
