@@ -27,6 +27,7 @@ public class InviteResourceGetTest extends IntegrationTest {
                 .body("email", is(email))
                 .body("telephone_number", is(nullValue()))
                 .body("disabled", is(false))
+                .body("user_exist", is(false))
                 .body("attempt_counter", is(0));
     }
 

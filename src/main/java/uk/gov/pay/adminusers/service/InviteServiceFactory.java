@@ -8,4 +8,7 @@ public interface InviteServiceFactory {
     UserInviteCreator userInvite();
 
     InviteCompleter completeInvite();
+
+    InviteFinder inviteFinder();
+
 }

@@ -47,8 +47,7 @@ public class InviteResource {
         if (isNotBlank(code) && code.length() > MAX_LENGTH_CODE) {
             return Response.status(NOT_FOUND).build();
         }
-
-        return inviteService.findByCode(code)
+        return inviteServiceFactory.inviteFinder().find(code)
                 .map(invite -> Response.status(OK).type(APPLICATION_JSON).entity(invite).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }

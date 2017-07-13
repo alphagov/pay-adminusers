@@ -65,7 +65,6 @@ public class InviteServiceTest {
     private String senderEmail = "sender@example.com";
     private String email = "invited@example.com";
     private int serviceId = 1;
-    private String serviceExternalId = "3453rmeuty87t";
     private String senderExternalId = "12345";
     private String roleName = "view-only";
 
@@ -75,11 +74,8 @@ public class InviteServiceTest {
         when(mockLinks.getSelfserviceUrl()).thenReturn(SELFSERVICE_URL);
         when(mockConfig.getLinks()).thenReturn(mockLinks);
         inviteService = new InviteService(
-                mockRoleDao,
-                mockServiceDao,
                 mockUserDao,
                 mockInviteDao,
-                mockConfig,
                 mockPasswordHasher,
                 mockNotificationService,
                 mockSecondFactorAuthenticator,
