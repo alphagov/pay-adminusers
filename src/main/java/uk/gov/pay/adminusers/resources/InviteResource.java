@@ -5,15 +5,19 @@ import com.google.inject.Inject;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.*;
+import uk.gov.pay.adminusers.service.InviteCompleter;
 import uk.gov.pay.adminusers.service.InviteService;
 import uk.gov.pay.adminusers.service.InviteServiceFactory;
 import uk.gov.pay.adminusers.service.ValidateOtpAndCreateUserResult;
+import uk.gov.pay.adminusers.utils.Errors;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -29,12 +33,14 @@ public class InviteResource {
     private final InviteService inviteService;
     private final InviteRequestValidator inviteValidator;
     private final InviteServiceFactory inviteServiceFactory;
+    private final ServiceRequestValidator serviceRequestValidator;
 
     @Inject
-    public InviteResource(InviteService service, InviteRequestValidator inviteValidator, InviteServiceFactory inviteServiceFactory) {
+    public InviteResource(InviteService service, InviteRequestValidator inviteValidator, InviteServiceFactory inviteServiceFactory, ServiceRequestValidator serviceRequestValidator) {
         inviteService = service;
         this.inviteServiceFactory = inviteServiceFactory;
         this.inviteValidator = inviteValidator;
+        this.serviceRequestValidator = serviceRequestValidator;
     }
 
     @GET
@@ -55,17 +61,38 @@ public class InviteResource {
     @POST
     @Path("/{code}/complete")
     @Produces(APPLICATION_JSON)
-    public Response completeInvite(@PathParam("code") String inviteCode) {
-
+    public Response completeInvite(@PathParam("code") String inviteCode, JsonNode payload) {
         LOGGER.info("Invite  complete POST request for code - [ {} ]", inviteCode);
 
         if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
             return Response.status(NOT_FOUND).build();
         }
 
-        return inviteServiceFactory.completeInvite().complete(inviteCode)
-                .map(invite -> Response.status(OK).type(APPLICATION_JSON).entity(invite).build())
+        return inviteServiceFactory.inviteRouter().route(inviteCode)
+                .map(inviteCompleterAndValidate -> {
+                    InviteCompleter inviteCompleter = inviteCompleterAndValidate.getLeft();
+
+                    if (inviteCompleterAndValidate.getRight()) {
+                        Optional<Errors> errors = serviceRequestValidator.validateCreateRequest(payload);
+                        if (errors.isPresent()) {
+                            return Response.status(BAD_REQUEST).entity(errors).build();
+                        }
+                    }
+                    return inviteCompleter.withData(inviteCompleteRequestFrom(payload)).complete(inviteCode)
+                            .map(inviteCompleteResponse -> Response.status(OK).entity(inviteCompleteResponse).build())
+                            .orElseGet(() -> Response.status(NOT_FOUND).build());
+                })
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
+    }
+
+    private InviteCompleteRequest inviteCompleteRequestFrom(JsonNode payload) {
+        InviteCompleteRequest inviteCompleteRequest = new InviteCompleteRequest();
+        if (payload != null && payload.get(InviteCompleteRequest.FIELD_GATEWAY_ACCOUNT_IDS) != null) {
+            List<String> gatewayAccountIds = newArrayList(payload.get(InviteCompleteRequest.FIELD_GATEWAY_ACCOUNT_IDS).elements())
+                    .stream().map(gatewayAccountIdNode -> gatewayAccountIdNode.textValue()).collect(Collectors.toList());
+            inviteCompleteRequest.setGatewayAccountIds(gatewayAccountIds);
+        }
+        return inviteCompleteRequest;
     }
 
     @POST
@@ -153,15 +180,15 @@ public class InviteResource {
     @Path("/otp/validate/service")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    public Response validateOtpKeyForService(JsonNode payload){
+    public Response validateOtpKeyForService(JsonNode payload) {
 
         LOGGER.info("Invite POST request for validating otp for service create");
 
-        return  inviteValidator.validateOtpValidationRequest(payload)
+        return inviteValidator.validateOtpValidationRequest(payload)
                 .map(errors -> Response.status((BAD_REQUEST)).entity(errors).build())
                 .orElseGet(() -> inviteService.validateOtp(InviteValidateOtpRequest.from(payload))
-                            .map(error -> handleValidateOtpAndCreateUserException(error))
-                            .orElseGet(() -> Response.status(OK).build()));
+                        .map(error -> handleValidateOtpAndCreateUserException(error))
+                        .orElseGet(() -> Response.status(OK).build()));
     }
 
     private Response handleValidateOtpAndCreateUserException(WebApplicationException error) {
