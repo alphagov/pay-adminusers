@@ -18,9 +18,11 @@ import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.*;
 
 import javax.ws.rs.WebApplicationException;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -74,8 +76,7 @@ public class UserInviteCreatorTest {
     @Test
     public void create_shouldSendNotificationOnSuccessfulInvite() throws Exception {
 
-        mocksCreateInvite();
-
+        mockInviteSuccess_ForNonExistingUser_nonExistingInvite();
         CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
 
         when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
@@ -93,9 +94,19 @@ public class UserInviteCreatorTest {
     }
 
     @Test
+    public void shouldReturnEmpty_ifServiceNotFound() throws Exception {
+        when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.empty());
+        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderEmail, email, roleName);
+        Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
+
+        assertFalse(invite.isPresent());
+
+    }
+
+    @Test
     public void create_shouldStillCreateTheInviteFailingOnSendingEmail() throws Exception {
 
-        mocksCreateInvite();
+        mockInviteSuccess_ForNonExistingUser_nonExistingInvite();
 
         CompletableFuture<String> errorPromise = CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException("some error from notify");
@@ -116,53 +127,172 @@ public class UserInviteCreatorTest {
     }
 
     @Test
-    public void create_shouldFailWithConflictWhenUserExists() throws Exception {
-        String existingUserEmail = "existing-user@example.com";
-        User existingUser = aUser(existingUserEmail);
-        when(mockUserDao.findByEmail(existingUserEmail)).thenReturn(Optional.of(UserEntity.from(existingUser)));
+    public void create_shouldFailWithConflict_WhenValidInviteExistsInvitingUserIsDifferent() throws Exception {
 
-        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderEmail, existingUserEmail, roleName);
+        ServiceEntity service = new ServiceEntity();
+        service.setId(serviceId);
+        service.setExternalId(serviceExternalId);
+        String inviteCode = "code";
 
+        UserEntity someOtherSender = new UserEntity();
+        String someOtherSenderId = "7834ny0t7cr";
+        someOtherSender.setExternalId(someOtherSenderId);
+        someOtherSender.setEmail(senderEmail);
+        RoleEntity role = new RoleEntity(role(ADMIN.getId(), "admin", "Admin Role"));
+        someOtherSender.addServiceRole(new ServiceRoleEntity(service, role));
+
+        when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.of(service));
+        when(mockUserDao.findByExternalId(someOtherSenderId)).thenReturn(Optional.of(someOtherSender));
+
+        InviteEntity anInvite = anInvite(email, inviteCode, "otpKey", someOtherSender, service, role);
+
+
+        when(mockInviteDao.findByEmail(email)).thenReturn(newArrayList(anInvite));
+        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 409 Conflict");
 
         userInviteCreator.doInvite(inviteUserRequest);
-
     }
 
     @Test
-    public void create_shouldFailWithConflictWhenInviteExistsAndNotExpiredAndNotDisabled() throws Exception {
+    public void create_shouldResendTheSameInviteEmail_ifAValidInviteExistsForTheSameServiceBySameSender_forNewUser() throws Exception {
 
-        InviteEntity anInvite = mocksCreateInvite();
-        when(mockInviteDao.findByEmail(email)).thenReturn(Optional.of(anInvite));
-
-        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderEmail, email, roleName);
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 409 Conflict");
-
-        userInviteCreator.doInvite(inviteUserRequest);
-    }
-
-    @Test
-    public void shouldReturnEmpty_ifServiceNotFound() throws Exception {
+        //Given
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.empty());
-        when(mockInviteDao.findByEmail(email)).thenReturn(Optional.empty());
-        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderEmail, email, roleName);
+        InviteEntity anInvite = mockInviteSuccess_existingInvite();
+        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
+        when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
+                .thenReturn(notifyPromise);
+
+
+        //When
+        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
         Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
 
-        assertFalse(invite.isPresent());
+        //Then
+        assertThat(invite.isPresent(), is(true));
+        assertThat(invite.get().getCode(), is(anInvite.getCode()));
+        assertThat(invite.get().getEmail(), is(anInvite.getEmail()));
+        assertThat(notifyPromise.isDone(), is(true));
 
     }
 
-    private InviteEntity mocksCreateInvite() {
+    @Test
+    public void create_shouldErrorForbidden_ifSenderCannotInviteUsersToTheSpecifiedService() throws Exception {
+        InviteEntity inviteEntity = mockInviteSuccess_ForNonExistingUser_nonExistingInvite();
+        inviteEntity.getSender().getServicesRoles().clear();
+
+        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
+        thrown.expect(WebApplicationException.class);
+        thrown.expectMessage("HTTP 403 Forbidden");
+        userInviteCreator.doInvite(inviteUserRequest);
+    }
+
+    @Test
+    public void create_shouldResendTheSameInviteEmail_ifAValidInviteExistsForTheSameServiceBySameSender_forExistingUser() throws Exception {
+
+        //Given
+        when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
+        InviteEntity anInvite = mockInviteSuccess_existingInvite();
+        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
+        when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"), eq(anInvite.getService().getName())))
+                .thenReturn(notifyPromise);
+
+        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
+        Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
+
+        assertThat(invite.isPresent(), is(true));
+        assertThat(invite.get().getCode(), is(anInvite.getCode()));
+        assertThat(invite.get().getEmail(), is(anInvite.getEmail()));
+        assertThat(notifyPromise.isDone(), is(true));
+    }
+
+    @Test
+    public void create_shouldResendTheSameInviteEmail_ifAValidInviteExistsForTheSameServiceBySameSender_forExistingUser_evenIfNotifyThrowsAnError() throws Exception {
+
+        //Given
+        when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
+        InviteEntity anInvite = mockInviteSuccess_existingInvite();
+        CompletableFuture<String> notifyPromise = CompletableFuture.supplyAsync(() -> {
+            throw new RuntimeException("some error from notify");
+        });
+        when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"), eq(anInvite.getService().getName())))
+                .thenReturn(notifyPromise);
+
+        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
+        Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
+
+        assertThat(invite.isPresent(), is(true));
+        assertThat(invite.get().getCode(), is(anInvite.getCode()));
+        assertThat(invite.get().getEmail(), is(anInvite.getEmail()));
+        assertThat(notifyPromise.isDone(), is(true));
+    }
+
+    @Test
+    public void create_shouldOnlyConsider_nonExpiredNonDisabledSameService_whenCheckingForExistingInvite() throws Exception {
+
+        InviteEntity validInvite = mockInviteSuccess_existingInvite();
+        InviteEntity expiredInvite = new InviteEntity();
+        expiredInvite.setExpiryDate(ZonedDateTime.now().minusDays(2));
+        expiredInvite.setService(validInvite.getService());
+
+        InviteEntity disabledInvite = new InviteEntity();
+        disabledInvite.setDisabled(true);
+        disabledInvite.setExpiryDate(ZonedDateTime.now().plusDays(1));
+        disabledInvite.setService(validInvite.getService());
+
+        InviteEntity emptyServiceInvite = new InviteEntity();
+        emptyServiceInvite.setExpiryDate(ZonedDateTime.now().plusDays(1));
+
+        InviteEntity nonMatchingServiceInvite = new InviteEntity();
+        nonMatchingServiceInvite.setService(ServiceEntity.from(Service.from("another-service")));
+        nonMatchingServiceInvite.setExpiryDate(ZonedDateTime.now().plusDays(1));
+
+        when(mockInviteDao.findByEmail(email)).thenReturn(newArrayList(expiredInvite, disabledInvite, emptyServiceInvite, nonMatchingServiceInvite, validInvite));
+
+        when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
+        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
+        when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"), eq(validInvite.getService().getName())))
+                .thenReturn(notifyPromise);
+
+        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
+        Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
+
+        assertThat(invite.isPresent(), is(true));
+        assertThat(invite.get().getCode(), is(validInvite.getCode()));
+        assertThat(invite.get().getEmail(), is(validInvite.getEmail()));
+        assertThat(notifyPromise.isDone(), is(true));
+    }
+
+    private InviteEntity mockInviteSuccess_existingInvite() {
+        ServiceEntity service = new ServiceEntity();
+        service.setId(serviceId);
+        service.setExternalId(serviceExternalId);
+
+        UserEntity sameSender = new UserEntity();
+        sameSender.setExternalId(senderExternalId);
+        sameSender.setEmail(senderEmail);
+        RoleEntity role = new RoleEntity(role(ADMIN.getId(), "admin", "Admin Role"));
+        sameSender.addServiceRole(new ServiceRoleEntity(service, role));
+
+        when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.of(service));
+        when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
+
+        String inviteCode = randomUuid();
+        InviteEntity anInvite = anInvite(email, inviteCode, "otpKey", sameSender, service, role);
+        when(mockInviteDao.findByEmail(email)).thenReturn(newArrayList(anInvite));
+        return anInvite;
+    }
+
+    private InviteEntity mockInviteSuccess_ForNonExistingUser_nonExistingInvite() {
 
         ServiceEntity service = new ServiceEntity();
         service.setId(serviceId);
         service.setExternalId(serviceExternalId);
 
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(mockInviteDao.findByEmail(email)).thenReturn(Optional.empty());
+        when(mockInviteDao.findByEmail(email)).thenReturn(newArrayList());
         when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.of(service));
         when(mockRoleDao.findByRoleName(roleName)).thenReturn(Optional.of(new RoleEntity()));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
@@ -184,12 +314,15 @@ public class UserInviteCreatorTest {
     }
 
     private InviteEntity anInvite(String email, String code, String otpKey, UserEntity userEntity, ServiceEntity serviceEntity, RoleEntity roleEntity) {
-        return new InviteEntity(email, code, otpKey, userEntity, serviceEntity, roleEntity);
+        InviteEntity inviteEntity = new InviteEntity(email, code, otpKey, roleEntity);
+        inviteEntity.setSender(userEntity);
+        inviteEntity.setService(serviceEntity);
+        return inviteEntity;
     }
 
-    private InviteUserRequest inviteRequestFrom(String sender, String email, String roleName) {
+    private InviteUserRequest inviteRequestFrom(String senderExternalId, String email, String roleName) {
         ObjectNode json = JsonNodeFactory.instance.objectNode();
-        json.put(FIELD_SENDER, sender);
+        json.put(FIELD_SENDER, senderExternalId);
         json.put(FIELD_EMAIL, email);
         json.put(FIELD_ROLE_NAME, roleName);
         json.put(FIELD_SERVICE_EXTERNAL_ID, serviceExternalId);

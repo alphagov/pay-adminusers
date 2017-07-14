@@ -7,5 +7,11 @@ public interface InviteServiceFactory {
 
     UserInviteCreator userInvite();
 
-    InviteCompleter completeInvite();
+    InviteFinder inviteFinder();
+
+    InviteRouter inviteRouter();
+
+    ServiceInviteCompleter completeServiceInvite();
+
+    UserInviteCompleter completeUserInvite();
 }

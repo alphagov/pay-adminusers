@@ -15,9 +15,11 @@ import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
+import java.util.List;
 import java.util.Optional;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.InviteType.USER;
@@ -46,37 +48,44 @@ public class UserInviteCreator {
 
     @Transactional
     public Optional<Invite> doInvite(InviteUserRequest inviteUserRequest) {
-
-        if (userDao.findByEmail(inviteUserRequest.getEmail()).isPresent()) {
-            throw conflictingEmail(inviteUserRequest.getEmail());
+        Optional<ServiceEntity> serviceEntityOptional = serviceDao.findByExternalId(inviteUserRequest.getServiceExternalId());
+        if (!serviceEntityOptional.isPresent()) {
+            return Optional.empty();
         }
 
-        Optional<InviteEntity> inviteOptional = inviteDao.findByEmail(inviteUserRequest.getEmail());
-        if (inviteOptional.isPresent()) {
-            // When multiple services support is implemented
-            // then this should include serviceId
-            InviteEntity foundInvite = inviteOptional.get();
-            if (Boolean.FALSE.equals(foundInvite.isExpired()) &&
-                    Boolean.FALSE.equals(foundInvite.isDisabled())) {
+        Optional<UserEntity> existingUser = userDao.findByEmail(inviteUserRequest.getEmail());
+        List<InviteEntity> existingInvites = inviteDao.findByEmail(inviteUserRequest.getEmail());
+        List<InviteEntity> validInvitesToTheSameService = existingInvites.stream()
+                .filter(inviteEntity -> !inviteEntity.isDisabled() && !inviteEntity.isExpired())
+                .filter(inviteEntity -> inviteEntity.getService() != null && inviteUserRequest.getServiceExternalId().equals(inviteEntity.getService().getExternalId()))
+                .collect(toList());
+
+        if (!validInvitesToTheSameService.isEmpty()) {
+            InviteEntity existingInvite = validInvitesToTheSameService.get(0);
+            if (inviteUserRequest.getSender().equals(existingInvite.getSender().getExternalId())) {
+                String inviteUrl = fromUri(linksConfig.getSelfserviceInvitesUrl()).path(existingInvite.getCode()).build().toString();
+                sendUserInviteNotification(existingInvite, inviteUrl, existingInvite.getService(), existingUser);
+                Invite invite = existingInvite.toInvite();
+                invite.setInviteLink(inviteUrl);
+                return Optional.of(invite);
+            } else {
                 throw conflictingInvite(inviteUserRequest.getEmail());
             }
         }
 
-        Optional<ServiceEntity> serviceEntityOptional = serviceDao.findByExternalId(inviteUserRequest.getServiceExternalId());
-        if(!serviceEntityOptional.isPresent()) {
-            return Optional.empty();
-        }
-
         ServiceEntity serviceEntity = serviceEntityOptional.get();
+
         return roleDao.findByRoleName(inviteUserRequest.getRoleName())
                 .map(role -> {
                     Optional<UserEntity> userSender = userDao.findByExternalId(inviteUserRequest.getSender());
                     if (userSender.isPresent() && userSender.get().canInviteUsersTo(serviceEntity.getId())) {
-                        InviteEntity inviteEntity = new InviteEntity(inviteUserRequest.getEmail(), randomUuid(), inviteUserRequest.getOtpKey(), userSender.get(), serviceEntity, role);
+                        InviteEntity inviteEntity = new InviteEntity(inviteUserRequest.getEmail(), randomUuid(), inviteUserRequest.getOtpKey(), role);
+                        inviteEntity.setSender(userSender.get());
+                        inviteEntity.setService(serviceEntity);
                         inviteEntity.setType(USER);
                         inviteDao.persist(inviteEntity);
                         String inviteUrl = fromUri(linksConfig.getSelfserviceInvitesUrl()).path(inviteEntity.getCode()).build().toString();
-                        sendUserInviteNotification(inviteEntity, inviteUrl);
+                        sendUserInviteNotification(inviteEntity, inviteUrl, serviceEntity, existingUser);
                         Invite invite = inviteEntity.toInvite();
                         invite.setInviteLink(inviteUrl);
                         return Optional.of(invite);
@@ -87,14 +96,23 @@ public class UserInviteCreator {
                 .orElseThrow(() -> undefinedRoleException(inviteUserRequest.getRoleName()));
     }
 
-    private void sendUserInviteNotification(InviteEntity inviteEntity, String inviteUrl) {
+    private void sendUserInviteNotification(InviteEntity inviteEntity, String inviteUrl, ServiceEntity serviceEntity, Optional<UserEntity> existingUser) {
         UserEntity sender = inviteEntity.getSender();
-        notificationService.sendInviteEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl)
-                .thenAcceptAsync(notificationId -> LOGGER.info("sent invite email successfully by user [{}], notification id [{}]", sender.getExternalId(), notificationId))
-                .exceptionally(exception -> {
-                    LOGGER.error(format("error sending email by user [%s]", sender.getExternalId()), exception);
-                    return null;
-                });
+        if (existingUser.isPresent()) {
+            notificationService.sendInviteExistingUserEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl, serviceEntity.getName())
+                    .thenAcceptAsync(notificationId -> LOGGER.info("sent invite email successfully by user [{}], notification id [{}]", sender.getExternalId(), notificationId))
+                    .exceptionally(exception -> {
+                        LOGGER.error(format("error sending email by user [%s]", sender.getExternalId()), exception);
+                        return null;
+                    });
+        } else {
+            notificationService.sendInviteEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl)
+                    .thenAcceptAsync(notificationId -> LOGGER.info("sent invite email successfully by user [{}], notification id [{}]", sender.getExternalId(), notificationId))
+                    .exceptionally(exception -> {
+                        LOGGER.error(format("error sending email by user [%s]", sender.getExternalId()), exception);
+                        return null;
+                    });
+        }
         LOGGER.info("New invite created by User [{}]", sender.getExternalId());
     }
 }

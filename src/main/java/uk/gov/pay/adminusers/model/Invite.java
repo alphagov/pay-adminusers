@@ -22,6 +22,7 @@ public class Invite {
 
     private List<Link> links = new ArrayList<>();
     private String type;
+    private boolean userExist = false;
 
     public Invite(String code, String email, String telephoneNumber,
                   Boolean disabled, Integer attemptCounter, String type) {
@@ -78,5 +79,19 @@ public class Invite {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    /**
+     * Derived attribute only to indicate if a user with the specified email already exits in the system.
+     * This is not stored in database rather populated at runtime every time at the usage.
+     * @param userExist
+     */
+    public void setUserExist(boolean userExist) {
+        this.userExist = userExist;
+    }
+
+    @JsonProperty("user_exist")
+    public boolean isUserExist() {
+        return userExist;
     }
 }

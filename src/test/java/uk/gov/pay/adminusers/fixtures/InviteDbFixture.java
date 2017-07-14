@@ -9,6 +9,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class InviteDbFixture {
 
@@ -22,6 +23,7 @@ public class InviteDbFixture {
     private String password;
     private Boolean disabled = Boolean.FALSE;
     private Integer loginCounter = 0;
+    private String externalServiceId = randomUuid();
 
     private InviteDbFixture(DatabaseTestHelper databaseTestHelper) {
         this.databaseTestHelper = databaseTestHelper;
@@ -32,11 +34,11 @@ public class InviteDbFixture {
     }
 
     public String insertInvite() {
-        int serviceId = ServiceDbFixture.serviceDbFixture(databaseTestHelper).insertService().getId();
+        int serviceId = ServiceDbFixture.serviceDbFixture(databaseTestHelper).withExternalId(externalServiceId).insertService().getId();
         int roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
-        int userId = UserDbFixture.userDbFixture(databaseTestHelper).insertUser().getId();
+        int invitingUserId = UserDbFixture.userDbFixture(databaseTestHelper).insertUser().getId();
         databaseTestHelper.addInvite(
-                nextInt(), userId, serviceId, roleId,
+                nextInt(), invitingUserId, serviceId, roleId,
                 email, code, otpKey, date, expiryDate, telephoneNumber, password,
                 disabled, loginCounter
         );
@@ -86,6 +88,11 @@ public class InviteDbFixture {
 
     public InviteDbFixture withPassword(String password) {
         this.password = password;
+        return this;
+    }
+
+    public InviteDbFixture withServiceExternalId(String serviceExternalId) {
+        this.externalServiceId = serviceExternalId;
         return this;
     }
 }

@@ -14,7 +14,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static java.lang.String.format;
 import static uk.gov.pay.adminusers.app.util.TrustStoreLoader.getSSLContext;
+import static uk.gov.pay.adminusers.model.Service.DEFAULT_NAME_VALUE;
 
 public class NotificationService {
 
@@ -26,6 +28,7 @@ public class NotificationService {
     private final String secondFactorSmsTemplateId;
     private final String inviteEmailTemplateId;
     private final String forgottenPasswordEmailTemplateId;
+    private final String inviteExistingUserEmailTemplateId;
 
     public NotificationService(ExecutorService executorService,
                                NotifyConfiguration notifyConfiguration,
@@ -36,6 +39,7 @@ public class NotificationService {
         this.notifyClientProvider = new NotifyClientProvider(notifyConfiguration, getSSLContext());
         this.secondFactorSmsTemplateId = notifyConfiguration.getSecondFactorSmsTemplateId();
         this.inviteEmailTemplateId = notifyConfiguration.getInviteUserEmailTemplateId();
+        this.inviteExistingUserEmailTemplateId = notifyConfiguration.getInviteUserExistingEmailTemplateId();
         this.forgottenPasswordEmailTemplateId = notifyConfiguration.getForgottenPasswordEmailTemplateId();
 
         this.metricRegistry = metricRegistry;
@@ -91,6 +95,25 @@ public class NotificationService {
         HashMap<String, String> personalisation = newHashMap();
         personalisation.put("feedback_link", supportUrl);
         return sendEmailAsync(notifyConfiguration.getInviteServiceUserDisabledEmailTemplateId(), email, personalisation);
+    }
+
+    CompletableFuture<String> sendInviteExistingUserEmail(String sender, String email, String inviteUrl, String serviceName) {
+        String collaborateServiceNamePart, joinServiceNamePart = "";
+        HashMap<String, String> personalisation = newHashMap();
+
+        personalisation.put("username", sender);
+        personalisation.put("link", inviteUrl);
+
+        if (serviceName.equals(DEFAULT_NAME_VALUE)) {
+            collaborateServiceNamePart = "join a new service";
+        } else {
+            collaborateServiceNamePart = format("collaborate on %s", serviceName);
+            joinServiceNamePart = serviceName;
+        }
+        personalisation.put("collaborateServiceNamePart", collaborateServiceNamePart);
+        personalisation.put("joinServiceNamePart", joinServiceNamePart);
+
+        return sendEmailAsync(inviteExistingUserEmailTemplateId, email, personalisation);
     }
 
     private CompletableFuture<String> sendEmailAsync(final String templateId, final String email, final Map<String, String> personalisation) {

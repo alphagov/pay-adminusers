@@ -6,6 +6,7 @@ import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 import java.util.Optional;
 
 @Transactional
@@ -27,7 +28,7 @@ public class InviteDao extends JpaDao<InviteEntity> {
                 .getResultList().stream().findFirst();
     }
 
-    public Optional<InviteEntity> findByEmail(String email) {
+    public List<InviteEntity> findByEmail(String email) {
 
         String query = "SELECT invite FROM InviteEntity invite " +
                 "WHERE invite.email = :email";
@@ -35,6 +36,6 @@ public class InviteDao extends JpaDao<InviteEntity> {
         return entityManager.get()
                 .createQuery(query, InviteEntity.class)
                 .setParameter("email", email)
-                .getResultList().stream().findFirst();
+                .getResultList();
     }
 }

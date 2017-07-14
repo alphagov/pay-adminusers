@@ -32,6 +32,10 @@ public class InviteExpiryTest {
     }
 
     private InviteEntity anInvite() {
-        return new InviteEntity("user@example.com", "code", "otpKey", new UserEntity(), new ServiceEntity(), new RoleEntity());
+        InviteEntity inviteEntity = new InviteEntity("user@example.com", "code", "otpKey", new RoleEntity());
+        inviteEntity.setService(new ServiceEntity());
+        inviteEntity.setSender(new UserEntity());
+        return inviteEntity;
+
     }
 }
