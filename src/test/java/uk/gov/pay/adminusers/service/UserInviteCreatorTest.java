@@ -142,7 +142,7 @@ public class UserInviteCreatorTest {
         someOtherSender.addServiceRole(new ServiceRoleEntity(service, role));
 
         when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.of(service));
-        when(mockUserDao.findByExternalId(someOtherSenderId)).thenReturn(Optional.of(someOtherSender));
+        when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
         InviteEntity anInvite = anInvite(email, inviteCode, "otpKey", someOtherSender, service, role);
 
@@ -151,6 +151,29 @@ public class UserInviteCreatorTest {
         InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 409 Conflict");
+
+        userInviteCreator.doInvite(inviteUserRequest);
+    }
+
+    @Test
+    public void create_shouldFailWithPreConditionFailed_ifUserAlreadyInService() throws Exception {
+
+        ServiceEntity service = new ServiceEntity();
+        service.setId(serviceId);
+        service.setExternalId(serviceExternalId);
+
+        UserEntity existingUser = new UserEntity();
+        existingUser.setExternalId("7834ny0t7cr");
+        existingUser.setEmail(email);
+        RoleEntity role = new RoleEntity(role(ADMIN.getId(), "admin", "Admin Role"));
+        existingUser.addServiceRole(new ServiceRoleEntity(service, role));
+
+        when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.of(service));
+        when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(existingUser));
+
+        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
+        thrown.expect(WebApplicationException.class);
+        thrown.expectMessage("HTTP 412 Precondition Failed");
 
         userInviteCreator.doInvite(inviteUserRequest);
     }
