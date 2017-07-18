@@ -34,6 +34,11 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 
+    public static WebApplicationException userAlreadyInService(String userExternalId, String serviceExternalId) {
+        String error = format("user [%s] already in service [%s]", userExternalId, serviceExternalId);
+        return buildWebApplicationException(error, PRECONDITION_FAILED.getStatusCode());
+    }
+
     public static WebApplicationException conflictingServiceGatewayAccountsForUser() {
         String error = format("List of gateway accounts not matching one of the existing services");
         return buildWebApplicationException(error, CONFLICT.getStatusCode());

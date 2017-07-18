@@ -5,6 +5,7 @@ import com.jayway.restassured.http.ContentType;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.User;
 
 import static java.lang.String.format;
 import static javax.ws.rs.core.Response.Status.*;
@@ -13,6 +14,7 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.IsEmptyString.isEmptyString;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
@@ -94,6 +96,43 @@ public class InviteResourceCreateUserTest extends IntegrationTest {
                 .statusCode(CONFLICT.getStatusCode())
                 .body("errors", hasSize(1))
                 .body("errors", hasItems(format("invite with email [%s] already exists", existingUserEmail)));
+    }
+
+    @Test
+    public void createInvitation_shouldFail_ifUserAlreadyBelongToService() throws Exception {
+
+        String existingUserEmail = randomAlphanumeric(5) + "-invite@example.com";
+
+        String serviceExternalId = randomUuid();
+        Integer serviceId = randomInt();
+        String s = inviteDbFixture(databaseHelper)
+                .withEmail(existingUserEmail)
+                .withServiceExternalId(serviceExternalId)
+                .withServiceId(serviceId)
+                .insertInvite();
+        User user = userDbFixture(databaseHelper)
+                .withEmail(existingUserEmail)
+                .withServiceRole(Service.from(serviceId, serviceExternalId, "service name"), 2)
+                .insertUser();
+
+
+        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
+                .put("sender", senderExternalId)
+                .put("email", existingUserEmail)
+                .put("role_name", roleAdminName)
+                .put("service_external_id", serviceExternalId)
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(invitationRequest))
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .post(INVITE_USER_RESOURCE_URL)
+                .then()
+                .statusCode(PRECONDITION_FAILED.getStatusCode())
+                .body("errors", hasSize(1))
+                .body("errors", hasItems(format("user [%s] already in service [%s]", user.getExternalId(), serviceExternalId)));
     }
 
     @Test
@@ -193,7 +232,7 @@ public class InviteResourceCreateUserTest extends IntegrationTest {
 
         Service otherService = serviceDbFixture(databaseHelper)
                 .insertService();
-        
+
         String senderExternalId = userDbFixture(databaseHelper)
                 .withServiceRole(otherService.getId(), ADMIN.getId())
                 .insertUser().getExternalId();

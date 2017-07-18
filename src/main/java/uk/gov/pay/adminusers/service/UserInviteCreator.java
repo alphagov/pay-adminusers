@@ -54,6 +54,12 @@ public class UserInviteCreator {
         }
 
         Optional<UserEntity> existingUser = userDao.findByEmail(inviteUserRequest.getEmail());
+        existingUser.ifPresent(userEntity -> {
+            if (userEntity.getServicesRole(inviteUserRequest.getServiceExternalId()).isPresent()) {
+                throw userAlreadyInService(userEntity.getExternalId(), inviteUserRequest.getServiceExternalId());
+            }
+        });
+
         List<InviteEntity> existingInvites = inviteDao.findByEmail(inviteUserRequest.getEmail());
         List<InviteEntity> validInvitesToTheSameService = existingInvites.stream()
                 .filter(inviteEntity -> !inviteEntity.isDisabled() && !inviteEntity.isExpired())

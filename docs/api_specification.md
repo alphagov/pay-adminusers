@@ -674,3 +674,60 @@ Content-Type: application/json
     
 }
 ```
+-----------------------------------------------------------------------------------------------------------
+
+## POST /v1/api/invites/{code}/complete
+
+This endpoint completes the invite by creating user/service and invalidating itself.
+1. In the case of a `user` invite, this resource will assign the new service to the existing user and disables the invite
+2. In the case of a `service` invite, this resource will create a new service, assign gateway account ids (if provided) and also creates a new user and assign to the service 
+
+The response contains the user and the service id's affected as part of the invite completion in addition to the invite
+
+### Request example
+
+```
+POST /v1/api/invites/wewe87325875c6/complete
+```
+
+Optional body (only in the case of invite type `service`)
+```
+Content-Type: application/json
+{
+"gateway_account_ids": ["1","78"]
+}
+
+```
+
+#### Optional Request body description
+
+| Field                    | required | Description                                                      | Supported Values     |
+| ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
+| `gateway_account_ids`    |   X      | gateway accounts that needs to be associated for the new service | |
+
+
+### Response example
+
+```
+200 OK
+Content-Type: application/json
+{  
+   invite: { "type":"user",
+             "email":"example@example.gov.uk",
+             "disabled":false,
+             "attempt_counter":0,
+             "_links":[  
+              {  
+                 "rel":"invite",
+                 "method":"GET",
+                 "href":"https://selfservice.pymnt.localdomain/invites/04f431f18c3243f5bb29d10c01659e9c"
+              },
+              {  
+                 "rel":"self",
+                 "method":"GET",
+                 "href":"http://localhost:8080/v1/api/invites/04f431f18c3243f5bb29d10c01659e9c"
+              }]
+            },
+   service_external_id: "89wi6il2364328",
+   user_external_id: "287cg75v3737"          
+```
