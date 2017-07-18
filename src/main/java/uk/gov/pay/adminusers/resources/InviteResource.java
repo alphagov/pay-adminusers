@@ -5,10 +5,7 @@ import com.google.inject.Inject;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.*;
-import uk.gov.pay.adminusers.service.InviteCompleter;
-import uk.gov.pay.adminusers.service.InviteService;
-import uk.gov.pay.adminusers.service.InviteServiceFactory;
-import uk.gov.pay.adminusers.service.ValidateOtpAndCreateUserResult;
+import uk.gov.pay.adminusers.service.*;
 import uk.gov.pay.adminusers.utils.Errors;
 
 import javax.ws.rs.*;
@@ -21,6 +18,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 
 @Path(InviteResource.INVITES_RESOURCE)
 public class InviteResource {
@@ -68,7 +66,7 @@ public class InviteResource {
             return Response.status(NOT_FOUND).build();
         }
 
-        return inviteServiceFactory.inviteRouter().route(inviteCode)
+        return inviteServiceFactory.inviteCompleteRouter().routeComplete(inviteCode)
                 .map(inviteCompleterAndValidate -> {
                     InviteCompleter inviteCompleter = inviteCompleterAndValidate.getLeft();
 
@@ -93,6 +91,34 @@ public class InviteResource {
             inviteCompleteRequest.setGatewayAccountIds(gatewayAccountIds);
         }
         return inviteCompleteRequest;
+    }
+
+    @POST
+    @Path("{code}/otp/generate")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    public Response generateAndDispatchOtp(@PathParam("code") String inviteCode, JsonNode payload) {
+        LOGGER.info("Invite POST request for generating otp");
+        if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
+            return Response.status(NOT_FOUND).build();
+        }
+
+        return inviteServiceFactory.inviteOtpRouter().routeOtpDispatch(inviteCode)
+                .map(inviteOtpDispatcherValidate -> {
+                    InviteOtpDispatcher otpDispatcher = inviteOtpDispatcherValidate.getLeft();
+                    if(inviteOtpDispatcherValidate.getRight()){
+                        Optional<Errors> errors = inviteValidator.validateGenerateOtpRequest(payload);
+                        if(errors.isPresent()){
+                            return Response.status(BAD_REQUEST).entity(errors).build();
+                        }
+                    }
+                    if(otpDispatcher.withData(InviteOtpRequest.from(payload)).dispatchOtp(inviteCode)){
+                        return Response.status(OK).build();
+                    } else {
+                        throw internalServerError("unable to dispatch otp at this moment");
+                    }
+                })
+                .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
     @POST
@@ -123,6 +149,7 @@ public class InviteResource {
                 );
     }
 
+    @Deprecated // use
     @POST
     @Path("/otp/generate")
     @Consumes(APPLICATION_JSON)

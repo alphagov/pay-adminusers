@@ -113,9 +113,8 @@ public class InviteUserRequestValidatorTest {
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
 
-        assertThat(errors.getErrors().size(), is(3));
+        assertThat(errors.getErrors().size(), is(2));
         assertThat(errors.getErrors(), hasItems(
-                "Field [code] is required",
                 "Field [telephone_number] is required",
                 "Field [password] is required"));
     }
@@ -124,7 +123,6 @@ public class InviteUserRequestValidatorTest {
     public void validateGenerateOtpRequest_shouldError_ifCodeFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
-                "\"telephone_number\": \"a-telephone_number\"," +
                 "\"password\": \"a-password\"" +
                 "}";
         JsonNode jsonNode = objectMapper.readTree(invalidPayload);
@@ -136,7 +134,7 @@ public class InviteUserRequestValidatorTest {
 
         assertThat(errors.getErrors().size(), is(1));
         assertThat(errors.getErrors(), hasItems(
-                "Field [code] is required"));
+                "Field [telephone_number] is required"));
     }
 
     @Test
