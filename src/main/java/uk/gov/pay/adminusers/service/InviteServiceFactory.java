@@ -9,9 +9,15 @@ public interface InviteServiceFactory {
 
     InviteFinder inviteFinder();
 
-    InviteRouter inviteRouter();
+    InviteRouter inviteCompleteRouter();
 
     ServiceInviteCompleter completeServiceInvite();
 
     UserInviteCompleter completeUserInvite();
+
+    InviteRouter inviteOtpRouter();
+
+    ServiceOtpDispatcher dispatchServiceOtp();
+
+    UserOtpDispatcher dispatchUserOtp();
 }

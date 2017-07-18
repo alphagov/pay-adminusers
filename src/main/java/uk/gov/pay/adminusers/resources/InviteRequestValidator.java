@@ -42,13 +42,17 @@ public class InviteRequestValidator {
     }
 
     public Optional<Errors> validateGenerateOtpRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_CODE, FIELD_TELEPHONE_NUMBER, FIELD_PASSWORD);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_TELEPHONE_NUMBER, FIELD_PASSWORD);
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
-        Optional<List<String>> invalidLength = requestValidations.checkMaxLength(payload, MAX_LENGTH_CODE, FIELD_CODE);
-        return invalidLength.map(Errors::from);
+        if (payload.get(FIELD_CODE) != null) {
+            Optional<List<String>> invalidLength = requestValidations.checkMaxLength(payload, MAX_LENGTH_CODE, FIELD_CODE);
+            return invalidLength.map(Errors::from);
+        }
+        return Optional.empty();
     }
+
 
     public Optional<Errors> validateResendOtpRequest(JsonNode payload) {
         Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_CODE, FIELD_TELEPHONE_NUMBER);
@@ -76,7 +80,7 @@ public class InviteRequestValidator {
 
 
         String email = payload.get(InviteServiceRequest.FIELD_EMAIL).asText();
-        if(!isValid(email)) {
+        if (!isValid(email)) {
             return Optional.of(Errors.from(format("Field [%s] must be a valid email address", InviteServiceRequest.FIELD_EMAIL)));
         } else if (!isPublicSectorEmail(email)) {
             throw AdminUsersExceptions.invalidPublicSectorEmail(email);

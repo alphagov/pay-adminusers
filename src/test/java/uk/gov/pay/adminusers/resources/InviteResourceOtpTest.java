@@ -40,6 +40,7 @@ public class InviteResourceOtpTest extends IntegrationTest {
                 .insertInvite();
     }
 
+    //TODO Deprecated, leaving for backward compatibility
     @Test
     public void generateOtp_shouldSucceed_evenWhenTokenIsExpired_sinceItShouldBeValidatedOnGetInvite() throws Exception {
 
@@ -58,6 +59,7 @@ public class InviteResourceOtpTest extends IntegrationTest {
                 .statusCode(OK.getStatusCode());
     }
 
+    //TODO Deprecated, leaving for backward compatibility
     @Test
     public void generateOtp_shouldFail_whenInviteDoesNotExist() throws Exception {
 
@@ -76,6 +78,7 @@ public class InviteResourceOtpTest extends IntegrationTest {
                 .statusCode(NOT_FOUND.getStatusCode());
     }
 
+    //TODO Deprecated, leaving for backward compatibility
     @Test
     public void generateOtp_shouldFail_whenAllMandatoryFieldsAreMissing() throws Exception {
 

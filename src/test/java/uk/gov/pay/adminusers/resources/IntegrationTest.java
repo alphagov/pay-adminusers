@@ -21,6 +21,7 @@ public class IntegrationTest {
 
     static final String INVITES_RESOURCE_URL = "/v1/api/invites";
     static final String INVITES_GENERATE_OTP_RESOURCE_URL = "/v1/api/invites/otp/generate";
+    static final String INVITES_GENERATE_OTP_RESOURCE_V2_URL = "/v1/api/invites/%s/otp/generate";
     static final String INVITES_RESEND_OTP_RESOURCE_URL = "/v1/api/invites/otp/resend";
     static final String INVITES_VALIDATE_OTP_RESOURCE_URL = "/v1/api/invites/otp/validate";
 
