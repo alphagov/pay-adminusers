@@ -40,60 +40,6 @@ public class InviteResourceOtpTest extends IntegrationTest {
                 .insertInvite();
     }
 
-    //TODO Deprecated, leaving for backward compatibility
-    @Test
-    public void generateOtp_shouldSucceed_evenWhenTokenIsExpired_sinceItShouldBeValidatedOnGetInvite() throws Exception {
-
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .put("code", code)
-                .put("telephone_number", TELEPHONE_NUMBER)
-                .put("password", PASSWORD)
-                .build();
-
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(invitationRequest))
-                .contentType(ContentType.JSON)
-                .post(INVITES_GENERATE_OTP_RESOURCE_URL)
-                .then()
-                .statusCode(OK.getStatusCode());
-    }
-
-    //TODO Deprecated, leaving for backward compatibility
-    @Test
-    public void generateOtp_shouldFail_whenInviteDoesNotExist() throws Exception {
-
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .put("code", "not-existing-code")
-                .put("telephone_number", TELEPHONE_NUMBER)
-                .put("password", PASSWORD)
-                .build();
-
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(invitationRequest))
-                .contentType(ContentType.JSON)
-                .post(INVITES_GENERATE_OTP_RESOURCE_URL)
-                .then()
-                .statusCode(NOT_FOUND.getStatusCode());
-    }
-
-    //TODO Deprecated, leaving for backward compatibility
-    @Test
-    public void generateOtp_shouldFail_whenAllMandatoryFieldsAreMissing() throws Exception {
-
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .build();
-
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(invitationRequest))
-                .contentType(ContentType.JSON)
-                .post(INVITES_GENERATE_OTP_RESOURCE_URL)
-                .then()
-                .statusCode(BAD_REQUEST.getStatusCode());
-    }
-
     @Test
     public void validateOtp_shouldCreateUserWhenValidOtp() throws Exception {
 

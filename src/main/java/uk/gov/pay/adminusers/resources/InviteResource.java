@@ -149,23 +149,6 @@ public class InviteResource {
                 );
     }
 
-    @Deprecated // use
-    @POST
-    @Path("/otp/generate")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    public Response generateOtp(JsonNode payload) {
-
-        LOGGER.info("Invite POST request for generating otp");
-
-        return inviteValidator.validateGenerateOtpRequest(payload)
-                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> {
-                    inviteService.generateOtp(InviteOtpRequest.from(payload));
-                    return Response.status(OK).build();
-                });
-    }
-
     @POST
     @Path("/otp/resend")
     @Consumes(APPLICATION_JSON)
