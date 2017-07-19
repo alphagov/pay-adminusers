@@ -71,7 +71,7 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## GET /v1/api/users/{externalId}
+## GET /v1/api/users/`{externalId}`
 
 This endpoint finds and return a user with the given external id.
 
@@ -121,7 +121,7 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## PATCH /v1/api/users/{externalId}
+## PATCH /v1/api/users/`{externalId}`
 
 This endpoint amends a specific attribute in user resource.
 
@@ -282,7 +282,7 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## GET /v1/api/forgotten-passwords/{code}
+## GET /v1/api/forgotten-passwords/`{code}`
 
 Verify that the code is valid
 
@@ -317,7 +317,7 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## PUT /v1/api/users/{externalId}/services/{serviceId}
+## PUT /v1/api/users/`{externalId}`/services/`{serviceId}`
 
 This endpoint updates a service role of a perticular user.
 
@@ -394,7 +394,7 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## POST /v1/api/users/{externalId}/services
+## POST /v1/api/users/`{externalId}`/services
 
 This endpoint assigns a new service role to a user.
 
@@ -630,7 +630,7 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## PATCH /v1/api/services/{serviceExternalId}
+## PATCH /v1/api/services/`{serviceExternalId}`
 
 This endpoint modifies updatable attributes of a Service. Currently supports
  - Update the name of a service
@@ -677,7 +677,7 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## POST /v1/api/invites/{code}/complete
+## POST /v1/api/invites/`{code}`/complete
 
 This endpoint completes the invite by creating user/service and invalidating itself.
 1. In the case of a `user` invite, this resource will assign the new service to the existing user and disables the invite
