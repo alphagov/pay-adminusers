@@ -674,6 +674,7 @@ Content-Type: application/json
     
 }
 ```
+
 -----------------------------------------------------------------------------------------------------------
 
 ## POST /v1/api/invites/{code}/complete
@@ -730,4 +731,50 @@ Content-Type: application/json
             },
    service_external_id: "89wi6il2364328",
    user_external_id: "287cg75v3737"          
+```
+
+-----------------------------------------------------------------------------------------------------------
+
+## POST /v1/api/invites/`{code}`/otp/generate
+
+This endpoint generates and sends otp verification code to the phone number registered in the invite.
+
+### `user` invite
+
+#### Request example (`user` invite)
+
+```
+POST /v1/api/invites/265f39f63d8347f3bc5bf2d401b5e3ec/otp/generate
+Content-Type: application/json
+{
+ "telephone_number": "07451234567",
+ "password": "a-password"
+}
+```
+
+#### Request body description (`user` invite)
+
+| Field                    | required | Description                                                      | Supported Values     |
+| ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
+| `telephone_number`       |   X      | the phone number of the user                                     | |
+| `password`               |   X      | password for the new user                                        | |
+
+#### Response example (`user` invite)
+
+```
+200 OK
+```
+
+### `service` invite
+
+#### Request example (`service` invite)
+
+```
+POST /v1/api/invites/265f39f63d8347f3bc5bf2d401b5e3ec/otp/generate
+```
+
+#### Response example (`service` invite)
+
+```
+200 OK
 ```
