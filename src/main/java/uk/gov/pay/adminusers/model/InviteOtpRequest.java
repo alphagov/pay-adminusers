@@ -10,7 +10,7 @@ public class InviteOtpRequest {
     public static final String FIELD_TELEPHONE_NUMBER = "telephone_number";
     public static final String FIELD_PASSWORD = "password";
 
-    @Deprecated //until selfservice adopts to use /v1/api/invites/{code}/otp/generate
+    @Deprecated //until "/otp/resend" is refactored into "{code}/otp/resend"
     private String code;
     private String telephoneNumber;
     private String password;

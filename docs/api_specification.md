@@ -71,7 +71,7 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## GET /v1/api/users/{externalId}
+## GET /v1/api/users/`{externalId}`
 
 This endpoint finds and return a user with the given external id.
 
@@ -121,7 +121,7 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## PATCH /v1/api/users/{externalId}
+## PATCH /v1/api/users/`{externalId}`
 
 This endpoint amends a specific attribute in user resource.
 
@@ -282,7 +282,7 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## GET /v1/api/forgotten-passwords/{code}
+## GET /v1/api/forgotten-passwords/`{code}`
 
 Verify that the code is valid
 
@@ -317,7 +317,7 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## PUT /v1/api/users/{externalId}/services/{serviceId}
+## PUT /v1/api/users/`{externalId}`/services/`{serviceId}`
 
 This endpoint updates a service role of a perticular user.
 
@@ -394,7 +394,7 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## POST /v1/api/users/{externalId}/services
+## POST /v1/api/users/`{externalId}`/services
 
 This endpoint assigns a new service role to a user.
 
@@ -630,7 +630,7 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
-## PATCH /v1/api/services/{serviceExternalId}
+## PATCH /v1/api/services/`{serviceExternalId}`
 
 This endpoint modifies updatable attributes of a Service. Currently supports
  - Update the name of a service
@@ -674,9 +674,10 @@ Content-Type: application/json
     
 }
 ```
+
 -----------------------------------------------------------------------------------------------------------
 
-## POST /v1/api/invites/{code}/complete
+## POST /v1/api/invites/`{code}`/complete
 
 This endpoint completes the invite by creating user/service and invalidating itself.
 1. In the case of a `user` invite, this resource will assign the new service to the existing user and disables the invite
@@ -730,4 +731,50 @@ Content-Type: application/json
             },
    service_external_id: "89wi6il2364328",
    user_external_id: "287cg75v3737"          
+```
+
+-----------------------------------------------------------------------------------------------------------
+
+## POST /v1/api/invites/`{code}`/otp/generate
+
+This endpoint generates and sends otp verification code to the phone number registered in the invite.
+
+### `user` invite
+
+#### Request example (`user` invite)
+
+```
+POST /v1/api/invites/265f39f63d8347f3bc5bf2d401b5e3ec/otp/generate
+Content-Type: application/json
+{
+ "telephone_number": "07451234567",
+ "password": "a-password"
+}
+```
+
+#### Request body description (`user` invite)
+
+| Field                    | required | Description                                                      | Supported Values     |
+| ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
+| `telephone_number`       |   X      | the phone number of the user                                     | |
+| `password`               |   X      | password for the new user                                        | |
+
+#### Response example (`user` invite)
+
+```
+200 OK
+```
+
+### `service` invite
+
+#### Request example (`service` invite)
+
+```
+POST /v1/api/invites/265f39f63d8347f3bc5bf2d401b5e3ec/otp/generate
+```
+
+#### Response example (`service` invite)
+
+```
+200 OK
 ```

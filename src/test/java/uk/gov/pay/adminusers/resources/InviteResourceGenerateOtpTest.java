@@ -32,7 +32,7 @@ public class InviteResourceGenerateOtpTest extends IntegrationTest {
                 .when()
                 .body(mapper.writeValueAsString(invitationRequest))
                 .contentType(ContentType.JSON)
-                .post(format(INVITES_GENERATE_OTP_RESOURCE_V2_URL, code))
+                .post(format(INVITES_GENERATE_OTP_RESOURCE_URL, code))
                 .then()
                 .statusCode(OK.getStatusCode());
     }
@@ -48,7 +48,7 @@ public class InviteResourceGenerateOtpTest extends IntegrationTest {
                 .when()
                 .body(mapper.writeValueAsString(invitationRequest))
                 .contentType(ContentType.JSON)
-                .post(format(INVITES_GENERATE_OTP_RESOURCE_V2_URL, "not-existing-code"))
+                .post(format(INVITES_GENERATE_OTP_RESOURCE_URL, "not-existing-code"))
                 .then()
                 .statusCode(NOT_FOUND.getStatusCode());
     }
@@ -63,7 +63,7 @@ public class InviteResourceGenerateOtpTest extends IntegrationTest {
                 .when()
                 .body(mapper.writeValueAsString(invitationRequest))
                 .contentType(ContentType.JSON)
-                .post(format(INVITES_GENERATE_OTP_RESOURCE_V2_URL, code))
+                .post(format(INVITES_GENERATE_OTP_RESOURCE_URL, code))
                 .then()
                 .statusCode(BAD_REQUEST.getStatusCode());
     }
@@ -75,7 +75,7 @@ public class InviteResourceGenerateOtpTest extends IntegrationTest {
         givenSetup()
                 .when()
                 .contentType(ContentType.JSON)
-                .post(format(INVITES_GENERATE_OTP_RESOURCE_V2_URL, code))
+                .post(format(INVITES_GENERATE_OTP_RESOURCE_URL, code))
                 .then()
                 .statusCode(OK.getStatusCode());
     }
