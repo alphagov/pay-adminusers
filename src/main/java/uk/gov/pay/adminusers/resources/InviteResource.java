@@ -160,7 +160,7 @@ public class InviteResource {
         return inviteValidator.validateResendOtpRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
-                    inviteService.generateOtp(InviteOtpRequest.from(payload));
+                    inviteService.reGenerateOtp(InviteOtpRequest.from(payload));
                     return Response.status(OK).build();
                 });
     }

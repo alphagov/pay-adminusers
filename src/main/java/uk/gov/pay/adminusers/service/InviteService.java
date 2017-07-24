@@ -27,7 +27,6 @@ public class InviteService {
 
     private final UserDao userDao;
     private final InviteDao inviteDao;
-    private final PasswordHasher passwordHasher;
     private final NotificationService notificationService;
     private final SecondFactorAuthenticator secondFactorAuthenticator;
     private final LinksBuilder linksBuilder;
@@ -37,27 +36,25 @@ public class InviteService {
     @Inject
     public InviteService(UserDao userDao,
                          InviteDao inviteDao,
-                         PasswordHasher passwordHasher,
                          NotificationService notificationService,
                          SecondFactorAuthenticator secondFactorAuthenticator,
                          LinksBuilder linksBuilder,
                          @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap) {
         this.userDao = userDao;
         this.inviteDao = inviteDao;
-        this.passwordHasher = passwordHasher;
         this.notificationService = notificationService;
         this.secondFactorAuthenticator = secondFactorAuthenticator;
         this.linksBuilder = linksBuilder;
         this.loginAttemptCap = loginAttemptCap;
     }
 
+    @Deprecated // Refactor to adopt UserOtpDispatcher. And Avoid using generic InviteOtpRequest object to avoid having to use optional fields
     @Transactional
-    public void generateOtp(InviteOtpRequest inviteOtpRequest) {
+    public void reGenerateOtp(InviteOtpRequest inviteOtpRequest) {
         Optional<InviteEntity> inviteOptional = inviteDao.findByCode(inviteOtpRequest.getCode());
         if (inviteOptional.isPresent()) {
             InviteEntity invite = inviteOptional.get();
             invite.setTelephoneNumber(inviteOtpRequest.getTelephoneNumber());
-            invite.setPassword(passwordHasher.hash(inviteOtpRequest.getPassword()));
             inviteDao.merge(invite);
             int newPassCode = secondFactorAuthenticator.newPassCode(invite.getOtpKey());
             String passcode = String.format(Locale.ENGLISH, SIX_DIGITS_WITH_LEADING_ZEROS, newPassCode);
