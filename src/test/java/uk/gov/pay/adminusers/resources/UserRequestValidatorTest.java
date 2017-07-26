@@ -43,11 +43,10 @@ public class UserRequestValidatorTest {
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
 
-        assertThat(errors.getErrors().size(), is(5));
+        assertThat(errors.getErrors().size(), is(4));
         assertThat(errors.getErrors(), hasItems(
                 "Field [username] is required",
                 "Field [email] is required",
-                "Field [gateway_account_ids] is required",
                 "Field [telephone_number] is required",
                 "Field [role_name] is required"));
     }
@@ -66,34 +65,11 @@ public class UserRequestValidatorTest {
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
 
-        assertThat(errors.getErrors().size(), is(3));
+        assertThat(errors.getErrors().size(), is(2));
         assertThat(errors.getErrors(), hasItems(
-                "Field [gateway_account_ids] is required",
                 "Field [role_name] is required",
                 "Field [telephone_number] is required"));
 
-    }
-
-    @Test
-    public void shouldError_ifGatewayAccountIdsArrayIsEmpty() throws Exception {
-        String invalidPayload = "{" +
-                "\"username\": \"a-username\"," +
-                "\"password\": \"a-password\"," +
-                "\"email\": \"email@example.com\"," +
-                "\"gateway_account_ids\": []," +
-                "\"telephone_number\": \"12345\"," +
-                "\"otp_key\": \"12345\"," +
-                "\"role_name\": \"a-role\"" +
-                "}";
-        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
-        Optional<Errors> optionalErrors = validator.validateCreateRequest(jsonNode);
-
-        assertTrue(optionalErrors.isPresent());
-        Errors errors = optionalErrors.get();
-
-        assertThat(errors.getErrors().size(), is(1));
-        assertThat(errors.getErrors(), hasItems(
-                "Field [gateway_account_ids] is required"));
     }
 
     @Test

@@ -25,24 +25,35 @@
           "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
           "username": "existing-user",
           "email": "existing-user@example.com",
-          "gateway_account_ids": [
-            "666",
-            "666"
-          ],
-          "service_ids": [
-            "665"
+          "service_roles": [
+            {
+              "service": {
+                "name": "System Generated",
+                "external_id": "gcsvj1dssn5h7pvgkqpvi",
+                "gateway_account_ids": [
+                  "666",
+                  "7"
+                ]
+              },
+              "role": {
+                "name": "admin",
+                "description": "Administrator",
+                "permissions": [
+                  {
+                    "name": "perm-1"
+                  },
+                  {
+                    "name": "perm-2"
+                  },
+                  {
+                    "name": "perm-3"
+                  }
+                ]
+              }
+            }
           ],
           "otp_key": "43c3c4t",
-          "role": {
-            "name": "admin",
-            "description": "Administrator"
-          },
           "telephone_number": "0123441",
-          "permissions": [
-            "perm-1",
-            "perm-1",
-            "perm-1"
-          ],
           "_links": [
             {
               "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
@@ -61,43 +72,37 @@
           "$.body.email": {
             "match": "type"
           },
-          "$.body.gateway_account_ids": {
-            "min": 2
-          },
-          "$.body.gateway_account_ids[*].*": {
+          "$.body.service_roles[0].service.name": {
             "match": "type"
           },
-          "$.body.gateway_account_ids[*]": {
+          "$.body.service_roles[0].service.external_id": {
             "match": "type"
           },
-          "$.body.service_ids": {
-            "min": 1
-          },
-          "$.body.service_ids[*].*": {
+          "$.body.service_roles[0].service.gateway_account_ids[0]": {
             "match": "type"
           },
-          "$.body.service_ids[*]": {
+          "$.body.service_roles[0].service.gateway_account_ids[1]": {
+            "match": "type"
+          },
+          "$.body.service_roles[0].role.name": {
+            "match": "type"
+          },
+          "$.body.service_roles[0].role.description": {
+            "match": "type"
+          },
+          "$.body.service_roles[0].role.permissions[0].name": {
+            "match": "type"
+          },
+          "$.body.service_roles[0].role.permissions[1].name": {
+            "match": "type"
+          },
+          "$.body.service_roles[0].role.permissions[2].name": {
             "match": "type"
           },
           "$.body.otp_key": {
             "match": "type"
           },
-          "$.body.role.name": {
-            "match": "type"
-          },
-          "$.body.role.description": {
-            "match": "type"
-          },
           "$.body.telephone_number": {
-            "match": "type"
-          },
-          "$.body.permissions": {
-            "min": 3
-          },
-          "$.body.permissions[*].*": {
-            "match": "type"
-          },
-          "$.body.permissions[*]": {
             "match": "type"
           },
           "$.body._links[0].href": {

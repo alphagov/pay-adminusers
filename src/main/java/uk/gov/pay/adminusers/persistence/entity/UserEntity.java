@@ -5,7 +5,6 @@ import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
-import uk.gov.pay.adminusers.utils.Comparators;
 
 import javax.persistence.*;
 import java.time.ZoneId;
@@ -218,11 +217,6 @@ public class UserEntity extends AbstractEntity {
             services = this.servicesRoles.stream()
                     .map(serviceRole -> serviceRole.getService().toService()).collect(toList());
             serviceRoles = this.servicesRoles.stream().map(serviceRoleEntity -> serviceRoleEntity.toServiceRole()).collect(toList());
-            gatewayAccountIds = services.stream()
-                    .flatMap(service -> service.getGatewayAccountIds().stream())
-                    .distinct()
-                    .sorted(Comparators.usingNumericComparator())
-                    .collect(toList());
         }
 
         User user = User.from(getId(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber, serviceRoles);

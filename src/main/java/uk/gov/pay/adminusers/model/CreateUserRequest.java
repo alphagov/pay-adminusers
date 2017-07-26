@@ -23,6 +23,7 @@ public class CreateUserRequest {
     public static final String FIELD_PASSWORD = "password";
     public static final String FIELD_EMAIL = "email";
     public static final String FIELD_SERVICE_IDS = "service_ids";
+    public static final String FIELD_SERVICE_EXTERNAL_IDS = "service_external_ids";
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
     public static final String FIELD_TELEPHONE_NUMBER = "telephone_number";
     public static final String FIELD_OTP_KEY = "otp_key";
@@ -33,8 +34,10 @@ public class CreateUserRequest {
     private String email;
     private List<String> gatewayAccountIds = new ArrayList<>();
     private String telephoneNumber;
+    @Deprecated //user service external Ids instead
     private List<String> serviceIds = new ArrayList<>();
     private String otpKey;
+    private List<String> serviceExternalIds = new ArrayList<>();
 
     public static CreateUserRequest from(String username, String password, String email,
                                          List<String> gatewayAccountIds, List<String> serviceIds, String otpKey, String telephoneNumber) {
@@ -42,16 +45,20 @@ public class CreateUserRequest {
     }
 
     public static CreateUserRequest from(JsonNode node) {
-        List<String> serviceIds = new ArrayList<>();
+        List<String>  serviceIds = new ArrayList<>();
+        List<String> gatewayAccountIds = new ArrayList<>();
         try {
-            List<String> gatewayAccountIds =
-                    ImmutableList.copyOf(node.get(FIELD_GATEWAY_ACCOUNT_IDS).iterator())
-                            .stream().map(JsonNode::asText)
-                            .sorted(Comparators.usingNumericComparator())
-                            .collect(Collectors.toList());
+            if (node.get(FIELD_GATEWAY_ACCOUNT_IDS) != null) {
+                gatewayAccountIds =
+                        ImmutableList.copyOf(node.get(FIELD_GATEWAY_ACCOUNT_IDS).iterator())
+                                .stream().map(JsonNode::asText)
+                                .sorted(Comparators.usingNumericComparator())
+                                .collect(Collectors.toList());
+            }
+            //Deprecated .. to remove when full y adopted to external Ids
             JsonNode serviceIdsNode = node.get(FIELD_SERVICE_IDS);
             if (serviceIdsNode != null) {
-               serviceIds =
+                serviceIds =
                         ImmutableList.copyOf(serviceIdsNode.iterator())
                                 .stream().map(JsonNode::asText)
                                 .sorted(Comparators.usingNumericComparator())
@@ -62,7 +69,13 @@ public class CreateUserRequest {
             String email = node.get(FIELD_EMAIL).asText();
             String telephoneNumber = node.get(FIELD_TELEPHONE_NUMBER).asText();
             String otpKey = getOrElseRandom(node.get(FIELD_OTP_KEY), newId());
-            return from(username, password, email, gatewayAccountIds, serviceIds, otpKey, telephoneNumber);
+            CreateUserRequest request = from(username, password, email, gatewayAccountIds, serviceIds, otpKey, telephoneNumber);
+            JsonNode serviceExternalIdsNode = node.get(FIELD_SERVICE_EXTERNAL_IDS);
+            if (serviceExternalIdsNode != null) {
+                List<String> serviceExternalIds = ImmutableList.copyOf(serviceExternalIdsNode.iterator()).stream().map(jsonNode -> jsonNode.asText()).collect(Collectors.toList());
+                request.serviceExternalIds = serviceExternalIds;
+            }
+            return request;
         } catch (NullPointerException e) {
             throw new RuntimeException("Error retrieving required fields for creating a user", e);
         }
@@ -101,6 +114,7 @@ public class CreateUserRequest {
         return gatewayAccountIds;
     }
 
+    @Deprecated //user service external ids instead
     public List<String> getServiceIds() {
         return serviceIds;
     }
@@ -111,5 +125,13 @@ public class CreateUserRequest {
 
     public String getTelephoneNumber() {
         return telephoneNumber;
+    }
+
+    public List<String> getServiceExternalIds() {
+        return serviceExternalIds;
+    }
+
+    public void setServiceExternalIds(List<String> serviceExternalIds) {
+        this.serviceExternalIds = serviceExternalIds;
     }
 }

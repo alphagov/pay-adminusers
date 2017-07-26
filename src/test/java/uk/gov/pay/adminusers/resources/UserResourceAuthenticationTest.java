@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.service.PasswordHasher;
 
 import java.util.UUID;
@@ -20,9 +21,9 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
     public void shouldAuthenticateUser_onAValidUsernamePasswordCombination() throws Exception {
 
         String[] gatewayAccountIds = new String[]{"1", "2"};
-        serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccountIds).insertService();
+        Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccountIds).insertService();
 
-        String username = createAValidUser(gatewayAccountIds);
+        String username = createAValidUser(service);
 
         ImmutableMap<Object, Object> authPayload = ImmutableMap.builder()
                 .put("username", username)
@@ -39,21 +40,16 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
                 .statusCode(200)
                 .body("username", is(username))
                 .body("email", is("user-" + username + "@example.com"))
-                .body("gateway_account_ids", hasSize(2))
-                .body("gateway_account_ids[0]", is("1"))
-                .body("gateway_account_ids[1]", is("2"))
-                .body("service_ids", hasSize(1))
-                .body("service_ids[0]", is(notNullValue()))
-                .body("services", hasSize(1))
-                .body("services[0].id", is(notNullValue()))
-                .body("services[0].name", is(notNullValue()))
+                .body("service_roles", hasSize(1))
+                .body("service_roles[0].service.external_id", is(notNullValue()))
+                .body("service_roles[0].service.name", is(notNullValue()))
                 .body("telephone_number", is("45334534634"))
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
                 .body("disabled", is(false))
                 .body("_links", hasSize(1))
-                .body("role.name", is("admin"))
-                .body("permissions", hasSize(31)); //we could consider removing this assertion if the permissions constantly changing
+                .body("service_roles[0].role.name", is("admin"))
+                .body("service_roles[0].role.permissions", hasSize(31)); //we could consider removing this assertion if the permissions constantly changing
     }
 
     @Test
@@ -93,9 +89,9 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
     public void shouldAuthenticateFail_onAInvalidUsernamePasswordCombination() throws Exception {
 
         String[] gatewayAccountIds = new String[]{"3", "4"};
-        serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccountIds).insertService();
+        Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccountIds).insertService();
 
-        String username = createAValidUser(gatewayAccountIds);
+        String username = createAValidUser(service);
 
         ImmutableMap<Object, Object> authPayload = ImmutableMap.builder()
                 .put("username", username)
@@ -115,14 +111,14 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
 
     }
 
-    private String createAValidUser(String[] gatewayAccountIds) throws JsonProcessingException {
+    private String createAValidUser(Service service) throws JsonProcessingException {
 
         String username = randomAlphanumeric(10) + UUID.randomUUID();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
                 .put("password", "password-" + username)
                 .put("email", "user-" + username + "@example.com")
-                .put("gateway_account_ids", gatewayAccountIds)
+                .put("service_external_ids", new String[]{service.getExternalId()})
                 .put("telephone_number", "45334534634")
                 .put("otp_key", "34f34")
                 .put("role_name", "admin")

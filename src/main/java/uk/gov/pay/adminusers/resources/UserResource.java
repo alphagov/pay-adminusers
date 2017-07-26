@@ -75,8 +75,8 @@ public class UserResource {
                     String roleName = node.get(CreateUserRequest.FIELD_ROLE_NAME).asText();
                     String userName = node.get(CreateUserRequest.FIELD_USERNAME).asText();
                     try {
-                        User newUser = userServices.createUser(CreateUserRequest.from(node), roleName);
-                        logger.info("User created successfully [{}] for gateway accounts [{}]", newUser.getExternalId(), String.join(", ", newUser.getGatewayAccountIds()));
+                        User newUser = userServicesFactory.userCreator().doCreate(CreateUserRequest.from(node), roleName);
+                        logger.info("User created successfully [{}]", newUser.getExternalId());
                         return Response.status(CREATED).type(APPLICATION_JSON)
                                 .entity(newUser).build();
                     } catch (Exception e) {
