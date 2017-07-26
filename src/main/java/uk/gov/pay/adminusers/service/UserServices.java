@@ -6,21 +6,14 @@ import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
-import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.SecondFactorToken;
 import uk.gov.pay.adminusers.model.User;
-import uk.gov.pay.adminusers.persistence.dao.RoleDao;
-import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
-import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
-import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
-import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import static java.lang.Boolean.parseBoolean;
@@ -28,16 +21,12 @@ import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_DISABLED;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingServiceGatewayAccountsForUser;
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.undefinedRoleException;
 
 public class UserServices {
 
     private static Logger logger = PayLoggerFactory.getLogger(UserServices.class);
 
     private final UserDao userDao;
-    private final RoleDao roleDao;
-    private final ServiceDao serviceDao;
     private final PasswordHasher passwordHasher;
     private final LinksBuilder linksBuilder;
     private final Integer loginAttemptCap;
@@ -45,46 +34,17 @@ public class UserServices {
     private final SecondFactorAuthenticator secondFactorAuthenticator;
 
     @Inject
-    public UserServices(UserDao userDao, RoleDao roleDao,
-                        ServiceDao serviceDao,
+    public UserServices(UserDao userDao,
                         PasswordHasher passwordHasher,
                         LinksBuilder linksBuilder,
                         @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap,
                         Provider<NotificationService> userNotificationService, SecondFactorAuthenticator secondFactorAuthenticator) {
         this.userDao = userDao;
-        this.roleDao = roleDao;
-        this.serviceDao = serviceDao;
         this.passwordHasher = passwordHasher;
         this.linksBuilder = linksBuilder;
         this.loginAttemptCap = loginAttemptCap;
         this.notificationService = userNotificationService.get();
         this.secondFactorAuthenticator = secondFactorAuthenticator;
-    }
-
-    /**
-     * persists a new user
-     *
-     * @param createUserRequest
-     * @param roleName          initial role to be assigned
-     * @return {@link User} with associated links
-     * @throws javax.ws.rs.WebApplicationException with status 409-Conflict if the username is already taken
-     * @throws javax.ws.rs.WebApplicationException with status 500 for any unknown error during persistence
-     */
-    @Transactional
-    public User createUser(CreateUserRequest createUserRequest, String roleName) {
-        return roleDao.findByRoleName(roleName)
-                .map(roleEntity -> {
-                    UserEntity userEntity = UserEntity.from(createUserRequest);
-                    userEntity.setPassword(passwordHasher.hash(createUserRequest.getPassword()));
-                    if (createUserRequest.getServiceIds().isEmpty()) {
-                        addServiceRoleToUser(userEntity, roleEntity, createUserRequest.getGatewayAccountIds());
-                    } else {
-                        addServiceRoleToUser(userEntity, roleEntity, createUserRequest.getServiceIds().get(0));
-                    }
-                    userDao.persist(userEntity);
-                    return linksBuilder.decorate(userEntity.toUser());
-                })
-                .orElseThrow(() -> undefinedRoleException(roleName));
     }
 
     /**
@@ -252,39 +212,4 @@ public class UserServices {
                 .orElseGet(Optional::empty);
     }
 
-    private void addServiceRoleToUser(UserEntity user, RoleEntity role, List<String> gatewayAccountIds) {
-        ServiceRoleEntity serviceRole = getServiceAssignedTo(gatewayAccountIds)
-                .map(serviceEntity -> new ServiceRoleEntity(serviceEntity, role))
-                .orElseGet(() -> {
-                    ServiceEntity service = new ServiceEntity(gatewayAccountIds);
-                    serviceDao.persist(service);
-                    return new ServiceRoleEntity(service, role);
-                });
-        serviceRole.setUser(user);
-        user.addServiceRole(serviceRole);
-    }
-
-    private void addServiceRoleToUser(UserEntity user, RoleEntity role, String serviceId) {
-        ServiceRoleEntity serviceRole = serviceDao.findById(Integer.parseInt(serviceId))
-                .map(serviceEntity -> new ServiceRoleEntity(serviceEntity, role))
-                .orElseGet(() -> {
-                    throw AdminUsersExceptions.serviceDoesNotExistError(serviceId);
-                });
-        serviceRole.setUser(user);
-        user.addServiceRole(serviceRole);
-    }
-
-    private Optional<ServiceEntity> getServiceAssignedTo(List<String> gatewayAccountIds) {
-        for (String gatewayAccountId : gatewayAccountIds) {
-            Optional<ServiceEntity> serviceOptional = serviceDao.findByGatewayAccountId(gatewayAccountId);
-            if (serviceOptional.isPresent()) {
-                if (serviceOptional.get().hasExactGatewayAccountIds(gatewayAccountIds)) {
-                    return serviceOptional;
-                } else {
-                    throw conflictingServiceGatewayAccountsForUser();
-                }
-            }
-        }
-        return Optional.empty();
-    }
 }

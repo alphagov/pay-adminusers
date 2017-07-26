@@ -27,17 +27,12 @@ import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 public class UserResourceCreateAndGetTest extends IntegrationTest {
 
     @Test
-    public void shouldCreateAUserWithSortedGatewayAccountIdsArraySuccessfully() throws Exception {
-        String [] gatewayAccountIds = new String[]{"111111", "222"};
-        String serviceExternalId = serviceDbFixture(databaseHelper)
-                .withGatewayAccountIds(gatewayAccountIds)
-                .insertService().getExternalId();
+    public void shouldCreateAUser_Successfully() throws Exception {
 
         String username = randomAlphanumeric(10) + randomUUID().toString();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
                 .put("email", "user-" + username + "@example.com")
-                .put("gateway_account_ids", gatewayAccountIds)
                 .put("telephone_number", "45334534634")
                 .put("otp_key", "34f34")
                 .put("role_name", "admin")
@@ -59,22 +54,12 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("username", is(username))
                 .body("password", nullValue())
                 .body("email", is("user-" + username + "@example.com"))
-                .body("gateway_account_ids", hasSize(2))
-                .body("gateway_account_ids[0]", is("222"))
-                .body("gateway_account_ids[1]", is("111111"))
-                .body("service_ids", hasSize(1))
-                .body("service_ids[0]", is(notNullValue()))
-                .body("service_roles", hasSize(1))
-                .body("service_roles[0].service.external_id", is(serviceExternalId))
-                .body("service_roles[0].service.name", is("System Generated"))
-                .body("service_roles[0].role.name", is("admin"))
+                .body("service_roles", hasSize(0))
                 .body("telephone_number", is("45334534634"))
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
-                .body("disabled", is(false))
-                .body("role.name", is("admin"))
-                .body("role.description", is("Administrator"))
-                .body("permissions", hasSize(31)); //we could consider removing this assertion if the permissions constantly changing
+                .body("disabled", is(false));
+
         response
                 .body("_links", hasSize(1))
                 .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + externalId))
@@ -85,22 +70,21 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
         // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
         List<Map<String, Object>> userByExternalId = databaseHelper.findUserByExternalId(externalId);
         List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByExternalId.get(0).get("id"));
-        assertThat(servicesAssociatedToUser.size(), is(1));
+        assertThat(servicesAssociatedToUser.size(), is(0));
     }
 
     @Test
-    public void shouldCreateAUserWithinAServiceIfServiceIdIsInPayloadIgnoringGatewayAccountIds() throws Exception {
+    public void shouldCreateAUser_withinAService_IfServiceExternalIdsExists() throws Exception {
         String gatewayAccount1 = valueOf(nextInt());
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
-        int serviceId = service.getId();
+        String serviceExternalId = service.getExternalId();
         String username = randomAlphanumeric(10) + randomUUID().toString();
 
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
                 .put("email", "user-" + username + "@example.com")
-                .put("gateway_account_ids", new String[]{"55"})
-                .put("service_ids", new String[]{valueOf(serviceId)})
+                .put("service_external_ids", new String[]{valueOf(serviceExternalId)})
                 .put("telephone_number", "45334534634")
                 .put("otp_key", "34f34")
                 .put("role_name", "admin")
@@ -122,20 +106,17 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("username", is(username))
                 .body("password", nullValue())
                 .body("email", is("user-" + username + "@example.com"))
-                .body("gateway_account_ids", hasSize(2))
-                .body("gateway_account_ids", hasItems(gatewayAccount1,gatewayAccount2))
-                .body("service_ids", hasSize(1))
-                .body("service_ids[0]", is(valueOf(serviceId)))
-                .body("services", hasSize(1))
-                .body("services[0].id", is(serviceId))
-                .body("services[0].name", is(service.getName()))
+                .body("service_roles", hasSize(1))
+                .body("service_roles[0].service.external_id", is(serviceExternalId))
+                .body("service_roles[0].service.name", is(service.getName()))
                 .body("telephone_number", is("45334534634"))
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
                 .body("disabled", is(false))
-                .body("role.name", is("admin"))
-                .body("role.description", is("Administrator"))
-                .body("permissions", hasSize(31)); //we could consider removing this assertion if the permissions constantly changing
+                .body("service_roles[0].role.name", is("admin"))
+                .body("service_roles[0].role.description", is("Administrator"))
+                .body("service_roles[0].role.permissions", hasSize(31));
+
         response
                 .body("_links", hasSize(1))
                 .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + externalId))
@@ -147,30 +128,6 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
         List<Map<String, Object>> userByExternalId = databaseHelper.findUserByExternalId(externalId);
         List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByExternalId.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
-    }
-
-    @Test
-    public void shouldFailCreatingAUserForAServiceThatDoesNotExist() throws Exception {
-        String username = randomAlphanumeric(10) + randomUUID().toString();
-
-        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
-                .put("username", username)
-                .put("email", "user-" + username + "@example.com")
-                .put("gateway_account_ids", new String[]{"55"})
-                .put("service_ids", new String[]{"123"})
-                .put("telephone_number", "45334534634")
-                .put("otp_key", "34f34")
-                .put("role_name", "admin")
-                .build();
-
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(userPayload))
-                .contentType(JSON)
-                .accept(JSON)
-                .post(USERS_RESOURCE_URL)
-                .then()
-                .statusCode(400);
     }
 
     @Test
@@ -178,9 +135,9 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
         String gatewayAccount1 = valueOf(nextInt());
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
-        int serviceId = service.getId();
+        String serviceExternalId = service.getExternalId();
         Role role = roleDbFixture(databaseHelper).insertRole();
-        User user = userDbFixture(databaseHelper).withServiceRole(serviceId, role.getId()).insertUser();
+        User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).insertUser();
 
         givenSetup()
                 .when()
@@ -193,74 +150,22 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .body("username", is(user.getUsername()))
                 .body("password", nullValue())
                 .body("email", is(user.getEmail()))
-                .body("gateway_account_ids", hasSize(2))
-                .body("gateway_account_ids", hasItems(gatewayAccount1, gatewayAccount2))
-                .body("service_ids", hasSize(1))
-                .body("service_ids[0]", is(valueOf(serviceId)))
-                .body("services", hasSize(1))
-                .body("services[0].id", is(serviceId))
-                .body("services[0].name", is(service.getName()))
+                .body("service_roles", hasSize(1))
+                .body("service_roles[0].service.external_id", is(serviceExternalId))
+                .body("service_roles[0].service.name", is(service.getName()))
                 .body("telephone_number", is(user.getTelephoneNumber()))
                 .body("otp_key", is(user.getOtpKey()))
                 .body("login_counter", is(0))
                 .body("disabled", is(false))
-                .body("role.name", is(role.getName()))
-                .body("role.description", is(role.getDescription()))
-                .body("permissions", hasSize(role.getPermissions().size()))
+                .body("service_roles[0].role.name", is(role.getName()))
+                .body("service_roles[0].role.description", is(role.getDescription()))
+                .body("service_roles[0].role.permissions", hasSize(role.getPermissions().size()))
                 .body("_links", hasSize(1))
                 .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + user.getExternalId()))
                 .body("_links[0].method", is("GET"))
                 .body("_links[0].rel", is("self"));
     }
 
-    @Test
-    public void shouldAddUserToAServiceWhenCreatingTheUserWithAnAlreadyExistingGatewayAccount() throws Exception {
-        String gatewayAccount = "666";
-        Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount).insertService();
-        int serviceId = service.getId();
-
-        String username = randomAlphanumeric(10) + randomUUID().toString();
-        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
-                .put("username", username)
-                .put("email", "user-" + username + "@example.com")
-                .put("gateway_account_ids", new String[]{gatewayAccount})
-                .put("telephone_number", "45334534634")
-                .put("otp_key", "34f34")
-                .put("role_name", "admin")
-                .build();
-
-        ValidatableResponse response = givenSetup().when()
-                .body(mapper.writeValueAsString(userPayload))
-                .contentType(JSON)
-                .accept(JSON)
-                .post(USERS_RESOURCE_URL)
-                .then();
-
-        String externalId = response.extract().path("external_id");
-        String serviceExternalId = response.extract().path("services[0].external_id");
-
-        response
-                .statusCode(201)
-                .body("external_id", is(externalId))
-                .body("username", is(username))
-                .body("gateway_account_ids", hasSize(1))
-                .body("gateway_account_ids[0]", is(gatewayAccount))
-                .body("service_ids[0]", is(valueOf(serviceId)))
-                .body("services", hasSize(1))
-                .body("services[0].id", is(serviceId))
-                .body("services[0].name", is(service.getName()));
-
-        //TODO - WIP PP-1483 This will be amended when the story is done.
-        // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
-        List<Map<String, Object>> userByExternalId = databaseHelper.findUserByExternalId(externalId);
-        List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByExternalId.get(0).get("id"));
-        assertThat(servicesAssociatedToUser.size(), is(1));
-        assertThat(servicesAssociatedToUser.get(0).get("service_id"), is(serviceId));
-
-        List<Map<String, Object>> gatewayAccountsAssociatedToUser = databaseHelper.findGatewayAccountsByService(serviceExternalId);
-        assertThat(gatewayAccountsAssociatedToUser.size(), is(1));
-        assertThat(gatewayAccountsAssociatedToUser.get(0).get("gateway_account_id"), is(gatewayAccount));
-    }
 
     @Test
     public void shouldError400_IfRoleDoesNotExist() throws Exception {
@@ -298,11 +203,10 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .post(USERS_RESOURCE_URL)
                 .then()
                 .statusCode(400)
-                .body("errors", hasSize(5))
+                .body("errors", hasSize(4))
                 .body("errors", hasItems(
                         "Field [username] is required",
                         "Field [email] is required",
-                        "Field [gateway_account_ids] is required",
                         "Field [telephone_number] is required",
                         "Field [role_name] is required"));
     }

@@ -3,7 +3,7 @@
     "name": "Selfservice-create-user"
   },
   "provider": {
-    "name": "adminusers"
+    "name": "AdminUsers"
   },
   "interactions": [
     {
@@ -16,12 +16,16 @@
           "Accept": "application/json"
         },
         "body": {
-          "username": "wjq68lqaz1in72pgb9",
-          "email": "wjq68lqaz1in72pgb9@example.com",
+          "external_id": "73c4f80a70c14f479acdee261372267c",
+          "username": "v7pqui77vh7zrgmpwrk9",
+          "email": "v7pqui77vh7zrgmpwrk9@example.com",
           "gateway_account_ids": [
-            "268"
+            "813"
           ],
-          "telephone_number": "126426",
+          "service_ids": [
+            "347"
+          ],
+          "telephone_number": "776799",
           "role_name": "admin"
         }
       },
@@ -31,18 +35,21 @@
           "Content-Type": "application/json"
         },
         "body": {
-          "external_id": "72dadb5019f4447595f57643304b54a8",
-          "username": "wjq68lqaz1in72pgb9",
-          "email": "wjq68lqaz1in72pgb9@example.com",
+          "external_id": "73c4f80a70c14f479acdee261372267c",
+          "username": "v7pqui77vh7zrgmpwrk9",
+          "email": "v7pqui77vh7zrgmpwrk9@example.com",
           "gateway_account_ids": [
-            "268"
+            "813"
+          ],
+          "service_ids": [
+            "347"
           ],
           "otp_key": "43c3c4t",
           "role": {
             "name": "admin",
             "description": "Administrator"
           },
-          "telephone_number": "126426",
+          "telephone_number": "776799",
           "permissions": [
             "perm-1",
             "perm-1",
@@ -50,7 +57,7 @@
           ],
           "_links": [
             {
-              "href": "http://adminusers.service/v1/api/users/72dadb5019f4447595f57643304b54a8",
+              "href": "http://adminusers.service/v1/api/users/73c4f80a70c14f479acdee261372267c",
               "rel": "self",
               "method": "GET"
             }
@@ -73,6 +80,15 @@
             "match": "type"
           },
           "$.body.gateway_account_ids[*]": {
+            "match": "type"
+          },
+          "$.body.service_ids": {
+            "min": 1
+          },
+          "$.body.service_ids[*].*": {
+            "match": "type"
+          },
+          "$.body.service_ids[*]": {
             "match": "type"
           },
           "$.body.otp_key": {
@@ -118,7 +134,7 @@
           "Accept": "application/json"
         },
         "body": {
-          "username": "b1icd1ex6chxh6b8lrf6r",
+          "username": "cpbt04bsql1vr0ms4i",
           "gateway_account_ids": [
             ""
           ],
