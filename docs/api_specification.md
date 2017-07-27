@@ -545,7 +545,7 @@ Content-Type: application/json
 | Field                    | required | Description                                                      | Supported Values     |
 | ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
 | `telephone_number`       |   X      | the phone number of the user                                     |   |
-| `email`                  |   X      | the email (mut be a public sector email)                         | |
+| `email`                  |   X      | the email (must be a public sector email)                         | |
 | `password`               |   X      | password for the new user                                        | |
 
 ### Response example
@@ -730,7 +730,8 @@ Content-Type: application/json
               }]
             },
    service_external_id: "89wi6il2364328",
-   user_external_id: "287cg75v3737"          
+   user_external_id: "287cg75v3737" 
+}
 ```
 
 -----------------------------------------------------------------------------------------------------------
