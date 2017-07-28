@@ -253,6 +253,30 @@ public class UserServicesTest {
     }
 
     @Test
+    public void shouldUpdateTelephoneNumber_whenReplacingTelephoneNumber_ifUserFound() throws Exception {
+        User user = aUser();
+        UserEntity userEntity = aUserEntityWithTrimmings(user);
+        userEntity.setTelephoneNumber("11111111111");
+
+        String newTelephoneNumber = "07700900000";
+        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "telephone_number", "op", "replace", "value", newTelephoneNumber));
+        Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+
+        when(userDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(userEntityOptional);
+
+        Optional<User> userOptional = userServices.patchUser(USER_EXTERNAL_ID, PatchRequest.from(node));
+
+        verify(userDao,times(1)).merge(argumentCaptor.capture());
+
+        UserEntity persistedUser = argumentCaptor.getValue();
+        assertThat(persistedUser.getTelephoneNumber(), is(newTelephoneNumber));
+        assertTrue(userOptional.isPresent());
+
+        assertThat(userOptional.get().getTelephoneNumber(), is(newTelephoneNumber));
+    }
+
+    @Test
     public void shouldReturn2FAToken_whenCreate2FA_ifUserFound() throws Exception {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);

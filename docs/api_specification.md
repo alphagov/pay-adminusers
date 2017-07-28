@@ -165,8 +165,8 @@ Content-Type: application/json
 
 | Field                    | required | Description                                                | Supported Values     |
 | ------------------------ |:--------:| ---------------------------------------------------------- |----------------------|
-| `path`                   |   X      | the name of the attribute to be adjusted                   | [sessionVersion|disabled]] |
-| `op`                     |   X      | type of adjustment to be performed on attribute            | [append | replace]   |
+| `path`                   |   X      | the name of the attribute to be adjusted                   | [sessionVersion &#124; disabled &#124; telephone_number] |
+| `op`                     |   X      | type of adjustment to be performed on attribute            | [append &#124; replace]   |
 | `value`                  |   X      | value to be used for performing the op                     |                      |
 
 

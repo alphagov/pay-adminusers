@@ -40,6 +40,23 @@ public class UserResourcePatchTest extends IntegrationTest {
     }
 
     @Test
+    public void shouldUpdateTelephoneNumber_whenPatchAttempt() throws Exception {
+
+        String newTelephoneNumber = "07700900001";
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value",  newTelephoneNumber));
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .body(payload)
+                .patch(format(USER_RESOURCE_URL, externalId))
+                .then()
+                .statusCode(200)
+                .body("telephone_number", is(newTelephoneNumber));
+
+    }
+
+    @Test
     public void shouldDisableUser_whenPatchAttempt() throws Exception {
 
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "disabled", "value", "true"));

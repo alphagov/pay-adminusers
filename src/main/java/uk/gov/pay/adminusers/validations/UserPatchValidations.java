@@ -14,20 +14,24 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.tuple.Pair.of;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_DISABLED;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
+import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TELEPHONE_NUMBER;
 import static uk.gov.pay.adminusers.validations.RequestValidations.isNotBoolean;
 import static uk.gov.pay.adminusers.validations.RequestValidations.isNotNumeric;
 
 public class UserPatchValidations {
 
-    private static final List<String> PATCH_ALLOWED_PATHS = ImmutableList.of(PATH_SESSION_VERSION, PATH_DISABLED);
+    private static final List<String> PATCH_ALLOWED_PATHS = ImmutableList.of(PATH_SESSION_VERSION, PATH_DISABLED, PATH_TELEPHONE_NUMBER);
     private static final Multimap<String, String> USER_PATCH_PATH_OPS = new ImmutableListMultimap.Builder<String, String>()
             .put(PATH_SESSION_VERSION, "append")
             .put(PATH_DISABLED, "replace")
+            .put(PATH_TELEPHONE_NUMBER, "replace")
             .build();
 
     private static final Multimap<String, Pair<Function<JsonNode, Boolean>, String>> USER_PATCH_PATH_VALIDATIONS = new ImmutableListMultimap.Builder<String, Pair<Function<JsonNode, Boolean>, String>>()
             .put(PATH_SESSION_VERSION, of(isNotNumeric(), format("path [%s] must contain a value of positive integer", PATH_SESSION_VERSION)))
             .put(PATH_DISABLED, of(isNotBoolean(), format("path [%s] must be contain value [true | false]", PATH_DISABLED)))
+            .put(PATH_TELEPHONE_NUMBER, of(isNotNumeric(), format("path [%s] must contain a numeric value", PATH_TELEPHONE_NUMBER)))
+
             .build();
 
     public static boolean isPathAllowed(String path){

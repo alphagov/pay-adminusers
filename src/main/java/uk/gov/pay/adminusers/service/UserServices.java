@@ -21,6 +21,7 @@ import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_DISABLED;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
+import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TELEPHONE_NUMBER;
 
 public class UserServices {
 
@@ -182,11 +183,23 @@ public class UserServices {
             return incrementSessionVersion(externalId, parseInt(patchRequest.getValue()));
         } else if (PATH_DISABLED.equals(patchRequest.getPath())) {
             return changeUserDisabled(externalId, parseBoolean(patchRequest.getValue()));
+        } else if (PATH_TELEPHONE_NUMBER.equals(patchRequest.getPath())) {
+            return changeUserTelephoneNumber(externalId, patchRequest.getValue());
         } else {
             String error = format("Invalid patch request with path [%s]", patchRequest.getPath());
             logger.error(error);
             throw new RuntimeException(error);
         }
+    }
+
+    private Optional<User> changeUserTelephoneNumber(String externalId, String telephoneNumber) {
+        return userDao.findByExternalId(externalId)
+                .map(userEntity -> {
+                    userEntity.setTelephoneNumber(telephoneNumber);
+                    userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+                    userDao.merge(userEntity);
+                    return Optional.of(linksBuilder.decorate(userEntity.toUser()));
+                }).orElseGet(Optional::empty);
     }
 
     private Optional<User> changeUserDisabled(String externalId, Boolean value) {
