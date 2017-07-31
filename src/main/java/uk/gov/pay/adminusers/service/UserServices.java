@@ -179,50 +179,47 @@ public class UserServices {
 
     @Transactional
     public Optional<User> patchUser(String externalId, PatchRequest patchRequest) {
+
+        Optional<UserEntity> userOptional = userDao.findByExternalId(externalId);
+
+        if (!userOptional.isPresent()) {
+            return Optional.empty();
+        }
+
+        UserEntity user = userOptional.get();
+
         if (PATH_SESSION_VERSION.equals(patchRequest.getPath())) {
-            return incrementSessionVersion(externalId, parseInt(patchRequest.getValue()));
+            incrementSessionVersion(user, parseInt(patchRequest.getValue()));
         } else if (PATH_DISABLED.equals(patchRequest.getPath())) {
-            return changeUserDisabled(externalId, parseBoolean(patchRequest.getValue()));
+            changeUserDisabled(user, parseBoolean(patchRequest.getValue()));
         } else if (PATH_TELEPHONE_NUMBER.equals(patchRequest.getPath())) {
-            return changeUserTelephoneNumber(externalId, patchRequest.getValue());
+            changeUserTelephoneNumber(user, patchRequest.getValue());
         } else {
             String error = format("Invalid patch request with path [%s]", patchRequest.getPath());
             logger.error(error);
             throw new RuntimeException(error);
         }
+
+        return Optional.of(linksBuilder.decorate(user.toUser()));
     }
 
-    private Optional<User> changeUserTelephoneNumber(String externalId, String telephoneNumber) {
-        return userDao.findByExternalId(externalId)
-                .map(userEntity -> {
-                    userEntity.setTelephoneNumber(telephoneNumber);
-                    userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
-                    userDao.merge(userEntity);
-                    return Optional.of(linksBuilder.decorate(userEntity.toUser()));
-                }).orElseGet(Optional::empty);
+    private void changeUserTelephoneNumber(UserEntity userEntity, String telephoneNumber) {
+        userEntity.setTelephoneNumber(telephoneNumber);
+        userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+        userDao.merge(userEntity);
     }
 
-    private Optional<User> changeUserDisabled(String externalId, Boolean value) {
-        return userDao.findByExternalId(externalId)
-                .map(userEntity -> {
-                    userEntity.setLoginCounter(0);
-                    userEntity.setDisabled(value);
-                    userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
-                    userDao.merge(userEntity);
-                    return Optional.of(linksBuilder.decorate(userEntity.toUser()));
-                })
-                .orElseGet(Optional::empty);
+    private void changeUserDisabled(UserEntity userEntity, Boolean value) {
+        userEntity.setLoginCounter(0);
+        userEntity.setDisabled(value);
+        userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+        userDao.merge(userEntity);
     }
 
-    private Optional<User> incrementSessionVersion(String externalId, Integer value) {
-        return userDao.findByExternalId(externalId)
-                .map(userEntity -> {
-                    userEntity.setSessionVersion(userEntity.getSessionVersion() + value);
-                    userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
-                    userDao.merge(userEntity);
-                    return Optional.of(linksBuilder.decorate(userEntity.toUser()));
-                })
-                .orElseGet(Optional::empty);
+    private void incrementSessionVersion(UserEntity userEntity, Integer value) {
+        userEntity.setSessionVersion(userEntity.getSessionVersion() + value);
+        userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+        userDao.merge(userEntity);
     }
 
 }
