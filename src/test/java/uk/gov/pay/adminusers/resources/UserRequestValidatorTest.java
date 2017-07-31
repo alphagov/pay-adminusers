@@ -155,6 +155,25 @@ public class UserRequestValidatorTest {
     }
 
     @Test
+    public void shouldSuccess_replacingTelephoneNumber_whenPatching() throws Exception {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", "07700900000"));
+        Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
+
+        assertFalse(optionalErrors.isPresent());
+    }
+
+    @Test
+    public void shouldError_replacingTelephoneNumber_whenPatchingIfNonNumeric() throws Exception {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", "+44 7700 900 000"));
+        Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
+
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("path [telephone_number] must contain a numeric value"));
+    }
+
+    @Test
     public void shouldSuccess_whenAddingServiceRole() throws Exception {
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("service_external_id", "blah-blah", "role_name", "blah"));
         Optional<Errors> optionalErrors = validator.validateAssignServiceRequest(payload);

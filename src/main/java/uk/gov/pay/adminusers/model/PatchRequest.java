@@ -9,6 +9,7 @@ public class PatchRequest {
 
     public static final String PATH_SESSION_VERSION = "sessionVersion";
     public static final String PATH_DISABLED = "disabled";
+    public static final String PATH_TELEPHONE_NUMBER = "telephone_number";
 
     private String op;
     private String path;
