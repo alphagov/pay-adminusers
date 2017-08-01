@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
+import static uk.gov.pay.adminusers.model.User.FIELD_USERNAME;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingUsername;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 
@@ -31,6 +32,7 @@ public class UserResource {
 
     public static final String API_VERSION_PATH = "/v1";
     public static final String USERS_RESOURCE = API_VERSION_PATH + "/api/users";
+    public static final String FIND_RESOURCE = USERS_RESOURCE + "/find";
     private static final String AUTHENTICATE_RESOURCE = USERS_RESOURCE + "/authenticate";
     private static final String USER_RESOURCE = USERS_RESOURCE + "/{externalId}";
     private static final String SECOND_FACTOR_RESOURCE = USER_RESOURCE + "/second-factor";
@@ -50,6 +52,20 @@ public class UserResource {
         this.userServices = userServices;
         this.validator = validator;
         this.userServicesFactory = userServicesFactory;
+    }
+
+
+    @Path(FIND_RESOURCE)
+    @POST
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    public Response findUser(JsonNode payload) {
+        logger.info("User FIND request");
+        return validator.validateFindRequest(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> userServices.findUserByUsername(payload.get(FIELD_USERNAME).asText())
+                        .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
+                        .orElseGet(() -> Response.status(NOT_FOUND).build()));
     }
 
     @Path(USER_RESOURCE)

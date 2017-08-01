@@ -60,7 +60,7 @@ public class UserRequestValidator {
     }
 
     public Optional<Errors> validateAssignServiceRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_SERVICE_EXTERNAL_ID,FIELD_ROLE_NAME);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_SERVICE_EXTERNAL_ID, FIELD_ROLE_NAME);
         return missingMandatoryFields.map(Errors::from);
     }
 
@@ -86,6 +86,14 @@ public class UserRequestValidator {
             return Optional.of(Errors.from(invalidData.get()));
         }
 
+        return Optional.empty();
+    }
+
+    public Optional<Errors> validateFindRequest(JsonNode payload) {
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_USERNAME);
+        if (missingMandatoryFields.isPresent()) {
+            return Optional.of(Errors.from(missingMandatoryFields.get()));
+        }
         return Optional.empty();
     }
 

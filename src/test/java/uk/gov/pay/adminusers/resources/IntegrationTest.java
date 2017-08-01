@@ -13,6 +13,7 @@ import static com.jayway.restassured.http.ContentType.JSON;
 public class IntegrationTest {
 
     static final String USERS_RESOURCE_URL = "/v1/api/users";
+    static final String FIND_RESOURCE_URL = "/v1/api/users/find";
     static final String USER_RESOURCE_URL = "/v1/api/users/%s";
     static final String USERS_AUTHENTICATE_URL = "/v1/api/users/authenticate";
     static final String USER_2FA_URL = "/v1/api/users/%s/second-factor";
