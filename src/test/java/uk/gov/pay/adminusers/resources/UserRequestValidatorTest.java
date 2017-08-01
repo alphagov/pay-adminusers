@@ -255,6 +255,26 @@ public class UserRequestValidatorTest {
         assertFalse(optionalErrors.isPresent());
     }
 
+    @Test
+    public void shouldSuccess_ifValidSearchRequest_whenFindingAUser() throws Exception {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("username", "some-existing-user"));
+        Optional<Errors> optionalErrors = validator.validateFindRequest(payload);
+
+        assertThat(optionalErrors.isPresent(), is(false));
+    }
+
+    @Test
+    public void shouldError_ifRequiredFieldsMissing_whenFindingAUser() throws Exception {
+        JsonNode payload = new ObjectMapper().readTree("{}");
+        Optional<Errors> optionalErrors = validator.validateFindRequest(payload);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("Field [username] is required"));
+    }
+
     private void mockValidValuesFor(JsonNode mockJsonNode, Pair<String, String>... mockFieldValues) {
         for (Pair<String, String> mockFieldValue : mockFieldValues) {
             JsonNode fieldMock = mock(JsonNode.class);

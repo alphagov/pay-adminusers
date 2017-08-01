@@ -1,11 +1,13 @@
 package uk.gov.pay.adminusers.resources;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.User;
 
+import java.util.Map;
+
 import static com.jayway.restassured.http.ContentType.JSON;
-import static java.lang.String.format;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
@@ -21,10 +23,14 @@ public class UserResourceFindTest extends IntegrationTest {
 
     @Test
     public void shouldFindSuccessfully_existingUserByUserName() throws Exception {
+
+        Map<String, String> findPayload = ImmutableMap.of("username", username);
+
         givenSetup()
                 .when()
                 .contentType(JSON)
-                .get(format("%s?username=%s", USERS_RESOURCE_URL,username))
+                .body(mapper.writeValueAsString(findPayload))
+                .post(FIND_RESOURCE_URL)
                 .then()
                 .statusCode(200)
                 .body("username", is(username));
@@ -32,12 +38,29 @@ public class UserResourceFindTest extends IntegrationTest {
 
     @Test
     public void shouldError404_ifUserNotFound() throws Exception {
+        Map<String, String> findPayload = ImmutableMap.of("username", "unknown-user@somewhere.com");
+
         givenSetup()
                 .when()
                 .contentType(JSON)
-                .get(format("%s?username=%s", USERS_RESOURCE_URL,"unknown-user@somewhere.com"))
+                .body(mapper.writeValueAsString(findPayload))
+                .post(FIND_RESOURCE_URL)
                 .then()
                 .statusCode(404);
+
+    }
+
+    @Test
+    public void shouldError400_ifFieldsMissing() throws Exception {
+        Map<String, String> findPayload = ImmutableMap.of("", "");
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .body(mapper.writeValueAsString(findPayload))
+                .post(FIND_RESOURCE_URL)
+                .then()
+                .statusCode(400);
 
     }
 }
