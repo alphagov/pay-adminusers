@@ -57,7 +57,7 @@ public class UserResource {
     @GET
     @Produces(APPLICATION_JSON)
     public Response findUser(@QueryParam("username") String username) {
-        logger.info("User FIND request - [ {} ]", username);
+        logger.info("User FIND request");
         return userServices.findUserByUsername(username)
                 .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
