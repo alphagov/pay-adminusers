@@ -26,6 +26,10 @@ public class ServiceEntity {
     @Column(name = "name")
     private String name = Service.DEFAULT_NAME_VALUE;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "customisations_id")
+    private ServiceCustomisationEntity serviceCustomisationEntity;
+
     @OneToMany(mappedBy = "service", targetEntity = GatewayAccountIdEntity.class, fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private List<GatewayAccountIdEntity> gatewayAccountIds = new ArrayList<>();
 
@@ -81,11 +85,22 @@ public class ServiceEntity {
         populateGatewayAccountIds(asList(gatewayAccountIds));
     }
 
+    public ServiceCustomisationEntity getServiceCustomisationEntity() {
+        return serviceCustomisationEntity;
+    }
+
+    public void setServiceCustomisationEntity(ServiceCustomisationEntity serviceCustomisationEntity) {
+        this.serviceCustomisationEntity = serviceCustomisationEntity;
+    }
+
     public Service toService() {
         Service service = Service.from(id, externalId, name);
         service.setGatewayAccountIds(gatewayAccountIds.stream()
                 .map(idEntity -> idEntity.getGatewayAccountId())
                 .collect(Collectors.toList()));
+        if (serviceCustomisationEntity != null) {
+            service.setServiceCustomisations(serviceCustomisationEntity.toServiceCustomisations());
+        }
         return service;
     }
 

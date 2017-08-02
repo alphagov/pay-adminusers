@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.sql.Timestamp.from;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 
 public class DatabaseTestHelper {
 
@@ -211,6 +212,27 @@ public class DatabaseTestHelper {
                             .execute()
             );
         }
+
+        if (service.getServiceCustomisations() != null) {
+            ServiceCustomisations customisations = service.getServiceCustomisations();
+            Integer customisationId = randomInt();
+            jdbi.withHandle(handle -> {
+                        return handle.createStatement("INSERT INTO service_customisations(id, banner_colour, logo_url, updated, version) VALUES (:id, :bannerColour, :logoUrl, :updated, 0)")
+                                .bind("id", customisationId)
+                                .bind("bannerColour", customisations.getBannerColour())
+                                .bind("logoUrl", customisations.getLogoUrl())
+                                .bind("updated", from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant()))
+                                .execute();
+                    }
+            );
+
+            jdbi.withHandle(handle ->
+                    handle.createStatement("UPDATE services set customisations_id=:customisationsId WHERE id=:id")
+                            .bind("customisationsId", customisationId)
+                            .bind("id", service.getId())
+                            .execute()
+            );
+        }
         return this;
     }
 
@@ -253,11 +275,11 @@ public class DatabaseTestHelper {
     }
 
     public DatabaseTestHelper addServiceInvite(int id, int senderId, int roleId,
-                                        String email, String code, String otpKey,
-                                        ZonedDateTime date, ZonedDateTime expiryDate,
-                                        String telephoneNumber, String password,
-                                        Boolean disabled,
-                                        Integer loginCounter) {
+                                               String email, String code, String otpKey,
+                                               ZonedDateTime date, ZonedDateTime expiryDate,
+                                               String telephoneNumber, String password,
+                                               Boolean disabled,
+                                               Integer loginCounter) {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO invites(id, sender_id, role_id, email, code, otp_key, date, expiry_date, telephone_number, password, disabled, login_counter, type) " +
@@ -285,6 +307,22 @@ public class DatabaseTestHelper {
                 h.createQuery("SELECT id, sender_id, service_id, role_id, email, code, otp_key, date, telephone_number, disabled, login_counter FROM invites " +
                         "WHERE code = :code")
                         .bind("code", code)
+                        .list());
+    }
+
+    public List<Map<String, Object>> findServiceByExternalId(String serviceExternalId) {
+        return jdbi.withHandle(h ->
+                h.createQuery("SELECT id, name, external_id, customisations_id FROM services " +
+                        "WHERE external_id = :external_id")
+                        .bind("external_id", serviceExternalId)
+                        .list());
+    }
+
+    public List<Map<String, Object>> findServiceCustomisationsByServiceExternalId(String serviceExternalId) {
+        return jdbi.withHandle(h ->
+                h.createQuery("SELECT sc.id, sc.banner_colour, sc.logo_url, sc.updated, sc.version FROM service_customisations sc, services s " +
+                        "WHERE s.external_id = :external_id AND s.customisations_id=sc.id")
+                        .bind("external_id", serviceExternalId)
                         .list());
     }
 }
