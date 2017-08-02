@@ -11,7 +11,6 @@ import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
-import uk.gov.pay.adminusers.service.InviteService;
 import uk.gov.pay.adminusers.service.LinksBuilder;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 
@@ -34,13 +33,11 @@ import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
 public class ServiceResource {
 
     private static final Logger LOGGER = PayLoggerFactory.getLogger(ServiceResource.class);
-    public static final String HEADER_USER_CONTEXT = "GovUkPay-User-Context";
+    static final String HEADER_USER_CONTEXT = "GovUkPay-User-Context";
     public static final String SERVICES_RESOURCE = "/v1/api/services";
 
     private final UserDao userDao;
     private final ServiceDao serviceDao;
-    private final InviteService inviteService;
-    private final InviteRequestValidator inviteValidator;
     private final LinksBuilder linksBuilder;
     private final ServiceRequestValidator serviceRequestValidator;
     private final ServiceServicesFactory serviceServicesFactory;
@@ -48,16 +45,12 @@ public class ServiceResource {
     @Inject
     public ServiceResource(UserDao userDao,
                            ServiceDao serviceDao,
-                           InviteService inviteService,
-                           InviteRequestValidator inviteValidator,
                            LinksBuilder linksBuilder,
                            ServiceRequestValidator serviceRequestValidator,
                            ServiceServicesFactory serviceServicesFactory
     ) {
         this.userDao = userDao;
         this.serviceDao = serviceDao;
-        this.inviteService = inviteService;
-        this.inviteValidator = inviteValidator;
         this.linksBuilder = linksBuilder;
         this.serviceRequestValidator = serviceRequestValidator;
         this.serviceServicesFactory = serviceServicesFactory;
