@@ -9,9 +9,6 @@ import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,11 +16,8 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNumeric;
-import static uk.gov.pay.adminusers.model.ServiceCustomisations.FIELD_BANNER_COLOUR;
-import static uk.gov.pay.adminusers.model.ServiceCustomisations.FIELD_LOGO_URL;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.*;
 
 
