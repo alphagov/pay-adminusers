@@ -3,10 +3,14 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import javax.inject.Inject;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,16 +18,20 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static uk.gov.pay.adminusers.model.ServiceCustomisations.FIELD_BANNER_COLOUR;
+import static uk.gov.pay.adminusers.model.ServiceCustomisations.FIELD_LOGO_URL;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.*;
 
 
 public class ServiceRequestValidator {
 
+    private static final Logger LOGGER = PayLoggerFactory.getLogger(ServiceRequestValidator.class);
+
     public static final String FIELD_SERVICE_NAME = "name";
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
 
     private final RequestValidations requestValidations;
-    private static final Map<String, List<String>> VALID_ATTRIBUTE_UPDATE_OPERATIONS = new HashMap<String, List<String>>(){{
+    private static final Map<String, List<String>> VALID_ATTRIBUTE_UPDATE_OPERATIONS = new HashMap<String, List<String>>() {{
         put(FIELD_SERVICE_NAME, asList("replace"));
         put(FIELD_GATEWAY_ACCOUNT_IDS, asList("add"));
     }};
@@ -55,7 +63,7 @@ public class ServiceRequestValidator {
     public Optional<Errors> validateUpdateAttributeRequest(JsonNode payload) {
         Optional<List<String>> errors = requestValidations.checkIfExists(payload, FIELD_OP, FIELD_PATH, FIELD_VALUE);
 
-        if(errors.isPresent()) {
+        if (errors.isPresent()) {
             return Optional.of(Errors.from(errors.get()));
         }
         String path = payload.get("path").asText();
@@ -69,5 +77,29 @@ public class ServiceRequestValidator {
         }
 
         return Optional.empty();
+    }
+
+    public Optional<Errors> validateCustomisationRequest(JsonNode payload) {
+        Optional<List<String>> errors = requestValidations.checkIfOptionalsExistsAndNotEmpty(payload, FIELD_BANNER_COLOUR, FIELD_LOGO_URL);
+        if (errors.isPresent()) {
+            return errors.map(Errors::from);
+        }
+        if (payload != null && !validLogoUrl(payload.get(FIELD_LOGO_URL))) {
+            return Optional.of(Errors.from("Field [logo_url] does not comply to URI format"));
+        }
+        return Optional.empty();
+    }
+
+    private boolean validLogoUrl(JsonNode logoUrlNode) {
+        if (logoUrlNode != null) {
+            String logoUrl = logoUrlNode.asText();
+            try {
+                new URL(logoUrl);
+            } catch (MalformedURLException e) {
+                LOGGER.debug("Invalid logo_url format", e);
+                return false;
+            }
+        }
+        return true;
     }
 }

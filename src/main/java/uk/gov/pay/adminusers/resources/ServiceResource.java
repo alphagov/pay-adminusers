@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceCustomisations;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
@@ -112,7 +113,7 @@ public class ServiceResource {
     public Response findUsersByServiceId(@PathParam("serviceExternalId") String serviceExternalId) {
         LOGGER.info("Service users GET request - [ {} ]", serviceExternalId);
         Optional<ServiceEntity> serviceEntityOptional;
-        if(StringUtils.isNumeric(serviceExternalId)) {
+        if (StringUtils.isNumeric(serviceExternalId)) {
             serviceEntityOptional = serviceDao.findById(Integer.valueOf(serviceExternalId));
         } else {
             serviceEntityOptional = serviceDao.findByExternalId(serviceExternalId);
@@ -145,5 +146,21 @@ public class ServiceResource {
         serviceServicesFactory.serviceUserRemover().remove(userId, userContext, serviceId);
         LOGGER.info("Succeeded Service users DELETE request - serviceId={}, removerId={}, userId={}", serviceId, userContext, userId);
         return Response.status(NO_CONTENT).build();
+    }
+
+    @Path("/{serviceExternalId}/customise")
+    @POST
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response addServiceCustomisations(@PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
+        LOGGER.info("Service customisations update request - serviceId={}", serviceExternalId);
+        return serviceRequestValidator.validateCustomisationRequest(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> {
+                    ServiceCustomisations customisations = ServiceCustomisations.from(payload);
+                    return serviceServicesFactory.serviceCustomisationsUpdater().doUpdate(serviceExternalId, customisations)
+                            .map(service -> Response.ok().entity(service).build())
+                            .orElseGet(() -> Response.status(NOT_FOUND).build());
+                });
     }
 }

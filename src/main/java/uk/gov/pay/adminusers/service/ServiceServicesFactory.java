@@ -7,4 +7,6 @@ public interface ServiceServicesFactory {
     ServiceUpdater serviceUpdater();
 
     ServiceUserRemover serviceUserRemover();
+
+    ServiceCustomisationsUpdater serviceCustomisationsUpdater();
 }

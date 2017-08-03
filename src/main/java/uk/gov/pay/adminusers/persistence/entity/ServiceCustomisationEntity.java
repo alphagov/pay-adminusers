@@ -5,6 +5,8 @@ import uk.gov.pay.adminusers.model.ServiceCustomisations;
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 
+import static java.time.ZonedDateTime.now;
+
 @Entity
 @Table(name = "service_customisations")
 @SequenceGenerator(name = "service_customisations_seq_gen", sequenceName = "service_customisations_id_seq", allocationSize = 1)
@@ -22,6 +24,12 @@ public class ServiceCustomisationEntity extends AbstractEntity {
 
     //for JPA
     public ServiceCustomisationEntity() {
+    }
+
+    public ServiceCustomisationEntity(ServiceCustomisations serviceCustomisations) {
+        this.bannerColour = serviceCustomisations.getBannerColour();
+        this.logoUrl = serviceCustomisations.getLogoUrl();
+        this.updated = now();
     }
 
     public String getBannerColour() {
