@@ -20,7 +20,7 @@ public class Service {
     private String name = DEFAULT_NAME_VALUE;
     private List<Link> links = new ArrayList<>();
     private List<String> gatewayAccountIds = new ArrayList<>();
-    private ServiceCustomisations serviceCustomisations;
+    private String customBranding;
 
     public static Service from() {
         return from(DEFAULT_NAME_VALUE);
@@ -83,11 +83,11 @@ public class Service {
         this.gatewayAccountIds = gatewayAccountIds;
     }
 
-    public ServiceCustomisations getServiceCustomisations() {
-        return serviceCustomisations;
+    public String getCustomBranding() {
+        return customBranding;
     }
 
-    public void setServiceCustomisations(ServiceCustomisations serviceCustomisations) {
-        this.serviceCustomisations = serviceCustomisations;
+    public void setCustomBranding(String customBranding) {
+        this.customBranding = customBranding;
     }
 }

@@ -33,11 +33,13 @@ public class ServiceRequestValidator {
 
     public static final String FIELD_SERVICE_NAME = "name";
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
+    public static final String FIELD_CUSTOM_BRANDING = "custom_branding";
 
     private final RequestValidations requestValidations;
     private static final Map<String, List<String>> VALID_ATTRIBUTE_UPDATE_OPERATIONS = new HashMap<String, List<String>>() {{
         put(FIELD_SERVICE_NAME, asList("replace"));
         put(FIELD_GATEWAY_ACCOUNT_IDS, asList("add"));
+        put(FIELD_CUSTOM_BRANDING, asList("replace"));
     }};
 
     @Inject
@@ -65,12 +67,19 @@ public class ServiceRequestValidator {
     }
 
     public Optional<Errors> validateUpdateAttributeRequest(JsonNode payload) {
-        Optional<List<String>> errors = requestValidations.checkIfExists(payload, FIELD_OP, FIELD_PATH, FIELD_VALUE);
-
+        Optional<List<String>> errors = requestValidations.checkIfExists(payload, FIELD_OP, FIELD_PATH);
         if (errors.isPresent()) {
             return Optional.of(Errors.from(errors.get()));
         }
+
         String path = payload.get("path").asText();
+        if (!FIELD_CUSTOM_BRANDING.equals(path)) {
+            errors = requestValidations.checkIfExists(payload,FIELD_VALUE);
+            if (errors.isPresent()) {
+                return Optional.of(Errors.from(errors.get()));
+            }
+        }
+
         if (!VALID_ATTRIBUTE_UPDATE_OPERATIONS.keySet().contains(path)) {
             return Optional.of(Errors.from(format("Path [%s] is invalid", path)));
         }
@@ -80,17 +89,6 @@ public class ServiceRequestValidator {
             return Optional.of(Errors.from(format("Operation [%s] is invalid for path [%s]", op, path)));
         }
 
-        return Optional.empty();
-    }
-
-    public Optional<Errors> validateCustomisationRequest(JsonNode payload) {
-        Optional<List<String>> errors = requestValidations.checkIfOptionalsExistsAndNotEmpty(payload, FIELD_BANNER_COLOUR, FIELD_LOGO_URL);
-        if (errors.isPresent()) {
-            return errors.map(Errors::from);
-        }
-        if (payload != null && !validLogoUrl(payload.get(FIELD_LOGO_URL))) {
-            return Optional.of(Errors.from("Field [logo_url] does not comply to URI format"));
-        }
         return Optional.empty();
     }
 
@@ -104,16 +102,4 @@ public class ServiceRequestValidator {
         return Optional.empty();
     }
 
-    private boolean validLogoUrl(JsonNode logoUrlNode) {
-        if (logoUrlNode != null) {
-            String logoUrl = logoUrlNode.asText();
-            try {
-                new URL(logoUrl);
-            } catch (MalformedURLException e) {
-                LOGGER.debug("Invalid logo_url format", e);
-                return false;
-            }
-        }
-        return true;
-    }
 }

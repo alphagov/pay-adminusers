@@ -111,34 +111,18 @@ public class ServiceRequestValidatorTest {
     }
 
     @Test
-    public void shouldNotError_ifFieldsNotPresent_whenUpdatingServiceCustomisations() throws Exception {
-        Optional<Errors> errors = serviceRequestValidator.validateCustomisationRequest(mapper.valueToTree("{}"));
+    public void shouldSuccess_replacingCustomBranding() throws Exception {
+        ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "custom branding");
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
 
         assertThat(errors.isPresent(), is(false));
     }
 
     @Test
-    public void shouldError_ifOptionalFieldsPresentButEmpty_whenUpdatingServiceCustomisations() throws Exception {
-        ImmutableMap<String, String> payload = ImmutableMap.of("banner_colour", "", "logo_url", "");
+    public void shouldSuccess_emptyCustomBranding() throws Exception {
+        ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "");
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
 
-        Optional<Errors> errors = serviceRequestValidator.validateCustomisationRequest(mapper.valueToTree(payload));
-
-        assertThat(errors.isPresent(), is(true));
-        List<String> errorsList = errors.get().getErrors();
-        assertThat(errorsList.size(), is(2));
-        assertThat(errorsList, hasItems("Field [banner_colour] must not be empty", "Field [logo_url] must not be empty"));
-    }
-
-    @Test
-    public void shouldError_ifLogoUrlIsNotUri_whenUpdatingServiceCustomisations() throws Exception {
-        ImmutableMap<String, String> payload = ImmutableMap.of( "logo_url", "blah");
-
-        Optional<Errors> errors = serviceRequestValidator.validateCustomisationRequest(mapper.valueToTree(payload));
-
-        assertThat(errors.isPresent(), is(true));
-        List<String> errorsList = errors.get().getErrors();
-        assertThat(errorsList.size(), is(1));
-        assertThat(errorsList, hasItems("Field [logo_url] does not comply to URI format"));
-
+        assertThat(errors.isPresent(), is(false));
     }
 }

@@ -27,6 +27,7 @@ public class IntegrationTest {
 
     static final String SERVICE_INVITES_VALIDATE_OTP_RESOURCE_URL = "/v1/api/invites/otp/validate/service";
     static final String SERVICES_RESOURCE = "/v1/api/services";
+    static final String SERVICE_RESOURCE = SERVICES_RESOURCE + "/%s";
 
     @Deprecated
     static final String SERVICE_INVITES_RESOURCE_URL = "/v1/api/services/%d/invites";

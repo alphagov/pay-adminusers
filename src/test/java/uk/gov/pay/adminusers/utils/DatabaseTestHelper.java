@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import static java.sql.Timestamp.from;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 
 public class DatabaseTestHelper {
 
@@ -196,10 +195,11 @@ public class DatabaseTestHelper {
     public DatabaseTestHelper addService(Service service, String... gatewayAccountIds) {
         jdbi.withHandle(handle ->
                 handle
-                        .createStatement("INSERT INTO services(id, name, external_id) " +
-                                "VALUES (:id, :name, :externalId)")
+                        .createStatement("INSERT INTO services(id, name, custom_branding,external_id) " +
+                                "VALUES (:id, :name, :customBranding, :externalId)")
                         .bind("id", service.getId())
                         .bind("name", service.getName())
+                        .bind("customBranding", service.getCustomBranding())
                         .bind("externalId", service.getExternalId())
                         .execute()
         );
@@ -209,27 +209,6 @@ public class DatabaseTestHelper {
                     handle.createStatement("INSERT INTO service_gateway_accounts(service_id, gateway_account_id) VALUES (:serviceId, :gatewayAccountId)")
                             .bind("serviceId", service.getId())
                             .bind("gatewayAccountId", gatewayAccountId)
-                            .execute()
-            );
-        }
-
-        if (service.getServiceCustomisations() != null) {
-            ServiceCustomisations customisations = service.getServiceCustomisations();
-            Integer customisationId = randomInt();
-            jdbi.withHandle(handle -> {
-                        return handle.createStatement("INSERT INTO service_customisations(id, banner_colour, logo_url, updated, version) VALUES (:id, :bannerColour, :logoUrl, :updated, 0)")
-                                .bind("id", customisationId)
-                                .bind("bannerColour", customisations.getBannerColour())
-                                .bind("logoUrl", customisations.getLogoUrl())
-                                .bind("updated", from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant()))
-                                .execute();
-                    }
-            );
-
-            jdbi.withHandle(handle ->
-                    handle.createStatement("UPDATE services set customisations_id=:customisationsId WHERE id=:id")
-                            .bind("customisationsId", customisationId)
-                            .bind("id", service.getId())
                             .execute()
             );
         }
@@ -312,16 +291,8 @@ public class DatabaseTestHelper {
 
     public List<Map<String, Object>> findServiceByExternalId(String serviceExternalId) {
         return jdbi.withHandle(h ->
-                h.createQuery("SELECT id, name, external_id, customisations_id FROM services " +
+                h.createQuery("SELECT id, name, external_id, custom_branding FROM services " +
                         "WHERE external_id = :external_id")
-                        .bind("external_id", serviceExternalId)
-                        .list());
-    }
-
-    public List<Map<String, Object>> findServiceCustomisationsByServiceExternalId(String serviceExternalId) {
-        return jdbi.withHandle(h ->
-                h.createQuery("SELECT sc.id, sc.banner_colour, sc.logo_url, sc.updated, sc.version FROM service_customisations sc, services s " +
-                        "WHERE s.external_id = :external_id AND s.customisations_id=sc.id")
                         .bind("external_id", serviceExternalId)
                         .list());
     }

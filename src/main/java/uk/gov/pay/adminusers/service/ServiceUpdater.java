@@ -8,18 +8,24 @@ import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
-import static java.lang.String.format;
-import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_GATEWAY_ACCOUNT_IDS;
-import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_SERVICE_NAME;
+import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.*;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingServiceGatewayAccounts;
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 
 public class ServiceUpdater {
 
     private final ServiceDao serviceDao;
+
+    private final Map<String, BiConsumer<ServiceUpdateRequest, ServiceEntity>> attributeUpdaters = new HashMap<String, BiConsumer<ServiceUpdateRequest, ServiceEntity>>() {{
+        put(FIELD_SERVICE_NAME, updateServiceName());
+        put(FIELD_GATEWAY_ACCOUNT_IDS, assignGatewayAccounts());
+        put(FIELD_CUSTOM_BRANDING, updateCustomBranding());
+    }};
 
     @Inject
     public ServiceUpdater(ServiceDao serviceDao) {
@@ -30,35 +36,29 @@ public class ServiceUpdater {
     public Optional<Service> doUpdate(String serviceExternalId, ServiceUpdateRequest serviceUpdateRequest) {
         return serviceDao.findByExternalId(serviceExternalId)
                 .map(serviceEntity -> {
-                    List<String> value = serviceUpdateRequest.getValue();
-                    updateAttribute(serviceUpdateRequest, serviceEntity, value);
+                    attributeUpdaters.get(serviceUpdateRequest.getPath())
+                            .accept(serviceUpdateRequest,serviceEntity);
                     serviceDao.merge(serviceEntity);
                     return Optional.of(serviceEntity.toService());
-                }).orElseGet(() -> Optional.empty());
+                }).orElseGet(Optional::empty);
     }
 
-    private void updateAttribute(ServiceUpdateRequest serviceUpdateRequest, ServiceEntity serviceEntity, List<String> value) {
-        String path = serviceUpdateRequest.getPath();
-        if (path.equals(FIELD_SERVICE_NAME)) {
-            updateServiceName(serviceEntity, value.get(0));
-        } else {
-            if(path.equals(FIELD_GATEWAY_ACCOUNT_IDS)) {
-                assignGatewayAccounts(serviceEntity, value);
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateServiceName() {
+        return (serviceUpdateRequest, serviceEntity) -> serviceEntity.setName(serviceUpdateRequest.getValue().get(0));
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateCustomBranding() {
+        return (serviceUpdateRequest, serviceEntity) -> serviceEntity.setCustomBranding(serviceUpdateRequest.getValue().get(0));
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> assignGatewayAccounts() {
+        return (serviceUpdateRequest, serviceEntity) -> {
+            List<String> gatewayAccountIds = serviceUpdateRequest.getValue();
+            if (serviceDao.checkIfGatewayAccountsUsed(gatewayAccountIds)) {
+                throw conflictingServiceGatewayAccounts(gatewayAccountIds);
             } else {
-                throw internalServerError(format("Invalid path value for updating service attribute: [%s]", path));
+                serviceEntity.addGatewayAccountIds(gatewayAccountIds.toArray(new String[0]));
             }
-        }
-    }
-
-    private void assignGatewayAccounts(ServiceEntity serviceEntity, List<String> gatewayAccountIds) {
-        if (serviceDao.checkIfGatewayAccountsUsed(gatewayAccountIds)) {
-            throw conflictingServiceGatewayAccounts(gatewayAccountIds);
-        } else {
-            serviceEntity.addGatewayAccountIds(gatewayAccountIds.toArray(new String[0]));
-        }
-    }
-
-    private void updateServiceName(ServiceEntity serviceEntity, String nameToUpdate) {
-        serviceEntity.setName(nameToUpdate);
+        };
     }
 }

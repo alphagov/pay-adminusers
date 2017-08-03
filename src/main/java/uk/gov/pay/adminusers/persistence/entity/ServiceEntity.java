@@ -26,9 +26,8 @@ public class ServiceEntity {
     @Column(name = "name")
     private String name = Service.DEFAULT_NAME_VALUE;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "customisations_id")
-    private ServiceCustomisationEntity serviceCustomisationEntity;
+    @Column(name = "custom_branding")
+    private String customBranding;
 
     @OneToMany(mappedBy = "service", targetEntity = GatewayAccountIdEntity.class, fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private List<GatewayAccountIdEntity> gatewayAccountIds = new ArrayList<>();
@@ -85,12 +84,12 @@ public class ServiceEntity {
         populateGatewayAccountIds(asList(gatewayAccountIds));
     }
 
-    public ServiceCustomisationEntity getServiceCustomisationEntity() {
-        return serviceCustomisationEntity;
+    public String getCustomBranding() {
+        return customBranding;
     }
 
-    public void setServiceCustomisationEntity(ServiceCustomisationEntity serviceCustomisationEntity) {
-        this.serviceCustomisationEntity = serviceCustomisationEntity;
+    public void setCustomBranding(String customBranding) {
+        this.customBranding = customBranding;
     }
 
     public Service toService() {
@@ -98,8 +97,8 @@ public class ServiceEntity {
         service.setGatewayAccountIds(gatewayAccountIds.stream()
                 .map(idEntity -> idEntity.getGatewayAccountId())
                 .collect(Collectors.toList()));
-        if (serviceCustomisationEntity != null) {
-            service.setServiceCustomisations(serviceCustomisationEntity.toServiceCustomisations());
+        if(this.customBranding!=null) {
+            service.setCustomBranding(this.customBranding);
         }
         return service;
     }

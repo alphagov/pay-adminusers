@@ -171,20 +171,4 @@ public class ServiceResource {
         LOGGER.info("Succeeded Service users DELETE request - serviceId={}, removerId={}, userId={}", serviceId, userContext, userId);
         return Response.status(NO_CONTENT).build();
     }
-
-    @Path("/{serviceExternalId}/customise")
-    @POST
-    @Produces(APPLICATION_JSON)
-    @Consumes(APPLICATION_JSON)
-    public Response addServiceCustomisations(@PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
-        LOGGER.info("Service customisations update request - serviceId={}", serviceExternalId);
-        return serviceRequestValidator.validateCustomisationRequest(payload)
-                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> {
-                    ServiceCustomisations customisations = ServiceCustomisations.from(payload);
-                    return serviceServicesFactory.serviceCustomisationsUpdater().doUpdate(serviceExternalId, customisations)
-                            .map(service -> Response.ok().entity(service).build())
-                            .orElseGet(() -> Response.status(NOT_FOUND).build());
-                });
-    }
 }

@@ -46,6 +46,25 @@ public class ServiceUpdaterTest {
     }
 
     @Test
+    public void shouldUpdateCustomBrandingSuccessfully() throws Exception {
+
+        String serviceId = randomUuid();
+        ServiceUpdateRequest request = mock(ServiceUpdateRequest.class);
+        ServiceEntity serviceEntity = mock(ServiceEntity.class);
+        String customBranding = "custom branding";
+
+        when(request.getPath()).thenReturn("custom_branding");
+        when(request.getValue()).thenReturn(singletonList(customBranding));
+        when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
+        when(serviceEntity.toService()).thenReturn(Service.from());
+
+        updater.doUpdate(serviceId, request);
+
+        verify(serviceEntity,times(1)).setCustomBranding(customBranding);
+        verify(serviceDao, times(1)).merge(serviceEntity);
+    }
+
+    @Test
     public void shouldSuccess_whenAddGatewayAccountToService() throws Exception {
         String serviceId = randomUuid();
         ServiceUpdateRequest request = mock(ServiceUpdateRequest.class);
@@ -82,23 +101,4 @@ public class ServiceUpdaterTest {
         verify(serviceEntity,times(0)).addGatewayAccountIds(gatewayAccountIdsToUpdate.toArray(new String[0]));
         verify(serviceDao, times(0)).merge(serviceEntity);
     }
-
-    @Test(expected = WebApplicationException.class)
-    public void shouldError_IfInvalidPathIsSuppliedForUpdate() throws Exception {
-        String serviceId = randomUuid();
-        ServiceUpdateRequest request = mock(ServiceUpdateRequest.class);
-        ServiceEntity serviceEntity = mock(ServiceEntity.class);
-        List<String> gatewayAccountIdsToUpdate = asList("blah");
-
-        when(request.getPath()).thenReturn("blah");
-        when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
-
-        updater.doUpdate(serviceId, request);
-
-        verify(serviceEntity,times(0)).addGatewayAccountIds(gatewayAccountIdsToUpdate.toArray(new String[0]));
-        verify(serviceEntity,times(0)).setName("blah");
-        verify(serviceDao, times(0)).merge(serviceEntity);
-    }
-
-
 }

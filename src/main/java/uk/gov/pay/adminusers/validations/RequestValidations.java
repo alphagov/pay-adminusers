@@ -27,10 +27,6 @@ public class RequestValidations {
         return applyCheck(payload, exceedsMaxLength(maxLength), fieldNames, "Field [%s] must have a maximum length of " + maxLength + " characters");
     }
 
-    public Optional<List<String>> checkIfOptionalsExistsAndNotEmpty(JsonNode payload, String... fieldNames) {
-        return applyCheck(payload, emptyIfExists(), fieldNames, "Field [%s] must not be empty");
-    }
-
     private Function<JsonNode, Boolean> exceedsMaxLength(int maxLength) {
         return jsonNode -> jsonNode.asText().length() > maxLength;
     }
@@ -43,10 +39,6 @@ public class RequestValidations {
             }
         }
         return errors.size() > 0 ? Optional.of(errors) : Optional.empty();
-    }
-
-    public Function<JsonNode, Boolean> emptyIfExists() {
-        return (jsonElement) -> jsonElement != null && isBlank(jsonElement.asText());
     }
 
     public Function<JsonNode, Boolean> notExist() {

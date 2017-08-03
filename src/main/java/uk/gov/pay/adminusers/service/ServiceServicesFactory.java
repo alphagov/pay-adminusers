@@ -8,7 +8,5 @@ public interface ServiceServicesFactory {
 
     ServiceUserRemover serviceUserRemover();
 
-    ServiceCustomisationsUpdater serviceCustomisationsUpdater();
-
     ServiceFinder serviceFinder();
 }
