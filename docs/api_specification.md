@@ -629,6 +629,69 @@ Content-Type: application/json
 ```
 
 -----------------------------------------------------------------------------------------------------------
+## GET /v1/api/services/`{serviceExternalId}`
+
+Returns the service with the given external id
+
+### Request example 
+```
+GET /v1/api/services/7d19aff33f8948deb97ed16b2912dcd3
+```
+### Response example
+
+```
+200 OK
+Content-Type: application/json
+{
+    "id": 123
+    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
+    "name": "updated-service-name",
+    "custom_branding": "some valid css class",
+    "_links": [{
+        "href": "http://adminusers.service/v1/api/services/123",
+        "rel" : "self",
+        "method" : "GET"
+    }]
+    
+}
+```
+-----------------------------------------------------------------------------------------------------------
+## GET /v1/api/services?gatewayAccountId={gateway_account_id}
+
+Finds the service with the given gateway account id associated with
+
+### Request example 
+```
+GET /v1/api/services?gatewayAccountId=123
+```
+
+#### Request query parameter description
+
+| Query param              | required | Description                                                      | Supported Values     |
+| ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
+| `gatewayAccountId`       |   X      | gateway account id                                               |      |
+
+### Response example
+
+```
+200 OK
+Content-Type: application/json
+{
+    "id": 123
+    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
+    "name": "service-name",
+    "custom_branding": "some valid css class",
+    "gateway_account_ids":["123"]
+    "_links": [{
+        "href": "http://adminusers.service/v1/api/services/123",
+        "rel" : "self",
+        "method" : "GET"
+    }]
+    
+}
+```
+
+-----------------------------------------------------------------------------------------------------------
 
 ## PATCH /v1/api/services/`{serviceExternalId}`
 
@@ -654,8 +717,8 @@ Content-Type: application/json
 | Field                    | required | Description                                                      | Supported Values     |
 | ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
 | `op`                     |   X      | operation to perform on attribute                                | `replace`, `add`     |
-| `path`                   |   X      | attribute that is affecting                                      | `gateway_account_ids` , `name` |
-| `value`                  |   X         | value to be replaced                                             |                      |
+| `path`                   |   X      | attribute that is affecting                                      | `gateway_account_ids` , `name`, `custom_branding` |
+| `value`                  |   X         | value to be replaced                                          |                      |
 
 ### Response example
 
