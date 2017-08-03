@@ -90,13 +90,17 @@ public class ServiceRoleUpdaterTest {
         String serviceExternalId = "sxrdctfvygbuhinj";
 
         UserEntity userEntity = UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID));
-        RoleEntity roleEntity = new RoleEntity(aRole(10, role)); //non admin
+
+        RoleEntity targetRoleEntity = new RoleEntity(aRole(10, role));
+        RoleEntity currentRoleEntity = new RoleEntity(aRole(ADMIN.getId(), "admin"));
+
         ServiceEntity serviceEntity = new ServiceEntity(asList("1"));
         serviceEntity.setExternalId(serviceExternalId);
-        userEntity.addServiceRole(new ServiceRoleEntity(serviceEntity, roleEntity));
+
+        userEntity.addServiceRole(new ServiceRoleEntity(serviceEntity, currentRoleEntity));
 
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(userEntity));
-        when(roleDao.findByRoleName(role)).thenReturn(Optional.of(roleEntity));
+        when(roleDao.findByRoleName(role)).thenReturn(Optional.of(targetRoleEntity));
         when(serviceDao.countOfUsersWithRoleForService(serviceExternalId, ADMIN.getId())).thenReturn(1L);
 
         thrown.expect(WebApplicationException.class);
@@ -106,22 +110,50 @@ public class ServiceRoleUpdaterTest {
 
     @Test
     public void shouldReturnUpdatedUser_whenUpdatingServiceRoleSuccess() throws Exception {
-        String role = "a-role";
-        String serviceExternalId = "sxrdctfvygbuvoennj";;
+        String role = "another-non-admin-role";
+        String serviceExternalId = "sxrdctfvygbuhinj";
 
         UserEntity userEntity = UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID));
-        RoleEntity roleEntity = new RoleEntity(aRole(10, role)); //non admin
+
+        RoleEntity targetRoleEntity = new RoleEntity(aRole(10, role));
+        RoleEntity currentRoleEntity = new RoleEntity(aRole(9, "non-admin-role"));
+
         ServiceEntity serviceEntity = new ServiceEntity(asList("1"));
         serviceEntity.setExternalId(serviceExternalId);
-        userEntity.addServiceRole(new ServiceRoleEntity(serviceEntity, roleEntity));
+
+        userEntity.addServiceRole(new ServiceRoleEntity(serviceEntity, currentRoleEntity));
 
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(userEntity));
-        when(roleDao.findByRoleName(role)).thenReturn(Optional.of(roleEntity));
-        when(serviceDao.countOfUsersWithRoleForService(serviceExternalId, ADMIN.getId())).thenReturn(2L);
+        when(roleDao.findByRoleName(role)).thenReturn(Optional.of(targetRoleEntity));
+        when(serviceDao.countOfUsersWithRoleForService(serviceExternalId, ADMIN.getId())).thenReturn(1L);
 
         Optional<User> userOptional = serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, serviceExternalId, role);
         assertTrue(userOptional.isPresent());
         assertThat(userOptional.get().getRole().getId(), is(10));
+    }
+
+    @Test
+    public void shouldReturnUpdatedUser_whenDowngradingAdminWhenEnoughAdminsSuccess() throws Exception {
+        String role = "non-admin-role";
+        String serviceExternalId = "sxrdctfvygbuhinj";
+
+        UserEntity userEntity = UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID));
+
+        RoleEntity targetRoleEntity = new RoleEntity(aRole(9, role));
+        RoleEntity currentRoleEntity = new RoleEntity(aRole(ADMIN.getId(), "admin"));
+
+        ServiceEntity serviceEntity = new ServiceEntity(asList("1"));
+        serviceEntity.setExternalId(serviceExternalId);
+
+        userEntity.addServiceRole(new ServiceRoleEntity(serviceEntity, currentRoleEntity));
+
+        when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(userEntity));
+        when(roleDao.findByRoleName(role)).thenReturn(Optional.of(targetRoleEntity));
+        when(serviceDao.countOfUsersWithRoleForService(serviceExternalId, ADMIN.getId())).thenReturn(2L);
+
+        Optional<User> userOptional = serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, serviceExternalId, role);
+        assertTrue(userOptional.isPresent());
+        assertThat(userOptional.get().getRole().getId(), is(9));
     }
 
     private Role aRole(int roleId, String roleName) {
