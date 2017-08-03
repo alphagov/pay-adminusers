@@ -61,7 +61,7 @@ public class ServiceRoleUpdater {
         if (!roleMaybe.isPresent()) {
             throw undefinedRoleException(roleName);
         }
-        RoleEntity roleEntity = roleMaybe.get();
+        RoleEntity targetRoleEntity = roleMaybe.get();
 
         Optional<ServiceRoleEntity> servicesRoleMaybe = userEntity.getServicesRole(serviceExternalId);
         if (!servicesRoleMaybe.isPresent()) {
@@ -70,12 +70,14 @@ public class ServiceRoleUpdater {
 
         ServiceRoleEntity serviceRoleEntity = servicesRoleMaybe.get();
 
-        if (!roleEntity.isAdmin()) {
+        RoleEntity currentRoleEntity = serviceRoleEntity.getRole();
+
+        if (currentRoleEntity.isAdmin() && !targetRoleEntity.isAdmin()) {
             if (serviceDao.countOfUsersWithRoleForService(serviceExternalId, Role.ADMIN.getId()) <= adminsPerServiceLimit) {
                 throw adminRoleLimitException(adminsPerServiceLimit);
             }
         }
-        serviceRoleEntity.setRole(roleEntity);
+        serviceRoleEntity.setRole(targetRoleEntity);
         userEntity.addServiceRole(serviceRoleEntity);
         userDao.persist(userEntity);
         return Optional.of(linksBuilder.decorate(userEntity.toUser()));
