@@ -11,10 +11,12 @@ import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.http.ContentType.JSON;
+import static java.lang.String.format;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
@@ -63,7 +65,7 @@ public class ServiceResourceTest extends IntegrationTest {
         givenSetup()
                 .when()
                 .accept(JSON)
-                .get(String.format("/v1/api/services/%s/users", serviceId))
+                .get(format("/v1/api/services/%s/users", serviceId))
                 .then()
                 .statusCode(200)
                 .body("$", hasSize(3))
@@ -112,7 +114,7 @@ public class ServiceResourceTest extends IntegrationTest {
         givenSetup()
                 .when()
                 .accept(JSON)
-                .get(String.format("/v1/api/services/%s/users", service1.getExternalId()))
+                .get(format("/v1/api/services/%s/users", service1.getExternalId()))
                 .then()
                 .statusCode(200)
                 .body("$", hasSize(3))
@@ -131,6 +133,33 @@ public class ServiceResourceTest extends IntegrationTest {
                 .body("[2]._links[0].href", is("http://localhost:8080/v1/api/users/" + user1.getExternalId()))
                 .body("[2]._links[0].method", is("GET"))
                 .body("[2]._links[0].rel", is("self"));
+    }
+
+    @Test
+    public void shouldGet_existingServiceById() throws Exception {
+
+        String serviceExternalId = randomUuid();
+        Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
+        databaseHelper.addService(service, randomInt().toString());
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .get(format("/v1/api/services/%s", serviceExternalId))
+                .then()
+                .statusCode(200)
+                .body("name",is("existing-name"));
+
+    }
+
+    @Test
+    public void shouldReturn404_whenGetServiceById_ifNotFound() throws Exception {
+
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .get(format("/v1/api/services/%s", "non-existent-id"))
+                .then()
+                .statusCode(404);
     }
 
     @Test
@@ -154,7 +183,7 @@ public class ServiceResourceTest extends IntegrationTest {
                 .when()
                 .accept(JSON)
                 .header(HEADER_USER_CONTEXT, userWithRoleAdminInService1.getExternalId())
-                .delete(String.format("/v1/api/services/%s/users/%s", serviceExternalId, user1WithRoleViewInService1.getExternalId()))
+                .delete(format("/v1/api/services/%s/users/%s", serviceExternalId, user1WithRoleViewInService1.getExternalId()))
                 .then()
                 .statusCode(204)
                 .body(isEmptyString());
@@ -170,7 +199,7 @@ public class ServiceResourceTest extends IntegrationTest {
                 .when()
                 .accept(JSON)
                 .header(HEADER_USER_CONTEXT, userWithRoleAdminInService1.getExternalId())
-                .delete(String.format("/v1/api/services/%s/users/%s", serviceExternalId, userWithRoleAdminInService1.getExternalId()))
+                .delete(format("/v1/api/services/%s/users/%s", serviceExternalId, userWithRoleAdminInService1.getExternalId()))
                 .then()
                 .statusCode(409)
                 .body(isEmptyString());
@@ -183,7 +212,7 @@ public class ServiceResourceTest extends IntegrationTest {
                 .when()
                 .accept(JSON)
                 .header(HEADER_USER_CONTEXT, " ")
-                .delete(String.format("/v1/api/services/%s/users/%s", serviceExternalId, userWithRoleAdminInService1.getExternalId()))
+                .delete(format("/v1/api/services/%s/users/%s", serviceExternalId, userWithRoleAdminInService1.getExternalId()))
                 .then()
                 .statusCode(403)
                 .body(isEmptyString());
@@ -195,7 +224,7 @@ public class ServiceResourceTest extends IntegrationTest {
         givenSetup()
                 .when()
                 .accept(JSON)
-                .delete(String.format("/v1/api/services/%s/users/%s", serviceExternalId, userWithRoleAdminInService1.getExternalId()))
+                .delete(format("/v1/api/services/%s/users/%s", serviceExternalId, userWithRoleAdminInService1.getExternalId()))
                 .then()
                 .statusCode(403)
                 .body(isEmptyString());

@@ -57,6 +57,18 @@ public class ServiceResource {
         this.serviceServicesFactory = serviceServicesFactory;
     }
 
+    @GET
+    @Path("/{serviceExternalId}")
+    @Produces(APPLICATION_JSON)
+    public Response findService(@PathParam("serviceExternalId") String serviceExternalId) {
+        LOGGER.info("Find Service request - [ {} ]", serviceExternalId);
+        return serviceDao.findByExternalId(serviceExternalId)
+                .map(serviceEntity ->
+                        Response.status(OK).entity(linksBuilder.decorate(serviceEntity.toService())).build())
+                .orElseGet(() ->
+                        Response.status(NOT_FOUND).build());
+    }
+
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
