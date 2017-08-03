@@ -3,6 +3,8 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
@@ -14,18 +16,24 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNumeric;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.*;
 
 
 public class ServiceRequestValidator {
 
+    private static final Logger LOGGER = PayLoggerFactory.getLogger(ServiceRequestValidator.class);
+
     public static final String FIELD_SERVICE_NAME = "name";
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
+    public static final String FIELD_CUSTOM_BRANDING = "custom_branding";
 
     private final RequestValidations requestValidations;
-    private static final Map<String, List<String>> VALID_ATTRIBUTE_UPDATE_OPERATIONS = new HashMap<String, List<String>>(){{
+    private static final Map<String, List<String>> VALID_ATTRIBUTE_UPDATE_OPERATIONS = new HashMap<String, List<String>>() {{
         put(FIELD_SERVICE_NAME, asList("replace"));
         put(FIELD_GATEWAY_ACCOUNT_IDS, asList("add"));
+        put(FIELD_CUSTOM_BRANDING, asList("replace"));
     }};
 
     @Inject
@@ -53,12 +61,19 @@ public class ServiceRequestValidator {
     }
 
     public Optional<Errors> validateUpdateAttributeRequest(JsonNode payload) {
-        Optional<List<String>> errors = requestValidations.checkIfExists(payload, FIELD_OP, FIELD_PATH, FIELD_VALUE);
-
-        if(errors.isPresent()) {
+        Optional<List<String>> errors = requestValidations.checkIfExists(payload, FIELD_OP, FIELD_PATH);
+        if (errors.isPresent()) {
             return Optional.of(Errors.from(errors.get()));
         }
+
         String path = payload.get("path").asText();
+        if (!FIELD_CUSTOM_BRANDING.equals(path)) {
+            errors = requestValidations.checkIfExists(payload,FIELD_VALUE);
+            if (errors.isPresent()) {
+                return Optional.of(Errors.from(errors.get()));
+            }
+        }
+
         if (!VALID_ATTRIBUTE_UPDATE_OPERATIONS.keySet().contains(path)) {
             return Optional.of(Errors.from(format("Path [%s] is invalid", path)));
         }
@@ -70,4 +85,15 @@ public class ServiceRequestValidator {
 
         return Optional.empty();
     }
+
+    public Optional<Errors> validateFindRequest(String gatewayAccountId) {
+        if (isBlank(gatewayAccountId)) {
+            return Optional.of(Errors.from("Find services currently support only by gatewayAccountId"));
+        }
+        if (!isNumeric(gatewayAccountId)) {
+            return Optional.of(Errors.from("Query param [gatewayAccountId] must be numeric"));
+        }
+        return Optional.empty();
+    }
+
 }

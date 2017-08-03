@@ -195,10 +195,11 @@ public class DatabaseTestHelper {
     public DatabaseTestHelper addService(Service service, String... gatewayAccountIds) {
         jdbi.withHandle(handle ->
                 handle
-                        .createStatement("INSERT INTO services(id, name, external_id) " +
-                                "VALUES (:id, :name, :externalId)")
+                        .createStatement("INSERT INTO services(id, name, custom_branding,external_id) " +
+                                "VALUES (:id, :name, :customBranding, :externalId)")
                         .bind("id", service.getId())
                         .bind("name", service.getName())
+                        .bind("customBranding", service.getCustomBranding())
                         .bind("externalId", service.getExternalId())
                         .execute()
         );
@@ -253,11 +254,11 @@ public class DatabaseTestHelper {
     }
 
     public DatabaseTestHelper addServiceInvite(int id, int senderId, int roleId,
-                                        String email, String code, String otpKey,
-                                        ZonedDateTime date, ZonedDateTime expiryDate,
-                                        String telephoneNumber, String password,
-                                        Boolean disabled,
-                                        Integer loginCounter) {
+                                               String email, String code, String otpKey,
+                                               ZonedDateTime date, ZonedDateTime expiryDate,
+                                               String telephoneNumber, String password,
+                                               Boolean disabled,
+                                               Integer loginCounter) {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO invites(id, sender_id, role_id, email, code, otp_key, date, expiry_date, telephone_number, password, disabled, login_counter, type) " +
@@ -285,6 +286,14 @@ public class DatabaseTestHelper {
                 h.createQuery("SELECT id, sender_id, service_id, role_id, email, code, otp_key, date, telephone_number, disabled, login_counter FROM invites " +
                         "WHERE code = :code")
                         .bind("code", code)
+                        .list());
+    }
+
+    public List<Map<String, Object>> findServiceByExternalId(String serviceExternalId) {
+        return jdbi.withHandle(h ->
+                h.createQuery("SELECT id, name, external_id, custom_branding FROM services " +
+                        "WHERE external_id = :external_id")
+                        .bind("external_id", serviceExternalId)
                         .list());
     }
 }

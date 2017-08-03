@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
@@ -55,7 +56,7 @@ public class ServiceRequestValidatorTest {
     public void shouldSuccess_forValidGatewayAccountIds() throws Exception {
 
         ImmutableMap<Object, Object> payload = ImmutableMap.builder()
-                .put("gateway_account_ids", new String[]{"1","2"})
+                .put("gateway_account_ids", new String[]{"1", "2"})
                 .build();
 
         Optional<Errors> errors = serviceRequestValidator.validateCreateRequest(mapper.valueToTree(payload));
@@ -74,7 +75,7 @@ public class ServiceRequestValidatorTest {
 
     @Test
     public void shouldFail_whenUpdate_whenMissingRequiredField() throws Exception {
-        ImmutableMap<String, String> payload = ImmutableMap.of( "value", "example-name");
+        ImmutableMap<String, String> payload = ImmutableMap.of("value", "example-name");
 
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
 
@@ -109,4 +110,19 @@ public class ServiceRequestValidatorTest {
         assertThat(errorsList, hasItem("Operation [add] is invalid for path [name]"));
     }
 
+    @Test
+    public void shouldSuccess_replacingCustomBranding() throws Exception {
+        ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "custom branding");
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
+
+        assertThat(errors.isPresent(), is(false));
+    }
+
+    @Test
+    public void shouldSuccess_emptyCustomBranding() throws Exception {
+        ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "");
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
+
+        assertThat(errors.isPresent(), is(false));
+    }
 }

@@ -9,6 +9,8 @@ import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
@@ -31,15 +33,37 @@ public class ServiceDaoTest extends DaoTestBase {
 
 
     @Test
+    public void shouldSaveAService_withCustomisations() throws Exception {
+
+        ServiceEntity serviceEntity = new ServiceEntity();
+        String serviceExternalId = randomUuid();
+        serviceEntity.setExternalId(serviceExternalId);
+        serviceEntity.setName("random name");
+        serviceEntity.setCustomBranding("custom branding");
+
+        serviceDao.persist(serviceEntity);
+
+        List<Map<String, Object>> savedService = databaseHelper.findServiceByExternalId(serviceExternalId);
+
+        assertThat(savedService.size(), is(1));
+        assertThat(savedService.get(0).get("external_id"), is(serviceExternalId));
+        assertThat(savedService.get(0).get("custom_branding"), is("custom branding"));
+    }
+
+    @Test
     public void shouldFindByServiceExternalId() throws Exception {
         String serviceExternalId = randomUuid();
-        databaseHelper.addService(Service.from(randomInt(),serviceExternalId, "name"), randomInt().toString());
+        Service service = Service.from(randomInt(), serviceExternalId, "name");
+        service.setCustomBranding("branding");
+        databaseHelper.addService(service, randomInt().toString());
 
         Optional<ServiceEntity> serviceEntity = serviceDao.findByExternalId(serviceExternalId);
 
         assertTrue(serviceEntity.isPresent());
+        assertThat(serviceEntity.get().getId(),is(service.getId()));
+        assertThat(serviceEntity.get().getName(),is("name"));
+        assertThat(serviceEntity.get().getCustomBranding(),is("branding"));
     }
-
 
     @Test
     public void shouldFindByGatewayAccountId() throws Exception {
@@ -48,7 +72,7 @@ public class ServiceDaoTest extends DaoTestBase {
         Integer serviceId = randomInt();
         String serviceExternalId = randomUuid();
         String name = "name";
-        databaseHelper.addService(Service.from(serviceId,serviceExternalId, name), gatewayAccountId);
+        databaseHelper.addService(Service.from(serviceId, serviceExternalId, name), gatewayAccountId);
 
         Optional<ServiceEntity> optionalService = serviceDao.findByGatewayAccountId(gatewayAccountId);
 
@@ -91,7 +115,7 @@ public class ServiceDaoTest extends DaoTestBase {
         String gatewayAccountId2 = randomInt().toString();
         Integer serviceId2 = randomInt();
         String externalId2 = randomUuid();
-        Service service2 = Service.from(serviceId2, externalId2 ,Service.DEFAULT_NAME_VALUE);
+        Service service2 = Service.from(serviceId2, externalId2, Service.DEFAULT_NAME_VALUE);
         databaseHelper.addService(service2, gatewayAccountId2);
 
         //same user 2 diff services - should count only once
