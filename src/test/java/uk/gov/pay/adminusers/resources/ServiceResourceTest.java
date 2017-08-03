@@ -136,33 +136,6 @@ public class ServiceResourceTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldGet_existingServiceById() throws Exception {
-
-        String serviceExternalId = randomUuid();
-        Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
-        databaseHelper.addService(service, randomInt().toString());
-        givenSetup()
-                .when()
-                .accept(JSON)
-                .get(format("/v1/api/services/%s", serviceExternalId))
-                .then()
-                .statusCode(200)
-                .body("name",is("existing-name"));
-
-    }
-
-    @Test
-    public void shouldReturn404_whenGetServiceById_ifNotFound() throws Exception {
-
-        givenSetup()
-                .when()
-                .accept(JSON)
-                .get(format("/v1/api/services/%s", "non-existent-id"))
-                .then()
-                .statusCode(404);
-    }
-
-    @Test
     public void getServiceUsers_shouldReturn404WhenServiceDoesNotExist() {
 
         givenSetup()

@@ -14,6 +14,7 @@ import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.service.LinksBuilder;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
+import uk.gov.pay.adminusers.utils.Errors;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -67,6 +68,17 @@ public class ServiceResource {
                         Response.status(OK).entity(linksBuilder.decorate(serviceEntity.toService())).build())
                 .orElseGet(() ->
                         Response.status(NOT_FOUND).build());
+    }
+
+    @GET
+    @Produces(APPLICATION_JSON)
+    public Response findServices(@QueryParam("gatewayAccountId") String gatewayAccountId) {
+        LOGGER.info("Find service by gateway account id request - [ {} ]", gatewayAccountId);
+        return serviceRequestValidator.validateFindRequest(gatewayAccountId)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> serviceServicesFactory.serviceFinder().byGatewayAccountId(gatewayAccountId)
+                        .map(service -> Response.status(OK).entity(service).build())
+                        .orElseGet(() -> Response.status(NOT_FOUND).build()));
     }
 
     @POST

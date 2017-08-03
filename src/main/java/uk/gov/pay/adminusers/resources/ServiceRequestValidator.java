@@ -9,6 +9,7 @@ import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -18,6 +19,9 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNumeric;
 import static uk.gov.pay.adminusers.model.ServiceCustomisations.FIELD_BANNER_COLOUR;
 import static uk.gov.pay.adminusers.model.ServiceCustomisations.FIELD_LOGO_URL;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.*;
@@ -86,6 +90,16 @@ public class ServiceRequestValidator {
         }
         if (payload != null && !validLogoUrl(payload.get(FIELD_LOGO_URL))) {
             return Optional.of(Errors.from("Field [logo_url] does not comply to URI format"));
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Errors> validateFindRequest(String gatewayAccountId) {
+        if (isBlank(gatewayAccountId)) {
+            return Optional.of(Errors.from("Find services currently support only by gatewayAccountId"));
+        }
+        if (!isNumeric(gatewayAccountId)) {
+            return Optional.of(Errors.from("Query param [gatewayAccountId] must be numeric"));
         }
         return Optional.empty();
     }
