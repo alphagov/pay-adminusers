@@ -18,7 +18,6 @@ import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.*;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingServiceGatewayAccounts;
 
 public class ServiceUpdater {
-
     private final ServiceDao serviceDao;
 
     private final Map<String, BiConsumer<ServiceUpdateRequest, ServiceEntity>> attributeUpdaters = new HashMap<String, BiConsumer<ServiceUpdateRequest, ServiceEntity>>() {{
@@ -37,28 +36,28 @@ public class ServiceUpdater {
         return serviceDao.findByExternalId(serviceExternalId)
                 .map(serviceEntity -> {
                     attributeUpdaters.get(serviceUpdateRequest.getPath())
-                            .accept(serviceUpdateRequest,serviceEntity);
+                            .accept(serviceUpdateRequest, serviceEntity);
                     serviceDao.merge(serviceEntity);
                     return Optional.of(serviceEntity.toService());
                 }).orElseGet(Optional::empty);
     }
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateServiceName() {
-        return (serviceUpdateRequest, serviceEntity) -> serviceEntity.setName(serviceUpdateRequest.getValue().get(0));
-    }
-
-    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateCustomBranding() {
-        return (serviceUpdateRequest, serviceEntity) -> serviceEntity.setCustomBranding(serviceUpdateRequest.getValue().get(0));
+        return (serviceUpdateRequest, serviceEntity) -> serviceEntity.setName(serviceUpdateRequest.valueAsString());
     }
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> assignGatewayAccounts() {
         return (serviceUpdateRequest, serviceEntity) -> {
-            List<String> gatewayAccountIds = serviceUpdateRequest.getValue();
+            List<String> gatewayAccountIds = serviceUpdateRequest.valueAsList();
             if (serviceDao.checkIfGatewayAccountsUsed(gatewayAccountIds)) {
                 throw conflictingServiceGatewayAccounts(gatewayAccountIds);
             } else {
                 serviceEntity.addGatewayAccountIds(gatewayAccountIds.toArray(new String[0]));
             }
         };
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateCustomBranding() {
+        return (serviceUpdateRequest, serviceEntity) -> serviceEntity.setCustomBranding(serviceUpdateRequest.valueAsObject());
     }
 }

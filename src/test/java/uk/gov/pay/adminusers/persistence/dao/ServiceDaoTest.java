@@ -1,12 +1,17 @@
 package uk.gov.pay.adminusers.persistence.dao;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
+import org.postgresql.util.PGobject;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.persistence.entity.CustomBrandingConverter;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
 import java.util.List;
@@ -16,7 +21,9 @@ import java.util.Optional;
 import static java.util.Arrays.asList;
 import static java.util.stream.IntStream.range;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -25,6 +32,7 @@ import static uk.gov.pay.adminusers.model.Role.role;
 public class ServiceDaoTest extends DaoTestBase {
 
     private ServiceDao serviceDao;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Before
     public void before() throws Exception {
@@ -39,7 +47,8 @@ public class ServiceDaoTest extends DaoTestBase {
         String serviceExternalId = randomUuid();
         serviceEntity.setExternalId(serviceExternalId);
         serviceEntity.setName("random name");
-        serviceEntity.setCustomBranding("custom branding");
+        Map<String, Object> customBranding = ImmutableMap.of("image_url", "image url");
+        serviceEntity.setCustomBranding(customBranding);
 
         serviceDao.persist(serviceEntity);
 
@@ -47,22 +56,48 @@ public class ServiceDaoTest extends DaoTestBase {
 
         assertThat(savedService.size(), is(1));
         assertThat(savedService.get(0).get("external_id"), is(serviceExternalId));
-        assertThat(savedService.get(0).get("custom_branding"), is("custom branding"));
+        Map<String, Object> storedBranding = objectMapper.readValue(savedService.get(0).get("custom_branding").toString(), new TypeReference<Map<String, Object>>() {});
+        assertThat(storedBranding, is(customBranding));
+        assertThat(storedBranding.keySet().size(), is(1));
+        assertThat(storedBranding.keySet(), hasItems("image_url"));
+        assertThat(storedBranding.values(), hasItems("image url"));
+    }
+
+    @Test
+    public void shouldSaveAService_withoutCustomisations() throws Exception {
+
+        ServiceEntity serviceEntity = new ServiceEntity();
+        String serviceExternalId = randomUuid();
+        serviceEntity.setExternalId(serviceExternalId);
+        serviceEntity.setName("random name");
+
+        serviceDao.persist(serviceEntity);
+
+        List<Map<String, Object>> savedService = databaseHelper.findServiceByExternalId(serviceExternalId);
+
+        assertThat(savedService.size(), is(1));
+        assertThat(savedService.get(0).get("external_id"), is(serviceExternalId));
+        Map<String, Object> storedBranding = new CustomBrandingConverter().convertToEntityAttribute((PGobject) savedService.get(0).get("custom_branding"));
+        assertNull(storedBranding);
     }
 
     @Test
     public void shouldFindByServiceExternalId() throws Exception {
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, "name");
-        service.setCustomBranding("branding");
+        Map<String, Object> customBranding = ImmutableMap.of("image_url", "image url", "css_url", "css url");
+        service.setCustomBranding(customBranding);
         databaseHelper.addService(service, randomInt().toString());
 
         Optional<ServiceEntity> serviceEntity = serviceDao.findByExternalId(serviceExternalId);
 
         assertTrue(serviceEntity.isPresent());
-        assertThat(serviceEntity.get().getId(),is(service.getId()));
-        assertThat(serviceEntity.get().getName(),is("name"));
-        assertThat(serviceEntity.get().getCustomBranding(),is("branding"));
+        assertThat(serviceEntity.get().getId(), is(service.getId()));
+        assertThat(serviceEntity.get().getName(), is("name"));
+
+        assertThat(serviceEntity.get().getCustomBranding().keySet().size(), is(2));
+        assertThat(serviceEntity.get().getCustomBranding().keySet(), hasItems("image_url", "css_url"));
+        assertThat(serviceEntity.get().getCustomBranding().values(), hasItems("image url", "css url"));
     }
 
     @Test

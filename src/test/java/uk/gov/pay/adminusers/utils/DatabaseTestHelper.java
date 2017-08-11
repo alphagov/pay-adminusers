@@ -1,7 +1,9 @@
 package uk.gov.pay.adminusers.utils;
 
+import org.postgresql.util.PGobject;
 import org.skife.jdbi.v2.DBI;
 import uk.gov.pay.adminusers.model.*;
+import uk.gov.pay.adminusers.persistence.entity.CustomBrandingConverter;
 
 import java.sql.Timestamp;
 import java.time.ZoneId;
@@ -194,15 +196,17 @@ public class DatabaseTestHelper {
 
     public DatabaseTestHelper addService(Service service, String... gatewayAccountIds) {
         jdbi.withHandle(handle ->
-                handle
-                        .createStatement("INSERT INTO services(id, name, custom_branding,external_id) " +
-                                "VALUES (:id, :name, :customBranding, :externalId)")
-                        .bind("id", service.getId())
-                        .bind("name", service.getName())
-                        .bind("customBranding", service.getCustomBranding())
-                        .bind("externalId", service.getExternalId())
-                        .execute()
-        );
+        {
+            PGobject customBranding = service.getCustomBranding() == null ? null :
+            new CustomBrandingConverter().convertToDatabaseColumn(service.getCustomBranding());
+            return handle.createStatement("INSERT INTO services(id, name, custom_branding, external_id) " +
+                    "VALUES (:id, :name, :customBranding, :externalId)")
+                    .bind("id", service.getId())
+                    .bind("name", service.getName())
+                    .bind("customBranding", customBranding)
+                    .bind("externalId", service.getExternalId())
+                    .execute();
+        });
 
         for (String gatewayAccountId : gatewayAccountIds) {
             jdbi.withHandle(handle ->

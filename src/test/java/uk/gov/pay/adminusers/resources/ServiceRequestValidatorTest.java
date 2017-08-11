@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
@@ -11,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
@@ -112,7 +110,7 @@ public class ServiceRequestValidatorTest {
 
     @Test
     public void shouldSuccess_replacingCustomBranding() throws Exception {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "custom branding");
+        ImmutableMap<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of("image_url","image url", "css_url","css url"));
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
 
         assertThat(errors.isPresent(), is(false));
@@ -124,5 +122,16 @@ public class ServiceRequestValidatorTest {
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
 
         assertThat(errors.isPresent(), is(false));
+    }
+
+    @Test
+    public void shouldError_replacingCustomBranding_ifValueIsNotJSON() throws Exception {
+        ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "&*£&^(P%£");
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
+
+        assertThat(errors.isPresent(), is(true));
+        List<String> errorsList = errors.get().getErrors();
+        assertThat(errorsList.size(), is(1));
+        assertThat(errorsList, hasItem("Value for path [custom_branding] must be a JSON"));
     }
 }
