@@ -83,10 +83,8 @@ public class ServiceRequestValidator {
     }
 
     private Optional<List<String>> checkIfNotEmptyAndJson(JsonNode payload) {
-        if (payload != null && payload.isTextual() && !isBlank(payload.asText())) {
-            if (!payload.isObject()) {
-                return Optional.of(Collections.singletonList(format("Value for path [%s] must be a JSON", FIELD_CUSTOM_BRANDING)));
-            }
+        if (payload == null || !payload.isObject()) {
+            return Optional.of(Collections.singletonList(format("Value for path [%s] must be a JSON", FIELD_CUSTOM_BRANDING)));
         }
         return Optional.empty();
     }

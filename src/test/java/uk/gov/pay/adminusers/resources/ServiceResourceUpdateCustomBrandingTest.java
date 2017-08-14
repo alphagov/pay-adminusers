@@ -38,13 +38,38 @@ public class ServiceResourceUpdateCustomBrandingTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldReplaceWithEmpty_whenUpdatingCustomBranding_withEmptyValue() throws Exception {
+    public void shouldReplaceWithEmpty_whenUpdatingCustomBranding_withEmptyObject() throws Exception {
         String serviceExternalId = randomUuid();
-        Map<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "");
+        Map<String, Object> existingBranding = ImmutableMap.of("css_url","existing css", "image_url","existing image");
         Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
-        service.setCustomBranding(payload);
+        service.setCustomBranding(existingBranding);
+
+        Map<String, Object> payloadWithEmptyBranding = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of());
         databaseHelper.addService(service, randomInt().toString());
 
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .accept(JSON)
+                .body(mapper.writeValueAsString(payloadWithEmptyBranding))
+                .patch(format(SERVICE_RESOURCE, serviceExternalId))
+                .then()
+                .statusCode(200)
+                .body("custom_branding", is(nullValue()));
+
+    }
+
+    @Test
+    public void shouldReturn400_whenUpdatingServiceCustomisations_ifPayloadNotJson() throws Exception {
+
+        String serviceExternalId = randomUuid();
+        Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
+        Map<String, Object> customBranding = ImmutableMap.of("css_url","existing css", "image_url","existing image");
+        service.setCustomBranding(customBranding);
+        databaseHelper.addService(service, randomInt().toString());
+
+        Map<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "blah");
 
         givenSetup()
                 .when()
@@ -53,9 +78,7 @@ public class ServiceResourceUpdateCustomBrandingTest extends IntegrationTest {
                 .body(mapper.writeValueAsString(payload))
                 .patch(format(SERVICE_RESOURCE, serviceExternalId))
                 .then()
-                .statusCode(200)
-                .body("custom_branding", is(nullValue()));
-
+                .statusCode(400);
     }
 
     @Test
@@ -72,6 +95,5 @@ public class ServiceResourceUpdateCustomBrandingTest extends IntegrationTest {
                 .then()
                 .statusCode(404);
     }
-
 
 }

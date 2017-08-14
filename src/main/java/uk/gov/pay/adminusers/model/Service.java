@@ -90,7 +90,14 @@ public class Service {
         return customBranding;
     }
 
+    /**
+     * nullify if map is empty, so that it will be undefined in response
+     * @param customBranding
+     */
     public void setCustomBranding(Map<String, Object> customBranding) {
+        if (customBranding != null && customBranding.isEmpty()) {
+            customBranding = null;
+        }
         this.customBranding = customBranding;
     }
 }

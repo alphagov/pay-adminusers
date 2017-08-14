@@ -117,11 +117,33 @@ public class ServiceRequestValidatorTest {
     }
 
     @Test
-    public void shouldSuccess_emptyCustomBranding() throws Exception {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "");
+    public void shouldSuccess_replacingCustomBranding_forEmptyObject() throws Exception {
+        ImmutableMap<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of());
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
 
         assertThat(errors.isPresent(), is(false));
+    }
+
+    @Test
+    public void shouldError_ifCustomBrandingIsEmptyString() throws Exception {
+        ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "");
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
+
+        assertThat(errors.isPresent(), is(true));
+        List<String> errorsList = errors.get().getErrors();
+        assertThat(errorsList.size(), is(1));
+        assertThat(errorsList, hasItem("Value for path [custom_branding] must be a JSON"));
+    }
+
+    @Test
+    public void shouldError_ifCustomBrandingIsNull() throws Exception {
+        ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace");
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
+
+        assertThat(errors.isPresent(), is(true));
+        List<String> errorsList = errors.get().getErrors();
+        assertThat(errorsList.size(), is(1));
+        assertThat(errorsList, hasItem("Value for path [custom_branding] must be a JSON"));
     }
 
     @Test

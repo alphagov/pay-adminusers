@@ -99,9 +99,7 @@ public class ServiceEntity {
         service.setGatewayAccountIds(gatewayAccountIds.stream()
                 .map(idEntity -> idEntity.getGatewayAccountId())
                 .collect(Collectors.toList()));
-        if (this.customBranding != null) {
-            service.setCustomBranding(this.customBranding);
-        }
+        service.setCustomBranding(this.customBranding);
         return service;
     }
 
