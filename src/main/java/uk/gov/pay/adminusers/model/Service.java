@@ -1,15 +1,18 @@
 package uk.gov.pay.adminusers.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class Service {
 
@@ -20,7 +23,7 @@ public class Service {
     private String name = DEFAULT_NAME_VALUE;
     private List<Link> links = new ArrayList<>();
     private List<String> gatewayAccountIds = new ArrayList<>();
-    private String customBranding;
+    private Map<String, Object> customBranding;
 
     public static Service from() {
         return from(DEFAULT_NAME_VALUE);
@@ -83,11 +86,18 @@ public class Service {
         this.gatewayAccountIds = gatewayAccountIds;
     }
 
-    public String getCustomBranding() {
+    public Map<String, Object> getCustomBranding() {
         return customBranding;
     }
 
-    public void setCustomBranding(String customBranding) {
+    /**
+     * nullify if map is empty, so that it will be undefined in response
+     * @param customBranding
+     */
+    public void setCustomBranding(Map<String, Object> customBranding) {
+        if (customBranding != null && customBranding.isEmpty()) {
+            customBranding = null;
+        }
         this.customBranding = customBranding;
     }
 }

@@ -1,5 +1,9 @@
 package uk.gov.pay.adminusers.service;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
@@ -9,10 +13,10 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
 import javax.ws.rs.WebApplicationException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.*;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
@@ -30,37 +34,56 @@ public class ServiceUpdaterTest {
     public void shouldUpdateNameSuccessfully() throws Exception {
 
         String serviceId = randomUuid();
-        ServiceUpdateRequest request = mock(ServiceUpdateRequest.class);
-        ServiceEntity serviceEntity = mock(ServiceEntity.class);
         String nameToUpdate = "new-name";
+        ServiceUpdateRequest request = ServiceUpdateRequest.from(new ObjectNode(JsonNodeFactory.instance, ImmutableMap.of(
+                "path", new TextNode("name"),
+                "value", new TextNode(nameToUpdate),
+                "op", new TextNode("replace"))));
+        ServiceEntity serviceEntity = mock(ServiceEntity.class);
 
-        when(request.getPath()).thenReturn("name");
-        when(request.getValue()).thenReturn(singletonList(nameToUpdate));
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
         when(serviceEntity.toService()).thenReturn(Service.from());
 
         updater.doUpdate(serviceId, request);
 
-        verify(serviceEntity,times(1)).setName(nameToUpdate);
+        verify(serviceEntity, times(1)).setName(nameToUpdate);
         verify(serviceDao, times(1)).merge(serviceEntity);
     }
 
     @Test
-    public void shouldUpdateCustomBrandingSuccessfully() throws Exception {
+    public void shouldSuccess_updateCustomBranding_whenBrandingProvided() throws Exception {
 
         String serviceId = randomUuid();
         ServiceUpdateRequest request = mock(ServiceUpdateRequest.class);
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
-        String customBranding = "custom branding";
+        Map<String, Object> customBranding = ImmutableMap.of("image_url", "image url", "css_url", "css url");
 
         when(request.getPath()).thenReturn("custom_branding");
-        when(request.getValue()).thenReturn(singletonList(customBranding));
+        when(request.valueAsObject()).thenReturn(customBranding);
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
         when(serviceEntity.toService()).thenReturn(Service.from());
 
         updater.doUpdate(serviceId, request);
 
-        verify(serviceEntity,times(1)).setCustomBranding(customBranding);
+        verify(serviceEntity, times(1)).setCustomBranding(customBranding);
+        verify(serviceDao, times(1)).merge(serviceEntity);
+    }
+
+    @Test
+    public void shouldSuccess_updateCustomBranding_whenBrandingNotProvided() throws Exception {
+
+        String serviceId = randomUuid();
+        ServiceUpdateRequest request = mock(ServiceUpdateRequest.class);
+        ServiceEntity serviceEntity = mock(ServiceEntity.class);
+
+        when(request.getPath()).thenReturn("custom_branding");
+        when(request.valueAsObject()).thenReturn(null);
+        when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
+        when(serviceEntity.toService()).thenReturn(Service.from());
+
+        updater.doUpdate(serviceId, request);
+
+        verify(serviceEntity, times(1)).setCustomBranding(null);
         verify(serviceDao, times(1)).merge(serviceEntity);
     }
 
@@ -72,14 +95,14 @@ public class ServiceUpdaterTest {
         List<String> gatewayAccountIdsToUpdate = asList("1", "2");
 
         when(request.getPath()).thenReturn("gateway_account_ids");
-        when(request.getValue()).thenReturn(gatewayAccountIdsToUpdate);
+        when(request.valueAsList()).thenReturn(gatewayAccountIdsToUpdate);
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
         when(serviceDao.checkIfGatewayAccountsUsed(gatewayAccountIdsToUpdate)).thenReturn(false);
         when(serviceEntity.toService()).thenReturn(Service.from());
 
         updater.doUpdate(serviceId, request);
 
-        verify(serviceEntity,times(1)).addGatewayAccountIds(gatewayAccountIdsToUpdate.toArray(new String[0]));
+        verify(serviceEntity, times(1)).addGatewayAccountIds(gatewayAccountIdsToUpdate.toArray(new String[0]));
         verify(serviceDao, times(1)).merge(serviceEntity);
     }
 
@@ -92,13 +115,13 @@ public class ServiceUpdaterTest {
         List<String> gatewayAccountIdsToUpdate = asList("1", "2");
 
         when(request.getPath()).thenReturn("gateway_account_ids");
-        when(request.getValue()).thenReturn(gatewayAccountIdsToUpdate);
+        when(request.valueAsList()).thenReturn(gatewayAccountIdsToUpdate);
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
         when(serviceDao.checkIfGatewayAccountsUsed(gatewayAccountIdsToUpdate)).thenReturn(true);
 
         updater.doUpdate(serviceId, request);
 
-        verify(serviceEntity,times(0)).addGatewayAccountIds(gatewayAccountIdsToUpdate.toArray(new String[0]));
+        verify(serviceEntity, times(0)).addGatewayAccountIds(gatewayAccountIdsToUpdate.toArray(new String[0]));
         verify(serviceDao, times(0)).merge(serviceEntity);
     }
 }

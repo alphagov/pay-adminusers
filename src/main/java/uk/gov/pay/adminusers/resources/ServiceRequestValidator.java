@@ -3,16 +3,11 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -22,8 +17,6 @@ import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.*;
 
 
 public class ServiceRequestValidator {
-
-    private static final Logger LOGGER = PayLoggerFactory.getLogger(ServiceRequestValidator.class);
 
     public static final String FIELD_SERVICE_NAME = "name";
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
@@ -68,10 +61,13 @@ public class ServiceRequestValidator {
 
         String path = payload.get("path").asText();
         if (!FIELD_CUSTOM_BRANDING.equals(path)) {
-            errors = requestValidations.checkIfExists(payload,FIELD_VALUE);
-            if (errors.isPresent()) {
-                return Optional.of(Errors.from(errors.get()));
-            }
+            errors = requestValidations.checkIfExists(payload, FIELD_VALUE);
+        } else {
+            errors = checkIfNotEmptyAndJson(payload.get(FIELD_VALUE));
+        }
+
+        if (errors.isPresent()) {
+            return Optional.of(Errors.from(errors.get()));
         }
 
         if (!VALID_ATTRIBUTE_UPDATE_OPERATIONS.keySet().contains(path)) {
@@ -83,6 +79,13 @@ public class ServiceRequestValidator {
             return Optional.of(Errors.from(format("Operation [%s] is invalid for path [%s]", op, path)));
         }
 
+        return Optional.empty();
+    }
+
+    private Optional<List<String>> checkIfNotEmptyAndJson(JsonNode payload) {
+        if (payload == null || !payload.isObject()) {
+            return Optional.of(Collections.singletonList(format("Value for path [%s] must be a JSON", FIELD_CUSTOM_BRANDING)));
+        }
         return Optional.empty();
     }
 

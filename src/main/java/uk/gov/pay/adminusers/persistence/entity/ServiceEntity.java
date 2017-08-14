@@ -6,6 +6,7 @@ import uk.gov.pay.adminusers.model.Service;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
@@ -26,8 +27,9 @@ public class ServiceEntity {
     @Column(name = "name")
     private String name = Service.DEFAULT_NAME_VALUE;
 
-    @Column(name = "custom_branding")
-    private String customBranding;
+    @Column(name = "custom_branding", columnDefinition = "json")
+    @Convert(converter = CustomBrandingConverter.class)
+    private Map<String, Object> customBranding;
 
     @OneToMany(mappedBy = "service", targetEntity = GatewayAccountIdEntity.class, fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private List<GatewayAccountIdEntity> gatewayAccountIds = new ArrayList<>();
@@ -84,11 +86,11 @@ public class ServiceEntity {
         populateGatewayAccountIds(asList(gatewayAccountIds));
     }
 
-    public String getCustomBranding() {
+    public Map<String, Object> getCustomBranding() {
         return customBranding;
     }
 
-    public void setCustomBranding(String customBranding) {
+    public void setCustomBranding(Map<String, Object> customBranding) {
         this.customBranding = customBranding;
     }
 
@@ -97,9 +99,7 @@ public class ServiceEntity {
         service.setGatewayAccountIds(gatewayAccountIds.stream()
                 .map(idEntity -> idEntity.getGatewayAccountId())
                 .collect(Collectors.toList()));
-        if(this.customBranding!=null) {
-            service.setCustomBranding(this.customBranding);
-        }
+        service.setCustomBranding(this.customBranding);
         return service;
     }
 

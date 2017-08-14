@@ -698,8 +698,9 @@ Content-Type: application/json
 This endpoint modifies updatable attributes of a Service. Currently supports
  - Update the name of a service
  - Add new gateway account(s) to a service.
+ - Update/replace the custom branding of a service.
 
-### Request example
+### Request example (for updating name)
 
 ```
 PATCH /v1/api/services/7d19aff33f8948deb97ed16b2912dcd3
@@ -712,13 +713,43 @@ Content-Type: application/json
 
 ```
 
+### Request example (for assigning gateway accounts)
+
+```
+PATCH /v1/api/services/7d19aff33f8948deb97ed16b2912dcd3
+Content-Type: application/json
+{
+ "op": "add",
+ "path": "gateway_account_ids", 
+ "value": ["1", "123"] 
+}
+
+```
+
+### Request example (for updating custom branding)
+Any valid JSON is allowed for value (including empty `{}`)
+
+```
+PATCH /v1/api/services/7d19aff33f8948deb97ed16b2912dcd3
+Content-Type: application/json
+{
+ "op": "add",
+ "path": "gateway_account_ids", 
+ "value": {
+    "css_path" : "/some.url/css.css",
+    "image_path" : "/some.url/image.jpg",
+ } 
+}
+
+```
+
 #### Request body description
 
 | Field                    | required | Description                                                      | Supported Values     |
 | ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
 | `op`                     |   X      | operation to perform on attribute                                | `replace`, `add`     |
 | `path`                   |   X      | attribute that is affecting                                      | `gateway_account_ids` , `name`, `custom_branding` |
-| `value`                  |   X         | value to be replaced                                          |                      |
+| `value`                  |   X      | value to be replaced                                             |                      |
 
 ### Response example
 
