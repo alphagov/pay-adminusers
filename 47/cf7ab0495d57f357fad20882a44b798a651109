@@ -13,3 +13,5 @@ release.alpha_release-138.date=2017-08-14:17:51:46
 staging-2.tag=FAILED-138
 
 staging-2.FAILED-138.date=
+
+staging-2.FAILED-138.status=failed
