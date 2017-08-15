@@ -15,3 +15,5 @@ staging-2.tag=FAILED-138
 staging-2.FAILED-138.date=
 
 staging-2.FAILED-138.status=failed
+
+staging-2.tag=alpha_staging-2-138
