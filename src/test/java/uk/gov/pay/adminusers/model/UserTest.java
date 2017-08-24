@@ -19,7 +19,7 @@ public class UserTest {
     public void shouldFlatten_permissionsOfAUser() throws Exception {
         Service service = Service.from(1, "3487347gb67", Service.DEFAULT_NAME_VALUE);
         User user = User.from(randomInt(), randomUuid(), "name", "password", "email@example.com", asList("1"), asList(service), "ewrew", "453453",
-                asList(ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"))));
+                asList(ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"))), null);
         Role role1 = Role.role(1, "role1", "role1 description");
         Role role2 = Role.role(2, "role2", "role2 description");
         role1.setPermissions(ImmutableList.of(aPermission(), aPermission(), aPermission()));

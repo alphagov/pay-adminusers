@@ -46,6 +46,9 @@ public class UserEntity extends AbstractEntity {
     @Column(name = "login_counter")
     private Integer loginCounter = 0;
 
+    @Column(name = "features")
+    private String features;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, targetEntity = ServiceRoleEntity.class)
     private List<ServiceRoleEntity> servicesRoles = new ArrayList<>();
 
@@ -133,6 +136,10 @@ public class UserEntity extends AbstractEntity {
         this.loginCounter = loginCount;
     }
 
+    public String getFeatures() { return features; }
+
+    public void setFeatures(String features) { this.features = features; }
+
     public List<RoleEntity> getRoles() {
         return servicesRoles.isEmpty() ? newArrayList() : singletonList(servicesRoles.get(0).getRole());
     }
@@ -176,6 +183,7 @@ public class UserEntity extends AbstractEntity {
         userEntity.setOtpKey(user.getOtpKey());
         userEntity.setTelephoneNumber(user.getTelephoneNumber());
         userEntity.setLoginCounter(user.getLoginCounter());
+        userEntity.setFeatures(user.getFeatures());
         userEntity.setDisabled(user.isDisabled());
         userEntity.setSessionVersion(user.getSessionVersion());
         ZonedDateTime timeNow = ZonedDateTime.now(ZoneId.of("UTC"));
@@ -199,6 +207,7 @@ public class UserEntity extends AbstractEntity {
         userEntity.setOtpKey(createUserRequest.getOtpKey());
         userEntity.setTelephoneNumber(createUserRequest.getTelephoneNumber());
         userEntity.setLoginCounter(0);
+        userEntity.setFeatures(createUserRequest.getFeatures());
         userEntity.setDisabled(Boolean.FALSE);
         userEntity.setSessionVersion(0);
         ZonedDateTime timeNow = ZonedDateTime.now(ZoneId.of("UTC"));
@@ -219,7 +228,7 @@ public class UserEntity extends AbstractEntity {
             serviceRoles = this.servicesRoles.stream().map(serviceRoleEntity -> serviceRoleEntity.toServiceRole()).collect(toList());
         }
 
-        User user = User.from(getId(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber, serviceRoles);
+        User user = User.from(getId(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber, serviceRoles, features);
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);

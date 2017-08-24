@@ -38,7 +38,7 @@ public class UserDbFixture {
     public User insertUser() {
         List<Service> services = serviceRolePairs.stream().map(servicePair -> servicePair.getLeft()).collect(Collectors.toList());
         List<ServiceRole> serviceRoles = serviceRolePairs.stream().map(servicePair -> ServiceRole.from(servicePair.getLeft(), servicePair.getRight())).collect(Collectors.toList());
-        User user = User.from(randomInt(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber, serviceRoles);
+        User user = User.from(randomInt(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber, serviceRoles, null);
 
         databaseTestHelper.add(user);
         serviceRoles.forEach(serviceRole -> databaseTestHelper.addUserServiceRole(user.getId(), serviceRole.getService().getId(), serviceRole.getRole().getId()));

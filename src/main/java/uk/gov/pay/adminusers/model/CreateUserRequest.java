@@ -28,6 +28,7 @@ public class CreateUserRequest {
     public static final String FIELD_TELEPHONE_NUMBER = "telephone_number";
     public static final String FIELD_OTP_KEY = "otp_key";
     public static final String FIELD_ROLE_NAME = "role_name";
+    public static final String FIELD_FEATURES = "features";
 
     private String username;
     private String password;
@@ -38,10 +39,11 @@ public class CreateUserRequest {
     private List<String> serviceIds = new ArrayList<>();
     private String otpKey;
     private List<String> serviceExternalIds = new ArrayList<>();
+    private String features;
 
     public static CreateUserRequest from(String username, String password, String email,
-                                         List<String> gatewayAccountIds, List<String> serviceIds, String otpKey, String telephoneNumber) {
-        return new CreateUserRequest(username, password, email, gatewayAccountIds, serviceIds, otpKey, telephoneNumber);
+                                         List<String> gatewayAccountIds, List<String> serviceIds, String otpKey, String telephoneNumber, String features) {
+        return new CreateUserRequest(username, password, email, gatewayAccountIds, serviceIds, otpKey, telephoneNumber, features);
     }
 
     public static CreateUserRequest from(JsonNode node) {
@@ -69,7 +71,8 @@ public class CreateUserRequest {
             String email = node.get(FIELD_EMAIL).asText();
             String telephoneNumber = node.get(FIELD_TELEPHONE_NUMBER).asText();
             String otpKey = getOrElseRandom(node.get(FIELD_OTP_KEY), newId());
-            CreateUserRequest request = from(username, password, email, gatewayAccountIds, serviceIds, otpKey, telephoneNumber);
+            String features = getOrElseRandom(node.get(FIELD_FEATURES), null);
+            CreateUserRequest request = from(username, password, email, gatewayAccountIds, serviceIds, otpKey, telephoneNumber, features);
             JsonNode serviceExternalIdsNode = node.get(FIELD_SERVICE_EXTERNAL_IDS);
             if (serviceExternalIdsNode != null) {
                 List<String> serviceExternalIds = ImmutableList.copyOf(serviceExternalIdsNode.iterator()).stream().map(jsonNode -> jsonNode.asText()).collect(Collectors.toList());
@@ -87,7 +90,7 @@ public class CreateUserRequest {
 
     private CreateUserRequest(@JsonProperty("username") String username, @JsonProperty("password") String password,
                               @JsonProperty("email") String email, @JsonProperty("gateway_account_ids") List<String> gatewayAccountIds,
-                              List<String> serviceIds, @JsonProperty("otp_key") String otpKey, @JsonProperty("telephone_number") String telephoneNumber) {
+                              List<String> serviceIds, @JsonProperty("otp_key") String otpKey, @JsonProperty("telephone_number") String telephoneNumber, @JsonProperty("features") String features) {
         this.username = username;
         this.password = password;
         this.email = email;
@@ -95,6 +98,7 @@ public class CreateUserRequest {
         this.serviceIds = serviceIds;
         this.otpKey = otpKey;
         this.telephoneNumber = telephoneNumber;
+        this.features = features;
     }
 
     public String getUsername() {
@@ -123,9 +127,8 @@ public class CreateUserRequest {
         return otpKey;
     }
 
-    public String getTelephoneNumber() {
-        return telephoneNumber;
-    }
+    public String getTelephoneNumber() { return telephoneNumber; }
+    public String getFeatures() { return features; }
 
     public List<String> getServiceExternalIds() {
         return serviceExternalIds;

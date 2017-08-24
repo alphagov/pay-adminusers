@@ -35,6 +35,7 @@ public class User {
     private String otpKey;
     private Boolean disabled = Boolean.FALSE;
     private Integer loginCounter = 0;
+    private String features;
     private List<ServiceRole> serviceRoles = new ArrayList<>();
     @Deprecated // Use serviceRoles instead
     private List<Role> roles = new ArrayList<>();
@@ -42,14 +43,14 @@ public class User {
     private Integer sessionVersion = 0;
 
     public static User from(Integer id, String externalId, String username, String password, String email,
-                            List<String> gatewayAccountIds, List<Service> services, String otpKey, String telephoneNumber, List<ServiceRole> serviceRoles) {
-        return new User(id, externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber, serviceRoles);
+                            List<String> gatewayAccountIds, List<Service> services, String otpKey, String telephoneNumber, List<ServiceRole> serviceRoles, String features) {
+        return new User(id, externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber, serviceRoles, features);
     }
 
     private User(Integer id, @JsonProperty("external_id") String externalId, @JsonProperty("username") String username, @JsonProperty("password") String password,
                  @JsonProperty("email") String email, @JsonProperty("gateway_account_ids") List<String> gatewayAccountIds,
                  List<Service> services, @JsonProperty("otp_key") String otpKey, @JsonProperty("telephone_number") String telephoneNumber,
-                 @JsonProperty("service_roles") List<ServiceRole> serviceRoles) {
+                 @JsonProperty("service_roles") List<ServiceRole> serviceRoles, @JsonProperty("features") String features) {
         this.id = id;
         this.externalId = externalId;
         this.username = username;
@@ -60,6 +61,7 @@ public class User {
         this.otpKey = otpKey;
         this.telephoneNumber = telephoneNumber;
         this.serviceRoles = serviceRoles;
+        this.features = features;
     }
 
     @JsonIgnore
@@ -107,6 +109,14 @@ public class User {
 
     public void setDisabled(Boolean disabled) {
         this.disabled = disabled;
+    }
+
+    public String getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(String features) {
+        this.features = features;
     }
 
     public void setLoginCounter(Integer loginCounter) {

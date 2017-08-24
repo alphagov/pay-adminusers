@@ -277,6 +277,30 @@ public class UserServicesTest {
     }
 
     @Test
+    public void shouldUpdateFeatures_whenPathIsFeatures_ifUserFound() throws Exception {
+        User user = aUser();
+        UserEntity userEntity = aUserEntityWithTrimmings(user);
+        userEntity.setFeatures("1");
+
+        String newFeature = "1,2,3";
+        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "features", "op", "replace", "value", newFeature));
+        Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+
+        when(userDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(userEntityOptional);
+
+        Optional<User> userOptional = userServices.patchUser(USER_EXTERNAL_ID, PatchRequest.from(node));
+
+        verify(userDao,times(1)).merge(argumentCaptor.capture());
+
+        UserEntity persistedUser = argumentCaptor.getValue();
+        assertThat(persistedUser.getFeatures(), is(newFeature));
+        assertTrue(userOptional.isPresent());
+
+        assertThat(userOptional.get().getFeatures(), is(newFeature));
+    }
+
+    @Test
     public void shouldReturn2FAToken_whenCreate2FA_ifUserFound() throws Exception {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
@@ -405,7 +429,7 @@ public class UserServicesTest {
     }
 
     private User aUser() {
-        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", asList("1"), newArrayList(), "784rh", "8948924", newArrayList());
+        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", asList("1"), newArrayList(), "784rh", "8948924", newArrayList(), null);
     }
 
     private Role aRole() {

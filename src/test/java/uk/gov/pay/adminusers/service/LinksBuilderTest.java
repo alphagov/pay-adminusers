@@ -21,7 +21,7 @@ public class LinksBuilderTest {
         Service service = Service.from(2, "34783g87ebg764r", Service.DEFAULT_NAME_VALUE);
         Role role = Role.role(2, "blah", "blah");
         User user = User.from(randomInt(), randomUuid(), "a-username", "a-password", "email@example.com",
-                asList("1"), asList(service), "4wrwef", "123435", asList(ServiceRole.from(service, role)));
+                asList("1"), asList(service), "4wrwef", "123435", asList(ServiceRole.from(service, role)), null);
         User decoratedUser = linksBuilder.decorate(user);
 
         String linkJson = new ObjectMapper().writeValueAsString(decoratedUser.getLinks().get(0));
