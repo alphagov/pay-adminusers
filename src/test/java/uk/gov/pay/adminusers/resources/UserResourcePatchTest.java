@@ -57,6 +57,23 @@ public class UserResourcePatchTest extends IntegrationTest {
     }
 
     @Test
+    public void shouldUpdateFeatures_whenPatchAttempt() throws Exception {
+
+        String newFeatures = "SUPER_FEATURE_1, SECRET_SQUIRREL_FEATURE";
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "features", "value", newFeatures));
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .body(payload)
+                .patch(format(USER_RESOURCE_URL, externalId))
+                .then()
+                .statusCode(200)
+                .body("features", is(newFeatures));
+
+    }
+
+    @Test
     public void shouldDisableUser_whenPatchAttempt() throws Exception {
 
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "disabled", "value", "true"));

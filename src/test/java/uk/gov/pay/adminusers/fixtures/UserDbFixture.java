@@ -25,6 +25,7 @@ public class UserDbFixture {
     private String password = "password-" + username;
     private String email = username + "@example.com";
     private String telephoneNumber = "374628482";
+    private String features = "FEATURE_1, FEATURE_2";
     private List<String> gatewayAccountIds = newArrayList();
 
     private UserDbFixture(DatabaseTestHelper databaseTestHelper) {
@@ -38,7 +39,7 @@ public class UserDbFixture {
     public User insertUser() {
         List<Service> services = serviceRolePairs.stream().map(servicePair -> servicePair.getLeft()).collect(Collectors.toList());
         List<ServiceRole> serviceRoles = serviceRolePairs.stream().map(servicePair -> ServiceRole.from(servicePair.getLeft(), servicePair.getRight())).collect(Collectors.toList());
-        User user = User.from(randomInt(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber, serviceRoles, null);
+        User user = User.from(randomInt(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber, serviceRoles, features);
 
         databaseTestHelper.add(user);
         serviceRoles.forEach(serviceRole -> databaseTestHelper.addUserServiceRole(user.getId(), serviceRole.getService().getId(), serviceRole.getRole().getId()));
@@ -73,6 +74,11 @@ public class UserDbFixture {
 
     public UserDbFixture withEmail(String email) {
         this.email = email;
+        return this;
+    }
+
+    public UserDbFixture withFeatures(String features) {
+        this.features = features;
         return this;
     }
 
