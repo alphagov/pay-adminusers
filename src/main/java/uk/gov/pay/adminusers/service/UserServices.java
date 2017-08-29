@@ -19,9 +19,7 @@ import java.util.Optional;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
-import static uk.gov.pay.adminusers.model.PatchRequest.PATH_DISABLED;
-import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
-import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TELEPHONE_NUMBER;
+import static uk.gov.pay.adminusers.model.PatchRequest.*;
 
 public class UserServices {
 
@@ -194,13 +192,21 @@ public class UserServices {
             changeUserDisabled(user, parseBoolean(patchRequest.getValue()));
         } else if (PATH_TELEPHONE_NUMBER.equals(patchRequest.getPath())) {
             changeUserTelephoneNumber(user, patchRequest.getValue());
-        } else {
+        } else if (PATH_FEATURES.equals(patchRequest.getPath())) {
+            changeUserFeatures(user, patchRequest.getValue());
+        }  else {
             String error = format("Invalid patch request with path [%s]", patchRequest.getPath());
             logger.error(error);
             throw new RuntimeException(error);
         }
 
         return Optional.of(linksBuilder.decorate(user.toUser()));
+    }
+
+    private void changeUserFeatures(UserEntity userEntity, String features) {
+        userEntity.setFeatures(features);
+        userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+        userDao.merge(userEntity);
     }
 
     private void changeUserTelephoneNumber(UserEntity userEntity, String telephoneNumber) {

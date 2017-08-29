@@ -54,7 +54,7 @@ public class UserCreatorTest {
 
         String validRole = "validRole";
         when(mockRoleDao.findByRoleName(validRole)).thenReturn(Optional.of(mock(RoleEntity.class)));
-        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, null, "otpKey", "3745838475");
+        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, null, "otpKey", "3745838475", null);
 
         User user = userCreator.doCreate(request, validRole);
 
@@ -69,7 +69,7 @@ public class UserCreatorTest {
 
         String validRole = "validRole";
         when(mockRoleDao.findByRoleName(validRole)).thenReturn(Optional.of(mock(RoleEntity.class)));
-        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, null, "otpKey", "3745838475");
+        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, null, "otpKey", "3745838475", null);
         request.setServiceExternalIds(asList("ext-id-1","ext-id-2"));
         when(mockServiceDao.findByExternalId("ext-id-1")).thenReturn(Optional.of(mock(ServiceEntity.class)));
         when(mockServiceDao.findByExternalId("ext-id-2")).thenReturn(Optional.of(mock(ServiceEntity.class)));
@@ -86,7 +86,7 @@ public class UserCreatorTest {
 
         String validRole = "validRole";
         when(mockRoleDao.findByRoleName(validRole)).thenReturn(Optional.of(mock(RoleEntity.class)));
-        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, null, "otpKey", "3745838475");
+        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, null, "otpKey", "3745838475", null);
         request.setServiceExternalIds(asList("ext-id-1","ext-id-2"));
         when(mockServiceDao.findByExternalId("ext-id-1")).thenReturn(Optional.of(mock(ServiceEntity.class)));
         when(mockServiceDao.findByExternalId("ext-id-2")).thenReturn(Optional.empty());
@@ -102,7 +102,7 @@ public class UserCreatorTest {
     public void shouldError_ifRoleIsInvalid() throws Exception {
         String validRole = "inValidRole";
         when(mockRoleDao.findByRoleName(validRole)).thenReturn(Optional.empty());
-        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, null, "otpKey", "3745838475");
+        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, null, "otpKey", "3745838475", null);
 
         expectedException.expect(WebApplicationException.class);
         expectedException.expectMessage("HTTP 400 Bad Request");
