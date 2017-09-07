@@ -9,11 +9,13 @@ import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.SecondFactorToken;
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.model.UserEmail;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static java.lang.Boolean.parseBoolean;
@@ -101,6 +103,23 @@ public class UserServices {
                 .map(userEntity -> Optional.of(
                         linksBuilder.decorate(userEntity.toUser())))
                 .orElse(Optional.empty());
+    }
+
+    /**
+     * finds users by externalIds
+     *
+     * @param externalIds
+     * @return {@link User} as an {@link Optional} if found. Otherwise Optional.empty() will be returned.
+     */
+
+    /**
+     * finds users by externalIds
+     *
+     * @param externalIds
+     * @return List of matching userProfiles. Otherwise empty list is returned.
+     */
+    public List<UserEmail> findUserByExternalIds(List<String> externalIds) {
+        return userDao.findByExternalIds(externalIds);
     }
 
     /**
