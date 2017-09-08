@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.persistence.dao;
 
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
+import uk.gov.pay.adminusers.model.UserEmail;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
@@ -61,4 +62,16 @@ public class UserDao extends JpaDao<UserEntity> {
                 .map(ServiceRoleEntity::getUser)
                 .collect(Collectors.toList());
     }
+
+    public List<UserEmail> findByExternalIds(List<String> externalIds) {
+
+        String queryStr = "SELECT NEW uk.gov.pay.adminusers.model.UserEmail(u.externalId, u.email) FROM UserEntity u "+
+                           "WHERE LOWER(u.externalId) in :externalIds";
+
+        return entityManager.get()
+                .createQuery(queryStr, UserEmail.class)
+                .setParameter("externalIds", externalIds.stream().map(String::toLowerCase).collect(Collectors.toList()))
+                .getResultList();
+    }
+
 }

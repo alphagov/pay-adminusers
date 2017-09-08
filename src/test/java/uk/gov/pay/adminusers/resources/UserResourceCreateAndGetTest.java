@@ -8,6 +8,7 @@ import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
@@ -246,6 +248,42 @@ public class UserResourceCreateAndGetTest extends IntegrationTest {
                 .get(format(USER_RESOURCE_URL, "non-existent-user"))
                 .then()
                 .statusCode(404);
+    }
+
+    @Test
+    public void shouldReturn200_IfExternalIdsDoExist() throws Exception {
+        String gatewayAccount1 = valueOf(nextInt());
+        String gatewayAccount2 = valueOf(nextInt());
+        Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
+        String serviceExternalId = service.getExternalId();
+        Role role = roleDbFixture(databaseHelper).insertRole();
+        User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).insertUser();
+        User user2 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).insertUser();
+        User user3 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).insertUser();
+
+        List<String> externalIds = new ArrayList<>();
+        externalIds.add(user.getExternalId());
+        externalIds.add(user2.getExternalId());
+        externalIds.add(user3.getExternalId());
+
+        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
+                .put("external_ids", externalIds)
+                .build();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(userPayload))
+                .contentType(JSON)
+                .accept(JSON)
+                .post(USER_EMAILS_RESOURCE_URL)
+                .then()
+                .statusCode(200)
+                .body("results.size()", is(3))
+                .body("results[0].email", notNullValue())
+                .body("results[0].external_id", notNullValue())
+                .body("results[2].email", notNullValue())
+                .body("results[2].external_id", notNullValue());
+
     }
 
     @Test

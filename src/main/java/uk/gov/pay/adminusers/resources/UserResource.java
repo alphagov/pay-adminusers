@@ -7,18 +7,17 @@ import com.google.inject.Inject;
 import io.dropwizard.jersey.PATCH;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
-import uk.gov.pay.adminusers.model.CreateUserRequest;
-import uk.gov.pay.adminusers.model.PatchRequest;
-import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.model.*;
 import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.pay.adminusers.service.UserServicesFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
 import static uk.gov.pay.adminusers.model.User.FIELD_USERNAME;
@@ -33,6 +32,7 @@ public class UserResource {
     public static final String API_VERSION_PATH = "/v1";
     public static final String USERS_RESOURCE = API_VERSION_PATH + "/api/users";
     public static final String FIND_RESOURCE = USERS_RESOURCE + "/find";
+    public static final String USER_EMAILS_RESOURCE = USERS_RESOURCE + "/emails";
     private static final String AUTHENTICATE_RESOURCE = USERS_RESOURCE + "/authenticate";
     private static final String USER_RESOURCE = USERS_RESOURCE + "/{externalId}";
     private static final String SECOND_FACTOR_RESOURCE = USER_RESOURCE + "/second-factor";
@@ -41,6 +41,7 @@ public class UserResource {
     private static final String USER_SERVICE_RESOURCE = USER_SERVICES_RESOURCE + "/{serviceExternalId}";
 
     public static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
+    public static final String INVALID_REQUEST_FORMAT = "ERROR: Request is not valid :: ";
 
     private final UserServices userServices;
     private final UserServicesFactory userServicesFactory;
@@ -77,6 +78,30 @@ public class UserResource {
         return userServices.findUserByExternalId(externalId)
                 .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
+    }
+
+    @Path(USER_EMAILS_RESOURCE)
+    @POST
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response getUserEmails(JsonNode payload) {
+        if (payload != null && payload.get(GetUserProfilesRequest.FIELD_EXTERNAL_IDS) != null) {
+            logger.info("Get UserProfiles request - [ {} ]", payload.toString());
+
+            List<String> externalIds = newArrayList(payload.get(GetUserProfilesRequest.FIELD_EXTERNAL_IDS).elements())
+                    .stream().map(externalIdNode -> externalIdNode.textValue()).collect(Collectors.toList());
+
+            List<UserEmail> userEmails = userServices.findUserByExternalIds(externalIds);
+
+            return Response.status(OK).type(APPLICATION_JSON).entity(
+                            Collections.unmodifiableMap(Stream
+                                       .of(new AbstractMap.SimpleEntry<String, List<UserEmail>>("results", userEmails))
+                                       .collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()))
+                            )
+                    ).build();
+        }
+
+        return Response.status(BAD_REQUEST).entity(INVALID_REQUEST_FORMAT+payload).build();
     }
 
     @Path(USERS_RESOURCE)
