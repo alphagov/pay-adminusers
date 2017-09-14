@@ -1,3 +1,5 @@
+BUILD TEST
+
 # pay-adminusers
 The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 
