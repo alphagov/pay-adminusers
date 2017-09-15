@@ -29,6 +29,17 @@ public class UserDao extends JpaDao<UserEntity> {
                 .getResultList().stream().findFirst();
     }
 
+    public List<UserEntity> findByExternalIds(List<String> externalIds) {
+        String query = "SELECT u FROM UserEntity u WHERE LOWER(u.externalId) in :externalIds";
+
+        externalIds = externalIds.stream().map(String::toLowerCase).collect(Collectors.toList());
+
+        return entityManager.get()
+                .createQuery(query, UserEntity.class)
+                .setParameter("externalIds", externalIds)
+                .getResultList();
+    }
+
     public Optional<UserEntity> findByUsername(String username) {
         String query = "SELECT u FROM UserEntity u " +
                 "WHERE LOWER(u.username) = LOWER(:username)";

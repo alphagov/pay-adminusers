@@ -121,6 +121,76 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
+## GET /v1/api/users/?ids=`{externalId1}`,`{externalId2}`...
+
+This endpoint finds and return users with the given external ids.
+
+### Request example
+
+```
+GET /v1/api/users?=ids=7d19aff33f8948deb97ed16b2912dcd3,4e89tlf59f9148deb79ed61b9212bhj7
+```
+
+### Response example
+
+```
+200 OK
+Content-Type: application/json
+[
+{
+    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
+    "username": "abcd1234",
+    "email": "email@email.com",
+    "gateway_account_ids": ["1"],
+    "telephone_number": "49875792",
+    "otp_key": "43c3c4t",
+    "role": {"admin","Administrator"},
+    "sessionVersion": 0,
+    "permissions":["perm-1","perm-2","perm-3"], 
+    "_links": [{
+        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
+        "rel" : "self",
+        "method" : "GET"
+    }]
+    
+},
+{
+    "external_id": "4e89tlf59f9148deb79ed61b9212bhj7",
+    "username": "efgh5678",
+    "email": "emai2l@email.com",
+    "gateway_account_ids": ["1"],
+    "telephone_number": "49875793",
+    "otp_key": "21d7g4t",
+    "role": {"admin","Administrator"},
+    "sessionVersion": 0,
+    "permissions":["perm-1","perm-2","perm-3"], 
+    "_links": [{
+        "href": "http://adminusers.service/v1/api/users/4e89tlf59f9148deb79ed61b9212bhj7",
+        "rel" : "self",
+        "method" : "GET"
+    }]
+    
+}
+]
+```
+
+#### Response field description
+
+| Field                    | always present | Description                                   |
+| ------------------------ |:--------------:| --------------------------------------------- |
+| `[i].external_id`     | X              | External id for this user       |
+| `[i].username`     | X              | Username for this user       |
+| `[i].gateway_account_ids`     | X              | The account Ids created by the connector       |
+| `[i].email`                   | X              | email address     |
+| `[i].telephone_number`            | X              | user's mobile/phone number |
+| `[i].otp_key`           | X              | top key for this user      |
+| `[i].role`           | X              | Role assigned to this user      |
+| `[i].permissions`                  | X              | names of all the permissions granted by this role.     |
+| `[i]._links`                  | X              | Self link for this user.     |
+
+-----------------------------------------------------------------------------------------------------------
+
+
 ## PATCH /v1/api/users/`{externalId}`
 
 This endpoint amends a specific attribute in user resource.

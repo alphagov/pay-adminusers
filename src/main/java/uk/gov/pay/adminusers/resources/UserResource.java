@@ -15,9 +15,11 @@ import uk.gov.pay.adminusers.service.UserServicesFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
@@ -77,6 +79,26 @@ public class UserResource {
         return userServices.findUserByExternalId(externalId)
                 .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
+    }
+
+    @Path(USERS_RESOURCE)
+    @GET
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response getUsers(@QueryParam("ids") String externalIds) {
+        logger.info("Users GET request - [ {} ]", externalIds);
+        List<String> externalIdsList = Arrays
+                .stream(externalIds.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
+
+        List<User> users = userServices.findUsersByExternalIds(externalIdsList);
+
+        if (users.size() == externalIdsList.size()) {
+            return Response.status(OK).type(APPLICATION_JSON).entity(users).build();
+        } else {
+            return Response.status(NOT_FOUND).build();
+        }
     }
 
     @Path(USERS_RESOURCE)
