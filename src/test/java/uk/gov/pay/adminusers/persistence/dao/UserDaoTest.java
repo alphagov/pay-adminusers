@@ -147,6 +147,11 @@ public class UserDaoTest extends DaoTestBase {
                 .withServiceRole(serviceId1, role.getId())
                 .withServiceRole(serviceId2, role.getId())
                 .insertUser();
+        // Add third user to prove we're not just returning all users
+        userDbFixture(databaseHelper)
+                .withServiceRole(serviceId1, role.getId())
+                .withServiceRole(serviceId2, role.getId())
+                .insertUser();
 
         List<String> externalIds = Arrays.asList(user1.getExternalId(), user2.getExternalId());
 

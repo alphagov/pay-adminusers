@@ -13,7 +13,7 @@ Content-Type: application/json
 
 {
     "username": "abcd1234",
-    "email": "email@email.com",
+    "email": "email@example.com",
     "gateway_account_ids": ["1"],
     "telephone_number": "49875792",
     "otp_key": "43c3c4t",
@@ -40,7 +40,7 @@ Content-Type: application/json
 {
     "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "username": "abcd1234",
-    "email": "email@email.com",
+    "email": "email@example.com",
     "gateway_account_ids": ["1"],
     "telephone_number": "49875792",
     "otp_key": "43c3c4t",
@@ -89,9 +89,9 @@ Content-Type: application/json
 {
     "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "username": "abcd1234",
-    "email": "email@email.com",
+    "email": "email@example.com",
     "gateway_account_ids": ["1"],
-    "telephone_number": "49875792",
+    "telephone_number": "447700900000",
     "otp_key": "43c3c4t",
     "role": {"admin","Administrator"},
     "sessionVersion": 0,
@@ -125,6 +125,10 @@ Content-Type: application/json
 
 This endpoint finds and return users with the given external ids.
 
+### Notes
+
+Will return `404` if any of the provided external ids do not match a user.
+
 ### Request example
 
 ```
@@ -140,9 +144,9 @@ Content-Type: application/json
 {
     "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "username": "abcd1234",
-    "email": "email@email.com",
+    "email": "email@example.com",
     "gateway_account_ids": ["1"],
-    "telephone_number": "49875792",
+    "telephone_number": "447700900000",
     "otp_key": "43c3c4t",
     "role": {"admin","Administrator"},
     "sessionVersion": 0,
@@ -157,9 +161,9 @@ Content-Type: application/json
 {
     "external_id": "4e89tlf59f9148deb79ed61b9212bhj7",
     "username": "efgh5678",
-    "email": "emai2l@email.com",
+    "email": "email2@example.com",
     "gateway_account_ids": ["1"],
-    "telephone_number": "49875793",
+    "telephone_number": "447700900001",
     "otp_key": "21d7g4t",
     "role": {"admin","Administrator"},
     "sessionVersion": 0,
@@ -215,9 +219,9 @@ Content-Type: application/json
 {
     "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "username": "abcd1234",
-    "email": "email@email.com",
+    "email": "email@example.com",
     "gateway_account_ids": ["1"],
-    "telephone_number": "49875792",
+    "telephone_number": "447700900000",
     "otp_key": "43c3c4t",
     "sessionVersion": 2,
     "role": {"admin","Administrator"},
@@ -275,9 +279,9 @@ Content-Type: application/json
 {
     "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "username": "abcd1234",
-    "email": "email@email.com",
+    "email": "email@example.com",
     "gateway_account_ids": ["1"],
-    "telephone_number": "49875792",
+    "telephone_number": "447700900000",
     "otp_key": "43c3c4t",
     "role": {"admin","Administrator"},
     "permissions":["perm-1","perm-2","perm-3"], 
@@ -409,9 +413,9 @@ Content-Type: application/json
 {
     "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "username": "abcd1234",
-    "email": "email@email.com",
+    "email": "email@example.com",
     "gateway_account_ids": ["1"],
-    "telephone_number": "49875792",
+    "telephone_number": "447700900000",
     "otp_key": "43c3c4t",
     "sessionVersion": 2,
     "role": {"view-and-refund","View and Refund"},
@@ -487,9 +491,9 @@ Content-Type: application/json
 {
     "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "username": "abcd1234",
-    "email": "email@email.com",
+    "email": "email@example.com",
     "gateway_account_ids": ["1"],
-    "telephone_number": "49875792",
+    "telephone_number": "447700900000",
     "otp_key": "43c3c4t",
     "sessionVersion": 2,
     "service_role":[{

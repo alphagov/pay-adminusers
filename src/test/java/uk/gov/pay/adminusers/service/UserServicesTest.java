@@ -90,11 +90,9 @@ public class UserServicesTest {
         UserEntity userEntity1 = aUserEntityWithTrimmings(user1);
         UserEntity userEntity2 = aUserEntityWithTrimmings(user2);
 
-        List<String> userExternalIds = Arrays.asList(user1.getExternalId(), user2.getExternalId());
-        List<UserEntity> userEntities = Arrays.asList(userEntity1, userEntity2);
-        when(userDao.findByExternalIds(userExternalIds)).thenReturn(userEntities);
+        when(userDao.findByExternalIds(Arrays.asList(user1.getExternalId(), user2.getExternalId()))).thenReturn(Arrays.asList(userEntity1, userEntity2));
 
-        List<User> users = userServices.findUsersByExternalIds(userExternalIds);
+        List<User> users = userServices.findUsersByExternalIds(Arrays.asList(user1.getExternalId(), user2.getExternalId()));
         assertTrue(users.size() == 2);
 
         assertThat(users.get(0).getExternalId(), is(user1.getExternalId()));

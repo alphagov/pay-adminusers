@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
@@ -41,6 +42,7 @@ public class UserResource {
     private static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/authenticate";
     private static final String USER_SERVICES_RESOURCE = USER_RESOURCE + "/services";
     private static final String USER_SERVICE_RESOURCE = USER_SERVICES_RESOURCE + "/{serviceExternalId}";
+    private static final Splitter COMMA_SEPARATOR = Splitter.on(',').trimResults();
 
     public static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
 
@@ -87,10 +89,7 @@ public class UserResource {
     @Consumes(APPLICATION_JSON)
     public Response getUsers(@QueryParam("ids") String externalIds) {
         logger.info("Users GET request - [ {} ]", externalIds);
-        List<String> externalIdsList = Arrays
-                .stream(externalIds.split(","))
-                .map(String::trim)
-                .collect(Collectors.toList());
+        List<String> externalIdsList = COMMA_SEPARATOR.splitToList(externalIds);
 
         List<User> users = userServices.findUsersByExternalIds(externalIdsList);
 
