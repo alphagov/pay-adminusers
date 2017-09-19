@@ -13,6 +13,7 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -129,6 +130,59 @@ public class UserDaoTest extends DaoTestBase {
         assertThat(foundUser.getRoles().size(), is(1));
         assertThat(foundUser.toUser().getServiceRoles().size(), is(2));
         assertThat(foundUser.getRoles().get(0).getId(), is(role.getId()));
+    }
+
+    @Test
+    public void shouldFindUsersBy_ExternalIds() throws Exception {
+        Role role = roleDbFixture(databaseHelper).insertRole();
+        int serviceId1 = serviceDbFixture(databaseHelper)
+                .insertService().getId();
+        int serviceId2 = serviceDbFixture(databaseHelper)
+                .insertService().getId();
+        User user1 = userDbFixture(databaseHelper)
+                .withServiceRole(serviceId1, role.getId())
+                .withServiceRole(serviceId2, role.getId())
+                .insertUser();
+        User user2 = userDbFixture(databaseHelper)
+                .withServiceRole(serviceId1, role.getId())
+                .withServiceRole(serviceId2, role.getId())
+                .insertUser();
+        // Add third user to prove we're not just returning all users
+        userDbFixture(databaseHelper)
+                .withServiceRole(serviceId1, role.getId())
+                .withServiceRole(serviceId2, role.getId())
+                .insertUser();
+
+        List<String> externalIds = Arrays.asList(user1.getExternalId(), user2.getExternalId());
+
+        List<UserEntity> userEntities = userDao.findByExternalIds(externalIds);
+        assertTrue(userEntities.size() == 2);
+
+        UserEntity foundUser1 = userEntities.get(0);
+        assertThat(foundUser1.getExternalId(), is(user1.getExternalId()));
+        assertThat(foundUser1.getUsername(), is(user1.getUsername()));
+        assertThat(foundUser1.getEmail(), is(user1.getUsername() + "@example.com"));
+        assertThat(foundUser1.getOtpKey(), is(user1.getOtpKey()));
+        assertThat(foundUser1.getTelephoneNumber(), is("374628482"));
+        assertThat(foundUser1.isDisabled(), is(false));
+        assertThat(foundUser1.getLoginCounter(), is(0));
+        assertThat(foundUser1.getSessionVersion(), is(0));
+        assertThat(foundUser1.getRoles().size(), is(1));
+        assertThat(foundUser1.toUser().getServiceRoles().size(), is(2));
+        assertThat(foundUser1.getRoles().get(0).getId(), is(role.getId()));
+
+        UserEntity foundUser2 = userEntities.get(1);
+        assertThat(foundUser2.getExternalId(), is(user2.getExternalId()));
+        assertThat(foundUser2.getUsername(), is(user2.getUsername()));
+        assertThat(foundUser2.getEmail(), is(user2.getUsername() + "@example.com"));
+        assertThat(foundUser2.getOtpKey(), is(user2.getOtpKey()));
+        assertThat(foundUser2.getTelephoneNumber(), is("374628482"));
+        assertThat(foundUser2.isDisabled(), is(false));
+        assertThat(foundUser2.getLoginCounter(), is(0));
+        assertThat(foundUser2.getSessionVersion(), is(0));
+        assertThat(foundUser2.getRoles().size(), is(1));
+        assertThat(foundUser2.toUser().getServiceRoles().size(), is(2));
+        assertThat(foundUser2.getRoles().get(0).getId(), is(role.getId()));
     }
 
     @Test

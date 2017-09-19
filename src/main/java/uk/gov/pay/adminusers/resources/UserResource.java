@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
@@ -15,9 +16,11 @@ import uk.gov.pay.adminusers.service.UserServicesFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
@@ -39,6 +42,7 @@ public class UserResource {
     private static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/authenticate";
     private static final String USER_SERVICES_RESOURCE = USER_RESOURCE + "/services";
     private static final String USER_SERVICE_RESOURCE = USER_SERVICES_RESOURCE + "/{serviceExternalId}";
+    private static final Splitter COMMA_SEPARATOR = Splitter.on(',').trimResults();
 
     public static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
 
@@ -77,6 +81,23 @@ public class UserResource {
         return userServices.findUserByExternalId(externalId)
                 .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
+    }
+
+    @Path(USERS_RESOURCE)
+    @GET
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response getUsers(@QueryParam("ids") String externalIds) {
+        logger.info("Users GET request - [ {} ]", externalIds);
+        List<String> externalIdsList = COMMA_SEPARATOR.splitToList(externalIds);
+
+        List<User> users = userServices.findUsersByExternalIds(externalIdsList);
+
+        if (users.size() == externalIdsList.size()) {
+            return Response.status(OK).type(APPLICATION_JSON).entity(users).build();
+        } else {
+            return Response.status(NOT_FOUND).build();
+        }
     }
 
     @Path(USERS_RESOURCE)

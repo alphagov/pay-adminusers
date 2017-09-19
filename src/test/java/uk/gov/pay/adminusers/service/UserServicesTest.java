@@ -18,6 +18,8 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -55,6 +57,8 @@ public class UserServicesTest {
 
     private static final String USER_EXTERNAL_ID = "7d19aff33f8948deb97ed16b2912dcd3";
     private static final String USER_USERNAME = "random-name";
+    private static final String ANOTHER_USER_EXTERNAL_ID = "7d19aff33f8948deb97ed16b2912dcd4";
+    private static final String ANOTHER_USER_USERNAME = "another-random-name";
 
     @Before
     public void before() throws Exception {
@@ -76,6 +80,23 @@ public class UserServicesTest {
         assertTrue(userOptional.isPresent());
 
         assertThat(userOptional.get().getExternalId(), is(USER_EXTERNAL_ID));
+    }
+
+    @Test
+    public void shouldFindAUsersByExternalIds() throws Exception {
+        User user1 = aUser();
+        User user2 = anotherUser();
+
+        UserEntity userEntity1 = aUserEntityWithTrimmings(user1);
+        UserEntity userEntity2 = aUserEntityWithTrimmings(user2);
+
+        when(userDao.findByExternalIds(Arrays.asList(user1.getExternalId(), user2.getExternalId()))).thenReturn(Arrays.asList(userEntity1, userEntity2));
+
+        List<User> users = userServices.findUsersByExternalIds(Arrays.asList(user1.getExternalId(), user2.getExternalId()));
+        assertTrue(users.size() == 2);
+
+        assertThat(users.get(0).getExternalId(), is(user1.getExternalId()));
+        assertThat(users.get(1).getExternalId(), is(user2.getExternalId()));
     }
 
     @Test
@@ -430,6 +451,9 @@ public class UserServicesTest {
 
     private User aUser() {
         return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", asList("1"), newArrayList(), "784rh", "8948924", newArrayList(), null);
+    }
+    private User anotherUser() {
+        return User.from(randomInt(), ANOTHER_USER_EXTERNAL_ID, ANOTHER_USER_USERNAME, "random-password", "email@example.com", asList("1"), newArrayList(), "784rh", "8948924", newArrayList(), null);
     }
 
     private Role aRole() {

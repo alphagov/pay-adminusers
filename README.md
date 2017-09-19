@@ -15,6 +15,7 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 | ----------------------------- | ----------------- | ---------------------------------- |
 | [```/v1/api/users```](/docs/api_specification.md#post-v1apiusers)              | POST    |  Creates a new user            |
 | [```/v1/api/users/{externalId}```](/docs/api_specification.md#get-v1apiusersexternalid)              | GET    |  Gets a user with the associated external id            |
+| [```/v1/api/users/?ids={externalId1},{externalId2}...```](/docs/api_specification.md#get-v1apiusersids)              | GET    |  Gets users with the associated external ids            |
 | [```/v1/api/users/{externalId}```](/docs/api_specification.md#patch-v1apiusersexternalid)              | PATCH    |  amend a specific user attribute            |
 | [```/v1/api/users/{externalId}/services/{serviceId}```](/docs/api_specification.md#put-v1apiusersexternalidservicesserviceid)  | PUT    |  update user's role for a service            |
 | [```/v1/api/users/{externalId}/services```](/docs/api_specification.md#post-v1apiusersexternalidservicesserviceid)  | POST    |  assign a new service along with role to a user        |

@@ -14,7 +14,10 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
@@ -98,9 +101,20 @@ public class UserServices {
     public Optional<User> findUserByExternalId(String externalId) {
         Optional<UserEntity> userEntityOptional = userDao.findByExternalId(externalId);
         return userEntityOptional
-                .map(userEntity -> Optional.of(
-                        linksBuilder.decorate(userEntity.toUser())))
+                .map(userEntity -> Optional.of(linksBuilder.decorate(userEntity.toUser())))
                 .orElse(Optional.empty());
+    }
+
+    /**
+     *
+     * @param externalIds
+     * @return A {@link List} of {@link User} or an empty {@link List} otherwise
+     */
+    public List<User> findUsersByExternalIds(List<String> externalIds) {
+        return userDao.findByExternalIds(externalIds)
+                .stream()
+                .map(userEntity -> linksBuilder.decorate(userEntity.toUser()))
+                .collect(Collectors.toList());
     }
 
     /**
