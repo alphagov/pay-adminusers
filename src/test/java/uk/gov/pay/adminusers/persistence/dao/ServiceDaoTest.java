@@ -7,11 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.postgresql.util.PGobject;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
-import uk.gov.pay.adminusers.model.Permission;
-import uk.gov.pay.adminusers.model.Role;
-import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.model.*;
 import uk.gov.pay.adminusers.persistence.entity.CustomBrandingConverter;
+import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
 import java.util.List;
@@ -42,7 +40,6 @@ public class ServiceDaoTest extends DaoTestBase {
 
     @Test
     public void shouldSaveAService_withCustomisations() throws Exception {
-
         ServiceEntity serviceEntity = new ServiceEntity();
         String serviceExternalId = randomUuid();
         serviceEntity.setExternalId(serviceExternalId);
@@ -56,7 +53,8 @@ public class ServiceDaoTest extends DaoTestBase {
 
         assertThat(savedService.size(), is(1));
         assertThat(savedService.get(0).get("external_id"), is(serviceExternalId));
-        Map<String, Object> storedBranding = objectMapper.readValue(savedService.get(0).get("custom_branding").toString(), new TypeReference<Map<String, Object>>() {});
+        Map<String, Object> storedBranding = objectMapper.readValue(savedService.get(0).get("custom_branding").toString(), new TypeReference<Map<String, Object>>() {
+        });
         assertThat(storedBranding, is(customBranding));
         assertThat(storedBranding.keySet().size(), is(1));
         assertThat(storedBranding.keySet(), hasItems("image_url"));
@@ -65,7 +63,6 @@ public class ServiceDaoTest extends DaoTestBase {
 
     @Test
     public void shouldSaveAService_withoutCustomisations() throws Exception {
-
         ServiceEntity serviceEntity = new ServiceEntity();
         String serviceExternalId = randomUuid();
         serviceEntity.setExternalId(serviceExternalId);
@@ -82,11 +79,61 @@ public class ServiceDaoTest extends DaoTestBase {
     }
 
     @Test
+    public void shouldSaveAService_withMerchantDetails() {
+        ServiceEntity serviceEntity = new ServiceEntity();
+        String serviceExternalId = randomUuid();
+        serviceEntity.setExternalId(serviceExternalId);
+
+        String name = "Name";
+        String addressLine1 = "Address Line 1";
+        String addressLine2 = "Address Line 2";
+        String addressCity = "Address City";
+        String postcode = "Postcode";
+        String country = "UK";
+        MerchantDetailsEntity merchantDetailsEntity = new MerchantDetailsEntity(
+                name,
+                addressLine1,
+                addressLine2,
+                addressCity,
+                postcode,
+                country
+        );
+        serviceEntity.setMerchantDetailsEntity(merchantDetailsEntity);
+
+        serviceDao.persist(serviceEntity);
+
+        List<Map<String, Object>> savedService = databaseHelper.findServiceByExternalId(serviceExternalId);
+
+        assertThat(savedService.size(), is(1));
+        assertThat(savedService.get(0).get("external_id"), is(serviceExternalId));
+        assertThat(savedService.get(0).get("merchant_name"), is(name));
+        assertThat(savedService.get(0).get("merchant_address_line1"), is(addressLine1));
+        assertThat(savedService.get(0).get("merchant_address_line2"), is(addressLine2));
+        assertThat(savedService.get(0).get("merchant_address_city"), is(addressCity));
+        assertThat(savedService.get(0).get("merchant_address_postcode"), is(postcode));
+        assertThat(savedService.get(0).get("merchant_address_country"), is(country));
+    }
+
+    @Test
     public void shouldFindByServiceExternalId() throws Exception {
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, "name");
         Map<String, Object> customBranding = ImmutableMap.of("image_url", "image url", "css_url", "css url");
         service.setCustomBranding(customBranding);
+        String name = "Name";
+        String addressLine1 = "Address Line 1";
+        String addressLine2 = "Address Line 2";
+        String addressCity = "Address City";
+        String postcode = "Postcode";
+        String country = "UK";
+        service.setMerchantDetails(new MerchantDetails(
+                name,
+                addressLine1,
+                addressLine2,
+                addressCity,
+                postcode,
+                country
+        ));
         databaseHelper.addService(service, randomInt().toString());
 
         Optional<ServiceEntity> serviceEntity = serviceDao.findByExternalId(serviceExternalId);
@@ -95,6 +142,14 @@ public class ServiceDaoTest extends DaoTestBase {
         assertThat(serviceEntity.get().getId(), is(service.getId()));
         assertThat(serviceEntity.get().getName(), is("name"));
 
+        MerchantDetailsEntity merchantDetailsEntity = serviceEntity.get().getMerchantDetailsEntity();
+        assertThat(merchantDetailsEntity.getName(), is(name));
+        assertThat(merchantDetailsEntity.getAddressLine1(), is(addressLine1));
+        assertThat(merchantDetailsEntity.getAddressLine2(), is(addressLine2));
+        assertThat(merchantDetailsEntity.getAddressCity(), is(addressCity));
+        assertThat(merchantDetailsEntity.getAddressPostcode(), is(postcode));
+        assertThat(merchantDetailsEntity.getAddressCountry(), is(country));
+
         assertThat(serviceEntity.get().getCustomBranding().keySet().size(), is(2));
         assertThat(serviceEntity.get().getCustomBranding().keySet(), hasItems("image_url", "css_url"));
         assertThat(serviceEntity.get().getCustomBranding().values(), hasItems("image url", "css url"));
@@ -102,7 +157,6 @@ public class ServiceDaoTest extends DaoTestBase {
 
     @Test
     public void shouldFindByGatewayAccountId() throws Exception {
-
         String gatewayAccountId = randomInt().toString();
         Integer serviceId = randomInt();
         String serviceExternalId = randomUuid();
@@ -114,7 +168,6 @@ public class ServiceDaoTest extends DaoTestBase {
         assertThat(optionalService.isPresent(), is(true));
         assertThat(optionalService.get().getExternalId(), is(serviceExternalId));
         assertThat(optionalService.get().getName(), is(name));
-
     }
 
     @Test
@@ -126,7 +179,6 @@ public class ServiceDaoTest extends DaoTestBase {
         Long count = serviceDao.countOfUsersWithRoleForService(serviceExternalId, roleId);
 
         assertThat(count, is(3l));
-
     }
 
     private void setupUsersForServiceAndRole(String externalId, int roleId, int noOfUsers) {
@@ -157,6 +209,5 @@ public class ServiceDaoTest extends DaoTestBase {
         User user3 = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).insertUser();
         databaseHelper.addUserServiceRole(user3.getId(), serviceId2, role.getId());
     }
-
 
 }
