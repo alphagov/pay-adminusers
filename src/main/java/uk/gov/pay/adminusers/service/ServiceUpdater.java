@@ -36,23 +36,23 @@ public class ServiceUpdater {
     @Transactional
     public Optional<Service> doUpdate(String serviceExternalId, ServiceUpdateRequest serviceUpdateRequest) {
         return serviceDao.findByExternalId(serviceExternalId)
-                .map(serviceEntity -> {
+                .flatMap(serviceEntity -> {
                     attributeUpdaters.get(serviceUpdateRequest.getPath())
                             .accept(serviceUpdateRequest, serviceEntity);
                     serviceDao.merge(serviceEntity);
                     return Optional.of(serviceEntity.toService());
-                }).orElseGet(Optional::empty);
+                });
     }
 
     @Transactional
     public Optional<Service> doUpdateMerchantDetails(String serviceExternalId, UpdateMerchantDetailsRequest updateMerchantDetailsRequest) {
         return serviceDao.findByExternalId(serviceExternalId)
-                .map(serviceEntity -> {
+                .flatMap(serviceEntity -> {
                     MerchantDetailsEntity merchantEntity = MerchantDetailsEntity.from(updateMerchantDetailsRequest);
                     serviceEntity.setMerchantDetailsEntity(merchantEntity);
                     serviceDao.merge(serviceEntity);
                     return Optional.of(serviceEntity.toService());
-                }).orElseGet(Optional::empty);
+                });
     }
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateServiceName() {

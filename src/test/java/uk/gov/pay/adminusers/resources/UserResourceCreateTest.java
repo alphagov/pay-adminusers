@@ -28,7 +28,6 @@ public class UserResourceCreateTest extends IntegrationTest {
 
     @Test
     public void shouldCreateAUser_Successfully() throws Exception {
-
         String username = randomAlphanumeric(10) + randomUUID().toString();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
@@ -115,7 +114,7 @@ public class UserResourceCreateTest extends IntegrationTest {
                 .body("disabled", is(false))
                 .body("service_roles[0].role.name", is("admin"))
                 .body("service_roles[0].role.description", is("Administrator"))
-                .body("service_roles[0].role.permissions", hasSize(31));
+                .body("service_roles[0].role.permissions", hasSize(33));
 
         response
                 .body("_links", hasSize(1))
@@ -129,9 +128,6 @@ public class UserResourceCreateTest extends IntegrationTest {
         List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByExternalId.get(0).get("id"));
         assertThat(servicesAssociatedToUser.size(), is(1));
     }
-
-
-
 
     @Test
     public void shouldError400_IfRoleDoesNotExist() throws Exception {

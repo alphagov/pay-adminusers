@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
@@ -45,8 +47,9 @@ public class ServiceUpdaterTest {
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
         when(serviceEntity.toService()).thenReturn(Service.from());
 
-        updater.doUpdate(serviceId, request);
+        Optional<Service> maybeService = updater.doUpdate(serviceId, request);
 
+        assertThat(maybeService.isPresent(), is(true));
         verify(serviceEntity, times(1)).setName(nameToUpdate);
         verify(serviceDao, times(1)).merge(serviceEntity);
     }
@@ -68,8 +71,9 @@ public class ServiceUpdaterTest {
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
         when(serviceEntity.toService()).thenReturn(Service.from());
 
-        updater.doUpdateMerchantDetails(serviceId, request);
+        Optional<Service> maybeService = updater.doUpdateMerchantDetails(serviceId, request);
 
+        assertThat(maybeService.isPresent(), is(true));
         verify(serviceEntity, times(1)).setMerchantDetailsEntity(toUpdate);
         verify(serviceDao, times(1)).merge(serviceEntity);
     }
@@ -86,8 +90,9 @@ public class ServiceUpdaterTest {
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
         when(serviceEntity.toService()).thenReturn(Service.from());
 
-        updater.doUpdate(serviceId, request);
+        Optional<Service> maybeService = updater.doUpdate(serviceId, request);
 
+        assertThat(maybeService.isPresent(), is(true));
         verify(serviceEntity, times(1)).setCustomBranding(customBranding);
         verify(serviceDao, times(1)).merge(serviceEntity);
     }
@@ -103,8 +108,9 @@ public class ServiceUpdaterTest {
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
         when(serviceEntity.toService()).thenReturn(Service.from());
 
-        updater.doUpdate(serviceId, request);
+        Optional<Service> maybeService = updater.doUpdate(serviceId, request);
 
+        assertThat(maybeService.isPresent(), is(true));
         verify(serviceEntity, times(1)).setCustomBranding(null);
         verify(serviceDao, times(1)).merge(serviceEntity);
     }
@@ -122,8 +128,9 @@ public class ServiceUpdaterTest {
         when(serviceDao.checkIfGatewayAccountsUsed(gatewayAccountIdsToUpdate)).thenReturn(false);
         when(serviceEntity.toService()).thenReturn(Service.from());
 
-        updater.doUpdate(serviceId, request);
+        Optional<Service> maybeService = updater.doUpdate(serviceId, request);
 
+        assertThat(maybeService.isPresent(), is(true));
         verify(serviceEntity, times(1)).addGatewayAccountIds(gatewayAccountIdsToUpdate.toArray(new String[0]));
         verify(serviceDao, times(1)).merge(serviceEntity);
     }
@@ -140,8 +147,9 @@ public class ServiceUpdaterTest {
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
         when(serviceDao.checkIfGatewayAccountsUsed(gatewayAccountIdsToUpdate)).thenReturn(true);
 
-        updater.doUpdate(serviceId, request);
+        Optional<Service> maybeService = updater.doUpdate(serviceId, request);
 
+        assertThat(maybeService.isPresent(), is(false));
         verify(serviceEntity, times(0)).addGatewayAccountIds(gatewayAccountIdsToUpdate.toArray(new String[0]));
         verify(serviceDao, times(0)).merge(serviceEntity);
     }

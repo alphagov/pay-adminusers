@@ -24,7 +24,7 @@ public class Service {
     private List<Link> links = new ArrayList<>();
     private List<String> gatewayAccountIds = new ArrayList<>();
     private Map<String, Object> customBranding;
-    private MerchantDetails merchantDetails = null;
+    private MerchantDetails merchantDetails;
 
     public static Service from() {
         return from(DEFAULT_NAME_VALUE);
