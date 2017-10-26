@@ -5,7 +5,9 @@ import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
+import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
+import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
 import java.util.HashMap;
@@ -37,6 +39,17 @@ public class ServiceUpdater {
                 .map(serviceEntity -> {
                     attributeUpdaters.get(serviceUpdateRequest.getPath())
                             .accept(serviceUpdateRequest, serviceEntity);
+                    serviceDao.merge(serviceEntity);
+                    return Optional.of(serviceEntity.toService());
+                }).orElseGet(Optional::empty);
+    }
+
+    @Transactional
+    public Optional<Service> doUpdateMerchantDetails(String serviceExternalId, UpdateMerchantDetailsRequest updateMerchantDetailsRequest) {
+        return serviceDao.findByExternalId(serviceExternalId)
+                .map(serviceEntity -> {
+                    MerchantDetailsEntity merchantEntity = MerchantDetailsEntity.from(updateMerchantDetailsRequest);
+                    serviceEntity.setMerchantDetailsEntity(merchantEntity);
                     serviceDao.merge(serviceEntity);
                     return Optional.of(serviceEntity.toService());
                 }).orElseGet(Optional::empty);

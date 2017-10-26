@@ -7,6 +7,7 @@ import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -24,7 +25,6 @@ public class ServiceRequestValidatorTest {
     public void shouldSuccess_onEmptyJson() throws Exception {
         Optional<Errors> errors = serviceRequestValidator.validateCreateRequest(mapper.readTree("{}"));
         assertFalse(errors.isPresent());
-
     }
 
     @Test
@@ -52,14 +52,12 @@ public class ServiceRequestValidatorTest {
 
     @Test
     public void shouldSuccess_forValidGatewayAccountIds() throws Exception {
-
         ImmutableMap<Object, Object> payload = ImmutableMap.builder()
                 .put("gateway_account_ids", new String[]{"1", "2"})
                 .build();
 
         Optional<Errors> errors = serviceRequestValidator.validateCreateRequest(mapper.valueToTree(payload));
         assertFalse(errors.isPresent());
-
     }
 
     @Test
@@ -106,6 +104,41 @@ public class ServiceRequestValidatorTest {
         List<String> errorsList = errors.get().getErrors();
         assertThat(errorsList.size(), is(1));
         assertThat(errorsList, hasItem("Operation [add] is invalid for path [name]"));
+    }
+
+    @Test
+    public void shouldSuccess_updatingMerchantDetails() throws Exception {
+        Map<String, Object> payload = ImmutableMap.<String, Object>builder()
+                .put("name", "somename")
+                .put("address_line1", "line1")
+                .put("address_city", "city")
+                .put("address_country", "country")
+                .put("address_postcode", "postcode")
+                .build();
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateMerchantDetailsRequest(mapper.valueToTree(payload));
+
+        assertThat(errors.isPresent(), is(false));
+    }
+
+    @Test
+    public void shouldFail_updatingMerchantDetails_forEmptyObject() throws Exception {
+        Map<String, Object> payload = ImmutableMap.of();
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateMerchantDetailsRequest(mapper.valueToTree(payload));
+
+        assertThat(errors.isPresent(), is(true));
+    }
+
+    @Test
+    public void shouldFail_updatingMerchantDetails_forMissingMandatoryFields() throws Exception {
+        Map<String, Object> payload = ImmutableMap.<String, Object>builder()
+                .put("address_line1", "line1")
+                .put("address_city", "city")
+                .put("address_country", "country")
+                .put("address_postcode", "postcode")
+                .build();
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateMerchantDetailsRequest(mapper.valueToTree(payload));
+
+        assertThat(errors.isPresent(), is(true));
     }
 
     @Test

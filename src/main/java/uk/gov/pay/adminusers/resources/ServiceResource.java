@@ -6,10 +6,13 @@ import io.dropwizard.jersey.PATCH;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import uk.gov.pay.adminusers.model.MerchantDetails;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
+import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.service.LinksBuilder;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
@@ -127,6 +130,20 @@ public class ServiceResource {
 
     }
 
+    @Path("/{serviceExternalId}/merchant-details")
+    @PUT
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response updateServiceMerchantDetails(@PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
+        LOGGER.info("Service PUT request to update merchant details - [ {} ]", serviceExternalId);
+        return serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> serviceServicesFactory.serviceUpdater().doUpdateMerchantDetails(
+                        serviceExternalId,
+                        UpdateMerchantDetailsRequest.from(payload))
+                        .map(service -> Response.status(OK).entity(service).build())
+                        .orElseGet(() -> Response.status(NOT_FOUND).build()));
+    }
 
     @Path("/{serviceExternalId}/users")
     @GET

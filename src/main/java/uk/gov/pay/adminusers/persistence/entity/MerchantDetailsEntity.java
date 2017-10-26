@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
 import uk.gov.pay.adminusers.model.MerchantDetails;
+import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -103,4 +104,39 @@ public class MerchantDetailsEntity {
         );
     }
 
+    public static MerchantDetailsEntity from(UpdateMerchantDetailsRequest updateMerchantDetailsRequest) {
+        return new MerchantDetailsEntity(
+                updateMerchantDetailsRequest.getName(),
+                updateMerchantDetailsRequest.getAddressLine1(),
+                updateMerchantDetailsRequest.getAddressLine2(),
+                updateMerchantDetailsRequest.getAddressCity(),
+                updateMerchantDetailsRequest.getAddressPostcode(),
+                updateMerchantDetailsRequest.getAddressCountry());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MerchantDetailsEntity that = (MerchantDetailsEntity) o;
+
+        if (!name.equals(that.name)) return false;
+        if (!addressLine1.equals(that.addressLine1)) return false;
+        if (addressLine2 != null ? !addressLine2.equals(that.addressLine2) : that.addressLine2 != null) return false;
+        if (!addressCity.equals(that.addressCity)) return false;
+        if (!addressPostcode.equals(that.addressPostcode)) return false;
+        return addressCountry.equals(that.addressCountry);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + addressLine1.hashCode();
+        result = 31 * result + (addressLine2 != null ? addressLine2.hashCode() : 0);
+        result = 31 * result + addressCity.hashCode();
+        result = 31 * result + addressPostcode.hashCode();
+        result = 31 * result + addressCountry.hashCode();
+        return result;
+    }
 }

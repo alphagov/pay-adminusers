@@ -21,6 +21,11 @@ public class ServiceRequestValidator {
     public static final String FIELD_SERVICE_NAME = "name";
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
     public static final String FIELD_CUSTOM_BRANDING = "custom_branding";
+    public static final String FIELD_MERCHANT_DETAILS_NAME = "name";
+    public static final String FIELD_MERCHANT_DETAILS_ADDRESS_LINE1 = "address_line1";
+    public static final String FIELD_MERCHANT_DETAILS_ADDRESS_CITY = "address_city";
+    public static final String FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE = "address_postcode";
+    public static final String FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY = "address_country";
 
     private final RequestValidations requestValidations;
     private static final Map<String, List<String>> VALID_ATTRIBUTE_UPDATE_OPERATIONS = new HashMap<String, List<String>>() {{
@@ -33,7 +38,6 @@ public class ServiceRequestValidator {
     public ServiceRequestValidator(RequestValidations requestValidations) {
         this.requestValidations = requestValidations;
     }
-
 
     public Optional<Errors> validateCreateRequest(JsonNode payload) {
         if (payload == null || "{}".equals(payload.toString())) {
@@ -87,6 +91,16 @@ public class ServiceRequestValidator {
             return Optional.of(Collections.singletonList(format("Value for path [%s] must be a JSON", FIELD_CUSTOM_BRANDING)));
         }
         return Optional.empty();
+    }
+
+    public Optional<Errors> validateUpdateMerchantDetailsRequest(JsonNode payload) {
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload,
+                FIELD_MERCHANT_DETAILS_NAME, FIELD_MERCHANT_DETAILS_ADDRESS_LINE1, FIELD_MERCHANT_DETAILS_ADDRESS_CITY, FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY);
+        if (missingMandatoryFields.isPresent()) {
+            return Optional.of(Errors.from(missingMandatoryFields.get()));
+        }
+        return Optional.empty();
+
     }
 
     public Optional<Errors> validateFindRequest(String gatewayAccountId) {

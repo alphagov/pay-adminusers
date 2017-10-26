@@ -111,6 +111,9 @@ public class ServiceEntity {
                 .map(idEntity -> idEntity.getGatewayAccountId())
                 .collect(Collectors.toList()));
         service.setCustomBranding(this.customBranding);
+        if (this.merchantDetailsEntity != null) {
+            service.setMerchantDetails(this.merchantDetailsEntity.toMerchantDetails());
+        }
         return service;
     }
 

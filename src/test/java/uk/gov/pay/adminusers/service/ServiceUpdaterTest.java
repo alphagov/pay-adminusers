@@ -8,7 +8,9 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
+import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
+import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
 import javax.ws.rs.WebApplicationException;
@@ -32,7 +34,6 @@ public class ServiceUpdaterTest {
 
     @Test
     public void shouldUpdateNameSuccessfully() throws Exception {
-
         String serviceId = randomUuid();
         String nameToUpdate = "new-name";
         ServiceUpdateRequest request = ServiceUpdateRequest.from(new ObjectNode(JsonNodeFactory.instance, ImmutableMap.of(
@@ -51,8 +52,30 @@ public class ServiceUpdaterTest {
     }
 
     @Test
-    public void shouldSuccess_updateCustomBranding_whenBrandingProvided() throws Exception {
+    public void shouldUpdateMerchantDetailsSuccessfully() throws Exception {
+        String serviceId = randomUuid();
+        String name = "name";
+        String addressLine1 = "something";
+        String addressLine2 = "something";
+        String addressCity = "something";
+        String addressPostcode = "something";
+        String addressCountry = "something";
 
+        MerchantDetailsEntity toUpdate = new MerchantDetailsEntity(name, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry);
+        UpdateMerchantDetailsRequest request = new UpdateMerchantDetailsRequest(name, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry);
+        ServiceEntity serviceEntity = mock(ServiceEntity.class);
+
+        when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
+        when(serviceEntity.toService()).thenReturn(Service.from());
+
+        updater.doUpdateMerchantDetails(serviceId, request);
+
+        verify(serviceEntity, times(1)).setMerchantDetailsEntity(toUpdate);
+        verify(serviceDao, times(1)).merge(serviceEntity);
+    }
+
+    @Test
+    public void shouldSuccess_updateCustomBranding_whenBrandingProvided() throws Exception {
         String serviceId = randomUuid();
         ServiceUpdateRequest request = mock(ServiceUpdateRequest.class);
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
@@ -71,7 +94,6 @@ public class ServiceUpdaterTest {
 
     @Test
     public void shouldSuccess_updateCustomBranding_whenBrandingNotProvided() throws Exception {
-
         String serviceId = randomUuid();
         ServiceUpdateRequest request = mock(ServiceUpdateRequest.class);
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
@@ -106,7 +128,6 @@ public class ServiceUpdaterTest {
         verify(serviceDao, times(1)).merge(serviceEntity);
     }
 
-
     @Test(expected = WebApplicationException.class)
     public void shouldError_IfAGatewayAccountAlreadyAssignedToAService() throws Exception {
         String serviceId = randomUuid();
@@ -124,4 +145,5 @@ public class ServiceUpdaterTest {
         verify(serviceEntity, times(0)).addGatewayAccountIds(gatewayAccountIdsToUpdate.toArray(new String[0]));
         verify(serviceDao, times(0)).merge(serviceEntity);
     }
+
 }
