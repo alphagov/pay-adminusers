@@ -58,14 +58,14 @@ public class ServiceRequestValidator {
     }
 
     public Optional<Errors> validateUpdateAttributeRequest(JsonNode payload) {
-        Optional<List<String>> errors = requestValidations.checkIfExists(payload, FIELD_OP, FIELD_PATH);
+        Optional<List<String>> errors = requestValidations.checkIfExistsOrEmpty(payload, FIELD_OP, FIELD_PATH);
         if (errors.isPresent()) {
             return Optional.of(Errors.from(errors.get()));
         }
 
         String path = payload.get("path").asText();
         if (!FIELD_CUSTOM_BRANDING.equals(path)) {
-            errors = requestValidations.checkIfExists(payload, FIELD_VALUE);
+            errors = requestValidations.checkIfExistsOrEmpty(payload, FIELD_VALUE);
         } else {
             errors = checkIfNotEmptyAndJson(payload.get(FIELD_VALUE));
         }
@@ -94,7 +94,7 @@ public class ServiceRequestValidator {
     }
 
     public Optional<Errors> validateUpdateMerchantDetailsRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload,
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload,
                 FIELD_MERCHANT_DETAILS_NAME, FIELD_MERCHANT_DETAILS_ADDRESS_LINE1, FIELD_MERCHANT_DETAILS_ADDRESS_CITY, FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY);
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));

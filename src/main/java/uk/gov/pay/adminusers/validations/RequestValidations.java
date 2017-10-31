@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.validations;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -19,8 +20,8 @@ public class RequestValidations {
         return applyCheck(payload, isNotNumeric(), fieldNames, "Field [%s] must be a number");
     }
 
-    public Optional<List<String>> checkIfExists(JsonNode payload, String... fieldNames) {
-        return applyCheck(payload, notExist(), fieldNames, "Field [%s] is required");
+    public Optional<List<String>> checkIfExistsOrEmpty(JsonNode payload, String... fieldNames) {
+        return applyCheck(payload, notExistOrEmpty(), fieldNames, "Field [%s] is required");
     }
 
     public Optional<List<String>> checkMaxLength(JsonNode payload, int maxLength, String... fieldNames) {
@@ -41,12 +42,14 @@ public class RequestValidations {
         return errors.size() > 0 ? Optional.of(errors) : Optional.empty();
     }
 
-    public Function<JsonNode, Boolean> notExist() {
+    public Function<JsonNode, Boolean> notExistOrEmpty() {
         return (jsonElement) -> {
-            if (jsonElement instanceof ArrayNode) {
+            if (jsonElement instanceof NullNode) {
+                return isNullValue().apply(jsonElement);
+            } else if (jsonElement instanceof ArrayNode) {
                 return notExistOrEmptyArray().apply(jsonElement);
             } else {
-                return notExistText().apply(jsonElement);
+                return notExistOrBlankText().apply(jsonElement);
             }
         };
     }
@@ -58,10 +61,16 @@ public class RequestValidations {
         );
     }
 
-    private static Function<JsonNode, Boolean> notExistText() {
+    private static Function<JsonNode, Boolean> notExistOrBlankText() {
         return jsonElement -> (
                 jsonElement == null ||
                         isBlank(jsonElement.asText())
+        );
+    }
+
+    private static Function<JsonNode, Boolean> isNullValue() {
+        return jsonElement -> (
+                jsonElement == null || jsonElement instanceof NullNode
         );
     }
 

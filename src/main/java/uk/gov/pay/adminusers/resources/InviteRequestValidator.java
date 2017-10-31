@@ -32,17 +32,17 @@ public class InviteRequestValidator {
 
     @Deprecated // Use the validateCreateUserRequest method instead
     public Optional<Errors> validateCreateRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_EMAIL, FIELD_ROLE_NAME, FIELD_SENDER);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, FIELD_EMAIL, FIELD_ROLE_NAME, FIELD_SENDER);
         return missingMandatoryFields.map(Errors::from);
     }
 
     public Optional<Errors> validateCreateUserRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_SERVICE_EXTERNAL_ID, FIELD_EMAIL, FIELD_ROLE_NAME, FIELD_SENDER);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, FIELD_SERVICE_EXTERNAL_ID, FIELD_EMAIL, FIELD_ROLE_NAME, FIELD_SENDER);
         return missingMandatoryFields.map(Errors::from);
     }
 
     public Optional<Errors> validateGenerateOtpRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_TELEPHONE_NUMBER, FIELD_PASSWORD);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, FIELD_TELEPHONE_NUMBER, FIELD_PASSWORD);
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
@@ -55,7 +55,7 @@ public class InviteRequestValidator {
 
 
     public Optional<Errors> validateResendOtpRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_CODE, FIELD_TELEPHONE_NUMBER);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, FIELD_CODE, FIELD_TELEPHONE_NUMBER);
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
@@ -64,7 +64,7 @@ public class InviteRequestValidator {
     }
 
     public Optional<Errors> validateOtpValidationRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, InviteValidateOtpRequest.FIELD_CODE, FIELD_OTP);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, InviteValidateOtpRequest.FIELD_CODE, FIELD_OTP);
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
@@ -73,7 +73,7 @@ public class InviteRequestValidator {
     }
 
     public Optional<Errors> validateCreateServiceRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, InviteServiceRequest.FIELD_EMAIL, InviteServiceRequest.FIELD_TELEPHONE_NUMBER, InviteServiceRequest.FIELD_PASSWORD);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, InviteServiceRequest.FIELD_EMAIL, InviteServiceRequest.FIELD_TELEPHONE_NUMBER, InviteServiceRequest.FIELD_PASSWORD);
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
