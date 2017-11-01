@@ -21,6 +21,8 @@ import uk.gov.pay.adminusers.app.healthchecks.DependentResourceWaitCommand;
 import uk.gov.pay.adminusers.app.healthchecks.MigrateToInitialDbState;
 import uk.gov.pay.adminusers.app.healthchecks.Ping;
 import uk.gov.pay.adminusers.app.util.TrustingSSLSocketFactory;
+import uk.gov.pay.adminusers.exception.ServiceNotFoundExceptionMapper;
+import uk.gov.pay.adminusers.exception.ValidationExceptionMapper;
 import uk.gov.pay.adminusers.resources.*;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -73,6 +75,10 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(injector.getInstance(InviteResource.class));
         environment.jersey().register(injector.getInstance(ResetPasswordResource.class));
         environment.jersey().register(injector.getInstance(HealthCheckResource.class));
+
+        // Register the custom ExceptionMapper(s)
+        environment.jersey().register(new ValidationExceptionMapper());
+        environment.jersey().register(new ServiceNotFoundExceptionMapper());
 
         setGlobalProxies(configuration);
     }

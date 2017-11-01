@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.math.NumberUtils;
+import uk.gov.pay.adminusers.exception.ValidationException;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
@@ -93,14 +94,14 @@ public class ServiceRequestValidator {
         return Optional.empty();
     }
 
-    public Optional<Errors> validateUpdateMerchantDetailsRequest(JsonNode payload) {
+    public void validateUpdateMerchantDetailsRequest(JsonNode payload) throws ValidationException {
         Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload,
-                FIELD_MERCHANT_DETAILS_NAME, FIELD_MERCHANT_DETAILS_ADDRESS_LINE1, FIELD_MERCHANT_DETAILS_ADDRESS_CITY, FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY);
+                FIELD_MERCHANT_DETAILS_NAME, FIELD_MERCHANT_DETAILS_ADDRESS_LINE1,
+                FIELD_MERCHANT_DETAILS_ADDRESS_CITY, FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE,
+                FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY);
         if (missingMandatoryFields.isPresent()) {
-            return Optional.of(Errors.from(missingMandatoryFields.get()));
+            throw new ValidationException(Errors.from(missingMandatoryFields.get()));
         }
-        return Optional.empty();
-
     }
 
     public Optional<Errors> validateFindRequest(String gatewayAccountId) {

@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
+import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
@@ -45,14 +46,14 @@ public class ServiceUpdater {
     }
 
     @Transactional
-    public Optional<Service> doUpdateMerchantDetails(String serviceExternalId, UpdateMerchantDetailsRequest updateMerchantDetailsRequest) {
+    public Service doUpdateMerchantDetails(String serviceExternalId, UpdateMerchantDetailsRequest updateMerchantDetailsRequest) throws ServiceNotFoundException {
         return serviceDao.findByExternalId(serviceExternalId)
-                .flatMap(serviceEntity -> {
+                .map(serviceEntity -> {
                     MerchantDetailsEntity merchantEntity = MerchantDetailsEntity.from(updateMerchantDetailsRequest);
                     serviceEntity.setMerchantDetailsEntity(merchantEntity);
                     serviceDao.merge(serviceEntity);
-                    return Optional.of(serviceEntity.toService());
-                });
+                    return serviceEntity.toService();
+                }).orElseThrow(() -> new ServiceNotFoundException(serviceExternalId));
     }
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateServiceName() {

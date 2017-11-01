@@ -1,13 +1,15 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
+import uk.gov.pay.adminusers.exception.ValidationException;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -107,43 +109,53 @@ public class ServiceRequestValidatorTest {
     }
 
     @Test
-    public void shouldSuccess_updatingMerchantDetails() throws Exception {
-        Map<String, Object> payload = ImmutableMap.<String, Object>builder()
-                .put("name", "somename")
-                .put("address_line1", "line1")
-                .put("address_city", "city")
-                .put("address_country", "country")
-                .put("address_postcode", "postcode")
-                .build();
-        Optional<Errors> errors = serviceRequestValidator.validateUpdateMerchantDetailsRequest(mapper.valueToTree(payload));
+    public void shouldSuccess_updatingMerchantDetails() throws ValidationException {
+        ObjectNode payload = JsonNodeFactory.instance.objectNode();
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_NAME, "name");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_LINE1, "line1");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_CITY, "city");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY, "country");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, "postcode");
 
-        assertThat(errors.isPresent(), is(false));
+        serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
     }
 
-    @Test
-    public void shouldFail_updatingMerchantDetails_forEmptyObject() throws Exception {
-        Map<String, Object> payload = ImmutableMap.of();
-        Optional<Errors> errors = serviceRequestValidator.validateUpdateMerchantDetailsRequest(mapper.valueToTree(payload));
-
-        assertThat(errors.isPresent(), is(true));
+    @Test(expected = ValidationException.class)
+    public void shouldFail_updatingMerchantDetails_forEmptyObject() throws ValidationException {
+        ObjectNode payload = JsonNodeFactory.instance.objectNode();
+        serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
     }
 
-    @Test
-    public void shouldFail_updatingMerchantDetails_forMissingMandatoryFields() throws Exception {
-        Map<String, Object> payload = ImmutableMap.<String, Object>builder()
-                .put("address_line1", "line1")
-                .put("address_city", "city")
-                .put("address_country", "country")
-                .put("address_postcode", "postcode")
-                .build();
-        Optional<Errors> errors = serviceRequestValidator.validateUpdateMerchantDetailsRequest(mapper.valueToTree(payload));
+    @Test(expected = ValidationException.class)
+    public void shouldFail_updatingMerchantDetails_forMissingMandatoryFields() throws ValidationException {
+        ObjectNode payload = JsonNodeFactory.instance.objectNode();
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_LINE1, "line1");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_CITY, "city");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY, "country");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, "postcode");
 
-        assertThat(errors.isPresent(), is(true));
+        serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void shouldFail_updatingMerchantDetails_forBlankStringMandatoryFields() throws ValidationException {
+        ObjectNode payload = JsonNodeFactory.instance.objectNode();
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_NAME, "");
+
+        serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void shouldFail_updatingMerchantDetails_forNullValueMandatoryFields() throws ValidationException {
+        ObjectNode payload = JsonNodeFactory.instance.objectNode();
+        payload.set(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_NAME, null);
+
+        serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
     }
 
     @Test
     public void shouldSuccess_replacingCustomBranding() throws Exception {
-        ImmutableMap<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of("image_url","image url", "css_url","css url"));
+        ImmutableMap<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of("image_url", "image url", "css_url", "css url"));
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
 
         assertThat(errors.isPresent(), is(false));
@@ -189,4 +201,5 @@ public class ServiceRequestValidatorTest {
         assertThat(errorsList.size(), is(1));
         assertThat(errorsList, hasItem("Value for path [custom_branding] must be a JSON"));
     }
+
 }

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
+import uk.gov.pay.adminusers.exception.ValidationException;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
@@ -20,11 +22,14 @@ import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class ServiceUpdaterTest {
+
+    private static final String NON_EXISTENT_SERVICE_EXTERNAL_ID = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
     ServiceDao serviceDao = mock(ServiceDao.class);
     ServiceUpdater updater;
@@ -55,7 +60,7 @@ public class ServiceUpdaterTest {
     }
 
     @Test
-    public void shouldUpdateMerchantDetailsSuccessfully() throws Exception {
+    public void shouldSuccess_updateMerchantDetails() throws ServiceNotFoundException {
         String serviceId = randomUuid();
         String name = "name";
         String addressLine1 = "something";
@@ -71,11 +76,30 @@ public class ServiceUpdaterTest {
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
         when(serviceEntity.toService()).thenReturn(Service.from());
 
-        Optional<Service> maybeService = updater.doUpdateMerchantDetails(serviceId, request);
+        Service service = updater.doUpdateMerchantDetails(serviceId, request);
 
-        assertThat(maybeService.isPresent(), is(true));
+        assertNotNull(service);
         verify(serviceEntity, times(1)).setMerchantDetailsEntity(toUpdate);
         verify(serviceDao, times(1)).merge(serviceEntity);
+    }
+
+    @Test(expected = ServiceNotFoundException.class)
+    public void shouldError_updateMerchantDetails_whenServiceNotFound() throws ServiceNotFoundException {
+        String name = "name";
+        String addressLine1 = "something";
+        String addressLine2 = "something";
+        String addressCity = "something";
+        String addressPostcode = "something";
+        String addressCountry = "something";
+
+        UpdateMerchantDetailsRequest request =
+                new UpdateMerchantDetailsRequest(name, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry);
+        ServiceEntity serviceEntity = mock(ServiceEntity.class);
+
+        when(serviceDao.findByExternalId(NON_EXISTENT_SERVICE_EXTERNAL_ID)).thenReturn(Optional.empty());
+        when(serviceEntity.toService()).thenReturn(Service.from());
+
+        Service service = updater.doUpdateMerchantDetails(NON_EXISTENT_SERVICE_EXTERNAL_ID, request);
     }
 
     @Test

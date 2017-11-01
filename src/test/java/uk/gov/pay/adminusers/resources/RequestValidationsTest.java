@@ -1,8 +1,9 @@
-package uk.gov.pay.adminusers.validations;
+package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Test;
+import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.util.List;
 import java.util.Optional;
