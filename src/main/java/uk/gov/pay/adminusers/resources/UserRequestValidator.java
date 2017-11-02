@@ -28,12 +28,12 @@ public class UserRequestValidator {
     }
 
     public Optional<Errors> validateAuthenticateRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_USERNAME, FIELD_PASSWORD);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, FIELD_USERNAME, FIELD_PASSWORD);
         return missingMandatoryFields.map(Errors::from);
     }
 
     public Optional<Errors> validateCreateRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_USERNAME, FIELD_EMAIL, FIELD_TELEPHONE_NUMBER, FIELD_ROLE_NAME);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, FIELD_USERNAME, FIELD_EMAIL, FIELD_TELEPHONE_NUMBER, FIELD_ROLE_NAME);
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
@@ -46,7 +46,7 @@ public class UserRequestValidator {
     }
 
     public Optional<Errors> validate2FAAuthRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, "code");
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, "code");
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
@@ -55,17 +55,17 @@ public class UserRequestValidator {
     }
 
     public Optional<Errors> validateServiceRole(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, "role_name");
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, "role_name");
         return missingMandatoryFields.map(Errors::from);
     }
 
     public Optional<Errors> validateAssignServiceRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_SERVICE_EXTERNAL_ID, FIELD_ROLE_NAME);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, FIELD_SERVICE_EXTERNAL_ID, FIELD_ROLE_NAME);
         return missingMandatoryFields.map(Errors::from);
     }
 
     public Optional<Errors> validatePatchRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, "op", "path", "value");
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, "op", "path", "value");
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
@@ -90,7 +90,7 @@ public class UserRequestValidator {
     }
 
     public Optional<Errors> validateFindRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExists(payload, FIELD_USERNAME);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, FIELD_USERNAME);
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }

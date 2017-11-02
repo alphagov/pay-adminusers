@@ -5,7 +5,8 @@ import uk.gov.pay.adminusers.model.Service;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
-import static java.util.Collections.singletonList;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -24,8 +25,8 @@ public class ServiceResourceFindTest extends IntegrationTest {
                 .get(format("/v1/api/services/%s", serviceExternalId))
                 .then()
                 .statusCode(200)
-                .body("name",is("existing-name"));
-
+                .body("name",is("existing-name"))
+                .body("$", not(hasKey("merchant_details")));
     }
 
     @Test

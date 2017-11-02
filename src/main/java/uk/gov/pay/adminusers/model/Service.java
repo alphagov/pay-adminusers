@@ -24,6 +24,7 @@ public class Service {
     private List<Link> links = new ArrayList<>();
     private List<String> gatewayAccountIds = new ArrayList<>();
     private Map<String, Object> customBranding;
+    private MerchantDetails merchantDetails;
 
     public static Service from() {
         return from(DEFAULT_NAME_VALUE);
@@ -92,6 +93,7 @@ public class Service {
 
     /**
      * nullify if map is empty, so that it will be undefined in response
+     *
      * @param customBranding
      */
     public void setCustomBranding(Map<String, Object> customBranding) {
@@ -100,4 +102,13 @@ public class Service {
         }
         this.customBranding = customBranding;
     }
+
+    public MerchantDetails getMerchantDetails() {
+        return merchantDetails;
+    }
+
+    public void setMerchantDetails(MerchantDetails merchantDetails) {
+        this.merchantDetails = merchantDetails;
+    }
+
 }

@@ -3,9 +3,12 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
+import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
+import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
+import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
 import java.util.HashMap;
@@ -34,12 +37,23 @@ public class ServiceUpdater {
     @Transactional
     public Optional<Service> doUpdate(String serviceExternalId, ServiceUpdateRequest serviceUpdateRequest) {
         return serviceDao.findByExternalId(serviceExternalId)
-                .map(serviceEntity -> {
+                .flatMap(serviceEntity -> {
                     attributeUpdaters.get(serviceUpdateRequest.getPath())
                             .accept(serviceUpdateRequest, serviceEntity);
                     serviceDao.merge(serviceEntity);
                     return Optional.of(serviceEntity.toService());
-                }).orElseGet(Optional::empty);
+                });
+    }
+
+    @Transactional
+    public Service doUpdateMerchantDetails(String serviceExternalId, UpdateMerchantDetailsRequest updateMerchantDetailsRequest) throws ServiceNotFoundException {
+        return serviceDao.findByExternalId(serviceExternalId)
+                .map(serviceEntity -> {
+                    MerchantDetailsEntity merchantEntity = MerchantDetailsEntity.from(updateMerchantDetailsRequest);
+                    serviceEntity.setMerchantDetailsEntity(merchantEntity);
+                    serviceDao.merge(serviceEntity);
+                    return serviceEntity.toService();
+                }).orElseThrow(() -> new ServiceNotFoundException(serviceExternalId));
     }
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateServiceName() {

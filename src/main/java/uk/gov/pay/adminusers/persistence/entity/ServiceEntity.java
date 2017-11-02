@@ -27,6 +27,9 @@ public class ServiceEntity {
     @Column(name = "name")
     private String name = Service.DEFAULT_NAME_VALUE;
 
+    @Embedded
+    private MerchantDetailsEntity merchantDetailsEntity;
+
     @Column(name = "custom_branding", columnDefinition = "json")
     @Convert(converter = CustomBrandingConverter.class)
     private Map<String, Object> customBranding;
@@ -70,6 +73,14 @@ public class ServiceEntity {
         this.name = name;
     }
 
+    public MerchantDetailsEntity getMerchantDetailsEntity() {
+        return merchantDetailsEntity;
+    }
+
+    public void setMerchantDetailsEntity(MerchantDetailsEntity merchantDetailsEntity) {
+        this.merchantDetailsEntity = merchantDetailsEntity;
+    }
+
     public List<GatewayAccountIdEntity> getGatewayAccountIds() {
         return ImmutableList.copyOf(this.gatewayAccountIds);
     }
@@ -100,6 +111,9 @@ public class ServiceEntity {
                 .map(idEntity -> idEntity.getGatewayAccountId())
                 .collect(Collectors.toList()));
         service.setCustomBranding(this.customBranding);
+        if (this.merchantDetailsEntity != null) {
+            service.setMerchantDetails(this.merchantDetailsEntity.toMerchantDetails());
+        }
         return service;
     }
 
@@ -130,4 +144,5 @@ public class ServiceEntity {
             this.gatewayAccountIds.add(new GatewayAccountIdEntity(gatewayAccountId, this));
         }
     }
+
 }

@@ -199,11 +199,25 @@ public class DatabaseTestHelper {
         {
             PGobject customBranding = service.getCustomBranding() == null ? null :
             new CustomBrandingConverter().convertToDatabaseColumn(service.getCustomBranding());
-            return handle.createStatement("INSERT INTO services(id, name, custom_branding, external_id) " +
-                    "VALUES (:id, :name, :customBranding, :externalId)")
+            MerchantDetails merchantDetails = service.getMerchantDetails();
+            if (merchantDetails == null) {
+                merchantDetails = new MerchantDetails();
+            }
+            return handle.createStatement("INSERT INTO services(" +
+                    "id, name, custom_branding, " +
+                    "merchant_name, merchant_address_line1, merchant_address_line2, merchant_address_city, " +
+                    "merchant_address_postcode, merchant_address_country, external_id) " +
+                    "VALUES (:id, :name, :customBranding, :merchantName, :merchantAddressLine1, :merchantAddressLine2, " +
+                    ":merchantAddressCity, :merchantAddressPostcode, :merchantAddressCountry, :externalId)")
                     .bind("id", service.getId())
                     .bind("name", service.getName())
                     .bind("customBranding", customBranding)
+                    .bind("merchantName", merchantDetails.getName())
+                    .bind("merchantAddressLine1", merchantDetails.getAddressLine1())
+                    .bind("merchantAddressLine2", merchantDetails.getAddressLine2())
+                    .bind("merchantAddressCity", merchantDetails.getAddressCity())
+                    .bind("merchantAddressPostcode", merchantDetails.getAddressPostcode())
+                    .bind("merchantAddressCountry", merchantDetails.getAddressCountry())
                     .bind("externalId", service.getExternalId())
                     .execute();
         });
@@ -295,7 +309,7 @@ public class DatabaseTestHelper {
 
     public List<Map<String, Object>> findServiceByExternalId(String serviceExternalId) {
         return jdbi.withHandle(h ->
-                h.createQuery("SELECT id, name, external_id, custom_branding FROM services " +
+                h.createQuery("SELECT * FROM services " +
                         "WHERE external_id = :external_id")
                         .bind("external_id", serviceExternalId)
                         .list());

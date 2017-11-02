@@ -19,7 +19,6 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
 
     @Test
     public void shouldAuthenticateUser_onAValidUsernamePasswordCombination() throws Exception {
-
         String[] gatewayAccountIds = new String[]{"1", "2"};
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccountIds).insertService();
 
@@ -49,12 +48,11 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
                 .body("disabled", is(false))
                 .body("_links", hasSize(1))
                 .body("service_roles[0].role.name", is("admin"))
-                .body("service_roles[0].role.permissions", hasSize(31)); //we could consider removing this assertion if the permissions constantly changing
+                .body("service_roles[0].role.permissions", hasSize(33)); //we could consider removing this assertion if the permissions constantly changing
     }
 
     @Test
     public void shouldAuthenticateUser_onAValidUsernamePasswordCombination_whenUserDoesNotBelongToAService() throws Exception {
-
         String username = randomAlphanumeric(10) + "example.com";
         String password = "password-" + username;
         String encryptedPassword = (new PasswordHasher()).hash(password);
@@ -87,7 +85,6 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
 
     @Test
     public void shouldAuthenticateFail_onAInvalidUsernamePasswordCombination() throws Exception {
-
         String[] gatewayAccountIds = new String[]{"3", "4"};
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccountIds).insertService();
 
@@ -108,11 +105,9 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
                 .statusCode(401)
                 .body("errors", hasSize(1))
                 .body("errors[0]", is("invalid username and/or password"));
-
     }
 
     private String createAValidUser(Service service) throws JsonProcessingException {
-
         String username = randomAlphanumeric(10) + UUID.randomUUID();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
@@ -135,4 +130,5 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
 
         return username;
     }
+
 }

@@ -5,9 +5,12 @@ import com.google.inject.Inject;
 import io.dropwizard.jersey.PATCH;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
+import uk.gov.pay.adminusers.exception.ValidationException;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
+import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -127,6 +130,18 @@ public class ServiceResource {
 
     }
 
+    @Path("/{serviceExternalId}/merchant-details")
+    @PUT
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response updateServiceMerchantDetails(@PathParam("serviceExternalId") String serviceExternalId, JsonNode payload)
+            throws ValidationException, ServiceNotFoundException {
+        LOGGER.info("Service PUT request to update merchant details - [ {} ]", serviceExternalId);
+        serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
+        Service service = serviceServicesFactory.serviceUpdater().doUpdateMerchantDetails(
+                serviceExternalId, UpdateMerchantDetailsRequest.from(payload));
+        return Response.status(OK).entity(service).build();
+    }
 
     @Path("/{serviceExternalId}/users")
     @GET

@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.math.NumberUtils;
+import uk.gov.pay.adminusers.exception.ValidationException;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
@@ -21,6 +22,11 @@ public class ServiceRequestValidator {
     public static final String FIELD_SERVICE_NAME = "name";
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
     public static final String FIELD_CUSTOM_BRANDING = "custom_branding";
+    public static final String FIELD_MERCHANT_DETAILS_NAME = "name";
+    public static final String FIELD_MERCHANT_DETAILS_ADDRESS_LINE1 = "address_line1";
+    public static final String FIELD_MERCHANT_DETAILS_ADDRESS_CITY = "address_city";
+    public static final String FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE = "address_postcode";
+    public static final String FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY = "address_country";
 
     private final RequestValidations requestValidations;
     private static final Map<String, List<String>> VALID_ATTRIBUTE_UPDATE_OPERATIONS = new HashMap<String, List<String>>() {{
@@ -33,7 +39,6 @@ public class ServiceRequestValidator {
     public ServiceRequestValidator(RequestValidations requestValidations) {
         this.requestValidations = requestValidations;
     }
-
 
     public Optional<Errors> validateCreateRequest(JsonNode payload) {
         if (payload == null || "{}".equals(payload.toString())) {
@@ -54,14 +59,14 @@ public class ServiceRequestValidator {
     }
 
     public Optional<Errors> validateUpdateAttributeRequest(JsonNode payload) {
-        Optional<List<String>> errors = requestValidations.checkIfExists(payload, FIELD_OP, FIELD_PATH);
+        Optional<List<String>> errors = requestValidations.checkIfExistsOrEmpty(payload, FIELD_OP, FIELD_PATH);
         if (errors.isPresent()) {
             return Optional.of(Errors.from(errors.get()));
         }
 
         String path = payload.get("path").asText();
         if (!FIELD_CUSTOM_BRANDING.equals(path)) {
-            errors = requestValidations.checkIfExists(payload, FIELD_VALUE);
+            errors = requestValidations.checkIfExistsOrEmpty(payload, FIELD_VALUE);
         } else {
             errors = checkIfNotEmptyAndJson(payload.get(FIELD_VALUE));
         }
@@ -87,6 +92,16 @@ public class ServiceRequestValidator {
             return Optional.of(Collections.singletonList(format("Value for path [%s] must be a JSON", FIELD_CUSTOM_BRANDING)));
         }
         return Optional.empty();
+    }
+
+    public void validateUpdateMerchantDetailsRequest(JsonNode payload) throws ValidationException {
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload,
+                FIELD_MERCHANT_DETAILS_NAME, FIELD_MERCHANT_DETAILS_ADDRESS_LINE1,
+                FIELD_MERCHANT_DETAILS_ADDRESS_CITY, FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE,
+                FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY);
+        if (missingMandatoryFields.isPresent()) {
+            throw new ValidationException(Errors.from(missingMandatoryFields.get()));
+        }
     }
 
     public Optional<Errors> validateFindRequest(String gatewayAccountId) {
