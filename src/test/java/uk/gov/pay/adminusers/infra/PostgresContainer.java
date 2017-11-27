@@ -28,18 +28,19 @@ public class PostgresContainer {
     private String host;
     private volatile boolean stopped = false;
 
+    private static final String GOVUK_POSTGRES_IMAGE = "govukpay/postgres:9.4.4";
     private static final String DB_PASSWORD = "mysecretpassword";
     private static final String DB_USERNAME = "postgres";
     private static final int DB_TIMEOUT_SEC = 15;
-    private static final String GOVUK_POSTGRES_IMAGE = "govukpay/postgres:9.4.4";
     private static final String INTERNAL_PORT = "5432";
 
-    public PostgresContainer(DockerClient docker, String host) throws InterruptedException, IOException, ClassNotFoundException, DockerException {
+    public  PostgresContainer(DockerClient docker, String host) throws InterruptedException, IOException, ClassNotFoundException, DockerException {
         Class.forName("org.postgresql.Driver");
 
         this.docker = docker;
         this.host = host;
 
+        failsafeDockerPull(docker, GOVUK_POSTGRES_IMAGE);
         docker.listImages(DockerClient.ListImagesParam.create("name", GOVUK_POSTGRES_IMAGE));
 
         final HostConfig hostConfig = HostConfig.builder().logConfig(LogConfig.create("json-file")).publishAllPorts(true).build();
@@ -65,6 +66,14 @@ public class PostgresContainer {
 
     public String getConnectionUrl() {
         return "jdbc:postgresql://" + host + ":" + port + "/";
+    }
+
+    private void failsafeDockerPull(DockerClient docker, String image) {
+        try {
+            docker.pull(image);
+        } catch (Exception e) {
+            logger.error("Docker image " + image + " could not be pulled from DockerHub", e);
+        }
     }
 
     private static int hostPortNumber(ContainerInfo containerInfo) {

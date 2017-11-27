@@ -11,6 +11,7 @@
         <eclipselink.version>2.6.4</eclipselink.version>
         <guice.version>4.1.0</guice.version>
         <jersey2.version>2.25.1</jersey2.version>
+        <docker-client.version>8.9.2</docker-client.version>
     </properties>
     <repositories>
         <repository>
@@ -207,7 +208,7 @@
         <dependency>
             <groupId>com.spotify</groupId>
             <artifactId>docker-client</artifactId>
-            <version>8.1.1</version>
+            <version>${docker-client.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
