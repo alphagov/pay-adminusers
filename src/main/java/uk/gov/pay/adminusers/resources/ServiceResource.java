@@ -19,6 +19,7 @@ import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -60,6 +61,17 @@ public class ServiceResource {
     }
 
     @GET
+    @Produces(APPLICATION_JSON)
+    public Response findServices(@QueryParam("gatewayAccountId") String gatewayAccountId) {
+        if (gatewayAccountId != null) {
+            LOGGER.info("Find service by gateway account id request - [ {} ]", gatewayAccountId);
+            return getServiceByGatewayAccountId(gatewayAccountId);
+        } else {
+            return getAllServices();
+        }
+    }
+
+    @GET
     @Path("/{serviceExternalId}")
     @Produces(APPLICATION_JSON)
     public Response findService(@PathParam("serviceExternalId") String serviceExternalId) {
@@ -71,16 +83,6 @@ public class ServiceResource {
                         Response.status(NOT_FOUND).build());
     }
 
-    @GET
-    @Produces(APPLICATION_JSON)
-    public Response findServices(@QueryParam("gatewayAccountId") String gatewayAccountId) {
-        LOGGER.info("Find service by gateway account id request - [ {} ]", gatewayAccountId);
-        return serviceRequestValidator.validateFindRequest(gatewayAccountId)
-                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> serviceServicesFactory.serviceFinder().byGatewayAccountId(gatewayAccountId)
-                        .map(service -> Response.status(OK).entity(service).build())
-                        .orElseGet(() -> Response.status(NOT_FOUND).build()));
-    }
 
     @POST
     @Produces(APPLICATION_JSON)
@@ -164,6 +166,7 @@ public class ServiceResource {
     }
 
     // To consider for all the operations add @HeaderParam("GovUkPay-User-Context") and creating a filter
+
     // so we could map permissions with Regex URLs and Http method passed on to this filter.
     @Path("/{serviceExternalId}/users/{userExternalId}")
     @DELETE
@@ -183,5 +186,20 @@ public class ServiceResource {
         serviceServicesFactory.serviceUserRemover().remove(userId, userContext, serviceId);
         LOGGER.info("Succeeded Service users DELETE request - serviceId={}, removerId={}, userId={}", serviceId, userContext, userId);
         return Response.status(NO_CONTENT).build();
+    }
+
+    private Response getAllServices() {
+        return Response.status(OK).entity(serviceDao.getAllServices()
+                .stream()
+                .map(serviceEntity -> linksBuilder.decorate(serviceEntity.toService()))
+                .collect(Collectors.toList())).build();
+    }
+
+    private Response getServiceByGatewayAccountId(String gatewayAccountId) {
+        return serviceRequestValidator.validateFindRequest(gatewayAccountId)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> serviceServicesFactory.serviceFinder().byGatewayAccountId(gatewayAccountId)
+                        .map(service -> Response.status(OK).entity(service).build())
+                        .orElseGet(() -> Response.status(NOT_FOUND).build()));
     }
 }
