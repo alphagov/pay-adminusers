@@ -171,6 +171,34 @@ public class ServiceDaoTest extends DaoTestBase {
     }
 
     @Test
+    public void shouldGetAllServices() throws Exception {
+        String gatewayAccountId1 = randomInt().toString();
+        Integer serviceId1 = randomInt();
+        String serviceExternalId1 = randomUuid();
+        String name1 = "name1";
+        databaseHelper.addService(Service.from(serviceId1, serviceExternalId1, name1), gatewayAccountId1);
+
+        String gatewayAccountId2 = randomInt().toString();
+        Integer serviceId2 = randomInt();
+        String serviceExternalId2 = randomUuid();
+        String name2 = "name2";
+        databaseHelper.addService(Service.from(serviceId2, serviceExternalId2, name2), gatewayAccountId2);
+
+        String gatewayAccountId3 = randomInt().toString();
+        Integer serviceId3 = randomInt();
+        String serviceExternalId3 = randomUuid();
+        String name3 = "name3";
+        databaseHelper.addService(Service.from(serviceId3, serviceExternalId3, name3), gatewayAccountId3);
+
+        List<ServiceEntity> services = serviceDao.getAllServices();
+
+        assertThat(services.size(), is(3));
+        assertThat(services.get(0).getName(), is(name1));
+        assertThat(services.get(1).getName(), is(name2));
+        assertThat(services.get(2).getName(), is(name3));
+    }
+
+    @Test
     public void shouldGetRoleCountForAService() throws Exception {
         String serviceExternalId = randomUuid();
         Integer roleId = randomInt();
