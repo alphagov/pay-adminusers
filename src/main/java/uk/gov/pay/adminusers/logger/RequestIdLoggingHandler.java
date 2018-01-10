@@ -23,7 +23,7 @@ class RequestIdLoggingHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (args[0] != null && (args[0] instanceof String)) {
-            args[0] = format("[%s] - %s", currentRequestId(), args[0]);
+            args[0] = format("[requestID=%s] - %s", currentRequestId(), args[0]);
         }
         return method.invoke(target, args);
     }
