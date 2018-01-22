@@ -12,7 +12,7 @@ if [ "$RUN_MIGRATION" == "true" ]; then
 fi
 
 if [ "$RUN_APP" == "true" ]; then
-  java -jar *-allinone.jar server *.yaml
+  java $JAVA_OPTS -jar *-allinone.jar server *.yaml
 fi
 
 exit 0
