@@ -23,7 +23,6 @@ ADD chamber--linux-amd64 /app/
 ADD target/*.yaml /app/
 ADD target/pay-*-allinone.jar /app/
 ADD docker-startup.sh /app/docker-startup.sh
-ADD docker-startup-with-db-migration.sh /app/docker-startup-with-db-migration.sh
 ADD run-with-chamber.sh /app/run-with-chamber.sh
 
 CMD bash ./docker-startup.sh
