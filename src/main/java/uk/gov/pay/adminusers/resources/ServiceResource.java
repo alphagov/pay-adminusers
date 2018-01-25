@@ -150,11 +150,7 @@ public class ServiceResource {
     public Response findUsersByServiceId(@PathParam("serviceExternalId") String serviceExternalId) {
         LOGGER.info("Service users GET request - [ {} ]", serviceExternalId);
         Optional<ServiceEntity> serviceEntityOptional;
-        if (StringUtils.isNumeric(serviceExternalId)) {
-            serviceEntityOptional = serviceDao.findById(Integer.valueOf(serviceExternalId));
-        } else {
-            serviceEntityOptional = serviceDao.findByExternalId(serviceExternalId);
-        }
+        serviceEntityOptional = serviceDao.findByExternalId(serviceExternalId);
 
         return serviceEntityOptional.map(serviceEntity ->
                 Response.status(200).entity(userDao.findByServiceId(serviceEntity.getId()).stream()
@@ -169,19 +165,19 @@ public class ServiceResource {
     @DELETE
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response removeUserFromService(@PathParam("serviceExternalId") String serviceId,
-                                          @PathParam("userExternalId") String userId,
+    public Response removeUserFromService(@PathParam("serviceExternalId") String serviceExternalId,
+                                          @PathParam("userExternalId") String userExternalId,
                                           @HeaderParam(HEADER_USER_CONTEXT) String userContext) {
-        LOGGER.info("Service users DELETE request - serviceId={}, userId={}", serviceId, userId);
+        LOGGER.info("Service users DELETE request - serviceExternalId={}, userExternalId={}", serviceExternalId, userExternalId);
         if (isBlank(userContext)) {
             return Response.status(Status.FORBIDDEN).build();
-        } else if (userId.equals(userContext)) {
+        } else if (userExternalId.equals(userContext)) {
             LOGGER.info("Failed Service users DELETE request. User and Remover cannot be the same - " +
-                    "serviceId={}, removerId={}, userId={}", serviceId, userContext, userId);
+                    "serviceExternalId={}, removerExternalId={}, userExternalId={}", serviceExternalId, userContext, userExternalId);
             return Response.status(CONFLICT).build();
         }
-        serviceServicesFactory.serviceUserRemover().remove(userId, userContext, serviceId);
-        LOGGER.info("Succeeded Service users DELETE request - serviceId={}, removerId={}, userId={}", serviceId, userContext, userId);
+        serviceServicesFactory.serviceUserRemover().remove(userExternalId, userContext, serviceExternalId);
+        LOGGER.info("Succeeded Service users DELETE request - serviceExternalId={}, removerExternalId={}, userExternalId={}", serviceExternalId, userContext, userExternalId);
         return Response.status(NO_CONTENT).build();
     }
 }

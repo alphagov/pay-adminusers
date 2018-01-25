@@ -29,8 +29,7 @@ public class LinksBuilder {
     }
 
     public Service decorate(Service service) {
-        //TODO: fix to use the externalId, after getting rid of the primary key based GET
-        URI uri = fromUri(baseUrl).path(SERVICES_RESOURCE).path(String.valueOf(service.getId()))
+        URI uri = fromUri(baseUrl).path(SERVICES_RESOURCE).path(String.valueOf(service.getExternalId()))
                 .build();
         Link selfLink = Link.from(Rel.self, "GET", uri.toString());
         service.setLinks(ImmutableList.of(selfLink));
