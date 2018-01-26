@@ -16,7 +16,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
@@ -25,7 +24,6 @@ import static uk.gov.pay.adminusers.resources.ServiceResource.HEADER_USER_CONTEX
 
 public class ServiceResourceTest extends IntegrationTest {
 
-    private int serviceId;
     private String serviceExternalId;
     private User userWithRoleAdminInService1;
     private User user1WithRoleViewInService1;
@@ -33,14 +31,12 @@ public class ServiceResourceTest extends IntegrationTest {
 
     @Before
     public void setup() {
-
         Role roleAdmin = roleDbFixture(databaseHelper).insertAdmin();
         Role roleView = roleDbFixture(databaseHelper)
                 .withName("roleView")
                 .insertRole();
         Service service = serviceDbFixture(databaseHelper).insertService();
         serviceExternalId = service.getExternalId();
-        serviceId = service.getId();
 
         userWithRoleAdminInService1 = userDbFixture(databaseHelper)
                 .withServiceRole(service, roleAdmin.getId())
@@ -58,54 +54,26 @@ public class ServiceResourceTest extends IntegrationTest {
                 .insertUser();
     }
 
-    @Deprecated // remove when support for serviceId is taken off
-    @Test
-    public void getUsers_shouldReturnListOfAllUsersWithRolesForAGivenServiceOrderedByUsername_usingServiceId() {
-
-        givenSetup()
-                .when()
-                .accept(JSON)
-                .get(format("/v1/api/services/%s/users", serviceId))
-                .then()
-                .statusCode(200)
-                .body("$", hasSize(3))
-                .body("[0].username", is(user2WithRoleViewInService1.getUsername()))
-                .body("[0]._links", hasSize(1))
-                .body("[0]._links[0].href", is("http://localhost:8080/v1/api/users/" + user2WithRoleViewInService1.getExternalId()))
-                .body("[0]._links[0].method", is("GET"))
-                .body("[0]._links[0].rel", is("self"))
-                .body("[1].username", is(user1WithRoleViewInService1.getUsername()))
-                .body("[1]._links", hasSize(1))
-                .body("[1]._links[0].href", is("http://localhost:8080/v1/api/users/" + user1WithRoleViewInService1.getExternalId()))
-                .body("[1]._links[0].method", is("GET"))
-                .body("[1]._links[0].rel", is("self"))
-                .body("[2].username", is(userWithRoleAdminInService1.getUsername()))
-                .body("[2]._links", hasSize(1))
-                .body("[2]._links[0].href", is("http://localhost:8080/v1/api/users/" + userWithRoleAdminInService1.getExternalId()))
-                .body("[2]._links[0].method", is("GET"))
-                .body("[2]._links[0].rel", is("self"));
-    }
-
     @Test
     public void shouldReturnListOfAllUsersWithRolesForAGivenServiceOrderedByUsername_identifiedByExternalid() {
         Role role1 = roleDbFixture(databaseHelper)
-                .withName("role-"+randomUuid())
+                .withName("role-" + randomUuid())
                 .insertRole();
         Role role2 = roleDbFixture(databaseHelper)
-                .withName("role-"+randomUuid())
+                .withName("role-" + randomUuid())
                 .insertRole();
 
         Service service1 = serviceDbFixture(databaseHelper).insertService();
         Service service2 = serviceDbFixture(databaseHelper).insertService();
 
         User user1 = userDbFixture(databaseHelper)
-                .withUsername("zoe-"+randomUuid())
+                .withUsername("zoe-" + randomUuid())
                 .withServiceRole(service1.getId(), role1.getId()).insertUser();
         User user2 = userDbFixture(databaseHelper)
-                .withUsername("tim-"+randomUuid())
+                .withUsername("tim-" + randomUuid())
                 .withServiceRole(service1.getId(), role2.getId()).insertUser();
         User user3 = userDbFixture(databaseHelper)
-                .withUsername("bob-"+randomUuid())
+                .withUsername("bob-" + randomUuid())
                 .withServiceRole(service1.getId(), role2.getId()).insertUser();
 
         userDbFixture(databaseHelper)
@@ -137,7 +105,6 @@ public class ServiceResourceTest extends IntegrationTest {
 
     @Test
     public void getServiceUsers_shouldReturn404WhenServiceDoesNotExist() {
-
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -148,7 +115,6 @@ public class ServiceResourceTest extends IntegrationTest {
 
     @Test
     public void removeServiceUser_shouldRemoveAnUserFromAService() {
-
         List<Map<String, Object>> serviceRoleForUserBefore = databaseHelper.findServiceRoleForUser(user1WithRoleViewInService1.getId());
         assertThat(serviceRoleForUserBefore.size(), is(1));
 
@@ -167,7 +133,6 @@ public class ServiceResourceTest extends IntegrationTest {
 
     @Test
     public void removeServiceUser_shouldNotBeAbleToRemoveAnUserItself() {
-
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -180,7 +145,6 @@ public class ServiceResourceTest extends IntegrationTest {
 
     @Test
     public void removeServiceUser_shouldReturnForbiddenWhenRemoverIsMissing() {
-
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -193,7 +157,6 @@ public class ServiceResourceTest extends IntegrationTest {
 
     @Test
     public void removeServiceUser_shouldReturnForbiddenWhenUserContextHeaderIsMissing() {
-
         givenSetup()
                 .when()
                 .accept(JSON)

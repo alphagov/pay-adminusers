@@ -54,7 +54,7 @@ public class CreateUserRequest {
                 gatewayAccountIds =
                         ImmutableList.copyOf(node.get(FIELD_GATEWAY_ACCOUNT_IDS).iterator())
                                 .stream().map(JsonNode::asText)
-                                .sorted(Comparators.usingNumericComparator())
+                                .sorted(Comparators.compareGatewayAccounts())
                                 .collect(Collectors.toList());
             }
             //Deprecated .. to remove when full y adopted to external Ids
