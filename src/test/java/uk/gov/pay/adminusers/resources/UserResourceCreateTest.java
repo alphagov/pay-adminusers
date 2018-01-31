@@ -130,6 +130,62 @@ public class UserResourceCreateTest extends IntegrationTest {
     }
 
     @Test
+    public void shouldCreateAUser_withinAService_IfServiceExternalIdsExists_AnNG() throws Exception {
+        String gatewayAccount2 = "btdiksu09jhk18v98cogjlo78q";
+        Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount2).insertService();
+        String serviceExternalId = service.getExternalId();
+        String username = randomAlphanumeric(10) + randomUUID().toString();
+
+        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
+                .put("username", username)
+                .put("email", "user-" + username + "@example.com")
+                .put("gateway_account_ids", new String[]{gatewayAccount2})
+                .put("telephone_number", "45334534634")
+                .put("otp_key", "34f34")
+                .put("role_name", "admin")
+                .build();
+
+        ValidatableResponse response = givenSetup().when()
+                .body(mapper.writeValueAsString(userPayload))
+                .contentType(JSON)
+                .accept(JSON)
+                .post(USERS_RESOURCE_URL)
+                .then();
+
+        String externalId = response.extract().path("external_id");
+
+        response
+                .statusCode(201)
+                .body("id", nullValue())
+                .body("external_id", is(externalId))
+                .body("username", is(username))
+                .body("password", nullValue())
+                .body("email", is("user-" + username + "@example.com"))
+                .body("service_roles", hasSize(1))
+                .body("service_roles[0].service.external_id", is(serviceExternalId))
+                .body("service_roles[0].service.name", is(service.getName()))
+                .body("telephone_number", is("45334534634"))
+                .body("otp_key", is("34f34"))
+                .body("login_counter", is(0))
+                .body("disabled", is(false))
+                .body("service_roles[0].role.name", is("admin"))
+                .body("service_roles[0].role.description", is("Administrator"))
+                .body("service_roles[0].role.permissions", hasSize(33));
+
+        response
+                .body("_links", hasSize(1))
+                .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + externalId))
+                .body("_links[0].method", is("GET"))
+                .body("_links[0].rel", is("self"));
+
+        //TODO - WIP This will be removed when PP-1612 is done.
+        // This is an extra check to verify that new created user gateways are registered withing the new Services Model as well as in users table
+        List<Map<String, Object>> userByExternalId = databaseHelper.findUserByExternalId(externalId);
+        List<Map<String, Object>> servicesAssociatedToUser = databaseHelper.findUserServicesByUserId((Integer) userByExternalId.get(0).get("id"));
+        assertThat(servicesAssociatedToUser.size(), is(1));
+    }
+
+    @Test
     public void shouldError400_IfRoleDoesNotExist() throws Exception {
         String username = randomAlphanumeric(10) + randomUUID().toString();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
