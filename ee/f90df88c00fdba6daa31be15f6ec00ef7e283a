@@ -17,3 +17,5 @@ release.alpha_release-167.date=2018-01-29:18:27:08
 staging-2.tag=alpha_staging-2-164
 
 staging-2.alpha_staging-2-164.date=2018-01-31:10:08:35
+
+staging-2.alpha_staging-2-164.status=success
