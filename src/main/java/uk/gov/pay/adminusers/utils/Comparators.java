@@ -10,7 +10,7 @@ public class Comparators {
         return Comparator.comparingLong(Long::valueOf);
     }
 
-    public static Comparator<String> compareGatewayAccounts() {
+    public static Comparator<String> numericallyThenLexicographically() {
         return (o1, o2) -> {
             if (NumberUtils.isDigits(o1) && NumberUtils.isDigits(o2)){
                 return Comparators.usingNumericComparator().compare(o1, o2);
