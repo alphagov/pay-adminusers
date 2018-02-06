@@ -69,13 +69,6 @@ public class InviteResource {
         return inviteServiceFactory.inviteCompleteRouter().routeComplete(inviteCode)
                 .map(inviteCompleterAndValidate -> {
                     InviteCompleter inviteCompleter = inviteCompleterAndValidate.getLeft();
-
-                    if (inviteCompleterAndValidate.getRight()) {
-                        Optional<Errors> errors = serviceRequestValidator.validateCreateRequest(payload);
-                        if (errors.isPresent()) {
-                            return Response.status(BAD_REQUEST).entity(errors).build();
-                        }
-                    }
                     return inviteCompleter.withData(inviteCompleteRequestFrom(payload)).complete(inviteCode)
                             .map(inviteCompleteResponse -> Response.status(OK).entity(inviteCompleteResponse).build())
                             .orElseGet(() -> Response.status(NOT_FOUND).build());
