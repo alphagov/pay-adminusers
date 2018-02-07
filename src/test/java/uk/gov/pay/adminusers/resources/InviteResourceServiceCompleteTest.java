@@ -103,33 +103,6 @@ public class InviteResourceServiceCompleteTest extends IntegrationTest {
                 .body("service_roles[0].service.gateway_account_ids", hasItems(gatewayAccountId1, gatewayAccountId2));
     }
 
-
-    @Test
-    public void shouldReturn400w_WhenPassedAValidInviteCode_invalidPayload() throws Exception {
-        String email = format("%s@example.gov.uk", randomUuid());
-        String telephoneNumber = "088882345689";
-        String password = "valid_password";
-        String gatewayAccountId1 = "syfuer";
-        String gatewayAccountId2 = "uaigoiwblUERT";
-
-        ImmutableMap<String, List<String>> payload = ImmutableMap.of("gateway_account_ids", asList(gatewayAccountId1, gatewayAccountId2));
-
-        String inviteCode = inviteDbFixture(databaseHelper)
-                .withTelephoneNumber(telephoneNumber)
-                .withEmail(email)
-                .withPassword(password)
-                .insertServiceInvite();
-        givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(payload))
-                .post(INVITES_RESOURCE_URL + "/" + inviteCode + "/complete")
-                .then()
-                .statusCode(BAD_REQUEST.getStatusCode())
-                .body("errors", hasSize(1))
-                .body("errors[0]", is("Field [gateway_account_ids] must contain numeric values"));
-
-    }
-
     @Test
     public void shouldReturn410_WhenSameInviteCodeCompletedTwice() {
         String email = format("%s@example.gov.uk", randomUuid());
