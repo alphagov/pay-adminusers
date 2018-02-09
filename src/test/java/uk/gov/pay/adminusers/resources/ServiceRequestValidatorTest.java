@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import uk.gov.pay.adminusers.exception.ValidationException;
 import uk.gov.pay.adminusers.utils.Errors;
@@ -23,7 +24,6 @@ public class ServiceRequestValidatorTest {
     private ObjectMapper mapper = new ObjectMapper();
     private ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(new RequestValidations());
 
-
     @Test
     public void shouldSuccess_whenUpdate_whenAllFieldPresentAndValid() throws Exception {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", "example-name");
@@ -31,6 +31,18 @@ public class ServiceRequestValidatorTest {
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
 
         assertFalse(errors.isPresent());
+    }
+
+    @Test
+    public void shouldFail_whenUpdate_whenServiceNameFieldPresentAndItIsTooLong() throws Exception {
+        ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", RandomStringUtils.randomAlphanumeric(51));
+
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
+
+        assertTrue(errors.isPresent());
+        List<String> errorsList = errors.get().getErrors();
+        assertThat(errorsList.size(), is(1));
+        assertThat(errorsList, hasItem("Field [value] must have a maximum length of 50 characters"));
     }
 
     @Test
