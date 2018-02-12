@@ -51,7 +51,7 @@ pipeline {
         branch 'master'
       }
       steps {
-        deploy("adminusers", "test", null, true, false)
+        deploy("adminusers", "test", null, false, false)
         deployEcs("adminusers", "test", null, true, true)
       }
     }
