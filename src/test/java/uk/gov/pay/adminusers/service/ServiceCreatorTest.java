@@ -63,15 +63,15 @@ public class ServiceCreatorTest {
     @Test
     public void shouldSuccess_whenProvidedOnlyWithUnassignedGatewayID() throws Exception {
 
-        Service service = serviceCreator.doCreate(Optional.empty(), Optional.of(asList("1", "2")));
+        Service service = serviceCreator.doCreate(Optional.empty(), Optional.of(asList("1siudha", "2")));
 
         verify(serviceDao, times(1)).persist(persistedServiceEntity.capture());
 
         assertThat(service.getName(), is("System Generated"));
         List<String> persistedGatewayIds = persistedServiceEntity.getValue().getGatewayAccountIds().stream().map(gai -> gai.getGatewayAccountId()).collect(toList());
         assertThat(persistedGatewayIds.size(),is(2));
-        assertThat(persistedGatewayIds,hasItems("1","2"));
-        assertThat(service.getGatewayAccountIds(), hasItems("1","2"));
+        assertThat(persistedGatewayIds,hasItems("1siudha","2"));
+        assertThat(service.getGatewayAccountIds(), hasItems("1siudha","2"));
     }
 
     @Test

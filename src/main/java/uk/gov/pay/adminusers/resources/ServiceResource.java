@@ -3,7 +3,6 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import io.dropwizard.jersey.PATCH;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
 import uk.gov.pay.adminusers.exception.ValidationException;
@@ -17,7 +16,16 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.service.LinksBuilder;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +34,12 @@ import java.util.stream.Collectors;
 import static com.google.common.collect.Lists.newArrayList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status;
-import static javax.ws.rs.core.Response.Status.*;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
+import static javax.ws.rs.core.Response.Status.CREATED;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.NO_CONTENT;
+import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_GATEWAY_ACCOUNT_IDS;
 import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_SERVICE_NAME;
@@ -87,15 +100,11 @@ public class ServiceResource {
     @Consumes(APPLICATION_JSON)
     public Response createService(JsonNode payload) {
         LOGGER.info("Create Service POST request - [ {} ]", payload);
-        return serviceRequestValidator.validateCreateRequest(payload)
-                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> {
-                    Optional<String> serviceName = extractServiceName(payload);
-                    Optional<List<String>> gatewayAccountIds = extractGatewayAccountIds(payload);
+        Optional<String> serviceName = extractServiceName(payload);
+        Optional<List<String>> gatewayAccountIds = extractGatewayAccountIds(payload);
 
-                    Service service = serviceServicesFactory.serviceCreator().doCreate(serviceName, gatewayAccountIds);
-                    return Response.status(CREATED).entity(service).build();
-                });
+        Service service = serviceServicesFactory.serviceCreator().doCreate(serviceName, gatewayAccountIds);
+        return Response.status(CREATED).entity(service).build();
 
     }
 

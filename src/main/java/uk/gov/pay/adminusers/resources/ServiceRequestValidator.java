@@ -40,24 +40,6 @@ public class ServiceRequestValidator {
         this.requestValidations = requestValidations;
     }
 
-    public Optional<Errors> validateCreateRequest(JsonNode payload) {
-        if (payload == null || "{}".equals(payload.toString())) {
-            return Optional.empty();
-        }
-
-        if (!requestValidations.notExistOrEmptyArray().apply(payload.get(FIELD_GATEWAY_ACCOUNT_IDS))) {
-            if (nonNumericGatewayAccountIds(payload.get(FIELD_GATEWAY_ACCOUNT_IDS))) {
-                return Optional.of(Errors.from(format("Field [%s] must contain numeric values", FIELD_GATEWAY_ACCOUNT_IDS)));
-            }
-        }
-        return Optional.empty();
-    }
-
-    private boolean nonNumericGatewayAccountIds(JsonNode gatewayAccountNode) {
-        List<JsonNode> accountIds = Lists.newArrayList(gatewayAccountNode.elements());
-        return accountIds.stream().filter(idNode -> !NumberUtils.isDigits(idNode.asText())).count() > 0;
-    }
-
     public Optional<Errors> validateUpdateAttributeRequest(JsonNode payload) {
         Optional<List<String>> errors = requestValidations.checkIfExistsOrEmpty(payload, FIELD_OP, FIELD_PATH);
         if (errors.isPresent()) {
