@@ -1,20 +1,24 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.Lists;
-import org.apache.commons.lang3.math.NumberUtils;
 import uk.gov.pay.adminusers.exception.ValidationException;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNumeric;
-import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.*;
+import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_OP;
+import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_PATH;
+import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_VALUE;
 
 
 public class ServiceRequestValidator {
@@ -27,13 +31,14 @@ public class ServiceRequestValidator {
     public static final String FIELD_MERCHANT_DETAILS_ADDRESS_CITY = "address_city";
     public static final String FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE = "address_postcode";
     public static final String FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY = "address_country";
-
-    private final RequestValidations requestValidations;
+    private static final int SERVICE_NAME_MAX_LENGTH = 50;
     private static final Map<String, List<String>> VALID_ATTRIBUTE_UPDATE_OPERATIONS = new HashMap<String, List<String>>() {{
         put(FIELD_SERVICE_NAME, asList("replace"));
         put(FIELD_GATEWAY_ACCOUNT_IDS, asList("add"));
         put(FIELD_CUSTOM_BRANDING, asList("replace"));
     }};
+
+    private final RequestValidations requestValidations;
 
     @Inject
     public ServiceRequestValidator(RequestValidations requestValidations) {
@@ -47,10 +52,14 @@ public class ServiceRequestValidator {
         }
 
         String path = payload.get("path").asText();
-        if (!FIELD_CUSTOM_BRANDING.equals(path)) {
-            errors = requestValidations.checkIfExistsOrEmpty(payload, FIELD_VALUE);
-        } else {
+
+        if (FIELD_CUSTOM_BRANDING.equals(path)) {
             errors = checkIfNotEmptyAndJson(payload.get(FIELD_VALUE));
+        } else if (FIELD_SERVICE_NAME.equals(path)) {
+            errors = requestValidations.checkIfExistsOrEmpty(payload, FIELD_VALUE);
+            if (!errors.isPresent()) {
+                errors = requestValidations.checkMaxLength(payload, SERVICE_NAME_MAX_LENGTH, FIELD_VALUE);
+            }
         }
 
         if (errors.isPresent()) {
