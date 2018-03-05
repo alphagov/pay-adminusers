@@ -14,6 +14,8 @@ pipeline {
 
   environment {
     DOCKER_HOST = "unix:///var/run/docker.sock"
+    HOSTED_GRAPHITE_ACCOUNT_ID = credentials('graphite_account_id')
+    HOSTED_GRAPHITE_API_KEY = credentials('graphite_api_key')
   }
 
   stages {
@@ -22,13 +24,27 @@ pipeline {
         sh 'docker pull govukpay/postgres:9.4.4'
         sh 'mvn clean package'
       }
+      post {
+        failure {
+          postMetric("adminusers.maven-build.failure", 1, "new")
+        }
+        success {
+          postSuccessfulMetrics("adminusers.maven-build")
+        }
+      }
     }
+
     stage('Docker Build') {
       steps {
         script {
-          buildApp{
+          buildAppWithMetrics{
             app = "adminusers"
           }
+        }
+      }
+      post {
+        failure {
+          postMetric("adminusers.docker-build.failure", 1, "new")
         }
       }
     }
@@ -40,9 +56,14 @@ pipeline {
     stage('Docker Tag') {
       steps {
         script {
-          dockerTag {
+          dockerTagWithMetrics {
             app = "adminusers"
           }
+        }
+      }
+      post {
+        failure {
+          postMetric("adminusers.docker-tag.failure", 1, "new")
         }
       }
     }
@@ -51,9 +72,16 @@ pipeline {
         branch 'master'
       }
       steps {
-        deploy("adminusers", "test", null, false, false)
         deployEcs("adminusers", "test", null, true, true)
       }
+    }
+  }
+  post {
+    failure {
+      postMetric("adminusers.failure", 1, "new")
+    }
+    success {
+      postSuccessfulMetrics("adminusers")
     }
   }
 }
