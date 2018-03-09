@@ -22,9 +22,8 @@ public class CreateUserRequest {
     public static final String FIELD_USERNAME = "username";
     public static final String FIELD_PASSWORD = "password";
     public static final String FIELD_EMAIL = "email";
-    public static final String FIELD_SERVICE_IDS = "service_ids";
-    public static final String FIELD_SERVICE_EXTERNAL_IDS = "service_external_ids";
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
+    public static final String FIELD_SERVICE_EXTERNAL_IDS = "service_external_ids";
     public static final String FIELD_TELEPHONE_NUMBER = "telephone_number";
     public static final String FIELD_OTP_KEY = "otp_key";
     public static final String FIELD_ROLE_NAME = "role_name";
@@ -34,21 +33,19 @@ public class CreateUserRequest {
     private String password;
     private String email;
     private List<String> gatewayAccountIds = new ArrayList<>();
-    private String telephoneNumber;
-    @Deprecated //user service external Ids instead
-    private List<String> serviceIds = new ArrayList<>();
-    private String otpKey;
     private List<String> serviceExternalIds = new ArrayList<>();
+    private String telephoneNumber;
+    private String otpKey;
     private String features;
 
     public static CreateUserRequest from(String username, String password, String email,
-                                         List<String> gatewayAccountIds, List<String> serviceIds, String otpKey, String telephoneNumber, String features) {
-        return new CreateUserRequest(username, password, email, gatewayAccountIds, serviceIds, otpKey, telephoneNumber, features);
+                                         List<String> gatewayAccountIds, List<String> serviceExternalIds, String otpKey, String telephoneNumber, String features) {
+        return new CreateUserRequest(username, password, email, gatewayAccountIds, serviceExternalIds, otpKey, telephoneNumber, features);
     }
 
     public static CreateUserRequest from(JsonNode node) {
-        List<String>  serviceIds = new ArrayList<>();
         List<String> gatewayAccountIds = new ArrayList<>();
+        List<String> serviceExternalIds = new ArrayList<>();
         try {
             if (node.get(FIELD_GATEWAY_ACCOUNT_IDS) != null) {
                 gatewayAccountIds =
@@ -57,13 +54,10 @@ public class CreateUserRequest {
                                 .sorted(Comparators.numericallyThenLexicographically())
                                 .collect(Collectors.toList());
             }
-            //Deprecated .. to remove when full y adopted to external Ids
-            JsonNode serviceIdsNode = node.get(FIELD_SERVICE_IDS);
-            if (serviceIdsNode != null) {
-                serviceIds =
-                        ImmutableList.copyOf(serviceIdsNode.iterator())
+            if (node.get(FIELD_SERVICE_EXTERNAL_IDS) != null) {
+                serviceExternalIds =
+                        ImmutableList.copyOf(node.get(FIELD_SERVICE_EXTERNAL_IDS).iterator())
                                 .stream().map(JsonNode::asText)
-                                .sorted(Comparators.usingNumericComparator())
                                 .collect(Collectors.toList());
             }
             String username = node.get(FIELD_USERNAME).asText();
@@ -72,13 +66,7 @@ public class CreateUserRequest {
             String telephoneNumber = node.get(FIELD_TELEPHONE_NUMBER).asText();
             String otpKey = getOrElseRandom(node.get(FIELD_OTP_KEY), newId());
             String features = getOrElseRandom(node.get(FIELD_FEATURES), null);
-            CreateUserRequest request = from(username, password, email, gatewayAccountIds, serviceIds, otpKey, telephoneNumber, features);
-            JsonNode serviceExternalIdsNode = node.get(FIELD_SERVICE_EXTERNAL_IDS);
-            if (serviceExternalIdsNode != null) {
-                List<String> serviceExternalIds = ImmutableList.copyOf(serviceExternalIdsNode.iterator()).stream().map(jsonNode -> jsonNode.asText()).collect(Collectors.toList());
-                request.serviceExternalIds = serviceExternalIds;
-            }
-            return request;
+            return from(username, password, email, gatewayAccountIds, serviceExternalIds, otpKey, telephoneNumber, features);
         } catch (NullPointerException e) {
             throw new RuntimeException("Error retrieving required fields for creating a user", e);
         }
@@ -89,13 +77,14 @@ public class CreateUserRequest {
     }
 
     private CreateUserRequest(@JsonProperty("username") String username, @JsonProperty("password") String password,
-                              @JsonProperty("email") String email, @JsonProperty("gateway_account_ids") List<String> gatewayAccountIds,
-                              List<String> serviceIds, @JsonProperty("otp_key") String otpKey, @JsonProperty("telephone_number") String telephoneNumber, @JsonProperty("features") String features) {
+                              @JsonProperty("email") String email,
+                              @JsonProperty("gateway_account_ids") List<String> gatewayAccountIds, @JsonProperty("service_external_ids") List<String> serviceExternalIds,
+                              @JsonProperty("otp_key") String otpKey, @JsonProperty("telephone_number") String telephoneNumber, @JsonProperty("features") String features) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.gatewayAccountIds = gatewayAccountIds;
-        this.serviceIds = serviceIds;
+        this.serviceExternalIds = serviceExternalIds;
         this.otpKey = otpKey;
         this.telephoneNumber = telephoneNumber;
         this.features = features;
@@ -118,23 +107,20 @@ public class CreateUserRequest {
         return gatewayAccountIds;
     }
 
-    @Deprecated //user service external ids instead
-    public List<String> getServiceIds() {
-        return serviceIds;
-    }
-
     public String getOtpKey() {
         return otpKey;
     }
 
-    public String getTelephoneNumber() { return telephoneNumber; }
-    public String getFeatures() { return features; }
+    public String getTelephoneNumber() {
+        return telephoneNumber;
+    }
+
+    public String getFeatures() {
+        return features;
+    }
 
     public List<String> getServiceExternalIds() {
         return serviceExternalIds;
     }
 
-    public void setServiceExternalIds(List<String> serviceExternalIds) {
-        this.serviceExternalIds = serviceExternalIds;
-    }
 }

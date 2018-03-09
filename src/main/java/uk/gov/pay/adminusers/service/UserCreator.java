@@ -45,11 +45,13 @@ public class UserCreator {
                 .map(roleEntity -> {
                     UserEntity userEntity = UserEntity.from(userRequest);
                     userEntity.setPassword(passwordHasher.hash(userRequest.getPassword()));
-                    if (!userRequest.getServiceExternalIds().isEmpty()) {
+                    if ((userRequest.getServiceExternalIds() != null) &&
+                            (!userRequest.getServiceExternalIds().isEmpty())) {
                         addServiceRoleToUser(userEntity, roleEntity, userRequest.getServiceExternalIds());
                     }
                     //Deprecated, leaving for backward compatibility
-                    else if (userRequest.getGatewayAccountIds() != null && userRequest.getGatewayAccountIds().size() > 0) {
+                    else if ((userRequest.getGatewayAccountIds() != null) &&
+                            (!userRequest.getGatewayAccountIds().isEmpty())) {
                         addServiceFromGatewayAccountsToUser(userEntity, roleEntity, userRequest.getGatewayAccountIds());
                     }
                     userDao.persist(userEntity);

@@ -51,7 +51,6 @@ public class UserCreatorTest {
 
     @Test
     public void shouldSaveAndReturnUser_forValidUserCreationRequest() throws Exception {
-
         String validRole = "validRole";
         when(mockRoleDao.findByRoleName(validRole)).thenReturn(Optional.of(mock(RoleEntity.class)));
         CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, null, "otpKey", "3745838475", null);
@@ -66,11 +65,9 @@ public class UserCreatorTest {
 
     @Test
     public void shouldSaveAndReturnUser_forValidUserCreationRequest_withServiceRoles() throws Exception {
-
         String validRole = "validRole";
         when(mockRoleDao.findByRoleName(validRole)).thenReturn(Optional.of(mock(RoleEntity.class)));
-        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, null, "otpKey", "3745838475", null);
-        request.setServiceExternalIds(asList("ext-id-1","ext-id-2"));
+        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, asList("ext-id-1","ext-id-2"), "otpKey", "3745838475", null);
         when(mockServiceDao.findByExternalId("ext-id-1")).thenReturn(Optional.of(mock(ServiceEntity.class)));
         when(mockServiceDao.findByExternalId("ext-id-2")).thenReturn(Optional.of(mock(ServiceEntity.class)));
         User user = userCreator.doCreate(request, validRole);
@@ -83,11 +80,9 @@ public class UserCreatorTest {
 
     @Test
     public void shouldSaveAndReturnUser_forValidUserCreationRequest_withServiceRoles_evenIfSomeExternalIdsMissing() throws Exception {
-
         String validRole = "validRole";
         when(mockRoleDao.findByRoleName(validRole)).thenReturn(Optional.of(mock(RoleEntity.class)));
-        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, null, "otpKey", "3745838475", null);
-        request.setServiceExternalIds(asList("ext-id-1","ext-id-2"));
+        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, asList("ext-id-1","ext-id-2"), "otpKey", "3745838475", null);
         when(mockServiceDao.findByExternalId("ext-id-1")).thenReturn(Optional.of(mock(ServiceEntity.class)));
         when(mockServiceDao.findByExternalId("ext-id-2")).thenReturn(Optional.empty());
         User user = userCreator.doCreate(request, validRole);
