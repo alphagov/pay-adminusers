@@ -14,22 +14,22 @@ pipeline {
 
   environment {
     DOCKER_HOST = "unix:///var/run/docker.sock"
-    HOSTED_GRAPHITE_ACCOUNT_ID = credentials('graphite_account_id')
-    HOSTED_GRAPHITE_API_KEY = credentials('graphite_api_key')
   }
 
   stages {
     stage('Maven Build') {
       steps {
-        sh 'docker pull govukpay/postgres:9.4.4'
-        sh 'mvn clean package'
+        script {
+          def long stepBuildTime = System.currentTimeMillis()
+
+          sh 'docker pull govukpay/postgres:9.4.4'
+          sh 'mvn clean package'
+          postSuccessfulMetrics("adminusers.maven-build", stepBuildTime)
+        }
       }
       post {
         failure {
-          postMetric("adminusers.maven-build.failure", 1, "new")
-        }
-        success {
-          postSuccessfulMetrics("adminusers.maven-build")
+          postMetric("adminusers.maven-build.failure", 1)
         }
       }
     }
@@ -44,7 +44,7 @@ pipeline {
       }
       post {
         failure {
-          postMetric("adminusers.docker-build.failure", 1, "new")
+          postMetric("adminusers.docker-build.failure", 1)
         }
       }
     }
@@ -63,7 +63,7 @@ pipeline {
       }
       post {
         failure {
-          postMetric("adminusers.docker-tag.failure", 1, "new")
+          postMetric("adminusers.docker-tag.failure", 1)
         }
       }
     }
@@ -78,10 +78,10 @@ pipeline {
   }
   post {
     failure {
-      postMetric("adminusers.failure", 1, "new")
+      postMetric(appendBranchSuffix("adminusers") + ".failure", 1)
     }
     success {
-      postSuccessfulMetrics("adminusers")
+      postSuccessfulMetrics(appendBranchSuffix("adminusers"))
     }
   }
 }
