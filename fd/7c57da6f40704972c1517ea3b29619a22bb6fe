@@ -33,3 +33,5 @@ release.alpha_test-12-migration-1.date=2018-03-21:14:14:30
 release.tag=alpha_staging-2-migration-1
 
 release.alpha_staging-2-migration-1.date=2018-03-21:14:28:55
+
+release.tag=alpha_production-2-migration-1
