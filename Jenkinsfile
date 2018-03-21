@@ -101,7 +101,36 @@ pipeline {
         branch 'master'
       }
       steps {
-        deployEcs("adminusers", "test", null, true, true)
+        deployEcs("adminusers", "test", null, false, false)
+      }
+    }
+    stage('Smoke Tests') {
+      when {
+        branch 'master'
+      }
+      steps {
+        runProductsSmokeTest()
+      }
+    }
+    stage('Complete') {
+      failFast true
+      parallel {
+        stage('Tag Build') {
+          when {
+            branch 'master'
+          }
+          steps {
+            tagDeployment("adminusers")
+          }
+        }
+        stage('Trigger Deploy Notification') {
+          when {
+            branch 'master'
+          }
+          steps {
+            triggerGraphiteDeployEvent("adminusers")
+          }
+        }
       }
     }
   }
