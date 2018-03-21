@@ -25,3 +25,5 @@ production-2.tag=alpha_production-2-182
 production-2.alpha_production-2-182.date=2018-03-21:12:51:30
 
 production-2.alpha_production-2-182.status=success
+
+release.tag=alpha_test-12-migration-1
