@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.service;
 
-
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
@@ -17,7 +16,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
-import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.*;
+import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_CUSTOM_BRANDING;
+import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_GATEWAY_ACCOUNT_IDS;
+import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_SERVICE_NAME;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingServiceGatewayAccounts;
 
 public class ServiceUpdater {

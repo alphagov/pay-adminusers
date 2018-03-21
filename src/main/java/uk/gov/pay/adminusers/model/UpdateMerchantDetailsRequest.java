@@ -11,6 +11,7 @@ import java.util.Optional;
 public class UpdateMerchantDetailsRequest {
 
     public static final String FIELD_NAME = "name";
+    public static final String FIELD_TELEPHONE_NUMBER = "telephone_number";
     public static final String FIELD_ADDRESS_LINE1 = "address_line1";
     public static final String FIELD_ADDRESS_LINE2 = "address_line2";
     public static final String FIELD_ADDRESS_CITY = "address_city";
@@ -18,6 +19,7 @@ public class UpdateMerchantDetailsRequest {
     public static final String FIELD_ADDRESS_COUNTRY = "address_country";
 
     private String name;
+    private String telephoneNumber;
     private String addressLine1;
     private String addressLine2;
     private String addressCity;
@@ -26,6 +28,9 @@ public class UpdateMerchantDetailsRequest {
 
     public static UpdateMerchantDetailsRequest from(JsonNode node) {
         String name = node.get(FIELD_NAME).asText();
+        String telephoneNumber = Optional.ofNullable(node.get(FIELD_TELEPHONE_NUMBER))
+                .map(JsonNode::asText)
+                .orElse(null);
         String addressLine1 = node.get(FIELD_ADDRESS_LINE1).asText();
         String addressCity = node.get(FIELD_ADDRESS_CITY).asText();
         String addressPostcode = node.get(FIELD_ADDRESS_POSTCODE).asText();
@@ -34,16 +39,18 @@ public class UpdateMerchantDetailsRequest {
                 .map(JsonNode::asText)
                 .orElse(null);
 
-        return new UpdateMerchantDetailsRequest(name, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry);
+        return new UpdateMerchantDetailsRequest(name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry);
     }
 
     public UpdateMerchantDetailsRequest(@JsonProperty("name") String name,
+                                        @JsonProperty("telephone_number") String telephoneNumber,
                                         @JsonProperty("address_line1") String addressLine1,
                                         @JsonProperty("address_line2") String addressLine2,
                                         @JsonProperty("address_city") String addressCity,
                                         @JsonProperty("address_postcode") String addressPostcode,
                                         @JsonProperty("address_country") String addressCountry) {
         this.name = name;
+        this.telephoneNumber = telephoneNumber;
         this.addressLine1 = addressLine1;
         this.addressLine2 = addressLine2;
         this.addressCity = addressCity;
@@ -53,6 +60,10 @@ public class UpdateMerchantDetailsRequest {
 
     public String getName() {
         return name;
+    }
+
+    public String getTelephoneNumber() {
+        return telephoneNumber;
     }
 
     public String getAddressLine1() {

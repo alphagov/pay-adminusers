@@ -63,14 +63,15 @@ public class ServiceUpdaterTest {
     public void shouldSuccess_updateMerchantDetails() throws ServiceNotFoundException {
         String serviceId = randomUuid();
         String name = "name";
+        String telephoneNumber = "03069990000";
         String addressLine1 = "something";
         String addressLine2 = "something";
         String addressCity = "something";
         String addressPostcode = "something";
         String addressCountry = "something";
 
-        MerchantDetailsEntity toUpdate = new MerchantDetailsEntity(name, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry);
-        UpdateMerchantDetailsRequest request = new UpdateMerchantDetailsRequest(name, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry);
+        MerchantDetailsEntity toUpdate = new MerchantDetailsEntity(name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry);
+        UpdateMerchantDetailsRequest request = new UpdateMerchantDetailsRequest(name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry);
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
 
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
@@ -86,6 +87,7 @@ public class ServiceUpdaterTest {
     @Test(expected = ServiceNotFoundException.class)
     public void shouldError_updateMerchantDetails_whenServiceNotFound() throws ServiceNotFoundException {
         String name = "name";
+        String telephoneNumber = "03069990000";
         String addressLine1 = "something";
         String addressLine2 = "something";
         String addressCity = "something";
@@ -93,7 +95,7 @@ public class ServiceUpdaterTest {
         String addressCountry = "something";
 
         UpdateMerchantDetailsRequest request =
-                new UpdateMerchantDetailsRequest(name, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry);
+                new UpdateMerchantDetailsRequest(name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry);
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
 
         when(serviceDao.findByExternalId(NON_EXISTENT_SERVICE_EXTERNAL_ID)).thenReturn(Optional.empty());

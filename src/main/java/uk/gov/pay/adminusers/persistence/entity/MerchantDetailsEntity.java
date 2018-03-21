@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.persistence.entity;
 import uk.gov.pay.adminusers.model.MerchantDetails;
 import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
 
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
@@ -12,9 +13,14 @@ public class MerchantDetailsEntity {
     @Column(name = "merchant_name")
     private String name;
 
+    @Nullable
+    @Column(name = "merchant_telephone_number")
+    private String telephoneNumber;
+
     @Column(name = "merchant_address_line1")
     private String addressLine1;
 
+    @Nullable
     @Column(name = "merchant_address_line2")
     private String addressLine2;
 
@@ -32,12 +38,14 @@ public class MerchantDetailsEntity {
     }
 
     public MerchantDetailsEntity(String name,
+                                 String telephoneNumber,
                                  String addressLine1,
                                  String addressLine2,
                                  String addressCity,
                                  String addressPostcode,
                                  String addressCountry) {
         this.name = name;
+        this.telephoneNumber = telephoneNumber;
         this.addressLine1 = addressLine1;
         this.addressLine2 = addressLine2;
         this.addressCity = addressCity;
@@ -51,6 +59,14 @@ public class MerchantDetailsEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getTelephoneNumber() {
+        return telephoneNumber;
+    }
+
+    public void setTelephoneNumber(String telephoneNumber) {
+        this.telephoneNumber = telephoneNumber;
     }
 
     public String getAddressLine1() {
@@ -96,6 +112,7 @@ public class MerchantDetailsEntity {
     public MerchantDetails toMerchantDetails() {
         return new MerchantDetails(
                 this.name,
+                this.telephoneNumber,
                 this.addressLine1,
                 this.addressLine2,
                 this.addressCity,
@@ -107,6 +124,7 @@ public class MerchantDetailsEntity {
     public static MerchantDetailsEntity from(UpdateMerchantDetailsRequest updateMerchantDetailsRequest) {
         return new MerchantDetailsEntity(
                 updateMerchantDetailsRequest.getName(),
+                updateMerchantDetailsRequest.getTelephoneNumber(),
                 updateMerchantDetailsRequest.getAddressLine1(),
                 updateMerchantDetailsRequest.getAddressLine2(),
                 updateMerchantDetailsRequest.getAddressCity(),
@@ -122,6 +140,8 @@ public class MerchantDetailsEntity {
         MerchantDetailsEntity that = (MerchantDetailsEntity) o;
 
         if (!name.equals(that.name)) return false;
+        if (telephoneNumber != null ? !telephoneNumber.equals(that.telephoneNumber) : that.telephoneNumber != null)
+            return false;
         if (!addressLine1.equals(that.addressLine1)) return false;
         if (addressLine2 != null ? !addressLine2.equals(that.addressLine2) : that.addressLine2 != null) return false;
         if (!addressCity.equals(that.addressCity)) return false;
@@ -132,6 +152,7 @@ public class MerchantDetailsEntity {
     @Override
     public int hashCode() {
         int result = name.hashCode();
+        result = 31 * result + (telephoneNumber != null ? telephoneNumber.hashCode() : 0);
         result = 31 * result + addressLine1.hashCode();
         result = 31 * result + (addressLine2 != null ? addressLine2.hashCode() : 0);
         result = 31 * result + addressCity.hashCode();

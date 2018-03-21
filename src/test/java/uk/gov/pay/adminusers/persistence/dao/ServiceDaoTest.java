@@ -89,6 +89,7 @@ public class ServiceDaoTest extends DaoTestBase {
         serviceEntity.setExternalId(serviceExternalId);
 
         String name = "Name";
+        String telephoneNumber = "03069990000";
         String addressLine1 = "Address Line 1";
         String addressLine2 = "Address Line 2";
         String addressCity = "Address City";
@@ -96,6 +97,7 @@ public class ServiceDaoTest extends DaoTestBase {
         String country = "UK";
         MerchantDetailsEntity merchantDetailsEntity = new MerchantDetailsEntity(
                 name,
+                telephoneNumber,
                 addressLine1,
                 addressLine2,
                 addressCity,
@@ -111,6 +113,7 @@ public class ServiceDaoTest extends DaoTestBase {
         assertThat(savedService.size(), is(1));
         assertThat(savedService.get(0).get("external_id"), is(serviceExternalId));
         assertThat(savedService.get(0).get("merchant_name"), is(name));
+        assertThat(savedService.get(0).get("merchant_telephone_number"), is(telephoneNumber));
         assertThat(savedService.get(0).get("merchant_address_line1"), is(addressLine1));
         assertThat(savedService.get(0).get("merchant_address_line2"), is(addressLine2));
         assertThat(savedService.get(0).get("merchant_address_city"), is(addressCity));
@@ -125,6 +128,7 @@ public class ServiceDaoTest extends DaoTestBase {
         Map<String, Object> customBranding = ImmutableMap.of("image_url", "image url", "css_url", "css url");
         service.setCustomBranding(customBranding);
         String name = "Name";
+        String telephoneNumber = "03069990000";
         String addressLine1 = "Address Line 1";
         String addressLine2 = "Address Line 2";
         String addressCity = "Address City";
@@ -132,6 +136,7 @@ public class ServiceDaoTest extends DaoTestBase {
         String country = "UK";
         service.setMerchantDetails(new MerchantDetails(
                 name,
+                telephoneNumber,
                 addressLine1,
                 addressLine2,
                 addressCity,
@@ -148,6 +153,7 @@ public class ServiceDaoTest extends DaoTestBase {
 
         MerchantDetailsEntity merchantDetailsEntity = serviceEntity.get().getMerchantDetailsEntity();
         assertThat(merchantDetailsEntity.getName(), is(name));
+        assertThat(merchantDetailsEntity.getTelephoneNumber(), is(telephoneNumber));
         assertThat(merchantDetailsEntity.getAddressLine1(), is(addressLine1));
         assertThat(merchantDetailsEntity.getAddressLine2(), is(addressLine2));
         assertThat(merchantDetailsEntity.getAddressCity(), is(addressCity));
