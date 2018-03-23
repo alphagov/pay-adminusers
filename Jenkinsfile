@@ -101,7 +101,7 @@ pipeline {
         branch 'master'
       }
       steps {
-        deployEcs("adminusers", "test", null, false, false)
+        deployEcs("adminusers")
       }
     }
     stage('Smoke Tests') {
