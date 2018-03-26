@@ -12,6 +12,7 @@ import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
@@ -23,8 +24,12 @@ public class UserResourceUpdateServiceRoleTest extends IntegrationTest {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
         Service service = serviceDbFixture(databaseHelper).insertService();
         String serviceExternalId = service.getExternalId();
-        User user = userDbFixture(databaseHelper).withServiceRole(service, role.getId()).insertUser();
-        userDbFixture(databaseHelper).withServiceRole(service, role.getId()).insertUser();
+        String username1 = randomUuid();
+        String email1 = username1 + "@example.com";
+        User user = userDbFixture(databaseHelper).withServiceRole(service, role.getId()).withUsername(username1).withEmail(email1).insertUser();
+        String username2 = randomUuid();
+        String email2 = username2 + "@example.com";
+        userDbFixture(databaseHelper).withServiceRole(service, role.getId()).withUsername(username2).withEmail(email2).insertUser();
 
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("role_name", "view-and-refund"));
 
@@ -59,7 +64,9 @@ public class UserResourceUpdateServiceRoleTest extends IntegrationTest {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
         Service service = serviceDbFixture(databaseHelper).insertService();
         String serviceExternalId = service.getExternalId();
-        User user = userDbFixture(databaseHelper).withServiceRole(service, role.getId()).insertUser();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User user = userDbFixture(databaseHelper).withServiceRole(service, role.getId()).withUsername(username).withEmail(email).insertUser();
 
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("role_name", "view-and-refund"));
 

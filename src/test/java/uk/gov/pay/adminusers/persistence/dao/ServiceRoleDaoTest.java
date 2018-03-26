@@ -15,6 +15,7 @@ import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class ServiceRoleDaoTest extends DaoTestBase {
 
@@ -30,7 +31,14 @@ public class ServiceRoleDaoTest extends DaoTestBase {
 
         Service service = ServiceDbFixture.serviceDbFixture(databaseHelper).insertService();
         int roleId = RoleDbFixture.roleDbFixture(databaseHelper).insertRole().getId();
-        User user = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service, roleId).insertUser();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User user =
+                UserDbFixture.userDbFixture(databaseHelper)
+                        .withServiceRole(service, roleId)
+                        .withUsername(username)
+                        .withEmail(email)
+                        .insertUser();
         UserServiceId userServiceId = new UserServiceId();
         userServiceId.setServiceId(user.getServices().get(0).getId());
         userServiceId.setUserId(user.getId());

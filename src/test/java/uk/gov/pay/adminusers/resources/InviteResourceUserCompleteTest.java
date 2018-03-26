@@ -4,7 +4,9 @@ import org.junit.Test;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
-import static javax.ws.rs.core.Response.Status.*;
+import static javax.ws.rs.core.Response.Status.GONE;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -16,7 +18,8 @@ public class InviteResourceUserCompleteTest extends IntegrationTest {
 
     @Test
     public void shouldReturn200WithDisabledInvite_whenExistingUserSubscribingToAnExistingService() throws Exception {
-        String email = format("%s@example.gov.uk", randomUuid());
+        String username = randomUuid();
+        String email = format("%s@example.gov.uk", username);
         String telephoneNumber = "088882345689";
         String password = "valid_password";
         String serviceExternalId = randomUuid();
@@ -25,6 +28,7 @@ public class InviteResourceUserCompleteTest extends IntegrationTest {
         userDbFixture(databaseHelper)
                 .withExternalId(userExternalId)
                 .withEmail(email)
+                .withUsername(username)
                 .insertUser();
 
         String inviteCode = inviteDbFixture(databaseHelper)
@@ -67,7 +71,8 @@ public class InviteResourceUserCompleteTest extends IntegrationTest {
 
     @Test
     public void shouldReturn410_withDisabledInvite() throws Exception {
-        String email = format("%s@example.gov.uk", randomUuid());
+        String username = randomUuid();
+        String email = format("%s@example.gov.uk", username);
         String telephoneNumber = "088882345689";
         String password = "valid_password";
         String serviceExternalId = randomUuid();
@@ -76,6 +81,7 @@ public class InviteResourceUserCompleteTest extends IntegrationTest {
         userDbFixture(databaseHelper)
                 .withExternalId(userExternalId)
                 .withEmail(email)
+                .withUsername(username)
                 .insertUser();
 
         String inviteCode = inviteDbFixture(databaseHelper)

@@ -26,10 +26,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
@@ -61,7 +61,7 @@ public class UsersApiTest {
     public void aUserExistsWithAForgottenPasswordRequest() throws Exception {
         String code = "avalidforgottenpasswordtoken";
         String userExternalId = RandomIdGenerator.randomUuid();
-        createUserWithinAService(userExternalId, randomAlphabetic(20), "password");
+        createUserWithinAService(userExternalId, RandomIdGenerator.randomUuid(), "password");
         List<Map<String, Object>> userByExternalId = dbHelper.findUserByExternalId(userExternalId);
         dbHelper.add(ForgottenPassword.forgottenPassword(code, userExternalId), (Integer) userByExternalId.get(0).get("id"));
     }
@@ -91,8 +91,12 @@ public class UsersApiTest {
         Service service = ServiceDbFixture.serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
         Role role = RoleDbFixture.roleDbFixture(dbHelper).insertAdmin();
 
-        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).insertUser();
-        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserRemoverExternalId).withServiceRole(service, role.getId()).insertUser();
+        String username1 = randomUuid();
+        String email1 = username1 + "@example.com";
+        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withUsername(username1).withEmail(email1).insertUser();
+        String username2 = randomUuid();
+        String email2 = username2 + "@example.com";
+        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserRemoverExternalId).withServiceRole(service, role.getId()).withUsername(username2).withEmail(email2).insertUser();
     }
 
     @State("a user exists but not the remover before a delete operation")
@@ -104,7 +108,9 @@ public class UsersApiTest {
         Service service = ServiceDbFixture.serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
         Role role = RoleDbFixture.roleDbFixture(dbHelper).insertAdmin();
 
-        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).insertUser();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withUsername(username).withEmail(email).insertUser();
     }
 
     private static void createUserWithinAService(String externalId, String username, String password) throws Exception {
@@ -127,7 +133,7 @@ public class UsersApiTest {
     })
     public void noSetUp() {
     }
-    
+
     private static void createUserWithinAService(String externalId, String username, int serviceId, String password) throws Exception {
         String gatewayAccount1 = randomNumeric(5);
         String gatewayAccount2 = randomNumeric(5);

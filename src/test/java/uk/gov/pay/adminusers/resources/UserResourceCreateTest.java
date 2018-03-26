@@ -2,11 +2,8 @@ package uk.gov.pay.adminusers.resources;
 
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.response.ValidatableResponse;
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
-import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.model.User;
 
 import java.util.List;
 import java.util.Map;
@@ -14,13 +11,13 @@ import java.util.Map;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
-import static java.util.UUID.randomUUID;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
@@ -28,7 +25,7 @@ public class UserResourceCreateTest extends IntegrationTest {
 
     @Test
     public void shouldCreateAUser_Successfully() throws Exception {
-        String username = randomAlphanumeric(10) + randomUUID().toString();
+        String username = randomUuid();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
                 .put("email", "user-" + username + "@example.com")
@@ -78,7 +75,7 @@ public class UserResourceCreateTest extends IntegrationTest {
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
         String serviceExternalId = service.getExternalId();
-        String username = randomAlphanumeric(10) + randomUUID().toString();
+        String username = randomUuid();
 
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
@@ -131,7 +128,7 @@ public class UserResourceCreateTest extends IntegrationTest {
 
     @Test
     public void shouldError400_IfRoleDoesNotExist() throws Exception {
-        String username = randomAlphanumeric(10) + randomUUID().toString();
+        String username = randomUuid();
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
                 .put("email", "user-" + username + "@example.com")
@@ -177,11 +174,13 @@ public class UserResourceCreateTest extends IntegrationTest {
     public void shouldError409_IfUsernameAlreadyExists() throws Exception {
         String gatewayAccount = valueOf(nextInt());
         serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount).insertService();
-        String username = userDbFixture(databaseHelper).insertUser().getUsername();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
 
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
-                .put("email", "user-" + username + "@example.com")
+                .put("email", email)
                 .put("gateway_account_ids", new String[]{gatewayAccount})
                 .put("telephone_number", "45334534634")
                 .put("role_name", "admin")

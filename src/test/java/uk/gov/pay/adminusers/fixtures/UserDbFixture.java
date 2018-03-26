@@ -20,7 +20,7 @@ public class UserDbFixture {
     private final DatabaseTestHelper databaseTestHelper;
     private List<Pair<Service, Role>> serviceRolePairs = newArrayList();
     private String externalId = randomUuid();
-    private String username = RandomStringUtils.randomAlphabetic(10);
+    private String username = randomUuid();
     private String otpKey = RandomStringUtils.randomAlphabetic(10);
     private String password = "password-" + username;
     private String email = username + "@example.com";

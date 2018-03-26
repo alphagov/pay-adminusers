@@ -22,11 +22,15 @@ import static java.lang.String.valueOf;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
@@ -106,12 +110,15 @@ public class UserDaoTest extends DaoTestBase {
                 .insertService().getId();
         int serviceId2 = serviceDbFixture(databaseHelper)
                 .insertService().getId();
+        String username = randomUuid();
+        String email = username + "@example.com";
         User user = userDbFixture(databaseHelper)
                 .withServiceRole(serviceId1, role.getId())
                 .withServiceRole(serviceId2, role.getId())
+                .withUsername(username)
+                .withEmail(email)
                 .insertUser();
 
-        String username = user.getUsername();
         String externalId = user.getExternalId();
         String otpKey = user.getOtpKey();
 
@@ -121,7 +128,7 @@ public class UserDaoTest extends DaoTestBase {
         UserEntity foundUser = userEntityMaybe.get();
         assertThat(foundUser.getExternalId(), is(externalId));
         assertThat(foundUser.getUsername(), is(username));
-        assertThat(foundUser.getEmail(), is(username + "@example.com"));
+        assertThat(foundUser.getEmail(), is(email));
         assertThat(foundUser.getOtpKey(), is(otpKey));
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
         assertThat(foundUser.isDisabled(), is(false));
@@ -139,18 +146,30 @@ public class UserDaoTest extends DaoTestBase {
                 .insertService().getId();
         int serviceId2 = serviceDbFixture(databaseHelper)
                 .insertService().getId();
+        String username1 = randomUuid();
+        String email1 = username1 + "@example.com";
         User user1 = userDbFixture(databaseHelper)
                 .withServiceRole(serviceId1, role.getId())
                 .withServiceRole(serviceId2, role.getId())
+                .withUsername(username1)
+                .withEmail(email1)
                 .insertUser();
+        String username2 = randomUuid();
+        String email2 = username2 + "@example.com";
         User user2 = userDbFixture(databaseHelper)
                 .withServiceRole(serviceId1, role.getId())
                 .withServiceRole(serviceId2, role.getId())
+                .withUsername(username2)
+                .withEmail(email2)
                 .insertUser();
         // Add third user to prove we're not just returning all users
+        String username3 = randomUuid();
+        String email3 = username3 + "@example.com";
         userDbFixture(databaseHelper)
                 .withServiceRole(serviceId1, role.getId())
                 .withServiceRole(serviceId2, role.getId())
+                .withUsername(username3)
+                .withEmail(email3)
                 .insertUser();
 
         List<String> externalIds = Arrays.asList(user1.getExternalId(), user2.getExternalId());
@@ -161,7 +180,7 @@ public class UserDaoTest extends DaoTestBase {
         UserEntity foundUser1 = userEntities.get(0);
         assertThat(foundUser1.getExternalId(), is(user1.getExternalId()));
         assertThat(foundUser1.getUsername(), is(user1.getUsername()));
-        assertThat(foundUser1.getEmail(), is(user1.getUsername() + "@example.com"));
+        assertThat(foundUser1.getEmail(), is(user1.getEmail()));
         assertThat(foundUser1.getOtpKey(), is(user1.getOtpKey()));
         assertThat(foundUser1.getTelephoneNumber(), is("374628482"));
         assertThat(foundUser1.isDisabled(), is(false));
@@ -174,7 +193,7 @@ public class UserDaoTest extends DaoTestBase {
         UserEntity foundUser2 = userEntities.get(1);
         assertThat(foundUser2.getExternalId(), is(user2.getExternalId()));
         assertThat(foundUser2.getUsername(), is(user2.getUsername()));
-        assertThat(foundUser2.getEmail(), is(user2.getUsername() + "@example.com"));
+        assertThat(foundUser2.getEmail(), is(user2.getEmail()));
         assertThat(foundUser2.getOtpKey(), is(user2.getOtpKey()));
         assertThat(foundUser2.getTelephoneNumber(), is("374628482"));
         assertThat(foundUser2.isDisabled(), is(false));
@@ -190,17 +209,18 @@ public class UserDaoTest extends DaoTestBase {
         Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId = serviceDbFixture(databaseHelper)
                 .insertService().getId();
+        String username = randomUuid();
+        String email = username + "@example.com";
         User user = userDbFixture(databaseHelper)
-                .withServiceRole(serviceId, role.getId()).insertUser();
+                .withServiceRole(serviceId, role.getId()).withUsername(username).withEmail(email).insertUser();
 
-        String username = user.getUsername();
         String otpKey = user.getOtpKey();
 
         Optional<UserEntity> userEntityMaybe = userDao.findByUsername(username.toUpperCase());
         assertTrue(userEntityMaybe.isPresent());
 
         UserEntity foundUser = userEntityMaybe.get();
-        assertThat(foundUser.getEmail(), is(username + "@example.com"));
+        assertThat(foundUser.getEmail(), is(email));
         assertThat(foundUser.getUsername(), is(username));
         assertThat(foundUser.getOtpKey(), is(otpKey));
         assertThat(foundUser.getTelephoneNumber(), is("374628482"));
@@ -215,12 +235,12 @@ public class UserDaoTest extends DaoTestBase {
     public void shouldFindUser_ByEmail_caseInsensitive() throws Exception {
         Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
+        String username = randomUuid();
+        String email = username + "@example.com";
         User user = userDbFixture(databaseHelper)
-                .withServiceRole(serviceId, role.getId()).insertUser();
+                .withServiceRole(serviceId, role.getId()).withUsername(username).withEmail(email).insertUser();
 
-        String username = user.getUsername();
         String otpKey = user.getOtpKey();
-        String email = user.getEmail();
 
         Optional<UserEntity> userEntityMaybe = userDao.findByEmail(username + "@EXAMPLE.com");
         assertTrue(userEntityMaybe.isPresent());
@@ -250,10 +270,12 @@ public class UserDaoTest extends DaoTestBase {
         serviceDbFixture(databaseHelper)
                 .withGatewayAccountIds(gatewayAccountId2).insertService();
 
-        User user = userDbFixture(databaseHelper)
-                .withServiceRole(service1, role1.getId()).insertUser();
+        String username = randomUuid();
+        String email = username + "@example.com";
 
-        String username = user.getUsername();
+        User user = userDbFixture(databaseHelper)
+                .withServiceRole(service1, role1.getId()).withUsername(username).withEmail(email).insertUser();
+
         UserEntity existingUser = userDao.findByUsername(username).get();
 
         assertThat(existingUser.getGatewayAccountId(), is(gatewayAccountId1));
@@ -288,12 +310,18 @@ public class UserDaoTest extends DaoTestBase {
 
         int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
 
+        String username1 = "thomas" + randomUuid();
+        String email1 = username1 + "@example.com";
         User user1 = userDbFixture(databaseHelper)
-                .withUsername("thomas")
+                .withUsername(username1)
+                .withEmail(email1)
                 .withServiceRole(serviceId, role1.getId()).insertUser();
 
+        String username2 = "bob" + randomUuid();
+        String email2 = username2 + "@example.com";
         User user2 = userDbFixture(databaseHelper)
-                .withUsername("bob")
+                .withUsername(username2)
+                .withEmail(email2)
                 .withServiceRole(serviceId, role2.getId()).insertUser();
 
         List<UserEntity> users = userDao.findByServiceId(serviceId);

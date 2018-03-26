@@ -8,9 +8,16 @@ import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 
 import static java.lang.String.format;
-import static javax.ws.rs.core.Response.Status.*;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
+import static javax.ws.rs.core.Response.Status.CREATED;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.IsEmptyString.isEmptyString;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
@@ -36,9 +43,14 @@ public class InviteResourceCreateUserTest extends IntegrationTest {
         roleAdminName = roleDbFixture(databaseHelper)
                 .insertAdmin().getName();
 
+        String username = randomUuid();
+        String email = username + "@example.com";
         senderExternalId = userDbFixture(databaseHelper)
                 .withServiceRole(service.getId(), ADMIN.getId())
-                .insertUser().getExternalId();
+                .withUsername(username)
+                .withEmail(email)
+                .insertUser()
+                .getExternalId();
     }
 
     @Test
@@ -101,16 +113,18 @@ public class InviteResourceCreateUserTest extends IntegrationTest {
     @Test
     public void createInvitation_shouldFail_ifUserAlreadyBelongToService() throws Exception {
 
-        String existingUserEmail = randomAlphanumeric(5) + "-invite@example.com";
+        String existingUserUsername = randomUuid();
+        String existingUserEmail = existingUserUsername + "-invite@example.com";
 
         String serviceExternalId = randomUuid();
         Integer serviceId = randomInt();
-        String s = inviteDbFixture(databaseHelper)
+        inviteDbFixture(databaseHelper)
                 .withEmail(existingUserEmail)
                 .withServiceExternalId(serviceExternalId)
                 .withServiceId(serviceId)
                 .insertInvite();
         User user = userDbFixture(databaseHelper)
+                .withUsername(existingUserUsername)
                 .withEmail(existingUserEmail)
                 .withServiceRole(Service.from(serviceId, serviceExternalId, "service name"), 2)
                 .insertUser();
@@ -204,15 +218,17 @@ public class InviteResourceCreateUserTest extends IntegrationTest {
     public void createInvitation_shouldFail_whenSenderDoesNotHaveAdminRole() throws Exception {
 
         int otherRoleId = roleDbFixture(databaseHelper).insertRole().getId();
+        String senderUsername = randomUuid();
+        String senderEmail = senderUsername + "@example.com";
         String senderWithNoAdminRole = userDbFixture(databaseHelper)
                 .withServiceRole(service.getId(), otherRoleId)
+                .withUsername(senderUsername)
+                .withEmail(senderEmail)
                 .insertUser().getExternalId();
-
-        String email = randomAlphanumeric(5) + "-invite@example.com";
 
         ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
                 .put("sender", senderWithNoAdminRole)
-                .put("email", email)
+                .put("email", randomUuid() + "-invite@example.com")
                 .put("role_name", roleAdminName)
                 .put("service_external_id", service.getExternalId())
                 .build();
@@ -233,15 +249,17 @@ public class InviteResourceCreateUserTest extends IntegrationTest {
         Service otherService = serviceDbFixture(databaseHelper)
                 .insertService();
 
+        String senderUsername = randomUuid();
+        String senderEmail = senderUsername + "@example.com";
         String senderExternalId = userDbFixture(databaseHelper)
                 .withServiceRole(otherService.getId(), ADMIN.getId())
+                .withUsername(senderUsername)
+                .withEmail(senderEmail)
                 .insertUser().getExternalId();
-
-        String email = randomAlphanumeric(5) + "-invite@example.com";
 
         ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
                 .put("sender", senderExternalId)
-                .put("email", email)
+                .put("email", randomUuid() + "-invite@example.com")
                 .put("role_name", roleAdminName)
                 .put("service_external_id", service.getExternalId())
                 .build();
