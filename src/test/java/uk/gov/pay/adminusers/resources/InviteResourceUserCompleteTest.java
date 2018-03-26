@@ -20,7 +20,7 @@ public class InviteResourceUserCompleteTest extends IntegrationTest {
     public void shouldReturn200WithDisabledInvite_whenExistingUserSubscribingToAnExistingService() throws Exception {
         String username = randomUuid();
         String email = format("%s@example.gov.uk", username);
-        String telephoneNumber = "088882345689";
+        String telephoneNumber = "07700900000";
         String password = "valid_password";
         String serviceExternalId = randomUuid();
         String userExternalId = randomUuid();
@@ -73,7 +73,7 @@ public class InviteResourceUserCompleteTest extends IntegrationTest {
     public void shouldReturn410_withDisabledInvite() throws Exception {
         String username = randomUuid();
         String email = format("%s@example.gov.uk", username);
-        String telephoneNumber = "088882345689";
+        String telephoneNumber = "07700900000";
         String password = "valid_password";
         String serviceExternalId = randomUuid();
         String userExternalId = randomUuid();
