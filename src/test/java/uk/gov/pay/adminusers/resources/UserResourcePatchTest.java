@@ -11,6 +11,7 @@ import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 public class UserResourcePatchTest extends IntegrationTest {
@@ -19,7 +20,9 @@ public class UserResourcePatchTest extends IntegrationTest {
 
     @Before
     public void createAUser() {
-        User user = userDbFixture(databaseHelper).insertUser();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
 
         externalId = user.getExternalId();
     }
@@ -43,7 +46,7 @@ public class UserResourcePatchTest extends IntegrationTest {
     public void shouldUpdateTelephoneNumber_whenPatchAttempt() throws Exception {
 
         String newTelephoneNumber = "07700900001";
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value",  newTelephoneNumber));
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", newTelephoneNumber));
 
         givenSetup()
                 .when()

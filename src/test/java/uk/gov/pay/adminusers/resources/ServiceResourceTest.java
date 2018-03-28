@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.resources;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Role;
@@ -38,19 +37,28 @@ public class ServiceResourceTest extends IntegrationTest {
         Service service = serviceDbFixture(databaseHelper).insertService();
         serviceExternalId = service.getExternalId();
 
+        String username1 = "c" + randomUuid();
+        String email1 = username1 + "@example.com";
         userWithRoleAdminInService1 = userDbFixture(databaseHelper)
                 .withServiceRole(service, roleAdmin.getId())
-                .withUsername("c" + RandomStringUtils.random(10))
+                .withUsername(username1)
+                .withEmail(email1)
                 .insertUser();
 
+        String username2 = "b" + randomUuid();
+        String email2 = username2 + "@example.com";
         user1WithRoleViewInService1 = userDbFixture(databaseHelper)
                 .withServiceRole(service, roleView.getId())
-                .withUsername("b" + RandomStringUtils.random(10))
+                .withUsername(username2)
+                .withEmail(email2)
                 .insertUser();
 
+        String username3 = "a" + randomUuid();
+        String email3 = username3 + "@example.com";
         user2WithRoleViewInService1 = userDbFixture(databaseHelper)
                 .withServiceRole(service, roleView.getId())
-                .withUsername("a" + RandomStringUtils.random(10))
+                .withUsername(username3)
+                .withEmail(email3)
                 .insertUser();
     }
 
@@ -66,17 +74,30 @@ public class ServiceResourceTest extends IntegrationTest {
         Service service1 = serviceDbFixture(databaseHelper).insertService();
         Service service2 = serviceDbFixture(databaseHelper).insertService();
 
+        String username1 = "zoe-" + randomUuid();
+        String email1 = username1 + "@example.com";
         User user1 = userDbFixture(databaseHelper)
-                .withUsername("zoe-" + randomUuid())
+                .withUsername(username1)
+                .withEmail(email1)
                 .withServiceRole(service1.getId(), role1.getId()).insertUser();
+        String username2 = "tim-" + randomUuid();
+        String email2 = username2 + "@example.com";
         User user2 = userDbFixture(databaseHelper)
-                .withUsername("tim-" + randomUuid())
+                .withUsername(username2)
+                .withEmail(email2)
                 .withServiceRole(service1.getId(), role2.getId()).insertUser();
+        String username3 = "bob-" + randomUuid();
+        String email3 = username3 + "@example.com";
         User user3 = userDbFixture(databaseHelper)
-                .withUsername("bob-" + randomUuid())
+                .withUsername(username3)
+                .withEmail(email3)
                 .withServiceRole(service1.getId(), role2.getId()).insertUser();
 
+        String username4 = randomUuid();
+        String email4 = username4 + "@example.com";
         userDbFixture(databaseHelper)
+                .withUsername(username4)
+                .withEmail(email4)
                 .withServiceRole(service2.getId(), role1.getId()).insertUser();
 
         givenSetup()

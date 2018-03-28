@@ -10,7 +10,9 @@ import java.util.Map;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static javax.ws.rs.core.Response.Status.*;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
+import static javax.ws.rs.core.Response.Status.GONE;
+import static javax.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
@@ -27,7 +29,7 @@ public class InviteResourceServiceCompleteTest extends IntegrationTest {
     @Test
     public void shouldReturn200withDisabledInviteLinkingToCreatedUser_WhenPassedAValidInviteCode_withoutGatewayAccountIds() {
         String email = format("%s@example.gov.uk", randomUuid());
-        String telephoneNumber = "088882345689";
+        String telephoneNumber = "07700900000";
         String password = "valid_password";
 
         String inviteCode = inviteDbFixture(databaseHelper)
@@ -62,7 +64,7 @@ public class InviteResourceServiceCompleteTest extends IntegrationTest {
     @Test
     public void shouldReturn200withDisabledInviteLinkingToCreatedUser_WhenPassedAValidInviteCode_withGatewayAccountIds() throws Exception {
         String email = format("%s@example.gov.uk", randomUuid());
-        String telephoneNumber = "088882345689";
+        String telephoneNumber = "07700900000";
         String password = "valid_password";
         String gatewayAccountId1 = String.valueOf(randomInt());
         String gatewayAccountId2 = String.valueOf(randomInt());
@@ -106,7 +108,7 @@ public class InviteResourceServiceCompleteTest extends IntegrationTest {
     @Test
     public void shouldReturn410_WhenSameInviteCodeCompletedTwice() {
         String email = format("%s@example.gov.uk", randomUuid());
-        String telephoneNumber = "088882345689";
+        String telephoneNumber = "07700900000";
         String password = "valid_password";
 
         String inviteCode = inviteDbFixture(databaseHelper)
@@ -131,7 +133,8 @@ public class InviteResourceServiceCompleteTest extends IntegrationTest {
     @Test
     public void shouldReturn409_ifAUserExistsWithTheSameEmail_whenServiceInviteCompletes() {
         String email = format("%s@example.gov.uk", randomUuid());
-        String telephoneNumber = "088882345689";
+        String username = email;
+        String telephoneNumber = "07700900000";
         String password = "valid_password";
 
         String inviteCode = inviteDbFixture(databaseHelper)
@@ -141,6 +144,7 @@ public class InviteResourceServiceCompleteTest extends IntegrationTest {
                 .insertServiceInvite();
 
         userDbFixture(databaseHelper)
+                .withUsername(username)
                 .withEmail(email)
                 .insertUser();
 
@@ -154,7 +158,7 @@ public class InviteResourceServiceCompleteTest extends IntegrationTest {
     @Test
     public void shouldReturn410_WheninviteIsDisabled() {
         String email = format("%s@example.gov.uk", randomUuid());
-        String telephoneNumber = "088882345689";
+        String telephoneNumber = "07700900000";
         String password = "valid_password";
 
         String inviteCode = inviteDbFixture(databaseHelper)

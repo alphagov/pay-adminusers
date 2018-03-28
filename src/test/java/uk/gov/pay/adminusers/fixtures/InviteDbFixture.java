@@ -38,7 +38,14 @@ public class InviteDbFixture {
     public String insertInvite() {
         ServiceDbFixture.serviceDbFixture(databaseTestHelper).withId(serviceId).withExternalId(externalServiceId).insertService().getId();
         int roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
-        int invitingUserId = UserDbFixture.userDbFixture(databaseTestHelper).insertUser().getId();
+        String userUsername = randomUuid();
+        String userEmail = userUsername + "@example.com";
+        int invitingUserId =
+                UserDbFixture.userDbFixture(databaseTestHelper)
+                        .withUsername(userUsername)
+                        .withEmail(userEmail)
+                        .insertUser()
+                        .getId();
         databaseTestHelper.addInvite(
                 nextInt(), invitingUserId, serviceId, roleId,
                 email, code, otpKey, date, expiryDate, telephoneNumber, password,
@@ -49,9 +56,16 @@ public class InviteDbFixture {
 
     public String insertServiceInvite() {
         int roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
-        int userId = UserDbFixture.userDbFixture(databaseTestHelper).insertUser().getId();
+        String userUsername = randomUuid();
+        String userEmail = userUsername + "@example.com";
+        int invitingUserId =
+                UserDbFixture.userDbFixture(databaseTestHelper)
+                        .withUsername(userUsername)
+                        .withEmail(userEmail)
+                        .insertUser()
+                        .getId();
         databaseTestHelper.addServiceInvite(
-                nextInt(), userId, roleId,
+                nextInt(), invitingUserId, roleId,
                 email, code, otpKey, date, expiryDate, telephoneNumber, password,
                 disabled, loginCounter
         );

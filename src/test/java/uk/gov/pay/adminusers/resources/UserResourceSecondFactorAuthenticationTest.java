@@ -10,6 +10,7 @@ import static com.google.common.io.BaseEncoding.base32;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 public class UserResourceSecondFactorAuthenticationTest extends IntegrationTest {
@@ -22,10 +23,12 @@ public class UserResourceSecondFactorAuthenticationTest extends IntegrationTest 
 
     @Before
     public void createValidUser() throws Exception {
-        User user = userDbFixture(databaseHelper).withOtpKey(OTP_KEY).insertUser();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User user = userDbFixture(databaseHelper).withOtpKey(OTP_KEY).withUsername(username).withEmail(email).insertUser();
 
-        externalId = user.getExternalId();
-        username = user.getUsername();
+        this.externalId = user.getExternalId();
+        this.username = user.getUsername();
     }
 
     @Test

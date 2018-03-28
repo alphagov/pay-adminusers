@@ -20,11 +20,11 @@ public class UserDbFixture {
     private final DatabaseTestHelper databaseTestHelper;
     private List<Pair<Service, Role>> serviceRolePairs = newArrayList();
     private String externalId = randomUuid();
-    private String username = RandomStringUtils.randomAlphabetic(10);
+    private String username = randomUuid();
     private String otpKey = RandomStringUtils.randomAlphabetic(10);
     private String password = "password-" + username;
     private String email = username + "@example.com";
-    private String telephoneNumber = "374628482";
+    private String telephoneNumber = "07700900000";
     private String features = "FEATURE_1, FEATURE_2";
     private List<String> gatewayAccountIds = newArrayList();
 

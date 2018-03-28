@@ -4,9 +4,11 @@ import org.junit.Test;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static com.jayway.restassured.http.ContentType.JSON;
-import static javax.ws.rs.core.Response.Status.*;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.ForgottenPasswordDbFixture.forgottenPasswordDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
@@ -17,7 +19,9 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
     @Test
     public void shouldGetForgottenPasswordReference_whenCreate_forAnExistingUser() throws Exception {
 
-        String username = userDbFixture(databaseHelper).insertUser().getUsername();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser().getUsername();
 
         givenSetup()
                 .when()
@@ -46,7 +50,9 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
     @Test
     public void shouldGetForgottenPassword_whenGetByCode_forAnExistingForgottenPassword() throws Exception {
 
-        int userId = userDbFixture(databaseHelper).insertUser().getId();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        int userId = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser().getId();
         String forgottenPasswordCode = forgottenPasswordDbFixture(databaseHelper, userId).insertForgottenPassword();
 
         givenSetup()

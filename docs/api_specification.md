@@ -607,7 +607,7 @@ This endpoint creates an invitation to allow self provisioning new service with 
 POST /v1/api/invites/service
 Content-Type: application/json
 {
-"telephone_number":"088882345689",
+"telephone_number":"07700900000",
 "email": "example@example.gov.uk",
 "password" : "plain-txt-passsword"
 }
@@ -630,7 +630,7 @@ Content-Type: application/json
 {  
    "type":"service",
    "email":"example@example.gov.uk",
-   "telephone_number":"088882345689",
+   "telephone_number":"07700900000",
    "disabled":false,
    "attempt_counter":0,
    "_links":[  

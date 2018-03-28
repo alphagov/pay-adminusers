@@ -11,6 +11,7 @@ import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
@@ -25,14 +26,18 @@ public class UserResourceGetMultipleTest extends IntegrationTest {
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
         String serviceExternalId = service.getExternalId();
         Role role = roleDbFixture(databaseHelper).insertRole();
-        User user1 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).insertUser();
-        User user2 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).insertUser();
+        String username1 = randomUuid();
+        String email1 = username1 + "@example.com";
+        User user1 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withUsername(username1).withEmail(email1).insertUser();
+        String username2 = randomUuid();
+        String email2 = username2 + "@example.com";
+        User user2 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withUsername(username2).withEmail(email2).insertUser();
 
         givenSetup()
                 .when()
                 .contentType(JSON)
                 .accept(JSON)
-                .get(USERS_RESOURCE +"?ids=" + user1.getExternalId() + "," + user2.getExternalId())
+                .get(USERS_RESOURCE + "?ids=" + user1.getExternalId() + "," + user2.getExternalId())
                 .then()
                 .statusCode(200)
                 .body("[0].external_id", is(user1.getExternalId()))
@@ -81,13 +86,15 @@ public class UserResourceGetMultipleTest extends IntegrationTest {
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
         String serviceExternalId = service.getExternalId();
         Role role = roleDbFixture(databaseHelper).insertRole();
-        User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).insertUser();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withUsername(username).withEmail(email).insertUser();
 
         givenSetup()
                 .when()
                 .contentType(JSON)
                 .accept(JSON)
-                .get(USERS_RESOURCE +"?ids=" + user.getExternalId())
+                .get(USERS_RESOURCE + "?ids=" + user.getExternalId())
                 .then()
                 .statusCode(200)
                 .body("[0].external_id", is(user.getExternalId()))
@@ -116,7 +123,7 @@ public class UserResourceGetMultipleTest extends IntegrationTest {
         givenSetup()
                 .when()
                 .accept(JSON)
-                .get(USERS_RESOURCE +"?ids=NON-EXISTENT-USER,ANOTHER_NON_EXISTENT_USER")
+                .get(USERS_RESOURCE + "?ids=NON-EXISTENT-USER,ANOTHER_NON_EXISTENT_USER")
                 .then()
                 .statusCode(404);
     }
@@ -127,13 +134,15 @@ public class UserResourceGetMultipleTest extends IntegrationTest {
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
         Role role = roleDbFixture(databaseHelper).insertRole();
-        User existingUser = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).insertUser();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User existingUser = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withUsername(username).withEmail(email).insertUser();
 
         givenSetup()
                 .when()
                 .contentType(JSON)
                 .accept(JSON)
-                .get(USERS_RESOURCE +"?ids=" + existingUser.getExternalId() + ",NON-EXISTENT-USER")
+                .get(USERS_RESOURCE + "?ids=" + existingUser.getExternalId() + ",NON-EXISTENT-USER")
                 .then()
                 .statusCode(404);
     }

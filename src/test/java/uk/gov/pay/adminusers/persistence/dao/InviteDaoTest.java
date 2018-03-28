@@ -19,6 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
@@ -44,17 +45,18 @@ public class InviteDaoTest extends DaoTestBase {
 
         Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
-        User sender = userDbFixture(databaseHelper).insertUser();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User sender = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
 
         RoleEntity roleEntity = roleDao.findByRoleName(role.getName()).get();
         ServiceEntity serviceEntity = serviceDao.findById(serviceId).get();
         UserEntity userSenderEntity = userDao.findById(sender.getId()).get();
 
-        String email = "USER@example.com";
         String code = randomAlphanumeric(10);
         String otpKey = randomAlphanumeric(10);
 
-        InviteEntity invite = new InviteEntity(email, code, otpKey, roleEntity);
+        InviteEntity invite = new InviteEntity("USER@example.com", code, otpKey, roleEntity);
         invite.setService(serviceEntity);
         invite.setSender(userSenderEntity);
 

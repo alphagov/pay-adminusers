@@ -7,7 +7,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.postgresql.util.PGobject;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
-import uk.gov.pay.adminusers.model.*;
+import uk.gov.pay.adminusers.model.MerchantDetails;
+import uk.gov.pay.adminusers.model.Permission;
+import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.CustomBrandingConverter;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -178,7 +182,7 @@ public class ServiceDaoTest extends DaoTestBase {
 
         Long count = serviceDao.countOfUsersWithRoleForService(serviceExternalId, roleId);
 
-        assertThat(count, is(3l));
+        assertThat(count, is(3L));
     }
 
     private void setupUsersForServiceAndRole(String externalId, int roleId, int noOfUsers) {
@@ -195,7 +199,9 @@ public class ServiceDaoTest extends DaoTestBase {
         databaseHelper.addService(service1, gatewayAccountId1);
 
         range(0, noOfUsers - 1).forEach(i -> {
-            UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).insertUser();
+            String username = randomUuid();
+            String email = username + "@example.com";
+            UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).withUsername(username).withEmail(email).insertUser();
         });
 
         //unmatching service
@@ -206,7 +212,9 @@ public class ServiceDaoTest extends DaoTestBase {
         databaseHelper.addService(service2, gatewayAccountId2);
 
         //same user 2 diff services - should count only once
-        User user3 = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).insertUser();
+        String username3 = randomUuid();
+        String email3 = username3 + "@example.com";
+        User user3 = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).withUsername(username3).withEmail(email3).insertUser();
         databaseHelper.addUserServiceRole(user3.getId(), serviceId2, role.getId());
     }
 
