@@ -2,7 +2,12 @@ package uk.gov.pay.adminusers.utils;
 
 import org.postgresql.util.PGobject;
 import org.skife.jdbi.v2.DBI;
-import uk.gov.pay.adminusers.model.*;
+import uk.gov.pay.adminusers.model.ForgottenPassword;
+import uk.gov.pay.adminusers.model.MerchantDetails;
+import uk.gov.pay.adminusers.model.Permission;
+import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.CustomBrandingConverter;
 
 import java.sql.Timestamp;
@@ -198,21 +203,22 @@ public class DatabaseTestHelper {
         jdbi.withHandle(handle ->
         {
             PGobject customBranding = service.getCustomBranding() == null ? null :
-            new CustomBrandingConverter().convertToDatabaseColumn(service.getCustomBranding());
+                    new CustomBrandingConverter().convertToDatabaseColumn(service.getCustomBranding());
             MerchantDetails merchantDetails = service.getMerchantDetails();
             if (merchantDetails == null) {
                 merchantDetails = new MerchantDetails();
             }
             return handle.createStatement("INSERT INTO services(" +
                     "id, name, custom_branding, " +
-                    "merchant_name, merchant_address_line1, merchant_address_line2, merchant_address_city, " +
+                    "merchant_name, merchant_telephone_number, merchant_address_line1, merchant_address_line2, merchant_address_city, " +
                     "merchant_address_postcode, merchant_address_country, external_id) " +
-                    "VALUES (:id, :name, :customBranding, :merchantName, :merchantAddressLine1, :merchantAddressLine2, " +
+                    "VALUES (:id, :name, :customBranding, :merchantName, :merchantTelephoneNumber, :merchantAddressLine1, :merchantAddressLine2, " +
                     ":merchantAddressCity, :merchantAddressPostcode, :merchantAddressCountry, :externalId)")
                     .bind("id", service.getId())
                     .bind("name", service.getName())
                     .bind("customBranding", customBranding)
                     .bind("merchantName", merchantDetails.getName())
+                    .bind("merchantTelephoneNumber", merchantDetails.getTelephoneNumber())
                     .bind("merchantAddressLine1", merchantDetails.getAddressLine1())
                     .bind("merchantAddressLine2", merchantDetails.getAddressLine2())
                     .bind("merchantAddressCity", merchantDetails.getAddressCity())

@@ -14,6 +14,7 @@ import static org.hamcrest.core.IsNull.nullValue;
 public class UpdateMerchantDetailsRequestTest {
 
     private final String name = "name";
+    private final String telephoneNumber = "03069990000";
     private final String addressLine1 = "address line1";
     private final String addressLine2 = "address line2";
     private final String addressCity = "city";
@@ -35,14 +36,15 @@ public class UpdateMerchantDetailsRequestTest {
         assertThat(updateMerchantDetailsRequest.getAddressLine1(), is(addressLine1));
         assertThat(updateMerchantDetailsRequest.getAddressLine2(), is(nullValue()));
         assertThat(updateMerchantDetailsRequest.getAddressCity(), is(addressCity));
-        assertThat(updateMerchantDetailsRequest.getAddressPostcode(), is(addressPostcode));
         assertThat(updateMerchantDetailsRequest.getAddressCountry(), is(addressCountry));
+        assertThat(updateMerchantDetailsRequest.getAddressPostcode(), is(addressPostcode));
     }
 
     @Test
     public void shouldConstructMerchantDetails_fromCompleteValidJson() throws Exception {
         Map<String, Object> payload = ImmutableMap.<String, Object>builder()
                 .put("name", name)
+                .put("telephone_number", telephoneNumber)
                 .put("address_line1", addressLine1)
                 .put("address_line2", addressLine2)
                 .put("address_city", addressCity)
@@ -52,11 +54,12 @@ public class UpdateMerchantDetailsRequestTest {
         JsonNode jsonNode = new ObjectMapper().valueToTree(payload);
         UpdateMerchantDetailsRequest updateMerchantDetailsRequest = UpdateMerchantDetailsRequest.from(jsonNode);
         assertThat(updateMerchantDetailsRequest.getName(), is(name));
+        assertThat(updateMerchantDetailsRequest.getTelephoneNumber(), is(telephoneNumber));
         assertThat(updateMerchantDetailsRequest.getAddressLine1(), is(addressLine1));
         assertThat(updateMerchantDetailsRequest.getAddressLine2(), is(addressLine2));
         assertThat(updateMerchantDetailsRequest.getAddressCity(), is(addressCity));
-        assertThat(updateMerchantDetailsRequest.getAddressPostcode(), is(addressPostcode));
         assertThat(updateMerchantDetailsRequest.getAddressCountry(), is(addressCountry));
+        assertThat(updateMerchantDetailsRequest.getAddressPostcode(), is(addressPostcode));
     }
 
 }

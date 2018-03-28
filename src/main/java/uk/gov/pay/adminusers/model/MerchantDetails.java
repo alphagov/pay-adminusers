@@ -11,6 +11,8 @@ public class MerchantDetails {
 
     private String name;
 
+    private String telephoneNumber;
+
     private String addressLine1;
 
     private String addressLine2;
@@ -25,12 +27,14 @@ public class MerchantDetails {
     }
 
     public MerchantDetails(@JsonProperty("name") String name,
+                           @JsonProperty("telephone_number") String telephoneNumber,
                            @JsonProperty("address_line1") String addressLine1,
                            @JsonProperty("address_line2") String addressLine2,
                            @JsonProperty("address_city") String addressCity,
                            @JsonProperty("address_postcode") String addressPostcode,
                            @JsonProperty("address_country") String addressCountry) {
         this.name = name;
+        this.telephoneNumber = telephoneNumber;
         this.addressLine1 = addressLine1;
         this.addressLine2 = addressLine2;
         this.addressCity = addressCity;
@@ -40,6 +44,10 @@ public class MerchantDetails {
 
     public String getName() {
         return name;
+    }
+
+    public String getTelephoneNumber() {
+        return telephoneNumber;
     }
 
     public String getAddressLine1() {
@@ -70,6 +78,8 @@ public class MerchantDetails {
         MerchantDetails that = (MerchantDetails) o;
 
         if (!name.equals(that.name)) return false;
+        if (telephoneNumber != null ? !telephoneNumber.equals(that.telephoneNumber) : that.telephoneNumber != null)
+            return false;
         if (!addressLine1.equals(that.addressLine1)) return false;
         if (addressLine2 != null ? !addressLine2.equals(that.addressLine2) : that.addressLine2 != null) return false;
         if (!addressCity.equals(that.addressCity)) return false;
@@ -80,6 +90,7 @@ public class MerchantDetails {
     @Override
     public int hashCode() {
         int result = name.hashCode();
+        result = 31 * result + (telephoneNumber != null ? telephoneNumber.hashCode() : 0);
         result = 31 * result + addressLine1.hashCode();
         result = 31 * result + (addressLine2 != null ? addressLine2.hashCode() : 0);
         result = 31 * result + addressCity.hashCode();
