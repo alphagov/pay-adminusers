@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import jersey.repackaged.com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.tuple.Pair;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
@@ -52,6 +53,24 @@ public class UserRequestValidator {
         }
         Optional<List<String>> notNumeric = requestValidations.checkIsNumeric(payload, "code");
         return notNumeric.map(Errors::from);
+    }
+
+    public Optional<Errors> validate2faActivateRequest(JsonNode payload) {
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, "code", "second_factor");
+        if (missingMandatoryFields.isPresent()) {
+            return Optional.of(Errors.from(missingMandatoryFields.get()));
+        }
+        Optional<List<String>> notNumeric = requestValidations.checkIsNumeric(payload, "code");
+        if (notNumeric.isPresent()) {
+            return Optional.of(Errors.from(notNumeric.get()));
+        }
+        String secondFactor = payload.get("second_factor").asText();
+        try {
+            SecondFactorMethod.valueOf(secondFactor);
+        } catch (IllegalArgumentException e) {
+            return Optional.of(Errors.from(ImmutableList.of(format("Invalid second_factor [%s]", secondFactor))));
+        }
+        return Optional.empty();
     }
 
     public Optional<Errors> validateServiceRole(JsonNode payload) {

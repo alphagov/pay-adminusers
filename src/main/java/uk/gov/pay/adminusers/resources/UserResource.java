@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.PatchRequest;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.pay.adminusers.service.UserServicesFactory;
@@ -51,6 +52,7 @@ public class UserResource {
     private static final String SECOND_FACTOR_RESOURCE = USER_RESOURCE + "/second-factor";
     private static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/authenticate";
     private static final String SECOND_FACTOR_PROVISION_RESOURCE = SECOND_FACTOR_RESOURCE + "/provision";
+    private static final String SECOND_FACTOR_ACTIVATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/activate";
     private static final String USER_SERVICES_RESOURCE = USER_RESOURCE + "/services";
     private static final String USER_SERVICE_RESOURCE = USER_SERVICES_RESOURCE + "/{serviceExternalId}";
     private static final Splitter COMMA_SEPARATOR = Splitter.on(',').trimResults();
@@ -190,6 +192,23 @@ public class UserResource {
         return userServices.provisionNewOtpKey(externalId)
                 .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
+    }
+
+    @Path(SECOND_FACTOR_ACTIVATE_RESOURCE)
+    @POST
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response activateSecondFactorOtpKey(@PathParam("externalId") String externalId, JsonNode payload) {
+        logger.info("User 2FA activate new OTP key request");
+        return validator.validate2faActivateRequest(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> {
+                    int code = payload.get("code").asInt();
+                    SecondFactorMethod secondFactor = SecondFactorMethod.valueOf(payload.get("second_factor").asText());
+                    return userServices.activateNewOtpKey(externalId, secondFactor, code)
+                            .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
+                            .orElseGet(() -> Response.status(UNAUTHORIZED).build());
+                });
     }
 
     @PATCH

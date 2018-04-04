@@ -432,7 +432,6 @@ public class UserServicesTest {
         assertThat(savedUser.isDisabled(), is(false));
     }
 
-
     @Test
     public void shouldReturnEmptyAndDisable_whenAuthenticate2FA_ifUnsuccessfulMaxRetry() throws Exception {
         User user = aUser();
@@ -513,6 +512,152 @@ public class UserServicesTest {
         assertThat(userEntity.getOtpKey(), is("Original OTP key"));
         assertThat(userEntity.getProvisionalOtpKey(), is(nullValue()));
         assertThat(userEntity.getProvisionalOtpKeyCreatedAt(), is(nullValue()));
+
+        verify(userDao, never()).merge(any(UserEntity.class));
+    }
+
+    @Test
+    public void shouldReturnUser_whenActivateNewOtpKey_ifUserFound() {
+        User user = aUser();
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setSecondFactor(SecondFactorMethod.SMS);
+        userEntity.setOtpKey("Original OTP key");
+        userEntity.setProvisionalOtpKey("New OTP key");
+        userEntity.setProvisionalOtpKeyCreatedAt(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(89));
+
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+        when(secondFactorAuthenticator.authorize("New OTP key", 123456)).thenReturn(true);
+
+        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP,123456);
+
+        assertThat(result.get().getOtpKey(), is("New OTP key"));
+        assertThat(result.get().getProvisionalOtpKey(), is(nullValue()));
+        assertThat(result.get().getProvisionalOtpKeyCreatedAt(), is(nullValue()));
+
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        verify(userDao).merge(argumentCaptor.capture());
+        UserEntity savedUser = argumentCaptor.getValue();
+        assertThat(savedUser.getOtpKey(), is("New OTP key"));
+        assertThat(savedUser.getProvisionalOtpKey(), is(nullValue()));
+        assertThat(savedUser.getProvisionalOtpKey(), is(nullValue()));
+    }
+
+    @Test
+    public void shouldReturnUser_whenActivateNewOtpKey_ifCodeIncorrect() {
+        User user = aUser();
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setSecondFactor(SecondFactorMethod.SMS);
+        userEntity.setOtpKey("Original OTP key");
+        userEntity.setProvisionalOtpKey("New OTP key");
+        userEntity.setProvisionalOtpKeyCreatedAt(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(89));
+
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+        when(secondFactorAuthenticator.authorize("New OTP key", 123456)).thenReturn(false);
+
+        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP,123456);
+
+        assertFalse(result.isPresent());
+
+        assertThat(userEntity.getOtpKey(), is("Original OTP key"));
+        assertThat(userEntity.getSecondFactor(), is(SecondFactorMethod.SMS));
+
+        verify(userDao, never()).merge(any(UserEntity.class));
+    }
+
+    @Test
+    public void shouldReturnUser_whenActivateNewOtpKey_ifNoProvisionalOtpCode() {
+        User user = aUser();
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setSecondFactor(SecondFactorMethod.SMS);
+        userEntity.setOtpKey("Original OTP key");
+        userEntity.setProvisionalOtpKeyCreatedAt(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(89));
+
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+
+        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP,123456);
+
+        assertFalse(result.isPresent());
+
+        assertThat(userEntity.getOtpKey(), is("Original OTP key"));
+        assertThat(userEntity.getSecondFactor(), is(SecondFactorMethod.SMS));
+
+        verify(userDao, never()).merge(any(UserEntity.class));
+    }
+
+    @Test
+    public void shouldReturnUser_whenActivateNewOtpKey_ifNoProvisionalOtpCodeCreatedAt() {
+        User user = aUser();
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setSecondFactor(SecondFactorMethod.SMS);
+        userEntity.setOtpKey("Original OTP key");
+        userEntity.setProvisionalOtpKey("New OTP key");
+
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+        when(secondFactorAuthenticator.authorize("New OTP key", 123456)).thenReturn(true);
+
+        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP,123456);
+
+        assertFalse(result.isPresent());
+
+        assertThat(userEntity.getOtpKey(), is("Original OTP key"));
+        assertThat(userEntity.getSecondFactor(), is(SecondFactorMethod.SMS));
+
+        verify(userDao, never()).merge(any(UserEntity.class));
+    }
+
+    @Test
+    public void shouldReturnUser_whenActivateNewOtpKey_ifProvisionalOtpCodeCreatedAtTooLongAgo() {
+        User user = aUser();
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setSecondFactor(SecondFactorMethod.SMS);
+        userEntity.setOtpKey("Original OTP key");
+        userEntity.setProvisionalOtpKey("New OTP key");
+        userEntity.setProvisionalOtpKeyCreatedAt(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(91));
+
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+        when(secondFactorAuthenticator.authorize("New OTP key", 123456)).thenReturn(true);
+
+        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP,123456);
+
+        assertFalse(result.isPresent());
+
+        assertThat(userEntity.getOtpKey(), is("Original OTP key"));
+        assertThat(userEntity.getSecondFactor(), is(SecondFactorMethod.SMS));
+
+        verify(userDao, never()).merge(any(UserEntity.class));
+    }
+
+    @Test
+    public void shouldReturnEmpty_whenActivateNewOtpKey_ifUserNotFound() {
+        String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+        when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
+
+        Optional<User> result = userServices.activateNewOtpKey(nonExistentExternalId, SecondFactorMethod.SMS,123456);
+
+        assertFalse(result.isPresent());
+
+        verify(userDao, never()).merge(any(UserEntity.class));
+    }
+
+    @Test
+    public void shouldReturnUser_whenActivateNewOtpKey_ifUserDisabled() {
+        User user = aUser();
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setSecondFactor(SecondFactorMethod.SMS);
+        userEntity.setOtpKey("Original OTP key");
+        userEntity.setProvisionalOtpKey("New OTP key");
+        userEntity.setProvisionalOtpKeyCreatedAt(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(89));
+        userEntity.setDisabled(true);
+
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+        when(secondFactorAuthenticator.authorize("New OTP key", 123456)).thenReturn(true);
+
+        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP,123456);
+
+        assertFalse(result.isPresent());
+
+        assertThat(userEntity.getOtpKey(), is("Original OTP key"));
+        assertThat(userEntity.getSecondFactor(), is(SecondFactorMethod.SMS));
 
         verify(userDao, never()).merge(any(UserEntity.class));
     }
