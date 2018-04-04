@@ -599,7 +599,7 @@ Content-Type: application/json
 
 This endpoint provisions a new second-factor OTP key (secret used to generate OTP codes) for a user.
 
-Provisioning a new key does not change immediately change the user’s current key. Use the [```/v1/api/users/second-factor/configure```](#post-v1apiusersexternalidsecondfactorconfigure) endpoint to replace the user’s current key with the newly-provisioned one.
+Provisioning a new key does not change immediately change the user’s current key. Use the [```/v1/api/users/second-factor/activate```](#post-v1apiusersexternalidsecondfactoractivate) endpoint to replace the user’s current key with the newly-provisioned one.
 
 ### Request example
 
@@ -624,6 +624,54 @@ Content-Type: application/json
     "permissions":["perm-1","perm-2","perm-3"],
     "provisional_otp_key": "5h8oe39",
     "provisional_otp_key_created_at": "2018-04-03T17:52:03.123Z",
+    "_links": [{
+        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
+        "rel" : "self",
+        "method" : "GET"
+    }]
+}
+```
+
+## POST /v1/api/users/`{externalId}`/second-factor/activate
+
+This endpoint activates the provisional OTP key for a user and configures their second-factor authentication method.
+
+The user should have already a provisional OTP key created by the [```/v1/api/users/second-factor/provision```](#post-v1apiusersexternalidsecondfactorprovision) endpoint before this endpoint is called.
+
+### Request example
+
+```
+POST /v1/api/users/7d19aff33f8948deb97ed16b2912dcd3/second-factor/activate
+Content-Type: application/json
+{
+    "code": 123456,
+    "second_factor": "APP"
+}
+```
+
+#### Request body description
+
+| Field           | Required | Description                                    | Supported Values |
+| --------------- |:--------:| ---------------------------------------------- |------------------|
+| `code`          |   X      | OTP code valid for the provisional OTP key     |                  |
+| `second_factor` |   X      | the second-factor authentication method to use | `SMS`, `APP`     |
+
+### Response example
+
+```
+200 OK
+Content-Type: application/json
+{
+    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
+    "username": "abcd1234",
+    "email": "email@example.com",
+    "gateway_account_ids": ["1"],
+    "telephone_number": "447700900000",
+    "otp_key": "5h8oe39",
+    "second_factor": "APP",
+    "sessionVersion": 2,
+    "role": {"admin","Administrator"},
+    "permissions":["perm-1","perm-2","perm-3"],
     "_links": [{
         "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
         "rel" : "self",
