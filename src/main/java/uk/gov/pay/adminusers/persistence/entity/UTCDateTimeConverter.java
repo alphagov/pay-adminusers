@@ -13,6 +13,9 @@ public class UTCDateTimeConverter implements AttributeConverter<ZonedDateTime, T
 
     @Override
     public Timestamp convertToDatabaseColumn(ZonedDateTime dateTime) {
+        if (dateTime == null) {
+            return null;
+        }
         return Timestamp.from(dateTime.toInstant());
     }
 
@@ -20,8 +23,7 @@ public class UTCDateTimeConverter implements AttributeConverter<ZonedDateTime, T
     public ZonedDateTime convertToEntityAttribute(Timestamp s) {
         if (s == null) {
             return null;
-        } else {
-            return ZonedDateTime.ofInstant(s.toInstant(), UTC);
         }
+        return ZonedDateTime.ofInstant(s.toInstant(), UTC);
     }
 }

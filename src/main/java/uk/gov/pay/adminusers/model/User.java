@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,18 +40,29 @@ public class User {
     private List<ServiceRole> serviceRoles = new ArrayList<>();
     @Deprecated // Use serviceRoles instead
     private List<Role> roles = new ArrayList<>();
+    private SecondFactorMethod secondFactor;
+    private String provisionalOtpKey;
+    private ZonedDateTime provisionalOtpKeyCreatedAt;
     private List<Link> links = new ArrayList<>();
     private Integer sessionVersion = 0;
 
     public static User from(Integer id, String externalId, String username, String password, String email,
-                            List<String> gatewayAccountIds, List<Service> services, String otpKey, String telephoneNumber, List<ServiceRole> serviceRoles, String features) {
-        return new User(id, externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber, serviceRoles, features);
+                            List<String> gatewayAccountIds, List<Service> services, String otpKey, String telephoneNumber,
+                            List<ServiceRole> serviceRoles, String features, SecondFactorMethod secondFactor, String provisionalOtpKey,
+                            ZonedDateTime provisionalOtpKeyCreatedAt) {
+        User user = new User(id, externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber,
+                serviceRoles, features, secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt);
+        return user;
     }
 
-    private User(Integer id, @JsonProperty("external_id") String externalId, @JsonProperty("username") String username, @JsonProperty("password") String password,
-                 @JsonProperty("email") String email, @JsonProperty("gateway_account_ids") List<String> gatewayAccountIds,
-                 List<Service> services, @JsonProperty("otp_key") String otpKey, @JsonProperty("telephone_number") String telephoneNumber,
-                 @JsonProperty("service_roles") List<ServiceRole> serviceRoles, @JsonProperty("features") String features) {
+    private User(Integer id, @JsonProperty("external_id") String externalId, @JsonProperty("username") String username,
+                 @JsonProperty("password") String password, @JsonProperty("email") String email,
+                 @JsonProperty("gateway_account_ids") List<String> gatewayAccountIds, List<Service> services,
+                 @JsonProperty("otp_key") String otpKey, @JsonProperty("telephone_number") String telephoneNumber,
+                 @JsonProperty("service_roles") List<ServiceRole> serviceRoles, @JsonProperty("features") String features,
+                 @JsonProperty("second_factor") SecondFactorMethod secondFactor,
+                 @JsonProperty("provisional_otp_key") String provisionalOtpKey,
+                 @JsonProperty("provisional_otp_key_created_at") ZonedDateTime provisionalOtpKeyCreatedAt) {
         this.id = id;
         this.externalId = externalId;
         this.username = username;
@@ -62,6 +74,9 @@ public class User {
         this.telephoneNumber = telephoneNumber;
         this.serviceRoles = serviceRoles;
         this.features = features;
+        this.secondFactor = secondFactor;
+        this.provisionalOtpKey = provisionalOtpKey;
+        this.provisionalOtpKeyCreatedAt = provisionalOtpKeyCreatedAt;
     }
 
     @JsonIgnore
@@ -139,6 +154,30 @@ public class User {
         return services.stream().map(service -> String.valueOf(service.getId())).collect(Collectors.toList());
     }
 
+    public SecondFactorMethod getSecondFactor() {
+        return secondFactor;
+    }
+
+    public void setSecondFactor(SecondFactorMethod secondFactor) {
+        this.secondFactor = secondFactor;
+    }
+
+    public String getProvisionalOtpKey() {
+        return provisionalOtpKey;
+    }
+
+    public void setProvisionalOtpKey(String provisionalOtpKey) {
+        this.provisionalOtpKey = provisionalOtpKey;
+    }
+
+    public ZonedDateTime getProvisionalOtpKeyCreatedAt() {
+        return provisionalOtpKeyCreatedAt;
+    }
+
+    public void setProvisionalOtpKeyCreatedAt(ZonedDateTime provisionalOtpKeyCreatedAt) {
+        this.provisionalOtpKeyCreatedAt = provisionalOtpKeyCreatedAt;
+    }
+
     /**
      * We've agreed that given we are currently supporting only 1 role per user we will not json output a list of 1 role
      * instead the flat role attribute below.
@@ -185,7 +224,7 @@ public class User {
     }
 
     /**
-     * its probably not a good idea to toString() password / otpKey
+     * it’s definitely not a good idea to toString() password / otpKey
      *
      * @return
      */
@@ -193,6 +232,7 @@ public class User {
     public String toString() {
         return "User{" +
                 "externalId=" + externalId +
+                ", secondFactor=" + secondFactor +
                 ", gatewayAccountIds=[" + String.join(", ", gatewayAccountIds) + ']' +
                 ", disabled=" + disabled +
                 ", serviceRoles=" + serviceRoles +

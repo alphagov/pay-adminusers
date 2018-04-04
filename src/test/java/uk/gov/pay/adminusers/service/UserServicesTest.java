@@ -11,7 +11,12 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import uk.gov.pay.adminusers.model.*;
+import uk.gov.pay.adminusers.model.PatchRequest;
+import uk.gov.pay.adminusers.model.Permission;
+import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
+import uk.gov.pay.adminusers.model.SecondFactorToken;
+import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -32,7 +37,11 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.Permission.permission;
@@ -450,10 +459,14 @@ public class UserServicesTest {
     }
 
     private User aUser() {
-        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", asList("1"), newArrayList(), "784rh", "8948924", newArrayList(), null);
+        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", asList("1"),
+                newArrayList(), "784rh", "8948924", newArrayList(), null, SecondFactorMethod.SMS,
+                null, null);
     }
     private User anotherUser() {
-        return User.from(randomInt(), ANOTHER_USER_EXTERNAL_ID, ANOTHER_USER_USERNAME, "random-password", "email@example.com", asList("1"), newArrayList(), "784rh", "8948924", newArrayList(), null);
+        return User.from(randomInt(), ANOTHER_USER_EXTERNAL_ID, ANOTHER_USER_USERNAME, "random-password",
+                "email@example.com", asList("1"), newArrayList(), "784rh", "8948924", newArrayList(),
+                null, SecondFactorMethod.SMS, null, null);
     }
 
     private Role aRole() {

@@ -101,8 +101,11 @@ public class DatabaseTestHelper {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO users(" +
-                                "id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, version, \"createdAt\", \"updatedAt\", session_version) " +
-                                "VALUES (:id, :externalId, :username, :password, :email, :otpKey, :telephoneNumber, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version)")
+                                "id, external_id, username, password, email, otp_key, telephone_number, " +
+                                    "second_factor, disabled, login_counter, version, " +
+                                    "\"createdAt\", \"updatedAt\", session_version) " +
+                                "VALUES (:id, :externalId, :username, :password, :email, :otpKey, :telephoneNumber, " +
+                                    ":secondFactor, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version)")
                         .bind("id", user.getId())
                         .bind("externalId", user.getExternalId())
                         .bind("username", user.getUsername())
@@ -110,6 +113,7 @@ public class DatabaseTestHelper {
                         .bind("email", user.getEmail())
                         .bind("otpKey", user.getOtpKey())
                         .bind("telephoneNumber", user.getTelephoneNumber())
+                        .bind("secondFactor", user.getSecondFactor().toString())
                         .bind("disabled", user.isDisabled())
                         .bind("loginCounter", user.getLoginCounter())
                         .bind("version", 0)
