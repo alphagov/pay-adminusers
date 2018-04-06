@@ -3,12 +3,15 @@ package uk.gov.pay.adminusers.pact;
 import au.com.dius.pact.provider.junit.PactRunner;
 import au.com.dius.pact.provider.junit.Provider;
 import au.com.dius.pact.provider.junit.State;
+import au.com.dius.pact.provider.junit.loader.PactBroker;
+import au.com.dius.pact.provider.junit.loader.PactBrokerAuth;
 import au.com.dius.pact.provider.junit.loader.PactSource;
 import au.com.dius.pact.provider.junit.target.HttpTarget;
 import au.com.dius.pact.provider.junit.target.Target;
 import au.com.dius.pact.provider.junit.target.TestTarget;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.fixtures.RoleDbFixture;
@@ -33,9 +36,11 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
+@Ignore
 @RunWith(PactRunner.class)
 @Provider("adminusers")
-@PactSource(ConfigurablePactLoader.class)
+@PactBroker(protocol = "https", host = "governmentdigitalservice.pact.dius.com.au", port = "443", tags = {"${pactTags}"},
+        authentication = @PactBrokerAuth(username = "${pactBrokerUsername}", password = "${pactBrokerPassword}"))
 public class UsersApiTest {
 
     @ClassRule
