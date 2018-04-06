@@ -37,7 +37,7 @@ import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
 @RunWith(PactRunner.class)
 @Provider("adminusers")
-@PactBroker(host = "governmentdigitalservice.pact.dius.com.au", port = "443", tags = {"${pactTags}"},
+@PactBroker(protocol = "https", host = "governmentdigitalservice.pact.dius.com.au", port = "443", tags = {"${pactTags}"},
         authentication = @PactBrokerAuth(username = "${pactBrokerUsername}", password = "${pactBrokerPassword}"))
 public class UsersApiTest {
 
