@@ -8,10 +8,19 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import uk.gov.pay.adminusers.model.*;
+import uk.gov.pay.adminusers.model.InviteCompleteResponse;
+import uk.gov.pay.adminusers.model.InviteType;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
+import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceRole;
+import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
-import uk.gov.pay.adminusers.persistence.entity.*;
+import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
+import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
+import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
@@ -188,6 +197,7 @@ public class UserInviteCompleterTest {
     private User aUser(String email) {
         Service service = Service.from(serviceId, serviceExternalId, Service.DEFAULT_NAME_VALUE);
         return User.from(randomInt(), randomUuid(), "a-username", "random-password", email, asList("1"), asList(service), "784rh", "8948924",
-                asList(ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"))), null);
+                asList(ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"))), null,
+                SecondFactorMethod.SMS, null, null);
     }
 }

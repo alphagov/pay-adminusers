@@ -9,6 +9,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -23,7 +24,9 @@ import java.util.Optional;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -60,6 +63,7 @@ public class UserCreatorTest {
         verify(mockUserDao).persist(expectedUser.capture());
         assertThat(expectedUser.getValue().getEmail(), is("email@example.com"));
         assertThat(user.getEmail(), is("email@example.com"));
+        assertThat(user.getSecondFactor(), is(SecondFactorMethod.SMS));
         assertThat(user.getServiceRoles().size(), is(0));
     }
 
@@ -75,6 +79,7 @@ public class UserCreatorTest {
         verify(mockUserDao).persist(expectedUser.capture());
         assertThat(expectedUser.getValue().getEmail(), is("email@example.com"));
         assertThat(user.getEmail(), is("email@example.com"));
+        assertThat(user.getSecondFactor(), is(SecondFactorMethod.SMS));
         assertThat(user.getServiceRoles().size(), is(2));
     }
 
@@ -90,6 +95,7 @@ public class UserCreatorTest {
         verify(mockUserDao).persist(expectedUser.capture());
         assertThat(expectedUser.getValue().getEmail(), is("email@example.com"));
         assertThat(user.getEmail(), is("email@example.com"));
+        assertThat(user.getSecondFactor(), is(SecondFactorMethod.SMS));
         assertThat(user.getServiceRoles().size(), is(1));
     }
 

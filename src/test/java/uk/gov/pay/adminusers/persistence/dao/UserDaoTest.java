@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
@@ -65,6 +66,7 @@ public class UserDaoTest extends DaoTestBase {
         userEntity.setEmail(username + "@example.com");
         userEntity.setOtpKey(randomInt().toString());
         userEntity.setTelephoneNumber("876284762");
+        userEntity.setSecondFactor(SecondFactorMethod.SMS);
         userEntity.setSessionVersion(0);
         ZonedDateTime timeNow = ZonedDateTime.now(ZoneId.of("UTC"));
         userEntity.setCreatedAt(timeNow);

@@ -10,12 +10,21 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
-import uk.gov.pay.adminusers.model.*;
+import uk.gov.pay.adminusers.model.Invite;
+import uk.gov.pay.adminusers.model.InviteUserRequest;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
+import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceRole;
+import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
-import uk.gov.pay.adminusers.persistence.entity.*;
+import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
+import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
+import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
@@ -31,7 +40,10 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.matches;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.InviteRequest.FIELD_EMAIL;
@@ -355,7 +367,8 @@ public class UserInviteCreatorTest {
     private User aUser(String email) {
         Service service = Service.from(serviceId, serviceExternalId, Service.DEFAULT_NAME_VALUE);
         return User.from(randomInt(), randomUuid(), "a-username", "random-password", email, asList("1"),
-                asList(service), "784rh", "8948924", asList(ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"))), null);
+                asList(service), "784rh", "8948924", asList(ServiceRole.from(service, role(ADMIN.getId(),
+                        "Admin", "Administrator"))), null, SecondFactorMethod.SMS, null, null);
     }
 
 }
