@@ -226,9 +226,15 @@
         </dependency>
         <dependency>
             <groupId>au.com.dius</groupId>
-            <artifactId>pact-jvm-provider-junit_2.11</artifactId>
-            <version>3.3.7</version>
+            <artifactId>pact-jvm-consumer-junit_2.12</artifactId>
+            <version>3.5.14</version>
             <scope>test</scope>    
+        </dependency>
+        <dependency>
+            <groupId>au.com.dius</groupId>
+            <artifactId>pact-jvm-provider-junit_2.12</artifactId>
+            <version>3.5.14</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
