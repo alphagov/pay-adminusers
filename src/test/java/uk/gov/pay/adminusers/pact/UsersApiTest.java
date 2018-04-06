@@ -131,8 +131,10 @@ public class UsersApiTest {
             "a user exists with a given username password",
             "a user not exists with a given username password",
             "a user not exists with a given username password",
-            "no user exits with the given external id",
-            "a user exits with the given external id"
+            "no user exists with the given external id",
+            "no users exits with the given external id",
+            "a user exists with the given external id",
+            "the given external id all refer to existing users"
     })
     public void noSetUp() {
     }
