@@ -23,6 +23,8 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -33,12 +35,14 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
 import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -456,6 +460,61 @@ public class UserServicesTest {
         Optional<User> tokenOptional = userServices.authenticateSecondFactor(nonExistentExternalId, 111111);
 
         assertFalse(tokenOptional.isPresent());
+    }
+
+    @Test
+    public void shouldReturnUser_whenProvisionNewOtpKey_ifUserFound() {
+        User user = aUser();
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setOtpKey("Original OTP key");
+
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+        when(secondFactorAuthenticator.generateNewBase32EncodedSecret()).thenReturn("Provisional OTP key");
+
+        Optional<User> result = userServices.provisionNewOtpKey(user.getExternalId());
+
+        assertThat(result.get().getOtpKey(), is("Original OTP key"));
+        assertThat(result.get().getProvisionalOtpKey(), is("Provisional OTP key"));
+        assertTrue(within(3, SECONDS, result.get().getProvisionalOtpKeyCreatedAt()).matches(ZonedDateTime.now(ZoneOffset.UTC)));
+
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        verify(userDao).merge(argumentCaptor.capture());
+        UserEntity savedUser = argumentCaptor.getValue();
+        assertThat(savedUser.getOtpKey(), is("Original OTP key"));
+        assertThat(savedUser.getProvisionalOtpKey(), is("Provisional OTP key"));
+        assertTrue(within(3, SECONDS, savedUser.getProvisionalOtpKeyCreatedAt()).matches(ZonedDateTime.now(ZoneOffset.UTC)));
+    }
+
+    @Test
+    public void shouldReturnEmpty_whenProvisionNewOtpKey_ifUserNotFound() {
+        String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+        when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
+
+        Optional<User> result = userServices.provisionNewOtpKey(nonExistentExternalId);
+
+        assertFalse(result.isPresent());
+
+        verify(userDao, never()).merge(any(UserEntity.class));
+    }
+
+    @Test
+    public void shouldReturnEmpty_whenProvisionNewOtpKey_ifUserDisabled() {
+        User user = aUser();
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setOtpKey("Original OTP key");
+        userEntity.setDisabled(true);
+
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+
+        Optional<User> result = userServices.provisionNewOtpKey(user.getExternalId());
+
+        assertFalse(result.isPresent());
+
+        assertThat(userEntity.getOtpKey(), is("Original OTP key"));
+        assertThat(userEntity.getProvisionalOtpKey(), is(nullValue()));
+        assertThat(userEntity.getProvisionalOtpKeyCreatedAt(), is(nullValue()));
+
+        verify(userDao, never()).merge(any(UserEntity.class));
     }
 
     private User aUser() {

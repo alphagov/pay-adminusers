@@ -17,12 +17,14 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
-import static uk.gov.pay.adminusers.model.PatchRequest.*;
+import static uk.gov.pay.adminusers.model.PatchRequest.PATH_DISABLED;
+import static uk.gov.pay.adminusers.model.PatchRequest.PATH_FEATURES;
+import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
+import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TELEPHONE_NUMBER;
 
 public class UserServices {
 
@@ -185,6 +187,27 @@ public class UserServices {
                 .orElseGet(() -> {
                     //this cannot happen unless a bug in selfservice
                     logger.error("Authenticate 2FA token attempted for non-existent User [{}]", externalId);
+                    return Optional.empty();
+                });
+    }
+
+    @Transactional
+    public Optional<User> provisionNewOtpKey(String externalId) {
+        return userDao.findByExternalId(externalId)
+                .map(userEntity -> {
+                    if (userEntity.isDisabled()) {
+                        logger.warn("Attempt to provision a new OTP key for disabled user {}", userEntity.getExternalId());
+                        return Optional.<User>empty();
+                    }
+                    logger.info("Provisioning new OTP key for user {}", userEntity.getExternalId());
+                    ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
+                    userEntity.setProvisionalOtpKey(secondFactorAuthenticator.generateNewBase32EncodedSecret());
+                    userEntity.setProvisionalOtpKeyCreatedAt(now);
+                    userEntity.setUpdatedAt(now);
+                    userDao.merge(userEntity);
+                    return Optional.of(linksBuilder.decorate(userEntity.toUser()));
+                }).orElseGet(() -> {
+                    logger.error("Attempt to provision a new OTP key for a non-existent user {}", externalId);
                     return Optional.empty();
                 });
     }
