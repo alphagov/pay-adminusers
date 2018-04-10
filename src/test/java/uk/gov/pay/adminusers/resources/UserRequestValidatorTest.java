@@ -264,6 +264,60 @@ public class UserRequestValidatorTest {
     }
 
     @Test
+    public void shouldError_ifCodeMissing_whenValidate2faActivateRequest() {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("second_factor", "SMS"));
+
+        Optional<Errors> optionalErrors = validator.validate2faActivateRequest(payload);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("Field [code] is required"));
+    }
+
+    @Test
+    public void shouldError_ifCodeNotNumeric_whenValidate2faActivateRequest() {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("code", "I am not a number, I’m a free man!",
+                "second_factor", "SMS"));
+
+        Optional<Errors> optionalErrors = validator.validate2faActivateRequest(payload);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("Field [code] must be a number"));
+    }
+
+    @Test
+    public void shouldError_ifSecondFactorMissing_whenValidate2faActivateRequest() {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("code", 123456));
+
+        Optional<Errors> optionalErrors = validator.validate2faActivateRequest(payload);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("Field [second_factor] is required"));
+    }
+
+    @Test
+    public void shouldError_ifSecondFactorInvalid_whenValidate2faActivateRequest() {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("code", 123456,
+                "second_factor", "PINKY_SWEAR"));
+
+        Optional<Errors> optionalErrors = validator.validate2faActivateRequest(payload);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("Invalid second_factor [PINKY_SWEAR]"));
+    }
+
+    @Test
     public void shouldError_ifRequiredFieldsMissing_whenFindingAUser() throws Exception {
         JsonNode payload = new ObjectMapper().readTree("{}");
         Optional<Errors> optionalErrors = validator.validateFindRequest(payload);

@@ -7,6 +7,7 @@ import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.PatchRequest;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.SecondFactorToken;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
@@ -208,6 +209,47 @@ public class UserServices {
                     return Optional.of(linksBuilder.decorate(userEntity.toUser()));
                 }).orElseGet(() -> {
                     logger.error("Attempt to provision a new OTP key for a non-existent user {}", externalId);
+                    return Optional.empty();
+                });
+    }
+
+    @Transactional
+    public Optional<User> activateNewOtpKey(String externalId, SecondFactorMethod secondFactor, int code) {
+        return userDao.findByExternalId(externalId)
+                .map(userEntity -> {
+                    if (userEntity.isDisabled()) {
+                        logger.error("Attempt to activate a new OTP key for disabled user {}", userEntity.getExternalId());
+                        return Optional.<User>empty();
+                    }
+
+                    if (userEntity.getProvisionalOtpKey() == null) {
+                        logger.error("Attempt to activate a new OTP key for user {} without a provisional one", userEntity.getExternalId());
+                        return Optional.<User>empty();
+                    }
+
+                    ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
+                    ZonedDateTime provisionalOtpKeyCreatedAt = userEntity.getProvisionalOtpKeyCreatedAt();
+                    if (provisionalOtpKeyCreatedAt == null || provisionalOtpKeyCreatedAt.plusMinutes(90).isBefore(now)) {
+                        logger.warn("Attempt to activate a new OTP key for user {} but provisional one was created too long ago at {}",
+                                userEntity.getExternalId(), provisionalOtpKeyCreatedAt);
+                        return Optional.<User>empty();
+                    }
+
+                    if (!secondFactorAuthenticator.authorize(userEntity.getProvisionalOtpKey(), code)) {
+                        logger.info("Attempt to activate a new OTP key for user {} with incorrect code", userEntity.getExternalId());
+                        return Optional.<User>empty();
+                    }
+
+                    logger.info("Activating new OTP key and method {} for user {}", secondFactor.toString(), userEntity.getExternalId());
+                    userEntity.setOtpKey(userEntity.getProvisionalOtpKey());
+                    userEntity.setSecondFactor(secondFactor);
+                    userEntity.setProvisionalOtpKey(null);
+                    userEntity.setProvisionalOtpKeyCreatedAt(null);
+                    userEntity.setUpdatedAt(now);
+                    userDao.merge(userEntity);
+                    return Optional.of(linksBuilder.decorate(userEntity.toUser()));
+                }).orElseGet(() -> {
+                    logger.error("Attempt to activate a new OTP key for a non-existent user {}", externalId);
                     return Optional.empty();
                 });
     }
