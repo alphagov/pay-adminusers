@@ -96,6 +96,19 @@ public class DatabaseTestHelper {
         return this;
     }
 
+    public DatabaseTestHelper updateProvisionalOtpKey(String username, String provisionalOtpKey) {
+        jdbi.withHandle(handle ->
+                handle
+                        .createStatement("UPDATE users SET provisional_otp_key = :provisionalOtpKey, " +
+                                "provisional_otp_key_created_at = NOW() " +
+                                "WHERE username = :username")
+                        .bind("provisionalOtpKey", provisionalOtpKey)
+                        .bind("username", username)
+                        .execute()
+        );
+        return this;
+    }
+
     public DatabaseTestHelper add(User user) {
         Timestamp now = from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant());
         jdbi.withHandle(handle ->

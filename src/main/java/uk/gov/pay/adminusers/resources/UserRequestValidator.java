@@ -15,8 +15,15 @@ import java.util.function.Function;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
-import static uk.gov.pay.adminusers.model.User.*;
-import static uk.gov.pay.adminusers.validations.UserPatchValidations.*;
+import static uk.gov.pay.adminusers.model.User.FIELD_EMAIL;
+import static uk.gov.pay.adminusers.model.User.FIELD_PASSWORD;
+import static uk.gov.pay.adminusers.model.User.FIELD_ROLE_NAME;
+import static uk.gov.pay.adminusers.model.User.FIELD_SERVICE_EXTERNAL_ID;
+import static uk.gov.pay.adminusers.model.User.FIELD_TELEPHONE_NUMBER;
+import static uk.gov.pay.adminusers.model.User.FIELD_USERNAME;
+import static uk.gov.pay.adminusers.validations.UserPatchValidations.getUserPatchPathValidations;
+import static uk.gov.pay.adminusers.validations.UserPatchValidations.isAllowedOpForPath;
+import static uk.gov.pay.adminusers.validations.UserPatchValidations.isPathAllowed;
 
 public class UserRequestValidator {
 
@@ -44,6 +51,13 @@ public class UserRequestValidator {
         }
         Optional<List<String>> invalidLength = requestValidations.checkMaxLength(payload, MAX_LENGTH_FIELD_USERNAME, FIELD_USERNAME);
         return invalidLength.map(Errors::from);
+    }
+
+    public Optional<Errors> validateNewSecondFactorPasscodeRequest(JsonNode payload) {
+        if (payload != null && payload.get("provisional") != null) {
+            return requestValidations.checkIsBoolean(payload, "provisional").map(Errors::from);
+        }
+        return Optional.empty();
     }
 
     public Optional<Errors> validate2FAAuthRequest(JsonNode payload) {

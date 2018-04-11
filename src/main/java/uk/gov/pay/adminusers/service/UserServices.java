@@ -134,21 +134,36 @@ public class UserServices {
                 .orElse(Optional.empty());
     }
 
-    public Optional<SecondFactorToken> newSecondFactorPasscode(String externalId) {
+    public Optional<SecondFactorToken> newSecondFactorPasscode(String externalId, boolean useProvisionalOtpKey) {
         return userDao.findByExternalId(externalId)
                 .map(userEntity -> {
-                    int newPassCode = secondFactorAuthenticator.newPassCode(userEntity.getOtpKey());
-                    SecondFactorToken token = SecondFactorToken.from(externalId, newPassCode);
-                    final String userExternalId = userEntity.getExternalId();
-                    notificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), token.getPasscode())
-                            .thenAcceptAsync(notificationId -> logger.info("sent 2FA token successfully to user [{}], notification id [{}]",
-                                    userExternalId, notificationId))
-                            .exceptionally(exception -> {
-                                logger.error(format("error sending 2FA token to user [%s]", userExternalId), exception);
-                                return null;
-                            });
-                    logger.info("New 2FA token generated for User [{}]", userExternalId);
-                    return Optional.of(token);
+                    String otpKeyOrProvisionalOtpKey = useProvisionalOtpKey ? userEntity.getProvisionalOtpKey() : userEntity.getOtpKey();
+                    return Optional.ofNullable(otpKeyOrProvisionalOtpKey).map(otpKey -> {
+                        int newPassCode = secondFactorAuthenticator.newPassCode(otpKey);
+                        SecondFactorToken token = SecondFactorToken.from(externalId, newPassCode);
+                        final String userExternalId = userEntity.getExternalId();
+                        notificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), token.getPasscode())
+                                .thenAcceptAsync(notificationId -> logger.info("sent 2FA token successfully to user [{}], notification id [{}]",
+                                        userExternalId, notificationId))
+                                .exceptionally(exception -> {
+                                    logger.error("error sending 2FA token to user [{}]", userExternalId, exception);
+                                    return null;
+                                });
+                        if (useProvisionalOtpKey) {
+                            logger.info("New 2FA token generated for User [{}] from provisional OTP key", userExternalId);
+                        } else {
+                            logger.info("New 2FA token generated for User [{}]", userExternalId);
+                        }
+                        return Optional.of(token);
+                    }).orElseGet(() -> {
+                        if (useProvisionalOtpKey) {
+                            logger.error("New provisional 2FA token attempted for user without a provisional OTP key [{}]", externalId);
+                        } else {
+                            // Realistically, this will never happen
+                            logger.error("New 2FA token attempted for user without an OTP key [{}]", externalId);
+                        }
+                        return Optional.empty();
+                    });
                 })
                 .orElseGet(() -> {
                     //this cannot happen unless a bug in selfservice

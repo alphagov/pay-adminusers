@@ -225,6 +225,8 @@ public class UserEntity extends AbstractEntity {
         userEntity.setOtpKey(user.getOtpKey());
         userEntity.setTelephoneNumber(user.getTelephoneNumber());
         userEntity.setSecondFactor(user.getSecondFactor());
+        userEntity.setProvisionalOtpKey(user.getProvisionalOtpKey());
+        userEntity.setProvisionalOtpKeyCreatedAt(user.getProvisionalOtpKeyCreatedAt());
         userEntity.setLoginCounter(user.getLoginCounter());
         userEntity.setFeatures(user.getFeatures());
         userEntity.setDisabled(user.isDisabled());
