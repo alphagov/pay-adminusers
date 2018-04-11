@@ -1,11 +1,10 @@
 package uk.gov.pay.adminusers.pact;
 
+import au.com.dius.pact.provider.PactVerifyProvider;
 import au.com.dius.pact.provider.junit.PactRunner;
 import au.com.dius.pact.provider.junit.Provider;
 import au.com.dius.pact.provider.junit.State;
 import au.com.dius.pact.provider.junit.loader.PactBroker;
-import au.com.dius.pact.provider.junit.loader.PactBrokerAuth;
-import au.com.dius.pact.provider.junit.loader.PactSource;
 import au.com.dius.pact.provider.junit.target.HttpTarget;
 import au.com.dius.pact.provider.junit.target.Target;
 import au.com.dius.pact.provider.junit.target.TestTarget;
@@ -35,16 +34,16 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
-@RunWith(PactRunner.class)
-@Provider("adminusers")
-@PactBroker(protocol = "https", host = "governmentdigitalservice.pact.dius.com.au", port = "443", tags = {"${pactTags}"},
-        authentication = @PactBrokerAuth(username = "${pactBrokerUsername}", password = "${pactBrokerPassword}"))
+//@RunWith(PactRunner.class)
+//@Provider("adminusers")
+//@PactBroker(protocol = "http", host = "http://192.168.99.100/", port = "80", tags = {"PP-Test-Pact-Versioning"})
 public class UsersApiTest {
 
+    private static final PasswordHasher passwordHasher = new PasswordHasher();
     @ClassRule
     public static DropwizardAppWithPostgresRule app = new DropwizardAppWithPostgresRule();
-
-    private static final PasswordHasher passwordHasher = new PasswordHasher();
+    @TestTarget
+    public static Target target;
     private static DatabaseTestHelper dbHelper;
 
     @BeforeClass
@@ -57,86 +56,8 @@ public class UsersApiTest {
         createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", serviceId, "password");
     }
 
-    @TestTarget
-    public static Target target;
-
-    @State("a valid forgotten password entry and a related user exists")
-    public void aUserExistsWithAForgottenPasswordRequest() throws Exception {
-        String code = "avalidforgottenpasswordtoken";
-        String userExternalId = RandomIdGenerator.randomUuid();
-        createUserWithinAService(userExternalId, RandomIdGenerator.randomUuid(), "password");
-        List<Map<String, Object>> userByExternalId = dbHelper.findUserByExternalId(userExternalId);
-        dbHelper.add(ForgottenPassword.forgottenPassword(code, userExternalId), (Integer) userByExternalId.get(0).get("id"));
-    }
-
-    @State("a user exists with max login attempts")
-    public void aUserExistsWithMaxLoginAttempts() throws Exception {
-        String username = "user-login-attempts-max";
-        createUserWithinAService(RandomIdGenerator.randomUuid(), username, "password");
-        dbHelper.updateLoginCount(username, 10);
-    }
-
-    @State("a forgotten password entry exist")
-    public void aForgottenPasswordEntryExist() throws Exception {
-        String code = "existing-code";
-        String existingUserExternalId = "7d19aff33f8948deb97ed16b2912dcd3";
-        List<Map<String, Object>> userByName = dbHelper.findUserByExternalId(existingUserExternalId);
-        dbHelper.add(ForgottenPassword.forgottenPassword(code, existingUserExternalId), (Integer) userByName.get(0).get("id"));
-    }
-
-    @State("a user and user admin exists in service with the given ids before a delete operation")
-    public void aUserAndUserAdminExistBeforeADelete() throws Exception {
-
-        String existingUserExternalId = "pact-delete-user-id";
-        String existingUserRemoverExternalId = "pact-delete-remover-id";
-        String existingServiceExternalId = "pact-delete-service-id";
-
-        Service service = ServiceDbFixture.serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
-        Role role = RoleDbFixture.roleDbFixture(dbHelper).insertAdmin();
-
-        String username1 = randomUuid();
-        String email1 = username1 + "@example.com";
-        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withUsername(username1).withEmail(email1).insertUser();
-        String username2 = randomUuid();
-        String email2 = username2 + "@example.com";
-        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserRemoverExternalId).withServiceRole(service, role.getId()).withUsername(username2).withEmail(email2).insertUser();
-    }
-
-    @State("a user exists but not the remover before a delete operation")
-    public void aUserExistButRemoverBeforeADelete() throws Exception {
-
-        String existingUserExternalId = "pact-user-no-remover-test";
-        String existingServiceExternalId = "pact-service-no-remover-test";
-
-        Service service = ServiceDbFixture.serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
-        Role role = RoleDbFixture.roleDbFixture(dbHelper).insertAdmin();
-
-        String username = randomUuid();
-        String email = username + "@example.com";
-        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withUsername(username).withEmail(email).insertUser();
-    }
-
     private static void createUserWithinAService(String externalId, String username, String password) throws Exception {
         createUserWithinAService(externalId, username, nextInt(), password);
-    }
-
-    @State({"a forgotten password does not exists",
-            "a user does not exist",
-            "a user exists",
-            "no user exits with the given name",
-            "a user exits with the given name",
-            "a valid (non-expired) forgotten password entry does not exist",
-            "default",
-            "a user exist",
-            "a user exists with a given username password",
-            "a user not exists with a given username password",
-            "a user not exists with a given username password",
-            "no user exists with the given external id",
-            "no users exits with the given external id",
-            "a user exists with the given external id",
-            "the given external id all refer to existing users"
-    })
-    public void noSetUp() {
     }
 
     private static void createUserWithinAService(String externalId, String username, int serviceId, String password) throws Exception {
@@ -160,4 +81,97 @@ public class UsersApiTest {
                 .withServiceRole(serviceId, role.getId())
                 .insertUser();
     }
+
+    @PactVerifyProvider("a valid forgotten password entry and a related user exists")
+    public void aUserExistsWithAForgottenPasswordRequest() throws Exception {
+        String code = "avalidforgottenpasswordtoken";
+        String userExternalId = RandomIdGenerator.randomUuid();
+        createUserWithinAService(userExternalId, RandomIdGenerator.randomUuid(), "password");
+        List<Map<String, Object>> userByExternalId = dbHelper.findUserByExternalId(userExternalId);
+        dbHelper.add(ForgottenPassword.forgottenPassword(code, userExternalId), (Integer) userByExternalId.get(0).get("id"));
+    }
+
+    @PactVerifyProvider("a user exists with max login attempts")
+    public void aUserExistsWithMaxLoginAttempts() throws Exception {
+        String username = "user-login-attempts-max";
+        createUserWithinAService(RandomIdGenerator.randomUuid(), username, "password");
+        dbHelper.updateLoginCount(username, 10);
+    }
+
+    @PactVerifyProvider("a forgotten password entry exist")
+    public void aForgottenPasswordEntryExist() throws Exception {
+        String code = "existing-code";
+        String existingUserExternalId = "7d19aff33f8948deb97ed16b2912dcd3";
+        List<Map<String, Object>> userByName = dbHelper.findUserByExternalId(existingUserExternalId);
+        dbHelper.add(ForgottenPassword.forgottenPassword(code, existingUserExternalId), (Integer) userByName.get(0).get("id"));
+    }
+
+    @PactVerifyProvider("a user and user admin exists in service with the given ids before a delete operation")
+    public void aUserAndUserAdminExistBeforeADelete() throws Exception {
+
+        String existingUserExternalId = "pact-delete-user-id";
+        String existingUserRemoverExternalId = "pact-delete-remover-id";
+        String existingServiceExternalId = "pact-delete-service-id";
+
+        Service service = ServiceDbFixture.serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
+        Role role = RoleDbFixture.roleDbFixture(dbHelper).insertAdmin();
+
+        String username1 = randomUuid();
+        String email1 = username1 + "@example.com";
+        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withUsername(username1).withEmail(email1).insertUser();
+        String username2 = randomUuid();
+        String email2 = username2 + "@example.com";
+        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserRemoverExternalId).withServiceRole(service, role.getId()).withUsername(username2).withEmail(email2).insertUser();
+    }
+
+    @PactVerifyProvider("a user exists but not the remover before a delete operation")
+    public void aUserExistButRemoverBeforeADelete() throws Exception {
+
+        String existingUserExternalId = "pact-user-no-remover-test";
+        String existingServiceExternalId = "pact-service-no-remover-test";
+
+        Service service = ServiceDbFixture.serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
+        Role role = RoleDbFixture.roleDbFixture(dbHelper).insertAdmin();
+
+        String username = randomUuid();
+        String email = username + "@example.com";
+        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withUsername(username).withEmail(email).insertUser();
+    }
+
+    @PactVerifyProvider("a user does not exist")
+    public void a (){ }
+
+    @PactVerifyProvider("a user exists")
+    public void b (){ }
+
+    @PactVerifyProvider("a user exist")
+    public void c (){ }
+
+    @PactVerifyProvider("the given external id all refer to existing users")
+    public void d (){ }
+
+    @PactVerifyProvider("a user exists with the given external id")
+    public void e (){ }
+
+    @PactVerifyProvider("no users exits with the given external id")
+    public void f (){ }
+
+    @PactVerifyProvider("no user exists with the given external id")
+    public void g (){ }
+
+    @PactVerifyProvider("no user exists with the given external id")
+    public void h (){ }
+/*
+    @PactVerifyProvider({"a forgotten password does not exists",
+            "no user exits with the given name",
+            "a user exits with the given name",
+            "a valid (non-expired) forgotten password entry does not exist",
+            "default",
+            "a user exists with a given username password",
+            "a user not exists with a given username password",
+            "a user not exists with a given username password",
+            ,
+    })
+    public void noSetUp() {
+    }*/
 }
