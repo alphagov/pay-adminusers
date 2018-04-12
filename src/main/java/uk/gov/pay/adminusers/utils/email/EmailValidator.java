@@ -36,7 +36,8 @@ public class EmailValidator {
                 "scotent\\.co\\.uk",
                 "slc\\.co\\.uk",
                 "ucds\\.email",
-                "acas\\.org\\.uk"
+                "acas\\.org\\.uk",
+                "nhm\\.ac\\.uk"
                 ));
     }
     private static final Pattern PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERN;
