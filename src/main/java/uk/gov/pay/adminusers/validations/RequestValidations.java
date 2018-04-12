@@ -20,6 +20,10 @@ public class RequestValidations {
         return applyCheck(payload, isNotNumeric(), fieldNames, "Field [%s] must be a number");
     }
 
+    public Optional<List<String>> checkIsBoolean(JsonNode payload, String... fieldNames) {
+        return applyCheck(payload, isNotBoolean(), fieldNames, "Field [%s] must be a boolean");
+    }
+
     public Optional<List<String>> checkIfExistsOrEmpty(JsonNode payload, String... fieldNames) {
         return applyCheck(payload, notExistOrEmpty(), fieldNames, "Field [%s] is required");
     }

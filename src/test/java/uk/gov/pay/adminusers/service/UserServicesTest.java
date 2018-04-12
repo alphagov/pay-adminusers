@@ -45,6 +45,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -344,7 +345,7 @@ public class UserServicesTest {
         when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456")))
                 .thenReturn(notifyPromise);
 
-        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId());
+        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), false);
 
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is("123456"));
@@ -361,7 +362,7 @@ public class UserServicesTest {
         when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("012345")))
                 .thenReturn(notifyPromise);
 
-        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId());
+        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), false);
 
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is("012345"));
@@ -381,7 +382,7 @@ public class UserServicesTest {
         when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456")))
                 .thenReturn(errorPromise);
 
-        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId());
+        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), false);
 
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is("123456"));
@@ -394,9 +395,42 @@ public class UserServicesTest {
         String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
 
-        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(nonExistentExternalId);
+        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(nonExistentExternalId, false);
 
         assertFalse(tokenOptional.isPresent());
+    }
+
+    @Test
+    public void shouldReturn2FAToken_whenCreate2FA_withProvisionalOtpKey_ifUserFound() {
+        User user = aUser();
+        user.setProvisionalOtpKey("provisional OTP key");
+        UserEntity userEntity = UserEntity.from(user);
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+        when(secondFactorAuthenticator.newPassCode(user.getProvisionalOtpKey())).thenReturn(654321);
+        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
+        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("654321")))
+                .thenReturn(notifyPromise);
+
+        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), true);
+
+        assertTrue(tokenOptional.isPresent());
+        assertThat(tokenOptional.get().getPasscode(), is("654321"));
+        assertTrue(notifyPromise.isDone());
+
+        verify(notificationService, never()).sendSecondFactorPasscodeSms(any(String.class), eq(user.getOtpKey()));
+    }
+
+    @Test
+    public void shouldReturn2FAToken_whenCreate2FA_withProvisionalOtpKey_ifProvisionalOtpKeyNotSet() {
+        User user = aUser();
+        UserEntity userEntity = UserEntity.from(user);
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+
+        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), true);
+
+        assertFalse(tokenOptional.isPresent());
+
+        verifyZeroInteractions(secondFactorAuthenticator);
     }
 
     @Test

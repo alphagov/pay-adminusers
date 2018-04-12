@@ -161,11 +161,16 @@ public class UserResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response newSecondFactorPasscode(@PathParam("externalId") String externalId) {
+    public Response newSecondFactorPasscode(@PathParam("externalId") String externalId, JsonNode payload) {
         logger.info("User 2FA new passcode request");
-        return userServices.newSecondFactorPasscode(externalId)
-                .map(twoFAToken -> Response.status(OK).type(APPLICATION_JSON).build())
-                .orElseGet(() -> Response.status(NOT_FOUND).build());
+        return validator.validateNewSecondFactorPasscodeRequest(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> {
+                    boolean provisional = payload != null && payload.get("provisional") != null && payload.get("provisional").asBoolean();
+                    return userServices.newSecondFactorPasscode(externalId, provisional)
+                        .map(twoFAToken -> Response.status(OK).type(APPLICATION_JSON).build())
+                        .orElseGet(() -> Response.status(NOT_FOUND).build());
+                });
     }
 
 
