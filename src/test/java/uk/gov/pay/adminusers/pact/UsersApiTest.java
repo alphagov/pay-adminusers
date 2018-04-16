@@ -4,7 +4,9 @@ import au.com.dius.pact.provider.PactVerifyProvider;
 import au.com.dius.pact.provider.junit.PactRunner;
 import au.com.dius.pact.provider.junit.Provider;
 import au.com.dius.pact.provider.junit.State;
+import au.com.dius.pact.provider.junit.VerificationReports;
 import au.com.dius.pact.provider.junit.loader.PactBroker;
+import au.com.dius.pact.provider.junit.loader.PactBrokerAuth;
 import au.com.dius.pact.provider.junit.target.HttpTarget;
 import au.com.dius.pact.provider.junit.target.Target;
 import au.com.dius.pact.provider.junit.target.TestTarget;
@@ -34,9 +36,9 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
-//@RunWith(PactRunner.class)
-//@Provider("adminusers")
-//@PactBroker(protocol = "http", host = "http://192.168.99.100/", port = "80", tags = {"PP-Test-Pact-Versioning"})
+@RunWith(PayPactRunner.class)
+@Provider("adminusers")
+@PactBroker(protocol = "https", host = "${PACT_BROKER_HOST}", port = "443", tags = {"latest"}, authentication = @PactBrokerAuth(username = "${PACT_BROKER_USERNAME}", password = "${PACT_BROKER_PASSWORD"))
 public class UsersApiTest {
 
     private static final PasswordHasher passwordHasher = new PasswordHasher();
@@ -138,29 +140,20 @@ public class UsersApiTest {
         UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withUsername(username).withEmail(email).insertUser();
     }
 
-    @PactVerifyProvider("a user does not exist")
-    public void a (){ }
+    @State("the given external id all refer to existing users")
+    public void d (){
 
-    @PactVerifyProvider("a user exists")
-    public void b (){ }
+    }
 
-    @PactVerifyProvider("a user exist")
-    public void c (){ }
-
-    @PactVerifyProvider("the given external id all refer to existing users")
-    public void d (){ }
-
-    @PactVerifyProvider("a user exists with the given external id")
+    @State("a user exists with the given external id")
     public void e (){ }
 
-    @PactVerifyProvider("no users exits with the given external id")
+    @State("no users exits with the given external id")
     public void f (){ }
 
-    @PactVerifyProvider("no user exists with the given external id")
+    @State("no user exists with the given external id")
     public void g (){ }
 
-    @PactVerifyProvider("no user exists with the given external id")
-    public void h (){ }
 /*
     @PactVerifyProvider({"a forgotten password does not exists",
             "no user exits with the given name",

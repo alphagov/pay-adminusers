@@ -348,38 +348,6 @@
                     </arguments>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>au.com.dius</groupId>
-                <artifactId>pact-jvm-provider-maven_2.12</artifactId>
-                <version>3.5.14</version>
-                <configuration>
-                    <serviceProviders>
-                        <serviceProvider>
-                            <name>adminusers</name>
-                        </serviceProvider>
-                        <pactBroker>
-                            <url>https://pact-broker-test.cloudapps.digital</url>
-                            <authentication>
-                                <username>bob</username>
-                                <password>bob</password>
-                            </authentication>
-                            <!-- These will be tagged with several environments when needed like test, prod ...
-                            so no complex logic to trigger them per environment-->
-                            <tags>
-                                <tag>PP-Test-Pact-Versioning</tag>
-                            </tags>
-
-                        </pactBroker>
-                    </serviceProviders>
-                    <configuration>
-                        <projectVersion>master</projectVersion>
-                        <pact.verifier.publishResults>true</pact.verifier.publishResults>
-                    </configuration>
-                    <pactBrokerUrl>https://pact-broker-test.cloudapps.digital</pactBrokerUrl>
-                    <pactBrokerUsername>bob</pactBrokerUsername>
-                    <pactBrokerPassword>bob</pactBrokerPassword>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 </project>
