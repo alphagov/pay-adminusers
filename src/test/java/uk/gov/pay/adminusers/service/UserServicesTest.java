@@ -387,7 +387,9 @@ public class UserServicesTest {
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is("123456"));
 
-        assertTrue(errorPromise.isCompletedExceptionally());
+        assertThat(errorPromise
+                .whenComplete((result, ex)-> System.out.println("errorPromise completed"))
+                .isCompletedExceptionally(), is(true));
     }
 
     @Test
