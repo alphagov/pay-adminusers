@@ -109,7 +109,7 @@ pipeline {
         branch 'master'
       }
       steps {
-        runProductsSmokeTest()
+        runDirectDebitSmokeTest()
       }
     }
     stage('Complete') {
