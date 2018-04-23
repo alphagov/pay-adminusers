@@ -116,9 +116,9 @@ public class DatabaseTestHelper {
                         .createStatement("INSERT INTO users(" +
                                 "id, external_id, username, password, email, otp_key, telephone_number, " +
                                     "second_factor, disabled, login_counter, version, " +
-                                    "\"createdAt\", \"updatedAt\", session_version) " +
+                                    "\"createdAt\", \"updatedAt\", session_version, provisional_otp_key) " +
                                 "VALUES (:id, :externalId, :username, :password, :email, :otpKey, :telephoneNumber, " +
-                                    ":secondFactor, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version)")
+                                    ":secondFactor, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version, :provisionalOtpKey)")
                         .bind("id", user.getId())
                         .bind("externalId", user.getExternalId())
                         .bind("username", user.getUsername())
@@ -133,6 +133,7 @@ public class DatabaseTestHelper {
                         .bind("session_version", user.getSessionVersion())
                         .bind("createdAt", now)
                         .bind("updatedAt", now)
+                        .bind("provisionalOtpKey", user.getProvisionalOtpKey())
                         .execute()
         );
         return this;

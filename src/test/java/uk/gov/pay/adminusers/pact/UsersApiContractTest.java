@@ -55,8 +55,6 @@ public class UsersApiContractTest {
         dbHelper = app.getDatabaseTestHelper();
         // make sure we create services(including gateway account ids) before users
         serviceDbFixture(dbHelper).withGatewayAccountIds("268").insertService();
-        int serviceId = 12345;
-        createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", serviceId, "password");
     }
 
     @State("a valid forgotten password entry and a related user exists")
@@ -130,13 +128,18 @@ public class UsersApiContractTest {
             "a user exists with a given username password",
             "a user not exists with a given username password",
             "a user not exists with a given username password",
-            "no user exists with the given external id",
-            "a user exists with the given external id"
+            "no user exists with the given external id"
     })
     public void noSetUp() {
     }
 
-    private static void createUserWithinAService(String externalId, String username, int serviceId, String password) throws Exception {
+    @State("a user exists with the given external id 7d19aff33f8948deb97ed16b2912dcd3")
+    public void aUserExistsWithGivenExternalId() {
+        createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", 12345, "password");
+    }
+
+
+    private static void createUserWithinAService(String externalId, String username, int serviceId, String password) {
         String gatewayAccount1 = randomNumeric(5);
         String gatewayAccount2 = randomNumeric(5);
         Role role = Role.role(randomInt(), "admin", "Administrator");
@@ -154,6 +157,7 @@ public class UsersApiContractTest {
                 .withGatewayAccountIds(Arrays.asList(gatewayAccount1, gatewayAccount2))
                 .withTelephoneNumber("45334534634")
                 .withOtpKey("34f34")
+                .withProvisionalOtpKey("94423")
                 .withServiceRole(serviceId, role.getId())
                 .insertUser();
     }
