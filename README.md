@@ -35,6 +35,16 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 ****
 -----------------------------------------------------------------------------------------------------------
 
+## Maven profiles
+
+### Default profile
+By default, maven will run all the tests excluding contract tests 
+`mvn clean install`
+
+### Contract tests profile
+By specifying this profile, maven will run *only* the contract tests
+`mvn clean install -DrunContractTests -DPACT_BROKER_USERNAME=username -DPACT_BROKER_PASSWORD=password -DPACT_CONSUMER_TAG=tag`
+
 ## Licence
 
 [MIT License](LICENCE)
