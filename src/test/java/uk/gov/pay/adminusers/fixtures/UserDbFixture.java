@@ -28,6 +28,7 @@ public class UserDbFixture {
     private String telephoneNumber = "07700900000";
     private String features = "FEATURE_1, FEATURE_2";
     private List<String> gatewayAccountIds = newArrayList();
+    private String provisionalOtpKey;
 
     private UserDbFixture(DatabaseTestHelper databaseTestHelper) {
         this.databaseTestHelper = databaseTestHelper;
@@ -41,7 +42,7 @@ public class UserDbFixture {
         List<Service> services = serviceRolePairs.stream().map(servicePair -> servicePair.getLeft()).collect(Collectors.toList());
         List<ServiceRole> serviceRoles = serviceRolePairs.stream().map(servicePair -> ServiceRole.from(servicePair.getLeft(), servicePair.getRight())).collect(Collectors.toList());
         User user = User.from(randomInt(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber,
-                serviceRoles, features, SecondFactorMethod.SMS, null, null);
+                serviceRoles, features, SecondFactorMethod.SMS, provisionalOtpKey, null);
 
         databaseTestHelper.add(user);
         serviceRoles.forEach(serviceRole -> databaseTestHelper.addUserServiceRole(user.getId(), serviceRole.getService().getId(), serviceRole.getRole().getId()));
@@ -97,6 +98,11 @@ public class UserDbFixture {
 
     public UserDbFixture withOtpKey(String otpKey) {
         this.otpKey = otpKey;
+        return this;
+    }
+
+    public UserDbFixture withProvisionalOtpKey(String provisionalOtpKey) {
+        this.provisionalOtpKey = provisionalOtpKey;
         return this;
     }
 }

@@ -5,13 +5,11 @@ import au.com.dius.pact.provider.junit.Provider;
 import au.com.dius.pact.provider.junit.State;
 import au.com.dius.pact.provider.junit.loader.PactBroker;
 import au.com.dius.pact.provider.junit.loader.PactBrokerAuth;
-import au.com.dius.pact.provider.junit.loader.PactSource;
 import au.com.dius.pact.provider.junit.target.HttpTarget;
 import au.com.dius.pact.provider.junit.target.Target;
 import au.com.dius.pact.provider.junit.target.TestTarget;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.fixtures.RoleDbFixture;
@@ -36,15 +34,17 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
-@Ignore
 @RunWith(PactRunner.class)
 @Provider("adminusers")
-@PactBroker(protocol = "https", host = "governmentdigitalservice.pact.dius.com.au", port = "443", tags = {"${pactTags}"},
-        authentication = @PactBrokerAuth(username = "${pactBrokerUsername}", password = "${pactBrokerPassword}"))
-public class UsersApiTest {
+@PactBroker(protocol = "https", host = "pact-broker-test.cloudapps.digital", port = "443", tags = {"${PACT_CONSUMER_TAG}"},
+        authentication = @PactBrokerAuth(username = "${PACT_BROKER_USERNAME}", password = "${PACT_BROKER_PASSWORD}"))
+public class UsersApiContractTest {
 
     @ClassRule
     public static DropwizardAppWithPostgresRule app = new DropwizardAppWithPostgresRule();
+
+    @TestTarget
+    public static Target target;
 
     private static final PasswordHasher passwordHasher = new PasswordHasher();
     private static DatabaseTestHelper dbHelper;
@@ -55,12 +55,7 @@ public class UsersApiTest {
         dbHelper = app.getDatabaseTestHelper();
         // make sure we create services(including gateway account ids) before users
         serviceDbFixture(dbHelper).withGatewayAccountIds("268").insertService();
-        int serviceId = 12345;
-        createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", serviceId, "password");
     }
-
-    @TestTarget
-    public static Target target;
 
     @State("a valid forgotten password entry and a related user exists")
     public void aUserExistsWithAForgottenPasswordRequest() throws Exception {
@@ -133,13 +128,18 @@ public class UsersApiTest {
             "a user exists with a given username password",
             "a user not exists with a given username password",
             "a user not exists with a given username password",
-            "no user exits with the given external id",
-            "a user exits with the given external id"
+            "no user exists with the given external id"
     })
     public void noSetUp() {
     }
 
-    private static void createUserWithinAService(String externalId, String username, int serviceId, String password) throws Exception {
+    @State("a user exists with the given external id 7d19aff33f8948deb97ed16b2912dcd3")
+    public void aUserExistsWithGivenExternalId() {
+        createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", 12345, "password");
+    }
+
+
+    private static void createUserWithinAService(String externalId, String username, int serviceId, String password) {
         String gatewayAccount1 = randomNumeric(5);
         String gatewayAccount2 = randomNumeric(5);
         Role role = Role.role(randomInt(), "admin", "Administrator");
@@ -157,6 +157,7 @@ public class UsersApiTest {
                 .withGatewayAccountIds(Arrays.asList(gatewayAccount1, gatewayAccount2))
                 .withTelephoneNumber("45334534634")
                 .withOtpKey("34f34")
+                .withProvisionalOtpKey("94423")
                 .withServiceRole(serviceId, role.getId())
                 .insertUser();
     }
