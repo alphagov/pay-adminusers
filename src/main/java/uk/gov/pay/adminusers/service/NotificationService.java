@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.service;
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Stopwatch;
 import uk.gov.pay.adminusers.app.config.NotifyConfiguration;
+import uk.gov.pay.adminusers.model.PaymentType;
 import uk.gov.service.notify.SendEmailResponse;
 import uk.gov.service.notify.SendSmsResponse;
 
@@ -16,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
 import static uk.gov.pay.adminusers.app.util.TrustStoreLoader.getSSLContext;
+import static uk.gov.pay.adminusers.model.PaymentType.CARD;
 import static uk.gov.pay.adminusers.model.Service.DEFAULT_NAME_VALUE;
 
 public class NotificationService {
@@ -45,13 +47,17 @@ public class NotificationService {
         this.metricRegistry = metricRegistry;
     }
 
+    public NotifyConfiguration getNotifyConfiguration() {
+        return notifyConfiguration;
+    }
+
     CompletableFuture<String> sendSecondFactorPasscodeSms(String phoneNumber, String passcode) {
         return CompletableFuture.supplyAsync(() -> {
             HashMap<String, String> personalisation = newHashMap();
             personalisation.put("code", passcode);
             Stopwatch responseTimeStopwatch = Stopwatch.createStarted();
             try {
-                SendSmsResponse response = notifyClientProvider.get().sendSms(secondFactorSmsTemplateId, phoneNumber, personalisation, null);
+                SendSmsResponse response = notifyClientProvider.get(CARD).sendSms(secondFactorSmsTemplateId, phoneNumber, personalisation, null);
                 return response.getNotificationId().toString();
             } catch (Exception e) {
                 metricRegistry.counter("notify-operations.sms.failures").inc();
@@ -67,20 +73,20 @@ public class NotificationService {
         HashMap<String, String> personalisation = newHashMap();
         personalisation.put("username", sender);
         personalisation.put("link", inviteUrl);
-        return sendEmailAsync(inviteEmailTemplateId, email, personalisation);
+        return sendEmailAsync(CARD, inviteEmailTemplateId, email, personalisation);
     }
 
     CompletableFuture<String> sendServiceInviteEmail(String email, String inviteUrl) {
         HashMap<String, String> personalisation = newHashMap();
         personalisation.put("name", email);
         personalisation.put("link", inviteUrl);
-        return sendEmailAsync(notifyConfiguration.getInviteServiceEmailTemplateId(), email, personalisation);
+        return sendEmailAsync(CARD, notifyConfiguration.getInviteServiceEmailTemplateId(), email, personalisation);
     }
 
     CompletableFuture<String> sendForgottenPasswordEmail(String email, String forgottenPasswordUrl) {
         HashMap<String, String> personalisation = newHashMap();
         personalisation.put("code", forgottenPasswordUrl);
-        return sendEmailAsync(forgottenPasswordEmailTemplateId, email, personalisation);
+        return sendEmailAsync(CARD, forgottenPasswordEmailTemplateId, email, personalisation);
     }
 
     CompletionStage<String> sendServiceInviteUserExistsEmail(String email, String signInLink, String forgottenPasswordLink, String feedbackLink) {
@@ -88,13 +94,13 @@ public class NotificationService {
         personalisation.put("signin_link", signInLink);
         personalisation.put("forgotten_password_link", forgottenPasswordLink);
         personalisation.put("feedback_link", feedbackLink);
-        return sendEmailAsync(notifyConfiguration.getInviteServiceUserExistsEmailTemplateId(), email, personalisation);
+        return sendEmailAsync(CARD, notifyConfiguration.getInviteServiceUserExistsEmailTemplateId(), email, personalisation);
     }
 
     CompletableFuture<String> sendServiceInviteUserDisabledEmail(String email, String supportUrl) {
         HashMap<String, String> personalisation = newHashMap();
         personalisation.put("feedback_link", supportUrl);
-        return sendEmailAsync(notifyConfiguration.getInviteServiceUserDisabledEmailTemplateId(), email, personalisation);
+        return sendEmailAsync(CARD, notifyConfiguration.getInviteServiceUserDisabledEmailTemplateId(), email, personalisation);
     }
 
     CompletableFuture<String> sendInviteExistingUserEmail(String sender, String email, String inviteUrl, String serviceName) {
@@ -113,14 +119,14 @@ public class NotificationService {
         personalisation.put("collaborateServiceNamePart", collaborateServiceNamePart);
         personalisation.put("joinServiceNamePart", joinServiceNamePart);
 
-        return sendEmailAsync(inviteExistingUserEmailTemplateId, email, personalisation);
+        return sendEmailAsync(CARD, inviteExistingUserEmailTemplateId, email, personalisation);
     }
 
-    private CompletableFuture<String> sendEmailAsync(final String templateId, final String email, final Map<String, String> personalisation) {
+    public CompletableFuture<String> sendEmailAsync(PaymentType paymentType, final String templateId, final String email, final Map<String, String> personalisation) {
         return CompletableFuture.supplyAsync(() -> {
             Stopwatch responseTimeStopwatch = Stopwatch.createStarted();
             try {
-                SendEmailResponse response = notifyClientProvider.get().sendEmail(templateId, email, personalisation, null);
+                SendEmailResponse response = notifyClientProvider.get(paymentType).sendEmail(templateId, email, personalisation, null);
                 return response.getNotificationId().toString();
             } catch (Exception e) {
                 metricRegistry.counter("notify-operations.email.failures").inc();

@@ -9,7 +9,11 @@ public class NotifyConfiguration extends Configuration {
 
     @Valid
     @NotNull
-    private String apiKey;
+    private String cardApiKey;
+
+    @Valid
+    @NotNull
+    private String directDebitApiKey;
 
     @Valid
     @NotNull
@@ -43,8 +47,37 @@ public class NotifyConfiguration extends Configuration {
     @NotNull
     private String inviteServiceUserDisabledEmailTemplateId;
 
-    public String getApiKey() {
-        return apiKey;
+    // direct-debit specific templates
+    @Valid
+    @NotNull
+    private String mandateFailedTemplateId;
+
+    @Valid
+    @NotNull
+    private String mandateCancelledTemplateId;
+
+    @Valid
+    @NotNull
+    private String paymentConfirmedTemplateId;
+
+    public String getMandateFailedTemplateId() {
+        return mandateFailedTemplateId;
+    }
+
+    public String getMandateCancelledTemplateId() {
+        return mandateCancelledTemplateId;
+    }
+
+    public String getPaymentConfirmedTemplateId() {
+        return paymentConfirmedTemplateId;
+    }
+
+    public String getCardApiKey() {
+        return cardApiKey;
+    }
+
+    public String getDirectDebitApiKey() {
+        return directDebitApiKey;
     }
 
     public String getNotificationBaseURL() {

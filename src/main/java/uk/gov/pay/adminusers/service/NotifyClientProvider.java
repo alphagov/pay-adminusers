@@ -1,12 +1,12 @@
 package uk.gov.pay.adminusers.service;
 
-import com.google.inject.Provider;
 import uk.gov.pay.adminusers.app.config.NotifyConfiguration;
+import uk.gov.pay.adminusers.model.PaymentType;
 import uk.gov.service.notify.NotificationClient;
 
 import javax.net.ssl.SSLContext;
 
-public class NotifyClientProvider implements Provider<NotificationClient> {
+public class NotifyClientProvider {
 
     private NotifyConfiguration configuration;
     private final SSLContext sslContext;
@@ -16,8 +16,14 @@ public class NotifyClientProvider implements Provider<NotificationClient> {
         this.sslContext = sslContext;
     }
 
-    @Override
-    public NotificationClient get() {
-        return new NotificationClient(configuration.getApiKey(), configuration.getNotificationBaseURL(), null, sslContext);
+    public NotificationClient get(PaymentType paymentType) {
+        switch (paymentType) {
+            case DIRECT_DEBIT:
+                return new NotificationClient(configuration.getDirectDebitApiKey(), configuration.getNotificationBaseURL(), null, sslContext);
+            case CARD:
+            default:
+                return new NotificationClient(configuration.getCardApiKey(), configuration.getNotificationBaseURL(), null, sslContext);
+        }
     }
+
 }
