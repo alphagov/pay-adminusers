@@ -23,7 +23,15 @@ import uk.gov.pay.adminusers.app.healthchecks.Ping;
 import uk.gov.pay.adminusers.app.util.TrustingSSLSocketFactory;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundExceptionMapper;
 import uk.gov.pay.adminusers.exception.ValidationExceptionMapper;
-import uk.gov.pay.adminusers.resources.*;
+import uk.gov.pay.adminusers.resources.EmailResource;
+import uk.gov.pay.adminusers.resources.ForgottenPasswordResource;
+import uk.gov.pay.adminusers.resources.HealthCheckResource;
+import uk.gov.pay.adminusers.resources.InvalidEmailRequestExceptionMapper;
+import uk.gov.pay.adminusers.resources.InvalidMerchantDetailsExceptionMapper;
+import uk.gov.pay.adminusers.resources.InviteResource;
+import uk.gov.pay.adminusers.resources.ResetPasswordResource;
+import uk.gov.pay.adminusers.resources.ServiceResource;
+import uk.gov.pay.adminusers.resources.UserResource;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
@@ -75,10 +83,13 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(injector.getInstance(InviteResource.class));
         environment.jersey().register(injector.getInstance(ResetPasswordResource.class));
         environment.jersey().register(injector.getInstance(HealthCheckResource.class));
+        environment.jersey().register(injector.getInstance(EmailResource.class));
 
         // Register the custom ExceptionMapper(s)
         environment.jersey().register(new ValidationExceptionMapper());
         environment.jersey().register(new ServiceNotFoundExceptionMapper());
+        environment.jersey().register(new InvalidEmailRequestExceptionMapper());
+        environment.jersey().register(new InvalidMerchantDetailsExceptionMapper());
 
         setGlobalProxies(configuration);
     }
