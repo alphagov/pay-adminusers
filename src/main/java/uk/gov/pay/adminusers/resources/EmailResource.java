@@ -20,10 +20,12 @@ public class EmailResource {
     private static final Logger logger = PayLoggerFactory.getLogger(EmailResource.class);
 
     private final EmailService notificationService;
+    private final EmailRequestParser emailRequestParser;
 
     @Inject
-    public EmailResource(EmailService notificationService) {
+    public EmailResource(EmailService notificationService, EmailRequestParser emailRequestParser) {
         this.notificationService = notificationService;
+        this.emailRequestParser = emailRequestParser;
     }
 
     @Path("/v1/emails/send")
@@ -32,7 +34,7 @@ public class EmailResource {
     @Consumes(APPLICATION_JSON)
     public Response sendEmail(JsonNode payload) throws InvalidEmailRequestException, InvalidMerchantDetailsException {
         logger.info("Received email request");
-        EmailRequest emailRequest = EmailRequestParser.parse(payload);
+        EmailRequest emailRequest = emailRequestParser.parse(payload);
         notificationService.sendEmail(
                 emailRequest.getEmailAddress(),
                 emailRequest.getGatewayAccountId(),

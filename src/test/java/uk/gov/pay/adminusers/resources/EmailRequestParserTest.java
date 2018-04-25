@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -17,6 +18,13 @@ public class EmailRequestParserTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
+    private EmailRequestParser parser;
+
+    @Before
+    public void setUp() {
+        parser = new EmailRequestParser(objectMapper);
+    }
+
     @Test
     public void shouldCreateAnEmailRequestForAValidPayload() throws InvalidEmailRequestException {
         Map<String, Object> body = ImmutableMap.of(
@@ -29,7 +37,7 @@ public class EmailRequestParserTest {
                 )
         );
 
-        EmailRequest emailRequest = EmailRequestParser.parse(objectMapper.valueToTree(body));
+        EmailRequest emailRequest = parser.parse(objectMapper.valueToTree(body));
         assertThat(emailRequest.getEmailAddress(), is("aaa@bbb.test"));
         assertThat(emailRequest.getGatewayAccountId(), is("DIRECT_DEBIT:23847roidfghdkkj"));
         assertThat(emailRequest.getTemplate(), is(EmailTemplate.MANDATE_CANCELLED));
@@ -51,7 +59,6 @@ public class EmailRequestParserTest {
         thrown.expect(InvalidEmailRequestException.class);
         thrown.expectMessage("Error while parsing email request body");
         thrown.reportMissingExceptionWithMessage("InvalidEmailRequestException expected");
-        EmailRequestParser.parse(objectMapper.valueToTree(body));
-
+        parser.parse(objectMapper.valueToTree(body));
     }
 }
