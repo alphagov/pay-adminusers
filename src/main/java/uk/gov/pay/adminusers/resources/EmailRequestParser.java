@@ -22,7 +22,7 @@ public class EmailRequestParser {
     EmailRequest parse(JsonNode payload) throws InvalidEmailRequestException {
         try {
             String emailAddress = payload.get("address").asText();
-            String gatewayAccountId = payload.get("gateway_account_id").asText();
+            String gatewayAccountId = payload.get("gateway_account_external_id").asText();
             EmailTemplate template = EmailTemplate.fromString(payload.get("template").asText());
             Map<String, String> personalisation = mapper.convertValue(payload.get("personalisation"), Map.class);
             return new EmailRequest(emailAddress, gatewayAccountId, template, personalisation);

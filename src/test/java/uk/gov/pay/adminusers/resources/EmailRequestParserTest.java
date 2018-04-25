@@ -29,7 +29,7 @@ public class EmailRequestParserTest {
     public void shouldCreateAnEmailRequestForAValidPayload() throws InvalidEmailRequestException {
         Map<String, Object> body = ImmutableMap.of(
           "address", "aaa@bbb.test",
-          "gateway_account_id", "DIRECT_DEBIT:23847roidfghdkkj",
+          "gateway_account_external_id", "DIRECT_DEBIT:23847roidfghdkkj",
           "template", "MANDATE_CANCELLED",
           "personalisation", ImmutableMap.of(
                   "field 1", "theValueOfField1",

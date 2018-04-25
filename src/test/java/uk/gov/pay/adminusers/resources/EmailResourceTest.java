@@ -16,7 +16,7 @@ public class EmailResourceTest extends IntegrationTest {
     private static final String GATEWAY_ACCOUNT_ID = "DIRECT_DEBIT:mdshfsehdtfsdtjg";
     private Map<String, Object> validEmailRequest = ImmutableMap.of(
             "address", "cake@directdebitteam.test",
-            "gateway_account_id", GATEWAY_ACCOUNT_ID,
+            "gateway_account_external_id", GATEWAY_ACCOUNT_ID,
             "template", "MANDATE_CANCELLED",
             "personalisation", ImmutableMap.of(
                     "mandate reference", "mandatereference",
