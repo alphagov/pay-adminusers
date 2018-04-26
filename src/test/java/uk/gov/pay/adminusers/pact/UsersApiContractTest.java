@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.pact;
 
-import au.com.dius.pact.provider.junit.PactRunner;
 import au.com.dius.pact.provider.junit.Provider;
 import au.com.dius.pact.provider.junit.State;
 import au.com.dius.pact.provider.junit.loader.PactBroker;
@@ -34,7 +33,7 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
-@RunWith(PactRunner.class)
+@RunWith(PayPactRunner.class)
 @Provider("adminusers")
 @PactBroker(protocol = "https", host = "pact-broker-test.cloudapps.digital", port = "443", tags = {"${PACT_CONSUMER_TAG}"},
         authentication = @PactBrokerAuth(username = "${PACT_BROKER_USERNAME}", password = "${PACT_BROKER_PASSWORD}"))
