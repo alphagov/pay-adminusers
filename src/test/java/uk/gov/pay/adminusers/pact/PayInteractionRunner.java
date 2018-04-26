@@ -29,7 +29,6 @@ import javax.json.JsonWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,18 +46,15 @@ public class PayInteractionRunner extends InteractionRunner {
     public PayInteractionRunner(TestClass testClass, Pact<? extends Interaction> pact, PactSource pactSource) throws InitializationError {
         super(testClass, pact, pactSource);
         masterBranchGitSha = System.getenv("PROVIDER_SHA");
-        List<String> errors = getErrors(pact.getSource(), masterBranchGitSha);
-        if (!errors.isEmpty()) throw new InitializationError(errors.stream().collect(Collectors.joining(",")));
+        throwIfErrors(pact.getSource(), masterBranchGitSha);
         init((BrokerUrlSource) pact.getSource());
     }
 
-    private List<String> getErrors(PactSource pactSource, String gitSha) {
-        List<String> errors = new ArrayList<>();
+    private void throwIfErrors(PactSource pactSource, String gitSha) {
         if (!(pactSource instanceof BrokerUrlSource))
-            errors.add("Couldn't initialize " + this.getClass().getCanonicalName() + " as the pactSource is not an instance of BrokerUrlSource");
+            throw new RuntimeException("Couldn't initialize " + this.getClass().getCanonicalName() + " as the pactSource is not an instance of BrokerUrlSource");
         if (StringUtils.isEmpty(gitSha))
-            errors.add("The environment variable PROVIDER_SHA was not set or is empty");
-        return errors;
+            throw new RuntimeException("The environment variable PROVIDER_SHA was not set or is empty");
     }
 
     private void init(BrokerUrlSource brokerUrlSource) {
