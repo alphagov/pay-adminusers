@@ -5,13 +5,10 @@ import au.com.dius.pact.model.Interaction;
 import au.com.dius.pact.model.Pact;
 import au.com.dius.pact.model.PactSource;
 import au.com.dius.pact.provider.junit.InteractionRunner;
-import au.com.dius.pact.provider.junit.loader.PactBroker;
-import au.com.dius.pact.provider.junit.loader.PactBrokerAuth;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -52,7 +49,7 @@ public class PayInteractionRunner extends InteractionRunner {
         masterBranchGitSha = System.getenv("PROVIDER_SHA");
         List<String> errors = getErrors(pact.getSource(), masterBranchGitSha);
         if (!errors.isEmpty()) throw new InitializationError(errors.stream().collect(Collectors.joining(",")));
-        init(testClass, (BrokerUrlSource) pact.getSource());
+        init((BrokerUrlSource) pact.getSource());
     }
 
     private List<String> getErrors(PactSource pactSource, String gitSha) {
@@ -64,7 +61,7 @@ public class PayInteractionRunner extends InteractionRunner {
         return errors;
     }
 
-    private void init(TestClass testClass, BrokerUrlSource brokerUrlSource) {
+    private void init(BrokerUrlSource brokerUrlSource) {
         Map<String, Map<String, Object>> attributes = brokerUrlSource.getAttributes();
         Assert.isNotNull(attributes.get("pb:publish-verification-results"), "The pact got from the broker has no pb:publish-verification-results property.");
         Assert.isNotNull(attributes.get("pb:publish-verification-results").get("href"), "pb:publish-verification-results has no href property");
