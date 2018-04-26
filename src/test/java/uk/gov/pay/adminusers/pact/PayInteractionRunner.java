@@ -45,7 +45,7 @@ public class PayInteractionRunner extends InteractionRunner {
 
     public PayInteractionRunner(TestClass testClass, Pact<? extends Interaction> pact, PactSource pactSource) throws InitializationError {
         super(testClass, pact, pactSource);
-        masterBranchGitSha = System.getenv("PROVIDER_SHA");
+        masterBranchGitSha = System.getProperty("PROVIDER_SHA");
         throwIfErrors(pact.getSource(), masterBranchGitSha);
         init((BrokerUrlSource) pact.getSource());
     }
