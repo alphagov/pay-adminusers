@@ -90,6 +90,7 @@ public class ServiceRequestValidatorTest {
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_CITY, "city");
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY, "country");
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, "postcode");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_EMAIL, "dd-merchant@example.com");
 
         serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
     }
@@ -127,6 +128,29 @@ public class ServiceRequestValidatorTest {
         serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
     }
 
+    @Test
+    public void shouldFail_updatingMerchantDetails_whenInvalidEmail() {
+        ObjectNode payload = createJsonPayload("invalid@example.com-uk");
+
+        try {
+            serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
+        } catch (ValidationException e) {
+            assertThat(e.getErrors().getErrors(), hasItem("Field [email] must be a valid email address"));
+        }
+    }
+
+    @Test
+    public void shouldFail_updatingMerchantDetails_whenEmailOver255() {
+        String longEmail = RandomStringUtils.randomAlphanumeric(256);
+        ObjectNode payload = createJsonPayload(longEmail);
+
+        try {
+            serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
+        } catch (ValidationException e) {
+            assertThat(e.getErrors().getErrors(), hasItem("Field [email] must have a maximum length of 255 characters"));
+        }
+    }
+    
     @Test
     public void shouldSuccess_replacingCustomBranding() throws Exception {
         ImmutableMap<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of("image_url", "image url", "css_url", "css url"));
@@ -176,4 +200,14 @@ public class ServiceRequestValidatorTest {
         assertThat(errorsList, hasItem("Value for path [custom_branding] must be a JSON"));
     }
 
+    private ObjectNode createJsonPayload(String email) {
+        ObjectNode payload = JsonNodeFactory.instance.objectNode();
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_NAME, "Merchant name");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_LINE1, "line1");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_CITY, "city");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY, "country");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, "postcode");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_EMAIL, email);
+        return payload;
+    }
 }

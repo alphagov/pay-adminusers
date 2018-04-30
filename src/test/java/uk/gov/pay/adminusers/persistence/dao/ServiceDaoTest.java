@@ -95,6 +95,7 @@ public class ServiceDaoTest extends DaoTestBase {
         String addressCity = "Address City";
         String postcode = "Postcode";
         String country = "UK";
+        String email = getMerchantEmail();
         MerchantDetailsEntity merchantDetailsEntity = new MerchantDetailsEntity(
                 name,
                 telephoneNumber,
@@ -102,7 +103,8 @@ public class ServiceDaoTest extends DaoTestBase {
                 addressLine2,
                 addressCity,
                 postcode,
-                country
+                country,
+                email
         );
         serviceEntity.setMerchantDetailsEntity(merchantDetailsEntity);
 
@@ -119,6 +121,7 @@ public class ServiceDaoTest extends DaoTestBase {
         assertThat(savedService.get(0).get("merchant_address_city"), is(addressCity));
         assertThat(savedService.get(0).get("merchant_address_postcode"), is(postcode));
         assertThat(savedService.get(0).get("merchant_address_country"), is(country));
+        assertThat(savedService.get(0).get("merchant_email"), is(email));
     }
 
     @Test
@@ -134,6 +137,8 @@ public class ServiceDaoTest extends DaoTestBase {
         String addressCity = "Address City";
         String postcode = "Postcode";
         String country = "UK";
+        String email = getMerchantEmail();
+
         service.setMerchantDetails(new MerchantDetails(
                 name,
                 telephoneNumber,
@@ -141,7 +146,8 @@ public class ServiceDaoTest extends DaoTestBase {
                 addressLine2,
                 addressCity,
                 postcode,
-                country
+                country,
+                email
         ));
         databaseHelper.addService(service, randomInt().toString());
 
@@ -159,6 +165,7 @@ public class ServiceDaoTest extends DaoTestBase {
         assertThat(merchantDetailsEntity.getAddressCity(), is(addressCity));
         assertThat(merchantDetailsEntity.getAddressPostcode(), is(postcode));
         assertThat(merchantDetailsEntity.getAddressCountry(), is(country));
+        assertThat(merchantDetailsEntity.getEmail(), is(email));
 
         assertThat(serviceEntity.get().getCustomBranding().keySet().size(), is(2));
         assertThat(serviceEntity.get().getCustomBranding().keySet(), hasItems("image_url", "css_url"));
@@ -224,4 +231,7 @@ public class ServiceDaoTest extends DaoTestBase {
         databaseHelper.addUserServiceRole(user3.getId(), serviceId2, role.getId());
     }
 
+    private String getMerchantEmail() {
+        return "dd-merchant"+ randomUuid() + "@example.com";
+    }
 }

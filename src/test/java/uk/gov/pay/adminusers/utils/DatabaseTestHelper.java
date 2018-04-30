@@ -229,9 +229,9 @@ public class DatabaseTestHelper {
             return handle.createStatement("INSERT INTO services(" +
                     "id, name, custom_branding, " +
                     "merchant_name, merchant_telephone_number, merchant_address_line1, merchant_address_line2, merchant_address_city, " +
-                    "merchant_address_postcode, merchant_address_country, external_id) " +
+                    "merchant_address_postcode, merchant_address_country, merchant_email, external_id) " +
                     "VALUES (:id, :name, :customBranding, :merchantName, :merchantTelephoneNumber, :merchantAddressLine1, :merchantAddressLine2, " +
-                    ":merchantAddressCity, :merchantAddressPostcode, :merchantAddressCountry, :externalId)")
+                    ":merchantAddressCity, :merchantAddressPostcode, :merchantAddressCountry, :merchantEmail, :externalId)")
                     .bind("id", service.getId())
                     .bind("name", service.getName())
                     .bind("customBranding", customBranding)
@@ -242,6 +242,7 @@ public class DatabaseTestHelper {
                     .bind("merchantAddressCity", merchantDetails.getAddressCity())
                     .bind("merchantAddressPostcode", merchantDetails.getAddressPostcode())
                     .bind("merchantAddressCountry", merchantDetails.getAddressCountry())
+                    .bind("merchantEmail", merchantDetails.getEmail())
                     .bind("externalId", service.getExternalId())
                     .execute();
         });

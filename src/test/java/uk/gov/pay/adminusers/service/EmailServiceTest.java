@@ -36,6 +36,7 @@ public class EmailServiceTest {
     private static final String CITY = "city";
     private static final String POSTCODE = "postcode";
     private static final String ADDRESS_COUNTRY = "cake";
+    private static final String MERCHANT_EMAIL = "dd-merchant@example.com";
     private EmailService emailService;
 
     @Mock
@@ -80,7 +81,8 @@ public class EmailServiceTest {
                 null,
                 CITY,
                 POSTCODE,
-                ADDRESS_COUNTRY
+                ADDRESS_COUNTRY,
+                MERCHANT_EMAIL
         );
         given(mockServiceDao.findByGatewayAccountId(GATEWAY_ACCOUNT_ID)).willReturn(Optional.of(mockServiceEntity));
         given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
@@ -96,6 +98,7 @@ public class EmailServiceTest {
         assertThat(allContent.get("service name"), is("a service"));
         assertThat(allContent.get("merchant address"), is("merchant name, address line 1, city, postcode, cake"));
         assertThat(allContent.get("merchant phone number"), is(TELEPHONE_NUMBER));
+        assertThat(allContent.get("merchant email"), is(MERCHANT_EMAIL));
     }
 
     @Test
@@ -112,7 +115,8 @@ public class EmailServiceTest {
                 null,
                 CITY,
                 POSTCODE,
-                ADDRESS_COUNTRY
+                ADDRESS_COUNTRY,
+                MERCHANT_EMAIL
         );
 
         given(mockServiceDao.findByGatewayAccountId(GATEWAY_ACCOUNT_ID)).willReturn(Optional.of(mockServiceEntity));
@@ -144,7 +148,8 @@ public class EmailServiceTest {
                 "address line 2",
                 CITY,
                 POSTCODE,
-                ADDRESS_COUNTRY
+                ADDRESS_COUNTRY,
+                MERCHANT_EMAIL
         );
 
         given(mockServiceDao.findByGatewayAccountId(GATEWAY_ACCOUNT_ID)).willReturn(Optional.of(mockServiceEntity));
@@ -160,6 +165,7 @@ public class EmailServiceTest {
         assertThat(allContent.get("field 2"), is("theValueOfField2"));
         assertThat(allContent.get("org name"), is(MERCHANT_NAME));
         assertThat(allContent.get("org phone"), is(TELEPHONE_NUMBER));
+        assertThat(allContent.get("merchant email"), is(MERCHANT_EMAIL));
     }
 
     @Test
@@ -176,7 +182,8 @@ public class EmailServiceTest {
                 "address line 2",
                 CITY,
                 POSTCODE,
-                ADDRESS_COUNTRY
+                ADDRESS_COUNTRY,
+                MERCHANT_EMAIL
         );
 
         given(mockServiceDao.findByGatewayAccountId(GATEWAY_ACCOUNT_ID)).willReturn(Optional.of(mockServiceEntity));
