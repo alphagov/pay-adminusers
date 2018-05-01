@@ -73,6 +73,7 @@ notify:
   mandateFailedTemplateId: ${NOTIFY_MANDATE_FAILED_TEMPLATE_ID:-pay-mandate-failed-id}
   mandateCancelledTemplateId: ${NOTIFY_MANDATE_CANCELLED_TEMPLATE_ID:-pay-mandate-cancelled-id}
   paymentConfirmedTemplateId: ${NOTIFY_PAYMENT_CONFIRMED_TEMPLATE_ID:-pay-payment-confirmed-id}
+  paymentFailedTemplateId: ${NOTIFY_PAYMENT_FAILED_TEMPLATE_ID:-pay-payment-failed-id}
 
 forgottenPasswordExpiryMinutes: ${FORGOTTEN_PASSWORD_EXPIRY_MINUTES:-90}
 

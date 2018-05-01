@@ -60,6 +60,10 @@ public class NotifyConfiguration extends Configuration {
     @NotNull
     private String paymentConfirmedTemplateId;
 
+    @Valid
+    @NotNull
+    private String paymentFailedTemplateId;
+
     public String getMandateFailedTemplateId() {
         return mandateFailedTemplateId;
     }
@@ -70,6 +74,10 @@ public class NotifyConfiguration extends Configuration {
 
     public String getPaymentConfirmedTemplateId() {
         return paymentConfirmedTemplateId;
+    }
+
+    public String getPaymentFailedTemplateId() {
+        return paymentFailedTemplateId;
     }
 
     public String getCardApiKey() {

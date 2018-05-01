@@ -34,7 +34,7 @@ public class EmailService {
     }
 
     private String formatMerchantAddress(MerchantDetailsEntity merchantDetails) {
-        StringJoiner merchantAddress = new StringJoiner(", ", "","");
+        StringJoiner merchantAddress = new StringJoiner(", ", "", "");
         merchantAddress.add(merchantDetails.getName());
         merchantAddress.add(merchantDetails.getAddressLine1());
         if (!StringUtils.isBlank(merchantDetails.getAddressLine2())) {
@@ -73,9 +73,16 @@ public class EmailService {
                         ImmutableMap.of(
                                 "service name", service.getName(),
                                 "merchant address", merchantAddress,
-                                "merchant phone number", merchantDetails.getTelephoneNumber())
+                                "merchant phone number", merchantDetails.getTelephoneNumber()
                         )
-                ,
+                ),
+                EmailTemplate.PAYMENT_FAILED, new StaticEmailContent(
+                        notificationService.getNotifyConfiguration().getPaymentFailedTemplateId(),
+                        ImmutableMap.of(
+                                "org name", merchantDetails.getName(),
+                                "org phone", merchantDetails.getTelephoneNumber()
+                        )
+                ),
                 EmailTemplate.MANDATE_CANCELLED, new StaticEmailContent(
                         notificationService.getNotifyConfiguration().getMandateCancelledTemplateId(),
                         ImmutableMap.of(
@@ -88,13 +95,16 @@ public class EmailService {
                         ImmutableMap.of(
                                 "org name", merchantDetails.getName(),
                                 "org phone", merchantDetails.getTelephoneNumber()
-                        ))
+                        )
+                )
         );
     }
+
     private ServiceEntity getServiceFor(String gatewayAccountId) {
         return serviceDao.findByGatewayAccountId(gatewayAccountId)
                 .orElseThrow(() -> new ServiceNotFoundException("Service not found"));
     }
+
     public CompletableFuture<String> sendEmail(String email, String gatewayAccountId, EmailTemplate template, Map<String, String> dynamicContent) throws InvalidMerchantDetailsException {
         Map<EmailTemplate, StaticEmailContent> templateMappingsFor = getTemplateMappingsFor(gatewayAccountId);
         Map<String, String> staticContent = templateMappingsFor.get(template).getPersonalisation();
