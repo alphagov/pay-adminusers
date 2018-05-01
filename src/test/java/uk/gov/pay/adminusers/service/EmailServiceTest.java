@@ -60,11 +60,11 @@ public class EmailServiceTest {
     public void setUp() {
         given(mockNotificationService.getNotifyConfiguration()).willReturn(mockNotificationConfiguration);
         given(mockNotificationConfiguration.getPaymentConfirmedTemplateId()).willReturn("PAYMENT CONFIRMED");
+        given(mockNotificationConfiguration.getPaymentFailedTemplateId()).willReturn("PAYMENT FAILED");
         given(mockNotificationConfiguration.getMandateCancelledTemplateId()).willReturn("MANDATE CANCELLED");
         given(mockNotificationConfiguration.getMandateFailedTemplateId()).willReturn("MANDATE FAILED");
         emailService = new EmailService(mockNotificationService, mockServiceDao);
     }
-
 
     @Test
     public void shouldSendAnEmailForPaymentConfirmed() throws InvalidMerchantDetailsException {
@@ -96,6 +96,38 @@ public class EmailServiceTest {
         assertThat(allContent.get("service name"), is("a service"));
         assertThat(allContent.get("merchant address"), is("merchant name, address line 1, city, postcode, cake"));
         assertThat(allContent.get("merchant phone number"), is(TELEPHONE_NUMBER));
+    }
+
+    @Test
+    public void shouldSendAnEmailForPaymentFailed() throws InvalidMerchantDetailsException {
+        EmailTemplate template = EmailTemplate.PAYMENT_FAILED;
+        Map<String, String> personalisation = ImmutableMap.of(
+                "field 1", "theValueOfField1",
+                "field 2", "theValueOfField2"
+        );
+        MerchantDetailsEntity merchantDetails = new MerchantDetailsEntity(
+                MERCHANT_NAME,
+                TELEPHONE_NUMBER,
+                ADDRESS_LINE_1,
+                null,
+                CITY,
+                POSTCODE,
+                ADDRESS_COUNTRY
+        );
+
+        given(mockServiceDao.findByGatewayAccountId(GATEWAY_ACCOUNT_ID)).willReturn(Optional.of(mockServiceEntity));
+        given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
+        given(mockServiceEntity.getName()).willReturn("a service");
+        ArgumentCaptor<Map<String, String>> personalisationCaptor = forClass(Map.class);
+
+        emailService.sendEmail(EMAIL_ADDRESS, GATEWAY_ACCOUNT_ID, template, personalisation);
+
+        verify(mockNotificationService).sendEmailAsync(eq(PaymentType.DIRECT_DEBIT), eq("PAYMENT FAILED"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
+        Map<String, String> allContent = personalisationCaptor.getValue();
+        assertThat(allContent.get("field 1"), is("theValueOfField1"));
+        assertThat(allContent.get("field 2"), is("theValueOfField2"));
+        assertThat(allContent.get("org name"), is(MERCHANT_NAME));
+        assertThat(allContent.get("org phone"), is(TELEPHONE_NUMBER));
     }
 
     @Test
