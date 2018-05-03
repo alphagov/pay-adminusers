@@ -35,10 +35,13 @@ public class EmailResource {
     public Response sendEmail(JsonNode payload) throws InvalidEmailRequestException, InvalidMerchantDetailsException {
         logger.info("Received email request");
         EmailRequest emailRequest = emailRequestParser.parse(payload);
+        EmailTemplate template = emailRequest.getTemplate();
+        String gatewayAccountId = emailRequest.getGatewayAccountId();
+        logger.info("Sending {} email for account {}", template, gatewayAccountId);
         notificationService.sendEmail(
                 emailRequest.getEmailAddress(),
-                emailRequest.getGatewayAccountId(),
-                emailRequest.getTemplate(),
+                gatewayAccountId,
+                template,
                 emailRequest.getPersonalisation());
         return Response.status(Response.Status.OK).build();
     }

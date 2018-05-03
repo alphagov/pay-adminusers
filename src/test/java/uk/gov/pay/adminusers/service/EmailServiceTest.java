@@ -191,7 +191,7 @@ public class EmailServiceTest {
         given(mockServiceEntity.getName()).willReturn("a service");
 
         thrown.expect(InvalidMerchantDetailsException.class);
-        thrown.expectMessage("Merchant details are empty: can't send email for account " + GATEWAY_ACCOUNT_ID);
+        thrown.expectMessage("Merchant details are missing mandatory fields: can't send email for account " + GATEWAY_ACCOUNT_ID);
         thrown.reportMissingExceptionWithMessage("InvalidMerchantDetailsException expected");
 
         emailService.sendEmail(EMAIL_ADDRESS, GATEWAY_ACCOUNT_ID, template, personalisation);
