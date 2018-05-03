@@ -62,10 +62,14 @@ public class EmailService {
         ServiceEntity service = getServiceFor(gatewayAccountId);
         MerchantDetailsEntity merchantDetails = service.getMerchantDetailsEntity();
 
-        if (merchantDetails == null || isMissingMandatoryFields(merchantDetails)) {
+        if (merchantDetails == null) {
             LOGGER.error("Merchant details are empty: can't send email for account {}", gatewayAccountId);
             throw new InvalidMerchantDetailsException("Merchant details are empty: can't send email for account " + gatewayAccountId);
+        } else if (isMissingMandatoryFields(merchantDetails)) {
+            LOGGER.error("Merchant details are missing mandatory fields: can't send email for account {}", gatewayAccountId);
+            throw new InvalidMerchantDetailsException("Merchant details are missing mandatory fields: can't send email for account " + gatewayAccountId);
         }
+
         String merchantAddress = formatMerchantAddress(merchantDetails);
 
         return ImmutableMap.of(
