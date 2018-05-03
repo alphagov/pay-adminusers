@@ -31,7 +31,9 @@ public class ServiceRequestValidator {
     public static final String FIELD_MERCHANT_DETAILS_ADDRESS_CITY = "address_city";
     public static final String FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE = "address_postcode";
     public static final String FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY = "address_country";
+    public static final String FIELD_MERCHANT_DETAILS_EMAIL = "email";
     private static final int SERVICE_NAME_MAX_LENGTH = 50;
+    private static final int FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH = 255;
     private static final Map<String, List<String>> VALID_ATTRIBUTE_UPDATE_OPERATIONS = new HashMap<String, List<String>>() {{
         put(FIELD_SERVICE_NAME, asList("replace"));
         put(FIELD_GATEWAY_ACCOUNT_IDS, asList("add"));
@@ -86,12 +88,30 @@ public class ServiceRequestValidator {
     }
 
     public void validateUpdateMerchantDetailsRequest(JsonNode payload) throws ValidationException {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload,
+        Optional<List<String>> errors = requestValidations.checkIfExistsOrEmpty(payload,
                 FIELD_MERCHANT_DETAILS_NAME, FIELD_MERCHANT_DETAILS_ADDRESS_LINE1,
                 FIELD_MERCHANT_DETAILS_ADDRESS_CITY, FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE,
                 FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY);
-        if (missingMandatoryFields.isPresent()) {
-            throw new ValidationException(Errors.from(missingMandatoryFields.get()));
+        if (errors.isPresent()) {
+            throw new ValidationException(Errors.from(errors.get()));
+        }
+
+        if (payload.has(FIELD_MERCHANT_DETAILS_EMAIL)) {
+            validateMerchantEmail(payload);
+        }
+    }
+
+    private void validateMerchantEmail(JsonNode payload) throws ValidationException {
+        Optional<List<String>> errors;
+        errors = requestValidations.checkMaxLength(payload, FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH,
+                FIELD_MERCHANT_DETAILS_EMAIL);
+        if (errors.isPresent()) {
+            throw new ValidationException(Errors.from(errors.get()));
+        }
+
+        errors = requestValidations.isValidEmail(payload, FIELD_MERCHANT_DETAILS_EMAIL);
+        if (errors.isPresent()) {
+            throw new ValidationException(Errors.from(errors.get()));
         }
     }
 

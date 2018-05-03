@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
-import uk.gov.pay.adminusers.exception.ValidationException;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
@@ -24,7 +23,10 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class ServiceUpdaterTest {
@@ -69,9 +71,14 @@ public class ServiceUpdaterTest {
         String addressCity = "something";
         String addressPostcode = "something";
         String addressCountry = "something";
+        String email = "dd-merchant@example.com";
 
-        MerchantDetailsEntity toUpdate = new MerchantDetailsEntity(name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry);
-        UpdateMerchantDetailsRequest request = new UpdateMerchantDetailsRequest(name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry);
+        MerchantDetailsEntity toUpdate = new MerchantDetailsEntity(
+                name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry, email
+        );
+        UpdateMerchantDetailsRequest request = new UpdateMerchantDetailsRequest(
+                name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry, email
+        );
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
 
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
@@ -93,9 +100,11 @@ public class ServiceUpdaterTest {
         String addressCity = "something";
         String addressPostcode = "something";
         String addressCountry = "something";
+        String email = "merchant@example.com";
 
-        UpdateMerchantDetailsRequest request =
-                new UpdateMerchantDetailsRequest(name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry);
+        UpdateMerchantDetailsRequest request = new UpdateMerchantDetailsRequest(
+                name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry, email
+        );
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
 
         when(serviceDao.findByExternalId(NON_EXISTENT_SERVICE_EXTERNAL_ID)).thenReturn(Optional.empty());

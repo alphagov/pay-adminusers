@@ -31,6 +31,7 @@ public class ServiceResourceUpdateMerchantDetailsTest extends IntegrationTest {
                 .put("address_city", "city")
                 .put("address_country", "country")
                 .put("address_postcode", "postcode")
+                .put("email", "dd-merchant@example.com")
                 .build();
 
         givenSetup()
@@ -47,7 +48,8 @@ public class ServiceResourceUpdateMerchantDetailsTest extends IntegrationTest {
                 .body("merchant_details.address_line2", is("line2"))
                 .body("merchant_details.address_city", is("city"))
                 .body("merchant_details.address_country", is("country"))
-                .body("merchant_details.address_postcode", is("postcode"));
+                .body("merchant_details.address_postcode", is("postcode"))
+                .body("merchant_details.email", is("dd-merchant@example.com"));
     }
 
     @Test
@@ -55,13 +57,13 @@ public class ServiceResourceUpdateMerchantDetailsTest extends IntegrationTest {
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
         databaseHelper.addService(service, randomInt().toString());
-        Map<String, Object> payload = ImmutableMap.of(
-                "name", "somename",
-                "address_line1", "line1",
-                "address_city", "city",
-                "address_country", "country",
-                "address_postcode", "postcode"
-        );
+        Map<String, Object> payload = ImmutableMap.<String, Object>builder()
+                .put("name", "somename")
+                .put("address_line1", "line1")
+                .put("address_city", "city")
+                .put("address_country", "country")
+                .put("address_postcode", "postcode")
+                .build();
 
         givenSetup()
                 .when()
@@ -77,11 +79,12 @@ public class ServiceResourceUpdateMerchantDetailsTest extends IntegrationTest {
                 .body("merchant_details.address_country", is("country"))
                 .body("merchant_details.address_postcode", is("postcode"))
                 .body("merchant_details", not(hasKey("telephone_number")))
-                .body("merchant_details", not(hasKey("address_line2")));
+                .body("merchant_details", not(hasKey("address_line2")))
+                .body("merchant_details", not(hasKey("email")));
     }
 
     @Test
-    public void shouldFail_whenUpdatingMerchantDetails_withMissingMandatoryField() throws Exception {
+    public void shouldFail_whenUpdatingMerchantDetails_withMissingMandatoryFieldName() throws Exception {
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
         databaseHelper.addService(service, randomInt().toString());

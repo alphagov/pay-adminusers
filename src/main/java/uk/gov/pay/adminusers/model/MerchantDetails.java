@@ -22,6 +22,8 @@ public class MerchantDetails {
     private String addressPostcode;
 
     private String addressCountry;
+    
+    private String email;
 
     public MerchantDetails() {
     }
@@ -32,7 +34,8 @@ public class MerchantDetails {
                            @JsonProperty("address_line2") String addressLine2,
                            @JsonProperty("address_city") String addressCity,
                            @JsonProperty("address_postcode") String addressPostcode,
-                           @JsonProperty("address_country") String addressCountry) {
+                           @JsonProperty("address_country") String addressCountry,
+                           @JsonProperty("email") String email) {
         this.name = name;
         this.telephoneNumber = telephoneNumber;
         this.addressLine1 = addressLine1;
@@ -40,6 +43,7 @@ public class MerchantDetails {
         this.addressCity = addressCity;
         this.addressPostcode = addressPostcode;
         this.addressCountry = addressCountry;
+        this.email = email;
     }
 
     public String getName() {
@@ -69,6 +73,8 @@ public class MerchantDetails {
     public String getAddressCountry() {
         return addressCountry;
     }
+    
+    public String getEmail() { return this.email; }
 
     @Override
     public boolean equals(Object o) {
@@ -84,6 +90,7 @@ public class MerchantDetails {
         if (addressLine2 != null ? !addressLine2.equals(that.addressLine2) : that.addressLine2 != null) return false;
         if (!addressCity.equals(that.addressCity)) return false;
         if (!addressPostcode.equals(that.addressPostcode)) return false;
+        if (email != null ? !email.equals(that.email) : that.email != null) return false;
         return addressCountry.equals(that.addressCountry);
     }
 
@@ -96,6 +103,7 @@ public class MerchantDetails {
         result = 31 * result + addressCity.hashCode();
         result = 31 * result + addressPostcode.hashCode();
         result = 31 * result + addressCountry.hashCode();
+        result = 31 * result + (email != null ? email.hashCode() : 0);
         return result;
     }
 

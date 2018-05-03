@@ -53,7 +53,8 @@ public class EmailService {
                 merchantDetails.getAddressLine1(),
                 merchantDetails.getAddressCity(),
                 merchantDetails.getAddressCountry(),
-                merchantDetails.getAddressPostcode()
+                merchantDetails.getAddressPostcode(),
+                merchantDetails.getEmail()
         ).anyMatch(StringUtils::isBlank);
     }
 
@@ -73,9 +74,11 @@ public class EmailService {
                         ImmutableMap.of(
                                 "service name", service.getName(),
                                 "merchant address", merchantAddress,
-                                "merchant phone number", merchantDetails.getTelephoneNumber()
+                                "merchant phone number", merchantDetails.getTelephoneNumber(),
+                                "merchant email", merchantDetails.getEmail()
                         )
-                ),
+                )
+                ,
                 EmailTemplate.PAYMENT_FAILED, new StaticEmailContent(
                         notificationService.getNotifyConfiguration().getPaymentFailedTemplateId(),
                         ImmutableMap.of(
@@ -87,16 +90,17 @@ public class EmailService {
                         notificationService.getNotifyConfiguration().getMandateCancelledTemplateId(),
                         ImmutableMap.of(
                                 "org name", merchantDetails.getName(),
-                                "org phone", merchantDetails.getTelephoneNumber()
+                                "org phone", merchantDetails.getTelephoneNumber(),
+                                "merchant email", merchantDetails.getEmail()
                         )
                 ),
                 EmailTemplate.MANDATE_FAILED, new StaticEmailContent(
                         notificationService.getNotifyConfiguration().getMandateFailedTemplateId(),
                         ImmutableMap.of(
                                 "org name", merchantDetails.getName(),
-                                "org phone", merchantDetails.getTelephoneNumber()
-                        )
-                )
+                                "org phone", merchantDetails.getTelephoneNumber(),
+                                "merchant email", merchantDetails.getEmail()
+                        ))
         );
     }
 

@@ -33,6 +33,10 @@ public class MerchantDetailsEntity {
     @Column(name = "merchant_address_country")
     private String addressCountry;
 
+    @Nullable
+    @Column(name = "merchant_email")
+    private String email;
+
     // JPA requires default constructor
     public MerchantDetailsEntity() {
     }
@@ -43,7 +47,8 @@ public class MerchantDetailsEntity {
                                  String addressLine2,
                                  String addressCity,
                                  String addressPostcode,
-                                 String addressCountry) {
+                                 String addressCountry,
+                                 String email) {
         this.name = name;
         this.telephoneNumber = telephoneNumber;
         this.addressLine1 = addressLine1;
@@ -51,6 +56,7 @@ public class MerchantDetailsEntity {
         this.addressCity = addressCity;
         this.addressPostcode = addressPostcode;
         this.addressCountry = addressCountry;
+        this.email = email;
     }
 
     public String getName() {
@@ -109,6 +115,14 @@ public class MerchantDetailsEntity {
         this.addressCountry = addressCountry;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public MerchantDetails toMerchantDetails() {
         return new MerchantDetails(
                 this.name,
@@ -117,7 +131,8 @@ public class MerchantDetailsEntity {
                 this.addressLine2,
                 this.addressCity,
                 this.addressPostcode,
-                this.addressCountry
+                this.addressCountry,
+                this.email
         );
     }
 
@@ -129,7 +144,8 @@ public class MerchantDetailsEntity {
                 updateMerchantDetailsRequest.getAddressLine2(),
                 updateMerchantDetailsRequest.getAddressCity(),
                 updateMerchantDetailsRequest.getAddressPostcode(),
-                updateMerchantDetailsRequest.getAddressCountry());
+                updateMerchantDetailsRequest.getAddressCountry(),
+                updateMerchantDetailsRequest.getEmail());
     }
 
     @Override
@@ -146,6 +162,7 @@ public class MerchantDetailsEntity {
         if (addressLine2 != null ? !addressLine2.equals(that.addressLine2) : that.addressLine2 != null) return false;
         if (!addressCity.equals(that.addressCity)) return false;
         if (!addressPostcode.equals(that.addressPostcode)) return false;
+        if (email != null ? !email.equals(that.email) : that.email != null) return false;
         return addressCountry.equals(that.addressCountry);
     }
 
@@ -158,6 +175,7 @@ public class MerchantDetailsEntity {
         result = 31 * result + addressCity.hashCode();
         result = 31 * result + addressPostcode.hashCode();
         result = 31 * result + addressCountry.hashCode();
+        result = 31 * result + (email != null ? email.hashCode() : 0);
         return result;
     }
 }

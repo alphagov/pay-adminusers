@@ -20,6 +20,7 @@ public class UpdateMerchantDetailsRequestTest {
     private final String addressCity = "city";
     private final String addressCountry = "country";
     private final String addressPostcode = "postcode";
+    private final String email = "dd-merchant@example.com";
 
     @Test
     public void shouldConstructMerchantDetails_fromMinimalValidJson() throws Exception {
@@ -50,6 +51,7 @@ public class UpdateMerchantDetailsRequestTest {
                 .put("address_city", addressCity)
                 .put("address_country", addressCountry)
                 .put("address_postcode", addressPostcode)
+                .put("email", email)
                 .build();
         JsonNode jsonNode = new ObjectMapper().valueToTree(payload);
         UpdateMerchantDetailsRequest updateMerchantDetailsRequest = UpdateMerchantDetailsRequest.from(jsonNode);
@@ -60,6 +62,7 @@ public class UpdateMerchantDetailsRequestTest {
         assertThat(updateMerchantDetailsRequest.getAddressCity(), is(addressCity));
         assertThat(updateMerchantDetailsRequest.getAddressCountry(), is(addressCountry));
         assertThat(updateMerchantDetailsRequest.getAddressPostcode(), is(addressPostcode));
+        assertThat(updateMerchantDetailsRequest.getEmail(), is(email));
     }
 
 }

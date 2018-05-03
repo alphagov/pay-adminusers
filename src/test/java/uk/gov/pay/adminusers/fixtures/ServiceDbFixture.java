@@ -15,7 +15,11 @@ public class ServiceDbFixture {
     private Integer id;
     private String externalId;
     private String name = Service.DEFAULT_NAME_VALUE;
-    private MerchantDetails merchantDetails = new MerchantDetails("name", null, "line1",  null, "city", "postcode", "country");
+    private MerchantDetails merchantDetails = new MerchantDetails(
+            "name", null, "line1", null, "city",
+            "postcode", "country", null
+    );
+
     private ServiceDbFixture(DatabaseTestHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
     }

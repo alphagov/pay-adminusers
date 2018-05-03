@@ -28,7 +28,10 @@ public class EmailResourceTest extends IntegrationTest {
     public void shouldReceiveAPayloadAndSendEmail() {
         ServiceDbFixture.serviceDbFixture(databaseHelper)
                 .withGatewayAccountIds(GATEWAY_ACCOUNT_ID)
-                .withMerchantDetails(new MerchantDetails("name", "number", "line1",  null, "city", "postcode", "country"))
+                .withMerchantDetails(new MerchantDetails(
+                        "name", "number", "line1", null, "city",
+                        "postcode", "country", "dd-merchant@example.com"
+                ))
                 .insertService();
         String body = objectMapper.valueToTree(validEmailRequest).toString();
         givenSetup()
