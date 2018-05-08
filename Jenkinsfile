@@ -26,7 +26,6 @@ pipeline {
       steps {
         script {
           def long stepBuildTime = System.currentTimeMillis()
-          sh 'docker pull govukpay/postgres:9.4.4'
           sh 'mvn clean package'
           runProviderContractTests()
           postSuccessfulMetrics("adminusers.maven-build", stepBuildTime)
