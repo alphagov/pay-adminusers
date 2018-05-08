@@ -5,7 +5,7 @@ pipeline {
 
   parameters {
     booleanParam(defaultValue: true, description: '', name: 'runEndToEndTestsOnPR')
-    booleanParam(defaultValue: true, description: '', name: 'runAcceptTestsOnPR')
+    booleanParam(defaultValue: false, description: '', name: 'runAcceptTestsOnPR')
   }
 
   options {
@@ -58,6 +58,11 @@ pipeline {
     stage('Tests') {
       failFast true
       parallel {
+        stage('Provider contract tests') {
+          steps {
+            runProviderContractTests()
+          }
+        }
         stage('Card Payment End-to-End Tests') {
             when {
                 anyOf {
@@ -67,17 +72,6 @@ pipeline {
             }
             steps {
                 runCardPaymentsE2E("adminusers")
-            }
-        }
-        stage('Accept Tests') {
-            when {
-                anyOf {
-                  branch 'master'
-                  environment name: 'RUN_ACCEPT_ON_PR', value: 'true'
-                }
-            }
-            steps {
-                runAccept("adminusers")
             }
         }
       }

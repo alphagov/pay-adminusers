@@ -86,8 +86,9 @@ public class PayInteractionRunner extends InteractionRunner {
             }
             LOGGER.info("Verification results published successfully.");
         } catch (IOException e) {
-            LOGGER.info("Exception caught: " + e.getMessage());
-            LOGGER.info("Failure when trying to publish verification results.");
+            LOGGER.error("Exception caught: " + e.getMessage());
+            LOGGER.error("Failure when trying to publish verification results.");
+            throw new RuntimeException(e);
         }
     }
 
