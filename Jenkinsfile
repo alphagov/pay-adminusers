@@ -98,6 +98,12 @@ pipeline {
         deployEcs("adminusers")
       }
     }
+    stage('Pact Tag') {
+      steps {
+        echo 'Tagging provider pact with "test"'
+        tagPact("adminusers", gitCommit(), "test")
+      }
+    }
     stage('Smoke Tests') {
       when {
         branch 'master'
