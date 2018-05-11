@@ -99,6 +99,9 @@ pipeline {
       }
     }
     stage('Pact Tag') {
+      when {
+        branch 'master'
+      }
       steps {
         echo 'Tagging provider pact with "test"'
         tagPact("adminusers", gitCommit(), "test")
