@@ -66,19 +66,7 @@ public class ServiceResourceFindTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldError_whenFindByGatewayAccountId_ifIdNotNumeric() throws Exception {
-
-        givenSetup()
-                .when()
-                .accept(JSON)
-                .get(format("/v1/api/services?gatewayAccountId=%s", "some-id"))
-                .then()
-                .statusCode(400);
-
-    }
-
-    @Test
-    public void shouldReturn404_whenFindByGatewayAccountId_ifNotFound() throws Exception {
+    public void shouldReturn404_whenFindByGatewayAccountId_ifNotFound() {
 
         givenSetup()
                 .when()
