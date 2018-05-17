@@ -25,7 +25,7 @@ public class ServiceRequestValidatorTest {
     private ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(new RequestValidations());
 
     @Test
-    public void shouldSuccess_whenUpdate_whenAllFieldPresentAndValid() throws Exception {
+    public void shouldSuccess_whenUpdate_whenAllFieldPresentAndValid() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", "example-name");
 
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
@@ -33,6 +33,12 @@ public class ServiceRequestValidatorTest {
         assertFalse(errors.isPresent());
     }
 
+    @Test
+    public void shouldAllowNonNumericGatewayAccounts_whenFindingServices() {
+        Optional<Errors> errors = serviceRequestValidator.validateFindRequest("non-numeric-id");
+        assertThat(errors.isPresent(), is(false));
+    }
+    
     @Test
     public void shouldFail_whenUpdate_whenServiceNameFieldPresentAndItIsTooLong() throws Exception {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", RandomStringUtils.randomAlphanumeric(51));
@@ -46,7 +52,7 @@ public class ServiceRequestValidatorTest {
     }
 
     @Test
-    public void shouldFail_whenUpdate_whenMissingRequiredField() throws Exception {
+    public void shouldFail_whenUpdate_whenMissingRequiredField() {
         ImmutableMap<String, String> payload = ImmutableMap.of("value", "example-name");
 
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
@@ -59,7 +65,7 @@ public class ServiceRequestValidatorTest {
     }
 
     @Test
-    public void shouldFail_whenUpdate_whenInvalidPath() throws Exception {
+    public void shouldFail_whenUpdate_whenInvalidPath() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "xyz", "op", "replace", "value", "example-name");
 
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
@@ -71,7 +77,7 @@ public class ServiceRequestValidatorTest {
     }
 
     @Test
-    public void shouldFail_whenUpdate_whenInvalidOperationForSuppliedPath() throws Exception {
+    public void shouldFail_whenUpdate_whenInvalidOperationForSuppliedPath() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "add", "value", "example-name");
 
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));

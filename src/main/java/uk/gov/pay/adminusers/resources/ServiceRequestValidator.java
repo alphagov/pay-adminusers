@@ -119,9 +119,6 @@ public class ServiceRequestValidator {
         if (isBlank(gatewayAccountId)) {
             return Optional.of(Errors.from("Find services currently support only by gatewayAccountId"));
         }
-        if (!isNumeric(gatewayAccountId)) {
-            return Optional.of(Errors.from("Query param [gatewayAccountId] must be numeric"));
-        }
         return Optional.empty();
     }
 
