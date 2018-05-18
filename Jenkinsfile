@@ -93,6 +93,7 @@ pipeline {
         branch 'master'
       }
       steps {
+        checkPactCompatibility("adminusers", gitCommit(), "test")
         deployEcs("adminusers")
       }
     }
