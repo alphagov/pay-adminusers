@@ -29,7 +29,6 @@ public class ServiceRequestValidatorTest {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", "example-name");
 
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
-
         assertFalse(errors.isPresent());
     }
 
@@ -40,7 +39,7 @@ public class ServiceRequestValidatorTest {
     }
     
     @Test
-    public void shouldFail_whenUpdate_whenServiceNameFieldPresentAndItIsTooLong() throws Exception {
+    public void shouldFail_whenUpdate_whenServiceNameFieldPresentAndItIsTooLong()  {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", RandomStringUtils.randomAlphanumeric(51));
 
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));

@@ -1,7 +1,14 @@
 package uk.gov.pay.adminusers.service;
 
+import static uk.gov.pay.adminusers.model.PaymentType.DIRECT_DEBIT;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringJoiner;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 import liquibase.exception.ServiceNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -12,17 +19,14 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.resources.EmailTemplate;
 import uk.gov.pay.adminusers.resources.InvalidMerchantDetailsException;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringJoiner;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
-
-import static uk.gov.pay.adminusers.model.PaymentType.DIRECT_DEBIT;
-
 public class EmailService {
 
     private static final Logger LOGGER = PayLoggerFactory.getLogger(EmailService.class);
+    public static final String SERVICE_NAME_KEY = "service name";
+    public static final String ORGANISATION_NAME_KEY = "organisation name";
+    public static final String ORGANISATION_PHONE_NUMBER_KEY = "organisation phone number";
+    public static final String ORGANISATION_ADDRESS_KEY = "organisation address";
+    public static final String ORGANISATION_EMAIL_ADDRESS_KEY = "organisation email address";
 
     private NotificationService notificationService;
     private ServiceDao serviceDao;
@@ -70,41 +74,30 @@ public class EmailService {
             throw new InvalidMerchantDetailsException("Merchant details are missing mandatory fields: can't send email for account " + gatewayAccountId);
         }
 
-        String merchantAddress = formatMerchantAddress(merchantDetails);
-
+        ImmutableMap<String, String> personalisation = ImmutableMap.of(
+                SERVICE_NAME_KEY, service.getName(),
+                ORGANISATION_NAME_KEY, merchantDetails.getName(),
+                ORGANISATION_ADDRESS_KEY, formatMerchantAddress(merchantDetails),
+                ORGANISATION_PHONE_NUMBER_KEY, merchantDetails.getTelephoneNumber(),
+                ORGANISATION_EMAIL_ADDRESS_KEY, merchantDetails.getEmail()
+        );
         return ImmutableMap.of(
                 EmailTemplate.PAYMENT_CONFIRMED, new StaticEmailContent(
                         notificationService.getNotifyConfiguration().getPaymentConfirmedTemplateId(),
-                        ImmutableMap.of(
-                                "service name", service.getName(),
-                                "merchant address", merchantAddress,
-                                "merchant phone number", merchantDetails.getTelephoneNumber(),
-                                "merchant email", merchantDetails.getEmail()
-                        )
-                )
-                ,
+                        personalisation
+                ),
                 EmailTemplate.PAYMENT_FAILED, new StaticEmailContent(
                         notificationService.getNotifyConfiguration().getPaymentFailedTemplateId(),
-                        ImmutableMap.of(
-                                "org name", merchantDetails.getName(),
-                                "org phone", merchantDetails.getTelephoneNumber()
-                        )
+                        personalisation
                 ),
                 EmailTemplate.MANDATE_CANCELLED, new StaticEmailContent(
                         notificationService.getNotifyConfiguration().getMandateCancelledTemplateId(),
-                        ImmutableMap.of(
-                                "org name", merchantDetails.getName(),
-                                "org phone", merchantDetails.getTelephoneNumber(),
-                                "merchant email", merchantDetails.getEmail()
-                        )
+                        personalisation
                 ),
                 EmailTemplate.MANDATE_FAILED, new StaticEmailContent(
                         notificationService.getNotifyConfiguration().getMandateFailedTemplateId(),
-                        ImmutableMap.of(
-                                "org name", merchantDetails.getName(),
-                                "org phone", merchantDetails.getTelephoneNumber(),
-                                "merchant email", merchantDetails.getEmail()
-                        ))
+                        personalisation
+                )
         );
     }
 
