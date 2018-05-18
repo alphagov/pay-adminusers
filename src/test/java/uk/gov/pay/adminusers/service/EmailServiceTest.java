@@ -96,9 +96,9 @@ public class EmailServiceTest {
         assertThat(allContent.get("field 1"), is("theValueOfField1"));
         assertThat(allContent.get("field 2"), is("theValueOfField2"));
         assertThat(allContent.get("service name"), is("a service"));
-        assertThat(allContent.get("merchant address"), is("merchant name, address line 1, city, postcode, cake"));
-        assertThat(allContent.get("merchant phone number"), is(TELEPHONE_NUMBER));
-        assertThat(allContent.get("merchant email"), is(MERCHANT_EMAIL));
+        assertThat(allContent.get("organisation address"), is("merchant name, address line 1, city, postcode, cake"));
+        assertThat(allContent.get("organisation phone number"), is(TELEPHONE_NUMBER));
+        assertThat(allContent.get("organisation email address"), is(MERCHANT_EMAIL));
     }
 
     @Test
@@ -130,8 +130,8 @@ public class EmailServiceTest {
         Map<String, String> allContent = personalisationCaptor.getValue();
         assertThat(allContent.get("field 1"), is("theValueOfField1"));
         assertThat(allContent.get("field 2"), is("theValueOfField2"));
-        assertThat(allContent.get("org name"), is(MERCHANT_NAME));
-        assertThat(allContent.get("org phone"), is(TELEPHONE_NUMBER));
+        assertThat(allContent.get("organisation name"), is(MERCHANT_NAME));
+        assertThat(allContent.get("organisation phone number"), is(TELEPHONE_NUMBER));
     }
 
     @Test
@@ -163,9 +163,9 @@ public class EmailServiceTest {
         Map<String, String> allContent = personalisationCaptor.getValue();
         assertThat(allContent.get("field 1"), is("theValueOfField1"));
         assertThat(allContent.get("field 2"), is("theValueOfField2"));
-        assertThat(allContent.get("org name"), is(MERCHANT_NAME));
-        assertThat(allContent.get("org phone"), is(TELEPHONE_NUMBER));
-        assertThat(allContent.get("merchant email"), is(MERCHANT_EMAIL));
+        assertThat(allContent.get("organisation name"), is(MERCHANT_NAME));
+        assertThat(allContent.get("organisation phone number"), is(TELEPHONE_NUMBER));
+        assertThat(allContent.get("organisation email address"), is(MERCHANT_EMAIL));
     }
 
     @Test
