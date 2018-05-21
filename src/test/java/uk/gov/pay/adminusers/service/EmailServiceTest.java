@@ -19,6 +19,7 @@ import uk.gov.pay.adminusers.resources.InvalidMerchantDetailsException;
 
 import java.util.Map;
 import java.util.Optional;
+import uk.gov.pay.adminusers.utils.CountryConverter;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -35,7 +36,7 @@ public class EmailServiceTest {
     private static final String ADDRESS_LINE_1 = "address line 1";
     private static final String CITY = "city";
     private static final String POSTCODE = "postcode";
-    private static final String ADDRESS_COUNTRY = "cake";
+    private static final String ADDRESS_COUNTRY_CODE = "CK";
     private static final String MERCHANT_EMAIL = "dd-merchant@example.com";
     private EmailService emailService;
 
@@ -51,6 +52,9 @@ public class EmailServiceTest {
     @Mock
     private ServiceEntity mockServiceEntity;
 
+    @Mock
+    private CountryConverter mockCountryConverter;
+    
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -64,7 +68,7 @@ public class EmailServiceTest {
         given(mockNotificationConfiguration.getPaymentFailedTemplateId()).willReturn("PAYMENT FAILED");
         given(mockNotificationConfiguration.getMandateCancelledTemplateId()).willReturn("MANDATE CANCELLED");
         given(mockNotificationConfiguration.getMandateFailedTemplateId()).willReturn("MANDATE FAILED");
-        emailService = new EmailService(mockNotificationService, mockServiceDao);
+        emailService = new EmailService(mockNotificationService, mockCountryConverter, mockServiceDao);
     }
 
     @Test
@@ -81,12 +85,13 @@ public class EmailServiceTest {
                 null,
                 CITY,
                 POSTCODE,
-                ADDRESS_COUNTRY,
+                ADDRESS_COUNTRY_CODE,
                 MERCHANT_EMAIL
         );
         given(mockServiceDao.findByGatewayAccountId(GATEWAY_ACCOUNT_ID)).willReturn(Optional.of(mockServiceEntity));
         given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
         given(mockServiceEntity.getName()).willReturn("a service");
+        given(mockCountryConverter.getCountryNameFrom(ADDRESS_COUNTRY_CODE)).willReturn(Optional.of("Cake Land"));
         ArgumentCaptor<Map<String, String>> personalisationCaptor = forClass(Map.class);
 
         emailService.sendEmail(EMAIL_ADDRESS, GATEWAY_ACCOUNT_ID, template, personalisation);
@@ -96,7 +101,7 @@ public class EmailServiceTest {
         assertThat(allContent.get("field 1"), is("theValueOfField1"));
         assertThat(allContent.get("field 2"), is("theValueOfField2"));
         assertThat(allContent.get("service name"), is("a service"));
-        assertThat(allContent.get("organisation address"), is("merchant name, address line 1, city, postcode, cake"));
+        assertThat(allContent.get("organisation address"), is("merchant name, address line 1, city, postcode, Cake Land"));
         assertThat(allContent.get("organisation phone number"), is(TELEPHONE_NUMBER));
         assertThat(allContent.get("organisation email address"), is(MERCHANT_EMAIL));
     }
@@ -115,13 +120,14 @@ public class EmailServiceTest {
                 null,
                 CITY,
                 POSTCODE,
-                ADDRESS_COUNTRY,
+                ADDRESS_COUNTRY_CODE,
                 MERCHANT_EMAIL
         );
 
         given(mockServiceDao.findByGatewayAccountId(GATEWAY_ACCOUNT_ID)).willReturn(Optional.of(mockServiceEntity));
         given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
         given(mockServiceEntity.getName()).willReturn("a service");
+        given(mockCountryConverter.getCountryNameFrom(ADDRESS_COUNTRY_CODE)).willReturn(Optional.of("Cake Land"));
         ArgumentCaptor<Map<String, String>> personalisationCaptor = forClass(Map.class);
 
         emailService.sendEmail(EMAIL_ADDRESS, GATEWAY_ACCOUNT_ID, template, personalisation);
@@ -148,13 +154,14 @@ public class EmailServiceTest {
                 "address line 2",
                 CITY,
                 POSTCODE,
-                ADDRESS_COUNTRY,
+                ADDRESS_COUNTRY_CODE,
                 MERCHANT_EMAIL
         );
 
         given(mockServiceDao.findByGatewayAccountId(GATEWAY_ACCOUNT_ID)).willReturn(Optional.of(mockServiceEntity));
         given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
         given(mockServiceEntity.getName()).willReturn("a service");
+        given(mockCountryConverter.getCountryNameFrom(ADDRESS_COUNTRY_CODE)).willReturn(Optional.of("Cake Land"));
         ArgumentCaptor<Map<String, String>> personalisationCaptor = forClass(Map.class);
 
         emailService.sendEmail(EMAIL_ADDRESS, GATEWAY_ACCOUNT_ID, template, personalisation);
@@ -182,13 +189,14 @@ public class EmailServiceTest {
                 "address line 2",
                 CITY,
                 POSTCODE,
-                ADDRESS_COUNTRY,
+                ADDRESS_COUNTRY_CODE,
                 MERCHANT_EMAIL
         );
 
         given(mockServiceDao.findByGatewayAccountId(GATEWAY_ACCOUNT_ID)).willReturn(Optional.of(mockServiceEntity));
         given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
         given(mockServiceEntity.getName()).willReturn("a service");
+        given(mockCountryConverter.getCountryNameFrom(ADDRESS_COUNTRY_CODE)).willReturn(Optional.of("Cake Land"));
 
         thrown.expect(InvalidMerchantDetailsException.class);
         thrown.expectMessage("Merchant details are missing mandatory fields: can't send email for account " + GATEWAY_ACCOUNT_ID);

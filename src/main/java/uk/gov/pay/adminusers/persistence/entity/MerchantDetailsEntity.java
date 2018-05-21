@@ -31,7 +31,7 @@ public class MerchantDetailsEntity {
     private String addressPostcode;
 
     @Column(name = "merchant_address_country")
-    private String addressCountry;
+    private String addressCountryCode;
 
     @Nullable
     @Column(name = "merchant_email")
@@ -55,7 +55,7 @@ public class MerchantDetailsEntity {
         this.addressLine2 = addressLine2;
         this.addressCity = addressCity;
         this.addressPostcode = addressPostcode;
-        this.addressCountry = addressCountry;
+        this.addressCountryCode = addressCountry;
         this.email = email;
     }
 
@@ -107,12 +107,12 @@ public class MerchantDetailsEntity {
         this.addressPostcode = addressPostcode;
     }
 
-    public String getAddressCountry() {
-        return addressCountry;
+    public String getAddressCountryCode() {
+        return addressCountryCode;
     }
 
-    public void setAddressCountry(String addressCountry) {
-        this.addressCountry = addressCountry;
+    public void setAddressCountryCode(String addressCountryCode) {
+        this.addressCountryCode = addressCountryCode;
     }
 
     public String getEmail() {
@@ -131,7 +131,7 @@ public class MerchantDetailsEntity {
                 this.addressLine2,
                 this.addressCity,
                 this.addressPostcode,
-                this.addressCountry,
+                this.addressCountryCode,
                 this.email
         );
     }
@@ -163,7 +163,7 @@ public class MerchantDetailsEntity {
         if (!addressCity.equals(that.addressCity)) return false;
         if (!addressPostcode.equals(that.addressPostcode)) return false;
         if (email != null ? !email.equals(that.email) : that.email != null) return false;
-        return addressCountry.equals(that.addressCountry);
+        return addressCountryCode.equals(that.addressCountryCode);
     }
 
     @Override
@@ -174,7 +174,7 @@ public class MerchantDetailsEntity {
         result = 31 * result + (addressLine2 != null ? addressLine2.hashCode() : 0);
         result = 31 * result + addressCity.hashCode();
         result = 31 * result + addressPostcode.hashCode();
-        result = 31 * result + addressCountry.hashCode();
+        result = 31 * result + addressCountryCode.hashCode();
         result = 31 * result + (email != null ? email.hashCode() : 0);
         return result;
     }
