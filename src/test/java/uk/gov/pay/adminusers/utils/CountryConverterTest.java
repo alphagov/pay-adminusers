@@ -24,5 +24,10 @@ public class CountryConverterTest {
         assertThat(countryConverter.getCountryNameFrom("BB").get(), is("bbb"));
         assertThat(countryConverter.getCountryNameFrom("CC").isPresent(), is(false));
     }
+
+    @Test
+    public void shouldNotGetCountryNameFromInvalidIsoName() {
+        assertThat(countryConverter.getCountryNameFrom("alex").isPresent(), is(false));
+    }
 }
 
