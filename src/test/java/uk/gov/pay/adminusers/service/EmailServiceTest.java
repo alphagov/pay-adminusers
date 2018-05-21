@@ -101,7 +101,8 @@ public class EmailServiceTest {
         assertThat(allContent.get("field 1"), is("theValueOfField1"));
         assertThat(allContent.get("field 2"), is("theValueOfField2"));
         assertThat(allContent.get("service name"), is("a service"));
-        assertThat(allContent.get("organisation address"), is("merchant name, address line 1, city, postcode, Cake Land"));
+        assertThat(allContent.get("organisation name"), is(MERCHANT_NAME));
+        assertThat(allContent.get("organisation address"), is("address line 1, city, postcode, Cake Land"));
         assertThat(allContent.get("organisation phone number"), is(TELEPHONE_NUMBER));
         assertThat(allContent.get("organisation email address"), is(MERCHANT_EMAIL));
     }

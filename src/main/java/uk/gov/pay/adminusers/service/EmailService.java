@@ -41,7 +41,6 @@ public class EmailService {
 
     private String formatMerchantAddress(MerchantDetailsEntity merchantDetails) {
         StringJoiner merchantAddress = new StringJoiner(", ", "", "");
-        merchantAddress.add(merchantDetails.getName());
         merchantAddress.add(merchantDetails.getAddressLine1());
         if (!StringUtils.isBlank(merchantDetails.getAddressLine2())) {
             merchantAddress.add(merchantDetails.getAddressLine2());
