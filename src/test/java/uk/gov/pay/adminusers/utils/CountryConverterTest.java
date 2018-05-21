@@ -19,14 +19,19 @@ public class CountryConverterTest {
     }
 
     @Test
-    public void shouldGetCountryNameFromIsoName() {
+    public void shouldGetCountryNameForAValidIsoCode() {
         assertThat(countryConverter.getCountryNameFrom("AA").get(), is("aaa"));
         assertThat(countryConverter.getCountryNameFrom("BB").get(), is("bbb"));
-        assertThat(countryConverter.getCountryNameFrom("CC").isPresent(), is(false));
     }
 
     @Test
-    public void shouldNotGetCountryNameFromInvalidIsoName() {
+    public void shouldNotGetCountryNameForAValidIsoCode_ifIsoCodeDoesNotRepresentACountry() {
+        assertThat(countryConverter.getCountryNameFrom("CC").isPresent(), is(false));
+    }
+
+
+    @Test
+    public void shouldNotGetCountryNameFromIsoCodeNotPresentInCountriesList() {
         assertThat(countryConverter.getCountryNameFrom("alex").isPresent(), is(false));
     }
 }
