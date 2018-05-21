@@ -18,6 +18,7 @@ import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.resources.EmailTemplate;
 import uk.gov.pay.adminusers.resources.InvalidMerchantDetailsException;
+import uk.gov.pay.adminusers.utils.CountryConverter;
 
 public class EmailService {
 
@@ -28,25 +29,26 @@ public class EmailService {
     public static final String ORGANISATION_ADDRESS_KEY = "organisation address";
     public static final String ORGANISATION_EMAIL_ADDRESS_KEY = "organisation email address";
 
-    private NotificationService notificationService;
-    private ServiceDao serviceDao;
-
+    private final NotificationService notificationService;
+    private final ServiceDao serviceDao;
+    private final CountryConverter countryConverter;
     @Inject
-    public EmailService(NotificationService notificationService, ServiceDao serviceDao) {
+    public EmailService(NotificationService notificationService, CountryConverter countryConverter, ServiceDao serviceDao) {
         this.serviceDao = serviceDao;
         this.notificationService = notificationService;
+        this.countryConverter = countryConverter;
     }
 
     private String formatMerchantAddress(MerchantDetailsEntity merchantDetails) {
         StringJoiner merchantAddress = new StringJoiner(", ", "", "");
-        merchantAddress.add(merchantDetails.getName());
         merchantAddress.add(merchantDetails.getAddressLine1());
         if (!StringUtils.isBlank(merchantDetails.getAddressLine2())) {
             merchantAddress.add(merchantDetails.getAddressLine2());
         }
         merchantAddress.add(merchantDetails.getAddressCity());
         merchantAddress.add(merchantDetails.getAddressPostcode());
-        merchantAddress.add(merchantDetails.getAddressCountry());
+        countryConverter.getCountryNameFrom(merchantDetails.getAddressCountryCode())
+                .ifPresent(merchantAddress::add);
         return merchantAddress.toString();
     }
 
@@ -56,7 +58,7 @@ public class EmailService {
                 merchantDetails.getTelephoneNumber(),
                 merchantDetails.getAddressLine1(),
                 merchantDetails.getAddressCity(),
-                merchantDetails.getAddressCountry(),
+                merchantDetails.getAddressCountryCode(),
                 merchantDetails.getAddressPostcode(),
                 merchantDetails.getEmail()
         ).anyMatch(StringUtils::isBlank);

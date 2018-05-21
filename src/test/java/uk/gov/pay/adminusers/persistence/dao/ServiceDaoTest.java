@@ -164,7 +164,7 @@ public class ServiceDaoTest extends DaoTestBase {
         assertThat(merchantDetailsEntity.getAddressLine2(), is(addressLine2));
         assertThat(merchantDetailsEntity.getAddressCity(), is(addressCity));
         assertThat(merchantDetailsEntity.getAddressPostcode(), is(postcode));
-        assertThat(merchantDetailsEntity.getAddressCountry(), is(country));
+        assertThat(merchantDetailsEntity.getAddressCountryCode(), is(country));
         assertThat(merchantDetailsEntity.getEmail(), is(email));
 
         assertThat(serviceEntity.get().getCustomBranding().keySet().size(), is(2));

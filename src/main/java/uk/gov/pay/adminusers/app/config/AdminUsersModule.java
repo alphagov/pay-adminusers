@@ -13,6 +13,7 @@ import io.dropwizard.setup.Environment;
 import uk.gov.pay.adminusers.resources.ResetPasswordValidator;
 import uk.gov.pay.adminusers.resources.UserRequestValidator;
 import uk.gov.pay.adminusers.service.*;
+import uk.gov.pay.adminusers.utils.CountryConverter;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.time.Clock;
@@ -43,6 +44,7 @@ public class AdminUsersModule extends AbstractModule {
         bind(Clock.class).toInstance(Clock.systemDefaultZone());
 
         bind(PasswordHasher.class).in(Singleton.class);
+        bind(CountryConverter.class).in(Singleton.class);
         bind(RequestValidations.class).in(Singleton.class);
         bind(UserRequestValidator.class).in(Singleton.class);
         bind(ResetPasswordValidator.class).in(Singleton.class);
