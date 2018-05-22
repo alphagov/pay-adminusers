@@ -10,20 +10,31 @@ import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.PatchRequest;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.pay.adminusers.service.UserServicesFactory;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.Response.Status.*;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.CREATED;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.OK;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static uk.gov.pay.adminusers.model.User.FIELD_USERNAME;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingUsername;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
@@ -40,6 +51,8 @@ public class UserResource {
     private static final String USER_RESOURCE = USERS_RESOURCE + "/{externalId}";
     private static final String SECOND_FACTOR_RESOURCE = USER_RESOURCE + "/second-factor";
     private static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/authenticate";
+    private static final String SECOND_FACTOR_PROVISION_RESOURCE = SECOND_FACTOR_RESOURCE + "/provision";
+    private static final String SECOND_FACTOR_ACTIVATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/activate";
     private static final String USER_SERVICES_RESOURCE = USER_RESOURCE + "/services";
     private static final String USER_SERVICE_RESOURCE = USER_SERVICES_RESOURCE + "/{serviceExternalId}";
     private static final Splitter COMMA_SEPARATOR = Splitter.on(',').trimResults();
@@ -148,11 +161,16 @@ public class UserResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response newSecondFactorPasscode(@PathParam("externalId") String externalId) {
+    public Response newSecondFactorPasscode(@PathParam("externalId") String externalId, JsonNode payload) {
         logger.info("User 2FA new passcode request");
-        return userServices.newSecondFactorPasscode(externalId)
-                .map(twoFAToken -> Response.status(OK).type(APPLICATION_JSON).build())
-                .orElseGet(() -> Response.status(NOT_FOUND).build());
+        return validator.validateNewSecondFactorPasscodeRequest(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> {
+                    boolean provisional = payload != null && payload.get("provisional") != null && payload.get("provisional").asBoolean();
+                    return userServices.newSecondFactorPasscode(externalId, provisional)
+                        .map(twoFAToken -> Response.status(OK).type(APPLICATION_JSON).build())
+                        .orElseGet(() -> Response.status(NOT_FOUND).build());
+                });
     }
 
 
@@ -168,6 +186,34 @@ public class UserResource {
                         .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                         .orElseGet(() -> Response.status(UNAUTHORIZED).build()));
 
+    }
+
+    @Path(SECOND_FACTOR_PROVISION_RESOURCE)
+    @POST
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response newSecondFactorOtpKey(@PathParam("externalId") String externalId) {
+        logger.info("User 2FA provision new OTP key request");
+        return userServices.provisionNewOtpKey(externalId)
+                .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
+                .orElseGet(() -> Response.status(NOT_FOUND).build());
+    }
+
+    @Path(SECOND_FACTOR_ACTIVATE_RESOURCE)
+    @POST
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response activateSecondFactorOtpKey(@PathParam("externalId") String externalId, JsonNode payload) {
+        logger.info("User 2FA activate new OTP key request");
+        return validator.validate2faActivateRequest(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> {
+                    int code = payload.get("code").asInt();
+                    SecondFactorMethod secondFactor = SecondFactorMethod.valueOf(payload.get("second_factor").asText());
+                    return userServices.activateNewOtpKey(externalId, secondFactor, code)
+                            .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
+                            .orElseGet(() -> Response.status(UNAUTHORIZED).build());
+                });
     }
 
     @PATCH

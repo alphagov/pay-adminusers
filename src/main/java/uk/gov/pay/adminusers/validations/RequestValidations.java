@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.google.common.collect.ImmutableList;
+import uk.gov.pay.adminusers.utils.email.EmailValidator;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,10 @@ public class RequestValidations {
 
     public Optional<List<String>> checkIsNumeric(JsonNode payload, String... fieldNames) {
         return applyCheck(payload, isNotNumeric(), fieldNames, "Field [%s] must be a number");
+    }
+
+    public Optional<List<String>> checkIsBoolean(JsonNode payload, String... fieldNames) {
+        return applyCheck(payload, isNotBoolean(), fieldNames, "Field [%s] must be a boolean");
     }
 
     public Optional<List<String>> checkIfExistsOrEmpty(JsonNode payload, String... fieldNames) {
@@ -80,5 +85,13 @@ public class RequestValidations {
 
     public static Function<JsonNode, Boolean> isNotBoolean() {
         return jsonNode -> !ImmutableList.of("true", "false").contains(jsonNode.asText().toLowerCase());
+    }
+
+    public Optional<List<String>> isValidEmail(JsonNode payload, String... fieldNames) {
+        return applyCheck(
+                payload,
+                jsonNode -> !EmailValidator.isValid(jsonNode.asText()),
+                fieldNames,
+                "Field [email] must be a valid email address");
     }
 }

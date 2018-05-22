@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import uk.gov.pay.adminusers.exception.ValidationException;
 import uk.gov.pay.adminusers.utils.Errors;
@@ -24,55 +25,33 @@ public class ServiceRequestValidatorTest {
     private ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(new RequestValidations());
 
     @Test
-    public void shouldSuccess_onEmptyJson() throws Exception {
-        Optional<Errors> errors = serviceRequestValidator.validateCreateRequest(mapper.readTree("{}"));
-        assertFalse(errors.isPresent());
-    }
-
-    @Test
-    public void shouldSuccess_onNullPayload() throws Exception {
-        Optional<Errors> errors = serviceRequestValidator.validateCreateRequest(null);
-        assertFalse(errors.isPresent());
-    }
-
-    @Test
-    public void shouldSuccess_ifNameIsEmpty() throws Exception {
-        ImmutableMap<String, String> payload = ImmutableMap.of("name", "");
-        Optional<Errors> errors = serviceRequestValidator.validateCreateRequest(mapper.valueToTree(payload));
-        assertFalse(errors.isPresent());
-    }
-
-    @Test
-    public void shouldSuccess_ifGatewayAccountIdsIsEmptyArray() throws Exception {
-        ImmutableMap<Object, Object> payload = ImmutableMap.builder()
-                .put("gateway_account_ids", new String[]{})
-                .build();
-
-        Optional<Errors> errors = serviceRequestValidator.validateCreateRequest(mapper.valueToTree(payload));
-        assertFalse(errors.isPresent());
-    }
-
-    @Test
-    public void shouldSuccess_forValidGatewayAccountIds() throws Exception {
-        ImmutableMap<Object, Object> payload = ImmutableMap.builder()
-                .put("gateway_account_ids", new String[]{"1", "2"})
-                .build();
-
-        Optional<Errors> errors = serviceRequestValidator.validateCreateRequest(mapper.valueToTree(payload));
-        assertFalse(errors.isPresent());
-    }
-
-    @Test
-    public void shouldSuccess_whenUpdate_whenAllFieldPresentAndValid() throws Exception {
+    public void shouldSuccess_whenUpdate_whenAllFieldPresentAndValid() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", "example-name");
 
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
-
         assertFalse(errors.isPresent());
     }
 
     @Test
-    public void shouldFail_whenUpdate_whenMissingRequiredField() throws Exception {
+    public void shouldAllowNonNumericGatewayAccounts_whenFindingServices() {
+        Optional<Errors> errors = serviceRequestValidator.validateFindRequest("non-numeric-id");
+        assertThat(errors.isPresent(), is(false));
+    }
+    
+    @Test
+    public void shouldFail_whenUpdate_whenServiceNameFieldPresentAndItIsTooLong()  {
+        ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", RandomStringUtils.randomAlphanumeric(51));
+
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
+
+        assertTrue(errors.isPresent());
+        List<String> errorsList = errors.get().getErrors();
+        assertThat(errorsList.size(), is(1));
+        assertThat(errorsList, hasItem("Field [value] must have a maximum length of 50 characters"));
+    }
+
+    @Test
+    public void shouldFail_whenUpdate_whenMissingRequiredField() {
         ImmutableMap<String, String> payload = ImmutableMap.of("value", "example-name");
 
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
@@ -85,7 +64,7 @@ public class ServiceRequestValidatorTest {
     }
 
     @Test
-    public void shouldFail_whenUpdate_whenInvalidPath() throws Exception {
+    public void shouldFail_whenUpdate_whenInvalidPath() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "xyz", "op", "replace", "value", "example-name");
 
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
@@ -97,7 +76,7 @@ public class ServiceRequestValidatorTest {
     }
 
     @Test
-    public void shouldFail_whenUpdate_whenInvalidOperationForSuppliedPath() throws Exception {
+    public void shouldFail_whenUpdate_whenInvalidOperationForSuppliedPath() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "add", "value", "example-name");
 
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
@@ -116,6 +95,7 @@ public class ServiceRequestValidatorTest {
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_CITY, "city");
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY, "country");
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, "postcode");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_EMAIL, "dd-merchant@example.com");
 
         serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
     }
@@ -153,6 +133,29 @@ public class ServiceRequestValidatorTest {
         serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
     }
 
+    @Test
+    public void shouldFail_updatingMerchantDetails_whenInvalidEmail() {
+        ObjectNode payload = createJsonPayload("invalid@example.com-uk");
+
+        try {
+            serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
+        } catch (ValidationException e) {
+            assertThat(e.getErrors().getErrors(), hasItem("Field [email] must be a valid email address"));
+        }
+    }
+
+    @Test
+    public void shouldFail_updatingMerchantDetails_whenEmailOver255() {
+        String longEmail = RandomStringUtils.randomAlphanumeric(256);
+        ObjectNode payload = createJsonPayload(longEmail);
+
+        try {
+            serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
+        } catch (ValidationException e) {
+            assertThat(e.getErrors().getErrors(), hasItem("Field [email] must have a maximum length of 255 characters"));
+        }
+    }
+    
     @Test
     public void shouldSuccess_replacingCustomBranding() throws Exception {
         ImmutableMap<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of("image_url", "image url", "css_url", "css url"));
@@ -202,4 +205,14 @@ public class ServiceRequestValidatorTest {
         assertThat(errorsList, hasItem("Value for path [custom_branding] must be a JSON"));
     }
 
+    private ObjectNode createJsonPayload(String email) {
+        ObjectNode payload = JsonNodeFactory.instance.objectNode();
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_NAME, "Merchant name");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_LINE1, "line1");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_CITY, "city");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY, "country");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, "postcode");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_EMAIL, email);
+        return payload;
+    }
 }

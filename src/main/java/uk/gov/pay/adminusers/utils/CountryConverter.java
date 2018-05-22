@@ -1,0 +1,44 @@
+package uk.gov.pay.adminusers.utils;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+import com.google.inject.Inject;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static java.util.stream.Collectors.toMap;
+
+public class CountryConverter {
+
+    private static final String COUNTRIES_FILE_PATH = "countries.json";
+    private final ObjectMapper objectMapper;
+    private final Map<String, String> countries;
+
+    @Inject
+    public CountryConverter(ObjectMapper objectMapper) throws IOException {
+        this.objectMapper = objectMapper;
+        String countries = Resources.toString(Resources.getResource(COUNTRIES_FILE_PATH), Charsets.UTF_8);
+        this.countries = createMap(countries);
+    }
+
+    private Map<String, String> createMap(String countries) throws IOException {
+        List<List<String>> allCountries = objectMapper.readValue(countries, new TypeReference<List<List<String>>>() {});
+        return allCountries.stream()
+                .filter(country -> country.get(1).startsWith("country:"))
+                .collect(toMap(
+                        country -> getIsoCode(country.get(1)),
+                        country -> country.get(0)));
+    }
+    
+    private static String getIsoCode(String typeAndIsoCode) {
+        return typeAndIsoCode.substring(typeAndIsoCode.indexOf(':') + 1);
+    }
+    
+    public Optional<String> getCountryNameFrom(String isoName) {
+        return Optional.ofNullable(countries.get(isoName));
+    }
+}

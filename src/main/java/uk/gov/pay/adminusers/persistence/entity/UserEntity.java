@@ -2,11 +2,18 @@ package uk.gov.pay.adminusers.persistence.entity;
 
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -63,6 +70,17 @@ public class UserEntity extends AbstractEntity {
 
     @Column(name = "session_version", columnDefinition = "int default 0")
     private Integer sessionVersion;
+
+    @Column(name = "second_factor", nullable = false)
+    @Convert(converter = SecondFactorMethodConverter.class)
+    private SecondFactorMethod secondFactor;
+
+    @Column(name = "provisional_otp_key")
+    private String provisionalOtpKey;
+
+    @Column(name = "provisional_otp_key_created_at")
+    @Convert(converter = UTCDateTimeConverter.class)
+    private ZonedDateTime provisionalOtpKeyCreatedAt;
 
     public UserEntity() {
         //for jpa
@@ -168,6 +186,30 @@ public class UserEntity extends AbstractEntity {
         this.sessionVersion = sessionVersion;
     }
 
+    public SecondFactorMethod getSecondFactor() {
+        return secondFactor;
+    }
+
+    public void setSecondFactor(SecondFactorMethod secondFactor) {
+        this.secondFactor = secondFactor;
+    }
+
+    public String getProvisionalOtpKey() {
+        return provisionalOtpKey;
+    }
+
+    public void setProvisionalOtpKey(String provisionalOtpKey) {
+        this.provisionalOtpKey = provisionalOtpKey;
+    }
+
+    public ZonedDateTime getProvisionalOtpKeyCreatedAt() {
+        return provisionalOtpKeyCreatedAt;
+    }
+
+    public void setProvisionalOtpKeyCreatedAt(ZonedDateTime provisionalOtpKeyCreatedAt) {
+        this.provisionalOtpKeyCreatedAt = provisionalOtpKeyCreatedAt;
+    }
+
     /**
      * Note: this constructor will not copy <b>id</b> from the User model. It will always assign a new one internally (by JPA)
      *
@@ -182,6 +224,9 @@ public class UserEntity extends AbstractEntity {
         userEntity.setEmail(user.getEmail());
         userEntity.setOtpKey(user.getOtpKey());
         userEntity.setTelephoneNumber(user.getTelephoneNumber());
+        userEntity.setSecondFactor(user.getSecondFactor());
+        userEntity.setProvisionalOtpKey(user.getProvisionalOtpKey());
+        userEntity.setProvisionalOtpKeyCreatedAt(user.getProvisionalOtpKeyCreatedAt());
         userEntity.setLoginCounter(user.getLoginCounter());
         userEntity.setFeatures(user.getFeatures());
         userEntity.setDisabled(user.isDisabled());
@@ -206,6 +251,7 @@ public class UserEntity extends AbstractEntity {
         userEntity.setEmail(createUserRequest.getEmail());
         userEntity.setOtpKey(createUserRequest.getOtpKey());
         userEntity.setTelephoneNumber(createUserRequest.getTelephoneNumber());
+        userEntity.setSecondFactor(SecondFactorMethod.SMS);
         userEntity.setLoginCounter(0);
         userEntity.setFeatures(createUserRequest.getFeatures());
         userEntity.setDisabled(Boolean.FALSE);
@@ -228,7 +274,8 @@ public class UserEntity extends AbstractEntity {
             serviceRoles = this.servicesRoles.stream().map(serviceRoleEntity -> serviceRoleEntity.toServiceRole()).collect(toList());
         }
 
-        User user = User.from(getId(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber, serviceRoles, features);
+        User user = User.from(getId(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber,
+                serviceRoles, features, secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt);
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);

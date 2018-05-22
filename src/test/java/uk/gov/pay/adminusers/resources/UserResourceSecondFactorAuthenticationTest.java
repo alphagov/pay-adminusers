@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.resources;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import org.junit.Before;
@@ -10,6 +11,7 @@ import static com.google.common.io.BaseEncoding.base32;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 public class UserResourceSecondFactorAuthenticationTest extends IntegrationTest {
@@ -22,14 +24,17 @@ public class UserResourceSecondFactorAuthenticationTest extends IntegrationTest 
 
     @Before
     public void createValidUser() throws Exception {
-        User user = userDbFixture(databaseHelper).withOtpKey(OTP_KEY).insertUser();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User user = userDbFixture(databaseHelper).withOtpKey(OTP_KEY).withUsername(username).withEmail(email).insertUser();
 
-        externalId = user.getExternalId();
-        username = user.getUsername();
+        this.externalId = user.getExternalId();
+        this.username = user.getUsername();
     }
 
+
     @Test
-    public void shouldCreate2FA_onForAValid2FAAuthRequest() throws Exception {
+    public void shouldCreate2FA_forAValidNewSecondFactorPasscodeRequest_withNoBody() {
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -39,7 +44,48 @@ public class UserResourceSecondFactorAuthenticationTest extends IntegrationTest 
     }
 
     @Test
-    public void shouldAuthenticate2FA_onForAValid2FAAuthRequest() throws Exception {
+    public void shouldCreate2FA_forAValidNewSecondFactorPasscodeRequest_withProvisionalFalse() throws JsonProcessingException {
+        ImmutableMap<String, Boolean> body = ImmutableMap.of("provisional", false);
+
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .body(mapper.writeValueAsString(body))
+                .post(format(USER_2FA_URL, externalId))
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    public void shouldCreate2FA_forAValidNewSecondFactorPasscodeRequest_withProvisionalTrue() throws JsonProcessingException {
+        databaseHelper.updateProvisionalOtpKey(username, "ABCDEFGHIJKLMNOP");
+
+        ImmutableMap<String, Boolean> body = ImmutableMap.of("provisional", true);
+
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .body(mapper.writeValueAsString(body))
+                .post(format(USER_2FA_URL, externalId))
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    public void shouldReturnNotFound_forAValidNewSecondFactorPasscodeRequest_withProvisionalTrue_ifNoProvisionalOtpKey() throws JsonProcessingException {
+        ImmutableMap<String, Boolean> body = ImmutableMap.of("provisional", true);
+
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .body(mapper.writeValueAsString(body))
+                .post(format(USER_2FA_URL, externalId))
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
+    public void shouldAuthenticate2FA_forAValid2FAAuthRequest() throws Exception {
         GoogleAuthenticator testAuthenticator = new GoogleAuthenticator();
         int passcode = testAuthenticator.getTotpPassword(base32().encode(OTP_KEY.getBytes()));
         ImmutableMap<String, Integer> authBody = ImmutableMap.of("code", passcode);

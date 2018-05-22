@@ -52,4 +52,25 @@ public class RequestValidationsTest {
         assertThat(errors.isPresent(), is(true));
     }
 
+    @Test
+    public void checkNotBoolean_shouldSuccess_whenFieldsAreTrueOrFalse() {
+        ObjectNode payload = JsonNodeFactory.instance.objectNode();
+        payload.put(FIELD_1, "true");
+        payload.put(FIELD_2, "false");
+
+        Optional<List<String>> errors = requestValidations.checkIsBoolean(payload, FIELD_1, FIELD_2);
+
+        assertThat(errors.isPresent(), is(false));
+    }
+
+    @Test
+    public void checkNotBoolean_shouldFail_whenFieldsAreNotTrueOrFalse() {
+        ObjectNode payload = JsonNodeFactory.instance.objectNode();
+        payload.put(FIELD_1, "maybe");
+
+        Optional<List<String>> errors = requestValidations.checkIsBoolean(payload, FIELD_1);
+
+        assertThat(errors.isPresent(), is(true));
+    }
+
 }

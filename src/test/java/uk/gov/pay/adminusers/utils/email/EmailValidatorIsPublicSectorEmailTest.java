@@ -78,6 +78,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@slc.co.uk", true},
                 {"valid@ucds.email", true},
                 {"valid@acas.org.uk", true},
+                {"valid@nhm.ac.uk", true},
 
 
                 // all valid emails with subdomains
@@ -99,7 +100,8 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@subdomain.police.uk", true},
                 {"valid@subdomain.scotent.co.uk", true},
                 {"valid@subdomain.slc.co.uk", true},
-                {"valid@subdomain.ucds.email", true}
+                {"valid@subdomain.ucds.email", true},
+                {"valid@subdomain.nhm.ac.uk", true}
         });
     }
 

@@ -6,11 +6,15 @@ import com.jayway.restassured.http.ContentType;
 import org.junit.Test;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 
-import static javax.ws.rs.core.Response.Status.*;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
+import static javax.ws.rs.core.Response.Status.CREATED;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class InviteResourceCreateServiceTest extends IntegrationTest {
 
@@ -19,7 +23,7 @@ public class InviteResourceCreateServiceTest extends IntegrationTest {
     @Test
     public void shouldSuccess_WhenAllRequiredFieldsAreProvidedAndValid() throws Exception {
         String email = "example@example.gov.uk";
-        String telephoneNumber = "088882345689";
+        String telephoneNumber = "07700900000";
         ImmutableMap<String, String> payload = ImmutableMap.of("telephone_number", telephoneNumber, "email", email, "password", "plain_text_password");
 
         givenSetup()
@@ -39,7 +43,7 @@ public class InviteResourceCreateServiceTest extends IntegrationTest {
 
     @Test
     public void shouldFail_WhenMandatoryFieldsAreMissing() throws Exception {
-        String telephoneNumber = "088882345689";
+        String telephoneNumber = "07700900000";
         ImmutableMap<String, String> payload = ImmutableMap.of("telephone_number", telephoneNumber, "password", "plain_text_password");
 
         givenSetup()
@@ -55,8 +59,8 @@ public class InviteResourceCreateServiceTest extends IntegrationTest {
 
     @Test
     public void shouldFail_WhenEmailIsNotPublicSectorDomain() throws Exception {
-        String email = "example@example.co.uk";
-        String telephoneNumber = "088882345689";
+        String email = "example@example.com";
+        String telephoneNumber = "07700900000";
         ImmutableMap<String, String> payload = ImmutableMap.of("telephone_number", telephoneNumber, "email", email, "password", "plain_text_password");
 
         givenSetup()
@@ -67,16 +71,17 @@ public class InviteResourceCreateServiceTest extends IntegrationTest {
                 .then()
                 .statusCode(FORBIDDEN.getStatusCode())
                 .body("errors", hasSize(1))
-                .body("errors", hasItems("Email [example@example.co.uk] is not a valid public sector email"));
+                .body("errors", hasItems("Email [" + email + "] is not a valid public sector email"));
     }
 
     @Test
     public void shouldFail_WhenEmailIsAlreadyRegistered() throws Exception {
 
-        String email = "example@example.gov.uk";
-        UserDbFixture.userDbFixture(databaseHelper).withEmail(email).insertUser();
+        String username = randomUuid();
+        String email = username + "@example.gov.uk";
+        UserDbFixture.userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
 
-        String telephoneNumber = "088882345689";
+        String telephoneNumber = "07700900000";
         ImmutableMap<String, String> payload = ImmutableMap.of("telephone_number", telephoneNumber, "email", email, "password", "plain_text_password");
 
         givenSetup()
@@ -87,7 +92,7 @@ public class InviteResourceCreateServiceTest extends IntegrationTest {
                 .then()
                 .statusCode(CONFLICT.getStatusCode())
                 .body("errors", hasSize(1))
-                .body("errors", hasItems("email [example@example.gov.uk] already exists"));
+                .body("errors", hasItems("email [" + email + "] already exists"));
     }
 
 }

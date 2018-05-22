@@ -36,7 +36,7 @@ public class ServiceResourceCreateTest extends IntegrationTest {
     public void shouldSuccess_whenCreateAServiceWithValidGatewayAccounts() throws Exception{
 
         ImmutableMap<Object, Object> payload = ImmutableMap.builder()
-                .put("gateway_account_ids", new String[]{"1", "2"})
+                .put("gateway_account_ids", new String[]{"thisisnotanumber", "2"})
                 .build();
 
         givenSetup()
@@ -49,27 +49,7 @@ public class ServiceResourceCreateTest extends IntegrationTest {
                 .body("name", is("System Generated"))
                 .body("external_id", notNullValue())
                 .body("gateway_account_ids", hasSize(2))
-                .body("gateway_account_ids", containsInAnyOrder("1","2"));
-
-    }
-
-    @Test
-    public void shouldError400_whenCreateAServiceWithInvalidGatewayAccounts() throws Exception{
-
-        ImmutableMap<Object, Object> payload = ImmutableMap.builder()
-                .put("name", "some service name")
-                .put("gateway_account_ids", new String[]{"blah", "blahblah"})
-                .build();
-
-        givenSetup()
-                .when()
-                .accept(JSON)
-                .body(mapper.writeValueAsString(payload))
-                .post("/v1/api/services")
-                .then()
-                .statusCode(400)
-                .body("errors", hasSize(1))
-                .body("errors", hasItems("Field [gateway_account_ids] must contain numeric values"));
+                .body("gateway_account_ids", containsInAnyOrder("thisisnotanumber","2"));
 
     }
 

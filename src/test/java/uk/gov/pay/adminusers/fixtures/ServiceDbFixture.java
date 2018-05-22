@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.fixtures;
 
+import uk.gov.pay.adminusers.model.MerchantDetails;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
@@ -14,6 +15,10 @@ public class ServiceDbFixture {
     private Integer id;
     private String externalId;
     private String name = Service.DEFAULT_NAME_VALUE;
+    private MerchantDetails merchantDetails = new MerchantDetails(
+            "name", null, "line1", null, "city",
+            "postcode", "country", null
+    );
 
     private ServiceDbFixture(DatabaseTestHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
@@ -28,11 +33,17 @@ public class ServiceDbFixture {
         return this;
     }
 
+    public ServiceDbFixture withMerchantDetails(MerchantDetails merchantDetails) {
+        this.merchantDetails = merchantDetails;
+        return this;
+    }
+
     public Service insertService() {
         int serviceId = id == null ? nextInt() : id;
         String extId = externalId == null ? randomUuid() : externalId;
 
         Service service = Service.from(serviceId, extId, name);
+        service.setMerchantDetails(merchantDetails);
         databaseHelper.addService(service, gatewayAccountIds);
 
         return service;

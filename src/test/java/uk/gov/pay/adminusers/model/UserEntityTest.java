@@ -37,6 +37,7 @@ public class UserEntityTest {
         assertEquals(createUserRequest.getOtpKey(), userEntity.getOtpKey());
         assertEquals(createUserRequest.getTelephoneNumber(), userEntity.getTelephoneNumber());
         assertEquals(createUserRequest.getEmail(), userEntity.getEmail());
+        assertEquals(SecondFactorMethod.SMS, userEntity.getSecondFactor());
         assertThat(userEntity.getCreatedAt(), is(notNullValue()));
         assertThat(userEntity.getUpdatedAt(), is(notNullValue()));
         // Since role and gatewayAccountId will be set up after won't be unit-testing from JSON to entity.

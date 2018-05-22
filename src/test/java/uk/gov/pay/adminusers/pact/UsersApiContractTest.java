@@ -1,9 +1,9 @@
 package uk.gov.pay.adminusers.pact;
 
-import au.com.dius.pact.provider.junit.PactRunner;
 import au.com.dius.pact.provider.junit.Provider;
 import au.com.dius.pact.provider.junit.State;
-import au.com.dius.pact.provider.junit.loader.PactSource;
+import au.com.dius.pact.provider.junit.loader.PactBroker;
+import au.com.dius.pact.provider.junit.loader.PactBrokerAuth;
 import au.com.dius.pact.provider.junit.target.HttpTarget;
 import au.com.dius.pact.provider.junit.target.Target;
 import au.com.dius.pact.provider.junit.target.TestTarget;
@@ -26,20 +26,24 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
-@RunWith(PactRunner.class)
+@RunWith(PayPactRunner.class)
 @Provider("adminusers")
-@PactSource(ConfigurablePactLoader.class)
-public class UsersApiTest {
+@PactBroker(protocol = "https", host = "pact-broker-test.cloudapps.digital", port = "443", tags = {"${PACT_CONSUMER_TAG}"},
+        authentication = @PactBrokerAuth(username = "${PACT_BROKER_USERNAME}", password = "${PACT_BROKER_PASSWORD}"))
+public class UsersApiContractTest {
 
     @ClassRule
     public static DropwizardAppWithPostgresRule app = new DropwizardAppWithPostgresRule();
+
+    @TestTarget
+    public static Target target;
 
     private static final PasswordHasher passwordHasher = new PasswordHasher();
     private static DatabaseTestHelper dbHelper;
@@ -50,18 +54,13 @@ public class UsersApiTest {
         dbHelper = app.getDatabaseTestHelper();
         // make sure we create services(including gateway account ids) before users
         serviceDbFixture(dbHelper).withGatewayAccountIds("268").insertService();
-        int serviceId = 12345;
-        createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", serviceId, "password");
     }
-
-    @TestTarget
-    public static Target target;
 
     @State("a valid forgotten password entry and a related user exists")
     public void aUserExistsWithAForgottenPasswordRequest() throws Exception {
         String code = "avalidforgottenpasswordtoken";
         String userExternalId = RandomIdGenerator.randomUuid();
-        createUserWithinAService(userExternalId, randomAlphabetic(20), "password");
+        createUserWithinAService(userExternalId, RandomIdGenerator.randomUuid(), "password");
         List<Map<String, Object>> userByExternalId = dbHelper.findUserByExternalId(userExternalId);
         dbHelper.add(ForgottenPassword.forgottenPassword(code, userExternalId), (Integer) userByExternalId.get(0).get("id"));
     }
@@ -91,8 +90,12 @@ public class UsersApiTest {
         Service service = ServiceDbFixture.serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
         Role role = RoleDbFixture.roleDbFixture(dbHelper).insertAdmin();
 
-        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).insertUser();
-        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserRemoverExternalId).withServiceRole(service, role.getId()).insertUser();
+        String username1 = randomUuid();
+        String email1 = username1 + "@example.com";
+        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withUsername(username1).withEmail(email1).insertUser();
+        String username2 = randomUuid();
+        String email2 = username2 + "@example.com";
+        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserRemoverExternalId).withServiceRole(service, role.getId()).withUsername(username2).withEmail(email2).insertUser();
     }
 
     @State("a user exists but not the remover before a delete operation")
@@ -104,7 +107,9 @@ public class UsersApiTest {
         Service service = ServiceDbFixture.serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
         Role role = RoleDbFixture.roleDbFixture(dbHelper).insertAdmin();
 
-        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).insertUser();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withUsername(username).withEmail(email).insertUser();
     }
 
     private static void createUserWithinAService(String externalId, String username, String password) throws Exception {
@@ -122,13 +127,18 @@ public class UsersApiTest {
             "a user exists with a given username password",
             "a user not exists with a given username password",
             "a user not exists with a given username password",
-            "no user exits with the given external id",
-            "a user exits with the given external id"
+            "no user exists with the given external id"
     })
     public void noSetUp() {
     }
-    
-    private static void createUserWithinAService(String externalId, String username, int serviceId, String password) throws Exception {
+
+    @State("a user exists with the given external id 7d19aff33f8948deb97ed16b2912dcd3")
+    public void aUserExistsWithGivenExternalId() {
+        createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", 12345, "password");
+    }
+
+
+    private static void createUserWithinAService(String externalId, String username, int serviceId, String password) {
         String gatewayAccount1 = randomNumeric(5);
         String gatewayAccount2 = randomNumeric(5);
         Role role = Role.role(randomInt(), "admin", "Administrator");
@@ -146,6 +156,7 @@ public class UsersApiTest {
                 .withGatewayAccountIds(Arrays.asList(gatewayAccount1, gatewayAccount2))
                 .withTelephoneNumber("45334534634")
                 .withOtpKey("34f34")
+                .withProvisionalOtpKey("94423")
                 .withServiceRole(serviceId, role.getId())
                 .insertUser();
     }

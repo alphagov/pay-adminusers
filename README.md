@@ -19,6 +19,8 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 | [```/v1/api/users/{externalId}```](/docs/api_specification.md#patch-v1apiusersexternalid)              | PATCH    |  amend a specific user attribute            |
 | [```/v1/api/users/{externalId}/services/{serviceId}```](/docs/api_specification.md#put-v1apiusersexternalidservicesserviceid)  | PUT    |  update user's role for a service            |
 | [```/v1/api/users/{externalId}/services```](/docs/api_specification.md#post-v1apiusersexternalidservicesserviceid)  | POST    |  assign a new service along with role to a user        |
+| [```/v1/api/users/{externalId}/second-factor/provision```](/docs/api_specification.md#post-v1apiusersexternalidsecondfactorprovision)  | POST    | Create a new provisional OTP key for a user |
+| [```/v1/api/users/{externalId}/second-factor/activate```](/docs/api_specification.md#post-v1apiusersexternalidsecondfactoractivate)  | POST    | Activate a new OTP key and method for a user |
 | [```/v1/api/users/authenticate```](/docs/api_specification.md#post-v1apiusersauthenticate)              | POST    |  Authenticate a given username/password            |
 | [```/v1/api/forgotten-passwords```](/docs/api_specification.md#post-v1apiforgottenpasswords)              | POST    |  Create a new forgotten password request            |
 | [```/v1/api/forgotten-passwords/{code}```](/docs/api_specification.md#get-v1apiforgottenpasswordscode)              | GET    |  GETs a forgotten password record by code            |
@@ -33,6 +35,16 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 | [```/v1/api/invites/{code}/otp/generate```](/docs/api_specification.md#post-v1apiinvitescodeotpgenerate)               | POST   |  Generates and sends otp verification code to the phone number registered in the invite     |
 ****
 -----------------------------------------------------------------------------------------------------------
+
+## Maven profiles
+
+### Default profile
+By default, maven will run all the tests excluding contract tests 
+`mvn clean install`
+
+### Contract tests profile
+By specifying this profile, maven will run *only* the contract tests
+`mvn clean install -DrunContractTests -DPACT_BROKER_USERNAME=username -DPACT_BROKER_PASSWORD=password -DPACT_CONSUMER_TAG=tag`
 
 ## Licence
 

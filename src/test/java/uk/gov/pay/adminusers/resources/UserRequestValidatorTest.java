@@ -11,6 +11,7 @@ import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import static junit.framework.TestCase.assertFalse;
@@ -261,6 +262,107 @@ public class UserRequestValidatorTest {
         Optional<Errors> optionalErrors = validator.validateFindRequest(payload);
 
         assertThat(optionalErrors.isPresent(), is(false));
+    }
+
+    @Test
+    public void shouldSuccess_ifNoBody_whenValidateNewSecondFactorPasscodeRequest() {
+        Optional<Errors> optionalErrors = validator.validateNewSecondFactorPasscodeRequest(null);
+
+        assertThat(optionalErrors.isPresent(), is(false));
+    }
+
+    @Test
+    public void shouldSuccess_ifProvisionalNotPresent_whenValidateNewSecondFactorPasscodeRequest() {
+        JsonNode payload = new ObjectMapper().valueToTree(Collections.emptyMap());
+
+        Optional<Errors> optionalErrors = validator.validateNewSecondFactorPasscodeRequest(payload);
+
+        assertThat(optionalErrors.isPresent(), is(false));
+    }
+
+    @Test
+    public void shouldSuccess_ifProvisionalTrue_whenValidateNewSecondFactorPasscodeRequest() {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("provisional", true));
+
+        Optional<Errors> optionalErrors = validator.validateNewSecondFactorPasscodeRequest(payload);
+
+        assertThat(optionalErrors.isPresent(), is(false));
+    }
+
+    @Test
+    public void shouldSuccess_ifProvisionalFalse_whenValidateNewSecondFactorPasscodeRequest() {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("provisional", false));
+
+        Optional<Errors> optionalErrors = validator.validateNewSecondFactorPasscodeRequest(payload);
+
+        assertThat(optionalErrors.isPresent(), is(false));
+    }
+
+    @Test
+    public void shouldError_ifProvisionalNotBoolean_whenValidateNewSecondFactorPasscodeRequest() {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("provisional", "maybe"));
+
+        Optional<Errors> optionalErrors = validator.validateNewSecondFactorPasscodeRequest(payload);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("Field [provisional] must be a boolean"));
+    }
+
+    @Test
+    public void shouldError_ifCodeMissing_whenValidate2faActivateRequest() {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("second_factor", "SMS"));
+
+        Optional<Errors> optionalErrors = validator.validate2faActivateRequest(payload);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("Field [code] is required"));
+    }
+
+    @Test
+    public void shouldError_ifCodeNotNumeric_whenValidate2faActivateRequest() {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("code", "I am not a number, I’m a free man!",
+                "second_factor", "SMS"));
+
+        Optional<Errors> optionalErrors = validator.validate2faActivateRequest(payload);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("Field [code] must be a number"));
+    }
+
+    @Test
+    public void shouldError_ifSecondFactorMissing_whenValidate2faActivateRequest() {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("code", 123456));
+
+        Optional<Errors> optionalErrors = validator.validate2faActivateRequest(payload);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("Field [second_factor] is required"));
+    }
+
+    @Test
+    public void shouldError_ifSecondFactorInvalid_whenValidate2faActivateRequest() {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("code", 123456,
+                "second_factor", "PINKY_SWEAR"));
+
+        Optional<Errors> optionalErrors = validator.validate2faActivateRequest(payload);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("Invalid second_factor [PINKY_SWEAR]"));
     }
 
     @Test

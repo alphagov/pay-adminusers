@@ -11,8 +11,11 @@ import java.util.UUID;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
 public class UserResourceAuthenticationTest extends IntegrationTest {
@@ -53,12 +56,14 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
 
     @Test
     public void shouldAuthenticateUser_onAValidUsernamePasswordCombination_whenUserDoesNotBelongToAService() throws Exception {
-        String username = randomAlphanumeric(10) + "example.com";
+        String username = randomUuid() + "@example.com";
+        String email = username;
         String password = "password-" + username;
         String encryptedPassword = (new PasswordHasher()).hash(password);
 
         UserDbFixture.userDbFixture(databaseHelper)
                 .withUsername(username)
+                .withEmail(email)
                 .withPassword(encryptedPassword).insertUser();
 
         ImmutableMap<Object, Object> authPayload = ImmutableMap.builder()

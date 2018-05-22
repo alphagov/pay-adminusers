@@ -11,6 +11,8 @@ public class MerchantDetails {
 
     private String name;
 
+    private String telephoneNumber;
+
     private String addressLine1;
 
     private String addressLine2;
@@ -20,26 +22,36 @@ public class MerchantDetails {
     private String addressPostcode;
 
     private String addressCountry;
+    
+    private String email;
 
     public MerchantDetails() {
     }
 
     public MerchantDetails(@JsonProperty("name") String name,
+                           @JsonProperty("telephone_number") String telephoneNumber,
                            @JsonProperty("address_line1") String addressLine1,
                            @JsonProperty("address_line2") String addressLine2,
                            @JsonProperty("address_city") String addressCity,
                            @JsonProperty("address_postcode") String addressPostcode,
-                           @JsonProperty("address_country") String addressCountry) {
+                           @JsonProperty("address_country") String addressCountry,
+                           @JsonProperty("email") String email) {
         this.name = name;
+        this.telephoneNumber = telephoneNumber;
         this.addressLine1 = addressLine1;
         this.addressLine2 = addressLine2;
         this.addressCity = addressCity;
         this.addressPostcode = addressPostcode;
         this.addressCountry = addressCountry;
+        this.email = email;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getTelephoneNumber() {
+        return telephoneNumber;
     }
 
     public String getAddressLine1() {
@@ -61,6 +73,8 @@ public class MerchantDetails {
     public String getAddressCountry() {
         return addressCountry;
     }
+    
+    public String getEmail() { return this.email; }
 
     @Override
     public boolean equals(Object o) {
@@ -70,21 +84,26 @@ public class MerchantDetails {
         MerchantDetails that = (MerchantDetails) o;
 
         if (!name.equals(that.name)) return false;
+        if (telephoneNumber != null ? !telephoneNumber.equals(that.telephoneNumber) : that.telephoneNumber != null)
+            return false;
         if (!addressLine1.equals(that.addressLine1)) return false;
         if (addressLine2 != null ? !addressLine2.equals(that.addressLine2) : that.addressLine2 != null) return false;
         if (!addressCity.equals(that.addressCity)) return false;
         if (!addressPostcode.equals(that.addressPostcode)) return false;
+        if (email != null ? !email.equals(that.email) : that.email != null) return false;
         return addressCountry.equals(that.addressCountry);
     }
 
     @Override
     public int hashCode() {
         int result = name.hashCode();
+        result = 31 * result + (telephoneNumber != null ? telephoneNumber.hashCode() : 0);
         result = 31 * result + addressLine1.hashCode();
         result = 31 * result + (addressLine2 != null ? addressLine2.hashCode() : 0);
         result = 31 * result + addressCity.hashCode();
         result = 31 * result + addressPostcode.hashCode();
         result = 31 * result + addressCountry.hashCode();
+        result = 31 * result + (email != null ? email.hashCode() : 0);
         return result;
     }
 

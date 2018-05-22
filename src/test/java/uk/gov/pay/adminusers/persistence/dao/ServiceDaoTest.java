@@ -7,7 +7,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.postgresql.util.PGobject;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
-import uk.gov.pay.adminusers.model.*;
+import uk.gov.pay.adminusers.model.MerchantDetails;
+import uk.gov.pay.adminusers.model.Permission;
+import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.CustomBrandingConverter;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -85,18 +89,22 @@ public class ServiceDaoTest extends DaoTestBase {
         serviceEntity.setExternalId(serviceExternalId);
 
         String name = "Name";
+        String telephoneNumber = "03069990000";
         String addressLine1 = "Address Line 1";
         String addressLine2 = "Address Line 2";
         String addressCity = "Address City";
         String postcode = "Postcode";
         String country = "UK";
+        String email = getMerchantEmail();
         MerchantDetailsEntity merchantDetailsEntity = new MerchantDetailsEntity(
                 name,
+                telephoneNumber,
                 addressLine1,
                 addressLine2,
                 addressCity,
                 postcode,
-                country
+                country,
+                email
         );
         serviceEntity.setMerchantDetailsEntity(merchantDetailsEntity);
 
@@ -107,11 +115,13 @@ public class ServiceDaoTest extends DaoTestBase {
         assertThat(savedService.size(), is(1));
         assertThat(savedService.get(0).get("external_id"), is(serviceExternalId));
         assertThat(savedService.get(0).get("merchant_name"), is(name));
+        assertThat(savedService.get(0).get("merchant_telephone_number"), is(telephoneNumber));
         assertThat(savedService.get(0).get("merchant_address_line1"), is(addressLine1));
         assertThat(savedService.get(0).get("merchant_address_line2"), is(addressLine2));
         assertThat(savedService.get(0).get("merchant_address_city"), is(addressCity));
         assertThat(savedService.get(0).get("merchant_address_postcode"), is(postcode));
         assertThat(savedService.get(0).get("merchant_address_country"), is(country));
+        assertThat(savedService.get(0).get("merchant_email"), is(email));
     }
 
     @Test
@@ -121,18 +131,23 @@ public class ServiceDaoTest extends DaoTestBase {
         Map<String, Object> customBranding = ImmutableMap.of("image_url", "image url", "css_url", "css url");
         service.setCustomBranding(customBranding);
         String name = "Name";
+        String telephoneNumber = "03069990000";
         String addressLine1 = "Address Line 1";
         String addressLine2 = "Address Line 2";
         String addressCity = "Address City";
         String postcode = "Postcode";
         String country = "UK";
+        String email = getMerchantEmail();
+
         service.setMerchantDetails(new MerchantDetails(
                 name,
+                telephoneNumber,
                 addressLine1,
                 addressLine2,
                 addressCity,
                 postcode,
-                country
+                country,
+                email
         ));
         databaseHelper.addService(service, randomInt().toString());
 
@@ -144,11 +159,13 @@ public class ServiceDaoTest extends DaoTestBase {
 
         MerchantDetailsEntity merchantDetailsEntity = serviceEntity.get().getMerchantDetailsEntity();
         assertThat(merchantDetailsEntity.getName(), is(name));
+        assertThat(merchantDetailsEntity.getTelephoneNumber(), is(telephoneNumber));
         assertThat(merchantDetailsEntity.getAddressLine1(), is(addressLine1));
         assertThat(merchantDetailsEntity.getAddressLine2(), is(addressLine2));
         assertThat(merchantDetailsEntity.getAddressCity(), is(addressCity));
         assertThat(merchantDetailsEntity.getAddressPostcode(), is(postcode));
-        assertThat(merchantDetailsEntity.getAddressCountry(), is(country));
+        assertThat(merchantDetailsEntity.getAddressCountryCode(), is(country));
+        assertThat(merchantDetailsEntity.getEmail(), is(email));
 
         assertThat(serviceEntity.get().getCustomBranding().keySet().size(), is(2));
         assertThat(serviceEntity.get().getCustomBranding().keySet(), hasItems("image_url", "css_url"));
@@ -178,7 +195,7 @@ public class ServiceDaoTest extends DaoTestBase {
 
         Long count = serviceDao.countOfUsersWithRoleForService(serviceExternalId, roleId);
 
-        assertThat(count, is(3l));
+        assertThat(count, is(3L));
     }
 
     private void setupUsersForServiceAndRole(String externalId, int roleId, int noOfUsers) {
@@ -195,7 +212,9 @@ public class ServiceDaoTest extends DaoTestBase {
         databaseHelper.addService(service1, gatewayAccountId1);
 
         range(0, noOfUsers - 1).forEach(i -> {
-            UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).insertUser();
+            String username = randomUuid();
+            String email = username + "@example.com";
+            UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).withUsername(username).withEmail(email).insertUser();
         });
 
         //unmatching service
@@ -206,8 +225,13 @@ public class ServiceDaoTest extends DaoTestBase {
         databaseHelper.addService(service2, gatewayAccountId2);
 
         //same user 2 diff services - should count only once
-        User user3 = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).insertUser();
+        String username3 = randomUuid();
+        String email3 = username3 + "@example.com";
+        User user3 = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).withUsername(username3).withEmail(email3).insertUser();
         databaseHelper.addUserServiceRole(user3.getId(), serviceId2, role.getId());
     }
 
+    private String getMerchantEmail() {
+        return "dd-merchant"+ randomUuid() + "@example.com";
+    }
 }

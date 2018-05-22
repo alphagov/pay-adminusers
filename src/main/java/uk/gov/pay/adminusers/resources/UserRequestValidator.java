@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import jersey.repackaged.com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.tuple.Pair;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
@@ -14,8 +15,15 @@ import java.util.function.Function;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
-import static uk.gov.pay.adminusers.model.User.*;
-import static uk.gov.pay.adminusers.validations.UserPatchValidations.*;
+import static uk.gov.pay.adminusers.model.User.FIELD_EMAIL;
+import static uk.gov.pay.adminusers.model.User.FIELD_PASSWORD;
+import static uk.gov.pay.adminusers.model.User.FIELD_ROLE_NAME;
+import static uk.gov.pay.adminusers.model.User.FIELD_SERVICE_EXTERNAL_ID;
+import static uk.gov.pay.adminusers.model.User.FIELD_TELEPHONE_NUMBER;
+import static uk.gov.pay.adminusers.model.User.FIELD_USERNAME;
+import static uk.gov.pay.adminusers.validations.UserPatchValidations.getUserPatchPathValidations;
+import static uk.gov.pay.adminusers.validations.UserPatchValidations.isAllowedOpForPath;
+import static uk.gov.pay.adminusers.validations.UserPatchValidations.isPathAllowed;
 
 public class UserRequestValidator {
 
@@ -45,6 +53,13 @@ public class UserRequestValidator {
         return invalidLength.map(Errors::from);
     }
 
+    public Optional<Errors> validateNewSecondFactorPasscodeRequest(JsonNode payload) {
+        if (payload != null && payload.get("provisional") != null) {
+            return requestValidations.checkIsBoolean(payload, "provisional").map(Errors::from);
+        }
+        return Optional.empty();
+    }
+
     public Optional<Errors> validate2FAAuthRequest(JsonNode payload) {
         Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, "code");
         if (missingMandatoryFields.isPresent()) {
@@ -52,6 +67,24 @@ public class UserRequestValidator {
         }
         Optional<List<String>> notNumeric = requestValidations.checkIsNumeric(payload, "code");
         return notNumeric.map(Errors::from);
+    }
+
+    public Optional<Errors> validate2faActivateRequest(JsonNode payload) {
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, "code", "second_factor");
+        if (missingMandatoryFields.isPresent()) {
+            return Optional.of(Errors.from(missingMandatoryFields.get()));
+        }
+        Optional<List<String>> notNumeric = requestValidations.checkIsNumeric(payload, "code");
+        if (notNumeric.isPresent()) {
+            return Optional.of(Errors.from(notNumeric.get()));
+        }
+        String secondFactor = payload.get("second_factor").asText();
+        try {
+            SecondFactorMethod.valueOf(secondFactor);
+        } catch (IllegalArgumentException e) {
+            return Optional.of(Errors.from(ImmutableList.of(format("Invalid second_factor [%s]", secondFactor))));
+        }
+        return Optional.empty();
     }
 
     public Optional<Errors> validateServiceRole(JsonNode payload) {

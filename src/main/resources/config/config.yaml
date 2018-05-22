@@ -60,7 +60,8 @@ proxy:
   port: ${HTTP_PROXY_PORT}
 
 notify:
-  apiKey: ${NOTIFY_API_KEY:-api_key-pay-notify-service-id-pay-notify-secret-needs-to-be-32-chars-fsghdngfhmhfkrgsfs}
+  cardApiKey: ${NOTIFY_API_KEY:-api_key-pay-notify-service-id-pay-notify-secret-needs-to-be-32-chars-fsghdngfhmhfkrgsfs}
+  directDebitApiKey: ${NOTIFY_DIRECT_DEBIT_API_KEY:-api_key-pay-notify-service-id-pay-notify-secret-needs-to-be-32-chars-fsghdngfhmhfkrgsfs}
   notificationBaseURL: ${NOTIFY_BASE_URL:-https://stubs.pymnt.localdomain/notify}
   secondFactorSmsTemplateId: ${NOTIFY_2FA_TEMPLATE_ID:-pay-notify-two-factor-template-id}
   inviteUserEmailTemplateId: ${NOTIFY_INVITE_USER_EMAIL_TEMPLATE_ID:-pay-notify-invite-user-email-template-id}
@@ -69,6 +70,10 @@ notify:
   inviteServiceEmailTemplateId: ${NOTIFY_INVITE_SERVICE_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-email-template-id}
   inviteServiceUserExistsEmailTemplateId: ${NOTIFY_INVITE_SERVICE_USER_EXITS_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-user-exists-email-template-id}
   inviteServiceUserDisabledEmailTemplateId: ${NOTIFY_INVITE_SERVICE_USER_DISABLED_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-user-disabled-email-template-id}
+  mandateFailedTemplateId: ${NOTIFY_MANDATE_FAILED_TEMPLATE_ID:-pay-mandate-failed-id}
+  mandateCancelledTemplateId: ${NOTIFY_MANDATE_CANCELLED_TEMPLATE_ID:-pay-mandate-cancelled-id}
+  paymentConfirmedTemplateId: ${NOTIFY_PAYMENT_CONFIRMED_TEMPLATE_ID:-pay-payment-confirmed-id}
+  paymentFailedTemplateId: ${NOTIFY_PAYMENT_FAILED_TEMPLATE_ID:-pay-payment-failed-id}
 
 forgottenPasswordExpiryMinutes: ${FORGOTTEN_PASSWORD_EXPIRY_MINUTES:-90}
 

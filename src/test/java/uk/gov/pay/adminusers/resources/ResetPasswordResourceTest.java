@@ -12,6 +12,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.ForgottenPasswordDbFixture.forgottenPasswordDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
@@ -24,7 +25,9 @@ public class ResetPasswordResourceTest extends IntegrationTest {
 
     @Before
     public void before() throws Exception {
-        userId = userDbFixture(databaseHelper).withPassword(CURRENT_PASSWORD).insertUser().getId();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        userId = userDbFixture(databaseHelper).withPassword(CURRENT_PASSWORD).withUsername(username).withEmail(email).insertUser().getId();
     }
 
     @Test

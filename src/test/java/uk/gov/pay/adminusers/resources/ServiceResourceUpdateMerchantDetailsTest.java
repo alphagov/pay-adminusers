@@ -25,11 +25,14 @@ public class ServiceResourceUpdateMerchantDetailsTest extends IntegrationTest {
         databaseHelper.addService(service, randomInt().toString());
         Map<String, Object> payload = ImmutableMap.<String, Object>builder()
                 .put("name", "somename")
+                .put("telephone_number", "03069990000")
                 .put("address_line1", "line1")
                 .put("address_line2", "line2")
                 .put("address_city", "city")
                 .put("address_country", "country")
-                .put("address_postcode", "postcode").build();
+                .put("address_postcode", "postcode")
+                .put("email", "dd-merchant@example.com")
+                .build();
 
         givenSetup()
                 .when()
@@ -40,11 +43,13 @@ public class ServiceResourceUpdateMerchantDetailsTest extends IntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("merchant_details.name", is("somename"))
+                .body("merchant_details.telephone_number", is("03069990000"))
                 .body("merchant_details.address_line1", is("line1"))
                 .body("merchant_details.address_line2", is("line2"))
                 .body("merchant_details.address_city", is("city"))
                 .body("merchant_details.address_country", is("country"))
-                .body("merchant_details.address_postcode", is("postcode"));
+                .body("merchant_details.address_postcode", is("postcode"))
+                .body("merchant_details.email", is("dd-merchant@example.com"));
     }
 
     @Test
@@ -52,13 +57,13 @@ public class ServiceResourceUpdateMerchantDetailsTest extends IntegrationTest {
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
         databaseHelper.addService(service, randomInt().toString());
-        Map<String, Object> payload = ImmutableMap.of(
-                "name", "somename",
-                "address_line1", "line1",
-                "address_city", "city",
-                "address_country", "country",
-                "address_postcode", "postcode"
-        );
+        Map<String, Object> payload = ImmutableMap.<String, Object>builder()
+                .put("name", "somename")
+                .put("address_line1", "line1")
+                .put("address_city", "city")
+                .put("address_country", "country")
+                .put("address_postcode", "postcode")
+                .build();
 
         givenSetup()
                 .when()
@@ -73,17 +78,24 @@ public class ServiceResourceUpdateMerchantDetailsTest extends IntegrationTest {
                 .body("merchant_details.address_city", is("city"))
                 .body("merchant_details.address_country", is("country"))
                 .body("merchant_details.address_postcode", is("postcode"))
-                .body("merchant_details", not(hasKey("address_line2")));
+                .body("merchant_details", not(hasKey("telephone_number")))
+                .body("merchant_details", not(hasKey("address_line2")))
+                .body("merchant_details", not(hasKey("email")));
     }
 
     @Test
-    public void shouldFail_whenUpdatingMerchantDetails_withoutMandatoryFields() throws Exception {
+    public void shouldFail_whenUpdatingMerchantDetails_withMissingMandatoryFieldName() throws Exception {
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
         databaseHelper.addService(service, randomInt().toString());
-        Map<String, Object> payload = ImmutableMap.of(
-                "address_line2", "address line 2"
-        );
+        Map<String, Object> payload = ImmutableMap.<String, Object>builder()
+                .put("telephone_number", "03069990000")
+                .put("address_line1", "line1")
+                .put("address_line2", "line2")
+                .put("address_city", "city")
+                .put("address_country", "country")
+                .put("address_postcode", "postcode")
+                .build();
 
         givenSetup()
                 .when()
@@ -93,13 +105,8 @@ public class ServiceResourceUpdateMerchantDetailsTest extends IntegrationTest {
                 .put(format(SERVICE_RESOURCE, serviceExternalId) + "/merchant-details")
                 .then()
                 .statusCode(400)
-                .body("errors", hasSize(5))
-                .body("errors", hasItems(
-                        "Field [name] is required",
-                        "Field [address_line1] is required",
-                        "Field [address_city] is required",
-                        "Field [address_country] is required",
-                        "Field [address_postcode] is required"));
+                .body("errors", hasSize(1))
+                .body("errors", hasItems("Field [name] is required"));
     }
 
 }

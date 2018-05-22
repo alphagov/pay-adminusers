@@ -3,8 +3,14 @@ package uk.gov.pay.adminusers.persistence.entity;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteType;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
@@ -229,6 +235,7 @@ public class InviteEntity extends AbstractEntity {
         userEntity.setEmail(email);
         userEntity.setOtpKey(otpKey);
         userEntity.setTelephoneNumber(telephoneNumber);
+        userEntity.setSecondFactor(SecondFactorMethod.SMS);
         userEntity.setLoginCounter(0);
         userEntity.setDisabled(Boolean.FALSE);
         userEntity.setSessionVersion(0);

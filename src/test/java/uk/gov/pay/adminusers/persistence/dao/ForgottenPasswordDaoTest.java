@@ -41,7 +41,9 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
     @Test
     public void shouldPersistAForgottenPasswordEntity() throws Exception {
         String forgottenPasswordCode = random(10);
-        User user = userDbFixture(databaseHelper).insertUser();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
         String userExternalId = user.getExternalId();
         UserEntity userEntity = userDao.findByExternalId(userExternalId).get();
 
@@ -64,7 +66,9 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
     @Test
     public void shouldFindForgottenPasswordByCode_ifNotExpired() throws Exception {
         String forgottenPasswordCode = random(10);
-        User user = userDbFixture(databaseHelper).insertUser();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
         String userExternalId = user.getExternalId();
         UserEntity userEntity = userDao.findByExternalId(userExternalId).get();
 
@@ -84,7 +88,9 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
     @Test
     public void shouldNotFindForgottenPasswordByCode_ifExpired() throws Exception {
         String forgottenPasswordCode = randomUuid();
-        User user = userDbFixture(databaseHelper).insertUser();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
         String userExternalId = user.getExternalId();
         UserEntity userEntity = userDao.findByExternalId(userExternalId).get();
 
@@ -100,7 +106,9 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
     @Test
     public void shouldRemoveForgottenPasswordEntity() {
         String forgottenPasswordCode = randomUuid();
-        User user = userDbFixture(databaseHelper).insertUser();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
         String userExternalId = user.getExternalId();
         UserEntity userEntity = userDao.findByExternalId(userExternalId).get();
 

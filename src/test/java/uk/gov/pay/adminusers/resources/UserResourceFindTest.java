@@ -9,6 +9,7 @@ import java.util.Map;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 public class UserResourceFindTest extends IntegrationTest {
@@ -17,8 +18,10 @@ public class UserResourceFindTest extends IntegrationTest {
 
     @Before
     public void createAUser() {
-        User user = userDbFixture(databaseHelper).insertUser();
-        username = user.getUsername();
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
+        this.username = user.getUsername();
     }
 
     @Test

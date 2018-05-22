@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
@@ -129,6 +130,8 @@ public class ServiceRoleCreatorTest {
     }
 
     private User aUser(String externalId) {
-        return User.from(randomInt(), externalId, "random-name", "random-password", "random@example.com", asList("1"), newArrayList(), "784rh", "8948924", newArrayList(), null);
+        return User.from(randomInt(), externalId, "random-name", "random-password", "random@example.com",
+                asList("1"), newArrayList(), "784rh", "8948924", newArrayList(), null,
+                SecondFactorMethod.SMS, null, null);
     }
 }
