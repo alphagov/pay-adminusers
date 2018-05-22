@@ -393,7 +393,7 @@ Content-Type: application/json
 
 ## PUT /v1/api/users/`{externalId}`/services/`{serviceId}`
 
-This endpoint updates a service role of a perticular user.
+This endpoint updates a service role of a particular user.
 
 ### Request example
 
@@ -728,6 +728,93 @@ Content-Type: application/json
     }]
     
 }
+```
+-----------------------------------------------------------------------------------------------------------
+## GET /v1/api/services/`{serviceExternalId}/users`
+
+Returns the users for a service with the given external id
+
+### Request example 
+```
+GET /v1/api/services/7d19aff33f8948deb97ed16b2912dcd3/users
+```
+### Response example
+
+```
+200 OK
+Content-Type: application/json
+[
+  {
+    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
+    "username": "abcd1234",
+    "email": "email@example.com",
+    "gateway_account_ids": [1],
+    "otp_key": "43c3c4t",
+    "telephone_number": "447700900000",
+    "service_roles": [
+      {
+        "service": {
+          "id": 45,
+          "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
+          "name": "Service name",
+          "gateway_account_ids": [
+            "1",
+          ],
+          "merchant_details": {
+            "name": "Name",
+            "address_line1": "Address line 1",
+            "address_city": "City",
+            "address_postcode": "EC1 8AB",
+            "address_country": "GB",
+          },
+          "_links": []
+        },
+        "role": {
+          "name": "admin",
+          "role": {"admin","Administrator"},
+          "permissions":["perm-1","perm-2","perm-3"]
+        }
+      }
+    ],
+    "features": "",
+    "second_factor": "SMS",
+    "provisional_otp_key": null,
+    "provisional_otp_key_created_at": null,
+    "services": [
+      {
+        "id": 1,
+        "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
+        "name": "Service name",
+        "gateway_account_ids": [
+          "1",
+        ],
+        "merchant_details": {
+          "name": "Name",
+          "address_line1": "Address line 1",
+          "address_city": "City",
+          "address_postcode": "EC1 8AB",
+          "address_country": "GB",
+        },
+        "_links": []
+      }
+    ],
+    "disabled": false,
+    "login_counter": 0,
+    "session_version": 1,
+    "service_ids": [
+      "1",
+    ],
+    "_links": [
+      {
+        "rel": "self",
+        "method": "GET",
+        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3"
+      }
+    ],
+    "role": {"admin","Administrator"},
+    "permissions":["perm-1","perm-2","perm-3"],
+  }
+]
 ```
 -----------------------------------------------------------------------------------------------------------
 ## GET /v1/api/services?gatewayAccountId={gateway_account_id}
