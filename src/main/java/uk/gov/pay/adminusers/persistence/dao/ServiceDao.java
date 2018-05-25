@@ -19,6 +19,13 @@ public class ServiceDao extends JpaDao<ServiceEntity> {
         super(entityManager, ServiceEntity.class);
     }
 
+    public List<ServiceEntity> listAll() {
+        String query = "SELECT s FROM ServiceEntity as s";
+        return entityManager.get()
+                .createQuery(query, ServiceEntity.class)
+                .getResultList();
+    }
+
     public Optional<ServiceEntity> findByGatewayAccountId(String gatewayAccountId) {
 
         String query = "SELECT ga FROM GatewayAccountIdEntity ga " +
