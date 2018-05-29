@@ -73,6 +73,20 @@ public class ServiceResource {
     }
 
     @GET
+    @Path("/list")
+    @Produces(APPLICATION_JSON)
+    public Response getServices() {
+        LOGGER.info("Get Services request");
+        return Response
+          .status(OK)
+          .entity(
+            serviceDao.listAll().stream().map(
+              serviceEntity -> linksBuilder.decorate(serviceEntity.toService())
+            ).collect(Collectors.toList())
+          ).build();
+    }
+
+    @GET
     @Path("/{serviceExternalId}")
     @Produces(APPLICATION_JSON)
     public Response findService(@PathParam("serviceExternalId") String serviceExternalId) {
