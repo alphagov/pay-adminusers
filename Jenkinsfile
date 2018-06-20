@@ -26,9 +26,9 @@ pipeline {
       steps {
         script {
           def long stepBuildTime = System.currentTimeMillis()
-
           sh 'docker pull govukpay/postgres:9.4.4'
           sh 'mvn clean package'
+          runProviderContractTests()
           postSuccessfulMetrics("adminusers.maven-build", stepBuildTime)
         }
       }
@@ -56,11 +56,6 @@ pipeline {
     stage('Tests') {
       failFast true
       parallel {
-        stage('Provider contract tests') {
-          steps {
-            runProviderContractTests()
-          }
-        }
         stage('Card Payment End-to-End Tests') {
             when {
                 anyOf {
