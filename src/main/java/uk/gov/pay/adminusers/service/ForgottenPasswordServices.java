@@ -1,7 +1,5 @@
 package uk.gov.pay.adminusers.service;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.AWSXRayRecorder;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
@@ -29,7 +27,6 @@ public class ForgottenPasswordServices {
     private final LinksBuilder linksBuilder;
     private final NotificationService notificationService;
     private final String selfserviceBaseUrl;
-    private final AWSXRayRecorder recorder = AWSXRay.getGlobalRecorder();
 
     @Inject
     public ForgottenPasswordServices(UserDao userDao, ForgottenPasswordDao forgottenPasswordDao, LinksBuilder linksBuilder, NotificationService notificationService, AdminUsersConfig config) {
@@ -41,27 +38,21 @@ public class ForgottenPasswordServices {
     }
 
     public void create(String username) {
-        try {
-            recorder.beginSegment("pay-adminusers");
-            Optional<UserEntity> userOptional = userDao.findByUsername(username);
-            if (userOptional.isPresent()) {
-                UserEntity userEntity = userOptional.get();
-                ForgottenPasswordEntity forgottenPasswordEntity = new ForgottenPasswordEntity(randomUuid(), ZonedDateTime.now(), userEntity);
-                forgottenPasswordDao.persist(forgottenPasswordEntity);
-                String forgottenPasswordUrl = fromUri(selfserviceBaseUrl).path(SELFSERVICE_FORGOTTEN_PASSWORD_PATH).path(forgottenPasswordEntity.getCode()).build().toString();
-                notificationService.sendForgottenPasswordEmail(userEntity.getEmail(), forgottenPasswordUrl)
-                        .thenAcceptAsync(notificationId -> logger.info("sent forgot password email successfully user [{}], notification id [{}]", userEntity.getExternalId(), notificationId))
-                        .exceptionally(exception -> {
-                            logger.error(format("error sending forgotten password email for user [%s]", userEntity.getExternalId()), exception);
-                            return null;
-                        });
-            } else {
-                logger.warn("Attempted forgotten password for non existent user {}", username);
-                throw AdminUsersExceptions.notFoundException();
-            }
-        }
-        finally {
-            recorder.endSegment();
+        Optional<UserEntity> userOptional = userDao.findByUsername(username);
+        if (userOptional.isPresent()) {
+            UserEntity userEntity = userOptional.get();
+            ForgottenPasswordEntity forgottenPasswordEntity = new ForgottenPasswordEntity(randomUuid(), ZonedDateTime.now(), userEntity);
+            forgottenPasswordDao.persist(forgottenPasswordEntity);
+            String forgottenPasswordUrl = fromUri(selfserviceBaseUrl).path(SELFSERVICE_FORGOTTEN_PASSWORD_PATH).path(forgottenPasswordEntity.getCode()).build().toString();
+            notificationService.sendForgottenPasswordEmail(userEntity.getEmail(), forgottenPasswordUrl)
+                    .thenAcceptAsync(notificationId -> logger.info("sent forgot password email successfully user [{}], notification id [{}]", userEntity.getExternalId(), notificationId))
+                    .exceptionally(exception -> {
+                        logger.error(format("error sending forgotten password email for user [%s]", userEntity.getExternalId()), exception);
+                        return null;
+                    });
+        } else {
+            logger.warn("Attempted forgotten password for non existent user {}", username);
+            throw AdminUsersExceptions.notFoundException();
         }
     }
 

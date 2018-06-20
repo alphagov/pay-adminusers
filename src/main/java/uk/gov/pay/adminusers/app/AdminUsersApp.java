@@ -80,11 +80,16 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         initialiseMetrics(configuration, environment);
         initialiseXRay();
 
-        environment.servlets().addFilter("LoggingFilter", new LoggingFilter())
-                .addMappingForUrlPatterns(of(REQUEST), true, API_VERSION_PATH + "/*");
-        environment.servlets().addFilter("AWSXRayServletFilter", new AWSXRayServletFilter("pay-adminusers"))
-                .addMappingForUrlPatterns(of(REQUEST), true, API_VERSION_PATH + "/*");
-        
+        environment
+          .servlets()
+          .addFilter("LoggingFilter", new LoggingFilter())
+          .addMappingForUrlPatterns(of(REQUEST), true, API_VERSION_PATH + "/*");
+
+        environment
+          .servlets()
+          .addFilter("AWSXRayServletFilter", new AWSXRayServletFilter("pay-adminusers"))
+          .addMappingForUrlPatterns(of(REQUEST), true, API_VERSION_PATH + "/*");
+
 
         environment.healthChecks().register("ping", new Ping());
         environment.healthChecks().register("database", injector.getInstance(DatabaseHealthCheck.class));
