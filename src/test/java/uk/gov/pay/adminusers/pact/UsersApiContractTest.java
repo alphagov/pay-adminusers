@@ -134,10 +134,14 @@ public class UsersApiContractTest {
     }
 
     @State("a user exists with the given external id 7d19aff33f8948deb97ed16b2912dcd3")
-    public void aUserExistsWithGivenExternalId() {
+    public void aPrimaryUserExistsWithGivenExternalId() {
         createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", 12345, "password");
     }
 
+    @State("a user exists with the given external id c78b302dd34f4926877c0c57a037f81d")
+    public void aSecondaryUserExistsWithGivenExternalId() {
+        createUserWithinAService("c78b302dd34f4926877c0c57a037f81d", "existing-user", 12345, "password");
+    }
 
     private static void createUserWithinAService(String externalId, String username, int serviceId, String password) {
         String gatewayAccount1 = randomNumeric(5);
