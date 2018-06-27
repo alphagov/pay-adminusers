@@ -72,7 +72,8 @@ notify:
   inviteServiceUserDisabledEmailTemplateId: ${NOTIFY_INVITE_SERVICE_USER_DISABLED_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-user-disabled-email-template-id}
   mandateFailedTemplateId: ${NOTIFY_MANDATE_FAILED_TEMPLATE_ID:-pay-mandate-failed-id}
   mandateCancelledTemplateId: ${NOTIFY_MANDATE_CANCELLED_TEMPLATE_ID:-pay-mandate-cancelled-id}
-  paymentConfirmedTemplateId: ${NOTIFY_PAYMENT_CONFIRMED_TEMPLATE_ID:-pay-payment-confirmed-id}
+  oneOffPaymentConfirmedTemplateId: ${NOTIFY_ONE_OFF_PAYMENT_CONFIRMED_TEMPLATE_ID:-pay-one-off-payment-confirmed-id}
+  onDemandPaymentConfirmedTemplateId: ${NOTIFY_ON_DEMAND_PAYMENT_CONFIRMED_TEMPLATE_ID:-on-demand-pay-payment-confirmed-id}
 
 forgottenPasswordExpiryMinutes: ${FORGOTTEN_PASSWORD_EXPIRY_MINUTES:-90}
 

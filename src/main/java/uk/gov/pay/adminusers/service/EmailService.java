@@ -23,11 +23,11 @@ import uk.gov.pay.adminusers.utils.CountryConverter;
 public class EmailService {
 
     private static final Logger LOGGER = PayLoggerFactory.getLogger(EmailService.class);
-    public static final String SERVICE_NAME_KEY = "service name";
-    public static final String ORGANISATION_NAME_KEY = "organisation name";
-    public static final String ORGANISATION_PHONE_NUMBER_KEY = "organisation phone number";
-    public static final String ORGANISATION_ADDRESS_KEY = "organisation address";
-    public static final String ORGANISATION_EMAIL_ADDRESS_KEY = "organisation email address";
+    private static final String SERVICE_NAME_KEY = "service name";
+    private static final String ORGANISATION_NAME_KEY = "organisation name";
+    private static final String ORGANISATION_PHONE_NUMBER_KEY = "organisation phone number";
+    private static final String ORGANISATION_ADDRESS_KEY = "organisation address";
+    private static final String ORGANISATION_EMAIL_ADDRESS_KEY = "organisation email address";
 
     private final NotificationService notificationService;
     private final ServiceDao serviceDao;
@@ -84,8 +84,12 @@ public class EmailService {
                 ORGANISATION_EMAIL_ADDRESS_KEY, merchantDetails.getEmail()
         );
         return ImmutableMap.of(
-                EmailTemplate.PAYMENT_CONFIRMED, new StaticEmailContent(
-                        notificationService.getNotifyConfiguration().getPaymentConfirmedTemplateId(),
+                EmailTemplate.ONE_OFF_PAYMENT_CONFIRMED, new StaticEmailContent(
+                        notificationService.getNotifyConfiguration().getOneOffPaymentConfirmedTemplateId(),
+                        personalisation
+                ),
+                EmailTemplate.ON_DEMAND_PAYMENT_CONFIRMED, new StaticEmailContent(
+                        notificationService.getNotifyConfiguration().getOnDemandPaymentConfirmedTemplateId(),
                         personalisation
                 ),
                 EmailTemplate.PAYMENT_FAILED, new StaticEmailContent(

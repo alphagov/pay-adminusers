@@ -6,7 +6,8 @@ import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 public enum EmailTemplate {
     MANDATE_CANCELLED,
     MANDATE_FAILED,
-    PAYMENT_CONFIRMED,
+    ONE_OFF_PAYMENT_CONFIRMED,
+    ON_DEMAND_PAYMENT_CONFIRMED,
     PAYMENT_FAILED;
 
     private static final Logger LOGGER = PayLoggerFactory.getLogger(EmailTemplate.class);
