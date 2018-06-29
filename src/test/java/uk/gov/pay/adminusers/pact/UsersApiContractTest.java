@@ -7,6 +7,9 @@ import au.com.dius.pact.provider.junit.loader.PactBrokerAuth;
 import au.com.dius.pact.provider.junit.target.HttpTarget;
 import au.com.dius.pact.provider.junit.target.Target;
 import au.com.dius.pact.provider.junit.target.TestTarget;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
@@ -22,10 +25,6 @@ import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.service.PasswordHasher;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 import uk.gov.pay.commons.testing.pact.providers.PayPactRunner;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 import static org.apache.commons.lang3.RandomUtils.nextInt;

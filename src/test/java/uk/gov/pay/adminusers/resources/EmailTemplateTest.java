@@ -11,12 +11,14 @@ public class EmailTemplateTest {
     public void shouldDeserialiseEnumFromUppercaseString() {
         EmailTemplate mandateCancelled = EmailTemplate.fromString("MANDATE_CANCELLED");
         EmailTemplate mandateFailed = EmailTemplate.fromString("MANDATE_FAILED");
-        EmailTemplate paymentConfirmed = EmailTemplate.fromString("PAYMENT_CONFIRMED");
+        EmailTemplate paymentConfirmedOneOff = EmailTemplate.fromString("ONE_OFF_PAYMENT_CONFIRMED");
+        EmailTemplate paymentConfirmedOnDemand = EmailTemplate.fromString("ON_DEMAND_PAYMENT_CONFIRMED");
         EmailTemplate paymentFailed = EmailTemplate.fromString("PAYMENT_FAILED");
 
         assertThat(mandateCancelled, is(EmailTemplate.MANDATE_CANCELLED));
         assertThat(mandateFailed, is(EmailTemplate.MANDATE_FAILED));
-        assertThat(paymentConfirmed, is(EmailTemplate.PAYMENT_CONFIRMED));
+        assertThat(paymentConfirmedOneOff, is(EmailTemplate.ONE_OFF_PAYMENT_CONFIRMED));
+        assertThat(paymentConfirmedOnDemand, is(EmailTemplate.ON_DEMAND_PAYMENT_CONFIRMED));
         assertThat(paymentFailed, is(EmailTemplate.PAYMENT_FAILED));
     }
 
@@ -24,12 +26,14 @@ public class EmailTemplateTest {
     public void shouldDeserialiseEnumFromLowercaseString() {
         EmailTemplate mandateCancelled = EmailTemplate.fromString("mandate_cancelled");
         EmailTemplate mandateFailed = EmailTemplate.fromString("mandate_failed");
-        EmailTemplate paymentConfirmed = EmailTemplate.fromString("payment_confirmed");
+        EmailTemplate paymentConfirmedOneOff = EmailTemplate.fromString("ONE_OFF_PAYMENT_CONFIRMED");
+        EmailTemplate paymentConfirmedOnDemand = EmailTemplate.fromString("ON_DEMAND_PAYMENT_CONFIRMED");
         EmailTemplate paymentFailed = EmailTemplate.fromString("payment_failed");
 
         assertThat(mandateCancelled, is(EmailTemplate.MANDATE_CANCELLED));
         assertThat(mandateFailed, is(EmailTemplate.MANDATE_FAILED));
-        assertThat(paymentConfirmed, is(EmailTemplate.PAYMENT_CONFIRMED));
+        assertThat(paymentConfirmedOneOff, is(EmailTemplate.ONE_OFF_PAYMENT_CONFIRMED));
+        assertThat(paymentConfirmedOnDemand, is(EmailTemplate.ON_DEMAND_PAYMENT_CONFIRMED));
         assertThat(paymentFailed, is(EmailTemplate.PAYMENT_FAILED));
     }
 

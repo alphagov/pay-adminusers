@@ -58,8 +58,12 @@ public class NotifyConfiguration extends Configuration {
 
     @Valid
     @NotNull
-    private String paymentConfirmedTemplateId;
+    private String oneOffPaymentConfirmedTemplateId;
 
+    @Valid
+    @NotNull
+    private String onDemandPaymentConfirmedTemplateId;
+    
     @Valid
     @NotNull
     private String paymentFailedTemplateId;
@@ -72,10 +76,14 @@ public class NotifyConfiguration extends Configuration {
         return mandateCancelledTemplateId;
     }
 
-    public String getPaymentConfirmedTemplateId() {
-        return paymentConfirmedTemplateId;
+    public String getOneOffPaymentConfirmedTemplateId() {
+        return oneOffPaymentConfirmedTemplateId;
     }
 
+    public String getOnDemandPaymentConfirmedTemplateId() {
+        return oneOffPaymentConfirmedTemplateId;
+    }
+    
     public String getPaymentFailedTemplateId() {
         return paymentFailedTemplateId;
     }
