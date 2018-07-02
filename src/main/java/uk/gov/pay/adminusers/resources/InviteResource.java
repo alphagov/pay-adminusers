@@ -117,7 +117,7 @@ public class InviteResource {
     @Produces(APPLICATION_JSON)
     public Response getInvites(@QueryParam("serviceId") String serviceId) {
         LOGGER.info("List invites GET request for service - [ {} ]", serviceId);
-        List<Invite> invites = inviteServiceFactory.inviteFinder().findAll(serviceId);
+        List<Invite> invites = inviteServiceFactory.inviteFinder().findAllActiveInvites(serviceId);
         return Response.status(OK).type(APPLICATION_JSON).entity(invites).build();
     }
     

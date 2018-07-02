@@ -37,10 +37,11 @@ public class InviteFinder {
     }
 
 
-    public List<Invite> findAll(String serviceId) {
+    public List<Invite> findAllActiveInvites(String serviceId) {
         return inviteDao.findAllByServiceId(serviceId)
                 .stream()
-                .filter(inviteEntity -> !(inviteEntity.isExpired() || inviteEntity.isDisabled()))
+                .filter(inviteEntity -> !(inviteEntity.isDisabled()))
+                .filter(inviteEntity -> !(inviteEntity.isExpired()))
                 .map(inviteEntity -> {
                     Invite invite = inviteEntity.toInvite();
                     return userDao.findByEmail(inviteEntity.getEmail()).map(userEntity -> {

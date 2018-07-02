@@ -115,20 +115,22 @@ public class InviteFinderTest {
     }
 
     @Test
-    public void shouldFindAllValidInvites() {
+    public void shouldFindAllActiveInvites() {
         String externalServiceId = "sdfuhsdyftgdfa";
-        String firstEmail = "user1@mail.com";
-        String secondEmail = "user2@mail.com";
+        String firstEmail = "user1@mail.test";
+        String secondEmail = "user2@mail.test";
         InviteEntity firstInviteEntity = new InviteEntity(firstEmail, randomUuid(), "otp-key", mock(RoleEntity.class));
         InviteEntity secondInviteEntity = new InviteEntity(secondEmail, randomUuid(), "otp-key", mock(RoleEntity.class));
-        InviteEntity disabledInviteEntity = new InviteEntity("email@email.com", randomUuid(), "otp-key", mock(RoleEntity.class));
+        InviteEntity disabledInviteEntity = new InviteEntity("email@email.test", randomUuid(), "otp-key", mock(RoleEntity.class));
         disabledInviteEntity.setDisabled(true);
+        InviteEntity expiredInviteEntity = new InviteEntity("email@email.test", randomUuid(), "otp-key", mock(RoleEntity.class));
+        expiredInviteEntity.setExpiryDate(ZonedDateTime.now().minusMinutes(1));
         when(mockUserDao.findByEmail(firstEmail)).thenReturn(Optional.empty());
         when(mockUserDao.findByEmail(secondEmail)).thenReturn(Optional.empty());
         when(mockInviteDao.findAllByServiceId(externalServiceId)).thenReturn(
-                ImmutableList.of(firstInviteEntity, secondInviteEntity, disabledInviteEntity)
+                ImmutableList.of(firstInviteEntity, secondInviteEntity, disabledInviteEntity, expiredInviteEntity)
         );
-        List<Invite> invites = inviteFinder.findAll(externalServiceId);
+        List<Invite> invites = inviteFinder.findAllActiveInvites(externalServiceId);
         assertThat(invites.size(), is(2));
         Invite firstInvite = invites.get(0);
         assertThat(firstInvite.getEmail(), is(firstEmail));
