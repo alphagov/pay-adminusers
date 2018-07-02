@@ -208,6 +208,70 @@ public class EmailServiceTest {
     }
 
     @Test
+    public void shouldSendAnEmailForOnDemandMandateCreated() throws InvalidMerchantDetailsException {
+        EmailTemplate template = EmailTemplate.ON_DEMAND_MANDATE_CREATED;
+        Map<String, String> personalisation = ImmutableMap.of(
+                "field 1", "theValueOfField1",
+                "field 2", "theValueOfField2"
+        );
+        MerchantDetailsEntity merchantDetails = new MerchantDetailsEntity(
+                MERCHANT_NAME,
+                TELEPHONE_NUMBER,
+                ADDRESS_LINE_1,
+                "address line 2",
+                CITY,
+                POSTCODE,
+                ADDRESS_COUNTRY_CODE,
+                MERCHANT_EMAIL
+        );
+
+        given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
+        ArgumentCaptor<Map<String, String>> personalisationCaptor = forClass(Map.class);
+
+        emailService.sendEmail(EMAIL_ADDRESS, GATEWAY_ACCOUNT_ID, template, personalisation);
+
+        verify(mockNotificationService).sendEmailAsync(eq(PaymentType.DIRECT_DEBIT), eq("NOTIFY_ON_DEMAND_MANDATE_CREATED_EMAIL_TEMPLATE_ID_VALUE"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
+        Map<String, String> allContent = personalisationCaptor.getValue();
+        assertThat(allContent.get("field 1"), is("theValueOfField1"));
+        assertThat(allContent.get("field 2"), is("theValueOfField2"));
+        assertThat(allContent.get("organisation name"), is(MERCHANT_NAME));
+        assertThat(allContent.get("organisation phone number"), is(TELEPHONE_NUMBER));
+        assertThat(allContent.get("organisation email address"), is(MERCHANT_EMAIL));
+    }
+
+    @Test
+    public void shouldSendAnEmailForOneOffMandateCreated() throws InvalidMerchantDetailsException {
+        EmailTemplate template = EmailTemplate.ONE_OFF_MANDATE_CREATED;
+        Map<String, String> personalisation = ImmutableMap.of(
+                "field 1", "theValueOfField1",
+                "field 2", "theValueOfField2"
+        );
+        MerchantDetailsEntity merchantDetails = new MerchantDetailsEntity(
+                MERCHANT_NAME,
+                TELEPHONE_NUMBER,
+                ADDRESS_LINE_1,
+                "address line 2",
+                CITY,
+                POSTCODE,
+                ADDRESS_COUNTRY_CODE,
+                MERCHANT_EMAIL
+        );
+
+        given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
+        ArgumentCaptor<Map<String, String>> personalisationCaptor = forClass(Map.class);
+
+        emailService.sendEmail(EMAIL_ADDRESS, GATEWAY_ACCOUNT_ID, template, personalisation);
+
+        verify(mockNotificationService).sendEmailAsync(eq(PaymentType.DIRECT_DEBIT), eq("NOTIFY_ONE_OFF_MANDATE_AND_PAYMENT_CREATED_EMAIL_TEMPLATE_ID_VALUE"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
+        Map<String, String> allContent = personalisationCaptor.getValue();
+        assertThat(allContent.get("field 1"), is("theValueOfField1"));
+        assertThat(allContent.get("field 2"), is("theValueOfField2"));
+        assertThat(allContent.get("organisation name"), is(MERCHANT_NAME));
+        assertThat(allContent.get("organisation phone number"), is(TELEPHONE_NUMBER));
+        assertThat(allContent.get("organisation email address"), is(MERCHANT_EMAIL));
+    }
+
+    @Test
     public void shouldThrowAnExceptionIfMerchantDetailsAreMissing() throws InvalidMerchantDetailsException {
         EmailTemplate template = EmailTemplate.MANDATE_FAILED;
         Map<String, String> personalisation = ImmutableMap.of(

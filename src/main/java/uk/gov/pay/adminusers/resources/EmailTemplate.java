@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 
 public enum EmailTemplate {
+    ON_DEMAND_MANDATE_CREATED,
+    ONE_OFF_MANDATE_CREATED,
     MANDATE_CANCELLED,
     MANDATE_FAILED,
     ONE_OFF_PAYMENT_CONFIRMED,

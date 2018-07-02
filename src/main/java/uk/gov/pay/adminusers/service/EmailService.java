@@ -87,28 +87,39 @@ public class EmailService {
                 ORGANISATION_PHONE_NUMBER_KEY, merchantDetails.getTelephoneNumber(),
                 ORGANISATION_EMAIL_ADDRESS_KEY, merchantDetails.getEmail()
         );
-        return ImmutableMap.of(
-                EmailTemplate.ONE_OFF_PAYMENT_CONFIRMED, new StaticEmailContent(
+
+        return new HashMap<EmailTemplate, StaticEmailContent>() {
+            {
+                put(EmailTemplate.ONE_OFF_PAYMENT_CONFIRMED, new StaticEmailContent(
                         notificationService.getNotifyDirectDebitConfiguration().getOneOffMandateAndPaymentCreatedEmailTemplateId(),
                         personalisation
-                ),
-                EmailTemplate.ON_DEMAND_PAYMENT_CONFIRMED, new StaticEmailContent(
+                ));
+                put(EmailTemplate.ON_DEMAND_PAYMENT_CONFIRMED, new StaticEmailContent(
                         notificationService.getNotifyDirectDebitConfiguration().getOnDemandPaymentConfirmedEmailTemplateId(),
                         personalisation
-                ),
-                EmailTemplate.PAYMENT_FAILED, new StaticEmailContent(
+                ));
+                put(EmailTemplate.PAYMENT_FAILED, new StaticEmailContent(
                         notificationService.getNotifyDirectDebitConfiguration().getPaymentFailedEmailTemplateId(),
                         personalisation
-                ),
-                EmailTemplate.MANDATE_CANCELLED, new StaticEmailContent(
+                ));
+                put(EmailTemplate.MANDATE_CANCELLED, new StaticEmailContent(
                         notificationService.getNotifyDirectDebitConfiguration().getMandateCancelledEmailTemplateId(),
                         personalisation
-                ),
-                EmailTemplate.MANDATE_FAILED, new StaticEmailContent(
+                ));
+                put(EmailTemplate.MANDATE_FAILED, new StaticEmailContent(
                         notificationService.getNotifyDirectDebitConfiguration().getMandateFailedEmailTemplateId(),
                         personalisation
-                )
-        );
+                ));
+                put(EmailTemplate.ON_DEMAND_MANDATE_CREATED, new StaticEmailContent(
+                        notificationService.getNotifyDirectDebitConfiguration().getOnDemandMandateCreatedEmailTemplateId(),
+                        personalisation
+                ));
+                put(EmailTemplate.ONE_OFF_MANDATE_CREATED, new StaticEmailContent(
+                        notificationService.getNotifyDirectDebitConfiguration().getOneOffMandateAndPaymentCreatedEmailTemplateId(),
+                        personalisation
+                ));
+            }
+        };
     }
 
     private ServiceEntity getServiceFor(String gatewayAccountId) {
