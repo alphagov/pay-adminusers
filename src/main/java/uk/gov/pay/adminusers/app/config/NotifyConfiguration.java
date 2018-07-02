@@ -47,47 +47,6 @@ public class NotifyConfiguration extends Configuration {
     @NotNull
     private String inviteServiceUserDisabledEmailTemplateId;
 
-    // direct-debit specific templates
-    @Valid
-    @NotNull
-    private String mandateFailedTemplateId;
-
-    @Valid
-    @NotNull
-    private String mandateCancelledTemplateId;
-
-    @Valid
-    @NotNull
-    private String oneOffPaymentConfirmedTemplateId;
-
-    @Valid
-    @NotNull
-    private String onDemandPaymentConfirmedTemplateId;
-    
-    @Valid
-    @NotNull
-    private String paymentFailedTemplateId;
-
-    public String getMandateFailedTemplateId() {
-        return mandateFailedTemplateId;
-    }
-
-    public String getMandateCancelledTemplateId() {
-        return mandateCancelledTemplateId;
-    }
-
-    public String getOneOffPaymentConfirmedTemplateId() {
-        return oneOffPaymentConfirmedTemplateId;
-    }
-
-    public String getOnDemandPaymentConfirmedTemplateId() {
-        return oneOffPaymentConfirmedTemplateId;
-    }
-    
-    public String getPaymentFailedTemplateId() {
-        return paymentFailedTemplateId;
-    }
-
     public String getCardApiKey() {
         return cardApiKey;
     }
@@ -127,4 +86,5 @@ public class NotifyConfiguration extends Configuration {
     public String getInviteUserExistingEmailTemplateId() {
         return inviteUserExistingEmailTemplateId;
     }
+
 }

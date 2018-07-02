@@ -1,14 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
-import static uk.gov.pay.adminusers.model.PaymentType.DIRECT_DEBIT;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringJoiner;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
 import liquibase.exception.ServiceNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -19,6 +12,14 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.resources.EmailTemplate;
 import uk.gov.pay.adminusers.resources.InvalidMerchantDetailsException;
 import uk.gov.pay.adminusers.utils.CountryConverter;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringJoiner;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
+
+import static uk.gov.pay.adminusers.model.PaymentType.DIRECT_DEBIT;
 
 public class EmailService {
 
@@ -32,8 +33,11 @@ public class EmailService {
     private final NotificationService notificationService;
     private final ServiceDao serviceDao;
     private final CountryConverter countryConverter;
+
     @Inject
-    public EmailService(NotificationService notificationService, CountryConverter countryConverter, ServiceDao serviceDao) {
+    public EmailService(NotificationService notificationService,
+                        CountryConverter countryConverter,
+                        ServiceDao serviceDao) {
         this.serviceDao = serviceDao;
         this.notificationService = notificationService;
         this.countryConverter = countryConverter;
@@ -85,23 +89,23 @@ public class EmailService {
         );
         return ImmutableMap.of(
                 EmailTemplate.ONE_OFF_PAYMENT_CONFIRMED, new StaticEmailContent(
-                        notificationService.getNotifyConfiguration().getOneOffPaymentConfirmedTemplateId(),
+                        notificationService.getNotifyDirectDebitConfiguration().getOneOffMandateAndPaymentCreatedEmailTemplateId(),
                         personalisation
                 ),
                 EmailTemplate.ON_DEMAND_PAYMENT_CONFIRMED, new StaticEmailContent(
-                        notificationService.getNotifyConfiguration().getOnDemandPaymentConfirmedTemplateId(),
+                        notificationService.getNotifyDirectDebitConfiguration().getOnDemandPaymentConfirmedEmailTemplateId(),
                         personalisation
                 ),
                 EmailTemplate.PAYMENT_FAILED, new StaticEmailContent(
-                        notificationService.getNotifyConfiguration().getPaymentFailedTemplateId(),
+                        notificationService.getNotifyDirectDebitConfiguration().getPaymentFailedEmailTemplateId(),
                         personalisation
                 ),
                 EmailTemplate.MANDATE_CANCELLED, new StaticEmailContent(
-                        notificationService.getNotifyConfiguration().getMandateCancelledTemplateId(),
+                        notificationService.getNotifyDirectDebitConfiguration().getMandateCancelledEmailTemplateId(),
                         personalisation
                 ),
                 EmailTemplate.MANDATE_FAILED, new StaticEmailContent(
-                        notificationService.getNotifyConfiguration().getMandateFailedTemplateId(),
+                        notificationService.getNotifyDirectDebitConfiguration().getMandateFailedEmailTemplateId(),
                         personalisation
                 )
         );

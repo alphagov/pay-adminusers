@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.service;
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Stopwatch;
 import uk.gov.pay.adminusers.app.config.NotifyConfiguration;
+import uk.gov.pay.adminusers.app.config.NotifyDirectDebitConfiguration;
 import uk.gov.pay.adminusers.model.PaymentType;
 import uk.gov.service.notify.SendEmailResponse;
 import uk.gov.service.notify.SendSmsResponse;
@@ -26,6 +27,7 @@ public class NotificationService {
     private final NotifyClientProvider notifyClientProvider;
     private final MetricRegistry metricRegistry;
     private final NotifyConfiguration notifyConfiguration;
+    private final NotifyDirectDebitConfiguration notifyDirectDebitConfiguration;
 
     private final String secondFactorSmsTemplateId;
     private final String inviteEmailTemplateId;
@@ -34,9 +36,11 @@ public class NotificationService {
 
     public NotificationService(ExecutorService executorService,
                                NotifyConfiguration notifyConfiguration,
+                               NotifyDirectDebitConfiguration notifyDirectDebitConfiguration,
                                MetricRegistry metricRegistry) {
         this.executorService = executorService;
         this.notifyConfiguration = notifyConfiguration;
+        this.notifyDirectDebitConfiguration = notifyDirectDebitConfiguration;
 
         this.notifyClientProvider = new NotifyClientProvider(notifyConfiguration, getSSLContext());
         this.secondFactorSmsTemplateId = notifyConfiguration.getSecondFactorSmsTemplateId();
@@ -47,8 +51,12 @@ public class NotificationService {
         this.metricRegistry = metricRegistry;
     }
 
-    public NotifyConfiguration getNotifyConfiguration() {
+    NotifyConfiguration getNotifyConfiguration() {
         return notifyConfiguration;
+    }
+
+    NotifyDirectDebitConfiguration getNotifyDirectDebitConfiguration() {
+        return notifyDirectDebitConfiguration;
     }
 
     CompletableFuture<String> sendSecondFactorPasscodeSms(String phoneNumber, String passcode) {
