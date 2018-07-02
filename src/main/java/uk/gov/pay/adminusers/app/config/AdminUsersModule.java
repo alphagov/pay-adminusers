@@ -12,7 +12,16 @@ import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.setup.Environment;
 import uk.gov.pay.adminusers.resources.ResetPasswordValidator;
 import uk.gov.pay.adminusers.resources.UserRequestValidator;
-import uk.gov.pay.adminusers.service.*;
+import uk.gov.pay.adminusers.service.ForgottenPasswordServices;
+import uk.gov.pay.adminusers.service.InviteServiceFactory;
+import uk.gov.pay.adminusers.service.LinksBuilder;
+import uk.gov.pay.adminusers.service.NotificationService;
+import uk.gov.pay.adminusers.service.PasswordHasher;
+import uk.gov.pay.adminusers.service.ResetPasswordService;
+import uk.gov.pay.adminusers.service.SecondFactorAuthenticator;
+import uk.gov.pay.adminusers.service.ServiceServicesFactory;
+import uk.gov.pay.adminusers.service.UserServices;
+import uk.gov.pay.adminusers.service.UserServicesFactory;
 import uk.gov.pay.adminusers.utils.CountryConverter;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
@@ -91,6 +100,7 @@ public class AdminUsersModule extends AbstractModule {
         return new NotificationService(
                 environment.lifecycle().executorService("2fa-sms-%d").build(),
                 configuration.getNotifyConfiguration(),
+                configuration.getNotifyDirectDebitConfiguration(),
                 environment.metrics());
     }
 

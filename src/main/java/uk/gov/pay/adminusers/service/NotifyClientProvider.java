@@ -11,7 +11,7 @@ public class NotifyClientProvider {
     private NotifyConfiguration configuration;
     private final SSLContext sslContext;
 
-    public NotifyClientProvider(NotifyConfiguration configuration, SSLContext sslContext) {
+    NotifyClientProvider(NotifyConfiguration configuration, SSLContext sslContext) {
         this.configuration = configuration;
         this.sslContext = sslContext;
     }

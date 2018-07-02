@@ -40,6 +40,9 @@ public class AdminUsersConfig extends Configuration {
     private NotifyConfiguration notifyConfiguration;
 
     @NotNull
+    private NotifyDirectDebitConfiguration notifyDirectDebitConfiguration;
+
+    @NotNull
     private ProxyConfiguration proxyConfiguration;
 
     @NotNull
@@ -91,6 +94,11 @@ public class AdminUsersConfig extends Configuration {
     @JsonProperty("notify")
     public NotifyConfiguration getNotifyConfiguration() {
         return notifyConfiguration;
+    }
+
+    @JsonProperty("notifyDirectDebit")
+    public NotifyDirectDebitConfiguration getNotifyDirectDebitConfiguration() {
+        return notifyDirectDebitConfiguration;
     }
 
     public Integer getForgottenPasswordExpiryMinutes() {

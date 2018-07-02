@@ -70,10 +70,14 @@ notify:
   inviteServiceEmailTemplateId: ${NOTIFY_INVITE_SERVICE_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-email-template-id}
   inviteServiceUserExistsEmailTemplateId: ${NOTIFY_INVITE_SERVICE_USER_EXITS_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-user-exists-email-template-id}
   inviteServiceUserDisabledEmailTemplateId: ${NOTIFY_INVITE_SERVICE_USER_DISABLED_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-user-disabled-email-template-id}
-  mandateFailedTemplateId: ${NOTIFY_MANDATE_FAILED_TEMPLATE_ID:-pay-mandate-failed-id}
-  mandateCancelledTemplateId: ${NOTIFY_MANDATE_CANCELLED_TEMPLATE_ID:-pay-mandate-cancelled-id}
-  oneOffPaymentConfirmedTemplateId: ${NOTIFY_ONE_OFF_PAYMENT_CONFIRMED_TEMPLATE_ID:-pay-one-off-payment-confirmed-id}
-  onDemandPaymentConfirmedTemplateId: ${NOTIFY_ON_DEMAND_PAYMENT_CONFIRMED_TEMPLATE_ID:-on-demand-pay-payment-confirmed-id}
+
+notifyDirectDebit:
+  mandateCancelledEmailTemplateId: ${NOTIFY_MANDATE_CANCELLED_EMAIL_TEMPLATE_ID:-pay-mandate-cancelled-email-template-id}
+  mandateFailedEmailTemplateId: ${NOTIFY_MANDATE_FAILED_EMAIL_TEMPLATE_ID:-pay-mandate-failed-email-template-id}
+  paymentFailedEmailTemplateId: ${NOTIFY_PAYMENT_FAILED_EMAIL_TEMPLATE_ID:-pay-payment-failed-email-template-id}
+  oneOffMandateAndPaymentCreatedEmailTemplateId: ${NOTIFY_ONE_OFF_MANDATE_AND_PAYMENT_CREATED_EMAIL_TEMPLATE_ID:-pay-one-off-mandate-and-payment-created-email-template-id}
+  onDemandMandateCreatedEmailTemplateId: ${NOTIFY_ON_DEMAND_MANDATE_CREATED_EMAIL_TEMPLATE_ID:-pay-on-demand-mandate-created-email-template-id}
+  onDemandPaymentConfirmedEmailTemplateId: ${NOTIFY_ON_DEMAND_PAYMENT_CONFIRMED_EMAIL_TEMPLATE_ID:-pay-on-demand-payment-confirmed-email-template-id}
 
 forgottenPasswordExpiryMinutes: ${FORGOTTEN_PASSWORD_EXPIRY_MINUTES:-90}
 
