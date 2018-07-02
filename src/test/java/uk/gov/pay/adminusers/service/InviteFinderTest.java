@@ -1,5 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,12 +40,12 @@ public class InviteFinderTest {
     public ExpectedException thrown = ExpectedException.none();
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         inviteFinder = new InviteFinder(mockInviteDao, mockUserDao);
     }
 
     @Test
-    public void shouldFindInvite_withNonExistingUser() throws Exception {
+    public void shouldFindInvite_withNonExistingUser() {
         String code = randomUuid();
         String email = "user@mail.com";
         InviteEntity inviteEntity = new InviteEntity(email, code, "otp-key", mock(RoleEntity.class));
@@ -57,7 +59,7 @@ public class InviteFinderTest {
     }
 
     @Test
-    public void shouldFindInvite_withExistingUser() throws Exception {
+    public void shouldFindInvite_withExistingUser() {
         String code = randomUuid();
         String email = "user@mail.com";
         InviteEntity inviteEntity = new InviteEntity(email, code, "otp-key", mock(RoleEntity.class));
@@ -71,7 +73,7 @@ public class InviteFinderTest {
     }
 
     @Test
-    public void shouldErrorLocked_ifInviteIsExpired() throws Exception {
+    public void shouldErrorLocked_ifInviteIsExpired() {
         String code = randomUuid();
         String email = "user@mail.com";
         InviteEntity inviteEntity = new InviteEntity(email, code, "otp-key", mock(RoleEntity.class));
@@ -87,7 +89,7 @@ public class InviteFinderTest {
     }
 
     @Test
-    public void shouldErrorLocked_ifInviteIsDisabled() throws Exception {
+    public void shouldErrorLocked_ifInviteIsDisabled() {
         String code = randomUuid();
         String email = "user@mail.com";
         InviteEntity inviteEntity = new InviteEntity(email, code, "otp-key", mock(RoleEntity.class));
@@ -103,12 +105,34 @@ public class InviteFinderTest {
     }
 
     @Test
-    public void shouldReturnEmptyOptional_forNonExistingInviteCode() throws Exception {
+    public void shouldReturnEmptyOptional_forNonExistingInviteCode() {
         String code = "non-existent-code";
         when(mockInviteDao.findByCode(code)).thenReturn(Optional.empty());
 
         Optional<Invite> inviteOptional = inviteFinder.find(code);
 
         assertThat(inviteOptional.isPresent(), is(false));
+    }
+
+    @Test
+    public void shouldFindAllValidInvites() {
+        String externalServiceId = "sdfuhsdyftgdfa";
+        String firstEmail = "user1@mail.com";
+        String secondEmail = "user2@mail.com";
+        InviteEntity firstInviteEntity = new InviteEntity(firstEmail, randomUuid(), "otp-key", mock(RoleEntity.class));
+        InviteEntity secondInviteEntity = new InviteEntity(secondEmail, randomUuid(), "otp-key", mock(RoleEntity.class));
+        InviteEntity disabledInviteEntity = new InviteEntity("email@email.com", randomUuid(), "otp-key", mock(RoleEntity.class));
+        disabledInviteEntity.setDisabled(true);
+        when(mockUserDao.findByEmail(firstEmail)).thenReturn(Optional.empty());
+        when(mockUserDao.findByEmail(secondEmail)).thenReturn(Optional.empty());
+        when(mockInviteDao.findAllByServiceId(externalServiceId)).thenReturn(
+                ImmutableList.of(firstInviteEntity, secondInviteEntity, disabledInviteEntity)
+        );
+        List<Invite> invites = inviteFinder.findAll(externalServiceId);
+        assertThat(invites.size(), is(2));
+        Invite firstInvite = invites.get(0);
+        assertThat(firstInvite.getEmail(), is(firstEmail));
+        Invite secondInvite = invites.get(1);
+        assertThat(secondInvite.getEmail(), is(secondEmail));
     }
 }

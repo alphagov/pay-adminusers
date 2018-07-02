@@ -31,14 +31,12 @@ public class InviteResource {
     private final InviteService inviteService;
     private final InviteRequestValidator inviteValidator;
     private final InviteServiceFactory inviteServiceFactory;
-    private final ServiceRequestValidator serviceRequestValidator;
 
     @Inject
-    public InviteResource(InviteService service, InviteRequestValidator inviteValidator, InviteServiceFactory inviteServiceFactory, ServiceRequestValidator serviceRequestValidator) {
+    public InviteResource(InviteService service, InviteRequestValidator inviteValidator, InviteServiceFactory inviteServiceFactory) {
         inviteService = service;
         this.inviteServiceFactory = inviteServiceFactory;
         this.inviteValidator = inviteValidator;
-        this.serviceRequestValidator = serviceRequestValidator;
     }
 
     @GET
@@ -114,6 +112,15 @@ public class InviteResource {
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
+
+    @GET
+    @Produces(APPLICATION_JSON)
+    public Response getInvites(@QueryParam("serviceId") String serviceId) {
+        LOGGER.info("List invites GET request for service - [ {} ]", serviceId);
+        List<Invite> invites = inviteServiceFactory.inviteFinder().findAll(serviceId);
+        return Response.status(OK).type(APPLICATION_JSON).entity(invites).build();
+    }
+    
     @POST
     @Path("/service")
     @Consumes(APPLICATION_JSON)

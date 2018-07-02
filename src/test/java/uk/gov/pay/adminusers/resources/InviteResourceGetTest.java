@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.resources;
 import org.junit.Test;
 
 import static com.jayway.restassured.http.ContentType.JSON;
+import static java.lang.String.format;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -11,7 +12,7 @@ import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 public class InviteResourceGetTest extends IntegrationTest {
 
     @Test
-    public void getInvitation_shouldSucceed() throws Exception {
+    public void getInvitation_shouldSucceed() {
 
         String email = "user@example.com";
         String inviteCode = inviteDbFixture(databaseHelper)
@@ -36,7 +37,7 @@ public class InviteResourceGetTest extends IntegrationTest {
      *  This situation happens when OTP is generated (with telephone_number) and then the GET Invite is again requested
      *  (still non-expired invite link)
      */
-    public void getInvitation_shouldSucceedWithTelephoneNumber_whenIsAvailable() throws Exception {
+    public void getInvitation_shouldSucceedWithTelephoneNumber_whenIsAvailable() {
 
         String email = "user@example.com";
         String telephoneNumber = "+440787654534";
@@ -59,7 +60,7 @@ public class InviteResourceGetTest extends IntegrationTest {
     }
 
     @Test
-    public void getInvitation_shouldFail_whenExpired() throws Exception {
+    public void getInvitation_shouldFail_whenExpired() {
 
         String expiredCode = inviteDbFixture(databaseHelper).expired().insertInvite();
 
@@ -72,7 +73,7 @@ public class InviteResourceGetTest extends IntegrationTest {
     }
 
     @Test
-    public void getInvitation_shouldFail_whenDisabled() throws Exception {
+    public void getInvitation_shouldFail_whenDisabled() {
 
         String expiredCode = inviteDbFixture(databaseHelper).disabled().insertInvite();
 
@@ -85,7 +86,7 @@ public class InviteResourceGetTest extends IntegrationTest {
     }
 
     @Test
-    public void createInvitation_shouldFail_whenInvalidCode() throws Exception {
+    public void createInvitation_shouldFail_whenInvalidCode() {
 
         givenSetup()
                 .when()
@@ -93,5 +94,27 @@ public class InviteResourceGetTest extends IntegrationTest {
                 .get(INVITES_RESOURCE_URL + "/fake-code")
                 .then()
                 .statusCode(NOT_FOUND.getStatusCode());
+    }
+
+    @Test
+    public void getInvitations_shouldSucceed() {
+        String serviceExternalId = "sdfgsdgytgkh";
+        String email = "user@example.com";
+        inviteDbFixture(databaseHelper)
+                .withEmail(email)
+                .withServiceExternalId(serviceExternalId)
+                .insertInvite();
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .get(INVITES_RESOURCE_URL + "?serviceId=" + serviceExternalId)
+                .then()
+                .statusCode(OK.getStatusCode())
+                .body("[0].email", is(email))
+                .body("[0].telephone_number", is(nullValue()))
+                .body("[0].disabled", is(false))
+                .body("[0].expired", is(false))
+                .body("[0].user_exist", is(false))
+                .body("[0].attempt_counter", is(0));
     }
 }

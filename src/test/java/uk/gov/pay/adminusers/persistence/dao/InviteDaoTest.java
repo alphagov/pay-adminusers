@@ -99,4 +99,14 @@ public class InviteDaoTest extends DaoTestBase {
 
         assertThat(invites.isEmpty(), is(false));
     }
+
+    @Test
+    public void findAllByServiceId_shouldFindAllInvitesForAService() {
+        String serviceId = "asfkhsjhfskdf";
+        inviteDbFixture(databaseHelper).withServiceExternalId(serviceId).insertInvite();
+
+        List<InviteEntity> invites = inviteDao.findAllByServiceId(serviceId);
+        
+        assertThat(invites.size(), is(1));
+    }
 }

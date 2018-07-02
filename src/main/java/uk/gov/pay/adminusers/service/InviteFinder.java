@@ -1,11 +1,12 @@
 package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
-
-import java.util.Optional;
 
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
 
@@ -32,6 +33,21 @@ public class InviteFinder {
                         return Optional.of(invite);
                     }).orElse(Optional.of(invite));
                 })
-                .orElseGet(() -> Optional.empty());
+                .orElseGet(Optional::empty);
+    }
+
+
+    public List<Invite> findAll(String serviceId) {
+        return inviteDao.findAllByServiceId(serviceId)
+                .stream()
+                .filter(inviteEntity -> !(inviteEntity.isExpired() || inviteEntity.isDisabled()))
+                .map(inviteEntity -> {
+                    Invite invite = inviteEntity.toInvite();
+                    return userDao.findByEmail(inviteEntity.getEmail()).map(userEntity -> {
+                        invite.setUserExist(true);
+                        return invite;
+                    }).orElse(invite);
+                })
+                .collect(Collectors.toList());
     }
 }
