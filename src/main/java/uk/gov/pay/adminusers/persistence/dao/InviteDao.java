@@ -38,4 +38,15 @@ public class InviteDao extends JpaDao<InviteEntity> {
                 .setParameter("email", email)
                 .getResultList();
     }
+
+    public List<InviteEntity> findAllByServiceId(String serviceId) {
+
+        String query = "SELECT invite FROM InviteEntity invite " +
+                "WHERE invite.service.externalId = :serviceId";
+
+        return entityManager.get()
+                .createQuery(query, InviteEntity.class)
+                .setParameter("serviceId", serviceId)
+                .getResultList();
+    }
 }

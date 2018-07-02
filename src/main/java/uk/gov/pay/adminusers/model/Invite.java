@@ -16,6 +16,7 @@ public class Invite {
 
     private String code;
     private final String email;
+    private final String role;
     private String telephoneNumber;
     private Boolean disabled = Boolean.FALSE;
     private Integer attemptCounter = 0;
@@ -23,15 +24,18 @@ public class Invite {
     private List<Link> links = new ArrayList<>();
     private String type;
     private boolean userExist = false;
+    private boolean expired;
 
     public Invite(String code, String email, String telephoneNumber,
-                  Boolean disabled, Integer attemptCounter, String type) {
+                  Boolean disabled, Integer attemptCounter, String type, String role, Boolean expired) {
         this.code = code;
         this.email = email;
         this.telephoneNumber = telephoneNumber;
         this.disabled = disabled;
         this.attemptCounter = attemptCounter;
         this.type = type;
+        this.role = role;
+        this.expired = expired;
     }
 
     @JsonProperty("email")
@@ -59,6 +63,16 @@ public class Invite {
         return links;
     }
 
+    @JsonProperty("role")
+    public String getRole() {
+        return role;
+    }
+    
+    @JsonProperty("expired")
+    public Boolean isExpired() {
+        return expired;
+    }
+    
     public void setInviteLink(String targetUrl) {
         Link inviteLink = Link.from(Link.Rel.invite, "GET", targetUrl);
         this.links.add(inviteLink);
