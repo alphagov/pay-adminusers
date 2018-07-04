@@ -26,8 +26,8 @@ public class EmailTemplateTest {
     public void shouldDeserialiseEnumFromLowercaseString() {
         EmailTemplate mandateCancelled = EmailTemplate.fromString("mandate_cancelled");
         EmailTemplate mandateFailed = EmailTemplate.fromString("mandate_failed");
-        EmailTemplate paymentConfirmedOneOff = EmailTemplate.fromString("ONE_OFF_PAYMENT_CONFIRMED");
-        EmailTemplate paymentConfirmedOnDemand = EmailTemplate.fromString("ON_DEMAND_PAYMENT_CONFIRMED");
+        EmailTemplate paymentConfirmedOneOff = EmailTemplate.fromString("one_off_payment_confirmed");
+        EmailTemplate paymentConfirmedOnDemand = EmailTemplate.fromString("on_demand_payment_confirmed");
         EmailTemplate paymentFailed = EmailTemplate.fromString("payment_failed");
 
         assertThat(mandateCancelled, is(EmailTemplate.MANDATE_CANCELLED));
