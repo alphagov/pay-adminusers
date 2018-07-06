@@ -20,7 +20,7 @@ import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
 public class UserResourceGetMultipleTest extends IntegrationTest {
 
     @Test
-    public void shouldReturnMultipleUsers_whenGetUsersWithMultipleIds() throws Exception {
+    public void shouldReturnMultipleUsers_whenGetUsersWithMultipleIds() {
         String gatewayAccount1 = valueOf(nextInt());
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
@@ -78,9 +78,48 @@ public class UserResourceGetMultipleTest extends IntegrationTest {
                 .body("[1]._links[0].rel", is("self"))
                 .body("size()", is(2));
     }
-
+    
     @Test
-    public void shouldReturnSingleUser_whenGetUsersWithSingleId() throws Exception {
+    public void shouldReturnMultipleUsers_whenGetUsersWithMultipleIds_whenIdsAreRepeated() {
+        String gatewayAccount1 = valueOf(nextInt());
+        String gatewayAccount2 = valueOf(nextInt());
+        Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
+        String serviceExternalId = service.getExternalId();
+        Role role = roleDbFixture(databaseHelper).insertRole();
+        String username1 = randomUuid();
+        String email1 = username1 + "@example.com";
+        User user1 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withUsername(username1).withEmail(email1).insertUser();
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .accept(JSON)
+                .get(USERS_RESOURCE + "?ids=" + user1.getExternalId() + "," + user1.getExternalId())
+                .then()
+                .statusCode(200)
+                .body("[0].external_id", is(user1.getExternalId()))
+                .body("[0].username", is(user1.getUsername()))
+                .body("[0].password", nullValue())
+                .body("[0].email", is(user1.getEmail()))
+                .body("[0].service_roles", hasSize(1))
+                .body("[0].service_roles[0].service.external_id", is(serviceExternalId))
+                .body("[0].service_roles[0].service.name", is(service.getName()))
+                .body("[0].telephone_number", is(user1.getTelephoneNumber()))
+                .body("[0].otp_key", is(user1.getOtpKey()))
+                .body("[0].login_counter", is(0))
+                .body("[0].disabled", is(false))
+                .body("[0].service_roles[0].role.name", is(role.getName()))
+                .body("[0].service_roles[0].role.description", is(role.getDescription()))
+                .body("[0].service_roles[0].role.permissions", hasSize(role.getPermissions().size()))
+                .body("[0]._links", hasSize(1))
+                .body("[0]._links[0].href", is("http://localhost:8080/v1/api/users/" + user1.getExternalId()))
+                .body("[0]._links[0].method", is("GET"))
+                .body("[0]._links[0].rel", is("self"))
+                .body("size()", is(1));
+    }
+    
+    @Test
+    public void shouldReturnSingleUser_whenGetUsersWithSingleId() {
         String gatewayAccount1 = valueOf(nextInt());
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
@@ -119,17 +158,18 @@ public class UserResourceGetMultipleTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn404_whenGetUsers_withNonExistentExternalIds() throws Exception {
+    public void shouldReturnEmptyResponse_whenGetUsers_withNonExistentExternalIds() {
         givenSetup()
                 .when()
                 .accept(JSON)
                 .get(USERS_RESOURCE + "?ids=NON-EXISTENT-USER,ANOTHER_NON_EXISTENT_USER")
                 .then()
-                .statusCode(404);
+                .statusCode(200)
+                .body("size()", is(0));
     }
 
     @Test
-    public void shouldReturn404_whenGetUsers_whereSomeNonExistentExternalIds() throws Exception {
+    public void shouldReturnPartialResponse_whenGetUsers_whereSomeNonExistentExternalIds() {
         String gatewayAccount1 = valueOf(nextInt());
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
@@ -144,7 +184,26 @@ public class UserResourceGetMultipleTest extends IntegrationTest {
                 .accept(JSON)
                 .get(USERS_RESOURCE + "?ids=" + existingUser.getExternalId() + ",NON-EXISTENT-USER")
                 .then()
-                .statusCode(404);
+                .statusCode(200)
+                .body("[0].external_id", is(existingUser.getExternalId()))
+                .body("[0].username", is(existingUser.getUsername()))
+                .body("[0].password", nullValue())
+                .body("[0].email", is(existingUser.getEmail()))
+                .body("[0].service_roles", hasSize(1))
+                .body("[0].service_roles[0].service.external_id", is(service.getExternalId()))
+                .body("[0].service_roles[0].service.name", is(service.getName()))
+                .body("[0].telephone_number", is(existingUser.getTelephoneNumber()))
+                .body("[0].otp_key", is(existingUser.getOtpKey()))
+                .body("[0].login_counter", is(0))
+                .body("[0].disabled", is(false))
+                .body("[0].service_roles[0].role.name", is(role.getName()))
+                .body("[0].service_roles[0].role.description", is(role.getDescription()))
+                .body("[0].service_roles[0].role.permissions", hasSize(role.getPermissions().size()))
+                .body("[0]._links", hasSize(1))
+                .body("[0]._links[0].href", is("http://localhost:8080/v1/api/users/" + existingUser.getExternalId()))
+                .body("[0]._links[0].method", is("GET"))
+                .body("[0]._links[0].rel", is("self"))
+                .body("size()", is(1));
     }
 }
 

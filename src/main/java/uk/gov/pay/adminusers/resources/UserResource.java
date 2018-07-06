@@ -106,11 +106,7 @@ public class UserResource {
 
         List<User> users = userServices.findUsersByExternalIds(externalIdsList);
 
-        if (users.size() == externalIdsList.size()) {
-            return Response.status(OK).type(APPLICATION_JSON).entity(users).build();
-        } else {
-            return Response.status(NOT_FOUND).build();
-        }
+        return Response.status(OK).type(APPLICATION_JSON).entity(users).build();
     }
 
     @Path(USERS_RESOURCE)
