@@ -19,3 +19,5 @@ production-2.tag=alpha_production-2-231
 production-2.alpha_production-2-231.date=2018-07-11:15:23:42
 
 production-2.alpha_production-2-231.status=success
+
+release.tag=alpha_release-232
