@@ -11,7 +11,7 @@
         <eclipselink.version>2.6.4</eclipselink.version>
         <guice.version>4.1.0</guice.version>
         <docker-client.version>8.9.2</docker-client.version>
-        <jackson.version>2.9.4</jackson.version>
+        <jackson.version>2.9.5</jackson.version>
     </properties>
     <repositories>
         <repository>
