@@ -7,3 +7,5 @@ staging-2.tag=FAILED-235
 staging-2.FAILED-235.date=
 
 staging-2.FAILED-235.status=failed
+
+release.tag=alpha_release-236
