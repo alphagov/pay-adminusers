@@ -43,3 +43,5 @@ staging-2.FAILED-237.status=failed
 staging-2.tag=alpha_staging-2-237
 
 staging-2.alpha_staging-2-237.date=2018-07-31:13:50:16
+
+staging-2.alpha_staging-2-237.status=success
