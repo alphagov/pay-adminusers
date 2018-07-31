@@ -13,3 +13,5 @@ release.tag=alpha_release-236
 release.alpha_release-236.date=2018-07-31:08:56:17
 
 staging-2.tag=FAILED-236
+
+staging-2.FAILED-236.date=
