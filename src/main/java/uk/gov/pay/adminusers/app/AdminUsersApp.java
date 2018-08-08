@@ -32,6 +32,7 @@ import uk.gov.pay.adminusers.resources.InviteResource;
 import uk.gov.pay.adminusers.resources.ResetPasswordResource;
 import uk.gov.pay.adminusers.resources.ServiceResource;
 import uk.gov.pay.adminusers.resources.UserResource;
+import uk.gov.pay.commons.utils.xray.Xray;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
@@ -61,7 +62,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
                 return configuration.getDataSourceFactory();
             }
         });
-
+        
         bootstrap.addCommand(new DependentResourceWaitCommand());
         bootstrap.addCommand(new MigrateToInitialDbState());
     }
@@ -75,6 +76,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
 
         environment.servlets().addFilter("LoggingFilter", new LoggingFilter())
                 .addMappingForUrlPatterns(of(REQUEST), true, API_VERSION_PATH + "/*");
+
         environment.healthChecks().register("ping", new Ping());
         environment.healthChecks().register("database", injector.getInstance(DatabaseHealthCheck.class));
         environment.jersey().register(injector.getInstance(UserResource.class));
@@ -92,6 +94,8 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(new InvalidMerchantDetailsExceptionMapper());
 
         setGlobalProxies(configuration);
+        
+        Xray.init(environment, "pay-adminusers",API_VERSION_PATH + "/*");
     }
 
     private void initialiseMetrics(AdminUsersConfig configuration, Environment environment) {
