@@ -1,10 +1,5 @@
 package uk.gov.pay.adminusers.app;
 
-import com.amazonaws.xray.AWSXRay;
-import com.amazonaws.xray.AWSXRayRecorderBuilder;
-import com.amazonaws.xray.javax.servlet.AWSXRayServletFilter;
-import com.amazonaws.xray.plugins.ECSPlugin;
-import com.amazonaws.xray.strategy.sampling.LocalizedSamplingStrategy;
 import com.codahale.metrics.graphite.GraphiteReporter;
 import com.codahale.metrics.graphite.GraphiteSender;
 import com.codahale.metrics.graphite.GraphiteUDP;
@@ -37,10 +32,10 @@ import uk.gov.pay.adminusers.resources.InviteResource;
 import uk.gov.pay.adminusers.resources.ResetPasswordResource;
 import uk.gov.pay.adminusers.resources.ServiceResource;
 import uk.gov.pay.adminusers.resources.UserResource;
+import uk.gov.pay.commons.utils.xray.Xray;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
-import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.EnumSet.of;
@@ -67,7 +62,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
                 return configuration.getDataSourceFactory();
             }
         });
-
+        
         bootstrap.addCommand(new DependentResourceWaitCommand());
         bootstrap.addCommand(new MigrateToInitialDbState());
     }
@@ -78,13 +73,9 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         injector.getInstance(PersistenceServiceInitialiser.class);
 
         initialiseMetrics(configuration, environment);
-        initialiseXRay();
 
         environment.servlets().addFilter("LoggingFilter", new LoggingFilter())
                 .addMappingForUrlPatterns(of(REQUEST), true, API_VERSION_PATH + "/*");
-        environment.servlets().addFilter("AWSXRayServletFilter", new AWSXRayServletFilter("pay-adminusers"))
-                .addMappingForUrlPatterns(of(REQUEST), true, API_VERSION_PATH + "/*");
-        
 
         environment.healthChecks().register("ping", new Ping());
         environment.healthChecks().register("database", injector.getInstance(DatabaseHealthCheck.class));
@@ -103,6 +94,8 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(new InvalidMerchantDetailsExceptionMapper());
 
         setGlobalProxies(configuration);
+        
+        Xray.init(environment, "pay-adminusers",API_VERSION_PATH + "/*");
     }
 
     private void initialiseMetrics(AdminUsersConfig configuration, Environment environment) {
@@ -112,16 +105,6 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
                 .build(graphiteUDP)
                 .start(GRAPHITE_SENDING_PERIOD_SECONDS, TimeUnit.SECONDS);
 
-    }
-
-    /**
-     * @see <a href="http://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-java-configuration.html">Configuring the X-Ray SDK for Java</a>
-     */
-    private void initialiseXRay() {
-        AWSXRayRecorderBuilder builder = AWSXRayRecorderBuilder.standard().withPlugin(new ECSPlugin());
-        URL ruleFile = AdminUsersApp.class.getResource("/sampling-rules.json");
-        builder.withSamplingStrategy(new LocalizedSamplingStrategy(ruleFile));
-        AWSXRay.setGlobalRecorder(builder.build());
     }
 
     private void setGlobalProxies(AdminUsersConfig configuration) {
