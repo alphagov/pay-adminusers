@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.persistence.dao;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.postgresql.util.PGobject;
@@ -15,10 +16,13 @@ import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.CustomBrandingConverter;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.IntStream.range;
@@ -40,7 +44,6 @@ public class ServiceDaoTest extends DaoTestBase {
     public void before() throws Exception {
         serviceDao = env.getInstance(ServiceDao.class);
     }
-
 
     @Test
     public void shouldSaveAService_withCustomisations() throws Exception {
@@ -173,6 +176,70 @@ public class ServiceDaoTest extends DaoTestBase {
     }
 
     @Test
+    public void shouldFindServiceWithMultipleLanguage_byServiceExternalId() throws Exception {
+        String serviceExternalId = randomUuid();
+        String enServiceName = "test service";
+        Service service = Service.from(randomInt(), serviceExternalId, enServiceName);
+        Map<String, Object> customBranding = ImmutableMap.of("image_url", "image url", "css_url", "css url");
+        service.setCustomBranding(customBranding);
+        String name = "Name";
+        String telephoneNumber = "03069990000";
+        String addressLine1 = "Address Line 1";
+        String addressLine2 = "Address Line 2";
+        String addressCity = "Address City";
+        String postcode = "Postcode";
+        String country = "UK";
+        String email = getMerchantEmail();
+
+        service.setMerchantDetails(new MerchantDetails(
+                name,
+                telephoneNumber,
+                addressLine1,
+                addressLine2,
+                addressCity,
+                postcode,
+                country,
+                email
+        ));
+        String cyServiceName = "gwasanaeth prawf";
+
+        databaseHelper.addService(service, randomInt().toString());
+        databaseHelper.addServiceName(createServiceName("en", enServiceName), service.getId());
+        databaseHelper.addServiceName(createServiceName("cy", cyServiceName), service.getId());
+
+        Optional<ServiceEntity> serviceEntity = serviceDao.findByExternalId(serviceExternalId);
+        assertTrue(serviceEntity.isPresent());
+        assertThat(serviceEntity.get().getId(), is(service.getId()));
+        assertThat(serviceEntity.get().getName(), is(enServiceName));
+
+        MerchantDetailsEntity merchantDetailsEntity = serviceEntity.get().getMerchantDetailsEntity();
+        assertThat(merchantDetailsEntity.getName(), is(name));
+        assertThat(merchantDetailsEntity.getTelephoneNumber(), is(telephoneNumber));
+        assertThat(merchantDetailsEntity.getAddressLine1(), is(addressLine1));
+        assertThat(merchantDetailsEntity.getAddressLine2(), is(addressLine2));
+        assertThat(merchantDetailsEntity.getAddressCity(), is(addressCity));
+        assertThat(merchantDetailsEntity.getAddressPostcode(), is(postcode));
+        assertThat(merchantDetailsEntity.getAddressCountryCode(), is(country));
+        assertThat(merchantDetailsEntity.getEmail(), is(email));
+
+        assertThat(serviceEntity.get().getCustomBranding().keySet().size(), is(2));
+        assertThat(serviceEntity.get().getCustomBranding().keySet(), hasItems("image_url", "css_url"));
+        assertThat(serviceEntity.get().getCustomBranding().values(), hasItems("image url", "css url"));
+
+        assertThat(serviceEntity.get().getServiceName().size(), is(2));
+        assertThat(serviceEntity.get().getServiceName()
+                .stream()
+                .filter(n -> n.getLanguage().equals(SupportedLanguage.ENGLISH))
+                .collect(Collectors.toList()).size(), is(1)
+        );
+        assertThat(serviceEntity.get().getServiceName()
+                .stream()
+                .filter(n -> n.getLanguage().equals(SupportedLanguage.WELSH))
+                .collect(Collectors.toList()).size(), is(1)
+        );
+    }
+
+    @Test
     public void shouldFindByGatewayAccountId() throws Exception {
         String gatewayAccountId = randomInt().toString();
         Integer serviceId = randomInt();
@@ -232,6 +299,14 @@ public class ServiceDaoTest extends DaoTestBase {
     }
 
     private String getMerchantEmail() {
-        return "dd-merchant"+ randomUuid() + "@example.com";
+        return "dd-merchant" + randomUuid() + "@example.com";
+    }
+
+    public static ServiceNameEntity createServiceName(String language, String name) {
+        ServiceNameEntity serviceNameEntity = new ServiceNameEntity();
+        serviceNameEntity.setId((long) RandomUtils.nextInt());
+        serviceNameEntity.setLanguage(SupportedLanguage.fromIso639AlphaTwoCode(language));
+        serviceNameEntity.setName(name);
+        return serviceNameEntity;
     }
 }

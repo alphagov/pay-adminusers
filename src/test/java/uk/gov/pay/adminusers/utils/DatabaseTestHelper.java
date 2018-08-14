@@ -9,6 +9,7 @@ import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.CustomBrandingConverter;
+import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 
 import java.sql.Timestamp;
 import java.time.ZoneId;
@@ -115,10 +116,10 @@ public class DatabaseTestHelper {
                 handle
                         .createStatement("INSERT INTO users(" +
                                 "id, external_id, username, password, email, otp_key, telephone_number, " +
-                                    "second_factor, disabled, login_counter, version, " +
-                                    "\"createdAt\", \"updatedAt\", session_version, provisional_otp_key) " +
+                                "second_factor, disabled, login_counter, version, " +
+                                "\"createdAt\", \"updatedAt\", session_version, provisional_otp_key) " +
                                 "VALUES (:id, :externalId, :username, :password, :email, :otpKey, :telephoneNumber, " +
-                                    ":secondFactor, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version, :provisionalOtpKey)")
+                                ":secondFactor, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version, :provisionalOtpKey)")
                         .bind("id", user.getId())
                         .bind("externalId", user.getExternalId())
                         .bind("username", user.getUsername())
@@ -338,5 +339,16 @@ public class DatabaseTestHelper {
                         "WHERE external_id = :external_id")
                         .bind("external_id", serviceExternalId)
                         .list());
+    }
+
+    public DatabaseTestHelper addServiceName(ServiceNameEntity entity, Integer serviceId) {
+        jdbi.withHandle(handle -> handle
+                .createStatement("INSERT INTO service_names(id, service_id, language, name) VALUES (:id, :serviceId, :language, :name)")
+                .bind("id", entity.getId())
+                .bind("serviceId", serviceId)
+                .bind("language", entity.getLanguage().toString())
+                .bind("name", entity.getName())
+                .execute());
+        return this;
     }
 }

@@ -4,10 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -25,6 +29,7 @@ public class Service {
     private List<String> gatewayAccountIds = new ArrayList<>();
     private Map<String, Object> customBranding;
     private MerchantDetails merchantDetails;
+    private Map<String, String> serviceNameMap = new LinkedHashMap<>();
 
     public static Service from() {
         return from(DEFAULT_NAME_VALUE);
@@ -111,4 +116,13 @@ public class Service {
         this.merchantDetails = merchantDetails;
     }
 
+    @JsonProperty("service_name")
+    public Map<String, String> getServiceNameMap() {
+        return serviceNameMap;
+    }
+
+    public void setServiceNameMap(Set<ServiceNameEntity> nameEntities) {
+        this.serviceNameMap.put(SupportedLanguage.ENGLISH.toString(), name);
+        nameEntities.forEach(e -> this.serviceNameMap.put(e.getLanguage().toString(), e.getName()));
+    }
 }

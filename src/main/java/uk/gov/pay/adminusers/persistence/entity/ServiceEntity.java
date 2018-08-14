@@ -2,11 +2,25 @@ package uk.gov.pay.adminusers.persistence.entity;
 
 import com.google.common.collect.ImmutableList;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
@@ -39,6 +53,9 @@ public class ServiceEntity {
 
     @OneToMany(mappedBy = "service", targetEntity = InviteEntity.class, fetch = FetchType.LAZY)
     private List<InviteEntity> invites = new ArrayList<>();
+
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private Set<ServiceNameEntity> serviceName = new HashSet<>();
 
     public ServiceEntity() {
     }
@@ -114,6 +131,7 @@ public class ServiceEntity {
         if (this.merchantDetailsEntity != null) {
             service.setMerchantDetails(this.merchantDetailsEntity.toMerchantDetails());
         }
+        service.setServiceNameMap(serviceName);
         return service;
     }
 
@@ -137,6 +155,20 @@ public class ServiceEntity {
         serviceEntity.setName(service.getName());
         serviceEntity.setExternalId(service.getExternalId());
         return serviceEntity;
+    }
+
+    public void addServiceName(ServiceNameEntity serviceName) {
+        this.serviceName.add(serviceName);
+        serviceName.setService(this);
+    }
+
+    public void removeServiceName(ServiceNameEntity serviceName) {
+        this.serviceName.remove(serviceName);
+        serviceName.setService(null);
+    }
+
+    public Set<ServiceNameEntity> getServiceName() {
+        return serviceName;
     }
 
     private void populateGatewayAccountIds(List<String> gatewayAccountIds) {

@@ -11,11 +11,12 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
+import static uk.gov.pay.adminusers.persistence.dao.ServiceDaoTest.createServiceName;
 
 public class ServiceResourceFindTest extends IntegrationTest {
 
     @Test
-    public void shouldGet_existingServiceById() throws Exception {
+    public void shouldGet_existingServiceById_withoutNameVariants() throws Exception {
 
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
@@ -26,7 +27,60 @@ public class ServiceResourceFindTest extends IntegrationTest {
                 .get(format("/v1/api/services/%s", serviceExternalId))
                 .then()
                 .statusCode(200)
-                .body("name",is("existing-name"))
+                .body("name", is("existing-name"))
+                .body("service_name", hasKey("en"))
+                .body("service_name.en", is("existing-name"))
+                .body("$", not(hasKey("merchant_details")))
+                .body("_links", hasSize(1))
+                .body("_links[0].href", is("http://localhost:8080/v1/api/services/" + serviceExternalId))
+                .body("_links[0].method", is("GET"))
+                .body("_links[0].rel", is("self"));
+    }
+
+    @Test
+    public void shouldGetServiceById_withServiceNameVariantForCy() throws Exception {
+
+        String serviceExternalId = randomUuid();
+        Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
+        databaseHelper.addService(service, randomInt().toString());
+        databaseHelper.addServiceName(createServiceName("cy", "some-cy-name"), service.getId());
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .get(format("/v1/api/services/%s", serviceExternalId))
+                .then()
+                .statusCode(200)
+                .body("name", is("existing-name"))
+                .body("service_name", hasKey("en"))
+                .body("service_name.en", is("existing-name"))
+                .body("service_name", hasKey("cy"))
+                .body("service_name.cy", is("some-cy-name"))
+                .body("$", not(hasKey("merchant_details")))
+                .body("_links", hasSize(1))
+                .body("_links[0].href", is("http://localhost:8080/v1/api/services/" + serviceExternalId))
+                .body("_links[0].method", is("GET"))
+                .body("_links[0].rel", is("self"));
+    }
+
+    @Test
+    public void shouldGetServiceById_withServiceNameVariantsForEn_andCy() throws Exception {
+
+        String serviceExternalId = randomUuid();
+        Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
+        databaseHelper.addService(service, randomInt().toString());
+        databaseHelper.addServiceName(createServiceName("en", "existing-name"), service.getId());
+        databaseHelper.addServiceName(createServiceName("cy", "some-cy-name"), service.getId());
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .get(format("/v1/api/services/%s", serviceExternalId))
+                .then()
+                .statusCode(200)
+                .body("name", is("existing-name"))
+                .body("service_name", hasKey("en"))
+                .body("service_name.en", is("existing-name"))
+                .body("service_name", hasKey("cy"))
+                .body("service_name.cy", is("some-cy-name"))
                 .body("$", not(hasKey("merchant_details")))
                 .body("_links", hasSize(1))
                 .body("_links[0].href", is("http://localhost:8080/v1/api/services/" + serviceExternalId))
@@ -45,7 +99,6 @@ public class ServiceResourceFindTest extends IntegrationTest {
                 .statusCode(404);
     }
 
-
     @Test
     public void shouldFind_existingServiceByGatewayAccountId() throws Exception {
 
@@ -60,8 +113,10 @@ public class ServiceResourceFindTest extends IntegrationTest {
                 .get(format("/v1/api/services?gatewayAccountId=%s", gatewayAccountId))
                 .then()
                 .statusCode(200)
-                .body("name",is("existing-name"))
-                .body("gateway_account_ids[0]",is(gatewayAccountId));
+                .body("name", is("existing-name"))
+                .body("service_name", hasKey("en"))
+                .body("service_name.en", is("existing-name"))
+                .body("gateway_account_ids[0]", is(gatewayAccountId));
 
     }
 
