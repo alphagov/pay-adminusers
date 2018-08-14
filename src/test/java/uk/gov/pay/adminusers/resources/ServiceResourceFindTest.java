@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.resources;
 
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
@@ -43,7 +44,7 @@ public class ServiceResourceFindTest extends IntegrationTest {
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
         databaseHelper.addService(service, randomInt().toString());
-        databaseHelper.addServiceName(createServiceName("cy", "some-cy-name"), service.getId());
+        databaseHelper.addServiceName(createServiceName(SupportedLanguage.WELSH, "some-cy-name"), service.getId());
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -68,8 +69,8 @@ public class ServiceResourceFindTest extends IntegrationTest {
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
         databaseHelper.addService(service, randomInt().toString());
-        databaseHelper.addServiceName(createServiceName("en", "existing-name"), service.getId());
-        databaseHelper.addServiceName(createServiceName("cy", "some-cy-name"), service.getId());
+        databaseHelper.addServiceName(createServiceName(SupportedLanguage.ENGLISH, "existing-name"), service.getId());
+        databaseHelper.addServiceName(createServiceName(SupportedLanguage.WELSH, "some-cy-name"), service.getId());
         givenSetup()
                 .when()
                 .accept(JSON)
