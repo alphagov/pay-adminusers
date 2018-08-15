@@ -9,6 +9,9 @@ import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.CustomBrandingConverter;
+import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 
 import java.sql.Timestamp;
 import java.time.ZoneId;
@@ -115,10 +118,10 @@ public class DatabaseTestHelper {
                 handle
                         .createStatement("INSERT INTO users(" +
                                 "id, external_id, username, password, email, otp_key, telephone_number, " +
-                                    "second_factor, disabled, login_counter, version, " +
-                                    "\"createdAt\", \"updatedAt\", session_version, provisional_otp_key) " +
+                                "second_factor, disabled, login_counter, version, " +
+                                "\"createdAt\", \"updatedAt\", session_version, provisional_otp_key) " +
                                 "VALUES (:id, :externalId, :username, :password, :email, :otpKey, :telephoneNumber, " +
-                                    ":secondFactor, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version, :provisionalOtpKey)")
+                                ":secondFactor, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version, :provisionalOtpKey)")
                         .bind("id", user.getId())
                         .bind("externalId", user.getExternalId())
                         .bind("username", user.getUsername())
@@ -338,5 +341,54 @@ public class DatabaseTestHelper {
                         "WHERE external_id = :external_id")
                         .bind("external_id", serviceExternalId)
                         .list());
+    }
+
+    public DatabaseTestHelper addServiceName(ServiceNameEntity entity, Integer serviceId) {
+        jdbi.withHandle(handle -> handle
+                .createStatement("INSERT INTO service_names(id, service_id, language, name) VALUES (:id, :serviceId, :language, :name)")
+                .bind("id", entity.getId())
+                .bind("serviceId", serviceId)
+                .bind("language", entity.getLanguage().toString())
+                .bind("name", entity.getName())
+                .execute());
+        return this;
+    }
+
+    public DatabaseTestHelper insertServiceEntity(ServiceEntity serviceEntity) {
+        jdbi.withHandle(handle ->
+        {
+            PGobject customBranding = serviceEntity.getCustomBranding() == null ? null :
+                    new CustomBrandingConverter().convertToDatabaseColumn(serviceEntity.getCustomBranding());
+            MerchantDetailsEntity merchantDetails = serviceEntity.getMerchantDetailsEntity();
+
+            return handle.createStatement("INSERT INTO services(" +
+                    "id, name, custom_branding, " +
+                    "merchant_name, merchant_telephone_number, merchant_address_line1, merchant_address_line2, merchant_address_city, " +
+                    "merchant_address_postcode, merchant_address_country, merchant_email, external_id) " +
+                    "VALUES (:id, :name, :customBranding, :merchantName, :merchantTelephoneNumber, :merchantAddressLine1, :merchantAddressLine2, " +
+                    ":merchantAddressCity, :merchantAddressPostcode, :merchantAddressCountry, :merchantEmail, :externalId)")
+                    .bind("id", serviceEntity.getId())
+                    .bind("name", serviceEntity.getName())
+                    .bind("customBranding", customBranding)
+                    .bind("merchantName", merchantDetails.getName())
+                    .bind("merchantTelephoneNumber", merchantDetails.getTelephoneNumber())
+                    .bind("merchantAddressLine1", merchantDetails.getAddressLine1())
+                    .bind("merchantAddressLine2", merchantDetails.getAddressLine2())
+                    .bind("merchantAddressCity", merchantDetails.getAddressCity())
+                    .bind("merchantAddressPostcode", merchantDetails.getAddressPostcode())
+                    .bind("merchantAddressCountry", merchantDetails.getAddressCountryCode())
+                    .bind("merchantEmail", merchantDetails.getEmail())
+                    .bind("externalId", serviceEntity.getExternalId())
+                    .execute();
+        });
+        serviceEntity.getGatewayAccountIds().forEach(gatewayAccount ->
+                jdbi.withHandle(handle ->
+                        handle.createStatement("INSERT INTO service_gateway_accounts(service_id, gateway_account_id) VALUES (:serviceId, :gatewayAccountId)")
+                                .bind("serviceId", serviceEntity.getId())
+                                .bind("gatewayAccountId", gatewayAccount.getGatewayAccountId())
+                                .execute()
+                ));
+        serviceEntity.getServiceName().forEach(name -> addServiceName(name, serviceEntity.getId()));
+        return this;
     }
 }
