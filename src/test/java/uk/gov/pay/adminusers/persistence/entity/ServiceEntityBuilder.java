@@ -5,6 +5,7 @@ import org.apache.commons.lang.math.RandomUtils;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,7 +18,7 @@ public final class ServiceEntityBuilder {
     private String externalId = RandomIdGenerator.randomUuid();
     private String name = Service.DEFAULT_NAME_VALUE;
     private MerchantDetailsEntity merchantDetailsEntity = MerchantDetailsEntityBuilder.aMerchantDetailsEntity().build();
-    private Map<String, Object> customBranding = ImmutableMap.of("image_url", "image url", "css_url", "css url");;
+    private Map<String, Object> customBranding = ImmutableMap.of("image_url", "image url", "css_url", "css url");
     private List<GatewayAccountIdEntity> gatewayAccountIds = new ArrayList<>();
     private Set<ServiceNameEntity> serviceName = new HashSet<>();
 
@@ -60,6 +61,14 @@ public final class ServiceEntityBuilder {
 
     public ServiceEntityBuilder withServiceName(Set<ServiceNameEntity> serviceName) {
         this.serviceName = serviceName;
+        return this;
+    }
+
+    public ServiceEntityBuilder withServiceNameEntity(SupportedLanguage language, String name) {
+        ServiceNameEntity entity = new ServiceNameEntity();
+        entity.setLanguage(language);
+        entity.setName(name);
+        this.serviceName.add(entity);
         return this;
     }
 
