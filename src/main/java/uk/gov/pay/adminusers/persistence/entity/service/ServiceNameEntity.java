@@ -42,6 +42,14 @@ public class ServiceNameEntity {
         // make JPA happy
     }
 
+    public static ServiceNameEntity from(SupportedLanguage language, String name) {
+        ServiceNameEntity entity = new ServiceNameEntity();
+        entity.setLanguage(language);
+        entity.setName(name);
+
+        return entity;
+    }
+
     //region <Getters/Setters>
     public Long getId() {
         return id;
@@ -80,15 +88,14 @@ public class ServiceNameEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ServiceNameEntity that = (ServiceNameEntity) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(service, that.service) &&
+        return Objects.equals(service, that.service) &&
                 Objects.equals(language, that.language) &&
                 Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, service, language, name);
+        return Objects.hash(service, language, name);
     }
 
     //endregion
