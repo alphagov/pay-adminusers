@@ -125,7 +125,7 @@ public class ServiceEntity {
     public Service toService() {
         Service service = Service.from(id, externalId, name);
         service.setGatewayAccountIds(gatewayAccountIds.stream()
-                .map(idEntity -> idEntity.getGatewayAccountId())
+                .map(GatewayAccountIdEntity::getGatewayAccountId)
                 .collect(Collectors.toList()));
         service.setCustomBranding(this.customBranding);
         if (this.merchantDetailsEntity != null) {
@@ -158,8 +158,8 @@ public class ServiceEntity {
     }
 
     public void addServiceName(ServiceNameEntity serviceName) {
-        this.serviceName.add(serviceName);
         serviceName.setService(this);
+        this.serviceName.add(serviceName);
     }
 
     public void removeServiceName(ServiceNameEntity serviceName) {

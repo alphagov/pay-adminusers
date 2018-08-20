@@ -1,7 +1,8 @@
-package uk.gov.pay.adminusers.unit;
+package uk.gov.pay.adminusers.unit.service;
 
 import com.jayway.restassured.path.json.JsonPath;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +16,6 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntityBuilder;
 import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
 import uk.gov.pay.adminusers.resources.ServiceRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceResource;
-import uk.gov.pay.adminusers.service.LinksBuilder;
 import uk.gov.pay.adminusers.service.ServiceFinder;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 import uk.gov.pay.adminusers.validations.RequestValidations;
@@ -35,14 +35,12 @@ import static org.mockito.Mockito.mock;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ServiceResourceFindTest {
+public class ServiceResourceFindTest extends ServiceResourceBaseTest {
 
     private static ServiceDao mockedServiceDao = mock(ServiceDao.class);
     private static UserDao mockedUserDao = mock(UserDao.class);
     private static ServiceServicesFactory mockedServicesFactory = mock(ServiceServicesFactory.class);
 
-    private static final String HTTPS_BASE_URL = "https://base-url";
-    private static LinksBuilder linksBuilder = new LinksBuilder(HTTPS_BASE_URL);
     private static ServiceFinder serviceFinder = new ServiceFinder(mockedServiceDao, linksBuilder);
     private static ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(new RequestValidations());
 
@@ -51,11 +49,16 @@ public class ServiceResourceFindTest {
             .addResource(new ServiceResource(mockedUserDao, mockedServiceDao, linksBuilder, serviceRequestValidator, mockedServicesFactory))
             .build();
 
+    @Before
+    public void setUp() {
+        given(mockedServicesFactory.serviceFinder()).willReturn(serviceFinder);
+    }
+
     @Test
     public void shouldGet_existingServiceById_withDefaultEnNameVariant() {
         String serviceExternalId = randomUuid();
         ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity().withExternalId(serviceExternalId).build();
-        org.mockito.BDDMockito.given(mockedServiceDao.findByExternalId(serviceExternalId)).willReturn(Optional.of(serviceEntity));
+        given(mockedServiceDao.findByExternalId(serviceExternalId)).willReturn(Optional.of(serviceEntity));
 
         Response response = resources.target(format("/v1/api/services/%s", serviceExternalId)).request().get();
 
@@ -65,7 +68,7 @@ public class ServiceResourceFindTest {
         JsonPath json = JsonPath.from(body);
 
         assertThat(json.get("name"), is(serviceEntity.getName()));
-        assertEnServiceName(serviceEntity.getName(), json);
+        assertEnServiceNameJson(serviceEntity.getName(), json);
         assertThat(json.getMap("service_name"), not(hasKey("cy")));
         assertMerchantDetails(serviceEntity.getMerchantDetailsEntity(), json);
         assertLinks(serviceExternalId, json);
@@ -75,12 +78,11 @@ public class ServiceResourceFindTest {
     public void shouldGetServiceById_withServiceNameVariantForCy() {
 
         String serviceExternalId = randomUuid();
-        String cyName = "some-cy-name";
         ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withExternalId(serviceExternalId)
-                .withServiceNameEntity(SupportedLanguage.WELSH, cyName)
+                .withServiceNameEntity(SupportedLanguage.WELSH, CY_SERVICE_NAME)
                 .build();
-        org.mockito.BDDMockito.given(mockedServiceDao.findByExternalId(serviceExternalId)).willReturn(Optional.of(serviceEntity));
+        given(mockedServiceDao.findByExternalId(serviceExternalId)).willReturn(Optional.of(serviceEntity));
         Response response = resources.target(format("/v1/api/services/%s", serviceExternalId)).request().get();
 
         assertThat(response.getStatus(), is(200));
@@ -88,25 +90,23 @@ public class ServiceResourceFindTest {
         JsonPath json = JsonPath.from(body);
 
         assertThat(json.get("name"), is(serviceEntity.getName()));
-        assertEnServiceName(serviceEntity.getName(), json);
-        assertCyServiceName(cyName, json);
+        assertEnServiceNameJson(serviceEntity.getName(), json);
+        assertCyServiceNameJson(CY_SERVICE_NAME, json);
         assertMerchantDetails(serviceEntity.getMerchantDetailsEntity(), json);
         assertLinks(serviceExternalId, json);
     }
 
     @Test
-    public void shouldGetServiceById_withServiceNameVariantsForEn_andCy() throws Exception {
+    public void shouldGetServiceById_withServiceNameVariantsForEn_andCy() {
 
         String serviceExternalId = randomUuid();
-        String enName = "some-en-name";
-        String cyName = "some-cy-name";
         ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity()
-                .withName(enName)
+                .withName(EN_SERVICE_NAME)
                 .withExternalId(serviceExternalId)
-                .withServiceNameEntity(SupportedLanguage.ENGLISH, enName)
-                .withServiceNameEntity(SupportedLanguage.WELSH, cyName)
+                .withServiceNameEntity(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)
+                .withServiceNameEntity(SupportedLanguage.WELSH, CY_SERVICE_NAME)
                 .build();
-        org.mockito.BDDMockito.given(mockedServiceDao.findByExternalId(serviceExternalId)).willReturn(Optional.of(serviceEntity));
+        given(mockedServiceDao.findByExternalId(serviceExternalId)).willReturn(Optional.of(serviceEntity));
         Response response = resources.target(format("/v1/api/services/%s", serviceExternalId)).request().get();
 
         assertThat(response.getStatus(), is(200));
@@ -115,16 +115,11 @@ public class ServiceResourceFindTest {
         JsonPath json = JsonPath.from(body);
 
         assertThat(json.get("name"), is(serviceEntity.getName()));
-        assertEnServiceName(enName, json);
-        assertCyServiceName(cyName, json);
+        assertEnServiceNameJson(EN_SERVICE_NAME, json);
+        assertCyServiceNameJson(CY_SERVICE_NAME, json);
         assertMerchantDetails(serviceEntity.getMerchantDetailsEntity(), json);
         assertLinks(serviceExternalId, json);
 
-    }
-
-    private void assertCyServiceName(String cyName, JsonPath json) {
-        assertThat(json.getMap("service_name"), hasKey("cy"));
-        assertThat(json.get("service_name.cy"), is(cyName));
     }
 
     @Test
@@ -138,7 +133,6 @@ public class ServiceResourceFindTest {
                 .build();
         gatewayAccountIdEntity.setService(serviceEntity);
 
-        given(mockedServicesFactory.serviceFinder()).willReturn(serviceFinder);
         given(mockedServiceDao.findByGatewayAccountId(gatewayAccountId)).willReturn(Optional.of(serviceEntity));
 
         Response response = resources.target("/v1/api/services")
@@ -150,7 +144,7 @@ public class ServiceResourceFindTest {
         JsonPath json = JsonPath.from(body);
 
         assertThat(json.get("name"), is(serviceEntity.getName()));
-        assertEnServiceName(serviceEntity.getName(), json);
+        assertEnServiceNameJson(serviceEntity.getName(), json);
         assertMerchantDetails(serviceEntity.getMerchantDetailsEntity(), json);
         assertLinks(serviceEntity.getExternalId(), json);
     }
@@ -158,7 +152,6 @@ public class ServiceResourceFindTest {
     @Test
     public void shouldReturn404_whenFindByGatewayAccountId_ifNotFound() {
         String gatewayAccountId = randomUuid();
-        given(mockedServicesFactory.serviceFinder()).willReturn(serviceFinder);
         given(mockedServiceDao.findByGatewayAccountId(gatewayAccountId)).willReturn(Optional.empty());
 
         Response response = resources.target("/v1/api/services")
@@ -196,17 +189,5 @@ public class ServiceResourceFindTest {
         assertThat(jsonPath.get("merchant_details.telephone_number"), is(merchantDetails.getTelephoneNumber()));
         assertThat(jsonPath.get("merchant_details.email"), is(merchantDetails.getEmail()));
         assertThat(jsonPath.get("merchant_details.name"), is(merchantDetails.getName()));
-    }
-
-    private void assertLinks(String serviceExternalId, JsonPath json) {
-        assertThat(json.getList("_links"), hasSize(1));
-        assertThat(json.get("_links[0].href"), is(HTTPS_BASE_URL + "/v1/api/services/" + serviceExternalId));
-        assertThat(json.get("_links[0].method"), is("GET"));
-        assertThat(json.get("_links[0].rel"), is("self"));
-    }
-
-    private void assertEnServiceName(String name, JsonPath json) {
-        assertThat(json.getMap("service_name"), hasKey("en"));
-        assertThat(json.get("service_name.en"), is(name));
     }
 }

@@ -13,6 +13,7 @@ import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
 import uk.gov.pay.adminusers.service.LinksBuilder;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 
@@ -27,7 +28,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -78,12 +82,12 @@ public class ServiceResource {
     public Response getServices() {
         LOGGER.info("Get Services request");
         return Response
-          .status(OK)
-          .entity(
-            serviceDao.listAll().stream().map(
-              serviceEntity -> linksBuilder.decorate(serviceEntity.toService())
-            ).collect(Collectors.toList())
-          ).build();
+                .status(OK)
+                .entity(
+                        serviceDao.listAll().stream().map(
+                                serviceEntity -> linksBuilder.decorate(serviceEntity.toService())
+                        ).collect(Collectors.toList())
+                ).build();
     }
 
     @GET
@@ -116,8 +120,9 @@ public class ServiceResource {
         LOGGER.info("Create Service POST request - [ {} ]", payload);
         Optional<String> serviceName = extractServiceName(payload);
         Optional<List<String>> gatewayAccountIds = extractGatewayAccountIds(payload);
+        Map<SupportedLanguage, String> serviceNameVariants = getServiceNameVariants(payload);
 
-        Service service = serviceServicesFactory.serviceCreator().doCreate(serviceName, gatewayAccountIds);
+        Service service = serviceServicesFactory.serviceCreator().doCreate(serviceName, gatewayAccountIds, serviceNameVariants);
         return Response.status(CREATED).entity(service).build();
 
     }
@@ -128,7 +133,7 @@ public class ServiceResource {
         }
         List<JsonNode> gatewayAccountIds = newArrayList(payload.get(FIELD_GATEWAY_ACCOUNT_IDS).elements());
         return Optional.of(gatewayAccountIds.stream()
-                .map(idNode -> idNode.textValue())
+                .map(JsonNode::textValue)
                 .collect(Collectors.toList()));
     }
 
@@ -177,7 +182,7 @@ public class ServiceResource {
 
         return serviceEntityOptional.map(serviceEntity ->
                 Response.status(200).entity(userDao.findByServiceId(serviceEntity.getId()).stream()
-                        .map((userEntity) -> linksBuilder.decorate(userEntity.toUser()))
+                        .map(userEntity -> linksBuilder.decorate(userEntity.toUser()))
                         .collect(Collectors.toList())).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
@@ -202,5 +207,20 @@ public class ServiceResource {
         serviceServicesFactory.serviceUserRemover().remove(userExternalId, userContext, serviceExternalId);
         LOGGER.info("Succeeded Service users DELETE request - serviceExternalId={}, removerExternalId={}, userExternalId={}", serviceExternalId, userContext, userExternalId);
         return Response.status(NO_CONTENT).build();
+    }
+
+    private Map<SupportedLanguage, String> getServiceNameVariants(JsonNode payload) {
+        if (payload.hasNonNull("service_name")) {
+            JsonNode supportedLanguage = payload.get("service_name");
+            Map<SupportedLanguage, String> variants = new HashMap<>();
+            if (supportedLanguage.hasNonNull(SupportedLanguage.ENGLISH.toString())) {
+                variants.put(SupportedLanguage.ENGLISH, supportedLanguage.get(SupportedLanguage.ENGLISH.toString()).asText());
+            }
+            if (supportedLanguage.hasNonNull(SupportedLanguage.WELSH.toString())) {
+                variants.put(SupportedLanguage.WELSH, supportedLanguage.get(SupportedLanguage.WELSH.toString()).asText());
+            }
+            return variants;
+        }
+        return Collections.emptyMap();
     }
 }

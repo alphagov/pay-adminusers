@@ -5,8 +5,11 @@ import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingServiceGatewayAccounts;
@@ -23,12 +26,17 @@ public class ServiceCreator {
     }
 
     @Transactional
-    public Service doCreate(Optional<String> serviceName, Optional<List<String>> gatewayAccountIdsOptional) {
+    public Service doCreate(Optional<String> serviceName,
+                            Optional<List<String>> gatewayAccountIdsOptional,
+                            Map<SupportedLanguage, String> serviceNameVariants) {
         Service service = serviceName
-                .map(name -> Service.from(name))
-                .orElseGet(() -> Service.from());
+                .map(Service::from)
+                .orElseGet(Service::from);
 
         ServiceEntity serviceEntity = ServiceEntity.from(service);
+        serviceEntity.addServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, service.getName()));
+        serviceNameVariants.forEach((language, name) -> serviceEntity.addServiceName(ServiceNameEntity.from(language, name)));
+
         if (gatewayAccountIdsOptional.isPresent()) {
             List<String> gatewayAccountsIds = gatewayAccountIdsOptional.get();
             if (serviceDao.checkIfGatewayAccountsUsed(gatewayAccountsIds)) {

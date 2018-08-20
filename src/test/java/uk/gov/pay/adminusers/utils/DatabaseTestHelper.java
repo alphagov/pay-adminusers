@@ -343,6 +343,13 @@ public class DatabaseTestHelper {
                         .list());
     }
 
+    public List<Map<String, Object>> findServiceNameByServiceId(Integer serviceId) {
+        return jdbi.withHandle(h ->
+                h.createQuery("SELECT * FROM service_names WHERE service_id = :serviceId")
+                        .bind("serviceId", serviceId)
+                        .list());
+    }
+
     public DatabaseTestHelper addServiceName(ServiceNameEntity entity, Integer serviceId) {
         jdbi.withHandle(handle -> handle
                 .createStatement("INSERT INTO service_names(id, service_id, language, name) VALUES (:id, :serviceId, :language, :name)")
