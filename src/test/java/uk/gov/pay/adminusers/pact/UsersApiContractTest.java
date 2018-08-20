@@ -133,7 +133,12 @@ public class UsersApiContractTest {
     }
 
     @State("a user exists with the given external id 7d19aff33f8948deb97ed16b2912dcd3")
-    public void aUserExistsWithGivenExternalId() {
+    public void aUserExistsWithGivenExternalId1() {
+        createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", 12345, "password");
+    }
+
+    @State("a user exists with the given external id 7d19aff33f8948deb97ed16b2912dcd3, a service with external_id of cp5wa, holding gateway accounts with ids 666 and 7")
+    public void aUserExistsWithGivenExternalId2() {
         createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", 12345, "password");
     }
 
