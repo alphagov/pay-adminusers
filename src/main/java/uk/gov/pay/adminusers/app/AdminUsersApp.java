@@ -32,6 +32,7 @@ import uk.gov.pay.adminusers.resources.InviteResource;
 import uk.gov.pay.adminusers.resources.ResetPasswordResource;
 import uk.gov.pay.adminusers.resources.ServiceResource;
 import uk.gov.pay.adminusers.resources.UserResource;
+import uk.gov.pay.adminusers.resources.service.ServiceResourceV2;
 import uk.gov.pay.commons.utils.xray.Xray;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -86,6 +87,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(injector.getInstance(ResetPasswordResource.class));
         environment.jersey().register(injector.getInstance(HealthCheckResource.class));
         environment.jersey().register(injector.getInstance(EmailResource.class));
+        environment.jersey().register(injector.getInstance(ServiceResourceV2.class));
 
         // Register the custom ExceptionMapper(s)
         environment.jersey().register(new ValidationExceptionMapper());

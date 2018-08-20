@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -55,7 +56,7 @@ public class ServiceEntity {
     private List<InviteEntity> invites = new ArrayList<>();
 
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private Set<ServiceNameEntity> serviceName = new HashSet<>();
+    private Set<ServiceNameEntity> serviceNames = new HashSet<>();
 
     public ServiceEntity() {
     }
@@ -131,7 +132,7 @@ public class ServiceEntity {
         if (this.merchantDetailsEntity != null) {
             service.setMerchantDetails(this.merchantDetailsEntity.toMerchantDetails());
         }
-        service.setServiceNameMap(serviceName);
+        service.setServiceNameMap(serviceNames);
         return service;
     }
 
@@ -157,18 +158,25 @@ public class ServiceEntity {
         return serviceEntity;
     }
 
-    public void addServiceName(ServiceNameEntity serviceName) {
+    public void addOrUpdateServiceName(ServiceNameEntity serviceName) {
         serviceName.setService(this);
-        this.serviceName.add(serviceName);
+        final Optional<ServiceNameEntity> maybeNameEntity = this.serviceNames.stream()
+                .filter(s -> s.equals(serviceName))
+                .findFirst();
+        if (maybeNameEntity.isPresent()) {
+            maybeNameEntity.get().setName(serviceName.getName());
+        } else {
+            this.serviceNames.add(serviceName);
+        }
     }
 
     public void removeServiceName(ServiceNameEntity serviceName) {
-        this.serviceName.remove(serviceName);
+        this.serviceNames.remove(serviceName);
         serviceName.setService(null);
     }
 
-    public Set<ServiceNameEntity> getServiceName() {
-        return serviceName;
+    public Set<ServiceNameEntity> getServiceNames() {
+        return serviceNames;
     }
 
     private void populateGatewayAccountIds(List<String> gatewayAccountIds) {

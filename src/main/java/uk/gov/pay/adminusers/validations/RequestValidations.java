@@ -29,8 +29,16 @@ public class RequestValidations {
         return applyCheck(payload, notExistOrEmpty(), fieldNames, "Field [%s] is required");
     }
 
+    public List<String> checkIfExistsOrEmptyV2(JsonNode payload, String... fieldNames) {
+        return applyCheckV2(payload, notExistOrEmpty(), fieldNames, "Field [%s] is required");
+    }
+
     public Optional<List<String>> checkMaxLength(JsonNode payload, int maxLength, String... fieldNames) {
         return applyCheck(payload, exceedsMaxLength(maxLength), fieldNames, "Field [%s] must have a maximum length of " + maxLength + " characters");
+    }
+
+    public List<String> checkMaxLengthV2(JsonNode payload, int maxLength, String... fieldNames) {
+        return applyCheckV2(payload, exceedsMaxLength(maxLength), fieldNames, "Field [%s] must have a maximum length of " + maxLength + " characters");
     }
 
     private Function<JsonNode, Boolean> exceedsMaxLength(int maxLength) {
@@ -44,7 +52,17 @@ public class RequestValidations {
                 errors.add(format(errorMessage, fieldName));
             }
         }
-        return errors.size() > 0 ? Optional.of(errors) : Optional.empty();
+        return errors.isEmpty() ? Optional.empty() : Optional.of(errors);
+    }
+
+    private List<String> applyCheckV2(JsonNode payload, Function<JsonNode, Boolean> check, String[] fieldNames, String errorMessage) {
+        List<String> errors = newArrayList();
+        for (String fieldName : fieldNames) {
+            if (check.apply(payload.get(fieldName))) {
+                errors.add(format(errorMessage, fieldName));
+            }
+        }
+        return errors;
     }
 
     public Function<JsonNode, Boolean> notExistOrEmpty() {

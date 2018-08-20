@@ -46,7 +46,7 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_GATEWAY_ACCOUNT_IDS;
-import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_SERVICE_NAME;
+import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_NAME;
 import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -108,7 +108,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
     @Test
     public void shouldSuccess_whenCreateAServiceWithNameOnly() {
 
-        PAYLOAD_MAP.put(FIELD_SERVICE_NAME, EN_SERVICE_NAME);
+        PAYLOAD_MAP.put(FIELD_NAME, EN_SERVICE_NAME);
 
         Service service = buildService(Optional.of(EN_SERVICE_NAME), Optional.empty(), Collections.emptyMap());
         given(mockedServiceCreator.doCreate(Optional.of(EN_SERVICE_NAME), Optional.empty(), Collections.emptyMap()))
@@ -132,7 +132,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
     @Test
     public void shouldSuccess_whenCreateAServiceWithName_andGatewayAccountIds() {
 
-        PAYLOAD_MAP.put(FIELD_SERVICE_NAME, EN_SERVICE_NAME);
+        PAYLOAD_MAP.put(FIELD_NAME, EN_SERVICE_NAME);
         String anotherGatewayAccountId = "another-gateway-account-id";
         List<String> gatewayAccounts = Arrays.asList(GATEWAY_ACCOUNT_ID, anotherGatewayAccountId);
         PAYLOAD_MAP.put(FIELD_GATEWAY_ACCOUNT_IDS, gatewayAccounts);
@@ -159,7 +159,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
     @Test
     public void shouldSuccess_whenCreateAServiceWithName_andGatewayAccountIds_andServiceNameVariants_englishAndCymru() {
 
-        PAYLOAD_MAP.put(FIELD_SERVICE_NAME, EN_SERVICE_NAME);
+        PAYLOAD_MAP.put(FIELD_NAME, EN_SERVICE_NAME);
         String anotherGatewayAccountId = "another-gateway-account-id";
         List<String> gatewayAccounts = Arrays.asList(GATEWAY_ACCOUNT_ID, anotherGatewayAccountId);
         PAYLOAD_MAP.put(FIELD_GATEWAY_ACCOUNT_IDS, gatewayAccounts);
@@ -196,7 +196,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldError409_whenGatewayAccountsAreAlreadyAssignedToAService() {
-        PAYLOAD_MAP.put(FIELD_SERVICE_NAME, EN_SERVICE_NAME);
+        PAYLOAD_MAP.put(FIELD_NAME, EN_SERVICE_NAME);
         PAYLOAD_MAP.put(FIELD_GATEWAY_ACCOUNT_IDS, Collections.singletonList(GATEWAY_ACCOUNT_ID));
 
         given(mockedServicesFactory.serviceCreator()).willReturn(serviceCreator);
@@ -219,8 +219,8 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         Service service = maybeName.map(Service::from)
                 .orElseGet(Service::from);
         ServiceEntity serviceEntity = ServiceEntity.from(service);
-        serviceEntity.addServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, service.getName()));
-        serviceNameVariants.forEach((k, v) -> serviceEntity.addServiceName(ServiceNameEntity.from(k, v)));
+        serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, service.getName()));
+        serviceNameVariants.forEach((k, v) -> serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(k, v)));
         if (maybeAccountIds.isPresent()) {
             List<String> gatewayAccountsIds = maybeAccountIds.get();
             serviceEntity.addGatewayAccountIds(gatewayAccountsIds.toArray(new String[0]));

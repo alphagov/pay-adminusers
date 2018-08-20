@@ -15,7 +15,6 @@ import java.util.Optional;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNumeric;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_OP;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_PATH;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_VALUE;
@@ -23,7 +22,7 @@ import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_VALUE;
 
 public class ServiceRequestValidator {
 
-    public static final String FIELD_SERVICE_NAME = "name";
+    public static final String FIELD_NAME = "name";
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
     public static final String FIELD_CUSTOM_BRANDING = "custom_branding";
     public static final String FIELD_MERCHANT_DETAILS_NAME = "name";
@@ -35,7 +34,7 @@ public class ServiceRequestValidator {
     private static final int SERVICE_NAME_MAX_LENGTH = 50;
     private static final int FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH = 255;
     private static final Map<String, List<String>> VALID_ATTRIBUTE_UPDATE_OPERATIONS = new HashMap<String, List<String>>() {{
-        put(FIELD_SERVICE_NAME, asList("replace"));
+        put(FIELD_NAME, asList("replace"));
         put(FIELD_GATEWAY_ACCOUNT_IDS, asList("add"));
         put(FIELD_CUSTOM_BRANDING, asList("replace"));
     }};
@@ -57,7 +56,7 @@ public class ServiceRequestValidator {
 
         if (FIELD_CUSTOM_BRANDING.equals(path)) {
             errors = checkIfNotEmptyAndJson(payload.get(FIELD_VALUE));
-        } else if (FIELD_SERVICE_NAME.equals(path)) {
+        } else if (FIELD_NAME.equals(path)) {
             errors = requestValidations.checkIfExistsOrEmpty(payload, FIELD_VALUE);
             if (!errors.isPresent()) {
                 errors = requestValidations.checkMaxLength(payload, SERVICE_NAME_MAX_LENGTH, FIELD_VALUE);
