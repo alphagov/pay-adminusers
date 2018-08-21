@@ -46,7 +46,7 @@ import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_GATEWAY_ACCOUNT_IDS;
-import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_SERVICE_NAME;
+import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_NAME;
 import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
 
 @Path(SERVICES_RESOURCE)
@@ -138,10 +138,10 @@ public class ServiceResource {
     }
 
     private Optional<String> extractServiceName(JsonNode payload) {
-        if (payload == null || payload.get(FIELD_SERVICE_NAME) == null || isBlank(payload.get(FIELD_SERVICE_NAME).textValue())) {
+        if (payload == null || payload.get(FIELD_NAME) == null || isBlank(payload.get(FIELD_NAME).textValue())) {
             return Optional.empty();
         }
-        return Optional.of(payload.get(FIELD_SERVICE_NAME).textValue());
+        return Optional.of(payload.get(FIELD_NAME).textValue());
     }
 
     @Path("/{serviceExternalId}")
@@ -152,10 +152,10 @@ public class ServiceResource {
         LOGGER.info("Service PATCH request - [ {} ]", serviceExternalId);
         return serviceRequestValidator.validateUpdateAttributeRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> serviceServicesFactory.serviceUpdater().doUpdate(serviceExternalId, ServiceUpdateRequest.from(payload))
+                .orElseGet(() -> serviceServicesFactory.serviceUpdater().doUpdate(serviceExternalId, 
+                        ServiceUpdateRequest.getUpdateRequests(payload))
                         .map(service -> Response.status(OK).entity(service).build())
                         .orElseGet(() -> Response.status(NOT_FOUND).build()));
-
     }
 
     @Path("/{serviceExternalId}/merchant-details")

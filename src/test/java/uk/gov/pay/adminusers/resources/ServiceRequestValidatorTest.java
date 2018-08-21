@@ -10,7 +10,10 @@ import uk.gov.pay.adminusers.exception.ValidationException;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -25,8 +28,21 @@ public class ServiceRequestValidatorTest {
     private ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(new RequestValidations());
 
     @Test
-    public void shouldSuccess_whenUpdate_whenAllFieldPresentAndValid() {
+    public void shouldSuccess_whenUpdate_whenAllFieldPresentAndValid_andJsonNotArray() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", "example-name");
+
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
+        assertFalse(errors.isPresent());
+    }
+
+    @Test
+    public void shouldSuccess_whenUpdateArray_withAllFieldsPresentAndValid() throws IOException {
+        ImmutableMap<String, Object> op1 = ImmutableMap.of("path", "name", "op", "replace", "value", "new-en-name");
+        ImmutableMap<String, Object> op2 = ImmutableMap.of(
+                "path", "service_name",
+                "op", "replace",
+                "value", ImmutableMap.of("cy", "new-cy-name"));
+        List<Map> payload = Arrays.asList(op1, op2);
 
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
         assertFalse(errors.isPresent());
@@ -37,9 +53,9 @@ public class ServiceRequestValidatorTest {
         Optional<Errors> errors = serviceRequestValidator.validateFindRequest("non-numeric-id");
         assertThat(errors.isPresent(), is(false));
     }
-    
+
     @Test
-    public void shouldFail_whenUpdate_whenServiceNameFieldPresentAndItIsTooLong()  {
+    public void shouldFail_whenUpdate_whenServiceNameFieldPresentAndItIsTooLong() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", RandomStringUtils.randomAlphanumeric(51));
 
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
@@ -155,9 +171,9 @@ public class ServiceRequestValidatorTest {
             assertThat(e.getErrors().getErrors(), hasItem("Field [email] must have a maximum length of 255 characters"));
         }
     }
-    
+
     @Test
-    public void shouldSuccess_replacingCustomBranding() throws Exception {
+    public void shouldSuccess_replacingCustomBranding() {
         ImmutableMap<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of("image_url", "image url", "css_url", "css url"));
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
 
@@ -165,7 +181,7 @@ public class ServiceRequestValidatorTest {
     }
 
     @Test
-    public void shouldSuccess_replacingCustomBranding_forEmptyObject() throws Exception {
+    public void shouldSuccess_replacingCustomBranding_forEmptyObject() {
         ImmutableMap<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of());
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
 
@@ -173,7 +189,7 @@ public class ServiceRequestValidatorTest {
     }
 
     @Test
-    public void shouldError_ifCustomBrandingIsEmptyString() throws Exception {
+    public void shouldError_ifCustomBrandingIsEmptyString() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "");
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
 
@@ -184,7 +200,7 @@ public class ServiceRequestValidatorTest {
     }
 
     @Test
-    public void shouldError_ifCustomBrandingIsNull() throws Exception {
+    public void shouldError_ifCustomBrandingIsNull() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace");
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
 
@@ -195,7 +211,7 @@ public class ServiceRequestValidatorTest {
     }
 
     @Test
-    public void shouldError_replacingCustomBranding_ifValueIsNotJSON() throws Exception {
+    public void shouldError_replacingCustomBranding_ifValueIsNotJSON() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "&*£&^(P%£");
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
 

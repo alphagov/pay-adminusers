@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.persistence.entity.service;
 
+import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
 import javax.persistence.Column;
@@ -15,6 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.util.Map;
 import java.util.Objects;
 
 @Entity
@@ -46,6 +48,20 @@ public class ServiceNameEntity {
         ServiceNameEntity entity = new ServiceNameEntity();
         entity.setLanguage(language);
         entity.setName(name);
+
+        return entity;
+    }
+
+    public static ServiceNameEntity from(ServiceUpdateRequest updateRequest) {
+        ServiceNameEntity entity = new ServiceNameEntity();
+        Map<String, Object> stringObjectMap = updateRequest.valueAsObject();
+
+        if (!stringObjectMap.isEmpty()) {
+            final String languageCode = stringObjectMap.keySet().toArray()[0].toString();
+            final String name = stringObjectMap.get(languageCode).toString();
+            entity.setLanguage(SupportedLanguage.fromIso639AlphaTwoCode(languageCode));
+            entity.setName(name);
+        }
 
         return entity;
     }
@@ -89,13 +105,12 @@ public class ServiceNameEntity {
         if (o == null || getClass() != o.getClass()) return false;
         ServiceNameEntity that = (ServiceNameEntity) o;
         return Objects.equals(service, that.service) &&
-                Objects.equals(language, that.language) &&
-                Objects.equals(name, that.name);
+                Objects.equals(language, that.language);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(service, language, name);
+        return Objects.hash(service, language);
     }
 
     //endregion

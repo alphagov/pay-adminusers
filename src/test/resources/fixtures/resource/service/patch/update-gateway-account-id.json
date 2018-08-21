@@ -1,0 +1,9 @@
+[
+  {
+    "op": "add",
+    "path": "gateway_account_ids",
+    "value": [
+      "1014748185"
+    ]
+  }
+]

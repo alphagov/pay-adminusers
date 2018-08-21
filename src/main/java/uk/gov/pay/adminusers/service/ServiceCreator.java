@@ -34,8 +34,8 @@ public class ServiceCreator {
                 .orElseGet(Service::from);
 
         ServiceEntity serviceEntity = ServiceEntity.from(service);
-        serviceEntity.addServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, service.getName()));
-        serviceNameVariants.forEach((language, name) -> serviceEntity.addServiceName(ServiceNameEntity.from(language, name)));
+        serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, service.getName()));
+        serviceNameVariants.forEach((language, name) -> serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(language, name)));
 
         if (gatewayAccountIdsOptional.isPresent()) {
             List<String> gatewayAccountsIds = gatewayAccountIdsOptional.get();
