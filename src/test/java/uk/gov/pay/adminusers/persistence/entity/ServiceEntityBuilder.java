@@ -79,7 +79,7 @@ public final class ServiceEntityBuilder {
         serviceEntity.setName(name);
         serviceEntity.setMerchantDetailsEntity(merchantDetailsEntity);
         serviceEntity.setCustomBranding(customBranding);
-        serviceName.forEach(serviceEntity::addServiceName);
+        serviceName.forEach(serviceEntity::addOrUpdateServiceName);
         gatewayAccountIds.forEach(g -> serviceEntity.addGatewayAccountIds(g.getGatewayAccountId()));
         return serviceEntity;
     }

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -157,9 +158,16 @@ public class ServiceEntity {
         return serviceEntity;
     }
 
-    public void addServiceName(ServiceNameEntity serviceName) {
+    public void addOrUpdateServiceName(ServiceNameEntity serviceName) {
         serviceName.setService(this);
-        this.serviceNames.add(serviceName);
+        final Optional<ServiceNameEntity> maybeNameEntity = this.serviceNames.stream()
+                .filter(s -> s.equals(serviceName))
+                .findFirst();
+        if (maybeNameEntity.isPresent()) {
+            maybeNameEntity.get().setName(serviceName.getName());
+        } else {
+            this.serviceNames.add(serviceName);
+        }
     }
 
     public void removeServiceName(ServiceNameEntity serviceName) {
