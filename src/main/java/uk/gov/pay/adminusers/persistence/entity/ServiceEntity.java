@@ -55,7 +55,7 @@ public class ServiceEntity {
     private List<InviteEntity> invites = new ArrayList<>();
 
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private Set<ServiceNameEntity> serviceName = new HashSet<>();
+    private Set<ServiceNameEntity> serviceNames = new HashSet<>();
 
     public ServiceEntity() {
     }
@@ -131,7 +131,7 @@ public class ServiceEntity {
         if (this.merchantDetailsEntity != null) {
             service.setMerchantDetails(this.merchantDetailsEntity.toMerchantDetails());
         }
-        service.setServiceNameMap(serviceName);
+        service.setServiceNameMap(serviceNames);
         return service;
     }
 
@@ -159,16 +159,16 @@ public class ServiceEntity {
 
     public void addServiceName(ServiceNameEntity serviceName) {
         serviceName.setService(this);
-        this.serviceName.add(serviceName);
+        this.serviceNames.add(serviceName);
     }
 
     public void removeServiceName(ServiceNameEntity serviceName) {
-        this.serviceName.remove(serviceName);
+        this.serviceNames.remove(serviceName);
         serviceName.setService(null);
     }
 
-    public Set<ServiceNameEntity> getServiceName() {
-        return serviceName;
+    public Set<ServiceNameEntity> getServiceNames() {
+        return serviceNames;
     }
 
     private void populateGatewayAccountIds(List<String> gatewayAccountIds) {

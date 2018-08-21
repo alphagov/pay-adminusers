@@ -188,13 +188,13 @@ public class ServiceDaoTest extends DaoTestBase {
 
         assertCustomBranding(thatServiceEntity);
 
-        assertThat(thatServiceEntity.getServiceName().size(), is(2));
-        assertThat(thatServiceEntity.getServiceName()
+        assertThat(thatServiceEntity.getServiceNames().size(), is(2));
+        assertThat(thatServiceEntity.getServiceNames()
                 .stream()
                 .filter(n -> n.getLanguage().equals(SupportedLanguage.ENGLISH))
                 .collect(Collectors.toList()).size(), is(1)
         );
-        assertThat(thatServiceEntity.getServiceName()
+        assertThat(thatServiceEntity.getServiceNames()
                 .stream()
                 .filter(n -> n.getLanguage().equals(SupportedLanguage.WELSH))
                 .collect(Collectors.toList()).size(), is(1)
