@@ -13,6 +13,8 @@ import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
 
 import javax.ws.rs.WebApplicationException;
 import java.util.List;
@@ -189,4 +191,24 @@ public class ServiceUpdaterTest {
         verify(serviceDao, times(0)).merge(serviceEntity);
     }
 
+    @Test
+    public void shouldUpdateServiceNameSuccessfully() {
+        String serviceId = randomUuid();
+        String nameToUpdate = "new-cy-name";
+        ServiceUpdateRequest request = ServiceUpdateRequest.from(new ObjectNode(JsonNodeFactory.instance, ImmutableMap.of(
+                "path", new TextNode("service_name"),
+                "value", new ObjectNode(JsonNodeFactory.instance, ImmutableMap.of("cy", new TextNode(nameToUpdate))),
+                "op", new TextNode("replace"))));
+        ServiceEntity serviceEntity = mock(ServiceEntity.class);
+
+        when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
+        when(serviceEntity.toService()).thenReturn(Service.from());
+
+        Optional<Service> maybeService = updater.doUpdate(serviceId, request);
+
+        assertThat(maybeService.isPresent(), is(true));
+        ServiceNameEntity serviceNameEntity = ServiceNameEntity.from(SupportedLanguage.WELSH, nameToUpdate);
+        verify(serviceEntity, times(1)).addOrUpdateServiceName(serviceNameEntity);
+        verify(serviceDao, times(1)).merge(serviceEntity);
+    }
 }

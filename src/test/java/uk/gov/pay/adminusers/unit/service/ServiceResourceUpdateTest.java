@@ -5,13 +5,13 @@ import io.dropwizard.testing.junit.ResourceTestRule;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
+import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntityBuilder;
 import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
-import uk.gov.pay.adminusers.resources.service.ServiceRequestValidatorV2;
-import uk.gov.pay.adminusers.resources.service.ServiceResourceV2;
+import uk.gov.pay.adminusers.resources.ServiceRequestValidator;
+import uk.gov.pay.adminusers.resources.ServiceResource;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 import uk.gov.pay.adminusers.service.ServiceUpdater;
 import uk.gov.pay.adminusers.validations.RequestValidations;
@@ -33,19 +33,23 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
-public class ServiceResourceV2UpdateTest extends ServiceResourceBaseTest {
+public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
 
-    private static final String API_PATH = "/v2/api/services/%s";
-    private static ServiceDao mockedServiceDao = mock(ServiceDao.class);
+    private static final String API_PATH = "/v1/api/services/%s";
+    private static UserDao mockedUserDao = mock(UserDao.class);
     private static ServiceServicesFactory mockedServicesFactory = mock(ServiceServicesFactory.class);
 
     private static ServiceUpdater serviceUpdater = new ServiceUpdater(mockedServiceDao);
-    private static ServiceRequestValidatorV2 mockedNewServiceRequestValidator = new ServiceRequestValidatorV2(new RequestValidations());
+    private static ServiceRequestValidator requestValidator = new ServiceRequestValidator(new RequestValidations());
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
-            .addResource(
-                    new ServiceResourceV2(mockedNewServiceRequestValidator, mockedServicesFactory))
+            .addResource(new ServiceResource(
+                    mockedUserDao,
+                    mockedServiceDao,
+                    linksBuilder,
+                    requestValidator,
+                    mockedServicesFactory))
             .build();
 
     @Before

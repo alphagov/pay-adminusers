@@ -58,7 +58,7 @@ public class ServiceNameEntity {
 
         if (!stringObjectMap.isEmpty()) {
             final String languageCode = stringObjectMap.keySet().toArray()[0].toString();
-            final String name = stringObjectMap.values().toArray()[0].toString();
+            final String name = stringObjectMap.get(languageCode).toString();
             entity.setLanguage(SupportedLanguage.fromIso639AlphaTwoCode(languageCode));
             entity.setName(name);
         }

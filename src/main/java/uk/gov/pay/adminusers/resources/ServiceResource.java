@@ -152,7 +152,8 @@ public class ServiceResource {
         LOGGER.info("Service PATCH request - [ {} ]", serviceExternalId);
         return serviceRequestValidator.validateUpdateAttributeRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> serviceServicesFactory.serviceUpdater().doUpdate(serviceExternalId, ServiceUpdateRequest.from(payload))
+                .orElseGet(() -> serviceServicesFactory.serviceUpdater().doUpdate(serviceExternalId, 
+                        ServiceUpdateRequest.getUpdateRequests(payload))
                         .map(service -> Response.status(OK).entity(service).build())
                         .orElseGet(() -> Response.status(NOT_FOUND).build()));
     }

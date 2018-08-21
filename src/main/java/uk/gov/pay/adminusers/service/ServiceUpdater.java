@@ -11,6 +11,7 @@ import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,7 @@ import java.util.function.BiConsumer;
 import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_CUSTOM_BRANDING;
 import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_GATEWAY_ACCOUNT_IDS;
 import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_NAME;
-import static uk.gov.pay.adminusers.resources.service.ServiceRequestValidatorV2.FIELD_SERVICE_SERVICE_NAME;
+import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_SERVICE_SERVICE_NAME;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingServiceGatewayAccounts;
 
 public class ServiceUpdater {
@@ -39,18 +40,12 @@ public class ServiceUpdater {
     }
 
     @Transactional
-    public Optional<Service> doUpdate(String serviceExternalId, ServiceUpdateRequest serviceUpdateRequest) {
-        return serviceDao.findByExternalId(serviceExternalId)
-                .flatMap(serviceEntity -> {
-                    attributeUpdaters.get(serviceUpdateRequest.getPath())
-                            .accept(serviceUpdateRequest, serviceEntity);
-                    serviceDao.merge(serviceEntity);
-                    return Optional.of(serviceEntity.toService());
-                });
+    public Optional<Service> doUpdate(String serviceExternalId, ServiceUpdateRequest updateRequests) {
+        return doUpdate(serviceExternalId, Collections.singletonList(updateRequests));
     }
 
     @Transactional
-    public Optional<Service> doBatchUpdate(String serviceExternalId, List<ServiceUpdateRequest> updateRequests) {
+    public Optional<Service> doUpdate(String serviceExternalId, List<ServiceUpdateRequest> updateRequests) {
         return serviceDao.findByExternalId(serviceExternalId)
                 .flatMap(serviceEntity -> {
                     updateRequests.forEach(req -> {
@@ -91,7 +86,7 @@ public class ServiceUpdater {
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateCustomBranding() {
         return (serviceUpdateRequest, serviceEntity) -> serviceEntity.setCustomBranding(serviceUpdateRequest.valueAsObject());
     }
-    
+
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateServiceNameObject() {
         return (serviceUpdateRequest, serviceEntity) -> {
             ServiceNameEntity serviceNameEntity = ServiceNameEntity.from(serviceUpdateRequest);

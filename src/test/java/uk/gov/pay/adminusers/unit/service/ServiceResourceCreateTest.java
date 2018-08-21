@@ -12,14 +12,12 @@ import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
 import uk.gov.pay.adminusers.resources.ServiceRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceResource;
-import uk.gov.pay.adminusers.service.LinksBuilder;
 import uk.gov.pay.adminusers.service.ServiceCreator;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 import uk.gov.pay.adminusers.validations.RequestValidations;
@@ -54,12 +52,9 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
 
     private static final Map<String, Object> PAYLOAD_MAP = new HashMap<>();
 
-    private static ServiceDao mockedServiceDao = mock(ServiceDao.class);
     private static UserDao mockedUserDao = mock(UserDao.class);
     private static ServiceServicesFactory mockedServicesFactory = mock(ServiceServicesFactory.class);
 
-    private static final String HTTPS_BASE_URL = "https://base-url";
-    private static LinksBuilder linksBuilder = new LinksBuilder(HTTPS_BASE_URL);
     private static ServiceCreator serviceCreator = new ServiceCreator(mockedServiceDao, linksBuilder);
     private static ServiceCreator mockedServiceCreator = mock(ServiceCreator.class);
     private static ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(new RequestValidations());
