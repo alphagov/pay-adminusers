@@ -29,12 +29,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.IntStream.range;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -189,16 +189,8 @@ public class ServiceDaoTest extends DaoTestBase {
         assertCustomBranding(thatServiceEntity);
 
         assertThat(thatServiceEntity.getServiceNames().size(), is(2));
-        assertThat(thatServiceEntity.getServiceNames()
-                .stream()
-                .filter(n -> n.getLanguage().equals(SupportedLanguage.ENGLISH))
-                .collect(Collectors.toList()).size(), is(1)
-        );
-        assertThat(thatServiceEntity.getServiceNames()
-                .stream()
-                .filter(n -> n.getLanguage().equals(SupportedLanguage.WELSH))
-                .collect(Collectors.toList()).size(), is(1)
-        );
+        assertThat(thatServiceEntity.getServiceNames(), hasKey(SupportedLanguage.ENGLISH));
+        assertThat(thatServiceEntity.getServiceNames(), hasKey(SupportedLanguage.WELSH));
     }
 
     @Test

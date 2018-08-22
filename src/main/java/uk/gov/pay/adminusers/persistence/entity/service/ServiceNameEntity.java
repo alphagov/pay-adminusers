@@ -16,7 +16,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import java.util.Map;
 import java.util.Objects;
 
 @Entity
@@ -53,17 +52,12 @@ public class ServiceNameEntity {
     }
 
     public static ServiceNameEntity from(ServiceUpdateRequest updateRequest) {
-        ServiceNameEntity entity = new ServiceNameEntity();
-        Map<String, Object> stringObjectMap = updateRequest.valueAsObject();
-
-        if (!stringObjectMap.isEmpty()) {
-            final String languageCode = stringObjectMap.keySet().toArray()[0].toString();
-            final String name = stringObjectMap.get(languageCode).toString();
-            entity.setLanguage(SupportedLanguage.fromIso639AlphaTwoCode(languageCode));
-            entity.setName(name);
-        }
-
-        return entity;
+        return updateRequest.valueAsObject().entrySet().stream()
+                .map(entry -> ServiceNameEntity.from(
+                        SupportedLanguage.fromIso639AlphaTwoCode(entry.getKey()),
+                        entry.getValue().toString()))
+                .findFirst()
+                .orElseGet(ServiceNameEntity::new);
     }
 
     //region <Getters/Setters>
@@ -105,12 +99,13 @@ public class ServiceNameEntity {
         if (o == null || getClass() != o.getClass()) return false;
         ServiceNameEntity that = (ServiceNameEntity) o;
         return Objects.equals(service, that.service) &&
-                Objects.equals(language, that.language);
+                Objects.equals(language, that.language) &&
+                Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(service, language);
+        return Objects.hash(service, language, name);
     }
 
     //endregion

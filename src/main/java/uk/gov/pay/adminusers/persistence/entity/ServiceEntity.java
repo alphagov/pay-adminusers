@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.persistence.entity;
 import com.google.common.collect.ImmutableList;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -132,7 +133,7 @@ public class ServiceEntity {
         if (this.merchantDetailsEntity != null) {
             service.setMerchantDetails(this.merchantDetailsEntity.toMerchantDetails());
         }
-        service.setServiceNameMap(serviceNames);
+        service.setServiceNameMap(getServiceNames());
         return service;
     }
 
@@ -158,25 +159,21 @@ public class ServiceEntity {
         return serviceEntity;
     }
 
-    public void addOrUpdateServiceName(ServiceNameEntity serviceName) {
-        serviceName.setService(this);
-        final Optional<ServiceNameEntity> maybeNameEntity = this.serviceNames.stream()
-                .filter(s -> s.equals(serviceName))
+    public void addOrUpdateServiceName(ServiceNameEntity newServiceName) {
+        newServiceName.setService(this);
+        final Optional<ServiceNameEntity> existingServiceName = serviceNames.stream()
+                .filter(n -> n.getLanguage().equals(newServiceName.getLanguage()))
                 .findFirst();
-        if (maybeNameEntity.isPresent()) {
-            maybeNameEntity.get().setName(serviceName.getName());
+        if (existingServiceName.isPresent()) {
+            existingServiceName.get().setName(newServiceName.getName());
         } else {
-            this.serviceNames.add(serviceName);
+            serviceNames.add(newServiceName);
         }
     }
 
-    public void removeServiceName(ServiceNameEntity serviceName) {
-        this.serviceNames.remove(serviceName);
-        serviceName.setService(null);
-    }
-
-    public Set<ServiceNameEntity> getServiceNames() {
-        return serviceNames;
+    public Map<SupportedLanguage, ServiceNameEntity> getServiceNames() {
+        return serviceNames.stream()
+                .collect(Collectors.toMap(ServiceNameEntity::getLanguage, serviceName -> serviceName));
     }
 
     private void populateGatewayAccountIds(List<String> gatewayAccountIds) {
@@ -184,5 +181,4 @@ public class ServiceEntity {
             this.gatewayAccountIds.add(new GatewayAccountIdEntity(gatewayAccountId, this));
         }
     }
-
 }

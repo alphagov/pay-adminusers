@@ -395,7 +395,7 @@ public class DatabaseTestHelper {
                                 .bind("gatewayAccountId", gatewayAccount.getGatewayAccountId())
                                 .execute()
                 ));
-        serviceEntity.getServiceNames().forEach(name -> addServiceName(name, serviceEntity.getId()));
+        serviceEntity.getServiceNames().values().forEach((name) -> addServiceName(name, serviceEntity.getId()));
         return this;
     }
 
