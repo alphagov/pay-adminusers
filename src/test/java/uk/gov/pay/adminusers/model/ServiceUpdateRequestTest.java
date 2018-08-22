@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.pay.adminusers.exception.ValidationException;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -25,7 +26,7 @@ public class ServiceUpdateRequestTest {
     }
 
     @Test
-    public void shouldTransformToObjectCorrectly() throws Exception {
+    public void shouldTransformToObjectCorrectly() throws ValidationException, IOException {
         Map<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of("image_url", "image url", "css_url", "css url"));
         String content = objectMapper.writeValueAsString(payload);
         JsonNode jsonNode = objectMapper.readTree(content);
@@ -37,7 +38,7 @@ public class ServiceUpdateRequestTest {
     }
 
     @Test
-    public void shouldReturnAList_whenJsonIsArray() throws IOException {
+    public void shouldReturnAList_whenJsonIsArray() throws ValidationException, IOException {
         //language=JSON
         String jsonPayload = "[\n" +
                 "  {\n" +
@@ -63,7 +64,7 @@ public class ServiceUpdateRequestTest {
     }
 
     @Test
-    public void shouldReturnAList_whenJsonIsNotArray() throws IOException {
+    public void shouldReturnAList_whenJsonIsNotArray() throws ValidationException, IOException {
         //language=JSON
         String jsonPayload =
                 "{\n" +

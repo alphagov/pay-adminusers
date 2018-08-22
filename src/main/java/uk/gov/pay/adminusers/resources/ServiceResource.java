@@ -152,10 +152,18 @@ public class ServiceResource {
         LOGGER.info("Service PATCH request - [ {} ]", serviceExternalId);
         return serviceRequestValidator.validateUpdateAttributeRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> serviceServicesFactory.serviceUpdater().doUpdate(serviceExternalId, 
-                        ServiceUpdateRequest.getUpdateRequests(payload))
-                        .map(service -> Response.status(OK).entity(service).build())
-                        .orElseGet(() -> Response.status(NOT_FOUND).build()));
+                .orElseGet(() -> processPayload(serviceExternalId, payload));
+    }
+
+    private Response processPayload(String serviceExternalId, JsonNode payload) {
+        try {
+            final List<ServiceUpdateRequest> requests = ServiceUpdateRequest.getUpdateRequests(payload);
+            return serviceServicesFactory.serviceUpdater().doUpdate(serviceExternalId, requests)
+                    .map(service -> Response.status(OK).entity(service).build())
+                    .orElseGet(() -> Response.status(NOT_FOUND).build());
+        } catch (ValidationException e) {
+            return Response.status(BAD_REQUEST).entity(e).build();
+        }
     }
 
     @Path("/{serviceExternalId}/merchant-details")

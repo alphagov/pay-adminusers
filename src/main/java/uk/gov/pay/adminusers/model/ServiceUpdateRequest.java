@@ -4,9 +4,10 @@ package uk.gov.pay.adminusers.model;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.slf4j.Logger;
+import uk.gov.pay.adminusers.exception.ValidationException;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import uk.gov.pay.adminusers.utils.Errors;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -83,18 +84,19 @@ public class ServiceUpdateRequest {
 
     }
 
-    public static List<ServiceUpdateRequest> getUpdateRequests(JsonNode payload) {
+    public static List<ServiceUpdateRequest> getUpdateRequests(JsonNode payload) throws ValidationException {
         try {
-            ArrayNode jsonArray = (ArrayNode) new ObjectMapper().readTree(payload.toString());
-            List<ServiceUpdateRequest> operations = new ArrayList<>();
-            jsonArray.forEach(op -> operations.add(from(op)));
-            return operations;
+            JsonNode jsonArray = new ObjectMapper().readTree(payload.toString());
+            if (jsonArray.isArray()) {
+                List<ServiceUpdateRequest> operations = new ArrayList<>();
+                jsonArray.forEach(op -> operations.add(from(op)));
+                return operations;
+            } else {
+                return Collections.singletonList(from(payload));
+            }
         } catch (IOException e) {
             LOGGER.info("There was an exception processing update request [{}]", e.getMessage());
-            return Collections.emptyList();
-        } catch (ClassCastException e) {
-            LOGGER.info("There was a PATCH request with an element [{}]", e.getMessage());
-            return Collections.singletonList(from(payload));
+            throw new ValidationException(Errors.from("Payload could not be parsed"));
         }
     }
 }
