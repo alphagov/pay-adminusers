@@ -398,4 +398,8 @@ public class DatabaseTestHelper {
         serviceEntity.getServiceName().forEach(name -> addServiceName(name, serviceEntity.getId()));
         return this;
     }
+
+    public void truncateAllData() {
+        jdbi.withHandle(handle -> handle.createStatement("TRUNCATE TABLE users CASCADE").execute());
+    }
 }
