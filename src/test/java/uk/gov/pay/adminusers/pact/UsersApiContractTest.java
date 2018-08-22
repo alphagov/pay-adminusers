@@ -10,6 +10,8 @@ import au.com.dius.pact.provider.junit.target.TestTarget;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
@@ -35,7 +37,7 @@ import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
 @RunWith(PayPactRunner.class)
 @Provider("adminusers")
-@PactBroker(protocol = "https", host = "pact-broker-test.cloudapps.digital", port = "443", tags = {"${PACT_CONSUMER_TAG}"},
+@PactBroker(protocol = "https", host = "pact-broker-test.cloudapps.digital", port = "443", tags = {"master", "test", "staging", "production"},
         authentication = @PactBrokerAuth(username = "${PACT_BROKER_USERNAME}", password = "${PACT_BROKER_PASSWORD}"))
 public class UsersApiContractTest {
 
@@ -54,6 +56,11 @@ public class UsersApiContractTest {
         dbHelper = app.getDatabaseTestHelper();
         // make sure we create services(including gateway account ids) before users
         serviceDbFixture(dbHelper).withGatewayAccountIds("268").insertService();
+    }
+    
+    @Before
+    public void resetDatabase() {
+        dbHelper.truncateAllData();
     }
 
     @State("a valid forgotten password entry and a related user exists")
@@ -112,10 +119,6 @@ public class UsersApiContractTest {
         UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withUsername(username).withEmail(email).insertUser();
     }
 
-    private static void createUserWithinAService(String externalId, String username, String password) throws Exception {
-        createUserWithinAService(externalId, username, nextInt(), password);
-    }
-
     @State({"a forgotten password does not exists",
             "a user does not exist",
             "a user exists",
@@ -134,11 +137,11 @@ public class UsersApiContractTest {
 
     @State("a user exists with the given external id 7d19aff33f8948deb97ed16b2912dcd3")
     public void aUserExistsWithGivenExternalId() {
-        createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", 12345, "password");
+        createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", "password");
     }
 
 
-    private static void createUserWithinAService(String externalId, String username, int serviceId, String password) {
+    private static void createUserWithinAService(String externalId, String username, String password) {
         String gatewayAccount1 = randomNumeric(5);
         String gatewayAccount2 = randomNumeric(5);
         Role role = Role.role(randomInt(), "admin", "Administrator");
@@ -146,7 +149,7 @@ public class UsersApiContractTest {
                 Permission.permission(randomInt(), "perm-1", "permission-1-description"),
                 Permission.permission(randomInt(), "perm-2", "permission-2-description"),
                 Permission.permission(randomInt(), "perm-3", "permission-3-description"));
-        serviceDbFixture(dbHelper).withId(serviceId).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
+        Service service = serviceDbFixture(dbHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
 
         UserDbFixture.userDbFixture(dbHelper)
                 .withExternalId(externalId)
@@ -157,7 +160,7 @@ public class UsersApiContractTest {
                 .withTelephoneNumber("45334534634")
                 .withOtpKey("34f34")
                 .withProvisionalOtpKey("94423")
-                .withServiceRole(serviceId, role.getId())
+                .withServiceRole(service.getId(), role.getId())
                 .insertUser();
     }
 }
