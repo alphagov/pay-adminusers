@@ -27,6 +27,8 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.ignoreStubs;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -206,15 +208,13 @@ public class ServiceUpdaterTest {
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
         when(serviceEntity.toService()).thenReturn(Service.from());
 
-        InOrder inOrder = Mockito.inOrder(serviceDao, serviceEntity);
-
         Optional<Service> maybeService = updater.doUpdate(serviceId, request);
 
         assertThat(maybeService.isPresent(), is(true));
         ServiceNameEntity serviceNameEntity = ServiceNameEntity.from(SupportedLanguage.WELSH, nameToUpdate);
-        inOrder.verify(serviceDao).findByExternalId(serviceId);
+
+        InOrder inOrder = inOrder(ignoreStubs(serviceDao, serviceEntity));
+        inOrder.verify(serviceEntity).addOrUpdateServiceName(serviceNameEntity);
         inOrder.verify(serviceDao).merge(serviceEntity);
-        inOrder.verify(serviceEntity).toService();
-        verify(serviceEntity).addOrUpdateServiceName(serviceNameEntity);
     }
 }
