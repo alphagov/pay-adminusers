@@ -32,12 +32,12 @@ public class ServiceRequestValidator {
     public static final String FIELD_NAME = "name";
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
     public static final String FIELD_CUSTOM_BRANDING = "custom_branding";
-    public static final String FIELD_MERCHANT_DETAILS_NAME = "name";
-    public static final String FIELD_MERCHANT_DETAILS_ADDRESS_LINE1 = "address_line1";
-    public static final String FIELD_MERCHANT_DETAILS_ADDRESS_CITY = "address_city";
-    public static final String FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE = "address_postcode";
-    public static final String FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY = "address_country";
-    public static final String FIELD_MERCHANT_DETAILS_EMAIL = "email";
+    static final String FIELD_MERCHANT_DETAILS_NAME = "name";
+    static final String FIELD_MERCHANT_DETAILS_ADDRESS_LINE1 = "address_line1";
+    static final String FIELD_MERCHANT_DETAILS_ADDRESS_CITY = "address_city";
+    static final String FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE = "address_postcode";
+    static final String FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY = "address_country";
+    static final String FIELD_MERCHANT_DETAILS_EMAIL = "email";
     public static final String FIELD_SERVICE_SERVICE_NAME = "service_name";
     private static final String STRING_REPLACE = "replace";
     private static final String STRING_ADD = "add";
@@ -56,57 +56,29 @@ public class ServiceRequestValidator {
         this.requestValidations = requestValidations;
     }
 
-    public Optional<Errors> validateUpdateAttributeRequest(JsonNode payload) {
-        List<String> finalErrors = new ArrayList<>();
-        ArrayNode operations = new ObjectMapper().createArrayNode();
+    Optional<Errors> validateUpdateAttributeRequest(JsonNode payload) {
+
+        JsonNode operations;
         try {
-            operations = (ArrayNode) new ObjectMapper().readTree(payload.toString());
+            operations = new ObjectMapper().readTree(payload.toString());
+            if (!operations.isArray()) {
+                operations = new ObjectMapper().createArrayNode();
+                ((ArrayNode) operations).add(payload);
+            }
         } catch (IOException e) {
             LOGGER.info("There was an exception processing update request [{}]", e.getMessage());
-            finalErrors.add("There was an error processing update");
-        } catch (ClassCastException e) {
-            LOGGER.info("There was an exception processing update request [{}]", e.getMessage());
-            operations.add(payload);
+            return Optional.of(Errors.from("There was an error processing update request"));
         }
 
+        List<String> finalErrors = validateOpAndPathIfExistOrEmpty(operations);
         if (!finalErrors.isEmpty()) {
             return Optional.of(Errors.from(finalErrors));
         }
-
-        operations.forEach(item ->
-                finalErrors.addAll(requestValidations.checkIfExistsOrEmptyV2(item, FIELD_OP, FIELD_PATH)));
-
+        finalErrors = validatePath(operations);
         if (!finalErrors.isEmpty()) {
             return Optional.of(Errors.from(finalErrors));
         }
-        operations.forEach(item -> {
-            String path = item.get("path").asText();
-
-            if (FIELD_CUSTOM_BRANDING.equals(path)) {
-                finalErrors.addAll(checkIfValidJson(item.get(FIELD_VALUE)));
-            } else if (FIELD_NAME.equals(path)) {
-                finalErrors.addAll(requestValidations.checkIfExistsOrEmptyV2(item, FIELD_VALUE));
-                if (finalErrors.isEmpty()) {
-                    finalErrors.addAll(requestValidations.checkMaxLengthV2(item, SERVICE_NAME_MAX_LENGTH, FIELD_VALUE));
-                }
-            }
-        });
-        if (!finalErrors.isEmpty()) {
-            return Optional.of(Errors.from(finalErrors));
-        }
-        operations.forEach(item -> {
-            String path = item.get("path").asText();
-
-            if (!VALID_ATTRIBUTE_UPDATE_OPERATIONS.keySet().contains(path)) {
-                finalErrors.add(format("Path [%s] is invalid", path));
-                return;
-            }
-
-            String op = item.get("op").asText();
-            if (!VALID_ATTRIBUTE_UPDATE_OPERATIONS.get(path).contains(op)) {
-                finalErrors.add(format("Operation [%s] is invalid for path [%s]", op, path));
-            }
-        });
+        finalErrors = validateOperations(operations);
 
         if (!finalErrors.isEmpty()) {
             return Optional.of(Errors.from(finalErrors));
@@ -114,7 +86,7 @@ public class ServiceRequestValidator {
         return Optional.empty();
     }
 
-    public void validateUpdateMerchantDetailsRequest(JsonNode payload) throws ValidationException {
+    void validateUpdateMerchantDetailsRequest(JsonNode payload) throws ValidationException {
         Optional<List<String>> errors = requestValidations.checkIfExistsOrEmpty(payload,
                 FIELD_MERCHANT_DETAILS_NAME, FIELD_MERCHANT_DETAILS_ADDRESS_LINE1,
                 FIELD_MERCHANT_DETAILS_ADDRESS_CITY, FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE,
@@ -142,18 +114,62 @@ public class ServiceRequestValidator {
         }
     }
 
-    public Optional<Errors> validateFindRequest(String gatewayAccountId) {
+    Optional<Errors> validateFindRequest(String gatewayAccountId) {
         if (isBlank(gatewayAccountId)) {
             return Optional.of(Errors.from("Find services currently support only by gatewayAccountId"));
         }
         return Optional.empty();
     }
 
-    private List<String> checkIfValidJson(JsonNode payload) {
+    private static List<String> checkIfValidJson(JsonNode payload, String fieldName) {
         if (payload == null || !payload.isObject()) {
-            return Collections.singletonList(format("Value for path [%s] must be a JSON", FIELD_CUSTOM_BRANDING));
+            return Collections.singletonList(format("Value for path [%s] must be a JSON", fieldName));
         }
         return Collections.emptyList();
     }
 
+    private static List<String> validateOperations(JsonNode operations) {
+        List<String> finalErrors = new ArrayList<>();
+        operations.forEach(item -> {
+            String path = item.get(FIELD_PATH).asText();
+
+            if (!VALID_ATTRIBUTE_UPDATE_OPERATIONS.keySet().contains(path)) {
+                finalErrors.add(format("Path [%s] is invalid", path));
+                return;
+            }
+
+            String op = item.get("op").asText();
+            if (!VALID_ATTRIBUTE_UPDATE_OPERATIONS.get(path).contains(op)) {
+                finalErrors.add(format("Operation [%s] is invalid for path [%s]", op, path));
+            }
+        });
+
+        return finalErrors;
+    }
+
+    private List<String> validatePath(JsonNode operations) {
+        List<String> finalErrors = new ArrayList<>();
+        operations.forEach(item -> {
+            String path = item.get(FIELD_PATH).asText();
+
+            if (FIELD_CUSTOM_BRANDING.equals(path)) {
+                finalErrors.addAll(checkIfValidJson(item.get(FIELD_VALUE), FIELD_CUSTOM_BRANDING));
+            } else if (FIELD_NAME.equals(path)) {
+                requestValidations.checkIfExistsOrEmpty(item, FIELD_VALUE).ifPresent(finalErrors::addAll);
+                if (finalErrors.isEmpty()) {
+                    requestValidations.checkMaxLength(item, SERVICE_NAME_MAX_LENGTH, FIELD_VALUE).ifPresent(finalErrors::addAll);
+                }
+            }
+        });
+
+        return finalErrors;
+    }
+
+    private List<String> validateOpAndPathIfExistOrEmpty(JsonNode operations) {
+        List<String> finalErrors = new ArrayList<>();
+        operations.forEach(item ->
+                requestValidations.checkIfExistsOrEmpty(item, FIELD_OP, FIELD_PATH).ifPresent(finalErrors::addAll));
+
+        return finalErrors;
+    }
 }

@@ -29,16 +29,8 @@ public class RequestValidations {
         return applyCheck(payload, notExistOrEmpty(), fieldNames, "Field [%s] is required");
     }
 
-    public List<String> checkIfExistsOrEmptyV2(JsonNode payload, String... fieldNames) {
-        return applyCheckV2(payload, notExistOrEmpty(), fieldNames, "Field [%s] is required");
-    }
-
     public Optional<List<String>> checkMaxLength(JsonNode payload, int maxLength, String... fieldNames) {
         return applyCheck(payload, exceedsMaxLength(maxLength), fieldNames, "Field [%s] must have a maximum length of " + maxLength + " characters");
-    }
-
-    public List<String> checkMaxLengthV2(JsonNode payload, int maxLength, String... fieldNames) {
-        return applyCheckV2(payload, exceedsMaxLength(maxLength), fieldNames, "Field [%s] must have a maximum length of " + maxLength + " characters");
     }
 
     private Function<JsonNode, Boolean> exceedsMaxLength(int maxLength) {
@@ -55,18 +47,8 @@ public class RequestValidations {
         return errors.isEmpty() ? Optional.empty() : Optional.of(errors);
     }
 
-    private List<String> applyCheckV2(JsonNode payload, Function<JsonNode, Boolean> check, String[] fieldNames, String errorMessage) {
-        List<String> errors = newArrayList();
-        for (String fieldName : fieldNames) {
-            if (check.apply(payload.get(fieldName))) {
-                errors.add(format(errorMessage, fieldName));
-            }
-        }
-        return errors;
-    }
-
-    public Function<JsonNode, Boolean> notExistOrEmpty() {
-        return (jsonElement) -> {
+    private Function<JsonNode, Boolean> notExistOrEmpty() {
+        return (JsonNode jsonElement) -> {
             if (jsonElement instanceof NullNode) {
                 return isNullValue().apply(jsonElement);
             } else if (jsonElement instanceof ArrayNode) {
@@ -77,7 +59,7 @@ public class RequestValidations {
         };
     }
 
-    public Function<JsonNode, Boolean> notExistOrEmptyArray() {
+    private Function<JsonNode, Boolean> notExistOrEmptyArray() {
         return jsonElement -> (
                 jsonElement == null ||
                         ((jsonElement instanceof ArrayNode) && (jsonElement.size() == 0))
@@ -97,11 +79,11 @@ public class RequestValidations {
         );
     }
 
-    public static Function<JsonNode, Boolean> isNotNumeric() {
+    static Function<JsonNode, Boolean> isNotNumeric() {
         return jsonNode -> !isDigits(jsonNode.asText());
     }
 
-    public static Function<JsonNode, Boolean> isNotBoolean() {
+    static Function<JsonNode, Boolean> isNotBoolean() {
         return jsonNode -> !ImmutableList.of("true", "false").contains(jsonNode.asText().toLowerCase());
     }
 
