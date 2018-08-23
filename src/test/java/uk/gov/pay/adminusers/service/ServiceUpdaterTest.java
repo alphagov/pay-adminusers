@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
@@ -35,8 +37,8 @@ public class ServiceUpdaterTest {
 
     private static final String NON_EXISTENT_SERVICE_EXTERNAL_ID = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
-    ServiceDao serviceDao = mock(ServiceDao.class);
-    ServiceUpdater updater;
+    private ServiceDao serviceDao = mock(ServiceDao.class);
+    private ServiceUpdater updater;
 
     @Before
     public void before() throws Exception {
@@ -204,11 +206,14 @@ public class ServiceUpdaterTest {
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
         when(serviceEntity.toService()).thenReturn(Service.from());
 
+        InOrder inOrder = Mockito.inOrder(serviceDao);
+
         Optional<Service> maybeService = updater.doUpdate(serviceId, request);
 
         assertThat(maybeService.isPresent(), is(true));
         ServiceNameEntity serviceNameEntity = ServiceNameEntity.from(SupportedLanguage.WELSH, nameToUpdate);
+        inOrder.verify(serviceDao, times(1)).findByExternalId(serviceId);
+        inOrder.verify(serviceDao, times(1)).merge(serviceEntity);
         verify(serviceEntity, times(1)).addOrUpdateServiceName(serviceNameEntity);
-        verify(serviceDao, times(1)).merge(serviceEntity);
     }
 }

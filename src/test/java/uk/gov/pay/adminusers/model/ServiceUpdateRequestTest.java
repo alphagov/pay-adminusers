@@ -64,7 +64,7 @@ public class ServiceUpdateRequestTest {
     }
 
     @Test
-    public void shouldReturnAList_whenJsonIsNotArray() throws ValidationException, IOException {
+    public void shouldReturnAList_whenJsonIsSingleObject() throws ValidationException, IOException {
         //language=JSON
         String jsonPayload =
                 "{\n" +

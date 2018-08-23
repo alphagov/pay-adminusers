@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -27,6 +26,7 @@ public class ServiceNameEntityTest {
         ServiceUpdateRequest serviceUpdateRequest = ServiceUpdateRequest.from(mapper.readTree(stringPayload));
 
         ServiceNameEntity serviceNameEntity = ServiceNameEntity.from(serviceUpdateRequest);
-        assertThat(serviceNameEntity, is(notNullValue()));
+        assertThat(serviceNameEntity.getName(), is("new-en-name"));
+        assertThat(serviceNameEntity.getLanguage(), is(SupportedLanguage.ENGLISH));
     }
 }

@@ -58,7 +58,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldSuccess_whenUpdateOnlyServiceName() {
+    public void shouldSuccess_whenReplaceServiceNameWithANewValue() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
@@ -98,7 +98,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         String body = response.readEntity(String.class);
         JsonPath json = JsonPath.from(body);
 
-        assertThat(json.get("name"), is(thisServiceEntity.getName()));
+        assertThat(json.get("name"), is("new-en-name"));
         assertCyServiceNameJson("new-cy-name", json);
     }
 
@@ -156,7 +156,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldError404_ifServiceExternalIdDoesNotExist() {
-        String jsonPayload = fixture("fixtures/resource/service/patch/update-cy-name-only.json");
+        String jsonPayload = fixture("fixtures/resource/service/patch/update-name-only.json");
         String externalId = "externalId";
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.empty());
 
@@ -168,7 +168,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldError400_ifFieldValueMissing() {
+    public void shouldError400_ifMandatoryFieldValueMissing() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
@@ -191,7 +191,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldError400_ifFieldPathMissing() {
+    public void shouldError400_ifMandatoryFieldPathMissing() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
@@ -214,7 +214,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldError400_ifFieldOpMissing() {
+    public void shouldError400_ifmandatoryFieldOpMissing() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();

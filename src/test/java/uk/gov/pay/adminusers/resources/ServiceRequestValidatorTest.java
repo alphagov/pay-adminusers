@@ -10,7 +10,6 @@ import uk.gov.pay.adminusers.exception.ValidationException;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,7 @@ public class ServiceRequestValidatorTest {
     private ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(new RequestValidations());
 
     @Test
-    public void shouldSuccess_whenUpdate_whenAllFieldPresentAndValid_andJsonNotArray() {
+    public void shouldSuccess_whenUpdate_withAllFieldsPresentAndValid_andJsonRepresentingSingleOperation() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", "example-name");
 
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
@@ -36,7 +35,7 @@ public class ServiceRequestValidatorTest {
     }
 
     @Test
-    public void shouldSuccess_whenUpdateArray_withAllFieldsPresentAndValid() throws IOException {
+    public void shouldSuccess_whenUpdateArray_withAllFieldsPresentAndValid_andJsonRepresentingArrayOfOperations() {
         ImmutableMap<String, Object> op1 = ImmutableMap.of("path", "name", "op", "replace", "value", "new-en-name");
         ImmutableMap<String, Object> op2 = ImmutableMap.of(
                 "path", "service_name",
