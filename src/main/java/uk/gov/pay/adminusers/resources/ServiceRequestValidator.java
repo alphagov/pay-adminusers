@@ -66,7 +66,7 @@ public class ServiceRequestValidator {
                 ((ArrayNode) operations).add(payload);
             }
         } catch (IOException e) {
-            LOGGER.info("There was an exception processing update request [{}]", e.getMessage());
+            LOGGER.error("There was an exception processing update request [{}]", e.getMessage());
             return Optional.of(Errors.from("There was an error processing update request"));
         }
 

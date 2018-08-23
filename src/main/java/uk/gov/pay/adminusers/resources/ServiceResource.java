@@ -156,14 +156,11 @@ public class ServiceResource {
     }
 
     private Response processPayload(String serviceExternalId, JsonNode payload) {
-        try {
-            final List<ServiceUpdateRequest> requests = ServiceUpdateRequest.getUpdateRequests(payload);
-            return serviceServicesFactory.serviceUpdater().doUpdate(serviceExternalId, requests)
-                    .map(service -> Response.status(OK).entity(service).build())
-                    .orElseGet(() -> Response.status(NOT_FOUND).build());
-        } catch (ValidationException e) {
-            return Response.status(BAD_REQUEST).entity(e).build();
-        }
+
+        final List<ServiceUpdateRequest> requests = ServiceUpdateRequest.getUpdateRequests(payload);
+        return serviceServicesFactory.serviceUpdater().doUpdate(serviceExternalId, requests)
+                .map(service -> Response.status(OK).entity(service).build())
+                .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
     @Path("/{serviceExternalId}/merchant-details")

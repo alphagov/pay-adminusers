@@ -46,7 +46,7 @@ public class ServiceUpdaterTest {
     }
 
     @Test
-    public void shouldUpdateNameSuccessfully() throws Exception {
+    public void shouldUpdateNameSuccessfully() {
         String serviceId = randomUuid();
         String nameToUpdate = "new-name";
         ServiceUpdateRequest request = ServiceUpdateRequest.from(new ObjectNode(JsonNodeFactory.instance, ImmutableMap.of(
@@ -118,7 +118,7 @@ public class ServiceUpdaterTest {
     }
 
     @Test
-    public void shouldSuccess_updateCustomBranding_whenBrandingProvided() throws Exception {
+    public void shouldSuccess_updateCustomBranding_whenBrandingProvided() {
         String serviceId = randomUuid();
         ServiceUpdateRequest request = mock(ServiceUpdateRequest.class);
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
@@ -137,7 +137,7 @@ public class ServiceUpdaterTest {
     }
 
     @Test
-    public void shouldSuccess_updateCustomBranding_whenBrandingNotProvided() throws Exception {
+    public void shouldSuccess_updateCustomBranding_whenBrandingNotProvided() {
         String serviceId = randomUuid();
         ServiceUpdateRequest request = mock(ServiceUpdateRequest.class);
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
@@ -155,7 +155,7 @@ public class ServiceUpdaterTest {
     }
 
     @Test
-    public void shouldSuccess_whenAddGatewayAccountToService() throws Exception {
+    public void shouldSuccess_whenAddGatewayAccountToService() {
         String serviceId = randomUuid();
         ServiceUpdateRequest request = mock(ServiceUpdateRequest.class);
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
@@ -175,7 +175,7 @@ public class ServiceUpdaterTest {
     }
 
     @Test(expected = WebApplicationException.class)
-    public void shouldError_IfAGatewayAccountAlreadyAssignedToAService() throws Exception {
+    public void shouldError_IfAGatewayAccountAlreadyAssignedToAService() {
         String serviceId = randomUuid();
         ServiceUpdateRequest request = mock(ServiceUpdateRequest.class);
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
@@ -206,14 +206,15 @@ public class ServiceUpdaterTest {
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
         when(serviceEntity.toService()).thenReturn(Service.from());
 
-        InOrder inOrder = Mockito.inOrder(serviceDao);
+        InOrder inOrder = Mockito.inOrder(serviceDao, serviceEntity);
 
         Optional<Service> maybeService = updater.doUpdate(serviceId, request);
 
         assertThat(maybeService.isPresent(), is(true));
         ServiceNameEntity serviceNameEntity = ServiceNameEntity.from(SupportedLanguage.WELSH, nameToUpdate);
-        inOrder.verify(serviceDao, times(1)).findByExternalId(serviceId);
-        inOrder.verify(serviceDao, times(1)).merge(serviceEntity);
-        verify(serviceEntity, times(1)).addOrUpdateServiceName(serviceNameEntity);
+        inOrder.verify(serviceDao).findByExternalId(serviceId);
+        inOrder.verify(serviceDao).merge(serviceEntity);
+        inOrder.verify(serviceEntity).toService();
+        verify(serviceEntity).addOrUpdateServiceName(serviceNameEntity);
     }
 }
