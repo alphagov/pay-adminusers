@@ -77,6 +77,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         JsonPath json = JsonPath.from(body);
 
         assertThat(json.get("name"), is("new-en-name"));
+        assertEnServiceNameJson("new-en-name", json);
     }
 
     @Test
@@ -152,6 +153,29 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
 
         assertThat(json.get("name"), is("System Generated"));
         assertCyServiceNameJson("new-cy-name", json);
+    }
+
+    @Test
+    public void shouldSuccess_whenUpdateOnlyEnName_andDifferentValuesAreSentInFieldsNameAndServiceName_thenLastOperationSucceeds() {
+
+        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
+        String externalId = thisServiceEntity.getExternalId();
+
+        String jsonPayload = fixture("fixtures/resource/service/patch/update-name-service-name-different-values.json");
+        when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
+        when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
+
+        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+                .request()
+                .method("PATCH", Entity.json(jsonPayload));
+
+        assertThat(response.getStatus(), is(200));
+
+        String body = response.readEntity(String.class);
+        JsonPath json = JsonPath.from(body);
+
+        assertThat(json.get("name"), is("newer-en-name"));
+        assertEnServiceNameJson("newer-en-name", json);
     }
 
     @Test
