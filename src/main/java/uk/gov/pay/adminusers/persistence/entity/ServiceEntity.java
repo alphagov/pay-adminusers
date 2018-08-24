@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.persistence.entity;
 import com.google.common.collect.ImmutableList;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -55,7 +57,7 @@ public class ServiceEntity {
     private List<InviteEntity> invites = new ArrayList<>();
 
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private Set<ServiceNameEntity> serviceName = new HashSet<>();
+    private Set<ServiceNameEntity> serviceNames = new HashSet<>();
 
     public ServiceEntity() {
     }
@@ -131,7 +133,7 @@ public class ServiceEntity {
         if (this.merchantDetailsEntity != null) {
             service.setMerchantDetails(this.merchantDetailsEntity.toMerchantDetails());
         }
-        service.setServiceNameMap(serviceName);
+        service.setServiceNameMap(getServiceNames());
         return service;
     }
 
@@ -157,18 +159,24 @@ public class ServiceEntity {
         return serviceEntity;
     }
 
-    public void addServiceName(ServiceNameEntity serviceName) {
-        serviceName.setService(this);
-        this.serviceName.add(serviceName);
+    public void addOrUpdateServiceName(ServiceNameEntity newServiceName) {
+        if (newServiceName.getLanguage().equals(SupportedLanguage.ENGLISH)) {
+            setName(newServiceName.getName());
+        }
+        newServiceName.setService(this);
+        final Optional<ServiceNameEntity> existingServiceName = serviceNames.stream()
+                .filter(n -> n.getLanguage().equals(newServiceName.getLanguage()))
+                .findFirst();
+        if (existingServiceName.isPresent()) {
+            existingServiceName.get().setName(newServiceName.getName());
+        } else {
+            serviceNames.add(newServiceName);
+        }
     }
 
-    public void removeServiceName(ServiceNameEntity serviceName) {
-        this.serviceName.remove(serviceName);
-        serviceName.setService(null);
-    }
-
-    public Set<ServiceNameEntity> getServiceName() {
-        return serviceName;
+    public Map<SupportedLanguage, ServiceNameEntity> getServiceNames() {
+        return serviceNames.stream()
+                .collect(Collectors.toMap(ServiceNameEntity::getLanguage, serviceName -> serviceName));
     }
 
     private void populateGatewayAccountIds(List<String> gatewayAccountIds) {
@@ -176,5 +184,4 @@ public class ServiceEntity {
             this.gatewayAccountIds.add(new GatewayAccountIdEntity(gatewayAccountId, this));
         }
     }
-
 }

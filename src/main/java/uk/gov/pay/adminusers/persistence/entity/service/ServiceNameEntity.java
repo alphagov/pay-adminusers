@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.persistence.entity.service;
 
+import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
 import javax.persistence.Column;
@@ -48,6 +49,15 @@ public class ServiceNameEntity {
         entity.setName(name);
 
         return entity;
+    }
+
+    public static ServiceNameEntity from(ServiceUpdateRequest updateRequest) {
+        return updateRequest.valueAsObject().entrySet().stream()
+                .map(entry -> ServiceNameEntity.from(
+                        SupportedLanguage.fromIso639AlphaTwoCode(entry.getKey()),
+                        entry.getValue().toString()))
+                .findFirst()
+                .orElseGet(ServiceNameEntity::new);
     }
 
     //region <Getters/Setters>

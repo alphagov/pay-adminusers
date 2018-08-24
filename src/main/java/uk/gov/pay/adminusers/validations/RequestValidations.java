@@ -44,11 +44,11 @@ public class RequestValidations {
                 errors.add(format(errorMessage, fieldName));
             }
         }
-        return errors.size() > 0 ? Optional.of(errors) : Optional.empty();
+        return errors.isEmpty() ? Optional.empty() : Optional.of(errors);
     }
 
-    public Function<JsonNode, Boolean> notExistOrEmpty() {
-        return (jsonElement) -> {
+    private Function<JsonNode, Boolean> notExistOrEmpty() {
+        return (JsonNode jsonElement) -> {
             if (jsonElement instanceof NullNode) {
                 return isNullValue().apply(jsonElement);
             } else if (jsonElement instanceof ArrayNode) {
@@ -59,7 +59,7 @@ public class RequestValidations {
         };
     }
 
-    public Function<JsonNode, Boolean> notExistOrEmptyArray() {
+    private Function<JsonNode, Boolean> notExistOrEmptyArray() {
         return jsonElement -> (
                 jsonElement == null ||
                         ((jsonElement instanceof ArrayNode) && (jsonElement.size() == 0))
@@ -79,11 +79,11 @@ public class RequestValidations {
         );
     }
 
-    public static Function<JsonNode, Boolean> isNotNumeric() {
+    static Function<JsonNode, Boolean> isNotNumeric() {
         return jsonNode -> !isDigits(jsonNode.asText());
     }
 
-    public static Function<JsonNode, Boolean> isNotBoolean() {
+    static Function<JsonNode, Boolean> isNotBoolean() {
         return jsonNode -> !ImmutableList.of("true", "false").contains(jsonNode.asText().toLowerCase());
     }
 

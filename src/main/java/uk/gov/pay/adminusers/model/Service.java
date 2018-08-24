@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -121,8 +120,8 @@ public class Service {
         return serviceNameMap;
     }
 
-    public void setServiceNameMap(Set<ServiceNameEntity> nameEntities) {
+    public void setServiceNameMap(Map<SupportedLanguage, ServiceNameEntity> nameEntities) {
         this.serviceNameMap.put(SupportedLanguage.ENGLISH.toString(), name);
-        nameEntities.forEach(e -> this.serviceNameMap.put(e.getLanguage().toString(), e.getName()));
+        nameEntities.forEach((k, v) -> this.serviceNameMap.put(k.toString(), v.getName()));
     }
 }

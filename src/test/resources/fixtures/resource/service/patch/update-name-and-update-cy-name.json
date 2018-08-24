@@ -1,0 +1,14 @@
+[
+  {
+    "op": "replace",
+    "path": "name",
+    "value": "new-en-name"
+  },
+  {
+    "op": "replace",
+    "path": "service_name",
+    "value": {
+      "cy": "new-cy-name"
+    }
+  }
+]

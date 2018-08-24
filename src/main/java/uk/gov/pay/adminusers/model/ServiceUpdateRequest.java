@@ -6,11 +6,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -43,10 +44,10 @@ public class ServiceUpdateRequest {
         if (value != null && value.isArray()) {
             return newArrayList(value.elements())
                     .stream()
-                    .map(node -> node.textValue())
+                    .map(JsonNode::textValue)
                     .collect(toList());
         }
-        return null;
+        return Collections.emptyList();
     }
 
     public Map<String, Object> valueAsObject() {
@@ -55,7 +56,7 @@ public class ServiceUpdateRequest {
                 try {
                     return new ObjectMapper().readValue(value.traverse(), new TypeReference<Map<String, Object>>() {});
                 } catch (IOException e) {
-                    throw new RuntimeException(format("Malformed JSON object in ServiceUpdateRequest.value"), e);
+                    throw new RuntimeException("Malformed JSON object in ServiceUpdateRequest.value", e);
                 }
             }
         }
@@ -75,5 +76,15 @@ public class ServiceUpdateRequest {
                 payload.get(FIELD_PATH).asText(),
                 payload.get(FIELD_VALUE));
 
+    }
+
+    public static List<ServiceUpdateRequest> getUpdateRequests(JsonNode payload) {
+        if (payload.isArray()) {
+            List<ServiceUpdateRequest> operations = new ArrayList<>();
+            payload.forEach(op -> operations.add(from(op)));
+            return operations;
+        } else {
+            return Collections.singletonList(from(payload));
+        }
     }
 }
