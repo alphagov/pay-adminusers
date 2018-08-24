@@ -1,105 +1,106 @@
 package uk.gov.pay.adminusers.resources;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.RandomStringUtils;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.exception.ValidationException;
+import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ServiceRequestValidatorTest {
+    
+    @Mock
+    private ServiceUpdateOperationValidator mockServiceUpdateOperationValidator;
 
-    private ObjectMapper mapper = new ObjectMapper();
-    private ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(new RequestValidations());
-
-    @Test
-    public void shouldSuccess_whenUpdate_withAllFieldsPresentAndValid_andJsonRepresentingSingleOperation() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", "example-name");
-
-        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
-        assertFalse(errors.isPresent());
+    private ServiceRequestValidator serviceRequestValidator;
+    
+    @Before
+    public void setUp() {
+        serviceRequestValidator = new ServiceRequestValidator(new RequestValidations(), mockServiceUpdateOperationValidator);
     }
 
     @Test
-    public void shouldSuccess_whenUpdateArray_withAllFieldsPresentAndValid_andJsonRepresentingArrayOfOperations() {
-        ImmutableMap<String, Object> op1 = ImmutableMap.of("path", "name", "op", "replace", "value", "new-en-name");
-        ImmutableMap<String, Object> op2 = ImmutableMap.of(
-                "path", "service_name",
-                "op", "replace",
-                "value", ImmutableMap.of("cy", "new-cy-name"));
-        List<Map> payload = Arrays.asList(op1, op2);
+    public void shouldSuccess_whenValidateUpdateAttributeRequestSucceeds_withSingleOperation() {
+        ObjectNode payload = createUpdateOperation("this", "will", "succeed");
+        
+        given(mockServiceUpdateOperationValidator.validate(payload)).willReturn(Collections.emptyList());
 
-        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
-        assertFalse(errors.isPresent());
-    }
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(payload);
 
-    @Test
-    public void shouldAllowNonNumericGatewayAccounts_whenFindingServices() {
-        Optional<Errors> errors = serviceRequestValidator.validateFindRequest("non-numeric-id");
         assertThat(errors.isPresent(), is(false));
     }
 
     @Test
-    public void shouldFail_whenUpdate_whenServiceNameFieldPresentAndItIsTooLong() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", RandomStringUtils.randomAlphanumeric(51));
+    public void shouldFail_whenValidateUpdateAttributeRequestFails_withSingleOperation() {
+        ObjectNode payload = createUpdateOperation("this", "will", "fail");
 
-        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
+        given(mockServiceUpdateOperationValidator.validate(payload)).willReturn(Arrays.asList("Error 1", "Error 2"));
 
-        assertTrue(errors.isPresent());
-        List<String> errorsList = errors.get().getErrors();
-        assertThat(errorsList.size(), is(1));
-        assertThat(errorsList, hasItem("Field [value] must have a maximum length of 50 characters"));
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(payload);
+
+        assertThat(errors.isPresent(), is(true));
+        assertThat(errors.get().getErrors().size(), is(2));
+        assertThat(errors.get().getErrors(), hasItem("Error 1"));
+        assertThat(errors.get().getErrors(), hasItem("Error 2"));
     }
 
     @Test
-    public void shouldFail_whenUpdate_whenMissingRequiredField() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("value", "example-name");
+    public void shouldSuccess_whenValidateUpdateAttributeRequestSucceeds_withArrayOfOperations() {
+        ObjectNode operation1 = createUpdateOperation("the", "first", "operation");
+        ObjectNode operation2 = createUpdateOperation("the", "second", "operation");
 
-        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
+        ArrayNode payload = JsonNodeFactory.instance.arrayNode().add(operation1).add(operation2);
 
-        assertTrue(errors.isPresent());
-        List<String> errorsList = errors.get().getErrors();
-        assertThat(errorsList.size(), is(2));
-        assertThat(errorsList, hasItem("Field [path] is required"));
-        assertThat(errorsList, hasItem("Field [op] is required"));
+        given(mockServiceUpdateOperationValidator.validate(operation1)).willReturn(Collections.emptyList());
+        given(mockServiceUpdateOperationValidator.validate(operation2)).willReturn(Collections.emptyList());
+
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(payload);
+
+        assertThat(errors.isPresent(), is(false));
     }
 
     @Test
-    public void shouldFail_whenUpdate_whenInvalidPath() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "xyz", "op", "replace", "value", "example-name");
+    public void shouldFail_whenValidateUpdateAttributeRequestFails_withArrayOfOperations() {
+        ObjectNode operation1 = createUpdateOperation("the", "first", "operation");
+        ObjectNode operation2 = createUpdateOperation("the", "second", "operation");
+        ObjectNode operation3 = createUpdateOperation("the", "third", "operation");
 
-        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
+        ArrayNode payload = JsonNodeFactory.instance.arrayNode().add(operation1).add(operation2).add(operation3);
 
-        assertTrue(errors.isPresent());
-        List<String> errorsList = errors.get().getErrors();
-        assertThat(errorsList.size(), is(1));
-        assertThat(errorsList, hasItem("Path [xyz] is invalid"));
+        given(mockServiceUpdateOperationValidator.validate(operation1)).willReturn(Collections.emptyList());
+        given(mockServiceUpdateOperationValidator.validate(operation2)).willReturn(Arrays.asList("Error 1", "Error 2"));
+        given(mockServiceUpdateOperationValidator.validate(operation3)).willReturn(Arrays.asList("Error 3"));
+
+        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(payload);
+
+        assertThat(errors.isPresent(), is(true));
+        assertThat(errors.get().getErrors().size(), is(3));
+        assertThat(errors.get().getErrors(), hasItem("Error 1"));
+        assertThat(errors.get().getErrors(), hasItem("Error 2"));
+        assertThat(errors.get().getErrors(), hasItem("Error 3"));
     }
-
+    
     @Test
-    public void shouldFail_whenUpdate_whenInvalidOperationForSuppliedPath() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "add", "value", "example-name");
-
-        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
-
-        assertTrue(errors.isPresent());
-        List<String> errorsList = errors.get().getErrors();
-        assertThat(errorsList.size(), is(1));
-        assertThat(errorsList, hasItem("Operation [add] is invalid for path [name]"));
+    public void shouldAllowNonNumericGatewayAccounts_whenFindingServices() {
+        Optional<Errors> errors = serviceRequestValidator.validateFindRequest("non-numeric-id");
+        assertThat(errors.isPresent(), is(false));
     }
 
     @Test
@@ -150,7 +151,7 @@ public class ServiceRequestValidatorTest {
 
     @Test
     public void shouldFail_updatingMerchantDetails_whenInvalidEmail() {
-        ObjectNode payload = createJsonPayload("invalid@example.com-uk");
+        ObjectNode payload = createMerchantDetailsJsonPayload("invalid@example.com-uk");
 
         try {
             serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
@@ -162,7 +163,7 @@ public class ServiceRequestValidatorTest {
     @Test
     public void shouldFail_updatingMerchantDetails_whenEmailOver255() {
         String longEmail = RandomStringUtils.randomAlphanumeric(256);
-        ObjectNode payload = createJsonPayload(longEmail);
+        ObjectNode payload = createMerchantDetailsJsonPayload(longEmail);
 
         try {
             serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
@@ -171,56 +172,7 @@ public class ServiceRequestValidatorTest {
         }
     }
 
-    @Test
-    public void shouldSuccess_replacingCustomBranding() {
-        ImmutableMap<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of("image_url", "image url", "css_url", "css url"));
-        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
-
-        assertThat(errors.isPresent(), is(false));
-    }
-
-    @Test
-    public void shouldSuccess_replacingCustomBranding_forEmptyObject() {
-        ImmutableMap<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of());
-        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
-
-        assertThat(errors.isPresent(), is(false));
-    }
-
-    @Test
-    public void shouldError_ifCustomBrandingIsEmptyString() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "");
-        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
-
-        assertThat(errors.isPresent(), is(true));
-        List<String> errorsList = errors.get().getErrors();
-        assertThat(errorsList.size(), is(1));
-        assertThat(errorsList, hasItem("Value for path [custom_branding] must be a JSON"));
-    }
-
-    @Test
-    public void shouldError_ifCustomBrandingIsNull() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace");
-        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
-
-        assertThat(errors.isPresent(), is(true));
-        List<String> errorsList = errors.get().getErrors();
-        assertThat(errorsList.size(), is(1));
-        assertThat(errorsList, hasItem("Value for path [custom_branding] must be a JSON"));
-    }
-
-    @Test
-    public void shouldError_replacingCustomBranding_ifValueIsNotJSON() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "&*£&^(P%£");
-        Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(mapper.valueToTree(payload));
-
-        assertThat(errors.isPresent(), is(true));
-        List<String> errorsList = errors.get().getErrors();
-        assertThat(errorsList.size(), is(1));
-        assertThat(errorsList, hasItem("Value for path [custom_branding] must be a JSON"));
-    }
-
-    private ObjectNode createJsonPayload(String email) {
+    private static ObjectNode createMerchantDetailsJsonPayload(String email) {
         ObjectNode payload = JsonNodeFactory.instance.objectNode();
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_NAME, "Merchant name");
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_LINE1, "line1");
@@ -229,5 +181,13 @@ public class ServiceRequestValidatorTest {
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, "postcode");
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_EMAIL, email);
         return payload;
+    }
+    
+    private static ObjectNode createUpdateOperation(String path, String op, String value) {
+        ObjectNode operation = JsonNodeFactory.instance.objectNode();
+        operation.put(ServiceUpdateRequest.FIELD_PATH, path);
+        operation.put(ServiceUpdateRequest.FIELD_OP, op);
+        operation.put(ServiceUpdateRequest.FIELD_VALUE, value);
+        return operation;
     }
 }

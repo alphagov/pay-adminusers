@@ -18,6 +18,7 @@ import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
 import uk.gov.pay.adminusers.resources.ServiceRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceResource;
+import uk.gov.pay.adminusers.resources.ServiceUpdateOperationValidator;
 import uk.gov.pay.adminusers.service.ServiceCreator;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 import uk.gov.pay.adminusers.validations.RequestValidations;
@@ -57,8 +58,10 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
 
     private static ServiceCreator serviceCreator = new ServiceCreator(mockedServiceDao, linksBuilder);
     private static ServiceCreator mockedServiceCreator = mock(ServiceCreator.class);
-    private static ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(new RequestValidations());
 
+    private static RequestValidations requestValidations = new RequestValidations();
+    private static ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(requestValidations, new ServiceUpdateOperationValidator(requestValidations));
+    
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
             .addResource(new ServiceResource(mockedUserDao, mockedServiceDao, linksBuilder, serviceRequestValidator, mockedServicesFactory))

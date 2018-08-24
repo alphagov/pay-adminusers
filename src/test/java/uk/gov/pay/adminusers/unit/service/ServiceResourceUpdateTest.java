@@ -12,6 +12,7 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntityBuilder;
 import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
 import uk.gov.pay.adminusers.resources.ServiceRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceResource;
+import uk.gov.pay.adminusers.resources.ServiceUpdateOperationValidator;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 import uk.gov.pay.adminusers.service.ServiceUpdater;
 import uk.gov.pay.adminusers.validations.RequestValidations;
@@ -40,7 +41,8 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     private static ServiceServicesFactory mockedServicesFactory = mock(ServiceServicesFactory.class);
 
     private static ServiceUpdater serviceUpdater = new ServiceUpdater(mockedServiceDao);
-    private static ServiceRequestValidator requestValidator = new ServiceRequestValidator(new RequestValidations());
+    private static RequestValidations requestValidations = new RequestValidations();
+    private static ServiceRequestValidator requestValidator = new ServiceRequestValidator(requestValidations, new ServiceUpdateOperationValidator(requestValidations));
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
@@ -58,7 +60,30 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldSuccess_whenReplaceServiceNameWithANewValue() {
+    public void shouldSuccess_whenReplaceServiceNameWithANewValue_inSingleObject() {
+
+        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
+        String externalId = thisServiceEntity.getExternalId();
+
+        String jsonPayload = fixture("fixtures/resource/service/patch/update-name-only-single-object.json");
+        when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
+        when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
+
+        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+                .request()
+                .method("PATCH", Entity.json(jsonPayload));
+
+        assertThat(response.getStatus(), is(200));
+
+        String body = response.readEntity(String.class);
+        JsonPath json = JsonPath.from(body);
+
+        assertThat(json.get("name"), is("new-en-name"));
+        assertEnServiceNameJson("new-en-name", json);
+    }
+
+    @Test
+    public void shouldSuccess_whenReplaceServiceNameWithANewValue_inArray() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();

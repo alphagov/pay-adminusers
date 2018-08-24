@@ -42,7 +42,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
     private static ServiceServicesFactory mockedServicesFactory = mock(ServiceServicesFactory.class);
 
     private static ServiceFinder serviceFinder = new ServiceFinder(mockedServiceDao, linksBuilder);
-    private static ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(new RequestValidations());
+    private static ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(new RequestValidations(), null);
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
