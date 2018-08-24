@@ -6,9 +6,7 @@
   },
   {
     "op": "replace",
-    "path": "service_name",
-    "value": {
-      "en": "newer-en-name"
-    }
+    "path": "service_name/en",
+    "value": "newer-en-name"
   }
 ]

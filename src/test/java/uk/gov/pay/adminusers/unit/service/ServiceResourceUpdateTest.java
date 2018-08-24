@@ -181,6 +181,33 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
+    public void shouldSuccess_whenUpdateOnlyEnAndCyName() {
+
+        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+                .withServiceNameEntity(SupportedLanguage.ENGLISH, "old-en-name")
+                .withServiceNameEntity(SupportedLanguage.WELSH, "old-cy-name")
+                .build();
+        String externalId = thisServiceEntity.getExternalId();
+
+        String jsonPayload = fixture("fixtures/resource/service/patch/update-en-and-cy-name-only.json");
+        when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
+        when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
+
+        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+                .request()
+                .method("PATCH", Entity.json(jsonPayload));
+
+        assertThat(response.getStatus(), is(200));
+
+        String body = response.readEntity(String.class);
+        JsonPath json = JsonPath.from(body);
+
+        assertThat(json.get("name"), is("new-en-name"));
+        assertEnServiceNameJson("new-en-name", json);
+        assertCyServiceNameJson("new-cy-name", json);
+    }
+
+    @Test
     public void shouldSuccess_whenUpdateOnlyEnName_andDifferentValuesAreSentInFieldsNameAndServiceName_thenLastOperationSucceeds() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();

@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
-import org.mockito.Mockito;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
@@ -196,12 +195,12 @@ public class ServiceUpdaterTest {
     }
 
     @Test
-    public void shouldUpdateServiceNameSuccessfully() {
+    public void shouldUpdateMultilingualServiceNameSuccessfully() {
         String serviceId = randomUuid();
         String nameToUpdate = "new-cy-name";
         ServiceUpdateRequest request = ServiceUpdateRequest.from(new ObjectNode(JsonNodeFactory.instance, ImmutableMap.of(
-                "path", new TextNode("service_name"),
-                "value", new ObjectNode(JsonNodeFactory.instance, ImmutableMap.of("cy", new TextNode(nameToUpdate))),
+                "path", new TextNode("service_name/cy"),
+                "value", new TextNode(nameToUpdate),
                 "op", new TextNode("replace"))));
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
 
