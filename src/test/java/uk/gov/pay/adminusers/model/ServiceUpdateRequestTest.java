@@ -40,7 +40,7 @@ public class ServiceUpdateRequestTest {
 
     @Test
     public void shouldReturnAList_whenJsonIsArray() throws IOException {
-        String jsonPayload = fixture("fixtures/resource/service/patch/update-name-add-cy-name.json");
+        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-name-replace-service-name-cy.json");
 
         final List<ServiceUpdateRequest> requests = ServiceUpdateRequest.getUpdateRequests(new ObjectMapper().readTree(jsonPayload));
 
