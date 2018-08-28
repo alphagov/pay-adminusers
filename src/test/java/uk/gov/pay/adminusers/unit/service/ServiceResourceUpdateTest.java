@@ -104,7 +104,30 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         assertThat(json.get("name"), is("new-en-name"));
         assertEnServiceNameJson("new-en-name", json);
     }
-    
+
+    @Test
+    public void shouldUpdateName_andServiceNameEn_whenReplaceServiceNameEn() {
+
+        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
+        String externalId = thisServiceEntity.getExternalId();
+
+        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-service-name-en.json");
+        when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
+        when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
+
+        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+                .request()
+                .method("PATCH", Entity.json(jsonPayload));
+
+        assertThat(response.getStatus(), is(200));
+
+        String body = response.readEntity(String.class);
+        JsonPath json = JsonPath.from(body);
+
+        assertThat(json.get("name"), is("new-en-name"));
+        assertEnServiceNameJson("new-en-name", json);
+    }
+
     @Test
     public void shouldUpdateName_ServiceNameEn_andServiceNameCy_whenReplaceName_AndReplaceServiceNameCy_withNoExistingServiceNameCy() {
 
