@@ -14,11 +14,11 @@ import static org.hamcrest.core.Is.is;
 
 public class ServiceUpdateOperationValidatorTest {
 
-    private ObjectMapper mapper = new ObjectMapper();
-    private ServiceUpdateOperationValidator serviceUpdateOperationValidator = new ServiceUpdateOperationValidator(new RequestValidations());
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final ServiceUpdateOperationValidator serviceUpdateOperationValidator = new ServiceUpdateOperationValidator(new RequestValidations());
 
     @Test
-    public void shouldSuccess_whenUpdate_withAllFieldsPresentAndValid() {
+    public void shouldSuccess_whenUpdateName_withAllFieldsPresentAndValid() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", "example-name");
 
         List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
@@ -27,8 +27,9 @@ public class ServiceUpdateOperationValidatorTest {
     }
 
     @Test
-    public void shouldFail_whenUpdate_whenServiceNameFieldPresentAndItIsTooLong() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", RandomStringUtils.randomAlphanumeric(51));
+    public void shouldFail_whenUpdateName_whenNameFieldPresentAndItIsTooLong() {
+        ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace",
+                "value", RandomStringUtils.randomAlphanumeric(51));
 
         List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
 
@@ -69,7 +70,8 @@ public class ServiceUpdateOperationValidatorTest {
     
     @Test
     public void shouldSuccess_replacingCustomBranding() {
-        ImmutableMap<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of("image_url", "image url", "css_url", "css url"));
+        ImmutableMap<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace",
+                "value", ImmutableMap.of("image_url", "image url", "css_url", "css url"));
 
         List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
 
@@ -113,6 +115,36 @@ public class ServiceUpdateOperationValidatorTest {
 
         assertThat(errors.size(), is(1));
         assertThat(errors, hasItem("Value for path [custom_branding] must be a JSON"));
+    }
+
+    @Test
+    public void shouldSuccess_whenUpdateServiceName_withAllFieldsPresentAndValid() {
+        ImmutableMap<String, String> payload = ImmutableMap.of("path", "service_name/en", "op", "replace", "value", "example-name");
+
+        List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
+
+        assertThat(errors.isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldFail_whenUpdateServiceName_whenServiceNameFieldPresentAndItIsTooLong() {
+        ImmutableMap<String, String> payload = ImmutableMap.of("path", "service_name/en", "op", "replace",
+                "value", RandomStringUtils.randomAlphanumeric(51));
+
+        List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
+
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Field [value] must have a maximum length of 50 characters"));
+    }
+
+    @Test
+    public void shouldFail_whenUpdateServiceName_whenPathContainsUnsupportedLanguage() {
+        ImmutableMap<String, String> payload = ImmutableMap.of("path", "service_name/xx", "op", "replace", "value", "example-name");
+
+        List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
+
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Path [service_name/xx] is invalid"));
     }
 
 }

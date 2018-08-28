@@ -13,17 +13,13 @@ import java.util.Optional;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class ServiceRequestValidator {
-    
-    public static final String FIELD_NAME = "name";
-    public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
-    public static final String FIELD_CUSTOM_BRANDING = "custom_branding";
+
     static final String FIELD_MERCHANT_DETAILS_NAME = "name";
     static final String FIELD_MERCHANT_DETAILS_ADDRESS_LINE1 = "address_line1";
     static final String FIELD_MERCHANT_DETAILS_ADDRESS_CITY = "address_city";
     static final String FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE = "address_postcode";
     static final String FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY = "address_country";
     static final String FIELD_MERCHANT_DETAILS_EMAIL = "email";
-    public static final String FIELD_SERVICE_SERVICE_NAME = "service_name";
     private static final int FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH = 255;
 
     private final RequestValidations requestValidations;

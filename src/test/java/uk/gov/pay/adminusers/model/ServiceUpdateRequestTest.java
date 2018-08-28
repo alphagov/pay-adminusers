@@ -49,7 +49,7 @@ public class ServiceUpdateRequestTest {
         assertThat(requests.get(0).getPath(), is("name"));
         assertThat(requests.get(0).getOp(), is("replace"));
 
-        assertThat(requests.get(1).getPath(), is("service_name"));
+        assertThat(requests.get(1).getPath(), is("service_name/cy"));
         assertThat(requests.get(1).getOp(), is("replace"));
     }
 

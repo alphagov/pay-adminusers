@@ -45,9 +45,9 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_GATEWAY_ACCOUNT_IDS;
-import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.FIELD_NAME;
 import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT_IDS;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_NAME;
 
 @Path(SERVICES_RESOURCE)
 public class ServiceResource {

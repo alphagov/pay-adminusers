@@ -1,9 +1,7 @@
 [
   {
     "op": "replace",
-    "path": "service_name",
-    "value": {
-      "cy": "new-cy-name"
-    }
+    "path": "service_name/cy",
+    "value": "new-cy-name"
   }
 ]
