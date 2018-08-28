@@ -2,8 +2,8 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
-import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
 import uk.gov.pay.adminusers.validations.RequestValidations;
+import uk.gov.pay.commons.model.SupportedLanguage;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

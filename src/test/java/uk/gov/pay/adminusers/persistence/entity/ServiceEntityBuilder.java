@@ -5,7 +5,7 @@ import org.apache.commons.lang.math.RandomUtils;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
-import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
+import uk.gov.pay.commons.model.SupportedLanguage;
 
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -2,6 +2,8 @@ package uk.gov.pay.adminusers.persistence.entity.service;
 
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.commons.model.SupportedLanguage;
+import uk.gov.pay.commons.model.SupportedLanguageJpaConverter;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -33,7 +35,7 @@ public class ServiceNameEntity {
 
     @Column(name = "language")
     @Enumerated(EnumType.STRING)
-    @Convert(converter = SupportedLanguageConverter.class)
+    @Convert(converter = SupportedLanguageJpaConverter.class)
     private SupportedLanguage language;
 
     @Column(name = "name")

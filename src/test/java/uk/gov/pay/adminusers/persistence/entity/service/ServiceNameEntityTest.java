@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
+import uk.gov.pay.commons.model.SupportedLanguage;
 
 import java.io.IOException;
 import java.util.HashMap;
