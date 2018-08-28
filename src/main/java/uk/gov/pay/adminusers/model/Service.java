@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
-import uk.gov.pay.adminusers.persistence.entity.service.SupportedLanguage;
+import uk.gov.pay.commons.model.SupportedLanguage;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
