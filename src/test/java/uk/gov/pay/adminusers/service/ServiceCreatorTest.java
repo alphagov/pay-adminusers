@@ -100,8 +100,8 @@ public class ServiceCreatorTest {
         List<GatewayAccountIdEntity> persistedGatewayIds = persistedServiceEntity.getValue().getGatewayAccountIds();
         assertThat(persistedGatewayIds.size(), is(0));
         assertEnServiceNameMap(service, EN_SERVICE_NAME);
-        assertThat(service.getServiceNameMap(), hasKey(SupportedLanguage.WELSH.toString()));
-        assertThat(service.getServiceNameMap(), hasValue(CY_SERVICE_NAME));
+        assertThat(service.getServiceNames(), hasKey(SupportedLanguage.WELSH.toString()));
+        assertThat(service.getServiceNames(), hasValue(CY_SERVICE_NAME));
         assertSelfLink(service);
     }
 
@@ -159,8 +159,8 @@ public class ServiceCreatorTest {
     }
 
     private void assertEnServiceNameMap(Service service, String serviceName) {
-        assertThat(service.getServiceNameMap(), hasKey(SupportedLanguage.ENGLISH.toString()));
-        assertThat(service.getServiceNameMap(), hasValue(serviceName));
+        assertThat(service.getServiceNames(), hasKey(SupportedLanguage.ENGLISH.toString()));
+        assertThat(service.getServiceNames(), hasValue(serviceName));
     }
 
     private void assertSelfLink(Service service) {

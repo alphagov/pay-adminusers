@@ -125,7 +125,7 @@ public class ServiceEntity {
     }
 
     public Service toService() {
-        Service service = Service.from(id, externalId, name);
+        Service service = Service.from(id, externalId, name, getServiceNames());
         service.setGatewayAccountIds(gatewayAccountIds.stream()
                 .map(GatewayAccountIdEntity::getGatewayAccountId)
                 .collect(Collectors.toList()));
@@ -133,7 +133,6 @@ public class ServiceEntity {
         if (this.merchantDetailsEntity != null) {
             service.setMerchantDetails(this.merchantDetailsEntity.toMerchantDetails());
         }
-        service.setServiceNameMap(getServiceNames());
         return service;
     }
 
