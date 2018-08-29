@@ -8,6 +8,7 @@ import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,7 @@ public class Service {
     private List<String> gatewayAccountIds = new ArrayList<>();
     private Map<String, Object> customBranding;
     private MerchantDetails merchantDetails;
-    private Map<String, String> serviceNameMap = new LinkedHashMap<>();
+    private Map<String, String> serviceNames;
 
     public static Service from() {
         return from(DEFAULT_NAME_VALUE);
@@ -38,16 +39,29 @@ public class Service {
         return from(randomInt(), randomUuid(), name);
     }
 
+    public static Service from(String name, Map<SupportedLanguage, ServiceNameEntity> multilingualServiceNames) {
+        return from(randomInt(), randomUuid(), name, multilingualServiceNames);
+    }
+
     public static Service from(Integer id, String externalId, String name) {
-        return new Service(id, externalId, name);
+        return new Service(id, externalId, name, Collections.emptyMap());
+    }
+
+    public static Service from(Integer id, String externalId, String name, Map<SupportedLanguage, ServiceNameEntity> multilingualServiceNames) {
+        return new Service(id, externalId, name, multilingualServiceNames);
     }
 
     private Service(@JsonProperty("id") Integer id,
                     @JsonProperty("external_id") String externalId,
-                    @JsonProperty("name") String name) {
+                    @JsonProperty("name") String name,
+                    Map<SupportedLanguage, ServiceNameEntity> multilingualServiceNames) {
         this.id = id;
         this.externalId = externalId;
         this.name = name;
+
+        this.serviceNames = new LinkedHashMap<>();
+        serviceNames.put(SupportedLanguage.ENGLISH.toString(), name);
+        multilingualServiceNames.forEach((k, v) -> serviceNames.put(k.toString(), v.getName()));
     }
 
     public String getExternalId() {
@@ -116,12 +130,8 @@ public class Service {
     }
 
     @JsonProperty("service_name")
-    public Map<String, String> getServiceNameMap() {
-        return serviceNameMap;
+    public Map<String, String> getServiceNames() {
+        return serviceNames;
     }
 
-    public void setServiceNameMap(Map<SupportedLanguage, ServiceNameEntity> nameEntities) {
-        this.serviceNameMap.put(SupportedLanguage.ENGLISH.toString(), name);
-        nameEntities.forEach((k, v) -> this.serviceNameMap.put(k.toString(), v.getName()));
-    }
 }
