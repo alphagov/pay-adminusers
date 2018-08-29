@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import org.apache.commons.lang3.StringUtils;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
@@ -61,7 +62,9 @@ public class Service {
 
         this.serviceNames = new LinkedHashMap<>();
         serviceNames.put(SupportedLanguage.ENGLISH.toString(), name);
-        multilingualServiceNames.forEach((k, v) -> serviceNames.put(k.toString(), v.getName()));
+        multilingualServiceNames.entrySet().stream()
+                .filter(entry -> StringUtils.isNotBlank(entry.getValue().getName()))
+                .forEach(entry -> serviceNames.put(entry.getKey().toString(), entry.getValue().getName()));
     }
 
     public String getExternalId() {
