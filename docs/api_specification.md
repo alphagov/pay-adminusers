@@ -567,6 +567,10 @@ Content-Type: application/json
 {
     "name": "abcd1234",
     "gateway_account_ids": ["1"],
+    "service_name": {
+      "en": "abcd1234",
+      "cy": "1234abcd"
+    }
 }
 ```
 
@@ -576,6 +580,7 @@ Content-Type: application/json
 | ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
 | `name`       |         | a name for the service          |  |
 | `gateway_account_ids`            |          | valid gateway account IDs from connector | |
+| `service_name` | | object where keys are supported ISO-639-1 language codes and values are translated service names | key must be `"en"` or `"cy"` |
 
 ### Response example
 
@@ -586,6 +591,10 @@ Content-Type: application/json
     "id": 123
     "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "name": "abcd1234",
+    "service_name": {
+      "en": "abcd1234",
+      "cy": "1234abcd"
+    }
     "_links": [{
         "href": "http://adminusers.service/v1/api/services/123",
         "rel" : "self",
@@ -806,6 +815,10 @@ Content-Type: application/json
     "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "name": "updated-service-name",
     "custom_branding": "some valid css class",
+    "service_name": {
+      "en": "abcd1234",
+      "cy": "1234abcd"
+    }
     "_links": [{
         "href": "http://adminusers.service/v1/api/services/123",
         "rel" : "self",
@@ -941,10 +954,13 @@ Content-Type: application/json
 
 ## PATCH /v1/api/services/`{serviceExternalId}`
 
-This endpoint modifies updatable attributes of a Service. Currently supports
+This endpoint modifies updatable attributes of a service. Currently supports:
  - Update the name of a service
- - Add new gateway account(s) to a service.
- - Update/replace the custom branding of a service.
+- Update the multilingual service names of a service
+ - Add new gateway account(s) to a service
+ - Update/replace the custom branding of a service
+
+ Request can either be a single object or an array of objects. It’s similar to (but not 100% compliant with) [JSON Patch](http://jsonpatch.com/).
 
 ### Request example (for updating name)
 
@@ -958,6 +974,25 @@ Content-Type: application/json
 }
 
 ```
+
+Updating `name` will also update `service_name/en` (see below).
+
+
+### Request example (for updating the Welsh multilingual service name)
+
+```
+PATCH /v1/api/services/7d19aff33f8948deb97ed16b2912dcd3
+Content-Type: application/json
+{
+ "op": "replace",
+ "path": "service_name/cy", 
+ "value": "updated-service-name" 
+}
+
+```
+
+Updating `service_name/en` will also update `name` (see above).
+
 
 ### Request example (for assigning gateway accounts)
 
@@ -994,8 +1029,11 @@ Content-Type: application/json
 | Field                    | required | Description                                                      | Supported Values     |
 | ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
 | `op`                     |   X      | operation to perform on attribute                                | `replace`, `add`     |
-| `path`                   |   X      | attribute that is affecting                                      | `gateway_account_ids` , `name`, `custom_branding` |
+| `path`                   |   X      | attribute that is affecting                                      | `gateway_account_ids` , `name`, `service_name/xx`, `custom_branding` |
 | `value`                  |   X      | value to be replaced                                             |                      |
+
+Note that in `service_name/xx`, `xx` must be replaced by a supported ISO-639-1 language code.
+
 
 ### Response example
 
@@ -1006,6 +1044,10 @@ Content-Type: application/json
     "id": 123
     "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
     "name": "updated-service-name",
+    "service_name": {
+      "en": "updated-service-name",
+      "cy": "1234abcd"
+    }
     "_links": [{
         "href": "http://adminusers.service/v1/api/services/123",
         "rel" : "self",
