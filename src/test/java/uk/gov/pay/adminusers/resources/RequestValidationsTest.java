@@ -24,7 +24,7 @@ public class RequestValidationsTest {
         payload.put(FIELD_1, "value1");
         payload.put(FIELD_2, "value2");
 
-        Optional<List<String>> errors = requestValidations.checkIfExistsOrEmpty(payload, FIELD_1, FIELD_2);
+        Optional<List<String>> errors = requestValidations.checkExistsAndNotEmpty(payload, FIELD_1, FIELD_2);
 
         assertThat(errors.isPresent(), is(false));
     }
@@ -35,7 +35,7 @@ public class RequestValidationsTest {
         payload.put(FIELD_1, "");
         payload.put(FIELD_2, "");
 
-        Optional<List<String>> errors = requestValidations.checkIfExistsOrEmpty(payload, FIELD_1, FIELD_2);
+        Optional<List<String>> errors = requestValidations.checkExistsAndNotEmpty(payload, FIELD_1, FIELD_2);
 
         assertThat(errors.isPresent(), is(true));
     }
@@ -46,7 +46,7 @@ public class RequestValidationsTest {
         payload.set(FIELD_1, null);
         payload.set(FIELD_2, null);
 
-        Optional<List<String>> errors = requestValidations.checkIfExistsOrEmpty(payload, FIELD_1, FIELD_2);
+        Optional<List<String>> errors = requestValidations.checkExistsAndNotEmpty(payload, FIELD_1, FIELD_2);
 
         assertThat(errors.isPresent(), is(true));
     }

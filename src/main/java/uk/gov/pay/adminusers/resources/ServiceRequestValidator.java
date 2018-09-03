@@ -47,7 +47,7 @@ public class ServiceRequestValidator {
     }
 
     void validateUpdateMerchantDetailsRequest(JsonNode payload) throws ValidationException {
-        Optional<List<String>> errors = requestValidations.checkIfExistsOrEmpty(payload,
+        Optional<List<String>> errors = requestValidations.checkExistsAndNotEmpty(payload,
                 FIELD_MERCHANT_DETAILS_NAME, FIELD_MERCHANT_DETAILS_ADDRESS_LINE1,
                 FIELD_MERCHANT_DETAILS_ADDRESS_CITY, FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE,
                 FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY);

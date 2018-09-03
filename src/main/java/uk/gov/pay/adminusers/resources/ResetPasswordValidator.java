@@ -28,7 +28,7 @@ public class ResetPasswordValidator {
             return Optional.of(Errors.from(of("invalid JSON")));
         }
 
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkIfExistsOrEmpty(payload, FIELD_CODE, FIELD_PASSWORD);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkExistsAndNotEmpty(payload, FIELD_CODE, FIELD_PASSWORD);
 
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));

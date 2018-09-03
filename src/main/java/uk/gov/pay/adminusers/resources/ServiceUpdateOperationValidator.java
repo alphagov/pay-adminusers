@@ -66,7 +66,7 @@ public class ServiceUpdateOperationValidator {
 
     private List<String> validateOpAndPathExistAndNotEmpty(JsonNode operation) {
         List<String> errors = new ArrayList<>();
-        requestValidations.checkIfExistsOrEmpty(operation, FIELD_OP, FIELD_PATH).ifPresent(errors::addAll);
+        requestValidations.checkExistsAndNotEmpty(operation, FIELD_OP, FIELD_PATH).ifPresent(errors::addAll);
         return errors;
     }
 
@@ -78,7 +78,7 @@ public class ServiceUpdateOperationValidator {
             errors.addAll(checkIfValidJson(operation.get(FIELD_VALUE), FIELD_CUSTOM_BRANDING));
         } else if (FIELD_NAME.equals(path) || path.startsWith(FIELD_SERVICE_NAME_PREFIX)) {
             if (FIELD_NAME.equals(path) || path.endsWith('/' + SupportedLanguage.ENGLISH.toString())) {
-                requestValidations.checkIfExistsOrEmpty(operation, FIELD_VALUE).ifPresent(errors::addAll);
+                requestValidations.checkExistsAndNotEmpty(operation, FIELD_VALUE).ifPresent(errors::addAll);
             } else {
                 requestValidations.checkExists(operation, FIELD_VALUE).ifPresent(errors::addAll);
             }
