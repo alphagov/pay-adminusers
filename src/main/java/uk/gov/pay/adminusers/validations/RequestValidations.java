@@ -29,6 +29,10 @@ public class RequestValidations {
         return applyCheck(payload, notExistOrEmpty(), fieldNames, "Field [%s] is required");
     }
 
+    public Optional<List<String>> checkExists(JsonNode payload, String... fieldNames) {
+        return applyCheck(payload, notExists(), fieldNames, "Field [%s] is required");
+    }
+
     public Optional<List<String>> checkMaxLength(JsonNode payload, int maxLength, String... fieldNames) {
         return applyCheck(payload, exceedsMaxLength(maxLength), fieldNames, "Field [%s] must have a maximum length of " + maxLength + " characters");
     }
@@ -57,6 +61,10 @@ public class RequestValidations {
                 return notExistOrBlankText().apply(jsonElement);
             }
         };
+    }
+    
+    private Function<JsonNode, Boolean> notExists() {
+        return (JsonNode jsonElement) -> isNullValue().apply(jsonElement);
     }
 
     private Function<JsonNode, Boolean> notExistOrEmptyArray() {

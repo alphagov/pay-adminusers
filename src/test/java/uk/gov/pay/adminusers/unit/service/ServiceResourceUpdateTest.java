@@ -24,10 +24,12 @@ import java.util.Optional;
 
 import static io.dropwizard.testing.FixtureHelpers.fixture;
 import static java.lang.String.format;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
@@ -230,6 +232,33 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         assertThat(json.get("name"), is("new-en-name"));
         assertEnServiceNameJson("new-en-name", json);
         assertCyServiceNameJson("new-cy-name", json);
+    }
+
+    @Test
+    public void shouldRemoveServiceNameCy_whenReplaceServiceNameCyWithBlank() {
+
+        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+                .withServiceNameEntity(SupportedLanguage.ENGLISH, "old-en-name")
+                .withServiceNameEntity(SupportedLanguage.WELSH, "old-cy-name")
+                .build();
+        String externalId = thisServiceEntity.getExternalId();
+
+        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-service-name-cy-blank.json");
+        when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
+        when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
+
+        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+                .request()
+                .method("PATCH", Entity.json(jsonPayload));
+
+        assertThat(response.getStatus(), is(200));
+
+        String body = response.readEntity(String.class);
+        JsonPath json = JsonPath.from(body);
+
+        assertThat(json.get("name"), is("old-en-name"));
+        assertEnServiceNameJson("old-en-name", json);
+        assertThat(json.getMap("service_name"), not(hasKey(SupportedLanguage.WELSH.toString())));
     }
 
     @Test
