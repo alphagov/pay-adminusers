@@ -19,41 +19,73 @@ public class RequestValidationsTest {
     private static final String FIELD_2 = "field2";
 
     @Test
-    public void checkIfExists_shouldSuccess_whenFieldsAreProvidedWithValues() throws Exception {
+    public void checkIfExistsOrEmpty_shouldSucceed_whenFieldsAreProvidedWithValues() {
         ObjectNode payload = JsonNodeFactory.instance.objectNode();
         payload.put(FIELD_1, "value1");
         payload.put(FIELD_2, "value2");
 
-        Optional<List<String>> errors = requestValidations.checkIfExistsOrEmpty(payload, FIELD_1, FIELD_2);
+        Optional<List<String>> errors = requestValidations.checkExistsAndNotEmpty(payload, FIELD_1, FIELD_2);
 
         assertThat(errors.isPresent(), is(false));
     }
 
     @Test
-    public void checkIfExists_shouldFail_whenFieldsAreProvidedWithEmptyValues() throws Exception {
+    public void checkIfExistsOrEmpty_shouldFail_whenFieldsAreProvidedWithEmptyValues() {
         ObjectNode payload = JsonNodeFactory.instance.objectNode();
         payload.put(FIELD_1, "");
         payload.put(FIELD_2, "");
 
-        Optional<List<String>> errors = requestValidations.checkIfExistsOrEmpty(payload, FIELD_1, FIELD_2);
+        Optional<List<String>> errors = requestValidations.checkExistsAndNotEmpty(payload, FIELD_1, FIELD_2);
 
         assertThat(errors.isPresent(), is(true));
     }
 
     @Test
-    public void checkIfExists_shouldFail_whenFieldsAreProvidedWithNullValues() throws Exception {
+    public void checkIfExistsOrEmpty_shouldFail_whenFieldsAreProvidedWithNullValues() {
         ObjectNode payload = JsonNodeFactory.instance.objectNode();
         payload.set(FIELD_1, null);
         payload.set(FIELD_2, null);
-        System.out.println(payload);
 
-        Optional<List<String>> errors = requestValidations.checkIfExistsOrEmpty(payload, FIELD_1, FIELD_2);
+        Optional<List<String>> errors = requestValidations.checkExistsAndNotEmpty(payload, FIELD_1, FIELD_2);
 
         assertThat(errors.isPresent(), is(true));
     }
 
     @Test
-    public void checkNotBoolean_shouldSuccess_whenFieldsAreTrueOrFalse() {
+    public void checkIfExists_shouldSucceed_whenFieldsAreProvidedWithValues() {
+        ObjectNode payload = JsonNodeFactory.instance.objectNode();
+        payload.put(FIELD_1, "value1");
+        payload.put(FIELD_2, "value2");
+
+        Optional<List<String>> errors = requestValidations.checkExists(payload, FIELD_1, FIELD_2);
+
+        assertThat(errors.isPresent(), is(false));
+    }
+
+    @Test
+    public void checkIfExists_shouldSucceed_whenFieldsAreProvidedWithEmptyValues() {
+        ObjectNode payload = JsonNodeFactory.instance.objectNode();
+        payload.put(FIELD_1, "");
+        payload.put(FIELD_2, " ");
+
+        Optional<List<String>> errors = requestValidations.checkExists(payload, FIELD_1, FIELD_2);
+
+        assertThat(errors.isPresent(), is(false));
+    }
+
+    @Test
+    public void checkIfExists_shouldFail_whenFieldsAreProvidedWithNullValues() {
+        ObjectNode payload = JsonNodeFactory.instance.objectNode();
+        payload.set(FIELD_1, null);
+        payload.set(FIELD_2, null);
+
+        Optional<List<String>> errors = requestValidations.checkExists(payload, FIELD_1, FIELD_2);
+
+        assertThat(errors.isPresent(), is(true));
+    }
+
+    @Test
+    public void checkNotBoolean_shouldSucceed_whenFieldsAreTrueOrFalse() {
         ObjectNode payload = JsonNodeFactory.instance.objectNode();
         payload.put(FIELD_1, "true");
         payload.put(FIELD_2, "false");

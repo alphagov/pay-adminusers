@@ -25,8 +25,12 @@ public class RequestValidations {
         return applyCheck(payload, isNotBoolean(), fieldNames, "Field [%s] must be a boolean");
     }
 
-    public Optional<List<String>> checkIfExistsOrEmpty(JsonNode payload, String... fieldNames) {
-        return applyCheck(payload, notExistOrEmpty(), fieldNames, "Field [%s] is required");
+    public Optional<List<String>> checkExistsAndNotEmpty(JsonNode payload, String... fieldNames) {
+        return applyCheck(payload, notExistsOrIsEmpty(), fieldNames, "Field [%s] is required");
+    }
+
+    public Optional<List<String>> checkExists(JsonNode payload, String... fieldNames) {
+        return applyCheck(payload, notExists(), fieldNames, "Field [%s] is required");
     }
 
     public Optional<List<String>> checkMaxLength(JsonNode payload, int maxLength, String... fieldNames) {
@@ -47,7 +51,7 @@ public class RequestValidations {
         return errors.isEmpty() ? Optional.empty() : Optional.of(errors);
     }
 
-    private Function<JsonNode, Boolean> notExistOrEmpty() {
+    private Function<JsonNode, Boolean> notExistsOrIsEmpty() {
         return (JsonNode jsonElement) -> {
             if (jsonElement instanceof NullNode) {
                 return isNullValue().apply(jsonElement);
@@ -57,6 +61,10 @@ public class RequestValidations {
                 return notExistOrBlankText().apply(jsonElement);
             }
         };
+    }
+    
+    private Function<JsonNode, Boolean> notExists() {
+        return (JsonNode jsonElement) -> isNullValue().apply(jsonElement);
     }
 
     private Function<JsonNode, Boolean> notExistOrEmptyArray() {

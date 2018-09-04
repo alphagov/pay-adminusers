@@ -25,7 +25,7 @@ public class ServiceUpdateOperationValidatorTest {
         
         assertThat(errors.isEmpty(), is(true));
     }
-
+    
     @Test
     public void shouldFail_whenUpdateName_whenNameFieldPresentAndItIsTooLong() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace",
@@ -126,6 +126,25 @@ public class ServiceUpdateOperationValidatorTest {
         assertThat(errors.isEmpty(), is(true));
     }
 
+    @Test
+    public void shouldSuccess_whenUpdateServiceName_withAllFieldsPresentAndWelshServiceNameBlank() {
+        ImmutableMap<String, String> payload = ImmutableMap.of("path", "service_name/cy", "op", "replace", "value", " ");
+
+        List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
+
+        assertThat(errors.isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldFail_whenUpdateServiceName_withAllFieldsPresentAndEnglishServiceNameBlank() {
+        ImmutableMap<String, String> payload = ImmutableMap.of("path", "service_name/en", "op", "replace", "value", "");
+
+        List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
+
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Field [value] is required"));
+    }
+    
     @Test
     public void shouldFail_whenUpdateServiceName_whenServiceNameFieldPresentAndItIsTooLong() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "service_name/en", "op", "replace",
