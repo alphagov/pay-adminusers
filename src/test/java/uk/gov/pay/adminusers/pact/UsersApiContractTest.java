@@ -29,7 +29,6 @@ import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 import uk.gov.pay.commons.testing.pact.providers.PayPactRunner;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
-import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
@@ -37,7 +36,7 @@ import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
 @RunWith(PayPactRunner.class)
 @Provider("adminusers")
-@PactBroker(protocol = "https", host = "pact-broker-test.cloudapps.digital", port = "443", tags = {"master", "test", "staging", "production"},
+@PactBroker(protocol = "https", host = "pact-broker-test.cloudapps.digital", port = "443", tags = {"${PACT_CONSUMER_TAG}", "test", "staging", "production"},
         authentication = @PactBrokerAuth(username = "${PACT_BROKER_USERNAME}", password = "${PACT_BROKER_PASSWORD}"))
 public class UsersApiContractTest {
 
