@@ -9,3 +9,5 @@ release.alpha_release-260.date=2018-09-11:17:18:12
 staging-2.tag=FAILED-260
 
 staging-2.FAILED-260.date=
+
+staging-2.FAILED-260.status=failed
