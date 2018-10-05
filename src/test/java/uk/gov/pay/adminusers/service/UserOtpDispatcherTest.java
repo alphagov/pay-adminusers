@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;

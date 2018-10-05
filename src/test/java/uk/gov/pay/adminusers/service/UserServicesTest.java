@@ -10,7 +10,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
@@ -39,7 +39,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -196,7 +196,6 @@ public class UserServicesTest {
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         userEntity.setPassword("hashed-password");
 
-        when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(false);
         when(userDao.findByUsername(USER_USERNAME)).thenReturn(Optional.of(UserEntity.from(user)));
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
@@ -217,7 +216,6 @@ public class UserServicesTest {
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         userEntity.setPassword("hashed-password");
 
-        when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(false);
         when(userDao.findByUsername(USER_USERNAME)).thenReturn(Optional.of(UserEntity.from(user)));
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
@@ -629,7 +627,6 @@ public class UserServicesTest {
         userEntity.setProvisionalOtpKey("New OTP key");
 
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
-        when(secondFactorAuthenticator.authorize("New OTP key", 123456)).thenReturn(true);
 
         Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP,123456);
 
@@ -651,7 +648,6 @@ public class UserServicesTest {
         userEntity.setProvisionalOtpKeyCreatedAt(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(91));
 
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
-        when(secondFactorAuthenticator.authorize("New OTP key", 123456)).thenReturn(true);
 
         Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP,123456);
 
@@ -686,7 +682,6 @@ public class UserServicesTest {
         userEntity.setDisabled(true);
 
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
-        when(secondFactorAuthenticator.authorize("New OTP key", 123456)).thenReturn(true);
 
         Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP,123456);
 

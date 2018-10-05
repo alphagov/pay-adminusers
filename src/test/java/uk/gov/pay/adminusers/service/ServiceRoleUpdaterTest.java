@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.User;
@@ -126,7 +126,6 @@ public class ServiceRoleUpdaterTest {
 
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(userEntity));
         when(roleDao.findByRoleName(role)).thenReturn(Optional.of(targetRoleEntity));
-        when(serviceDao.countOfUsersWithRoleForService(serviceExternalId, ADMIN.getId())).thenReturn(1L);
 
         Optional<User> userOptional = serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, serviceExternalId, role);
         assertTrue(userOptional.isPresent());

@@ -7,30 +7,37 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
-import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
-import uk.gov.pay.adminusers.persistence.entity.*;
+import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
+import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
+import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.valueOf;
-import static javax.ws.rs.core.Response.Status.*;
+import static javax.ws.rs.core.Response.Status.GONE;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-import static uk.gov.pay.adminusers.model.InviteOtpRequest.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_CODE;
+import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_PASSWORD;
+import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_TELEPHONE_NUMBER;
 import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
@@ -68,9 +75,6 @@ public class InviteServiceTest {
 
     @Before
     public void setup() {
-        LinksConfig mockLinks = mock(LinksConfig.class);
-        when(mockLinks.getSelfserviceUrl()).thenReturn(SELFSERVICE_URL);
-        when(mockConfig.getLinks()).thenReturn(mockLinks);
         inviteService = new InviteService(
                 mockUserDao,
                 mockInviteDao,
@@ -86,23 +90,15 @@ public class InviteServiceTest {
         ServiceEntity service = new ServiceEntity();
         service.setId(serviceId);
 
-        when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(mockInviteDao.findByEmail(email)).thenReturn(newArrayList());
-        when(mockServiceDao.findById(serviceId)).thenReturn(Optional.of(service));
-        when(mockRoleDao.findByRoleName(roleName)).thenReturn(Optional.of(new RoleEntity()));
-
         UserEntity senderUser = new UserEntity();
         senderUser.setExternalId(senderExternalId);
         senderUser.setEmail(senderEmail);
         RoleEntity role = new RoleEntity(role(ADMIN.getId(), "admin", "Admin Role"));
         senderUser.addServiceRole(new ServiceRoleEntity(service, role));
-        when(mockUserDao.findByExternalId(senderExternalId)).thenReturn(Optional.of(senderUser));
 
         InviteEntity anInvite = anInvite(email, inviteCode, otpKey, role);
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
-
-        doNothing().when(mockInviteDao).persist(any(InviteEntity.class));
-
+        
         return anInvite;
     }
 
@@ -142,7 +138,6 @@ public class InviteServiceTest {
         InviteEntity anInvite = mocksCreateInvite();
         anInvite.setDisabled(Boolean.TRUE);
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
-        when(mockSecondFactorAuthenticator.authorize(otpKey, passCode)).thenReturn(true);
 
         InviteValidateOtpRequest inviteValidateOtpRequest = inviteValidateOtpRequest(inviteCode, passCode);
         ValidateOtpAndCreateUserResult validateOtpAndCreateUserResult =
@@ -280,7 +275,6 @@ public class InviteServiceTest {
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setOtpKey(otpKey);
 
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
         when(mockSecondFactorAuthenticator.authorize(otpKey, passCode)).thenReturn(true);
 
         Optional<WebApplicationException> validationResult = inviteService.validateOtp(inviteEntity, passCode);
@@ -290,13 +284,9 @@ public class InviteServiceTest {
 
     @Test
     public void validateOtp_shouldReturnFalseOnValidInviteAndInValidOtp() {
-        int invalidPasscode = 1234;
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setOtpKey(otpKey);
-
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
-        when(mockSecondFactorAuthenticator.authorize(otpKey, invalidPasscode)).thenReturn(false);
-
+        
         Optional<WebApplicationException> validationResult = inviteService.validateOtp(inviteEntity, passCode);
 
         assertThat(validationResult.isPresent(), is(true));
@@ -308,10 +298,7 @@ public class InviteServiceTest {
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setOtpKey(otpKey);
         inviteEntity.setDisabled(true);
-
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
-        when(mockSecondFactorAuthenticator.authorize(otpKey, passCode)).thenReturn(true);
-
+ 
         Optional<WebApplicationException> validationResult = inviteService.validateOtp(inviteEntity, passCode);
 
         assertThat(validationResult.isPresent(), is(true));

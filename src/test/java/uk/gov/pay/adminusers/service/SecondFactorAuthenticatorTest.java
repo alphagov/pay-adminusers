@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.service;
 
-import com.google.inject.persist.Transactional;
 import com.warrenstrange.googleauth.GoogleAuthenticatorConfig;
 import org.junit.Before;
 import org.junit.Rule;
@@ -8,7 +7,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Duration;

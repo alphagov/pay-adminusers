@@ -8,7 +8,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.app.config.NotifyConfiguration;
 import uk.gov.pay.adminusers.app.config.NotifyDirectDebitConfiguration;
 import uk.gov.pay.adminusers.model.PaymentType;
@@ -25,8 +25,8 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentCaptor.forClass;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -67,7 +67,6 @@ public class EmailServiceTest {
 
     @Before
     public void setUp() {
-        given(mockNotificationService.getNotifyConfiguration()).willReturn(mockNotificationConfiguration);
         given(mockNotificationService.getNotifyDirectDebitConfiguration()).willReturn(mockNotifyDirectDebitConfiguration);
         given(mockNotifyDirectDebitConfiguration.getMandateCancelledEmailTemplateId()).willReturn("NOTIFY_MANDATE_CANCELLED_EMAIL_TEMPLATE_ID_VALUE");
         given(mockNotifyDirectDebitConfiguration.getMandateFailedEmailTemplateId()).willReturn("NOTIFY_MANDATE_FAILED_EMAIL_TEMPLATE_ID_VALUE");
