@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -40,8 +40,8 @@ import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
@@ -198,7 +198,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         PAYLOAD_MAP.put(FIELD_GATEWAY_ACCOUNT_IDS, Collections.singletonList(GATEWAY_ACCOUNT_ID));
 
         given(mockedServicesFactory.serviceCreator()).willReturn(serviceCreator);
-        given(mockedServiceDao.checkIfGatewayAccountsUsed(anyListOf(String.class))).willReturn(true);
+        given(mockedServiceDao.checkIfGatewayAccountsUsed(anyList())).willReturn(true);
         Response response = resources.target(SERVICES_RESOURCE)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(PAYLOAD_MAP), Response.class);

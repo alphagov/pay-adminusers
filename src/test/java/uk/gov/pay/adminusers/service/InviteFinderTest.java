@@ -1,14 +1,13 @@
 package uk.gov.pay.adminusers.service;
 
 import com.google.common.collect.ImmutableList;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
@@ -18,6 +17,7 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.core.Is.is;
@@ -80,7 +80,6 @@ public class InviteFinderTest {
         inviteEntity.setExpiryDate(ZonedDateTime.now().minusDays(1));
         Optional<InviteEntity> inviteEntityOptional = Optional.of(inviteEntity);
         when(mockInviteDao.findByCode(code)).thenReturn(inviteEntityOptional);
-        when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(mock(UserEntity.class)));
 
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 410 Gone");
@@ -96,7 +95,6 @@ public class InviteFinderTest {
         inviteEntity.setDisabled(true);
         Optional<InviteEntity> inviteEntityOptional = Optional.of(inviteEntity);
         when(mockInviteDao.findByCode(code)).thenReturn(inviteEntityOptional);
-        when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(mock(UserEntity.class)));
 
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 410 Gone");

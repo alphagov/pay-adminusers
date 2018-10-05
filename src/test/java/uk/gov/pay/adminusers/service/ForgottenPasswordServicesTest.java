@@ -7,7 +7,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
@@ -27,8 +27,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.matches;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ForgottenPasswordServicesTest {
@@ -142,7 +147,6 @@ public class ForgottenPasswordServicesTest {
 
     private ForgottenPasswordEntity mockForgottenPassword(String code) {
         UserEntity mockUser = mock(UserEntity.class);
-        when(mockUser.getUsername()).thenReturn("random-username");
         return new ForgottenPasswordEntity(code, ZonedDateTime.now(), mockUser);
     }
 }

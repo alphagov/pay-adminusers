@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;

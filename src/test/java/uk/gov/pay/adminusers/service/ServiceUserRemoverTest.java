@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.persistence.dao.ServiceRoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
@@ -19,7 +19,10 @@ import java.util.Optional;
 
 import static org.apache.commons.lang3.RandomStringUtils.random;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
 @RunWith(MockitoJUnitRunner.class)

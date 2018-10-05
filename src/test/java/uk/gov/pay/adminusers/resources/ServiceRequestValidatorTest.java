@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.exception.ValidationException;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.utils.Errors;

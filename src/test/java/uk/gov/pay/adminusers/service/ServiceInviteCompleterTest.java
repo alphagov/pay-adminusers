@@ -7,7 +7,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.InviteCompleteRequest;
 import uk.gov.pay.adminusers.model.InviteCompleteResponse;
 import uk.gov.pay.adminusers.model.InviteType;
@@ -15,7 +15,11 @@ import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
-import uk.gov.pay.adminusers.persistence.entity.*;
+import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
+import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
+import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
@@ -27,7 +31,9 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
@@ -79,7 +85,6 @@ public class ServiceInviteCompleterTest {
         anInvite.setType(InviteType.SERVICE);
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
-        when(mockRoleDao.findByRoleName(roleName)).thenReturn(Optional.of(new RoleEntity()));
 
         InviteCompleteRequest data = new InviteCompleteRequest();
         data.setGatewayAccountIds(asList("1", "2"));
@@ -105,7 +110,6 @@ public class ServiceInviteCompleterTest {
         anInvite.setType(InviteType.SERVICE);
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
-        when(mockRoleDao.findByRoleName(roleName)).thenReturn(Optional.of(new RoleEntity()));
 
         InviteCompleteResponse inviteResponse = serviceInviteCompleter.withData(new InviteCompleteRequest()).complete(anInvite.getCode()).get();
 

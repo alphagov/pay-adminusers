@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.Link;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -31,7 +31,7 @@ import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.hasValue;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Matchers.anyListOf;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -64,7 +64,7 @@ public class ServiceCreatorTest {
     public void shouldSuccess_whenProvidedWith_noParameters() {
         Service service = serviceCreator.doCreate(Optional.empty(), Optional.empty(), Collections.emptyMap());
 
-        verify(mockedServiceDao, never()).checkIfGatewayAccountsUsed(anyListOf(String.class));
+        verify(mockedServiceDao, never()).checkIfGatewayAccountsUsed(anyList());
         verify(mockedServiceDao, times(1)).persist(persistedServiceEntity.capture());
         assertThat(service.getName(), is("System Generated"));
         List<GatewayAccountIdEntity> persistedGatewayIds = persistedServiceEntity.getValue().getGatewayAccountIds();
@@ -77,7 +77,7 @@ public class ServiceCreatorTest {
     public void shouldSuccess_whenProvidedWith_onlyAValidName() {
         Service service = serviceCreator.doCreate(Optional.of(EN_SERVICE_NAME), Optional.empty(), Collections.emptyMap());
 
-        verify(mockedServiceDao, never()).checkIfGatewayAccountsUsed(anyListOf(String.class));
+        verify(mockedServiceDao, never()).checkIfGatewayAccountsUsed(anyList());
         verify(mockedServiceDao, times(1)).persist(persistedServiceEntity.capture());
         assertThat(service.getName(), is(EN_SERVICE_NAME));
 
@@ -93,7 +93,7 @@ public class ServiceCreatorTest {
         serviceNameVariants.put(SupportedLanguage.WELSH, CY_SERVICE_NAME);
         Service service = serviceCreator.doCreate(Optional.of(EN_SERVICE_NAME), Optional.empty(), serviceNameVariants);
 
-        verify(mockedServiceDao, never()).checkIfGatewayAccountsUsed(anyListOf(String.class));
+        verify(mockedServiceDao, never()).checkIfGatewayAccountsUsed(anyList());
         verify(mockedServiceDao, times(1)).persist(persistedServiceEntity.capture());
         assertThat(service.getName(), is(EN_SERVICE_NAME));
 
@@ -112,7 +112,7 @@ public class ServiceCreatorTest {
         String gatewayAccountId_1 = "gatewayAccountId_1";
         Service service = serviceCreator.doCreate(Optional.empty(), Optional.of(asList(gatewayAccountId_1, gatewayAccountId_2)), Collections.emptyMap());
 
-        verify(mockedServiceDao, times(1)).checkIfGatewayAccountsUsed(anyListOf(String.class));
+        verify(mockedServiceDao, times(1)).checkIfGatewayAccountsUsed(anyList());
         verify(mockedServiceDao, times(1)).persist(persistedServiceEntity.capture());
 
         assertThat(service.getName(), is("System Generated"));
@@ -137,7 +137,7 @@ public class ServiceCreatorTest {
         String gatewayAccountId_1 = "gatewayAccountId_1";
         Service service = serviceCreator.doCreate(Optional.of(EN_SERVICE_NAME), Optional.of(asList(gatewayAccountId_1, gatewayAccountId_2)), Collections.emptyMap());
 
-        verify(mockedServiceDao, times(1)).checkIfGatewayAccountsUsed(anyListOf(String.class));
+        verify(mockedServiceDao, times(1)).checkIfGatewayAccountsUsed(anyList());
         verify(mockedServiceDao, times(1)).persist(persistedServiceEntity.capture());
 
         assertThat(service.getName(), is(EN_SERVICE_NAME));
