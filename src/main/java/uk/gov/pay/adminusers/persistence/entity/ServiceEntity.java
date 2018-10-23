@@ -42,6 +42,9 @@ public class ServiceEntity {
 
     @Column(name = "name")
     private String name = Service.DEFAULT_NAME_VALUE;
+    
+    @Column(name = "redirect_to_service_immediately_on_terminal_state")
+    private boolean redirectToServiceImmediatelyOnTerminalState;
 
     @Embedded
     private MerchantDetailsEntity merchantDetailsEntity;
@@ -90,6 +93,14 @@ public class ServiceEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isRedirectToServiceImmediatelyOnTerminalState() {
+        return redirectToServiceImmediatelyOnTerminalState;
+    }
+
+    public void setRedirectToServiceImmediatelyOnTerminalState(boolean redirectToServiceImmediatelyOnTerminalState) {
+        this.redirectToServiceImmediatelyOnTerminalState = redirectToServiceImmediatelyOnTerminalState;
     }
 
     public MerchantDetailsEntity getMerchantDetailsEntity() {

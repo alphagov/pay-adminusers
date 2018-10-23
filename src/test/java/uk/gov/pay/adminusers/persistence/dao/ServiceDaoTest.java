@@ -167,6 +167,22 @@ public class ServiceDaoTest extends DaoTestBase {
     }
 
     @Test
+    public void shouldFindByServiceExternalIdAndRedirectTrue() {
+
+        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+                .withRedirectToServiceImmediatelyOnTerminalState(true)
+                .build();
+
+        databaseHelper.insertServiceEntity(thisServiceEntity);
+
+        Optional<ServiceEntity> maybeServiceEntity = serviceDao.findByExternalId(thisServiceEntity.getExternalId());
+
+        assertTrue(maybeServiceEntity.isPresent());
+        ServiceEntity thatServiceEntity = maybeServiceEntity.get();
+        assertServiceEntity(thisServiceEntity, thatServiceEntity);
+    }
+
+    @Test
     public void shouldFindServiceWithMultipleLanguage_byServiceExternalId() {
         Set<ServiceNameEntity> serviceNames = new HashSet<>(Arrays.asList(
                 createServiceName(SupportedLanguage.ENGLISH, EN_NAME),
@@ -277,6 +293,7 @@ public class ServiceDaoTest extends DaoTestBase {
         assertThat(thisEntity.getId(), is(thatEntity.getId()));
         assertThat(thisEntity.getExternalId(), is(thatEntity.getExternalId()));
         assertThat(thisEntity.getName(), is(thatEntity.getName()));
+        assertThat(thisEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(thatEntity.isRedirectToServiceImmediatelyOnTerminalState()));
     }
 
     private void assertCustomBranding(ServiceEntity thisServiceEntity) {
