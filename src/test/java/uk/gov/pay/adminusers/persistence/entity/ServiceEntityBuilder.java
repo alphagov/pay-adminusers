@@ -21,6 +21,7 @@ public final class ServiceEntityBuilder {
     private Map<String, Object> customBranding = ImmutableMap.of("image_url", "image url", "css_url", "css url");
     private List<GatewayAccountIdEntity> gatewayAccountIds = new ArrayList<>();
     private Set<ServiceNameEntity> serviceName = new HashSet<>();
+    private boolean redirectToServiceImmediatelyOnTerminalState = false;
 
     private ServiceEntityBuilder() {
     }
@@ -71,6 +72,11 @@ public final class ServiceEntityBuilder {
         this.serviceName.add(entity);
         return this;
     }
+    
+    public ServiceEntityBuilder withRedirectToServiceImmediatelyOnTerminalState(boolean redirectToServiceImmediatelyOnTerminalState) {
+        this.redirectToServiceImmediatelyOnTerminalState = redirectToServiceImmediatelyOnTerminalState;
+        return this;
+    }
 
     public ServiceEntity build() {
         ServiceEntity serviceEntity = new ServiceEntity();
@@ -81,6 +87,7 @@ public final class ServiceEntityBuilder {
         serviceEntity.setCustomBranding(customBranding);
         serviceName.forEach(serviceEntity::addOrUpdateServiceName);
         gatewayAccountIds.forEach(g -> serviceEntity.addGatewayAccountIds(g.getGatewayAccountId()));
+        serviceEntity.setRedirectToServiceImmediatelyOnTerminalState(redirectToServiceImmediatelyOnTerminalState);
         return serviceEntity;
     }
 }
