@@ -72,6 +72,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertThat(json.getMap("service_name"), not(hasKey("cy")));
         assertMerchantDetails(serviceEntity.getMerchantDetailsEntity(), json);
         assertLinks(serviceExternalId, json);
+        assertThat(json.get("redirect_to_service_immediately_on_terminal_state"), is(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState()));
     }
 
     @Test
@@ -130,6 +131,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
         ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withGatewayAccounts(Collections.singletonList(gatewayAccountIdEntity))
+                .withRedirectToServiceImmediatelyOnTerminalState(true)
                 .build();
         gatewayAccountIdEntity.setService(serviceEntity);
 
@@ -147,6 +149,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertEnServiceNameJson(serviceEntity.getName(), json);
         assertMerchantDetails(serviceEntity.getMerchantDetailsEntity(), json);
         assertLinks(serviceEntity.getExternalId(), json);
+        assertThat(json.get("redirect_to_service_immediately_on_terminal_state"), is(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState()));
     }
 
     @Test

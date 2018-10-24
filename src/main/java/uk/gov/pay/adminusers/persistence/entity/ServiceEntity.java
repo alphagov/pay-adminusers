@@ -144,6 +144,7 @@ public class ServiceEntity {
         if (this.merchantDetailsEntity != null) {
             service.setMerchantDetails(this.merchantDetailsEntity.toMerchantDetails());
         }
+        service.setRedirectToServiceImmediatelyOnTerminalState(this.redirectToServiceImmediatelyOnTerminalState);
         return service;
     }
 
