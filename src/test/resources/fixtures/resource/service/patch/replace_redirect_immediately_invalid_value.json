@@ -1,0 +1,5 @@
+{
+  "op": "replace",
+  "path": "redirect_to_service_immediately_on_terminal_state",
+  "value": "not a boolean"
+}

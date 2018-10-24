@@ -28,6 +28,7 @@ public class ServiceUpdater {
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
     public static final String FIELD_CUSTOM_BRANDING = "custom_branding";
     public static final String FIELD_SERVICE_NAME_PREFIX = "service_name";
+    public static final String FIELD_REDIRECT_NAME = "redirect_to_service_immediately_on_terminal_state";
 
     private final ServiceDao serviceDao;
 
@@ -39,6 +40,7 @@ public class ServiceUpdater {
         attributeUpdaters.put(FIELD_NAME, updateServiceName());
         attributeUpdaters.put(FIELD_GATEWAY_ACCOUNT_IDS, assignGatewayAccounts());
         attributeUpdaters.put(FIELD_CUSTOM_BRANDING, updateCustomBranding());
+        attributeUpdaters.put(FIELD_REDIRECT_NAME, updateRedirectImmediately());
         Arrays.stream(SupportedLanguage.values())
                 .forEach(language -> attributeUpdaters.put(FIELD_SERVICE_NAME_PREFIX + '/' + language.toString(), updateMultilingualServiceName()));
         this.attributeUpdaters = attributeUpdaters.build();
@@ -101,5 +103,10 @@ public class ServiceUpdater {
             ServiceNameEntity serviceNameEntity = ServiceNameEntity.from(language, serviceUpdateRequest.valueAsString());
             serviceEntity.addOrUpdateServiceName(serviceNameEntity);
         };
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateRedirectImmediately() {
+        return ((serviceUpdateRequest, serviceEntity) -> 
+                serviceEntity.setRedirectToServiceImmediatelyOnTerminalState(serviceUpdateRequest.valueAsBoolean()));
     }
 }

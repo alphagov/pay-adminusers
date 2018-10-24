@@ -63,6 +63,10 @@ public class ServiceUpdateRequest {
         return null;
     }
 
+    public boolean valueAsBoolean() {
+        return value != null && Boolean.parseBoolean(value.asText());
+    }
+
 
     private ServiceUpdateRequest(String op, String path, JsonNode value) {
         this.op = op;

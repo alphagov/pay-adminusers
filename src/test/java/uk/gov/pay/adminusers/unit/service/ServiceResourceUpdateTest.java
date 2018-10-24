@@ -19,6 +19,7 @@ import uk.gov.pay.commons.model.SupportedLanguage;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -416,4 +417,55 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         assertThat(json.getList("errors"), contains("One or more of the following gateway account ids has already assigned to another service: [1014748185]"));
     }
 
+    @Test
+    public void shouldUpdateRedirect_toTrue() {
+
+        ServiceEntity thisServiceEntity = ServiceEntityBuilder
+                .aServiceEntity()
+                .withRedirectToServiceImmediatelyOnTerminalState(false)
+                .build();
+        String externalId = thisServiceEntity.getExternalId();
+
+        String jsonPayload = fixture("fixtures/resource/service/patch/replace_redirect_immediately_to_true.json");
+
+        when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
+        when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
+
+        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+                .request()
+                .method("PATCH", Entity.json(jsonPayload));
+
+        assertThat(response.getStatus(), is(200));
+
+        String body = response.readEntity(String.class);
+        JsonPath json = JsonPath.from(body);
+
+        assertThat(json.get("redirect_to_service_immediately_on_terminal_state"), is(true));
+    }
+
+    @Test
+    public void shouldFailUpdateRedirect_whenValueIsNotBoolean() {
+
+        ServiceEntity thisServiceEntity = ServiceEntityBuilder
+                .aServiceEntity()
+                .withRedirectToServiceImmediatelyOnTerminalState(false)
+                .build();
+        String externalId = thisServiceEntity.getExternalId();
+
+        String jsonPayload = fixture("fixtures/resource/service/patch/replace_redirect_immediately_invalid_value.json");
+
+        when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
+        when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
+
+        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+                .request()
+                .method("PATCH", Entity.json(jsonPayload));
+
+        assertThat(response.getStatus(), is(400));
+
+        String body = response.readEntity(String.class);
+        JsonPath json = JsonPath.from(body);
+
+        assertThat(json.get("errors"), is(Arrays.asList("Field [value] must be a boolean")));
+    }
 }
