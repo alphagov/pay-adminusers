@@ -31,6 +31,7 @@ public class Service {
     private Map<String, Object> customBranding;
     private MerchantDetails merchantDetails;
     private Map<String, String> serviceNames;
+    private boolean redirectToServiceImmediatelyOnTerminalState;
 
     public static Service from() {
         return from(DEFAULT_NAME_VALUE);
@@ -137,4 +138,12 @@ public class Service {
         return serviceNames;
     }
 
+    @JsonProperty("redirect_to_service_immediately_on_terminal_state")
+    public boolean isRedirectToServiceImmediatelyOnTerminalState() {
+        return redirectToServiceImmediatelyOnTerminalState;
+    }
+
+    public void setRedirectToServiceImmediatelyOnTerminalState(boolean redirectToServiceImmediatelyOnTerminalState) {
+        this.redirectToServiceImmediatelyOnTerminalState = redirectToServiceImmediatelyOnTerminalState;
+    }
 }
