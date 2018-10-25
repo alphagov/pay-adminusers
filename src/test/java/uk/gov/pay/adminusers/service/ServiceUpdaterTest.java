@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.service;
 
+import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -215,5 +216,24 @@ public class ServiceUpdaterTest {
         InOrder inOrder = inOrder(ignoreStubs(serviceDao, serviceEntity));
         inOrder.verify(serviceEntity).addOrUpdateServiceName(serviceNameEntity);
         inOrder.verify(serviceDao).merge(serviceEntity);
+    }
+
+    @Test
+    public void shouldUpdateRedirectImmediatelySuccessfully() {
+        String serviceId = randomUuid();
+        ServiceUpdateRequest request = ServiceUpdateRequest.from(new ObjectNode(JsonNodeFactory.instance, ImmutableMap.of(
+                "path", new TextNode("redirect_to_service_immediately_on_terminal_state"),
+                "value", BooleanNode.valueOf(true),
+                "op", new TextNode("replace"))));
+        ServiceEntity serviceEntity = mock(ServiceEntity.class);
+
+        when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
+        when(serviceEntity.toService()).thenReturn(Service.from());
+
+        Optional<Service> maybeService = updater.doUpdate(serviceId, request);
+
+        assertThat(maybeService.isPresent(), is(true));
+        verify(serviceEntity, times(1)).setRedirectToServiceImmediatelyOnTerminalState(true);
+        verify(serviceDao, times(1)).merge(serviceEntity);
     }
 }

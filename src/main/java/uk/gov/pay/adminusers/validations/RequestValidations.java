@@ -25,6 +25,10 @@ public class RequestValidations {
         return applyCheck(payload, isNotBoolean(), fieldNames, "Field [%s] must be a boolean");
     }
 
+    public Optional<List<String>> checkIsStrictBoolean(JsonNode payload, String... fieldNames) {
+        return applyCheck(payload, isNotStrictBoolean(), fieldNames, "Field [%s] must be a boolean");
+    }
+
     public Optional<List<String>> checkExistsAndNotEmpty(JsonNode payload, String... fieldNames) {
         return applyCheck(payload, notExistsOrIsEmpty(), fieldNames, "Field [%s] is required");
     }
@@ -93,6 +97,10 @@ public class RequestValidations {
 
     static Function<JsonNode, Boolean> isNotBoolean() {
         return jsonNode -> !ImmutableList.of("true", "false").contains(jsonNode.asText().toLowerCase());
+    }
+
+    static Function<JsonNode, Boolean> isNotStrictBoolean() {
+        return jsonNode -> !jsonNode.isBoolean();
     }
 
     public Optional<List<String>> isValidEmail(JsonNode payload, String... fieldNames) {

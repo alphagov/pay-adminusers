@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
@@ -166,4 +167,65 @@ public class ServiceUpdateOperationValidatorTest {
         assertThat(errors, hasItem("Path [service_name/xx] is invalid"));
     }
 
+    @Test
+    public void shouldSucceed_whenUpdateRedirectToService() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "redirect_to_service_immediately_on_terminal_state");
+        payload.put("op", "replace");
+        payload.put("value", true);
+
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+
+        assertThat(errors.size(), is(0));
+    }
+
+    @Test
+    public void shouldFail_whenUpdateRedirectToService_whenOpIsNotReplace() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "redirect_to_service_immediately_on_terminal_state");
+        payload.put("op", "not_replace");
+        payload.put("value", true);
+
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Operation [not_replace] is invalid for path [redirect_to_service_immediately_on_terminal_state]"));
+    }
+
+    @Test
+    public void shouldFail_whenUpdateRedirectToService_whenOpIsNotPresent() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "redirect_to_service_immediately_on_terminal_state");
+        payload.put("value", true);
+
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Field [op] is required"));
+    }
+
+    @Test
+    public void shouldFail_whenUpdateRedirectToService_whenValueIsNotBoolean() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "redirect_to_service_immediately_on_terminal_state");
+        payload.put("op", "replace");
+        payload.put("value", "not a boolean");
+
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Field [value] must be a boolean"));
+    }
+
+    @Test
+    public void shouldFail_whenUpdateRedirectToService_whenMissingValue() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "redirect_to_service_immediately_on_terminal_state");
+        payload.put("op", "replace");
+
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Field [value] is required"));
+    }
 }
