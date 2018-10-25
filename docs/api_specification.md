@@ -599,7 +599,8 @@ Content-Type: application/json
         "href": "http://adminusers.service/v1/api/services/123",
         "rel" : "self",
         "method" : "GET"
-    }]
+    }],
+    "redirect_to_service_immediately_on_terminal_state": false
     
 }
 ```
@@ -823,8 +824,8 @@ Content-Type: application/json
         "href": "http://adminusers.service/v1/api/services/123",
         "rel" : "self",
         "method" : "GET"
-    }]
-    
+    }],
+    "redirect_to_service_immediately_on_terminal_state": false
 }
 ```
 -----------------------------------------------------------------------------------------------------------
@@ -865,7 +866,8 @@ Content-Type: application/json
             "address_postcode": "EC1 8AB",
             "address_country": "GB",
           },
-          "_links": []
+          "_links": [],
+          "redirect_to_service_immediately_on_terminal_state": false
         },
         "role": {
           "name": "admin",
@@ -893,7 +895,8 @@ Content-Type: application/json
           "address_postcode": "EC1 8AB",
           "address_country": "GB",
         },
-        "_links": []
+        "_links": [],
+        "redirect_to_service_immediately_on_terminal_state": false
       }
     ],
     "disabled": false,
@@ -1024,12 +1027,26 @@ Content-Type: application/json
 
 ```
 
+### Request example (for replacing redirect_to_service_immediately_on_terminal_state)
+Only boolean value allowed
+
+```
+PATCH /v1/api/services/7d19aff33f8948deb97ed16b2912dcd3
+Content-Type: application/json
+{
+ "op":    "replace",
+ "path":  "redirect_to_service_immediately_on_terminal_state", 
+ "value": true
+}
+
+```
+
 #### Request body description
 
 | Field                    | required | Description                                                      | Supported Values     |
 | ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
 | `op`                     |   X      | operation to perform on attribute                                | `replace`, `add`     |
-| `path`                   |   X      | attribute that is affecting                                      | `gateway_account_ids` , `name`, `service_name/xx`, `custom_branding` |
+| `path`                   |   X      | attribute that is affecting                                      | `gateway_account_ids` , `name`, `service_name/xx`, `custom_branding`, `redirect_to_service_immediately_on_terminal_state` |
 | `value`                  |   X      | value to be replaced                                             |                      |
 
 Note that in `service_name/xx`, `xx` must be replaced by a supported ISO-639-1 language code.
@@ -1052,7 +1069,8 @@ Content-Type: application/json
         "href": "http://adminusers.service/v1/api/services/123",
         "rel" : "self",
         "method" : "GET"
-    }]
+    }],
+    "redirect_to_service_immediately_on_terminal_state": true
     
 }
 ```
