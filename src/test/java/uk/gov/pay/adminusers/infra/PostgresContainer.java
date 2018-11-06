@@ -28,7 +28,7 @@ public class PostgresContainer {
     private String host;
     private volatile boolean stopped = false;
 
-    private static final String GOVUK_POSTGRES_IMAGE = "govukpay/postgres:9.4.4";
+    private static final String GOVUK_POSTGRES_IMAGE = "govukpay/postgres:9.6.6";
     private static final String DB_PASSWORD = "mysecretpassword";
     private static final String DB_USERNAME = "postgres";
     private static final int DB_TIMEOUT_SEC = 15;
