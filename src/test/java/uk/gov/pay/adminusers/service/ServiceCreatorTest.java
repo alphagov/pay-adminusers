@@ -37,7 +37,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceCreatorTest {
 
@@ -67,6 +66,8 @@ public class ServiceCreatorTest {
         verify(mockedServiceDao, never()).checkIfGatewayAccountsUsed(anyList());
         verify(mockedServiceDao, times(1)).persist(persistedServiceEntity.capture());
         assertThat(service.getName(), is("System Generated"));
+        assertThat(service.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
+        assertThat(service.isCollectBillingAddress(), is(true));
         List<GatewayAccountIdEntity> persistedGatewayIds = persistedServiceEntity.getValue().getGatewayAccountIds();
         assertThat(persistedGatewayIds.size(), is(0));
         assertEnServiceNameMap(service, "System Generated");
@@ -107,7 +108,6 @@ public class ServiceCreatorTest {
 
     @Test
     public void shouldSuccess_whenProvidedWith_unassignedGatewayId() {
-
         String gatewayAccountId_2 = "gatewayAccountId_2";
         String gatewayAccountId_1 = "gatewayAccountId_1";
         Service service = serviceCreator.doCreate(Optional.empty(), Optional.of(asList(gatewayAccountId_1, gatewayAccountId_2)), Collections.emptyMap());
@@ -145,9 +145,9 @@ public class ServiceCreatorTest {
         assertThat(persistedGatewayIds.size(), is(2));
         assertThat(persistedGatewayIds, hasItems(gatewayAccountId_1, gatewayAccountId_1));
         assertThat(service.getGatewayAccountIds(), hasItems(gatewayAccountId_1, gatewayAccountId_2));
-        
+
         assertEnServiceNameMap(service, EN_SERVICE_NAME);
-        
+
         assertSelfLink(service);
     }
 

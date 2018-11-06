@@ -22,6 +22,7 @@ public final class ServiceEntityBuilder {
     private List<GatewayAccountIdEntity> gatewayAccountIds = new ArrayList<>();
     private Set<ServiceNameEntity> serviceName = new HashSet<>();
     private boolean redirectToServiceImmediatelyOnTerminalState = false;
+    private boolean collectBillingAddress = true;
 
     private ServiceEntityBuilder() {
     }
@@ -72,7 +73,7 @@ public final class ServiceEntityBuilder {
         this.serviceName.add(entity);
         return this;
     }
-    
+
     public ServiceEntityBuilder withRedirectToServiceImmediatelyOnTerminalState(boolean redirectToServiceImmediatelyOnTerminalState) {
         this.redirectToServiceImmediatelyOnTerminalState = redirectToServiceImmediatelyOnTerminalState;
         return this;
@@ -88,6 +89,7 @@ public final class ServiceEntityBuilder {
         serviceName.forEach(serviceEntity::addOrUpdateServiceName);
         gatewayAccountIds.forEach(g -> serviceEntity.addGatewayAccountIds(g.getGatewayAccountId()));
         serviceEntity.setRedirectToServiceImmediatelyOnTerminalState(redirectToServiceImmediatelyOnTerminalState);
+        serviceEntity.setCollectBillingAddress(collectBillingAddress);
         return serviceEntity;
     }
 }

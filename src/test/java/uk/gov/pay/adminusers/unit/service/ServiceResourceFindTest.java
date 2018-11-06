@@ -73,11 +73,11 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertMerchantDetails(serviceEntity.getMerchantDetailsEntity(), json);
         assertLinks(serviceExternalId, json);
         assertThat(json.get("redirect_to_service_immediately_on_terminal_state"), is(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState()));
+        assertThat(json.get("collect_billing_address"), is(serviceEntity.isCollectBillingAddress()));
     }
 
     @Test
     public void shouldGetServiceById_withServiceNameVariantForCy() {
-
         String serviceExternalId = randomUuid();
         ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withExternalId(serviceExternalId)
@@ -99,7 +99,6 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldGetServiceById_withServiceNameVariantsForEn_andCy() {
-
         String serviceExternalId = randomUuid();
         ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withName(EN_SERVICE_NAME)
@@ -120,12 +119,10 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertCyServiceNameJson(CY_SERVICE_NAME, json);
         assertMerchantDetails(serviceEntity.getMerchantDetailsEntity(), json);
         assertLinks(serviceExternalId, json);
-
     }
 
     @Test
     public void shouldFind_existingServiceByGatewayAccountId() {
-
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
         String gatewayAccountId = randomUuid();
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
@@ -150,6 +147,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertMerchantDetails(serviceEntity.getMerchantDetailsEntity(), json);
         assertLinks(serviceEntity.getExternalId(), json);
         assertThat(json.get("redirect_to_service_immediately_on_terminal_state"), is(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState()));
+        assertThat(json.get("collect_billing_address"), is(serviceEntity.isCollectBillingAddress()));
     }
 
     @Test

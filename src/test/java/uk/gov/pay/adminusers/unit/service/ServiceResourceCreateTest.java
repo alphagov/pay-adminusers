@@ -98,6 +98,8 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
 
         assertThat(json.get("name"), is("System Generated"));
         assertThat(json.get("external_id"), is(notNullValue()));
+        assertThat(json.get("redirect_to_service_immediately_on_terminal_state"), is(false));
+        assertThat(json.get("collect_billing_address"), is(true));
         assertThat(json.getMap("service_name"), not(hasKey("cy")));
         assertEnServiceNameJson("System Generated", json);
         assertLinks(json.get("external_id"), json);
@@ -217,6 +219,8 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         Service service = maybeName.map(Service::from)
                 .orElseGet(Service::from);
         ServiceEntity serviceEntity = ServiceEntity.from(service);
+        serviceEntity.setRedirectToServiceImmediatelyOnTerminalState(false);
+        serviceEntity.setCollectBillingAddress(true);
         serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, service.getName()));
         serviceNameVariants.forEach((k, v) -> serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(k, v)));
         if (maybeAccountIds.isPresent()) {

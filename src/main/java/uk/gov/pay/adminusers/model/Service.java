@@ -32,6 +32,7 @@ public class Service {
     private MerchantDetails merchantDetails;
     private Map<String, String> serviceNames;
     private boolean redirectToServiceImmediatelyOnTerminalState;
+    private boolean collectBillingAddress;
 
     public static Service from() {
         return from(DEFAULT_NAME_VALUE);
@@ -46,20 +47,34 @@ public class Service {
     }
 
     public static Service from(Integer id, String externalId, String name) {
-        return new Service(id, externalId, name, Collections.emptyMap());
+        return new Service(id, externalId, name, Collections.emptyMap(), false, true);
     }
 
     public static Service from(Integer id, String externalId, String name, Map<SupportedLanguage, ServiceNameEntity> multilingualServiceNames) {
-        return new Service(id, externalId, name, multilingualServiceNames);
+        return new Service(id, externalId, name, multilingualServiceNames, false, true);
+    }
+
+    public static Service from(Integer id,
+                               String externalId,
+                               String name,
+                               Map<SupportedLanguage,
+                                       ServiceNameEntity> multilingualServiceNames,
+                               boolean redirectToServiceImmediatelyOnTerminalState,
+                               boolean collectBillingAddress) {
+        return new Service(id, externalId, name, multilingualServiceNames, redirectToServiceImmediatelyOnTerminalState, collectBillingAddress);
     }
 
     private Service(@JsonProperty("id") Integer id,
                     @JsonProperty("external_id") String externalId,
                     @JsonProperty("name") String name,
-                    Map<SupportedLanguage, ServiceNameEntity> multilingualServiceNames) {
+                    Map<SupportedLanguage, ServiceNameEntity> multilingualServiceNames,
+                    boolean redirectToServiceImmediatelyOnTerminalState,
+                    boolean collectBillingAddress) {
         this.id = id;
         this.externalId = externalId;
         this.name = name;
+        this.redirectToServiceImmediatelyOnTerminalState = redirectToServiceImmediatelyOnTerminalState;
+        this.collectBillingAddress = collectBillingAddress;
 
         this.serviceNames = new LinkedHashMap<>();
         serviceNames.put(SupportedLanguage.ENGLISH.toString(), name);
@@ -145,5 +160,14 @@ public class Service {
 
     public void setRedirectToServiceImmediatelyOnTerminalState(boolean redirectToServiceImmediatelyOnTerminalState) {
         this.redirectToServiceImmediatelyOnTerminalState = redirectToServiceImmediatelyOnTerminalState;
+    }
+
+    @JsonProperty("collect_billing_address")
+    public boolean isCollectBillingAddress() {
+        return collectBillingAddress;
+    }
+
+    public void setCollectBillingAddress(boolean collectBillingAddress) {
+        this.collectBillingAddress = collectBillingAddress;
     }
 }
