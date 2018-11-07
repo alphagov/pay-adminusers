@@ -19,7 +19,6 @@ import uk.gov.pay.commons.model.SupportedLanguage;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -419,7 +418,6 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldUpdateRedirect_toTrue() {
-
         ServiceEntity thisServiceEntity = ServiceEntityBuilder
                 .aServiceEntity()
                 .withRedirectToServiceImmediatelyOnTerminalState(false)
@@ -445,7 +443,6 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldFailUpdateRedirect_whenValueIsNotBoolean() {
-
         ServiceEntity thisServiceEntity = ServiceEntityBuilder
                 .aServiceEntity()
                 .withRedirectToServiceImmediatelyOnTerminalState(false)
@@ -466,6 +463,56 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         String body = response.readEntity(String.class);
         JsonPath json = JsonPath.from(body);
 
-        assertThat(json.get("errors"), is(Arrays.asList("Field [value] must be a boolean")));
+        assertThat(json.get("errors"), is(Collections.singletonList("Field [value] must be a boolean")));
+    }
+
+    @Test
+    public void shouldUpdateCollectBillingAddress_toFalse() {
+        ServiceEntity thisServiceEntity = ServiceEntityBuilder
+                .aServiceEntity()
+                .withCollectBillingAddress(true)
+                .build();
+        String externalId = thisServiceEntity.getExternalId();
+
+        String jsonPayload = fixture("fixtures/resource/service/patch/replace_collect_billing_address_to_false.json");
+
+        when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
+        when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
+
+        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+                .request()
+                .method("PATCH", Entity.json(jsonPayload));
+
+        assertThat(response.getStatus(), is(200));
+
+        String body = response.readEntity(String.class);
+        JsonPath json = JsonPath.from(body);
+
+        assertThat(json.get("collect_billing_address"), is(false));
+    }
+
+    @Test
+    public void shouldFailUpdateCollectBillingAddress_whenValueIsNotBoolean() {
+        ServiceEntity thisServiceEntity = ServiceEntityBuilder
+                .aServiceEntity()
+                .withCollectBillingAddress(true)
+                .build();
+        String externalId = thisServiceEntity.getExternalId();
+
+        String jsonPayload = fixture("fixtures/resource/service/patch/replace_collect_billing_address_invalid_value.json");
+
+        when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
+        when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
+
+        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+                .request()
+                .method("PATCH", Entity.json(jsonPayload));
+
+        assertThat(response.getStatus(), is(400));
+
+        String body = response.readEntity(String.class);
+        JsonPath json = JsonPath.from(body);
+
+        assertThat(json.get("errors"), is(Collections.singletonList("Field [value] must be a boolean")));
     }
 }
