@@ -42,9 +42,12 @@ public class ServiceEntity {
 
     @Column(name = "name")
     private String name = Service.DEFAULT_NAME_VALUE;
-    
+
     @Column(name = "redirect_to_service_immediately_on_terminal_state")
     private boolean redirectToServiceImmediatelyOnTerminalState;
+
+    @Column(name = "collect_billing_address")
+    private boolean collectBillingAddress;
 
     @Embedded
     private MerchantDetailsEntity merchantDetailsEntity;
@@ -103,6 +106,14 @@ public class ServiceEntity {
         this.redirectToServiceImmediatelyOnTerminalState = redirectToServiceImmediatelyOnTerminalState;
     }
 
+    public boolean isCollectBillingAddress() {
+        return collectBillingAddress;
+    }
+
+    public void setCollectBillingAddress(boolean collectBillingAddress) {
+        this.collectBillingAddress = collectBillingAddress;
+    }
+
     public MerchantDetailsEntity getMerchantDetailsEntity() {
         return merchantDetailsEntity;
     }
@@ -136,7 +147,7 @@ public class ServiceEntity {
     }
 
     public Service toService() {
-        Service service = Service.from(id, externalId, name, getServiceNames());
+        Service service = Service.from(id, externalId, name, getServiceNames(), this.redirectToServiceImmediatelyOnTerminalState, this.collectBillingAddress);
         service.setGatewayAccountIds(gatewayAccountIds.stream()
                 .map(GatewayAccountIdEntity::getGatewayAccountId)
                 .collect(Collectors.toList()));
@@ -144,7 +155,6 @@ public class ServiceEntity {
         if (this.merchantDetailsEntity != null) {
             service.setMerchantDetails(this.merchantDetailsEntity.toMerchantDetails());
         }
-        service.setRedirectToServiceImmediatelyOnTerminalState(this.redirectToServiceImmediatelyOnTerminalState);
         return service;
     }
 

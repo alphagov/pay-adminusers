@@ -294,6 +294,7 @@ public class ServiceDaoTest extends DaoTestBase {
         assertThat(thisEntity.getExternalId(), is(thatEntity.getExternalId()));
         assertThat(thisEntity.getName(), is(thatEntity.getName()));
         assertThat(thisEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(thatEntity.isRedirectToServiceImmediatelyOnTerminalState()));
+        assertThat(thisEntity.isCollectBillingAddress(), is(thatEntity.isCollectBillingAddress()));
     }
 
     private void assertCustomBranding(ServiceEntity thisServiceEntity) {
