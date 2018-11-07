@@ -79,6 +79,11 @@ public final class ServiceEntityBuilder {
         return this;
     }
 
+    public ServiceEntityBuilder withCollectBillingAddress(boolean collectBillingAddress) {
+        this.collectBillingAddress = collectBillingAddress;
+        return this;
+    }
+
     public ServiceEntity build() {
         ServiceEntity serviceEntity = new ServiceEntity();
         serviceEntity.setId(id);

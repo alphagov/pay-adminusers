@@ -23,10 +23,10 @@ public class ServiceUpdateOperationValidatorTest {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", "example-name");
 
         List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
-        
+
         assertThat(errors.isEmpty(), is(true));
     }
-    
+
     @Test
     public void shouldFail_whenUpdateName_whenNameFieldPresentAndItIsTooLong() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace",
@@ -68,7 +68,7 @@ public class ServiceUpdateOperationValidatorTest {
         assertThat(errors.size(), is(1));
         assertThat(errors, hasItem("Operation [add] is invalid for path [name]"));
     }
-    
+
     @Test
     public void shouldSuccess_replacingCustomBranding() {
         ImmutableMap<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace",
@@ -145,7 +145,7 @@ public class ServiceUpdateOperationValidatorTest {
         assertThat(errors.size(), is(1));
         assertThat(errors, hasItem("Field [value] is required"));
     }
-    
+
     @Test
     public void shouldFail_whenUpdateServiceName_whenServiceNameFieldPresentAndItIsTooLong() {
         ImmutableMap<String, String> payload = ImmutableMap.of("path", "service_name/en", "op", "replace",
@@ -221,6 +221,68 @@ public class ServiceUpdateOperationValidatorTest {
     public void shouldFail_whenUpdateRedirectToService_whenMissingValue() {
         ObjectNode payload = mapper.createObjectNode();
         payload.put("path", "redirect_to_service_immediately_on_terminal_state");
+        payload.put("op", "replace");
+
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Field [value] is required"));
+    }
+
+    @Test
+    public void shouldSucceed_whenUpdateCollectBillingAddress() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "collect_billing_address");
+        payload.put("op", "replace");
+        payload.put("value", true);
+
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+
+        assertThat(errors.size(), is(0));
+    }
+
+    @Test
+    public void shouldFail_whenUpdateCollectBillingAddress_whenOpIsNotReplace() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "collect_billing_address");
+        payload.put("op", "not_replace");
+        payload.put("value", true);
+
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Operation [not_replace] is invalid for path [collect_billing_address]"));
+    }
+
+    @Test
+    public void shouldFail_whenUpdateCollectBillingAddress_whenOpIsNotPresent() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "collect_billing_address");
+        payload.put("value", true);
+
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Field [op] is required"));
+    }
+
+    @Test
+    public void shouldFail_whenUpdateCollectBillingAddress_whenValueIsNotBoolean() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "collect_billing_address");
+        payload.put("op", "replace");
+        payload.put("value", "not a boolean");
+
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Field [value] must be a boolean"));
+    }
+
+    @Test
+    public void shouldFail_whenUpdateCollectBillingAddress_whenMissingValue() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "collect_billing_address");
         payload.put("op", "replace");
 
         List<String> errors = serviceUpdateOperationValidator.validate(payload);

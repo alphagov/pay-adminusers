@@ -1,0 +1,5 @@
+{
+  "op": "replace",
+  "path": "collect_billing_address",
+  "value": false
+}
