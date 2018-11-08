@@ -44,10 +44,10 @@ public class ServiceEntity {
     private String name = Service.DEFAULT_NAME_VALUE;
 
     @Column(name = "redirect_to_service_immediately_on_terminal_state")
-    private boolean redirectToServiceImmediatelyOnTerminalState;
+    private boolean redirectToServiceImmediatelyOnTerminalState = false;
 
     @Column(name = "collect_billing_address")
-    private boolean collectBillingAddress;
+    private boolean collectBillingAddress = true;
 
     @Embedded
     private MerchantDetailsEntity merchantDetailsEntity;
@@ -71,6 +71,8 @@ public class ServiceEntity {
     public ServiceEntity(List<String> gatewayAccountIds) {
         this.gatewayAccountIds.clear();
         this.externalId = randomUuid();
+        this.redirectToServiceImmediatelyOnTerminalState = false;
+        this.collectBillingAddress = true;
         populateGatewayAccountIds(gatewayAccountIds);
     }
 
@@ -177,6 +179,8 @@ public class ServiceEntity {
         ServiceEntity serviceEntity = new ServiceEntity();
         serviceEntity.setName(service.getName());
         serviceEntity.setExternalId(service.getExternalId());
+        serviceEntity.setRedirectToServiceImmediatelyOnTerminalState(service.isRedirectToServiceImmediatelyOnTerminalState());
+        serviceEntity.setCollectBillingAddress(service.isCollectBillingAddress());
         return serviceEntity;
     }
 

@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -68,10 +69,30 @@ public class UserCreatorTest {
     }
 
     @Test
+    public void shouldSaveAndReturnUser_forValidUserCreationRequest_withGatewayAccountIds() throws Exception {
+        String validRole = "validRole";
+        when(mockRoleDao.findByRoleName(validRole)).thenReturn(Optional.of(mock(RoleEntity.class)));
+        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", asList("1", "2"), null, "otpKey", "3745838475", null);
+        User user = userCreator.doCreate(request, validRole);
+
+        verify(mockUserDao).persist(expectedUser.capture());
+        assertThat(expectedUser.getValue().getEmail(), is("email@example.com"));
+        assertThat(user.getEmail(), is("email@example.com"));
+        assertThat(user.getSecondFactor(), is(SecondFactorMethod.SMS));
+        assertThat(user.getServiceRoles().size(), is(1));
+        
+        Service service = user.getServiceRoles().get(0).getService();
+        assertThat(service.getName(), is (Service.DEFAULT_NAME_VALUE));
+        assertThat(service.getGatewayAccountIds(), is(asList("1", "2")));
+        assertThat(service.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
+        assertThat(service.isCollectBillingAddress(), is(true));
+    }
+
+    @Test
     public void shouldSaveAndReturnUser_forValidUserCreationRequest_withServiceRoles() throws Exception {
         String validRole = "validRole";
         when(mockRoleDao.findByRoleName(validRole)).thenReturn(Optional.of(mock(RoleEntity.class)));
-        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, asList("ext-id-1","ext-id-2"), "otpKey", "3745838475", null);
+        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, asList("ext-id-1", "ext-id-2"), "otpKey", "3745838475", null);
         when(mockServiceDao.findByExternalId("ext-id-1")).thenReturn(Optional.of(mock(ServiceEntity.class)));
         when(mockServiceDao.findByExternalId("ext-id-2")).thenReturn(Optional.of(mock(ServiceEntity.class)));
         User user = userCreator.doCreate(request, validRole);
@@ -87,7 +108,7 @@ public class UserCreatorTest {
     public void shouldSaveAndReturnUser_forValidUserCreationRequest_withServiceRoles_evenIfSomeExternalIdsMissing() throws Exception {
         String validRole = "validRole";
         when(mockRoleDao.findByRoleName(validRole)).thenReturn(Optional.of(mock(RoleEntity.class)));
-        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, asList("ext-id-1","ext-id-2"), "otpKey", "3745838475", null);
+        CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, asList("ext-id-1", "ext-id-2"), "otpKey", "3745838475", null);
         when(mockServiceDao.findByExternalId("ext-id-1")).thenReturn(Optional.of(mock(ServiceEntity.class)));
         when(mockServiceDao.findByExternalId("ext-id-2")).thenReturn(Optional.empty());
         User user = userCreator.doCreate(request, validRole);

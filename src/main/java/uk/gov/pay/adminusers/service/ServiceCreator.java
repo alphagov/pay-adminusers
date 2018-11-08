@@ -34,8 +34,6 @@ public class ServiceCreator {
                 .orElseGet(Service::from);
 
         ServiceEntity serviceEntity = ServiceEntity.from(service);
-        serviceEntity.setRedirectToServiceImmediatelyOnTerminalState(false);
-        serviceEntity.setCollectBillingAddress(true);
         serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, service.getName()));
         serviceNameVariants.forEach((language, name) -> serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(language, name)));
 
