@@ -61,7 +61,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
 
     private static RequestValidations requestValidations = new RequestValidations();
     private static ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(requestValidations, new ServiceUpdateOperationValidator(requestValidations));
-    
+
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
             .addResource(new ServiceResource(mockedUserDao, mockedServiceDao, linksBuilder, serviceRequestValidator, mockedServicesFactory))
@@ -219,8 +219,6 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         Service service = maybeName.map(Service::from)
                 .orElseGet(Service::from);
         ServiceEntity serviceEntity = ServiceEntity.from(service);
-        serviceEntity.setRedirectToServiceImmediatelyOnTerminalState(false);
-        serviceEntity.setCollectBillingAddress(true);
         serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, service.getName()));
         serviceNameVariants.forEach((k, v) -> serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(k, v)));
         if (maybeAccountIds.isPresent()) {

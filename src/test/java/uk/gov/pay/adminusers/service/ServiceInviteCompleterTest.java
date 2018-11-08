@@ -11,10 +11,12 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.InviteCompleteRequest;
 import uk.gov.pay.adminusers.model.InviteCompleteResponse;
 import uk.gov.pay.adminusers.model.InviteType;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -94,7 +96,14 @@ public class ServiceInviteCompleterTest {
         verify(mockUserDao).merge(expectedInvitedUser.capture());
         verify(mockInviteDao).merge(expectedInvite.capture());
 
-        assertThat(expectedService.getValue().getGatewayAccountIds().stream().map(gaie -> gaie.getGatewayAccountId()).collect(toList()), hasItems("2", "1"));
+        ServiceEntity serviceEntity = expectedService.getValue();
+        assertThat(serviceEntity.getGatewayAccountIds().stream()
+                .map(GatewayAccountIdEntity::getGatewayAccountId)
+                .collect(toList()), hasItems("2", "1"));
+        assertThat(serviceEntity.getName(), is(Service.DEFAULT_NAME_VALUE));
+        assertThat(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
+        assertThat(serviceEntity.isCollectBillingAddress(), is(true));
+
         assertThat(inviteResponse.getInvite().isDisabled(), is(true));
         assertThat(inviteResponse.getInvite().getLinks().size(), is(1));
         assertThat(inviteResponse.getInvite().getLinks().get(0).getRel().toString(), is("user"));
@@ -118,6 +127,12 @@ public class ServiceInviteCompleterTest {
         verify(mockInviteDao).merge(expectedInvite.capture());
 
         assertThat(expectedService.getValue().getGatewayAccountIds().isEmpty(), is(true));
+
+        ServiceEntity serviceEntity = expectedService.getValue();
+        assertThat(serviceEntity.getGatewayAccountIds().isEmpty(), is(true));
+        assertThat(serviceEntity.getName(), is(Service.DEFAULT_NAME_VALUE));
+        assertThat(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
+        assertThat(serviceEntity.isCollectBillingAddress(), is(true));
 
         assertThat(inviteResponse.getInvite().isDisabled(), is(true));
         assertThat(inviteResponse.getInvite().getLinks().size(), is(1));
