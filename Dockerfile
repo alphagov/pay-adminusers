@@ -1,7 +1,6 @@
 FROM govukpay/openjdk:alpine-3.8.1-jre-8.181.13
 
-RUN apk update
-RUN apk upgrade
+RUN apk --no-cache upgrade
 
 RUN apk add --no-cache bash
 
