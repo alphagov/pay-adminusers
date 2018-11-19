@@ -34,11 +34,10 @@ public class PostgresContainer {
     private static final int DB_TIMEOUT_SEC = 15;
     private static final String INTERNAL_PORT = "5432";
 
-    public  PostgresContainer(DockerClient docker, String host) throws InterruptedException, IOException, ClassNotFoundException, DockerException {
+    public  PostgresContainer(DockerClient docker) throws InterruptedException, IOException, ClassNotFoundException, DockerException {
         Class.forName("org.postgresql.Driver");
 
         this.docker = docker;
-        this.host = host;
 
         failsafeDockerPull(docker, GOVUK_POSTGRES_IMAGE);
         docker.listImages(DockerClient.ListImagesParam.create("name", GOVUK_POSTGRES_IMAGE));
@@ -65,11 +64,12 @@ public class PostgresContainer {
     }
 
     public String getConnectionUrl() {
-        return "jdbc:postgresql://" + host + ":" + port + "/";
+        return "jdbc:postgresql://" + docker.getHost() + ":" + port + "/";
     }
 
     private void failsafeDockerPull(DockerClient docker, String image) {
         try {
+            docker.pull(image);
             docker.pull(image);
         } catch (Exception e) {
             logger.error("Docker image " + image + " could not be pulled from DockerHub", e);
