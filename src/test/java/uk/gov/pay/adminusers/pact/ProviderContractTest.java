@@ -7,10 +7,6 @@ import au.com.dius.pact.provider.junit.loader.PactBrokerAuth;
 import au.com.dius.pact.provider.junit.target.HttpTarget;
 import au.com.dius.pact.provider.junit.target.Target;
 import au.com.dius.pact.provider.junit.target.TestTarget;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -28,6 +24,10 @@ import uk.gov.pay.adminusers.service.PasswordHasher;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 import uk.gov.pay.commons.testing.pact.providers.PayPactRunner;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -38,7 +38,7 @@ import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 @Provider("adminusers")
 @PactBroker(protocol = "https", host = "pact-broker-test.cloudapps.digital", port = "443", tags = {"${PACT_CONSUMER_TAG}", "test", "staging", "production"},
         authentication = @PactBrokerAuth(username = "${PACT_BROKER_USERNAME}", password = "${PACT_BROKER_PASSWORD}"))
-public class UsersApiContractTest {
+public class ProviderContractTest {
 
     @ClassRule
     public static DropwizardAppWithPostgresRule app = new DropwizardAppWithPostgresRule();
@@ -56,7 +56,7 @@ public class UsersApiContractTest {
         // make sure we create services(including gateway account ids) before users
         serviceDbFixture(dbHelper).withGatewayAccountIds("268").insertService();
     }
-    
+
     @Before
     public void resetDatabase() {
         dbHelper.truncateAllData();
@@ -139,6 +139,13 @@ public class UsersApiContractTest {
         createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", "password");
     }
 
+    @State("a service exists with external id abc123 and billing address collection enabled")
+    public void aServiceExistsWithBillingAddressCollectionEnabled() {
+        serviceDbFixture(dbHelper)
+                .withExternalId("abc123")
+                .withCollectBillingAddress(true)
+                .insertService();
+    }
 
     private static void createUserWithinAService(String externalId, String username, String password) {
         String gatewayAccount1 = randomNumeric(5);

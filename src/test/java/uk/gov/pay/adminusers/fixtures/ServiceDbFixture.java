@@ -19,6 +19,7 @@ public class ServiceDbFixture {
             "name", null, "line1", null, "city",
             "postcode", "country", null
     );
+    private boolean collectBillingAddress = true;
 
     private ServiceDbFixture(DatabaseTestHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
@@ -37,6 +38,11 @@ public class ServiceDbFixture {
         this.merchantDetails = merchantDetails;
         return this;
     }
+    
+    public ServiceDbFixture withCollectBillingAddress(boolean collectBillingAddress) {
+        this.collectBillingAddress = collectBillingAddress;
+        return this;
+    }
 
     public Service insertService() {
         int serviceId = id == null ? nextInt() : id;
@@ -44,6 +50,7 @@ public class ServiceDbFixture {
 
         Service service = Service.from(serviceId, extId, name);
         service.setMerchantDetails(merchantDetails);
+        service.setCollectBillingAddress(collectBillingAddress);
         databaseHelper.addService(service, gatewayAccountIds);
 
         return service;
