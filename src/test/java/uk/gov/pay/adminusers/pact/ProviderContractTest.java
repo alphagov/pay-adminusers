@@ -139,10 +139,10 @@ public class ProviderContractTest {
         createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", "password");
     }
 
-    @State("a service exists with external id abc123 and billing address collection enabled")
+    @State("a service exists with external id cp5wa and billing address collection enabled")
     public void aServiceExistsWithBillingAddressCollectionEnabled() {
         serviceDbFixture(dbHelper)
-                .withExternalId("abc123")
+                .withExternalId("cp5wa")
                 .withCollectBillingAddress(true)
                 .insertService();
     }
