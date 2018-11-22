@@ -402,5 +402,6 @@ public class DatabaseTestHelper {
 
     public void truncateAllData() {
         jdbi.withHandle(handle -> handle.createStatement("TRUNCATE TABLE users CASCADE").execute());
+        jdbi.withHandle(handle -> handle.createStatement("TRUNCATE TABLE services CASCADE").execute());
     }
 }
