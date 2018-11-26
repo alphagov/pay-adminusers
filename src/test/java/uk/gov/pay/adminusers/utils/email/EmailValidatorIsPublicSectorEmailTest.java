@@ -82,6 +82,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
 
 
                 // all valid emails with subdomains
+                {"valid@subdomain.acas.org.uk", true},
                 {"valid@subdomain.assembly.wales", true},
                 {"valid@subdomain.cynulliad.cymru", true},
                 {"valid@subdomain.gov.scot", true},
