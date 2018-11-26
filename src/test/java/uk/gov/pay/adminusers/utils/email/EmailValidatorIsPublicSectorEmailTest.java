@@ -60,6 +60,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 // all valid emails with domains
                 {"valid@acas.org.uk", true},
                 {"valid@assembly.wales", true},
+                {"valid@careinspectorate.com", true},
                 {"valid@cynulliad.cymru", true},
                 {"valid@gov.scot", true},
                 {"valid@gov.uk", true},
@@ -84,6 +85,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 // all valid emails with subdomains
                 {"valid@subdomain.acas.org.uk", true},
                 {"valid@subdomain.assembly.wales", true},
+                {"valid@subdomain.careinspectorate.com", true},
                 {"valid@subdomain.cynulliad.cymru", true},
                 {"valid@subdomain.gov.scot", true},
                 {"valid@subdomain.gov.uk", true},
