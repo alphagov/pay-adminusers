@@ -17,6 +17,7 @@ public class EmailValidator {
     private static final org.apache.commons.validator.routines.EmailValidator commonsEmailValidator = org.apache.commons.validator.routines.EmailValidator.getInstance();
     static {
         PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS = Collections.unmodifiableList(Arrays.asList(
+                "acas\\.org\\.uk",
                 "assembly\\.wales",
                 "cynulliad\\.cymru",
                 "gov\\.scot",
@@ -28,6 +29,7 @@ public class EmailValidator {
                 "mil\\.uk",
                 "mod\\.uk",
                 "naturalengland\\.org\\.uk",
+                "nhm\\.ac\\.uk",
                 "nhs\\.net",
                 "nhs\\.uk",
                 "parliament\\.scot",
@@ -35,9 +37,7 @@ public class EmailValidator {
                 "police\\.uk",
                 "scotent\\.co\\.uk",
                 "slc\\.co\\.uk",
-                "ucds\\.email",
-                "acas\\.org\\.uk",
-                "nhm\\.ac\\.uk"
+                "ucds\\.email"
                 ));
     }
     private static final Pattern PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERN;

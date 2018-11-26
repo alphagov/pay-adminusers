@@ -58,6 +58,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@sub2-2.sub2-1.sub1.naturalengland.org.uk", true},
 
                 // all valid emails with domains
+                {"valid@acas.org.uk", true},
                 {"valid@assembly.wales", true},
                 {"valid@cynulliad.cymru", true},
                 {"valid@gov.scot", true},
@@ -69,6 +70,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@mil.uk", true},
                 {"valid@mod.uk", true},
                 {"valid@naturalengland.org.uk", true},
+                {"valid@nhm.ac.uk", true},
                 {"valid@nhs.net", true},
                 {"valid@nhs.uk", true},
                 {"valid@parliament.scot", true},
@@ -77,8 +79,6 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@scotent.co.uk", true},
                 {"valid@slc.co.uk", true},
                 {"valid@ucds.email", true},
-                {"valid@acas.org.uk", true},
-                {"valid@nhm.ac.uk", true},
 
 
                 // all valid emails with subdomains
@@ -93,6 +93,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@subdomain.mil.uk", true},
                 {"valid@subdomain.mod.uk", true},
                 {"valid@subdomain.naturalengland.org.uk", true},
+                {"valid@subdomain.nhm.ac.uk", true},
                 {"valid@subdomain.nhs.net", true},
                 {"valid@subdomain.nhs.uk", true},
                 {"valid@subdomain.parliament.scot", true},
@@ -100,8 +101,8 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@subdomain.police.uk", true},
                 {"valid@subdomain.scotent.co.uk", true},
                 {"valid@subdomain.slc.co.uk", true},
-                {"valid@subdomain.ucds.email", true},
-                {"valid@subdomain.nhm.ac.uk", true}
+                {"valid@subdomain.ucds.email", true}
+
         });
     }
 
