@@ -95,7 +95,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
 
         setGlobalProxies(configuration);
         
-        Xray.init(environment, "pay-adminusers",API_VERSION_PATH + "/*");
+        Xray.init(environment, "pay-adminusers", java.util.Optional.empty(), API_VERSION_PATH + "/*");
     }
 
     private void initialiseMetrics(AdminUsersConfig configuration, Environment environment) {
