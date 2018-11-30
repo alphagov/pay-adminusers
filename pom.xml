@@ -196,7 +196,7 @@
         <dependency>
             <groupId>uk.gov.pay</groupId>
             <artifactId>utils</artifactId>
-            <version>1.0.0-6</version>
+            <version>1.0.0-7</version>
         </dependency>
 
         <!-- testing -->
