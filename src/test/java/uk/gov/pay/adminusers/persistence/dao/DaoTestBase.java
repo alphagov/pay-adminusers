@@ -11,7 +11,7 @@ import org.skife.jdbi.v2.DBI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.infra.GuicedTestEnvironment;
-import uk.gov.pay.adminusers.infra.PostgresDockerRule;
+import uk.gov.pay.commons.testing.db.PostgresDockerRule;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
