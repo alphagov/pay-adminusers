@@ -6,6 +6,7 @@
     <artifactId>pay-adminusers</artifactId>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dropwizard.version>1.3.7</dropwizard.version>
         <hamcrest.version>1.3</hamcrest.version>
         <eclipselink.version>2.7.3</eclipselink.version>
