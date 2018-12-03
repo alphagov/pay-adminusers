@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.app.AdminUsersApp;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
+import uk.gov.pay.commons.testing.db.PostgresDockerRule;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

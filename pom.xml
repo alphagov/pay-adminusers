@@ -14,7 +14,7 @@
         <guava.version>27.0.1-jre</guava.version>
         <docker-client.version>8.14.5</docker-client.version>
         <jackson.version>2.9.7</jackson.version>
-        <pay-java-commons.version>1.0.0-7</pay-java-commons.version>
+        <pay-java-commons.version>1.0.0-f6097986677849386f283bb84072198b57931b1b</pay-java-commons.version>
         <dependency-check.skip>true</dependency-check.skip>
     </properties>
     <repositories>
@@ -198,7 +198,7 @@
         <dependency>
             <groupId>uk.gov.pay</groupId>
             <artifactId>utils</artifactId>
-            <version>1.0.0-6</version>
+            <version>${pay-java-commons.version}</version>
         </dependency>
 
         <!-- testing -->
@@ -271,7 +271,7 @@
         <dependency>
             <groupId>uk.gov.pay</groupId>
             <artifactId>testing</artifactId>
-            <version>1.0.0-7</version>
+            <version>${pay-java-commons.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
