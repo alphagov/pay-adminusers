@@ -13,7 +13,7 @@
         <guava.version>27.0.1-jre</guava.version>
         <docker-client.version>8.14.5</docker-client.version>
         <jackson.version>2.9.7</jackson.version>
-        <pay-java-commons.version>1.0.0-7</pay-java-commons.version>
+        <pay-java-commons.version>1.0.0-95d787ff5931ee0d5e54afd7fbc3834cf772dad4</pay-java-commons.version>
     </properties>
     <repositories>
         <repository>
