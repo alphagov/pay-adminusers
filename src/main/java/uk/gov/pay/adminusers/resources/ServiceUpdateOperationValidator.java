@@ -87,6 +87,9 @@ public class ServiceUpdateOperationValidator {
                 requestValidations.checkExists(operation, FIELD_VALUE).ifPresent(errors::addAll);
             }
             if (errors.isEmpty()) {
+                requestValidations.checkIsString(operation, FIELD_VALUE).ifPresent(errors::addAll);
+            }
+            if (errors.isEmpty()) {
                 requestValidations.checkMaxLength(operation, SERVICE_NAME_MAX_LENGTH, FIELD_VALUE).ifPresent(errors::addAll);
             }
         } else if (FIELD_REDIRECT_NAME.equals(path)) {
