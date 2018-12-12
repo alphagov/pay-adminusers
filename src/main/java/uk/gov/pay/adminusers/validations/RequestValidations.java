@@ -40,6 +40,10 @@ public class RequestValidations {
     public Optional<List<String>> checkMaxLength(JsonNode payload, int maxLength, String... fieldNames) {
         return applyCheck(payload, exceedsMaxLength(maxLength), fieldNames, "Field [%s] must have a maximum length of " + maxLength + " characters");
     }
+    
+    public Optional<List<String>> checkIsString(JsonNode payload, String... fieldNames) {
+        return applyCheck(payload, isNotString(), fieldNames, "Field [%s] must be a string");
+    }
 
     private Function<JsonNode, Boolean> exceedsMaxLength(int maxLength) {
         return jsonNode -> jsonNode.asText().length() > maxLength;
@@ -101,6 +105,10 @@ public class RequestValidations {
 
     static Function<JsonNode, Boolean> isNotStrictBoolean() {
         return jsonNode -> !jsonNode.isBoolean();
+    }
+    
+    static Function<JsonNode, Boolean> isNotString() {
+        return jsonNode -> !jsonNode.isTextual();
     }
 
     public Optional<List<String>> isValidEmail(JsonNode payload, String... fieldNames) {

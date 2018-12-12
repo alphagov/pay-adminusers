@@ -290,4 +290,26 @@ public class ServiceUpdateOperationValidatorTest {
         assertThat(errors.size(), is(1));
         assertThat(errors, hasItem("Field [value] is required"));
     }
+
+    @Test
+    public void shouldFail_updatingServiceName_whenValueIsNumeric() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "name");
+        payload.put("op", "replace");
+        payload.put("value", 42);
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Field [value] must be a string"));
+    }
+
+    @Test
+    public void shouldFail_updatingServiceName_whenValueIsBoolean() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "service_name/en");
+        payload.put("op", "replace");
+        payload.put("value", false);
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Field [value] must be a string"));
+    }
 }
