@@ -51,6 +51,7 @@ public class ServiceDbFixture {
         Service service = Service.from(serviceId, extId, name);
         service.setMerchantDetails(merchantDetails);
         service.setCollectBillingAddress(collectBillingAddress);
+        service.getServiceNames().put("en", service.getName());
         databaseHelper.addService(service, gatewayAccountIds);
 
         return service;
