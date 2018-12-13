@@ -79,7 +79,8 @@ public class ServiceUpdater {
     }
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateServiceName() {
-        return (serviceUpdateRequest, serviceEntity) -> serviceEntity.setName(serviceUpdateRequest.valueAsString());
+        return (serviceUpdateRequest, serviceEntity) -> serviceEntity
+                .addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, serviceUpdateRequest.valueAsString()));
     }
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> assignGatewayAccounts() {

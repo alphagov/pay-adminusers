@@ -19,6 +19,7 @@ import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
 import javax.ws.rs.WebApplicationException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,16 +56,16 @@ public class ServiceUpdaterTest {
                 "path", new TextNode("name"),
                 "value", new TextNode(nameToUpdate),
                 "op", new TextNode("replace"))));
-        ServiceEntity serviceEntity = mock(ServiceEntity.class);
+        ServiceEntity serviceEntity = new ServiceEntity();
 
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
-        when(serviceEntity.toService()).thenReturn(Service.from());
 
         Optional<Service> maybeService = updater.doUpdate(serviceId, request);
 
         assertThat(maybeService.isPresent(), is(true));
-        verify(serviceEntity, times(1)).setName(nameToUpdate);
-        verify(serviceDao, times(1)).merge(serviceEntity);
+        assertThat(maybeService.get().getServiceNames().size(), is(1));
+        assertThat(maybeService.get().getServiceNames().get("en"), is(nameToUpdate));
+        verify(serviceDao).merge(serviceEntity);
     }
 
     @Test
