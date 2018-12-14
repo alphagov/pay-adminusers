@@ -1,0 +1,14 @@
+package uk.gov.pay.adminusers.model;
+
+public enum GoLiveStage {
+    NOT_STARTED,
+    ENTERED_ORGANISATION_DETAILS,
+    CHOSEN_PSP_STRIPE,
+    CHOSEN_PSP_WORLDPAY,
+    CHOSEN_PSP_SMARTPAY,
+    CHOSEN_PSP_EPDQ,
+    AGREEMENT_RETURNED,
+    DENIED,
+    ENTERED_BANK_DETAILS,
+    LIVE
+}

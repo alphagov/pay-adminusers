@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
 import com.google.common.collect.ImmutableList;
+import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
@@ -10,6 +11,8 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -64,6 +67,10 @@ public class ServiceEntity {
 
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<ServiceNameEntity> serviceNames = new HashSet<>();
+    
+    @Column(name = "current_go_live_stage")
+    @Enumerated(value = EnumType.STRING)
+    private GoLiveStage currentGoLiveStage = GoLiveStage.NOT_STARTED;
 
     public ServiceEntity() {
     }
@@ -149,7 +156,7 @@ public class ServiceEntity {
     }
 
     public Service toService() {
-        Service service = Service.from(id, externalId, name, getServiceNames(), this.redirectToServiceImmediatelyOnTerminalState, this.collectBillingAddress);
+        Service service = Service.from(id, externalId, name, getServiceNames(), this.redirectToServiceImmediatelyOnTerminalState, this.collectBillingAddress, this.currentGoLiveStage);
         service.setGatewayAccountIds(gatewayAccountIds.stream()
                 .map(GatewayAccountIdEntity::getGatewayAccountId)
                 .collect(Collectors.toList()));
@@ -202,6 +209,14 @@ public class ServiceEntity {
     public Map<SupportedLanguage, ServiceNameEntity> getServiceNames() {
         return serviceNames.stream()
                 .collect(Collectors.toMap(ServiceNameEntity::getLanguage, serviceName -> serviceName));
+    }
+
+    public GoLiveStage getCurrentGoLiveStage() {
+        return currentGoLiveStage;
+    }
+
+    public void setCurrentGoLiveStage(GoLiveStage currentGoLiveStage) {
+        this.currentGoLiveStage = currentGoLiveStage;
     }
 
     private void populateGatewayAccountIds(List<String> gatewayAccountIds) {

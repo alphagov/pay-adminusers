@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.persistence.entity;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.math.RandomUtils;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
+import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
@@ -23,6 +24,7 @@ public final class ServiceEntityBuilder {
     private Set<ServiceNameEntity> serviceName = new HashSet<>();
     private boolean redirectToServiceImmediatelyOnTerminalState = false;
     private boolean collectBillingAddress = true;
+    private GoLiveStage goLiveStage = GoLiveStage.NOT_STARTED;
 
     private ServiceEntityBuilder() {
     }
@@ -83,6 +85,11 @@ public final class ServiceEntityBuilder {
         this.collectBillingAddress = collectBillingAddress;
         return this;
     }
+    
+    public ServiceEntityBuilder withGoLiveStage(GoLiveStage goLiveStage) {
+        this.goLiveStage = goLiveStage;
+        return this;
+    }
 
     public ServiceEntity build() {
         ServiceEntity serviceEntity = new ServiceEntity();
@@ -95,6 +102,7 @@ public final class ServiceEntityBuilder {
         gatewayAccountIds.forEach(g -> serviceEntity.addGatewayAccountIds(g.getGatewayAccountId()));
         serviceEntity.setRedirectToServiceImmediatelyOnTerminalState(redirectToServiceImmediatelyOnTerminalState);
         serviceEntity.setCollectBillingAddress(collectBillingAddress);
+        serviceEntity.setCurrentGoLiveStage(goLiveStage);
         return serviceEntity;
     }
 }

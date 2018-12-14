@@ -16,6 +16,7 @@ import java.util.Map;
 
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
+import static uk.gov.pay.adminusers.model.GoLiveStage.NOT_STARTED;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
@@ -33,6 +34,7 @@ public class Service {
     private Map<String, String> serviceNames;
     private boolean redirectToServiceImmediatelyOnTerminalState;
     private boolean collectBillingAddress;
+    private GoLiveStage goLiveStage;
 
     public static Service from() {
         return from(DEFAULT_NAME_VALUE);
@@ -47,11 +49,11 @@ public class Service {
     }
 
     public static Service from(Integer id, String externalId, String name) {
-        return new Service(id, externalId, name, Collections.emptyMap(), false, true);
+        return new Service(id, externalId, name, Collections.emptyMap(), false, true, NOT_STARTED);
     }
 
     public static Service from(Integer id, String externalId, String name, Map<SupportedLanguage, ServiceNameEntity> multilingualServiceNames) {
-        return new Service(id, externalId, name, multilingualServiceNames, false, true);
+        return new Service(id, externalId, name, multilingualServiceNames, false, true, NOT_STARTED);
     }
 
     public static Service from(Integer id,
@@ -60,8 +62,9 @@ public class Service {
                                Map<SupportedLanguage,
                                        ServiceNameEntity> multilingualServiceNames,
                                boolean redirectToServiceImmediatelyOnTerminalState,
-                               boolean collectBillingAddress) {
-        return new Service(id, externalId, name, multilingualServiceNames, redirectToServiceImmediatelyOnTerminalState, collectBillingAddress);
+                               boolean collectBillingAddress,
+                               GoLiveStage goLiveStage) {
+        return new Service(id, externalId, name, multilingualServiceNames, redirectToServiceImmediatelyOnTerminalState, collectBillingAddress, goLiveStage);
     }
 
     private Service(@JsonProperty("id") Integer id,
@@ -69,7 +72,8 @@ public class Service {
                     @JsonProperty("name") String name,
                     Map<SupportedLanguage, ServiceNameEntity> multilingualServiceNames,
                     boolean redirectToServiceImmediatelyOnTerminalState,
-                    boolean collectBillingAddress) {
+                    boolean collectBillingAddress,
+                    GoLiveStage goLiveStage) {
         this.id = id;
         this.externalId = externalId;
         this.name = name;
@@ -81,6 +85,7 @@ public class Service {
         multilingualServiceNames.entrySet().stream()
                 .filter(entry -> StringUtils.isNotBlank(entry.getValue().getName()))
                 .forEach(entry -> serviceNames.put(entry.getKey().toString(), entry.getValue().getName()));
+        this.goLiveStage = goLiveStage;
     }
 
     public String getExternalId() {
@@ -169,5 +174,13 @@ public class Service {
 
     public void setCollectBillingAddress(boolean collectBillingAddress) {
         this.collectBillingAddress = collectBillingAddress;
+    }
+
+    public GoLiveStage getGoLiveStage() {
+        return goLiveStage;
+    }
+
+    public void setGoLiveStage(GoLiveStage goLiveStage) {
+        this.goLiveStage = goLiveStage;
     }
 }

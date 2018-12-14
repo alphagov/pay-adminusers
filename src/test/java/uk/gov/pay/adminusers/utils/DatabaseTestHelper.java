@@ -371,9 +371,9 @@ public class DatabaseTestHelper {
             return handle.createStatement("INSERT INTO services(" +
                     "id, name, custom_branding, " +
                     "merchant_name, merchant_telephone_number, merchant_address_line1, merchant_address_line2, merchant_address_city, " +
-                    "merchant_address_postcode, merchant_address_country, merchant_email, external_id, redirect_to_service_immediately_on_terminal_state) " +
+                    "merchant_address_postcode, merchant_address_country, merchant_email, external_id, redirect_to_service_immediately_on_terminal_state, current_go_live_stage) " +
                     "VALUES (:id, :name, :customBranding, :merchantName, :merchantTelephoneNumber, :merchantAddressLine1, :merchantAddressLine2, " +
-                    ":merchantAddressCity, :merchantAddressPostcode, :merchantAddressCountry, :merchantEmail, :externalId, :redirectToServiceImmediatelyOnTerminalState)")
+                    ":merchantAddressCity, :merchantAddressPostcode, :merchantAddressCountry, :merchantEmail, :externalId, :redirectToServiceImmediatelyOnTerminalState, :currentGoLiveStage)")
                     .bind("id", serviceEntity.getId())
                     .bind("name", serviceEntity.getName())
                     .bind("customBranding", customBranding)
@@ -387,6 +387,7 @@ public class DatabaseTestHelper {
                     .bind("merchantEmail", merchantDetails.getEmail())
                     .bind("externalId", serviceEntity.getExternalId())
                     .bind("redirectToServiceImmediatelyOnTerminalState", serviceEntity.isRedirectToServiceImmediatelyOnTerminalState())
+                    .bind("currentGoLiveStage", serviceEntity.getCurrentGoLiveStage())
                     .execute();
         });
         serviceEntity.getGatewayAccountIds().forEach(gatewayAccount ->
