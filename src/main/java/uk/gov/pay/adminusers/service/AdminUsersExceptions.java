@@ -40,7 +40,7 @@ public class AdminUsersExceptions {
     }
 
     public static WebApplicationException conflictingServiceGatewayAccountsForUser() {
-        String error = format("List of gateway accounts not matching one of the existing services");
+        String error = "List of gateway accounts not matching one of the existing services";
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 
