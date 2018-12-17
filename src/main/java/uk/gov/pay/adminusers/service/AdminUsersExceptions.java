@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static javax.ws.rs.core.Response.Status.*;
 
 public class AdminUsersExceptions {
@@ -102,7 +102,7 @@ public class AdminUsersExceptions {
     }
 
     private static WebApplicationException buildWebApplicationException(String error, int status) {
-        Map<String, List<String>> errors = ImmutableMap.of("errors", asList(error));
+        Map<String, List<String>> errors = ImmutableMap.of("errors", singletonList(error));
         Response response = Response.status(status)
                 .entity(errors)
                 .build();

@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
@@ -18,9 +18,9 @@ public class UserTest {
     @Test
     public void shouldFlatten_permissionsOfAUser() throws Exception {
         Service service = Service.from(1, "3487347gb67", Service.DEFAULT_NAME_VALUE);
-        User user = User.from(randomInt(), randomUuid(), "name", "password", "email@example.com", asList("1"),
-                asList(service), "ewrew", "453453",
-                asList(ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"))), null,
+        User user = User.from(randomInt(), randomUuid(), "name", "password", "email@example.com", singletonList("1"),
+                singletonList(service), "ewrew", "453453",
+                singletonList(ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"))), null,
                 SecondFactorMethod.SMS, null, null);
         Role role1 = Role.role(1, "role1", "role1 description");
         Role role2 = Role.role(2, "role2", "role2 description");

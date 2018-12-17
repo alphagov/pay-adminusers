@@ -32,7 +32,8 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
@@ -694,13 +695,13 @@ public class UserServicesTest {
     }
 
     private User aUser() {
-        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", asList("1"),
-                newArrayList(), "784rh", "8948924", newArrayList(), null, SecondFactorMethod.SMS,
+        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", singletonList("1"),
+                emptyList(), "784rh", "8948924", emptyList(), null, SecondFactorMethod.SMS,
                 null, null);
     }
     private User anotherUser() {
         return User.from(randomInt(), ANOTHER_USER_EXTERNAL_ID, ANOTHER_USER_USERNAME, "random-password",
-                "email@example.com", asList("1"), newArrayList(), "784rh", "8948924", newArrayList(),
+                "email@example.com", singletonList("1"), emptyList(), "784rh", "8948924", emptyList(),
                 null, SecondFactorMethod.SMS, null, null);
     }
 
@@ -719,7 +720,7 @@ public class UserServicesTest {
         serviceEntity.setId(randomInt());
 
         Role role = aRole();
-        role.setPermissions(asList(aPermission()));
+        role.setPermissions(singletonList(aPermission()));
 
         ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity, new RoleEntity(role));
         userEntity.addServiceRole(serviceRoleEntity);

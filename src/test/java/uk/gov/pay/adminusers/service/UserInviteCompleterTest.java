@@ -26,7 +26,7 @@ import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
@@ -195,8 +195,8 @@ public class UserInviteCompleterTest {
 
     private User aUser(String email) {
         Service service = Service.from(serviceId, serviceExternalId, Service.DEFAULT_NAME_VALUE);
-        return User.from(randomInt(), randomUuid(), "a-username", "random-password", email, asList("1"), asList(service), "784rh", "8948924",
-                asList(ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"))), null,
+        return User.from(randomInt(), randomUuid(), "a-username", "random-password", email, singletonList("1"), singletonList(service), "784rh", "8948924",
+                singletonList(ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"))), null,
                 SecondFactorMethod.SMS, null, null);
     }
 }

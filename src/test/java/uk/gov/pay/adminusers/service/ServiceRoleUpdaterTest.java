@@ -21,8 +21,8 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
@@ -95,7 +95,7 @@ public class ServiceRoleUpdaterTest {
         RoleEntity targetRoleEntity = new RoleEntity(aRole(10, role));
         RoleEntity currentRoleEntity = new RoleEntity(aRole(ADMIN.getId(), "admin"));
 
-        ServiceEntity serviceEntity = new ServiceEntity(asList("1"));
+        ServiceEntity serviceEntity = new ServiceEntity(singletonList("1"));
         serviceEntity.setExternalId(serviceExternalId);
 
         userEntity.addServiceRole(new ServiceRoleEntity(serviceEntity, currentRoleEntity));
@@ -119,7 +119,7 @@ public class ServiceRoleUpdaterTest {
         RoleEntity targetRoleEntity = new RoleEntity(aRole(10, role));
         RoleEntity currentRoleEntity = new RoleEntity(aRole(9, "non-admin-role"));
 
-        ServiceEntity serviceEntity = new ServiceEntity(asList("1"));
+        ServiceEntity serviceEntity = new ServiceEntity(singletonList("1"));
         serviceEntity.setExternalId(serviceExternalId);
 
         userEntity.addServiceRole(new ServiceRoleEntity(serviceEntity, currentRoleEntity));
@@ -142,7 +142,7 @@ public class ServiceRoleUpdaterTest {
         RoleEntity targetRoleEntity = new RoleEntity(aRole(9, role));
         RoleEntity currentRoleEntity = new RoleEntity(aRole(ADMIN.getId(), "admin"));
 
-        ServiceEntity serviceEntity = new ServiceEntity(asList("1"));
+        ServiceEntity serviceEntity = new ServiceEntity(singletonList("1"));
         serviceEntity.setExternalId(serviceExternalId);
 
         userEntity.addServiceRole(new ServiceRoleEntity(serviceEntity, currentRoleEntity));
@@ -162,7 +162,7 @@ public class ServiceRoleUpdaterTest {
 
     private User aUser(String externalId) {
         return User.from(randomInt(), externalId, "random-name", "random-password", "random@example.com",
-                asList("1"), newArrayList(), "784rh", "8948924", newArrayList(), null,
+                singletonList("1"), emptyList(), "784rh", "8948924", emptyList(), null,
                 SecondFactorMethod.SMS, null, null);
     }
 }
