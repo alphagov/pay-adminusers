@@ -75,7 +75,7 @@ public class TrustStoreLoader {
     }
 
     public static String getTrustStorePassword() {
-        return new String(TRUST_STORE_PASSWORD);
+        return TRUST_STORE_PASSWORD;
     }
 
     public static SSLContext getSSLContext() {
