@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.postgresql.util.PGobject;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
+import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
@@ -236,6 +237,33 @@ public class ServiceDaoTest extends DaoTestBase {
         Long count = serviceDao.countOfUsersWithRoleForService(serviceExternalId, roleId);
 
         assertThat(count, is(3L));
+    }
+    
+    @Test
+    public void shouldMergeGoLiveStage() {
+        GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
+        String gatewayAccountId = RandomIdGenerator.randomUuid();
+        gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
+        ServiceEntity thisServiceEntity = ServiceEntityBuilder
+                .aServiceEntity()
+                .withGatewayAccounts(Collections.singletonList(gatewayAccountIdEntity))
+                .build();
+
+        gatewayAccountIdEntity.setService(thisServiceEntity);
+
+        databaseHelper.insertServiceEntity(thisServiceEntity);
+        Optional<ServiceEntity> optionalService = serviceDao.findByGatewayAccountId(thisServiceEntity.getGatewayAccountId().getGatewayAccountId());
+        
+        assertThat(optionalService.isPresent(), is(true));
+        assertThat(optionalService.get().getCurrentGoLiveStage(), is(GoLiveStage.NOT_STARTED));
+        
+        optionalService.get().setCurrentGoLiveStage(GoLiveStage.CHOSEN_PSP_STRIPE);
+        serviceDao.merge(optionalService.get());
+
+        optionalService = serviceDao.findByGatewayAccountId(thisServiceEntity.getGatewayAccountId().getGatewayAccountId());
+
+        assertThat(optionalService.isPresent(), is(true));
+        assertThat(optionalService.get().getCurrentGoLiveStage(), is(GoLiveStage.CHOSEN_PSP_STRIPE));
     }
 
     private void setupUsersForServiceAndRole(String externalId, int roleId, int noOfUsers) {

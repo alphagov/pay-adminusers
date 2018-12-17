@@ -57,13 +57,13 @@ public class ServiceUpdater {
     @Transactional
     public Optional<Service> doUpdate(String serviceExternalId, List<ServiceUpdateRequest> updateRequests) {
         return serviceDao.findByExternalId(serviceExternalId)
-                .flatMap(serviceEntity -> {
+                .map(serviceEntity -> {
                     updateRequests.forEach(req -> {
                         attributeUpdaters.get(req.getPath())
                                 .accept(req, serviceEntity);
                         serviceDao.merge(serviceEntity);
                     });
-                    return Optional.of(serviceEntity.toService());
+                    return serviceEntity.toService();
                 });
     }
 
