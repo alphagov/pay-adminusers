@@ -108,7 +108,7 @@ public class DropwizardAppWithPostgresRule implements TestRule {
         }));
     }
 
-    private JpaPersistModule createJpaModule(final PostgresDockerRule postgres) {
+    private void createJpaModule(final PostgresDockerRule postgres) {
         final Properties properties = new Properties();
         properties.put("javax.persistence.jdbc.driver", postgres.getDriverClass());
         properties.put("javax.persistence.jdbc.url", postgres.getConnectionUrl());
@@ -118,7 +118,6 @@ public class DropwizardAppWithPostgresRule implements TestRule {
         final JpaPersistModule jpaModule = new JpaPersistModule(JPA_UNIT);
         jpaModule.properties(properties);
 
-        return jpaModule;
     }
 
     private void restoreDropwizardsLogging() {

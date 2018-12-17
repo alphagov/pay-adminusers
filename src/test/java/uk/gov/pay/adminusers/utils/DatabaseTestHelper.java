@@ -83,7 +83,7 @@ public class DatabaseTestHelper {
                         .list());
     }
 
-    public DatabaseTestHelper updateLoginCount(String username, int loginCount) {
+    public void updateLoginCount(String username, int loginCount) {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("UPDATE users SET login_counter = :loginCount " +
@@ -92,10 +92,9 @@ public class DatabaseTestHelper {
                         .bind("username", username)
                         .execute()
         );
-        return this;
     }
 
-    public DatabaseTestHelper updateProvisionalOtpKey(String username, String provisionalOtpKey) {
+    public void updateProvisionalOtpKey(String username, String provisionalOtpKey) {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("UPDATE users SET provisional_otp_key = :provisionalOtpKey, " +
@@ -105,10 +104,9 @@ public class DatabaseTestHelper {
                         .bind("username", username)
                         .execute()
         );
-        return this;
     }
 
-    public DatabaseTestHelper add(User user) {
+    public void add(User user) {
         Timestamp now = from(ZonedDateTime.now(ZoneId.of("UTC")).toInstant());
         jdbi.withHandle(handle ->
                 handle
@@ -135,7 +133,6 @@ public class DatabaseTestHelper {
                         .bind("provisionalOtpKey", user.getProvisionalOtpKey())
                         .execute()
         );
-        return this;
     }
 
     public DatabaseTestHelper addUserToAServiceRole(int userId, int serviceId, int roleId) {
@@ -149,7 +146,7 @@ public class DatabaseTestHelper {
     }
 
     //inserting if not exist, just to be safe for fixed value inserts like Admin role
-    public DatabaseTestHelper add(Role role) {
+    public void add(Role role) {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO roles(id, name, description) " +
@@ -169,7 +166,6 @@ public class DatabaseTestHelper {
                             .execute()
             );
         });
-        return this;
     }
 
     public DatabaseTestHelper add(Permission permission) {
@@ -185,7 +181,7 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public DatabaseTestHelper add(ForgottenPassword forgottenPassword, Integer userId) {
+    public void add(ForgottenPassword forgottenPassword, Integer userId) {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO forgotten_passwords(id, date, code, \"userId\") " +
@@ -196,7 +192,6 @@ public class DatabaseTestHelper {
                         .bind("userId", userId)
                         .execute()
         );
-        return this;
     }
 
     //TODO Remove - This is temporary - WIP PP-1483
@@ -216,7 +211,7 @@ public class DatabaseTestHelper {
                         .list());
     }
 
-    public DatabaseTestHelper addService(Service service, String... gatewayAccountIds) {
+    public void addService(Service service, String... gatewayAccountIds) {
         jdbi.withHandle(handle ->
         {
             PGobject customBranding = service.getCustomBranding() == null ? null :
@@ -254,25 +249,23 @@ public class DatabaseTestHelper {
                             .execute()
             );
         }
-        return this;
     }
 
-    public DatabaseTestHelper addUserServiceRole(Integer userId, Integer serviceId, Integer roleId) {
+    public void addUserServiceRole(Integer userId, Integer serviceId, Integer roleId) {
         jdbi.withHandle(handle -> handle
                 .createStatement("INSERT INTO user_services_roles(user_id, service_id, role_id) VALUES(:userId, :serviceId, :roleId)")
                 .bind("userId", userId)
                 .bind("serviceId", serviceId)
                 .bind("roleId", roleId)
                 .execute());
-        return this;
     }
 
-    public DatabaseTestHelper addInvite(int id, int senderId, int serviceId, int roleId,
-                                        String email, String code, String otpKey,
-                                        ZonedDateTime date, ZonedDateTime expiryDate,
-                                        String telephoneNumber, String password,
-                                        Boolean disabled,
-                                        Integer loginCounter) {
+    public void addInvite(int id, int senderId, int serviceId, int roleId,
+                          String email, String code, String otpKey,
+                          ZonedDateTime date, ZonedDateTime expiryDate,
+                          String telephoneNumber, String password,
+                          Boolean disabled,
+                          Integer loginCounter) {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO invites(id, sender_id, service_id, role_id, email, code, otp_key, date, expiry_date, telephone_number, password, disabled, login_counter) " +
@@ -292,15 +285,14 @@ public class DatabaseTestHelper {
                         .bind("loginCounter", loginCounter)
                         .execute()
         );
-        return this;
     }
 
-    public DatabaseTestHelper addServiceInvite(int id, int senderId, int roleId,
-                                               String email, String code, String otpKey,
-                                               ZonedDateTime date, ZonedDateTime expiryDate,
-                                               String telephoneNumber, String password,
-                                               Boolean disabled,
-                                               Integer loginCounter) {
+    public void addServiceInvite(int id, int senderId, int roleId,
+                                 String email, String code, String otpKey,
+                                 ZonedDateTime date, ZonedDateTime expiryDate,
+                                 String telephoneNumber, String password,
+                                 Boolean disabled,
+                                 Integer loginCounter) {
         jdbi.withHandle(handle ->
                 handle
                         .createStatement("INSERT INTO invites(id, sender_id, role_id, email, code, otp_key, date, expiry_date, telephone_number, password, disabled, login_counter, type) " +
@@ -320,7 +312,6 @@ public class DatabaseTestHelper {
                         .bind("type", "service")
                         .execute()
         );
-        return this;
     }
 
     public List<Map<String, Object>> findInviteByCode(String code) {
@@ -346,7 +337,7 @@ public class DatabaseTestHelper {
                         .list());
     }
 
-    public DatabaseTestHelper addServiceName(ServiceNameEntity entity, Integer serviceId) {
+    public void addServiceName(ServiceNameEntity entity, Integer serviceId) {
         jdbi.withHandle(handle -> handle
                 .createStatement("INSERT INTO service_names(id, service_id, language, name) VALUES (:id, :serviceId, :language, :name)")
                 .bind("id", entity.getId())
@@ -354,10 +345,9 @@ public class DatabaseTestHelper {
                 .bind("language", entity.getLanguage().toString())
                 .bind("name", entity.getName())
                 .execute());
-        return this;
     }
 
-    public DatabaseTestHelper insertServiceEntity(ServiceEntity serviceEntity) {
+    public void insertServiceEntity(ServiceEntity serviceEntity) {
         jdbi.withHandle(handle ->
         {
             PGobject customBranding = serviceEntity.getCustomBranding() == null ? null :
@@ -394,7 +384,6 @@ public class DatabaseTestHelper {
                                 .execute()
                 ));
         serviceEntity.getServiceNames().values().forEach((name) -> addServiceName(name, serviceEntity.getId()));
-        return this;
     }
 
     public void truncateAllData() {
