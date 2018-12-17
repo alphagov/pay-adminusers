@@ -39,6 +39,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceInviteCompleterTest {
     @Mock

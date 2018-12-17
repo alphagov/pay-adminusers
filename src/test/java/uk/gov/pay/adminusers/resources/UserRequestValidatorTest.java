@@ -23,6 +23,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class UserRequestValidatorTest {
 
     private UserRequestValidator validator;

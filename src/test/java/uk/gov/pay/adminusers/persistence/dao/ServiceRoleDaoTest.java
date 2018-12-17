@@ -17,6 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class ServiceRoleDaoTest extends DaoTestBase {
 
     private ServiceRoleDao serviceRoleDao;

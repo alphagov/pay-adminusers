@@ -36,6 +36,7 @@ import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class UserDaoTest extends DaoTestBase {
 
     private UserDao userDao;

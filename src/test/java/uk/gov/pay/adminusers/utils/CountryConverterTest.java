@@ -7,6 +7,7 @@ import org.junit.Test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class CountryConverterTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();

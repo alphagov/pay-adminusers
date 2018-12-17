@@ -12,6 +12,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class RoleDaoTest extends DaoTestBase {
 
     private RoleDao roleDao;

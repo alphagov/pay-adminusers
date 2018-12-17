@@ -27,6 +27,7 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 import static uk.gov.pay.adminusers.model.ForgottenPassword.forgottenPassword;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class ForgottenPasswordDaoTest extends DaoTestBase {
 
     private UserDao userDao;

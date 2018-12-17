@@ -23,6 +23,7 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class InviteResourceServiceCompleteTest extends IntegrationTest {
     public static final String INVITES_RESOURCE_URL = "/v1/api/invites";
 
