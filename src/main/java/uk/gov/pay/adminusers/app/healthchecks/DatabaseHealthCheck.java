@@ -27,7 +27,6 @@ public class DatabaseHealthCheck extends HealthCheck {
     static {
         longDatabaseStatsMap = new HashMap<String, Long>();
         longDatabaseStatsMap.put("numbackends", 0l);
-        longDatabaseStatsMap.put("numbackends", 0l);
         longDatabaseStatsMap.put("xact_commit", 0l);
         longDatabaseStatsMap.put("xact_rollback", 0l);
         longDatabaseStatsMap.put("blks_read", 0l);
