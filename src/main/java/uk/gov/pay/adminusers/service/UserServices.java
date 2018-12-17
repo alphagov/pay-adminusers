@@ -103,9 +103,7 @@ public class UserServices {
      */
     public Optional<User> findUserByExternalId(String externalId) {
         Optional<UserEntity> userEntityOptional = userDao.findByExternalId(externalId);
-        return userEntityOptional
-                .map(userEntity -> Optional.of(linksBuilder.decorate(userEntity.toUser())))
-                .orElse(Optional.empty());
+        return userEntityOptional.map(userEntity -> linksBuilder.decorate(userEntity.toUser()));
     }
 
     /**
@@ -128,10 +126,7 @@ public class UserServices {
      */
     public Optional<User> findUserByUsername(String username) {
         Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
-        return userEntityOptional
-                .map(userEntity -> Optional.of(
-                        linksBuilder.decorate(userEntity.toUser())))
-                .orElse(Optional.empty());
+        return userEntityOptional.map(userEntity -> linksBuilder.decorate(userEntity.toUser()));
     }
 
     public Optional<SecondFactorToken> newSecondFactorPasscode(String externalId, boolean useProvisionalOtpKey) {
