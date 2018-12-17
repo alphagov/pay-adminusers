@@ -215,8 +215,7 @@ public class ServiceInviteCompleterTest {
         RoleEntity role = new RoleEntity(role(ADMIN.getId(), "admin", "Admin Role"));
         senderUser.addServiceRole(new ServiceRoleEntity(service, role));
 
-        InviteEntity anInvite = anInvite(email, inviteCode, otpKey, senderUser, service, role);
-        return anInvite;
+        return anInvite(email, inviteCode, otpKey, senderUser, service, role);
     }
 
     private InviteEntity anInvite(String email, String code, String otpKey, UserEntity userEntity, ServiceEntity serviceEntity, RoleEntity roleEntity) {

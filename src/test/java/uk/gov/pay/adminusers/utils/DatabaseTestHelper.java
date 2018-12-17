@@ -30,43 +30,39 @@ public class DatabaseTestHelper {
     }
 
     public List<Map<String, Object>> findUserByExternalId(String externalId) {
-        List<Map<String, Object>> ret = jdbi.withHandle(h ->
+        return jdbi.withHandle(h ->
                 h.createQuery("SELECT id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
                         "FROM users " +
                         "WHERE external_id = :externalId")
                         .bind("externalId", externalId)
                         .list());
-        return ret;
     }
 
     public List<Map<String, Object>> findUserByUsername(String username) {
-        List<Map<String, Object>> ret = jdbi.withHandle(h ->
+        return jdbi.withHandle(h ->
                 h.createQuery("SELECT id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
                         "FROM users " +
                         "WHERE username = :username")
                         .bind("username", username)
                         .list());
-        return ret;
     }
 
     public List<Map<String, Object>> findUser(long userId) {
-        List<Map<String, Object>> ret = jdbi.withHandle(h ->
+        return jdbi.withHandle(h ->
                 h.createQuery("SELECT id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
                         "FROM users " +
                         "WHERE id = :userId")
                         .bind("userId", userId)
                         .list());
-        return ret;
     }
 
     public List<Map<String, Object>> findServiceRoleForUser(long userId) {
-        List<Map<String, Object>> ret = jdbi.withHandle(h ->
+        return jdbi.withHandle(h ->
                 h.createQuery("SELECT r.id, r.name, r.description, ur.service_id " +
                         "FROM roles r INNER JOIN user_services_roles ur " +
                         "ON ur.user_id = :userId AND ur.role_id = r.id")
                         .bind("userId", userId)
                         .list());
-        return ret;
     }
 
     public List<Map<String, Object>> findForgottenPasswordById(Integer forgottenPasswordId) {
