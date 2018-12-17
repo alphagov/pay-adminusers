@@ -30,6 +30,7 @@ public class ServiceUpdater {
     public static final String FIELD_SERVICE_NAME_PREFIX = "service_name";
     public static final String FIELD_REDIRECT_NAME = "redirect_to_service_immediately_on_terminal_state";
     public static final String FIELD_COLLECT_BILLING_ADDRESS = "collect_billing_address";
+    public static final String FIELD_CURRENT_GO_LIVE_STAGE = "current_go_live_stage";
 
     private final ServiceDao serviceDao;
 

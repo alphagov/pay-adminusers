@@ -312,4 +312,93 @@ public class ServiceUpdateOperationValidatorTest {
         assertThat(errors.size(), is(1));
         assertThat(errors, hasItem("Field [value] must be a string"));
     }
+    
+    @Test
+    public void shouldFail_updatingCurrentGoLiveStage_whenInvalidValue() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "current_go_live_stage");
+        payload.put("op", "replace");
+        payload.put("value", "CAKE_ORDERED");
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_DETAILS, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, AGREEMENT_RETURNED, DENIED, ENTERED_BANK_DETAILS, LIVE]"));
+    }
+    
+    @Test
+    public void shouldFail_updatingCurrentGoLiveStage_whenIncorrectOperation() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "current_go_live_stage");
+        payload.put("op", "add");
+        payload.put("value", "CHOSEN_PSP_STRIPE");
+
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Operation [add] is invalid for path [current_go_live_stage]"));
+    }
+    
+    @Test
+    public void shouldFail_updatingCurrentGoLiveStage_whenOperationIsMissing() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "current_go_live_stage");
+        payload.put("value", "CHOSEN_PSP_STRIPE");
+
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Field [op] is required"));
+    }
+
+    @Test
+    public void shouldFail_updatingCurrentGoLiveStag_whenValueIsNumeric() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "current_go_live_stage");
+        payload.put("op", "replace");
+        payload.put("value", 42);
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_DETAILS, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, AGREEMENT_RETURNED, DENIED, ENTERED_BANK_DETAILS, LIVE]"));
+    }
+
+    @Test
+    public void shouldFail_updatingCurrentGoLiveStag_whenValueIsBoolean() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "current_go_live_stage");
+        payload.put("op", "replace");
+        payload.put("value", false);
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_DETAILS, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, AGREEMENT_RETURNED, DENIED, ENTERED_BANK_DETAILS, LIVE]"));
+    }
+
+    @Test
+    public void shouldFail_updatingCurrentGoLiveStage_whenValueIsMissing() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "current_go_live_stage");
+        payload.put("op", "replace");
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Field [value] is required"));
+    }
+
+    @Test
+    public void shouldFail_updatingCurrentGoLiveStage_whenValueIsEmptyString() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "current_go_live_stage");
+        payload.put("op", "replace");
+        payload.put("value", "");
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+        assertThat(errors.size(), is(1));
+        assertThat(errors, hasItem("Field [value] is required"));
+    }
+    
+    @Test
+    public void shouldSucceed_updatingCurrentGoLiveStage() {
+        ObjectNode payload = mapper.createObjectNode();
+        payload.put("path", "current_go_live_stage");
+        payload.put("op", "replace");
+        payload.put("value", "CHOSEN_PSP_STRIPE");
+        List<String> errors = serviceUpdateOperationValidator.validate(payload);
+        assertThat(errors.size(), is(0));
+    }
 }

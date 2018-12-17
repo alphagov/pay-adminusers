@@ -6,12 +6,14 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.google.common.collect.ImmutableList;
 import uk.gov.pay.adminusers.utils.email.EmailValidator;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.math.NumberUtils.isDigits;
 
@@ -45,6 +47,10 @@ public class RequestValidations {
         return applyCheck(payload, isNotString(), fieldNames, "Field [%s] must be a string");
     }
 
+    public Optional<List<String>> checkIsString(String errorMsg, JsonNode payload, String... fieldNames) {
+        return applyCheck(payload, isNotString(), fieldNames, errorMsg);
+    }
+
     private Function<JsonNode, Boolean> exceedsMaxLength(int maxLength) {
         return jsonNode -> jsonNode.asText().length() > maxLength;
     }
@@ -57,6 +63,14 @@ public class RequestValidations {
             }
         }
         return errors.isEmpty() ? Optional.empty() : Optional.of(errors);
+    }
+    
+    public Optional<List<String>> isValidEnumValue(JsonNode payload, EnumSet<?> enumSet, String field) {
+        String value = payload.get(field).asText();
+        if (enumSet.stream().noneMatch(constant -> constant.name().equals(value))) {
+            return Optional.of(singletonList(format("Field [%s] must be one of %s", field, enumSet)));
+        }
+        return Optional.empty();
     }
 
     private Function<JsonNode, Boolean> notExistsOrIsEmpty() {
