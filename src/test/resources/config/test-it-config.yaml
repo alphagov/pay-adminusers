@@ -14,6 +14,9 @@ logging:
         timeZone: UTC
         target: stdout
         logFormat: "[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] [%-5level] [%logger{15}] - %msg %n"
+    loggers:
+      # Liquibase is very chatty and we only want to hear from it if things go wrong
+      "liquibase": WARN
 
 database:
   driverClass: org.postgresql.Driver
