@@ -33,7 +33,6 @@ public class DaoTestBase {
     public static PostgresDockerRule postgres = new PostgresDockerRule();
 
     protected static DatabaseTestHelper databaseHelper;
-    private static JpaPersistModule jpaModule;
     protected static GuicedTestEnvironment env;
 
     @BeforeClass
@@ -44,7 +43,7 @@ public class DaoTestBase {
         properties.put("javax.persistence.jdbc.user", postgres.getUsername());
         properties.put("javax.persistence.jdbc.password", postgres.getPassword());
 
-        jpaModule = new JpaPersistModule("AdminUsersUnit");
+        JpaPersistModule jpaModule = new JpaPersistModule("AdminUsersUnit");
         jpaModule.properties(properties);
 
         databaseHelper = new DatabaseTestHelper(new DBI(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword()));
