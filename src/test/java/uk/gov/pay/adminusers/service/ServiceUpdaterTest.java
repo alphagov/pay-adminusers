@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
+import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
@@ -19,11 +20,11 @@ import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
 import javax.ws.rs.WebApplicationException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
@@ -87,7 +88,6 @@ public class ServiceUpdaterTest {
                 name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry, email
         );
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
-
         when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
         when(serviceEntity.toService()).thenReturn(Service.from());
 
@@ -256,5 +256,24 @@ public class ServiceUpdaterTest {
         InOrder inOrder = inOrder(serviceEntity, serviceDao);
         inOrder.verify(serviceEntity).setCollectBillingAddress(false);
         inOrder.verify(serviceDao).merge(serviceEntity);
+    }
+
+    @Test
+    public void shouldUpdateCurrentGoLIveStageSuccessfully() {
+        String serviceId = randomUuid();
+        ServiceUpdateRequest request = ServiceUpdateRequest.from(new ObjectNode(JsonNodeFactory.instance, ImmutableMap.of(
+                "path", new TextNode("current_go_live_stage"),
+                "value", new TextNode(valueOf(GoLiveStage.CHOSEN_PSP_STRIPE)),
+                "op", new TextNode("replace"))));
+        ServiceEntity serviceEntity = mock(ServiceEntity.class);
+
+        when(serviceDao.findByExternalId(serviceId)).thenReturn(Optional.of(serviceEntity));
+        when(serviceEntity.toService()).thenReturn(Service.from());
+
+        Optional<Service> maybeService = updater.doUpdate(serviceId, request);
+
+        assertThat(maybeService.isPresent(), is(true));
+        verify(serviceEntity).setCurrentGoLiveStage(GoLiveStage.CHOSEN_PSP_STRIPE);
+        verify(serviceDao).merge(serviceEntity);
     }
 }

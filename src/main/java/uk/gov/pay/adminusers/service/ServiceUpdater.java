@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
+import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
@@ -44,6 +45,7 @@ public class ServiceUpdater {
         attributeUpdaters.put(FIELD_CUSTOM_BRANDING, updateCustomBranding());
         attributeUpdaters.put(FIELD_REDIRECT_NAME, updateRedirectImmediately());
         attributeUpdaters.put(FIELD_COLLECT_BILLING_ADDRESS, updateCollectBillingAddress());
+        attributeUpdaters.put(FIELD_CURRENT_GO_LIVE_STAGE, updateCurrentGoLiveStage());
         Arrays.stream(SupportedLanguage.values())
                 .forEach(language -> attributeUpdaters.put(FIELD_SERVICE_NAME_PREFIX + '/' + language.toString(), updateMultilingualServiceName()));
         this.attributeUpdaters = attributeUpdaters.build();
@@ -110,12 +112,17 @@ public class ServiceUpdater {
     }
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateRedirectImmediately() {
-        return ((serviceUpdateRequest, serviceEntity) ->
-                serviceEntity.setRedirectToServiceImmediatelyOnTerminalState(serviceUpdateRequest.valueAsBoolean()));
+        return (serviceUpdateRequest, serviceEntity) ->
+                serviceEntity.setRedirectToServiceImmediatelyOnTerminalState(serviceUpdateRequest.valueAsBoolean());
     }
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateCollectBillingAddress() {
-        return ((serviceUpdateRequest, serviceEntity) ->
-                serviceEntity.setCollectBillingAddress(serviceUpdateRequest.valueAsBoolean()));
+        return (serviceUpdateRequest, serviceEntity) ->
+                serviceEntity.setCollectBillingAddress(serviceUpdateRequest.valueAsBoolean());
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateCurrentGoLiveStage() {
+        return (serviceUpdateRequest, serviceEntity) ->
+                serviceEntity.setCurrentGoLiveStage(GoLiveStage.valueOf(serviceUpdateRequest.valueAsString()));
     }
 }
