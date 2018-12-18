@@ -55,7 +55,7 @@ public class ServiceCreatorTest {
     private ServiceCreator serviceCreator;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         serviceCreator = new ServiceCreator(mockedServiceDao, new LinksBuilder(BASE_URL));
     }
 

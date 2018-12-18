@@ -190,7 +190,7 @@ public class ServiceInviteCompleterTest {
     }
 
     @Test
-    public void shouldError_whenTryingToCreateServiceAndService_ifInviteIsOfUserType() throws Exception {
+    public void shouldError_whenTryingToCreateServiceAndService_ifInviteIsOfUserType() {
         ServiceEntity service = new ServiceEntity();
         service.setId(serviceId);
 

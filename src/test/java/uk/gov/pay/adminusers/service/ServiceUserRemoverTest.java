@@ -43,7 +43,7 @@ public class ServiceUserRemoverTest {
     }
 
     @Test
-    public void remove_shouldRemoveAUserFromAService() throws Exception {
+    public void remove_shouldRemoveAUserFromAService() {
 
         String serviceExternalId = "service-external-id-1";
         String removerExternalId = "user-admin-of-service-1";
@@ -62,7 +62,7 @@ public class ServiceUserRemoverTest {
     }
 
     @Test
-    public void remove_shouldThrowNotFoundWebApplicationException_whenUserToBeRemovedDoesNotExist() throws Exception {
+    public void remove_shouldThrowNotFoundWebApplicationException_whenUserToBeRemovedDoesNotExist() {
 
         String serviceExternalId = "service-external-id-1";
         String userExternalId = "user-to-be-removed-from-a-service";
@@ -79,7 +79,7 @@ public class ServiceUserRemoverTest {
     }
 
     @Test
-    public void remove_shouldThrowNotFoundWebApplicationException_whenUserDoesNotBelongToTheGivenService() throws Exception {
+    public void remove_shouldThrowNotFoundWebApplicationException_whenUserDoesNotBelongToTheGivenService() {
 
         String serviceExternalId = "service-external-id-1";
         String otherServiceExternalId = "service-external-id-2";
@@ -100,7 +100,7 @@ public class ServiceUserRemoverTest {
     }
 
     @Test
-    public void remove_shouldThrowForbiddenWebApplicationException_whenRemoverDoesNotExist() throws Exception {
+    public void remove_shouldThrowForbiddenWebApplicationException_whenRemoverDoesNotExist() {
 
         String serviceExternalId = "service-external-id-1";
         String removerExternalId = "non-existing-remover";
@@ -120,7 +120,7 @@ public class ServiceUserRemoverTest {
     }
 
     @Test
-    public void remove_shouldThrowForbiddenWebApplicationException_whenRemoverDoesNotBelongToService() throws Exception {
+    public void remove_shouldThrowForbiddenWebApplicationException_whenRemoverDoesNotBelongToService() {
 
         String serviceExternalId = "service-external-id-1";
         String otherServiceExternalId = "service-external-id-2";
@@ -142,7 +142,7 @@ public class ServiceUserRemoverTest {
     }
 
     @Test
-    public void remove_shouldThrowForbiddenWebApplicationException_whenRemoverHasNotAdminRoleForTheGivenService() throws Exception {
+    public void remove_shouldThrowForbiddenWebApplicationException_whenRemoverHasNotAdminRoleForTheGivenService() {
 
         String serviceExternalId = "service-external-id-1";
         String removerExternalId = "user-admin-of-service-1";

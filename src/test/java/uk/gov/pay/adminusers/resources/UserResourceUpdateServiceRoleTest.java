@@ -20,7 +20,7 @@ import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 public class UserResourceUpdateServiceRoleTest extends IntegrationTest {
 
     @Test
-    public void shouldUpdateUserServiceRole() throws Exception {
+    public void shouldUpdateUserServiceRole() {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
         Service service = serviceDbFixture(databaseHelper).insertService();
         String serviceExternalId = service.getExternalId();
@@ -46,7 +46,7 @@ public class UserResourceUpdateServiceRoleTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldError404_ifUserNotFound_whenUpdatingServiceRole() throws Exception {
+    public void shouldError404_ifUserNotFound_whenUpdatingServiceRole() {
         String serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("role_name", "view-and-refund"));
 
@@ -60,7 +60,7 @@ public class UserResourceUpdateServiceRoleTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldError412_ifNoOfMinimumAdminsLimitReached_whenUpdatingServiceRole() throws Exception {
+    public void shouldError412_ifNoOfMinimumAdminsLimitReached_whenUpdatingServiceRole() {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
         Service service = serviceDbFixture(databaseHelper).insertService();
         String serviceExternalId = service.getExternalId();

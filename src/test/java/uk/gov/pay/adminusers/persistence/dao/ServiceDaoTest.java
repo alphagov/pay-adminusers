@@ -51,7 +51,7 @@ public class ServiceDaoTest extends DaoTestBase {
     private static final String CY_NAME = "gwasanaeth prawf";
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         serviceDao = env.getInstance(ServiceDao.class);
     }
 

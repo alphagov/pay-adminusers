@@ -51,12 +51,12 @@ public class ServiceRoleCreatorTest {
     private static final String EXISTING_ROLE_NAME = "admin";
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         serviceRoleCreator = new ServiceRoleCreator(userDao, serviceDao, roleDao, new LinksBuilder("http://localhost"));
     }
 
     @Test
-    public void shouldSuccess_whenAssignANewServiceRole() throws Exception {
+    public void shouldSuccess_whenAssignANewServiceRole() {
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID))));
         when(serviceDao.findByExternalId(EXISTING_SERVICE_EXTERNAL_ID)).thenReturn(Optional.of(ServiceEntity.from(aService(EXISTING_SERVICE_EXTERNAL_ID))));
         when(roleDao.findByRoleName(EXISTING_ROLE_NAME)).thenReturn(Optional.of(new RoleEntity(aRole(1,EXISTING_ROLE_NAME))));
@@ -72,7 +72,7 @@ public class ServiceRoleCreatorTest {
     }
 
     @Test
-    public void shouldReturnEmpty_whenAssignANewServiceRole_ifUserNotFound() throws Exception {
+    public void shouldReturnEmpty_whenAssignANewServiceRole_ifUserNotFound() {
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.empty());
 
         Optional<User> userOptional = serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, EXISTING_ROLE_NAME);
@@ -81,7 +81,7 @@ public class ServiceRoleCreatorTest {
     }
 
     @Test
-    public void shouldError400_whenAssignANewServiceRole_ifServiceNotFound() throws Exception {
+    public void shouldError400_whenAssignANewServiceRole_ifServiceNotFound() {
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID))));
         when(serviceDao.findByExternalId(EXISTING_SERVICE_EXTERNAL_ID)).thenReturn(Optional.empty());
 
@@ -92,7 +92,7 @@ public class ServiceRoleCreatorTest {
     }
 
     @Test
-    public void shouldError400_whenAssignANewServiceRole_ifRoleNotFound() throws Exception {
+    public void shouldError400_whenAssignANewServiceRole_ifRoleNotFound() {
         ServiceEntity serviceEntity = ServiceEntity.from(aService(EXISTING_SERVICE_EXTERNAL_ID));
         UserEntity userEntity = UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID));
         RoleEntity roleEntity = new RoleEntity(aRole(1, EXISTING_ROLE_NAME));
@@ -110,7 +110,7 @@ public class ServiceRoleCreatorTest {
     }
 
     @Test
-    public void shouldError409_whenAssignANewServiceRole_ifRoleForServiceAlreadyExists() throws Exception {
+    public void shouldError409_whenAssignANewServiceRole_ifRoleForServiceAlreadyExists() {
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID))));
         when(serviceDao.findByExternalId(EXISTING_SERVICE_EXTERNAL_ID)).thenReturn(Optional.of(ServiceEntity.from(aService(EXISTING_SERVICE_EXTERNAL_ID))));
         when(roleDao.findByRoleName(EXISTING_ROLE_NAME)).thenReturn(Optional.empty());

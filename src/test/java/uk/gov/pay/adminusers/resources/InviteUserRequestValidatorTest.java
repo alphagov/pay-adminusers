@@ -24,7 +24,7 @@ public class InviteUserRequestValidatorTest {
     private ObjectMapper objectMapper;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         validator = new InviteRequestValidator(new RequestValidations());
         objectMapper = new ObjectMapper();
     }
@@ -278,7 +278,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void shouldSuccess_ifAllFieldsArePresentAndValidEmailDomain() throws Exception {
+    public void shouldSuccess_ifAllFieldsArePresentAndValidEmailDomain() {
         ImmutableMap<String, String> payload = ImmutableMap.of("email", "example@example.gov.uk", "telephone_number", "08000001066", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
@@ -287,7 +287,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void shouldFail_ifMissingRequiredField() throws Exception {
+    public void shouldFail_ifMissingRequiredField() {
         ImmutableMap<String, String> payload = ImmutableMap.of( "telephone_number", "08000001066", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
@@ -298,7 +298,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void shouldFail_ifInvalidEmailFormat() throws Exception {
+    public void shouldFail_ifInvalidEmailFormat() {
         ImmutableMap<String, String> payload = ImmutableMap.of( "email", "exampleatexample.com", "telephone_number", "08000001066", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
@@ -309,14 +309,14 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test(expected = WebApplicationException.class)
-    public void shouldFail_ifEmailAddressNotPublicSector() throws Exception {
+    public void shouldFail_ifEmailAddressNotPublicSector() {
         ImmutableMap<String, String> payload = ImmutableMap.of( "email", "example@example.co.uk","telephone_number", "08000001066", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         validator.validateCreateServiceRequest(payloadNode);
     }
 
     @Test
-    public void shouldFail_ifTelephoneNumberIsNonNumeric() throws Exception {
+    public void shouldFail_ifTelephoneNumberIsNonNumeric() {
         ImmutableMap<String, String> payload = ImmutableMap.of( "email", "example@example.gov.uk","telephone_number", "A800001066", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
@@ -327,7 +327,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void shouldFail_ifTelephoneNumberTooShort() throws Exception {
+    public void shouldFail_ifTelephoneNumberTooShort() {
         ImmutableMap<String, String> payload = ImmutableMap.of( "email", "example@example.gov.uk","telephone_number", "12345678", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);

@@ -49,12 +49,12 @@ public class UserCreatorTest {
     private UserCreator userCreator;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         userCreator = new UserCreator(mockUserDao, mockRoleDao, mockServiceDao, mockPasswordHasher, linksBuilder);
     }
 
     @Test
-    public void shouldSaveAndReturnUser_forValidUserCreationRequest() throws Exception {
+    public void shouldSaveAndReturnUser_forValidUserCreationRequest() {
         String validRole = "validRole";
         when(mockRoleDao.findByRoleName(validRole)).thenReturn(Optional.of(mock(RoleEntity.class)));
         CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, null, "otpKey", "3745838475", null);
@@ -69,7 +69,7 @@ public class UserCreatorTest {
     }
 
     @Test
-    public void shouldSaveAndReturnUser_forValidUserCreationRequest_withGatewayAccountIds() throws Exception {
+    public void shouldSaveAndReturnUser_forValidUserCreationRequest_withGatewayAccountIds() {
         String validRole = "validRole";
         when(mockRoleDao.findByRoleName(validRole)).thenReturn(Optional.of(mock(RoleEntity.class)));
         CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", asList("1", "2"), null, "otpKey", "3745838475", null);
@@ -89,7 +89,7 @@ public class UserCreatorTest {
     }
 
     @Test
-    public void shouldSaveAndReturnUser_forValidUserCreationRequest_withServiceRoles() throws Exception {
+    public void shouldSaveAndReturnUser_forValidUserCreationRequest_withServiceRoles() {
         String validRole = "validRole";
         when(mockRoleDao.findByRoleName(validRole)).thenReturn(Optional.of(mock(RoleEntity.class)));
         CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, asList("ext-id-1", "ext-id-2"), "otpKey", "3745838475", null);
@@ -105,7 +105,7 @@ public class UserCreatorTest {
     }
 
     @Test
-    public void shouldSaveAndReturnUser_forValidUserCreationRequest_withServiceRoles_evenIfSomeExternalIdsMissing() throws Exception {
+    public void shouldSaveAndReturnUser_forValidUserCreationRequest_withServiceRoles_evenIfSomeExternalIdsMissing() {
         String validRole = "validRole";
         when(mockRoleDao.findByRoleName(validRole)).thenReturn(Optional.of(mock(RoleEntity.class)));
         CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, asList("ext-id-1", "ext-id-2"), "otpKey", "3745838475", null);
@@ -121,7 +121,7 @@ public class UserCreatorTest {
     }
 
     @Test
-    public void shouldError_ifRoleIsInvalid() throws Exception {
+    public void shouldError_ifRoleIsInvalid() {
         String validRole = "inValidRole";
         when(mockRoleDao.findByRoleName(validRole)).thenReturn(Optional.empty());
         CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, null, "otpKey", "3745838475", null);

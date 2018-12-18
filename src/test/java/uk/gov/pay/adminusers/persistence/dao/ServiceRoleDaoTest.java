@@ -23,12 +23,12 @@ public class ServiceRoleDaoTest extends DaoTestBase {
     private ServiceRoleDao serviceRoleDao;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         serviceRoleDao = env.getInstance(ServiceRoleDao.class);
     }
 
     @Test
-    public void shouldRemoveAServiceRoleOfAUserSuccessfully() throws Exception {
+    public void shouldRemoveAServiceRoleOfAUserSuccessfully() {
 
         Service service = ServiceDbFixture.serviceDbFixture(databaseHelper).insertService();
         int roleId = RoleDbFixture.roleDbFixture(databaseHelper).insertRole().getId();

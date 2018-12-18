@@ -16,7 +16,7 @@ import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 public class UserTest {
 
     @Test
-    public void shouldFlatten_permissionsOfAUser() throws Exception {
+    public void shouldFlatten_permissionsOfAUser() {
         Service service = Service.from(1, "3487347gb67", Service.DEFAULT_NAME_VALUE);
         User user = User.from(randomInt(), randomUuid(), "name", "password", "email@example.com", singletonList("1"),
                 singletonList(service), "ewrew", "453453",

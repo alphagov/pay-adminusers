@@ -31,7 +31,7 @@ public class UserRequestValidatorTest {
     private ObjectMapper objectMapper;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         validator = new UserRequestValidator(new RequestValidations());
         objectMapper = new ObjectMapper();
     }
@@ -75,7 +75,7 @@ public class UserRequestValidatorTest {
     }
 
     @Test
-    public void shouldError_ifMandatoryPatchFieldsAreMissing() throws Exception {
+    public void shouldError_ifMandatoryPatchFieldsAreMissing() {
         JsonNode invalidPayload = mock(JsonNode.class);
         mockValidValuesFor(invalidPayload, of("foo", "blah"), of("bar", "blah@blah.com"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(invalidPayload);
@@ -91,7 +91,7 @@ public class UserRequestValidatorTest {
     }
 
     @Test
-    public void shouldError_ifPathNotAllowed_whenPatching() throws Exception {
+    public void shouldError_ifPathNotAllowed_whenPatching() {
         JsonNode invalidPayload = mock(JsonNode.class);
         mockValidValuesFor(invalidPayload, of("op", "append"), of("path", "version"), of("value", "1"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(invalidPayload);
@@ -104,7 +104,7 @@ public class UserRequestValidatorTest {
     }
 
     @Test
-    public void shouldError_ifPathOperationNotValid_whenPatching() throws Exception {
+    public void shouldError_ifPathOperationNotValid_whenPatching() {
         JsonNode invalidPayload = mock(JsonNode.class);
         mockValidValuesFor(invalidPayload, of("op", "replace"), of("path", "sessionVersion"), of("value", "1"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(invalidPayload);
@@ -117,7 +117,7 @@ public class UserRequestValidatorTest {
     }
 
     @Test
-    public void shouldError_ifSessionVersionNotNumeric_whenPatching() throws Exception {
+    public void shouldError_ifSessionVersionNotNumeric_whenPatching() {
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "append", "path", "sessionVersion", "value", "1r"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
@@ -129,7 +129,7 @@ public class UserRequestValidatorTest {
     }
 
     @Test
-    public void shouldError_ifDisabledNotBoolean_whenPatching() throws Exception {
+    public void shouldError_ifDisabledNotBoolean_whenPatching() {
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "disabled", "value", "1r"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
@@ -141,7 +141,7 @@ public class UserRequestValidatorTest {
     }
 
     @Test
-    public void shouldSuccess_forDisabled_whenPatching() throws Exception {
+    public void shouldSuccess_forDisabled_whenPatching() {
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "disabled", "value", "true"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
@@ -149,7 +149,7 @@ public class UserRequestValidatorTest {
     }
 
     @Test
-    public void shouldSuccess_forSessionVersion_whenPatching() throws Exception {
+    public void shouldSuccess_forSessionVersion_whenPatching() {
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "append", "path", "sessionVersion", "value", "2"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
@@ -157,7 +157,7 @@ public class UserRequestValidatorTest {
     }
 
     @Test
-    public void shouldSuccess_replacingTelephoneNumber_whenPatching() throws Exception {
+    public void shouldSuccess_replacingTelephoneNumber_whenPatching() {
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", "07700900000"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
@@ -165,7 +165,7 @@ public class UserRequestValidatorTest {
     }
 
     @Test
-    public void shouldError_replacingTelephoneNumber_whenPatchingIfNonNumeric() throws Exception {
+    public void shouldError_replacingTelephoneNumber_whenPatchingIfNonNumeric() {
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", "+44 7700 900 000"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
@@ -176,7 +176,7 @@ public class UserRequestValidatorTest {
     }
 
     @Test
-    public void shouldSuccess_whenAddingServiceRole() throws Exception {
+    public void shouldSuccess_whenAddingServiceRole() {
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("service_external_id", "blah-blah", "role_name", "blah"));
         Optional<Errors> optionalErrors = validator.validateAssignServiceRequest(payload);
 
@@ -184,7 +184,7 @@ public class UserRequestValidatorTest {
     }
 
     @Test
-    public void shouldError_whenAddingServiceRole_ifRequiredParamMissing() throws Exception {
+    public void shouldError_whenAddingServiceRole_ifRequiredParamMissing() {
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("service_external_id", "blah-blah"));
         Optional<Errors> optionalErrors = validator.validateAssignServiceRequest(payload);
 
@@ -258,7 +258,7 @@ public class UserRequestValidatorTest {
     }
 
     @Test
-    public void shouldSuccess_ifValidSearchRequest_whenFindingAUser() throws Exception {
+    public void shouldSuccess_ifValidSearchRequest_whenFindingAUser() {
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("username", "some-existing-user"));
         Optional<Errors> optionalErrors = validator.validateFindRequest(payload);
 

@@ -66,7 +66,7 @@ public class UserInviteCompleterTest {
     }
 
     @Test
-    public void shouldSuccess_whenSubscribingAServiceToAnExistingUser_forValidInvite() throws Exception {
+    public void shouldSuccess_whenSubscribingAServiceToAnExistingUser_forValidInvite() {
         ServiceEntity service = new ServiceEntity();
         service.setId(serviceId);
         service.setExternalId(serviceExternalId);
@@ -91,7 +91,7 @@ public class UserInviteCompleterTest {
 
 
     @Test
-    public void shouldError_whenSubscribingAServiceToAnExistingUser_ifServiceIsNull() throws Exception {
+    public void shouldError_whenSubscribingAServiceToAnExistingUser_ifServiceIsNull() {
 
         ServiceEntity service = new ServiceEntity();
         service.setId(serviceId);
@@ -111,7 +111,7 @@ public class UserInviteCompleterTest {
     }
 
     @Test
-    public void shouldError_whenSubscribingAServiceToAnExistingUser_ifInviteIsNotUserType() throws Exception {
+    public void shouldError_whenSubscribingAServiceToAnExistingUser_ifInviteIsNotUserType() {
 
         ServiceEntity service = new ServiceEntity();
         service.setId(serviceId);
@@ -159,7 +159,7 @@ public class UserInviteCompleterTest {
     }
 
     @Test
-    public void shouldThrowInternalError_whenUserWithSpecifiedEmailNotExists() throws Exception {
+    public void shouldThrowInternalError_whenUserWithSpecifiedEmailNotExists() {
         InviteEntity anInvite = createInvite();
         anInvite.setType(InviteType.USER);
 

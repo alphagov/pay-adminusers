@@ -64,7 +64,7 @@ public class DatabaseHealthCheck extends HealthCheck {
     }
 
     @Override
-    protected Result check() throws Exception {
+    protected Result check() {
         try (Connection connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword)) {
             connection.setReadOnly(true);
             updateMetricData(connection);

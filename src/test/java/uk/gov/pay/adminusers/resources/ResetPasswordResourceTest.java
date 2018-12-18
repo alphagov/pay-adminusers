@@ -24,7 +24,7 @@ public class ResetPasswordResourceTest extends IntegrationTest {
     private int userId;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         String username = randomUuid();
         String email = username + "@example.com";
         userId = userDbFixture(databaseHelper).withPassword(CURRENT_PASSWORD).withUsername(username).withEmail(email).insertUser().getId();
@@ -112,7 +112,7 @@ public class ResetPasswordResourceTest extends IntegrationTest {
     }
 
     @Test
-    public void resetPassword_shouldReturn400_whenJsonIsMissing() throws Exception {
+    public void resetPassword_shouldReturn400_whenJsonIsMissing() {
 
         givenSetup()
                 .when()
@@ -126,7 +126,7 @@ public class ResetPasswordResourceTest extends IntegrationTest {
     }
 
     @Test
-    public void resetPassword_shouldReturn400_whenFieldsAreMissing() throws Exception {
+    public void resetPassword_shouldReturn400_whenFieldsAreMissing() {
 
         givenSetup()
                 .when()

@@ -45,14 +45,14 @@ public class UserDaoTest extends DaoTestBase {
     private RoleDao roleDao;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         userDao = env.getInstance(UserDao.class);
         serviceDao = env.getInstance(ServiceDao.class);
         roleDao = env.getInstance(RoleDao.class);
     }
 
     @Test
-    public void shouldCreateAUserSuccessfully() throws Exception {
+    public void shouldCreateAUserSuccessfully() {
         Role role = roleDbFixture(databaseHelper).insertRole();
         String gatewayAccountId = randomInt().toString();
         int serviceId = serviceDbFixture(databaseHelper)
@@ -108,7 +108,7 @@ public class UserDaoTest extends DaoTestBase {
     }
 
     @Test
-    public void shouldFindUserBy_ExternalId() throws Exception {
+    public void shouldFindUserBy_ExternalId() {
         Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId1 = serviceDbFixture(databaseHelper)
                 .insertService().getId();
@@ -144,7 +144,7 @@ public class UserDaoTest extends DaoTestBase {
     }
 
     @Test
-    public void shouldFindUsersBy_ExternalIds() throws Exception {
+    public void shouldFindUsersBy_ExternalIds() {
         Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId1 = serviceDbFixture(databaseHelper)
                 .insertService().getId();
@@ -209,7 +209,7 @@ public class UserDaoTest extends DaoTestBase {
     }
 
     @Test
-    public void shouldFindUserBy_Username_caseInsensitive() throws Exception {
+    public void shouldFindUserBy_Username_caseInsensitive() {
         Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId = serviceDbFixture(databaseHelper)
                 .insertService().getId();
@@ -236,7 +236,7 @@ public class UserDaoTest extends DaoTestBase {
     }
 
     @Test
-    public void shouldFindUser_ByEmail_caseInsensitive() throws Exception {
+    public void shouldFindUser_ByEmail_caseInsensitive() {
         Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
         String username = randomUuid();

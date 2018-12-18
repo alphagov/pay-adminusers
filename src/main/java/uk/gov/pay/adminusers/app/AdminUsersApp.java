@@ -68,7 +68,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
     }
 
     @Override
-    public void run(AdminUsersConfig configuration, Environment environment) throws Exception {
+    public void run(AdminUsersConfig configuration, Environment environment) {
         final Injector injector = Guice.createInjector(new AdminUsersModule(configuration, environment));
         injector.getInstance(PersistenceServiceInitialiser.class);
 

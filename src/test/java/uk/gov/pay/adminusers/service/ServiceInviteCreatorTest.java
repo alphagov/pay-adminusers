@@ -47,12 +47,12 @@ public class ServiceInviteCreatorTest {
     private ServiceInviteCreator serviceInviteCreator;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         serviceInviteCreator = new ServiceInviteCreator(inviteDao, userDao, roleDao, new LinksBuilder("http://localhost/"), linksConfig, notificationService, passwordHasher);
     }
 
     @Test
-    public void shouldSuccess_serviceInvite_IfEmailDoesNotConflict() throws Exception {
+    public void shouldSuccess_serviceInvite_IfEmailDoesNotConflict() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
@@ -76,7 +76,7 @@ public class ServiceInviteCreatorTest {
     }
 
     @Test
-    public void shouldSuccess_serviceInvite_evenIfNotifyThrowsAnError() throws Exception {
+    public void shouldSuccess_serviceInvite_evenIfNotifyThrowsAnError() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
@@ -99,7 +99,7 @@ public class ServiceInviteCreatorTest {
     }
 
     @Test
-    public void shouldSuccess_ifUserAlreadyHasAValidServiceInvitationWithGivenEmail() throws Exception {
+    public void shouldSuccess_ifUserAlreadyHasAValidServiceInvitationWithGivenEmail() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
         UserEntity sender = mock(UserEntity.class);
@@ -127,7 +127,7 @@ public class ServiceInviteCreatorTest {
     }
 
     @Test
-    public void shouldSuccess_serviceInvite_evenIfUserAlreadyHasAValidUserInvitationWithGivenEmail() throws Exception {
+    public void shouldSuccess_serviceInvite_evenIfUserAlreadyHasAValidUserInvitationWithGivenEmail() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
         UserEntity sender = mock(UserEntity.class);
@@ -155,7 +155,7 @@ public class ServiceInviteCreatorTest {
     }
 
     @Test
-    public void shouldError_ifUserAlreadyExistsWithGivenEmail() throws Exception {
+    public void shouldError_ifUserAlreadyExistsWithGivenEmail() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
         UserEntity existingUserEntity = new UserEntity();
@@ -176,7 +176,7 @@ public class ServiceInviteCreatorTest {
     }
 
     @Test
-    public void shouldError_ifUserAlreadyExistsAndDisabledWithGivenEmail() throws Exception {
+    public void shouldError_ifUserAlreadyExistsAndDisabledWithGivenEmail() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
         UserEntity existingUserEntity = new UserEntity();
@@ -194,7 +194,7 @@ public class ServiceInviteCreatorTest {
     }
 
     @Test
-    public void shouldError_ifRoleDoesNotExists() throws Exception {
+    public void shouldError_ifRoleDoesNotExists() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
