@@ -31,11 +31,11 @@ public class InviteResourceGetTest extends IntegrationTest {
                 .body("attempt_counter", is(0));
     }
 
-    @Test
     /**
      *  This situation happens when OTP is generated (with telephone_number) and then the GET Invite is again requested
      *  (still non-expired invite link)
      */
+    @Test
     public void getInvitation_shouldSucceedWithTelephoneNumber_whenIsAvailable() {
 
         String email = "user@example.com";
