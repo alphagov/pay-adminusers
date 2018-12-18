@@ -36,11 +36,8 @@ public class ResetPasswordValidator {
 
         Optional<List<String>> invalidLength = checkLength(payload, FIELD_CODE);
 
-        if (invalidLength.isPresent()) {
-            return Optional.of(Errors.from(invalidLength.get()));
-        }
+        return invalidLength.map(Errors::from);
 
-        return Optional.empty();
     }
 
     private Optional<List<String>> checkLength(JsonNode payload, String... fieldNames) {

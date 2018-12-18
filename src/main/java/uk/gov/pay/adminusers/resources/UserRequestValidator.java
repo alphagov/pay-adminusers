@@ -115,19 +115,13 @@ public class UserRequestValidator {
         }
 
         Optional<List<String>> invalidData = checkValidPatchValue(payload.get("value"), getUserPatchPathValidations(path));
-        if (invalidData.isPresent()) {
-            return Optional.of(Errors.from(invalidData.get()));
-        }
+        return invalidData.map(Errors::from);
 
-        return Optional.empty();
     }
 
     public Optional<Errors> validateFindRequest(JsonNode payload) {
         Optional<List<String>> missingMandatoryFields = requestValidations.checkExistsAndNotEmpty(payload, FIELD_USERNAME);
-        if (missingMandatoryFields.isPresent()) {
-            return Optional.of(Errors.from(missingMandatoryFields.get()));
-        }
-        return Optional.empty();
+        return missingMandatoryFields.map(Errors::from);
     }
 
     private Optional<List<String>> checkValidPatchValue(JsonNode valueNode, Collection<Pair<Function<JsonNode, Boolean>, String>> pathValidations) {
