@@ -3,8 +3,8 @@ package uk.gov.pay.adminusers.service;
 import java.util.Map;
 
 public class StaticEmailContent {
-    private String templateId;
-    private Map<String, String> personalisation;
+    private final String templateId;
+    private final Map<String, String> personalisation;
 
     public StaticEmailContent(String templateId, Map<String, String> personalisation) {
         this.templateId = templateId;

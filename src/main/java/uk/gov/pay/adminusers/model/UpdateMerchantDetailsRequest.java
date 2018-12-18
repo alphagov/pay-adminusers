@@ -19,14 +19,14 @@ public class UpdateMerchantDetailsRequest {
     public static final String FIELD_ADDRESS_COUNTRY = "address_country";
     private static final String FIELD_EMAIL = "email";
 
-    private String name;
-    private String telephoneNumber;
-    private String addressLine1;
-    private String addressLine2;
-    private String addressCity;
-    private String addressPostcode;
-    private String addressCountry;
-    private String email;
+    private final String name;
+    private final String telephoneNumber;
+    private final String addressLine1;
+    private final String addressLine2;
+    private final String addressCity;
+    private final String addressPostcode;
+    private final String addressCountry;
+    private final String email;
 
     public static UpdateMerchantDetailsRequest from(JsonNode node) {
         String name = node.get(FIELD_NAME).asText();

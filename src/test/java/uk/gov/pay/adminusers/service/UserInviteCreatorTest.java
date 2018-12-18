@@ -57,25 +57,25 @@ public class UserInviteCreatorTest {
 
     private static final String SELFSERVICE_URL = "http://selfservice";
 
-    private RoleDao mockRoleDao = mock(RoleDao.class);
-    private ServiceDao mockServiceDao = mock(ServiceDao.class);
-    private UserDao mockUserDao = mock(UserDao.class);
-    private InviteDao mockInviteDao = mock(InviteDao.class);
-    private AdminUsersConfig mockConfig = mock(AdminUsersConfig.class);
-    private NotificationService mockNotificationService = mock(NotificationService.class);
-    private LinksConfig linksConfig = mock(LinksConfig.class);
+    private final RoleDao mockRoleDao = mock(RoleDao.class);
+    private final ServiceDao mockServiceDao = mock(ServiceDao.class);
+    private final UserDao mockUserDao = mock(UserDao.class);
+    private final InviteDao mockInviteDao = mock(InviteDao.class);
+    private final AdminUsersConfig mockConfig = mock(AdminUsersConfig.class);
+    private final NotificationService mockNotificationService = mock(NotificationService.class);
+    private final LinksConfig linksConfig = mock(LinksConfig.class);
 
     @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    public final ExpectedException thrown = ExpectedException.none();
 
     private UserInviteCreator userInviteCreator;
-    private ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
-    private String senderEmail = "sender@example.com";
-    private String email = "invited@example.com";
-    private int serviceId = 1;
-    private String serviceExternalId = "3453rmeuty87t";
-    private String senderExternalId = "12345";
-    private String roleName = "view-only";
+    private final ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
+    private final String senderEmail = "sender@example.com";
+    private final String email = "invited@example.com";
+    private final int serviceId = 1;
+    private final String serviceExternalId = "3453rmeuty87t";
+    private final String senderExternalId = "12345";
+    private final String roleName = "view-only";
 
     @Before
     public void setup() {

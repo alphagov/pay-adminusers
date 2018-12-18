@@ -13,7 +13,7 @@ import static org.hamcrest.core.Is.is;
 
 public class RequestValidationsTest {
 
-    private RequestValidations requestValidations = new RequestValidations();
+    private final RequestValidations requestValidations = new RequestValidations();
 
     private static final String FIELD_1 = "field1";
     private static final String FIELD_2 = "field2";

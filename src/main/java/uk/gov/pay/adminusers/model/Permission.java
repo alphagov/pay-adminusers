@@ -9,9 +9,9 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 public class Permission {
 
     @JsonIgnore
-    private Integer id;
-    private String name;
-    private String description;
+    private final Integer id;
+    private final String name;
+    private final String description;
 
     public static Permission permission(Integer permissionId, String name, String description) {
         return new Permission(permissionId, name, description);

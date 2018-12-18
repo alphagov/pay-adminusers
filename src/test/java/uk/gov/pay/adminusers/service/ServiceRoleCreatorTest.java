@@ -42,7 +42,7 @@ public class ServiceRoleCreatorTest {
     private ServiceDao serviceDao;
 
     @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    public final ExpectedException thrown = ExpectedException.none();
 
     private ServiceRoleCreator serviceRoleCreator;
 

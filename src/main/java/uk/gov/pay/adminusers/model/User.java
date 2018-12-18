@@ -24,16 +24,16 @@ public class User {
     public static final String FIELD_TELEPHONE_NUMBER = "telephone_number";
     public static final String FIELD_ROLE_NAME = "role_name";
 
-    private Integer id;
-    private String externalId;
-    private String username;
-    private String password;
-    private String email;
+    private final Integer id;
+    private final String externalId;
+    private final String username;
+    private final String password;
+    private final String email;
     private List<String> gatewayAccountIds = new ArrayList<>();
-    private String telephoneNumber;
+    private final String telephoneNumber;
     @Deprecated // Use serviceRoles instead
     private List<Service> services = new ArrayList<>();
-    private String otpKey;
+    private final String otpKey;
     private Boolean disabled = Boolean.FALSE;
     private Integer loginCounter = 0;
     private String features;

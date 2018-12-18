@@ -60,13 +60,13 @@ public class ServiceEntity {
     private Map<String, Object> customBranding;
 
     @OneToMany(mappedBy = "service", targetEntity = GatewayAccountIdEntity.class, fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    private List<GatewayAccountIdEntity> gatewayAccountIds = new ArrayList<>();
+    private final List<GatewayAccountIdEntity> gatewayAccountIds = new ArrayList<>();
 
     @OneToMany(mappedBy = "service", targetEntity = InviteEntity.class, fetch = FetchType.LAZY)
-    private List<InviteEntity> invites = new ArrayList<>();
+    private final List<InviteEntity> invites = new ArrayList<>();
 
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private Set<ServiceNameEntity> serviceNames = new HashSet<>();
+    private final Set<ServiceNameEntity> serviceNames = new HashSet<>();
     
     @Column(name = "current_go_live_stage")
     @Enumerated(value = EnumType.STRING)

@@ -4,7 +4,7 @@ import uk.gov.pay.adminusers.utils.Errors;
 
 public class ValidationException extends Throwable {
 
-    private Errors errors;
+    private final Errors errors;
 
     public ValidationException(Errors errors) {
         this.errors = errors;

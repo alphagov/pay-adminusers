@@ -12,7 +12,7 @@ public class EmailRequestParser {
 
     private static final Logger LOGGER = PayLoggerFactory.getLogger(EmailRequestParser.class);
 
-    private ObjectMapper mapper;
+    private final ObjectMapper mapper;
 
     @Inject
     public EmailRequestParser(ObjectMapper mapper) {

@@ -14,9 +14,9 @@ import static org.apache.commons.collections.CollectionUtils.isEqualCollection;
 public class Role {
 
     @JsonIgnore
-    private Integer id;
-    private String name;
-    private String description;
+    private final Integer id;
+    private final String name;
+    private final String description;
     private List<Permission> permissions = new ArrayList<>();
 
     public static Role role(Integer roleId, String name, String description) {

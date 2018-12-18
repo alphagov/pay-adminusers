@@ -23,7 +23,7 @@ import static java.sql.Timestamp.from;
 
 public class DatabaseTestHelper {
 
-    private DBI jdbi;
+    private final DBI jdbi;
 
     public DatabaseTestHelper(DBI jdbi) {
         this.jdbi = jdbi;

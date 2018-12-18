@@ -16,7 +16,7 @@ abstract class ServiceResourceBaseTest {
     static final String CY_SERVICE_NAME = "some-welsh-service-name";
     static final String EN_SERVICE_NAME = "some-test-service-name";
 
-    static ServiceDao mockedServiceDao = mock(ServiceDao.class);
+    static final ServiceDao mockedServiceDao = mock(ServiceDao.class);
     private static final String HTTPS_BASE_URL = "https://base-url";
     static final LinksBuilder linksBuilder = new LinksBuilder(HTTPS_BASE_URL);
 

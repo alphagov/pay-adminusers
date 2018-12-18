@@ -13,10 +13,10 @@ import static uk.gov.pay.adminusers.model.ForgottenPassword.forgottenPassword;
 
 public class ForgottenPasswordDbFixture {
 
-    private DatabaseTestHelper databaseTestHelper;
-    private int userId;
+    private final DatabaseTestHelper databaseTestHelper;
+    private final int userId;
     private ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
-    private String forgottenPasswordCode = RandomStringUtils.randomAlphanumeric(100);
+    private final String forgottenPasswordCode = RandomStringUtils.randomAlphanumeric(100);
 
     private ForgottenPasswordDbFixture(DatabaseTestHelper databaseTestHelper, int userId) {
         this.databaseTestHelper = databaseTestHelper;

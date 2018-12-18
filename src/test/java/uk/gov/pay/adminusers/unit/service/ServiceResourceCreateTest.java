@@ -53,14 +53,14 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
 
     private static final Map<String, Object> PAYLOAD_MAP = new HashMap<>();
 
-    private static UserDao mockedUserDao = mock(UserDao.class);
-    private static ServiceServicesFactory mockedServicesFactory = mock(ServiceServicesFactory.class);
+    private static final UserDao mockedUserDao = mock(UserDao.class);
+    private static final ServiceServicesFactory mockedServicesFactory = mock(ServiceServicesFactory.class);
 
-    private static ServiceCreator serviceCreator = new ServiceCreator(mockedServiceDao, linksBuilder);
-    private static ServiceCreator mockedServiceCreator = mock(ServiceCreator.class);
+    private static final ServiceCreator serviceCreator = new ServiceCreator(mockedServiceDao, linksBuilder);
+    private static final ServiceCreator mockedServiceCreator = mock(ServiceCreator.class);
 
-    private static RequestValidations requestValidations = new RequestValidations();
-    private static ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(requestValidations, new ServiceUpdateOperationValidator(requestValidations));
+    private static final RequestValidations requestValidations = new RequestValidations();
+    private static final ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(requestValidations, new ServiceUpdateOperationValidator(requestValidations));
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()

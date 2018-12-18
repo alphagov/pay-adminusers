@@ -41,7 +41,7 @@ import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 public class ProviderContractTest {
 
     @ClassRule
-    public static DropwizardAppWithPostgresRule app = new DropwizardAppWithPostgresRule();
+    public static final DropwizardAppWithPostgresRule app = new DropwizardAppWithPostgresRule();
 
     @TestTarget
     public static Target target;

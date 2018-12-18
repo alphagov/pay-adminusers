@@ -36,14 +36,14 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 public class ServiceInviteCreatorTest {
     @Rule
-    public ExpectedException thrown = ExpectedException.none();
-    private NotificationService notificationService = mock(NotificationService.class);
-    private LinksConfig linksConfig = mock(LinksConfig.class);
-    private InviteDao inviteDao = mock(InviteDao.class);
-    private UserDao userDao = mock(UserDao.class);
-    private RoleDao roleDao = mock(RoleDao.class);
-    private PasswordHasher passwordHasher = mock(PasswordHasher.class);
-    private ArgumentCaptor<InviteEntity> persistedInviteEntity = ArgumentCaptor.forClass(InviteEntity.class);
+    public final ExpectedException thrown = ExpectedException.none();
+    private final NotificationService notificationService = mock(NotificationService.class);
+    private final LinksConfig linksConfig = mock(LinksConfig.class);
+    private final InviteDao inviteDao = mock(InviteDao.class);
+    private final UserDao userDao = mock(UserDao.class);
+    private final RoleDao roleDao = mock(RoleDao.class);
+    private final PasswordHasher passwordHasher = mock(PasswordHasher.class);
+    private final ArgumentCaptor<InviteEntity> persistedInviteEntity = ArgumentCaptor.forClass(InviteEntity.class);
     private ServiceInviteCreator serviceInviteCreator;
 
     @Before

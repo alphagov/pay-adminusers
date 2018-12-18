@@ -34,7 +34,7 @@ public class IntegrationTest {
     static final String INVITE_USER_RESOURCE_URL = "/v1/api/invites/user";
 
     @ClassRule
-    public static DropwizardAppWithPostgresRule app = new DropwizardAppWithPostgresRule();
+    public static final DropwizardAppWithPostgresRule app = new DropwizardAppWithPostgresRule();
 
     protected DatabaseTestHelper databaseHelper;
     protected ObjectMapper mapper;

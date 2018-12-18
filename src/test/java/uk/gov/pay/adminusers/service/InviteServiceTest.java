@@ -62,15 +62,15 @@ public class InviteServiceTest {
     private SecondFactorAuthenticator mockSecondFactorAuthenticator;
 
     private InviteService inviteService;
-    private ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
-    private ArgumentCaptor<UserEntity> expectedInvitedUser = ArgumentCaptor.forClass(UserEntity.class);
-    private int passCode = 123456;
-    private String otpKey = "otpKey";
-    private String inviteCode = "code";
-    private String senderEmail = "sender@example.com";
-    private String email = "invited@example.com";
-    private int serviceId = 1;
-    private String senderExternalId = "12345";
+    private final ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
+    private final ArgumentCaptor<UserEntity> expectedInvitedUser = ArgumentCaptor.forClass(UserEntity.class);
+    private final int passCode = 123456;
+    private final String otpKey = "otpKey";
+    private final String inviteCode = "code";
+    private final String senderEmail = "sender@example.com";
+    private final String email = "invited@example.com";
+    private final int serviceId = 1;
+    private final String senderExternalId = "12345";
     private String roleName = "view-only";
 
     @Before

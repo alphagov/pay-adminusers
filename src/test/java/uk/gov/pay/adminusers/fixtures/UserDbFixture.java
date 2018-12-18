@@ -19,7 +19,7 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 public class UserDbFixture {
 
     private final DatabaseTestHelper databaseTestHelper;
-    private List<Pair<Service, Role>> serviceRolePairs = newArrayList();
+    private final List<Pair<Service, Role>> serviceRolePairs = newArrayList();
     private String externalId = randomUuid();
     private String username = randomUuid();
     private String otpKey = RandomStringUtils.randomAlphabetic(10);

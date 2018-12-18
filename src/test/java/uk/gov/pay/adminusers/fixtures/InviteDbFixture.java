@@ -14,11 +14,11 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class InviteDbFixture {
 
-    private DatabaseTestHelper databaseTestHelper;
+    private final DatabaseTestHelper databaseTestHelper;
     private String email = randomAlphanumeric(5) + "-invite@example.com";
-    private ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
+    private final ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
     private ZonedDateTime expiryDate = this.date.plus(1, DAYS);
-    private String code = randomAlphanumeric(100);
+    private final String code = randomAlphanumeric(100);
     private String otpKey = randomAlphanumeric(100);
     private String telephoneNumber;
     private String password;

@@ -17,9 +17,9 @@ public class Link {
         user
     }
 
-    private Rel rel;
-    private String method;
-    private String href;
+    private final Rel rel;
+    private final String method;
+    private final String href;
     private String title;
     private String type;
     private Map<String, Object> params;

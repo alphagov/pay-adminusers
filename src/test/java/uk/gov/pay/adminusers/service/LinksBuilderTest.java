@@ -19,7 +19,7 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class LinksBuilderTest {
 
-    private LinksBuilder linksBuilder = new LinksBuilder("http://localhost:8080");
+    private final LinksBuilder linksBuilder = new LinksBuilder("http://localhost:8080");
 
     @Test
     public void shouldConstruct_userSelfLinkCorrectly() throws Exception {

@@ -45,17 +45,17 @@ public class UserInviteCompleterTest {
     private InviteDao mockInviteDao;
 
     @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    public final ExpectedException thrown = ExpectedException.none();
 
     private InviteCompleter userInviteCompleter;
 
-    private String otpKey = "otpKey";
-    private String inviteCode = "code";
-    private String senderEmail = "sender@example.com";
-    private String email = "invited@example.com";
-    private int serviceId = 1;
-    private String serviceExternalId = "3453rmeuty87t";
-    private String senderExternalId = "12345";
+    private final String otpKey = "otpKey";
+    private final String inviteCode = "code";
+    private final String senderEmail = "sender@example.com";
+    private final String email = "invited@example.com";
+    private final int serviceId = 1;
+    private final String serviceExternalId = "3453rmeuty87t";
+    private final String senderExternalId = "12345";
 
     @Before
     public void setup() {

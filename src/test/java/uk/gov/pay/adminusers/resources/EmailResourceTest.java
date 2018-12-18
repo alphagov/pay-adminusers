@@ -12,9 +12,9 @@ import static com.jayway.restassured.http.ContentType.JSON;
 
 public class EmailResourceTest extends IntegrationTest {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String GATEWAY_ACCOUNT_ID = "DIRECT_DEBIT:mdshfsehdtfsdtjg";
-    private Map<String, Object> validEmailRequest = ImmutableMap.of(
+    private final Map<String, Object> validEmailRequest = ImmutableMap.of(
             "address", "cake@directdebitteam.test",
             "gateway_account_external_id", GATEWAY_ACCOUNT_ID,
             "template", "MANDATE_CANCELLED",

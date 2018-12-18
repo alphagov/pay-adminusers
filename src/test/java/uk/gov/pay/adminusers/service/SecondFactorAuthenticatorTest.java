@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 public class SecondFactorAuthenticatorTest {
 
     @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    public final ExpectedException thrown = ExpectedException.none();
 
     private static final String SECRET = "mysecret";
     private static final String BASE32_ENCODED_SECRET = "KPWXGUTNWOE7PMVK";

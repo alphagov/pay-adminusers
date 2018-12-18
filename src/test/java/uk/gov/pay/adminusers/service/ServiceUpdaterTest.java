@@ -41,7 +41,7 @@ public class ServiceUpdaterTest {
 
     private static final String NON_EXISTENT_SERVICE_EXTERNAL_ID = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
-    private ServiceDao serviceDao = mock(ServiceDao.class);
+    private final ServiceDao serviceDao = mock(ServiceDao.class);
     private ServiceUpdater updater;
 
     @Before

@@ -41,7 +41,7 @@ public class ForgottenPasswordServicesTest {
     private static final String SELFSERVICE_URL = "http://selfservice";
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private ForgottenPasswordDao forgottenPasswordDao;

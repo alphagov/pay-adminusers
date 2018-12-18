@@ -30,7 +30,7 @@ public class ServiceUserRemoverTest {
 
     private ServiceUserRemover service;
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
     @Mock
     private UserDao mockUserDao;
 

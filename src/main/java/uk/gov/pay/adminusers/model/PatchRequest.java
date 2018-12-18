@@ -12,9 +12,9 @@ public class PatchRequest {
     public static final String PATH_TELEPHONE_NUMBER = "telephone_number";
     public static final String PATH_FEATURES = "features";
 
-    private String op;
-    private String path;
-    private String value;
+    private final String op;
+    private final String path;
+    private final String value;
 
     private PatchRequest(String op, String path, String value) {
         this.op = op;

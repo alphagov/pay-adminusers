@@ -57,7 +57,7 @@ public class UserEntity extends AbstractEntity {
     private String features;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, targetEntity = ServiceRoleEntity.class)
-    private List<ServiceRoleEntity> servicesRoles = new ArrayList<>();
+    private final List<ServiceRoleEntity> servicesRoles = new ArrayList<>();
 
     // TODO: Change column from 'camelCase' to 'snake_case'. These columns were created through Sequelize.
     @Column(name = "\"createdAt\"")

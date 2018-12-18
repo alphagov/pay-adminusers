@@ -14,9 +14,9 @@ import static org.junit.Assert.assertThat;
 
 public class EmailRequestParserTest {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
     @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    public final ExpectedException thrown = ExpectedException.none();
 
     private EmailRequestParser parser;
 

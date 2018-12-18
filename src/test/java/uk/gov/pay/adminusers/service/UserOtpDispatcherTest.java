@@ -33,7 +33,7 @@ public class UserOtpDispatcherTest {
     @Mock
     NotificationService notificationService;
 
-    ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
+    final ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
 
     InviteOtpDispatcher userOtpDispatcher;
 

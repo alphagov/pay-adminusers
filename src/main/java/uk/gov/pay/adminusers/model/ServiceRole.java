@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class ServiceRole {
 
-    private Service Service;
-    private Role role;
+    private final Service Service;
+    private final Role role;
 
     public static ServiceRole from(Service service, Role role) {
         return new ServiceRole(service, role);

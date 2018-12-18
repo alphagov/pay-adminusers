@@ -37,12 +37,12 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceResourceFindTest extends ServiceResourceBaseTest {
 
-    private static ServiceDao mockedServiceDao = mock(ServiceDao.class);
-    private static UserDao mockedUserDao = mock(UserDao.class);
-    private static ServiceServicesFactory mockedServicesFactory = mock(ServiceServicesFactory.class);
+    private static final ServiceDao mockedServiceDao = mock(ServiceDao.class);
+    private static final UserDao mockedUserDao = mock(UserDao.class);
+    private static final ServiceServicesFactory mockedServicesFactory = mock(ServiceServicesFactory.class);
 
-    private static ServiceFinder serviceFinder = new ServiceFinder(mockedServiceDao, linksBuilder);
-    private static ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(new RequestValidations(), null);
+    private static final ServiceFinder serviceFinder = new ServiceFinder(mockedServiceDao, linksBuilder);
+    private static final ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(new RequestValidations(), null);
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()

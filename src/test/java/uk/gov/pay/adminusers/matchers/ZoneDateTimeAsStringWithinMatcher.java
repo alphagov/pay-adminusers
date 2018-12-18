@@ -13,7 +13,7 @@ public class ZoneDateTimeAsStringWithinMatcher extends TypeSafeMatcher<String> {
 
     private final long period;
     private final ChronoUnit unit;
-    private ZonedDateTime from;
+    private final ZonedDateTime from;
 
     private ZoneDateTimeAsStringWithinMatcher(long period, ChronoUnit unit, ZonedDateTime from) {
         this.period = period;

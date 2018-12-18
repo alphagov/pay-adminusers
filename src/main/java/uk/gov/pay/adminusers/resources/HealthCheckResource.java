@@ -23,7 +23,7 @@ public class HealthCheckResource {
     public static final String HEALTHY = "healthy";
     public static final String MESSAGE = "message";
 
-    private Environment environment;
+    private final Environment environment;
 
     @Inject
     public HealthCheckResource(Environment environment) {

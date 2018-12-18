@@ -60,7 +60,7 @@ public class EmailServiceTest {
     private CountryConverter mockCountryConverter;
 
     @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    public final ExpectedException thrown = ExpectedException.none();
 
     private final static String EMAIL_ADDRESS = "aaa@bbb.test";
     private final static String GATEWAY_ACCOUNT_ID = "DIRECT_DEBIT:sfksdjweg45w";

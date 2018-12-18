@@ -6,7 +6,7 @@ public enum InviteType {
 
     USER("user"), SERVICE("service");
 
-    private String type;
+    private final String type;
 
     InviteType(String type) {
         this.type = type;

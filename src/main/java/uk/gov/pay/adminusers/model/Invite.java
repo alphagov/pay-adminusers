@@ -17,14 +17,14 @@ public class Invite {
     private String code;
     private final String email;
     private final String role;
-    private String telephoneNumber;
+    private final String telephoneNumber;
     private Boolean disabled = Boolean.FALSE;
     private Integer attemptCounter = 0;
 
-    private List<Link> links = new ArrayList<>();
+    private final List<Link> links = new ArrayList<>();
     private String type;
     private boolean userExist = false;
-    private boolean expired;
+    private final boolean expired;
 
     public Invite(String code, String email, String telephoneNumber,
                   Boolean disabled, Integer attemptCounter, String type, String role, Boolean expired) {

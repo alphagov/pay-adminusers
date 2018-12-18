@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class InviteCompleteResponse {
 
-    private Invite invite;
+    private final Invite invite;
     private String userExternalId;
     private String serviceExternalId;
 

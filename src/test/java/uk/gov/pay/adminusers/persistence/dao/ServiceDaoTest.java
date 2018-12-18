@@ -46,7 +46,7 @@ import static uk.gov.pay.adminusers.model.Role.role;
 public class ServiceDaoTest extends DaoTestBase {
 
     private ServiceDao serviceDao;
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String EN_NAME = "en-test-name";
     private static final String CY_NAME = "gwasanaeth prawf";
 

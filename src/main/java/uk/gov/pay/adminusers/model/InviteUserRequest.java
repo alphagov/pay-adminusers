@@ -9,7 +9,7 @@ public class InviteUserRequest extends InviteRequest {
 
     private final String sender;
 
-    private String serviceExternalId;
+    private final String serviceExternalId;
 
     private InviteUserRequest(String sender, String email, String roleName, String otpKey, String serviceExternalId) {
         super(roleName, email, otpKey);

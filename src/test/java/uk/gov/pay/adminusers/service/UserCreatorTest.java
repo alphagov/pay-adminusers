@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 public class UserCreatorTest {
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    public final ExpectedException expectedException = ExpectedException.none();
     @Mock
     private UserDao mockUserDao;
     @Mock
@@ -43,8 +43,8 @@ public class UserCreatorTest {
     private RoleDao mockRoleDao;
     @Mock
     private PasswordHasher mockPasswordHasher;
-    private LinksBuilder linksBuilder = new LinksBuilder("http://localhost");
-    ArgumentCaptor<UserEntity> expectedUser = ArgumentCaptor.forClass(UserEntity.class);
+    private final LinksBuilder linksBuilder = new LinksBuilder("http://localhost");
+    final ArgumentCaptor<UserEntity> expectedUser = ArgumentCaptor.forClass(UserEntity.class);
 
     private UserCreator userCreator;
 

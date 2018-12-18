@@ -8,7 +8,7 @@ import javax.net.ssl.SSLContext;
 
 public class NotifyClientProvider {
 
-    private NotifyConfiguration configuration;
+    private final NotifyConfiguration configuration;
     private final SSLContext sslContext;
 
     NotifyClientProvider(NotifyConfiguration configuration, SSLContext sslContext) {

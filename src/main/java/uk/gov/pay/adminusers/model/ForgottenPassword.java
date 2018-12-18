@@ -16,10 +16,10 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 public class ForgottenPassword {
 
     @JsonIgnore
-    private Integer id;
-    private String code;
-    private ZonedDateTime date;
-    private String userExternalId;
+    private final Integer id;
+    private final String code;
+    private final ZonedDateTime date;
+    private final String userExternalId;
     private List<Link> links;
 
     public static ForgottenPassword forgottenPassword(String code, String userExternalId) {

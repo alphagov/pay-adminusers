@@ -15,7 +15,7 @@ public class ServiceDbFixture {
     private String[] gatewayAccountIds = new String[]{valueOf(nextInt())};
     private Integer id;
     private String externalId;
-    private String name = Service.DEFAULT_NAME_VALUE;
+    private final String name = Service.DEFAULT_NAME_VALUE;
     private MerchantDetails merchantDetails = new MerchantDetails(
             "name", null, "line1", null, "city",
             "postcode", "country", null

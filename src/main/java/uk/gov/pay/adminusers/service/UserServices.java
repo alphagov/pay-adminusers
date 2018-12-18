@@ -29,7 +29,7 @@ import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TELEPHONE_NUMBER;
 
 public class UserServices {
 
-    private static Logger logger = PayLoggerFactory.getLogger(UserServices.class);
+    private static final Logger logger = PayLoggerFactory.getLogger(UserServices.class);
 
     private final UserDao userDao;
     private final PasswordHasher passwordHasher;

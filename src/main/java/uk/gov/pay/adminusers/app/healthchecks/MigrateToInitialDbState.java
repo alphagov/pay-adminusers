@@ -15,7 +15,7 @@ import java.sql.*;
 
 public class MigrateToInitialDbState extends ConfiguredCommand<AdminUsersConfig> {
 
-    private static Logger logger = LoggerFactory.getLogger(MigrateToInitialDbState.class);
+    private static final Logger logger = LoggerFactory.getLogger(MigrateToInitialDbState.class);
 
     public MigrateToInitialDbState() {
         super("migrateToInitialDbState", "Migrate to initial (selfservice) database state, if necessary");

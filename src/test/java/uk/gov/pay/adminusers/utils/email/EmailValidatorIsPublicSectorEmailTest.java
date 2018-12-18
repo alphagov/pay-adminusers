@@ -13,9 +13,9 @@ import static org.junit.Assert.assertThat;
 @RunWith(Parameterized.class)
 public class EmailValidatorIsPublicSectorEmailTest {
 
-    private String email;
+    private final String email;
 
-    private boolean testResult;
+    private final boolean testResult;
 
     public EmailValidatorIsPublicSectorEmailTest(String email, boolean testResult) {
         this.email = email;

@@ -39,12 +39,12 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
 
     private static final String API_PATH = "/v1/api/services/%s";
-    private static UserDao mockedUserDao = mock(UserDao.class);
-    private static ServiceServicesFactory mockedServicesFactory = mock(ServiceServicesFactory.class);
+    private static final UserDao mockedUserDao = mock(UserDao.class);
+    private static final ServiceServicesFactory mockedServicesFactory = mock(ServiceServicesFactory.class);
 
-    private static ServiceUpdater serviceUpdater = new ServiceUpdater(mockedServiceDao);
-    private static RequestValidations requestValidations = new RequestValidations();
-    private static ServiceRequestValidator requestValidator = new ServiceRequestValidator(requestValidations, new ServiceUpdateOperationValidator(requestValidations));
+    private static final ServiceUpdater serviceUpdater = new ServiceUpdater(mockedServiceDao);
+    private static final RequestValidations requestValidations = new RequestValidations();
+    private static final ServiceRequestValidator requestValidator = new ServiceRequestValidator(requestValidations, new ServiceUpdateOperationValidator(requestValidations));
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()

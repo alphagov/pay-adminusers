@@ -29,14 +29,14 @@ public class CreateUserRequest {
     public static final String FIELD_ROLE_NAME = "role_name";
     public static final String FIELD_FEATURES = "features";
 
-    private String username;
-    private String password;
-    private String email;
-    private List<String> gatewayAccountIds = new ArrayList<>();
-    private List<String> serviceExternalIds = new ArrayList<>();
-    private String telephoneNumber;
-    private String otpKey;
-    private String features;
+    private final String username;
+    private final String password;
+    private final String email;
+    private final List<String> gatewayAccountIds;
+    private final List<String> serviceExternalIds;
+    private final String telephoneNumber;
+    private final String otpKey;
+    private final String features;
 
     public static CreateUserRequest from(String username, String password, String email,
                                          List<String> gatewayAccountIds, List<String> serviceExternalIds, String otpKey, String telephoneNumber, String features) {

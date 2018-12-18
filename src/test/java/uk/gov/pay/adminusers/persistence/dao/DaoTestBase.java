@@ -27,10 +27,10 @@ import static uk.gov.pay.adminusers.model.Role.role;
 
 public class DaoTestBase {
 
-    private static Logger logger = LoggerFactory.getLogger(DaoTestBase.class);
+    private static final Logger logger = LoggerFactory.getLogger(DaoTestBase.class);
 
     @ClassRule
-    public static PostgresDockerRule postgres = new PostgresDockerRule();
+    public static final PostgresDockerRule postgres = new PostgresDockerRule();
 
     protected static DatabaseTestHelper databaseHelper;
     protected static GuicedTestEnvironment env;

@@ -18,7 +18,7 @@ import static org.hamcrest.core.Is.is;
 
 public class ServiceUpdateRequestTest {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Before
     public void before() {

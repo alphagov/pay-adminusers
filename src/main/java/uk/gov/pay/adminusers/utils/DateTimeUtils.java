@@ -10,8 +10,8 @@ import java.util.Optional;
 public class DateTimeUtils {
 
     private static final ZoneId UTC = ZoneId.of("Z");
-    private static DateTimeFormatter dateTimeFormatterUTC = DateTimeFormatter.ISO_INSTANT.withZone(UTC);
-    private static DateTimeFormatter dateTimeFormatterAny = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+    private static final DateTimeFormatter dateTimeFormatterUTC = DateTimeFormatter.ISO_INSTANT.withZone(UTC);
+    private static final DateTimeFormatter dateTimeFormatterAny = DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
     /**
      * Converts any valid ZonedDateTime String (ISO_8601) representation to a UTC ZonedDateTime

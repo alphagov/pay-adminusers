@@ -31,7 +31,7 @@ public class AdminUsersConfig extends Configuration {
 
     @Valid
     @NotNull
-    private LinksConfig links = new LinksConfig();
+    private final LinksConfig links = new LinksConfig();
 
     @NotNull
     private Integer loginAttemptCap;
