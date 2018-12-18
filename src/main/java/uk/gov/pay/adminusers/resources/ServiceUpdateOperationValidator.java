@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
+import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
@@ -9,6 +10,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +20,7 @@ import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_OP;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_PATH;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_VALUE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_COLLECT_BILLING_ADDRESS;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CURRENT_GO_LIVE_STAGE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CUSTOM_BRANDING;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT_IDS;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_NAME;
@@ -34,6 +37,8 @@ public class ServiceUpdateOperationValidator {
     private final Map<String, List<String>> validAttributeUpdateOperations;
 
     private final RequestValidations requestValidations;
+    
+    private static final EnumSet<GoLiveStage> GO_LIVE_STAGES = EnumSet.allOf(GoLiveStage.class);
 
     @Inject
     public ServiceUpdateOperationValidator(RequestValidations requestValidations) {
@@ -43,6 +48,7 @@ public class ServiceUpdateOperationValidator {
         validAttributeUpdateOperations.put(FIELD_CUSTOM_BRANDING, singletonList(REPLACE));
         validAttributeUpdateOperations.put(FIELD_REDIRECT_NAME, singletonList(REPLACE));
         validAttributeUpdateOperations.put(FIELD_COLLECT_BILLING_ADDRESS, singletonList(REPLACE));
+        validAttributeUpdateOperations.put(FIELD_CURRENT_GO_LIVE_STAGE, singletonList(REPLACE));
         Arrays.stream(SupportedLanguage.values()).forEach(lang ->
                 validAttributeUpdateOperations.put(FIELD_SERVICE_NAME_PREFIX + '/' + lang.toString(), singletonList(REPLACE)));
         this.validAttributeUpdateOperations = validAttributeUpdateOperations.build();
@@ -102,6 +108,17 @@ public class ServiceUpdateOperationValidator {
             if (errors.isEmpty()) {
                 requestValidations.checkIsStrictBoolean(operation, FIELD_VALUE).ifPresent(errors::addAll);
             }
+        } else if (FIELD_CURRENT_GO_LIVE_STAGE.equals(path)) {
+            requestValidations.checkExistsAndNotEmpty(operation, FIELD_VALUE).ifPresent(errors::addAll);
+            if (errors.isEmpty()) {
+                requestValidations.checkIsString(
+                        format("Field [%s] must be one of %s", FIELD_VALUE, GO_LIVE_STAGES), 
+                        operation, 
+                        FIELD_VALUE).ifPresent(errors::addAll);
+            }
+            if (errors.isEmpty()) {
+                requestValidations.isValidEnumValue(operation, GO_LIVE_STAGES, FIELD_VALUE).ifPresent(errors::addAll);
+            }
         }
         return errors;
     }
@@ -127,5 +144,4 @@ public class ServiceUpdateOperationValidator {
         }
         return Collections.emptyList();
     }
-
 }
