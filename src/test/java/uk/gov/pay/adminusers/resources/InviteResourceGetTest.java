@@ -3,7 +3,6 @@ package uk.gov.pay.adminusers.resources;
 import org.junit.Test;
 
 import static com.jayway.restassured.http.ContentType.JSON;
-import static java.lang.String.format;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
