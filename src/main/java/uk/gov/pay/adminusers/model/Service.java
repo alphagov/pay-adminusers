@@ -176,6 +176,7 @@ public class Service {
         this.collectBillingAddress = collectBillingAddress;
     }
 
+    @JsonProperty("current_go_live_stage")
     public GoLiveStage getGoLiveStage() {
         return goLiveStage;
     }

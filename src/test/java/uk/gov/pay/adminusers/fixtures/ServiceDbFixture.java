@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.fixtures;
 
+import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.MerchantDetails;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
@@ -38,7 +39,7 @@ public class ServiceDbFixture {
         this.merchantDetails = merchantDetails;
         return this;
     }
-    
+
     public ServiceDbFixture withCollectBillingAddress(boolean collectBillingAddress) {
         this.collectBillingAddress = collectBillingAddress;
         return this;
@@ -52,6 +53,7 @@ public class ServiceDbFixture {
         service.setMerchantDetails(merchantDetails);
         service.setCollectBillingAddress(collectBillingAddress);
         service.getServiceNames().put("en", service.getName());
+        service.setGoLiveStage(GoLiveStage.NOT_STARTED);
         databaseHelper.addService(service, gatewayAccountIds);
 
         return service;
