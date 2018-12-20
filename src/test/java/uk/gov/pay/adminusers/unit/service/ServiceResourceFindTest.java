@@ -74,6 +74,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertLinks(serviceExternalId, json);
         assertThat(json.get("redirect_to_service_immediately_on_terminal_state"), is(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState()));
         assertThat(json.get("collect_billing_address"), is(serviceEntity.isCollectBillingAddress()));
+        assertThat(json.get("current_go_live_stage"), is(String.valueOf(serviceEntity.getCurrentGoLiveStage())));
     }
 
     @Test
@@ -148,6 +149,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertLinks(serviceEntity.getExternalId(), json);
         assertThat(json.get("redirect_to_service_immediately_on_terminal_state"), is(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState()));
         assertThat(json.get("collect_billing_address"), is(serviceEntity.isCollectBillingAddress()));
+        assertThat(json.get("current_go_live_stage"), is(String.valueOf(serviceEntity.getCurrentGoLiveStage())));
     }
 
     @Test
