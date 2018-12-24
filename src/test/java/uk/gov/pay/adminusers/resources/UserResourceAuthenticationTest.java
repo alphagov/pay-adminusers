@@ -51,7 +51,7 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
                 .body("disabled", is(false))
                 .body("_links", hasSize(1))
                 .body("service_roles[0].role.name", is("admin"))
-                .body("service_roles[0].role.permissions", hasSize(35)); //we could consider removing this assertion if the permissions constantly changing
+                .body("service_roles[0].role.permissions", hasSize(37));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
                 .body("services", hasSize(0))
                 .body("_links", hasSize(1))
                 .body("role", is(nullValue()))
-                .body("permissions", hasSize(0)); //we could consider removing this assertion if the permissions constantly changing
+                .body("permissions", hasSize(0));
     }
 
     @Test
