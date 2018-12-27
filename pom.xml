@@ -13,6 +13,7 @@
         <guice.version>4.2.2</guice.version>
         <guava.version>27.0.1-jre</guava.version>
         <jackson.version>2.9.8</jackson.version>
+        <surefire.version>3.0.0-M3</jackson.version>
         <pay-java-commons.version>1.0.0-f6097986677849386f283bb84072198b57931b1b</pay-java-commons.version>
         <dependency-check.skip>true</dependency-check.skip>
     </properties>
@@ -411,7 +412,7 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.22.1</version>
+                        <version>${surefire.version}</version>
                         <configuration>
                             <excludes>
                                 <exclude>**/*ContractTest.java</exclude>
@@ -433,7 +434,7 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.22.1</version>
+                        <version>${surefire.version}</version>
                         <configuration>
                             <includes>
                                 <include>**/*ContractTestSuite.java</include>
