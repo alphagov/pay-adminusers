@@ -9,14 +9,14 @@ import java.util.regex.Pattern;
 public class EmailValidator {
 
     /**
-     * {@link #PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS} is based on:<br>
+     * {@link #PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER} is based on:<br>
      * - <a href="https://en.wikipedia.org/wiki/.uk">en.wikipedia.org/wiki/.uk</a><br>
      * - <a href="https://github.com/alphagov/notifications-admin/blob/9391181b2c7d077ea8fe0a72c718ab8f7fdbcd0c/app/config.py#L67">alphagov/notifications-admin</a><br>
      */
-    private static final List<String> PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS;
+    private static final List<String> PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER;
     private static final org.apache.commons.validator.routines.EmailValidator commonsEmailValidator = org.apache.commons.validator.routines.EmailValidator.getInstance();
     static {
-        PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS = Collections.unmodifiableList(Arrays.asList(
+        PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER = Collections.unmodifiableList(Arrays.asList(
                 "acas\\.org\\.uk",
                 "assembly\\.wales",
                 "careinspectorate\\.com",
@@ -44,7 +44,7 @@ public class EmailValidator {
     }
     private static final Pattern PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERN;
     static {
-        String domainRegExPatternString = Joiner.on("|").join(PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS);
+        String domainRegExPatternString = Joiner.on("|").join(PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER);
 
         // We are splitting the logic into two parts for whitelisted domains and subdomains
         String regExDomainsOnlyPart = "(" + domainRegExPatternString + ")";
