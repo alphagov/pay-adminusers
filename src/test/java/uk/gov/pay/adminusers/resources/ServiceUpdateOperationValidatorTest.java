@@ -321,7 +321,7 @@ public class ServiceUpdateOperationValidatorTest {
         payload.put("value", "CAKE_ORDERED");
         List<String> errors = serviceUpdateOperationValidator.validate(payload);
         assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_DETAILS, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, AGREEMENT_RETURNED, DENIED, ENTERED_BANK_DETAILS, LIVE]"));
+        assertThat(errors, hasItem("Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_DETAILS, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, AGREEMENT_RETURNED, ENTERED_BANK_DETAILS, RESPONSIBLE_PERSON_NOMINATED, DENIED, LIVE]"));
     }
     
     @Test
@@ -357,7 +357,7 @@ public class ServiceUpdateOperationValidatorTest {
         payload.put("value", 42);
         List<String> errors = serviceUpdateOperationValidator.validate(payload);
         assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_DETAILS, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, AGREEMENT_RETURNED, DENIED, ENTERED_BANK_DETAILS, LIVE]"));
+        assertThat(errors, hasItem("Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_DETAILS, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, AGREEMENT_RETURNED, ENTERED_BANK_DETAILS, RESPONSIBLE_PERSON_NOMINATED, DENIED, LIVE]"));
     }
 
     @Test
@@ -368,7 +368,7 @@ public class ServiceUpdateOperationValidatorTest {
         payload.put("value", false);
         List<String> errors = serviceUpdateOperationValidator.validate(payload);
         assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_DETAILS, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, AGREEMENT_RETURNED, DENIED, ENTERED_BANK_DETAILS, LIVE]"));
+        assertThat(errors, hasItem("Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_DETAILS, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, AGREEMENT_RETURNED, ENTERED_BANK_DETAILS, RESPONSIBLE_PERSON_NOMINATED, DENIED, LIVE]"));
     }
 
     @Test
