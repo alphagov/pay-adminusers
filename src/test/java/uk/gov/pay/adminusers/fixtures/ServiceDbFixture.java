@@ -21,6 +21,7 @@ public class ServiceDbFixture {
             "postcode", "country", null
     );
     private boolean collectBillingAddress = true;
+    private GoLiveStage goLiveStage = GoLiveStage.NOT_STARTED;
 
     private ServiceDbFixture(DatabaseTestHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
@@ -45,6 +46,11 @@ public class ServiceDbFixture {
         return this;
     }
 
+    public ServiceDbFixture withGoLiveStage(GoLiveStage goLiveStage) {
+        this.goLiveStage = goLiveStage;
+        return this;
+    }
+
     public Service insertService() {
         int serviceId = id == null ? nextInt() : id;
         String extId = externalId == null ? randomUuid() : externalId;
@@ -53,7 +59,7 @@ public class ServiceDbFixture {
         service.setMerchantDetails(merchantDetails);
         service.setCollectBillingAddress(collectBillingAddress);
         service.getServiceNames().put("en", service.getName());
-        service.setGoLiveStage(GoLiveStage.NOT_STARTED);
+        service.setGoLiveStage(goLiveStage);
         databaseHelper.addService(service, gatewayAccountIds);
 
         return service;
