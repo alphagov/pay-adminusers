@@ -1,5 +1,7 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
+import uk.gov.pay.adminusers.model.StripeAgreement;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,6 +38,14 @@ public class StripeAgreementEntity {
         this.serviceId = serviceId;
         this.ipAddress = ipAddress;
         this.agreementTime = agreementTime;
+    }
+    
+    public static StripeAgreementEntity from(StripeAgreement stripeAgreement) {
+        return new StripeAgreementEntity(stripeAgreement.getServiceId(), stripeAgreement.getIpAddress(), stripeAgreement.getAgreementTime());
+    }
+    
+    public StripeAgreement toStripeAgreement() {
+        return new StripeAgreement(serviceId, ipAddress, agreementTime);
     }
 
     public int getId() {

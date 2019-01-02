@@ -15,6 +15,8 @@ import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.service.LinksBuilder;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
+import uk.gov.pay.adminusers.service.StripeAgreementService;
+import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
 import javax.ws.rs.Consumes;
@@ -28,6 +30,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +49,7 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static uk.gov.pay.adminusers.model.StripeAgreement.FIELD_IP_ADDRESS;
 import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT_IDS;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_NAME;
@@ -61,19 +66,25 @@ public class ServiceResource {
     private final LinksBuilder linksBuilder;
     private final ServiceRequestValidator serviceRequestValidator;
     private final ServiceServicesFactory serviceServicesFactory;
+    private final StripeAgreementRequestValidator stripeAgreementRequestValidator;
+    private final StripeAgreementService stripeAgreementService;
 
     @Inject
     public ServiceResource(UserDao userDao,
                            ServiceDao serviceDao,
                            LinksBuilder linksBuilder,
                            ServiceRequestValidator serviceRequestValidator,
-                           ServiceServicesFactory serviceServicesFactory
+                           ServiceServicesFactory serviceServicesFactory,
+                           StripeAgreementService stripeAgreementService,
+                           StripeAgreementRequestValidator stripeAgreementRequestValidator
     ) {
         this.userDao = userDao;
         this.serviceDao = serviceDao;
         this.linksBuilder = linksBuilder;
         this.serviceRequestValidator = serviceRequestValidator;
         this.serviceServicesFactory = serviceServicesFactory;
+        this.stripeAgreementService = stripeAgreementService;
+        this.stripeAgreementRequestValidator = stripeAgreementRequestValidator;
     }
 
     @GET
@@ -212,6 +223,48 @@ public class ServiceResource {
         serviceServicesFactory.serviceUserRemover().remove(userExternalId, userContext, serviceExternalId);
         LOGGER.info("Succeeded Service users DELETE request - serviceExternalId={}, removerExternalId={}, userExternalId={}", serviceExternalId, userContext, userExternalId);
         return Response.status(NO_CONTENT).build();
+    }
+
+    @Path("/{serviceExternalId}/stripe-agreement")
+    @POST
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Response createStripeAgreement(@PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
+        LOGGER.info("Create stripe agreement POST request - [ {} ]", payload);
+
+        Optional<Errors> maybeErrors = stripeAgreementRequestValidator.validateCreateRequest(payload);
+        if (maybeErrors.isPresent()) {
+            return Response.status(BAD_REQUEST).entity(maybeErrors.get()).build();
+        }
+
+        Optional<ServiceEntity> maybeService = serviceDao.findByExternalId(serviceExternalId);
+        if (!maybeService.isPresent()) {
+            return Response.status(NOT_FOUND).build();
+        }
+
+        if (stripeAgreementService.findStripeAgreementByServiceId(maybeService.get().getId()).isPresent()) {
+            return Response.status(CONFLICT)
+                    .entity(Errors.from("Stripe agreement information is already stored for this service"))
+                    .build();
+        }
+
+        stripeAgreementService.doCreate(
+                maybeService.get().getId(),
+                payload.get(FIELD_IP_ADDRESS).asText(),
+                LocalDateTime.now(ZoneOffset.UTC));
+
+        return Response.status(OK).build();
+    }
+
+    @Path("/{serviceExternalId}/stripe-agreement")
+    @GET
+    @Produces(APPLICATION_JSON)
+    public Response getStripeAgreement(@PathParam("serviceExternalId") String serviceExternalId) {
+
+        return serviceDao.findByExternalId(serviceExternalId)
+                .map(serviceEntity -> stripeAgreementService.findStripeAgreementByServiceId(serviceEntity.getId()))
+                .map(agreement -> Response.status(OK).entity(agreement).build())
+                .orElse(Response.status(NOT_FOUND).build());
     }
 
     private Map<SupportedLanguage, String> getServiceNameVariants(JsonNode payload) {
