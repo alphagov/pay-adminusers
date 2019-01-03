@@ -156,11 +156,11 @@ public class ProviderContractTest {
                 .insertService();
     }
 
-    @State("a service exists with external id rtglenteredorgdetails and go live stage equals to ENTERED_ORGANISATION_DETAILS")
-    public void aServiceExistsWithEnteredOrganisationDetailsGoLiveStage() {
+    @State("a service exists with external id rtglenteredorgname and go live stage equals to ENTERED_ORGANISATION_NAME")
+    public void aServiceExistsWithEnteredOrganisationNameGoLiveStage() {
         serviceDbFixture(dbHelper)
-                .withExternalId("rtglenteredorgdetails")
-                .withGoLiveStage(GoLiveStage.ENTERED_ORGANISATION_DETAILS)
+                .withExternalId("rtglenteredorgname")
+                .withGoLiveStage(GoLiveStage.ENTERED_ORGANISATION_NAME)
                 .insertService();
     }
 
@@ -196,27 +196,35 @@ public class ProviderContractTest {
                 .insertService();
     }
 
-    @State("a service exists with external id rtglagreementreturned and go live stage equals to AGREEMENT_RETURNED")
-    public void aServiceExistsWithAgreementReturnedGoLiveStage() {
+    @State("a service exists with external id rtgltermsokstripe and go live stage equals to TERMS_AGREED_STRIPE")
+    public void aServiceExistsWithTermsAgreedStripeGoLiveStage() {
         serviceDbFixture(dbHelper)
-                .withExternalId("rtglagreementreturned")
-                .withGoLiveStage(GoLiveStage.AGREEMENT_RETURNED)
+                .withExternalId("rtgltermsokstripe")
+                .withGoLiveStage(GoLiveStage.TERMS_AGREED_STRIPE)
                 .insertService();
     }
 
-    @State("a service exists with external id rtglenteredbankdetails and go live stage equals to ENTERED_BANK_DETAILS")
-    public void aServiceExistsWithEnteredBankDetailsGoLiveStage() {
+    @State("a service exists with external id rtgltermsokworldpay and go live stage equals to TERMS_AGREED_WORLDPAY")
+    public void aServiceExistsWithTermsAgreedWorldPayGoLiveStage() {
         serviceDbFixture(dbHelper)
-                .withExternalId("rtglenteredbankdetails")
-                .withGoLiveStage(GoLiveStage.ENTERED_BANK_DETAILS)
+                .withExternalId("rtgltermsokworldpay")
+                .withGoLiveStage(GoLiveStage.TERMS_AGREED_WORLDPAY)
                 .insertService();
     }
 
-    @State("a service exists with external id rtglresponsibleperson and go live stage equals to RESPONSIBLE_PERSON_NOMINATED")
-    public void aServiceExistsWithResponsiblePersonNominatedGoLiveStage() {
+    @State("a service exists with external id rtgltermsoksmartpay and go live stage equals to TERMS_AGREED_SMARTPAY")
+    public void aServiceExistsWithTermsAgreedSmartPayGoLiveStage() {
         serviceDbFixture(dbHelper)
-                .withExternalId("rtglresponsibleperson")
-                .withGoLiveStage(GoLiveStage.RESPONSIBLE_PERSON_NOMINATED)
+                .withExternalId("rtgltermsoksmartpay")
+                .withGoLiveStage(GoLiveStage.TERMS_AGREED_SMARTPAY)
+                .insertService();
+    }
+
+    @State("a service exists with external id rtgltermsokepdq and go live stage equals to TERMS_AGREED_EPDQ")
+    public void aServiceExistsWithTermsAgreedEpdqGoLiveStage() {
+        serviceDbFixture(dbHelper)
+                .withExternalId("rtgltermsokepdq")
+                .withGoLiveStage(GoLiveStage.TERMS_AGREED_EPDQ)
                 .insertService();
     }
 
