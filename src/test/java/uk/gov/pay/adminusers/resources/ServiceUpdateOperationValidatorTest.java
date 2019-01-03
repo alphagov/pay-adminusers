@@ -312,7 +312,7 @@ public class ServiceUpdateOperationValidatorTest {
         assertThat(errors.size(), is(1));
         assertThat(errors, hasItem("Field [value] must be a string"));
     }
-    
+
     @Test
     public void shouldFail_updatingCurrentGoLiveStage_whenInvalidValue() {
         ObjectNode payload = mapper.createObjectNode();
@@ -321,9 +321,9 @@ public class ServiceUpdateOperationValidatorTest {
         payload.put("value", "CAKE_ORDERED");
         List<String> errors = serviceUpdateOperationValidator.validate(payload);
         assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_DETAILS, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, AGREEMENT_RETURNED, ENTERED_BANK_DETAILS, RESPONSIBLE_PERSON_NOMINATED, DENIED, LIVE]"));
+        assertThat(errors, hasItem("Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_NAME, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, TERMS_AGREED_STRIPE, TERMS_AGREED_WORLDPAY, TERMS_AGREED_SMARTPAY, TERMS_AGREED_EPDQ, DENIED, LIVE]"));
     }
-    
+
     @Test
     public void shouldFail_updatingCurrentGoLiveStage_whenIncorrectOperation() {
         ObjectNode payload = mapper.createObjectNode();
@@ -336,7 +336,7 @@ public class ServiceUpdateOperationValidatorTest {
         assertThat(errors.size(), is(1));
         assertThat(errors, hasItem("Operation [add] is invalid for path [current_go_live_stage]"));
     }
-    
+
     @Test
     public void shouldFail_updatingCurrentGoLiveStage_whenOperationIsMissing() {
         ObjectNode payload = mapper.createObjectNode();
@@ -357,7 +357,7 @@ public class ServiceUpdateOperationValidatorTest {
         payload.put("value", 42);
         List<String> errors = serviceUpdateOperationValidator.validate(payload);
         assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_DETAILS, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, AGREEMENT_RETURNED, ENTERED_BANK_DETAILS, RESPONSIBLE_PERSON_NOMINATED, DENIED, LIVE]"));
+        assertThat(errors, hasItem("Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_NAME, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, TERMS_AGREED_STRIPE, TERMS_AGREED_WORLDPAY, TERMS_AGREED_SMARTPAY, TERMS_AGREED_EPDQ, DENIED, LIVE]"));
     }
 
     @Test
@@ -368,7 +368,7 @@ public class ServiceUpdateOperationValidatorTest {
         payload.put("value", false);
         List<String> errors = serviceUpdateOperationValidator.validate(payload);
         assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_DETAILS, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, AGREEMENT_RETURNED, ENTERED_BANK_DETAILS, RESPONSIBLE_PERSON_NOMINATED, DENIED, LIVE]"));
+        assertThat(errors, hasItem("Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_NAME, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, TERMS_AGREED_STRIPE, TERMS_AGREED_WORLDPAY, TERMS_AGREED_SMARTPAY, TERMS_AGREED_EPDQ, DENIED, LIVE]"));
     }
 
     @Test
@@ -391,7 +391,7 @@ public class ServiceUpdateOperationValidatorTest {
         assertThat(errors.size(), is(1));
         assertThat(errors, hasItem("Field [value] is required"));
     }
-    
+
     @Test
     public void shouldSucceed_updatingCurrentGoLiveStage() {
         ObjectNode payload = mapper.createObjectNode();
