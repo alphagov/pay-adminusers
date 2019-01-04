@@ -55,10 +55,6 @@ jpa:
   queryResultsCache: false
   cacheSharedDefault: false
 
-proxy:
-  host: localhost
-  port: 1234
-
 notify:
   directDebitApiKey: ${NOTIFY_DIRECT_DEBIT_API_KEY:-api_key-pay-notify-service-id-pay-notify-secret-needs-to-be-32-chars-fsghdngfhmhfkrgsfs}
   cardApiKey: ${NOTIFY_API_KEY:-api_key-pay-notify-service-id-pay-notify-secret-needs-to-be-32-chars-fsghdngfhmhfkrgsfs}

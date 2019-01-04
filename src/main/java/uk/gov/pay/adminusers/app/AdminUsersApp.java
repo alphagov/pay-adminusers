@@ -35,7 +35,6 @@ import uk.gov.pay.adminusers.resources.UserResource;
 import uk.gov.pay.commons.utils.xray.Xray;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSocketFactory;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.EnumSet.of;
@@ -93,7 +92,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(new InvalidEmailRequestExceptionMapper());
         environment.jersey().register(new InvalidMerchantDetailsExceptionMapper());
 
-        setGlobalProxies(configuration);
+        HttpsURLConnection.setDefaultSSLSocketFactory(new TrustingSSLSocketFactory());
         
         Xray.init(environment, "pay-adminusers", java.util.Optional.empty(), API_VERSION_PATH + "/*");
     }
@@ -105,14 +104,6 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
                 .build(graphiteUDP)
                 .start(GRAPHITE_SENDING_PERIOD_SECONDS, TimeUnit.SECONDS);
 
-    }
-
-    private void setGlobalProxies(AdminUsersConfig configuration) {
-        SSLSocketFactory socketFactory = new TrustingSSLSocketFactory();
-        HttpsURLConnection.setDefaultSSLSocketFactory(socketFactory);
-
-        System.setProperty("https.proxyHost", configuration.getProxyConfiguration().getHost());
-        System.setProperty("https.proxyPort", configuration.getProxyConfiguration().getPort().toString());
     }
 
     public static void main(String[] args) throws Exception {
