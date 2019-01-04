@@ -43,9 +43,6 @@ public class AdminUsersConfig extends Configuration {
     private NotifyDirectDebitConfiguration notifyDirectDebitConfiguration;
 
     @NotNull
-    private ProxyConfiguration proxyConfiguration;
-
-    @NotNull
     private Integer forgottenPasswordExpiryMinutes;
 
     @NotNull
@@ -54,11 +51,6 @@ public class AdminUsersConfig extends Configuration {
     @JsonProperty("secondFactorAuthentication")
     public SecondFactorAuthConfiguration getSecondFactorAuthConfiguration() {
         return secondFactorAuthConfiguration;
-    }
-
-    @JsonProperty("proxy")
-    public ProxyConfiguration getProxyConfiguration() {
-        return proxyConfiguration;
     }
 
     @JsonProperty("database")
