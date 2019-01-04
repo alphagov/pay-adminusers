@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.validator.routines.InetAddressValidator;
 import uk.gov.pay.adminusers.utils.email.EmailValidator;
 
 import java.util.EnumSet;
@@ -50,9 +51,17 @@ public class RequestValidations {
     public Optional<List<String>> checkIsString(String errorMsg, JsonNode payload, String... fieldNames) {
         return applyCheck(payload, isNotString(), fieldNames, errorMsg);
     }
+    
+    public Optional<List<String>> checkIsValidIpAddressFormat(JsonNode payload, String... fieldNames) {
+        return applyCheck(payload, isNotValidIpAddress(), fieldNames, "Field [%s] must be a valid IP address");
+    }
 
     private Function<JsonNode, Boolean> exceedsMaxLength(int maxLength) {
         return jsonNode -> jsonNode.asText().length() > maxLength;
+    }
+    
+    private Function<JsonNode, Boolean> isNotValidIpAddress() {
+        return jsonNode -> !InetAddressValidator.getInstance().isValid(jsonNode.asText());
     }
 
     public Optional<List<String>> applyCheck(JsonNode payload, Function<JsonNode, Boolean> check, String[] fieldNames, String errorMessage) {
