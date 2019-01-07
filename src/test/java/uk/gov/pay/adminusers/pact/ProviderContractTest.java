@@ -140,6 +140,66 @@ public class ProviderContractTest {
         createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", "password");
     }
 
+    @State("a user exists with the given external id rtglNotStartedUserExtId")
+    public void aUserExistsWithGivenExternalIdAndNotStartedGoLiveStage() {
+        createUserWithinAService("rtglNotStartedUserExtId", "rtglNotStarted", "password");
+    }
+
+    @State("a user exists with the given external id rtglEnteredOrgNameUserExtId")
+    public void aUserExistsWithGivenExternalIdAndEnteredOrganisationNameGoLiveStage() {
+        createUserWithinAService("rtglEnteredOrgNameUserExtId", "rtglEnteredOrgName", "password");
+    }
+
+    @State("a user exists with the given external id rtglChosenPspStripeUserExtId")
+    public void aUserExistsWithGivenExternalIdAndChosenPspStripeGoLiveStage() {
+        createUserWithinAService("rtglChosenPspStripeUserExtId", "rtglChosenPspStripe", "password");
+    }
+
+    @State("a user exists with the given external id rtglChosenPspWorldPayUserExtId")
+    public void aUserExistsWithGivenExternalIdAndChosenPspWorldPayGoLiveStage() {
+        createUserWithinAService("rtglChosenPspWorldPayUserExtId", "rtglChosenPspWorldPay", "password");
+    }
+
+    @State("a user exists with the given external id rtglChosenPspSmartPayUserExtId")
+    public void aUserExistsWithGivenExternalIdAndChosenPspSmartPayGoLiveStage() {
+        createUserWithinAService("rtglChosenPspSmartPayUserExtId", "rtglChosenPspSmartPay", "password");
+    }
+
+    @State("a user exists with the given external id rtglChosenPspEpdqUserExtId")
+    public void aUserExistsWithGivenExternalIdAndChosenPspEpdqGoLiveStage() {
+        createUserWithinAService("rtglChosenPspEpdqUserExtId", "rtglChosenPspEpdq", "password");
+    }
+
+    @State("a user exists with the given external id rtglTermsOkStripeUserExtId")
+    public void aUserExistsWithGivenExternalIdAndTermsAgreedStripeGoLiveStage() {
+        createUserWithinAService("rtglTermsOkStripeUserExtId", "rtglTermsOkStripe", "password");
+    }
+
+    @State("a user exists with the given external id rtglTermsOkWorldPayUserExtId")
+    public void aUserExistsWithGivenExternalIdAndTermsAgreedWorldPayGoLiveStage() {
+        createUserWithinAService("rtglTermsOkWorldPayUserExtId", "rtglTermsOkWorldPay", "password");
+    }
+
+    @State("a user exists with the given external id rtglTermsOkSmartPayUserExtId")
+    public void aUserExistsWithGivenExternalIdAndTermsAgreedSmartPayGoLiveStage() {
+        createUserWithinAService("rtglTermsOkSmartPayUserExtId", "rtglTermsOkSmartPay", "password");
+    }
+
+    @State("a user exists with the given external id rtglTermsOkEpdqUserExtId")
+    public void aUserExistsWithGivenExternalIdAndTermsAgreedEpdqGoLiveStage() {
+        createUserWithinAService("rtglTermsOkEpdqUserExtId", "rtglTermsOkEpdq", "password");
+    }
+
+    @State("a user exists with the given external id rtglDeniedUserExtId")
+    public void aUserExistsWithGivenExternalIdAndDeniedGoLiveStage() {
+        createUserWithinAService("rtglDeniedUserExtId", "rtglDenied", "password");
+    }
+
+    @State("a user exists with the given external id rtglLiveUserExtId")
+    public void aUserExistsWithGivenExternalIdAndLiveGoLiveStage() {
+        createUserWithinAService("rtglLiveUserExtId", "rtglLive", "password");
+    }
+
     @State("a service exists with external id cp5wa and billing address collection enabled")
     public void aServiceExistsWithBillingAddressCollectionEnabled() {
         serviceDbFixture(dbHelper)
@@ -148,98 +208,98 @@ public class ProviderContractTest {
                 .insertService();
     }
 
-    @State("a service exists with external id rtglnotstarted and go live stage equals to NOT_STARTED")
+    @State("a service exists with external id rtglNotStarted and go live stage equals to NOT_STARTED")
     public void aServiceExistsWithNotStartedGoLiveStage() {
         serviceDbFixture(dbHelper)
-                .withExternalId("rtglnotstarted")
+                .withExternalId("rtglNotStarted")
                 .withGoLiveStage(GoLiveStage.NOT_STARTED)
                 .insertService();
     }
 
-    @State("a service exists with external id rtglenteredorgname and go live stage equals to ENTERED_ORGANISATION_NAME")
+    @State("a service exists with external id rtglEnteredOrgName and go live stage equals to ENTERED_ORGANISATION_NAME")
     public void aServiceExistsWithEnteredOrganisationNameGoLiveStage() {
         serviceDbFixture(dbHelper)
-                .withExternalId("rtglenteredorgname")
+                .withExternalId("rtglEnteredOrgName")
                 .withGoLiveStage(GoLiveStage.ENTERED_ORGANISATION_NAME)
                 .insertService();
     }
 
-    @State("a service exists with external id rtglchosenpspstripe and go live stage equals to CHOSEN_PSP_STRIPE")
+    @State("a service exists with external id rtglChosenPspStripe and go live stage equals to CHOSEN_PSP_STRIPE")
     public void aServiceExistsWithChosenPspStripeGoLiveStage() {
         serviceDbFixture(dbHelper)
-                .withExternalId("rtglchosenpspstripe")
+                .withExternalId("rtglChosenPspStripe")
                 .withGoLiveStage(GoLiveStage.CHOSEN_PSP_STRIPE)
                 .insertService();
     }
 
-    @State("a service exists with external id rtglchosenpspworldpay and go live stage equals to CHOSEN_PSP_WORLDPAY")
+    @State("a service exists with external id rtglChosenPspWorldPay and go live stage equals to CHOSEN_PSP_WORLDPAY")
     public void aServiceExistsWithChosenPspWorldPayGoLiveStage() {
         serviceDbFixture(dbHelper)
-                .withExternalId("rtglchosenpspworldpay")
+                .withExternalId("rtglChosenPspWorldPay")
                 .withGoLiveStage(GoLiveStage.CHOSEN_PSP_WORLDPAY)
                 .insertService();
     }
 
-    @State("a service exists with external id rtglchosenpspsmartpay and go live stage equals to CHOSEN_PSP_SMARTPAY")
+    @State("a service exists with external id rtglChosenPspSmartPay and go live stage equals to CHOSEN_PSP_SMARTPAY")
     public void aServiceExistsWithChosenPspSmartPayGoLiveStage() {
         serviceDbFixture(dbHelper)
-                .withExternalId("rtglchosenpspsmartpay")
+                .withExternalId("rtglChosenPspSmartPay")
                 .withGoLiveStage(GoLiveStage.CHOSEN_PSP_SMARTPAY)
                 .insertService();
     }
 
-    @State("a service exists with external id rtglchosenpspepdq and go live stage equals to CHOSEN_PSP_EPDQ")
+    @State("a service exists with external id rtglChosenPspEpdq and go live stage equals to CHOSEN_PSP_EPDQ")
     public void aServiceExistsWithChosenPspEpdqGoLiveStage() {
         serviceDbFixture(dbHelper)
-                .withExternalId("rtglchosenpspepdq")
+                .withExternalId("rtglChosenPspEpdq")
                 .withGoLiveStage(GoLiveStage.CHOSEN_PSP_EPDQ)
                 .insertService();
     }
 
-    @State("a service exists with external id rtgltermsokstripe and go live stage equals to TERMS_AGREED_STRIPE")
+    @State("a service exists with external id rtglTermsOkStripe and go live stage equals to TERMS_AGREED_STRIPE")
     public void aServiceExistsWithTermsAgreedStripeGoLiveStage() {
         serviceDbFixture(dbHelper)
-                .withExternalId("rtgltermsokstripe")
+                .withExternalId("rtglTermsOkStripe")
                 .withGoLiveStage(GoLiveStage.TERMS_AGREED_STRIPE)
                 .insertService();
     }
 
-    @State("a service exists with external id rtgltermsokworldpay and go live stage equals to TERMS_AGREED_WORLDPAY")
+    @State("a service exists with external id rtglTermsOkWorldPay and go live stage equals to TERMS_AGREED_WORLDPAY")
     public void aServiceExistsWithTermsAgreedWorldPayGoLiveStage() {
         serviceDbFixture(dbHelper)
-                .withExternalId("rtgltermsokworldpay")
+                .withExternalId("rtglTermsOkWorldPay")
                 .withGoLiveStage(GoLiveStage.TERMS_AGREED_WORLDPAY)
                 .insertService();
     }
 
-    @State("a service exists with external id rtgltermsoksmartpay and go live stage equals to TERMS_AGREED_SMARTPAY")
+    @State("a service exists with external id rtglTermsOkSmartPay and go live stage equals to TERMS_AGREED_SMARTPAY")
     public void aServiceExistsWithTermsAgreedSmartPayGoLiveStage() {
         serviceDbFixture(dbHelper)
-                .withExternalId("rtgltermsoksmartpay")
+                .withExternalId("rtglTermsOkSmartPay")
                 .withGoLiveStage(GoLiveStage.TERMS_AGREED_SMARTPAY)
                 .insertService();
     }
 
-    @State("a service exists with external id rtgltermsokepdq and go live stage equals to TERMS_AGREED_EPDQ")
+    @State("a service exists with external id rtglTermsOkEpdq and go live stage equals to TERMS_AGREED_EPDQ")
     public void aServiceExistsWithTermsAgreedEpdqGoLiveStage() {
         serviceDbFixture(dbHelper)
-                .withExternalId("rtgltermsokepdq")
+                .withExternalId("rtglTermsOkEpdq")
                 .withGoLiveStage(GoLiveStage.TERMS_AGREED_EPDQ)
                 .insertService();
     }
 
-    @State("a service exists with external id rtgldenied and go live stage equals to DENIED")
+    @State("a service exists with external id rtglDenied and go live stage equals to DENIED")
     public void aServiceExistsWithDeniedGoLiveStage() {
         serviceDbFixture(dbHelper)
-                .withExternalId("rtgldenied")
+                .withExternalId("rtglDenied")
                 .withGoLiveStage(GoLiveStage.DENIED)
                 .insertService();
     }
 
-    @State("a service exists with external id rtgllive and go live stage equals to LIVE")
+    @State("a service exists with external id rtglLive and go live stage equals to LIVE")
     public void aServiceExistsWithLiveGoLiveStage() {
         serviceDbFixture(dbHelper)
-                .withExternalId("rtgllive")
+                .withExternalId("rtglLive")
                 .withGoLiveStage(GoLiveStage.LIVE)
                 .insertService();
     }
