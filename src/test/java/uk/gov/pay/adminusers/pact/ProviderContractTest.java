@@ -140,6 +140,66 @@ public class ProviderContractTest {
         createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", "password");
     }
 
+    @State("a user exists with the given external id rtglNotStartedUserExtId")
+    public void aUserExistsWithGivenExternalIdAndNotStartedGoLiveStage() {
+        createUserWithinAService("rtglNotStartedUserExtId", "rtglNotStarted", "password");
+    }
+
+    @State("a user exists with the given external id rtglEnteredOrgNameUserExtId")
+    public void aUserExistsWithGivenExternalIdAndEnteredOrganisationNameGoLiveStage() {
+        createUserWithinAService("rtglEnteredOrgNameUserExtId", "rtglEnteredOrgName", "password");
+    }
+
+    @State("a user exists with the given external id rtglChosenPspStripeUserExtId")
+    public void aUserExistsWithGivenExternalIdAndChosenPspStripeGoLiveStage() {
+        createUserWithinAService("rtglChosenPspStripeUserExtId", "rtglChosenPspStripe", "password");
+    }
+
+    @State("a user exists with the given external id rtglChosenPspWorldPayUserExtId")
+    public void aUserExistsWithGivenExternalIdAndChosenPspWorldPayGoLiveStage() {
+        createUserWithinAService("rtglChosenPspWorldPayUserExtId", "rtglChosenPspWorldPay", "password");
+    }
+
+    @State("a user exists with the given external id rtglChosenPspSmartPayUserExtId")
+    public void aUserExistsWithGivenExternalIdAndChosenPspSmartPayGoLiveStage() {
+        createUserWithinAService("rtglChosenPspSmartPayUserExtId", "rtglChosenPspSmartPay", "password");
+    }
+
+    @State("a user exists with the given external id rtglChosenPspEpdqUserExtId")
+    public void aUserExistsWithGivenExternalIdAndChosenPspEpdqGoLiveStage() {
+        createUserWithinAService("rtglChosenPspEpdqUserExtId", "rtglChosenPspEpdq", "password");
+    }
+
+    @State("a user exists with the given external id rtglTermsOkStripeUserExtId")
+    public void aUserExistsWithGivenExternalIdAndTermsAgreedStripeGoLiveStage() {
+        createUserWithinAService("rtglTermsOkStripeUserExtId", "rtglTermsOkStripe", "password");
+    }
+
+    @State("a user exists with the given external id rtglTermsOkWorldPayUserExtId")
+    public void aUserExistsWithGivenExternalIdAndTermsAgreedWorldPayGoLiveStage() {
+        createUserWithinAService("rtglTermsOkWorldPayUserExtId", "rtglTermsOkWorldPay", "password");
+    }
+
+    @State("a user exists with the given external id rtglTermsOkSmartPayUserExtId")
+    public void aUserExistsWithGivenExternalIdAndTermsAgreedSmartPayGoLiveStage() {
+        createUserWithinAService("rtglTermsOkSmartPayUserExtId", "rtglTermsOkSmartPay", "password");
+    }
+
+    @State("a user exists with the given external id rtglTermsOkEpdqUserExtId")
+    public void aUserExistsWithGivenExternalIdAndTermsAgreedEpdqGoLiveStage() {
+        createUserWithinAService("rtglTermsOkEpdqUserExtId", "rtglTermsOkEpdq", "password");
+    }
+
+    @State("a user exists with the given external id rtglDeniedUserExtId")
+    public void aUserExistsWithGivenExternalIdAndDeniedGoLiveStage() {
+        createUserWithinAService("rtglDeniedUserExtId", "rtglDenied", "password");
+    }
+
+    @State("a user exists with the given external id rtglLiveUserExtId")
+    public void aUserExistsWithGivenExternalIdAndLiveGoLiveStage() {
+        createUserWithinAService("rtglLiveUserExtId", "rtglLive", "password");
+    }
+
     @State("a service exists with external id cp5wa and billing address collection enabled")
     public void aServiceExistsWithBillingAddressCollectionEnabled() {
         serviceDbFixture(dbHelper)
