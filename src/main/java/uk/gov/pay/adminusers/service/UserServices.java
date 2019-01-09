@@ -109,7 +109,6 @@ public class UserServices {
     }
 
     /**
-     *
      * @param externalIds
      * @return A {@link List} of {@link User} or an empty {@link List} otherwise
      */
@@ -173,9 +172,8 @@ public class UserServices {
     }
 
     @Transactional
-    public Optional<User> authenticateSecondFactor(String externalId, int code) {
+    public Optional<User> authenticateSecondFactor(String externalId, int code, ZonedDateTime now) {
         logger.debug("OTP attempt - user_id={}", externalId);
-        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
         return userDao.findByExternalId(externalId)
                 .map(userEntity -> {
                     if (userEntity.isDisabled()) {
@@ -290,7 +288,7 @@ public class UserServices {
             changeUserTelephoneNumber(user, patchRequest.getValue());
         } else if (PATH_FEATURES.equals(patchRequest.getPath())) {
             changeUserFeatures(user, patchRequest.getValue());
-        }  else {
+        } else {
             String error = format("Invalid patch request with path [%s]", patchRequest.getPath());
             logger.error(error);
             throw new RuntimeException(error);

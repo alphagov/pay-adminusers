@@ -21,7 +21,7 @@ public class UserTest {
         User user = User.from(randomInt(), randomUuid(), "name", "password", "email@example.com", asList("1"),
                 asList(service), "ewrew", "453453",
                 asList(ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"))), null,
-                SecondFactorMethod.SMS, null, null);
+                SecondFactorMethod.SMS, null, null, null);
         Role role1 = Role.role(1, "role1", "role1 description");
         Role role2 = Role.role(2, "role2", "role2 description");
         role1.setPermissions(ImmutableList.of(aPermission(), aPermission(), aPermission()));
@@ -29,7 +29,7 @@ public class UserTest {
         List<Role> roles = ImmutableList.of(role1, role2);
         user.setRoles(roles);
 
-        assertThat(user.getPermissions().size(),is(5));
+        assertThat(user.getPermissions().size(), is(5));
     }
 
     private Permission aPermission() {

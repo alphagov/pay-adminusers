@@ -59,16 +59,16 @@ public class ServiceRoleCreatorTest {
     public void shouldSuccess_whenAssignANewServiceRole() throws Exception {
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID))));
         when(serviceDao.findByExternalId(EXISTING_SERVICE_EXTERNAL_ID)).thenReturn(Optional.of(ServiceEntity.from(aService(EXISTING_SERVICE_EXTERNAL_ID))));
-        when(roleDao.findByRoleName(EXISTING_ROLE_NAME)).thenReturn(Optional.of(new RoleEntity(aRole(1,EXISTING_ROLE_NAME))));
+        when(roleDao.findByRoleName(EXISTING_ROLE_NAME)).thenReturn(Optional.of(new RoleEntity(aRole(1, EXISTING_ROLE_NAME))));
 
         Optional<User> userOptional = serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, EXISTING_ROLE_NAME);
 
         assertTrue(userOptional.isPresent());
 
         User user = userOptional.get();
-        assertThat(user.getServiceRoles().size(),is(1));
-        assertThat(user.getServiceRoles().get(0).getRole().getName(),is(EXISTING_ROLE_NAME));
-        assertThat(user.getServiceRoles().get(0).getService().getExternalId(),is(EXISTING_SERVICE_EXTERNAL_ID));
+        assertThat(user.getServiceRoles().size(), is(1));
+        assertThat(user.getServiceRoles().get(0).getRole().getName(), is(EXISTING_ROLE_NAME));
+        assertThat(user.getServiceRoles().get(0).getService().getExternalId(), is(EXISTING_SERVICE_EXTERNAL_ID));
     }
 
     @Test
@@ -97,7 +97,7 @@ public class ServiceRoleCreatorTest {
         UserEntity userEntity = UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID));
         RoleEntity roleEntity = new RoleEntity(aRole(1, EXISTING_ROLE_NAME));
 
-        userEntity.addServiceRole(new ServiceRoleEntity(serviceEntity,roleEntity));
+        userEntity.addServiceRole(new ServiceRoleEntity(serviceEntity, roleEntity));
 
         when(serviceDao.findByExternalId(EXISTING_SERVICE_EXTERNAL_ID)).thenReturn(Optional.of(serviceEntity));
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(userEntity));
@@ -122,7 +122,7 @@ public class ServiceRoleCreatorTest {
     }
 
     private Service aService(String serviceExternalId) {
-        return Service.from(randomInt(),serviceExternalId,"random-service");
+        return Service.from(randomInt(), serviceExternalId, "random-service");
     }
 
     private Role aRole(int roleId, String roleName) {
@@ -132,6 +132,6 @@ public class ServiceRoleCreatorTest {
     private User aUser(String externalId) {
         return User.from(randomInt(), externalId, "random-name", "random-password", "random@example.com",
                 asList("1"), newArrayList(), "784rh", "8948924", newArrayList(), null,
-                SecondFactorMethod.SMS, null, null);
+                SecondFactorMethod.SMS, null, null, null);
     }
 }

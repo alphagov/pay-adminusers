@@ -291,7 +291,7 @@ public class UserEntity extends AbstractEntity {
         }
 
         User user = User.from(getId(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber,
-                serviceRoles, features, secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt);
+                serviceRoles, features, secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt);
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);
