@@ -25,8 +25,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -180,7 +178,7 @@ public class UserResource {
         logger.info("User 2FA authenticate passcode request");
         return validator.validate2FAAuthRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> userServices.authenticateSecondFactor(externalId, payload.get("code").asInt(), ZonedDateTime.now(ZoneId.of("UTC")))
+                .orElseGet(() -> userServices.authenticateSecondFactor(externalId, payload.get("code").asInt())
                         .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                         .orElseGet(() -> Response.status(UNAUTHORIZED).build()));
     }

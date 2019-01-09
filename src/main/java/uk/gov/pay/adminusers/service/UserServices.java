@@ -172,8 +172,9 @@ public class UserServices {
     }
 
     @Transactional
-    public Optional<User> authenticateSecondFactor(String externalId, int code, ZonedDateTime now) {
+    public Optional<User> authenticateSecondFactor(String externalId, int code) {
         logger.debug("OTP attempt - user_id={}", externalId);
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
         return userDao.findByExternalId(externalId)
                 .map(userEntity -> {
                     if (userEntity.isDisabled()) {

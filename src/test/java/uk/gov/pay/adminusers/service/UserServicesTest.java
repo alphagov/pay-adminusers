@@ -444,18 +444,17 @@ public class UserServicesTest {
         when(userDao.findByExternalId(aUser.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.authorize(aUser.getOtpKey(), newPassCode)).thenReturn(true);
 
-        Optional<User> userOptional = userServices.authenticateSecondFactor(aUser.getExternalId(), newPassCode, now);
+        Optional<User> userOptional = userServices.authenticateSecondFactor(aUser.getExternalId(), newPassCode);
 
         assertTrue(userOptional.isPresent());
         User user = userOptional.get();
         assertThat(user.getExternalId(), is(aUser.getExternalId()));
         assertThat(user.getLoginCounter(), is(0));
-        assertThat(user.getLastLoggedInAt(), is(now));
+        assertThat(user.getLastLoggedInAt().isAfter(ZonedDateTime.now().minusSeconds(10)), is(true));
     }
 
     @Test
-    public void shouldReturnEmpty_whenAuthenticate2FA_ifUnsuccessful() {
-        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
+    public void shouldReturnEmpty_whenAuthenticate2FA_ifUnsuccessful_whenTheUserNeverLoggedIn() {
         User user = aUser();
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
@@ -463,7 +462,7 @@ public class UserServicesTest {
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getExternalId(), 123456, now);
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getExternalId(), 123456);
 
         assertFalse(tokenOptional.isPresent());
 
@@ -474,8 +473,28 @@ public class UserServicesTest {
     }
 
     @Test
+    public void shouldReturnEmpty_whenAuthenticate2FA_ifUnsuccessful_whenTheUserLoggedInAtLeastOnce() {
+        ZonedDateTime lastLoggedInDateTime = ZonedDateTime.now(ZoneId.of("UTC")).minusDays(7);
+        User user = aUser();
+        UserEntity userEntity = aUserEntityWithTrimmings(user);
+        userEntity.setLastLoggedInAt(lastLoggedInDateTime);
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+        when(secondFactorAuthenticator.authorize(user.getOtpKey(), 123456)).thenReturn(false);
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
+
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getExternalId(), 123456);
+
+        assertFalse(tokenOptional.isPresent());
+
+        UserEntity savedUser = argumentCaptor.getValue();
+        assertThat(savedUser.getLoginCounter(), is(1));
+        assertThat(savedUser.isDisabled(), is(false));
+        assertThat(savedUser.getLastLoggedInAt().equals(lastLoggedInDateTime), is(true));
+    }
+
+    @Test
     public void shouldReturnEmptyAndDisable_whenAuthenticate2FA_ifUnsuccessfulMaxRetry() {
-        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
         User user = aUser();
         user.setLoginCounter(3);
         UserEntity userEntity = aUserEntityWithTrimmings(user);
@@ -484,7 +503,7 @@ public class UserServicesTest {
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
         when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getExternalId(), 123456, now);
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getExternalId(), 123456);
 
         assertFalse(tokenOptional.isPresent());
 
@@ -498,7 +517,7 @@ public class UserServicesTest {
         String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
 
-        Optional<User> tokenOptional = userServices.authenticateSecondFactor(nonExistentExternalId, 111111, ZonedDateTime.now(ZoneId.of("UTC")));
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(nonExistentExternalId, 111111);
 
         assertFalse(tokenOptional.isPresent());
     }
