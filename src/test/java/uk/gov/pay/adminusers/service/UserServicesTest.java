@@ -23,6 +23,7 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -300,7 +301,7 @@ public class UserServicesTest {
 
         Optional<User> userOptional = userServices.patchUser(USER_EXTERNAL_ID, PatchRequest.from(node));
 
-        verify(userDao,times(1)).merge(argumentCaptor.capture());
+        verify(userDao, times(1)).merge(argumentCaptor.capture());
 
         UserEntity persistedUser = argumentCaptor.getValue();
         assertThat(persistedUser.getTelephoneNumber(), is(newTelephoneNumber));
@@ -324,7 +325,7 @@ public class UserServicesTest {
 
         Optional<User> userOptional = userServices.patchUser(USER_EXTERNAL_ID, PatchRequest.from(node));
 
-        verify(userDao,times(1)).merge(argumentCaptor.capture());
+        verify(userDao, times(1)).merge(argumentCaptor.capture());
 
         UserEntity persistedUser = argumentCaptor.getValue();
         assertThat(persistedUser.getFeatures(), is(newFeature));
@@ -386,7 +387,7 @@ public class UserServicesTest {
         assertThat(tokenOptional.get().getPasscode(), is("123456"));
 
         assertThat(errorPromise
-                .whenComplete((result, ex)-> System.out.println("errorPromise completed"))
+                .whenComplete((result, ex) -> System.out.println("errorPromise completed"))
                 .isCompletedExceptionally(), is(true));
     }
 
@@ -434,22 +435,26 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUser_whenAuthenticate2FA_ifSuccessful() throws Exception {
-        User user = aUser();
+    public void shouldReturnUser_whenAuthenticate2FA_ifSuccessful() {
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
+        User aUser = aUser();
         int newPassCode = 123456;
-        UserEntity userEntity = aUserEntityWithTrimmings(user);
-        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
-        when(secondFactorAuthenticator.authorize(user.getOtpKey(), newPassCode)).thenReturn(true);
+        UserEntity userEntity = aUserEntityWithTrimmings(aUser);
+        userEntity.setLastLoggedInAt(now);
+        when(userDao.findByExternalId(aUser.getExternalId())).thenReturn(Optional.of(userEntity));
+        when(secondFactorAuthenticator.authorize(aUser.getOtpKey(), newPassCode)).thenReturn(true);
 
-        Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getExternalId(), newPassCode);
+        Optional<User> userOptional = userServices.authenticateSecondFactor(aUser.getExternalId(), newPassCode);
 
-        assertTrue(tokenOptional.isPresent());
-        assertThat(tokenOptional.get().getExternalId(), is(user.getExternalId()));
-        assertThat(tokenOptional.get().getLoginCounter(), is(0));
+        assertTrue(userOptional.isPresent());
+        User user = userOptional.get();
+        assertThat(user.getExternalId(), is(aUser.getExternalId()));
+        assertThat(user.getLoginCounter(), is(0));
+        assertThat(user.getLastLoggedInAt().isAfter(ZonedDateTime.now().minusSeconds(10)), is(true));
     }
 
     @Test
-    public void shouldReturnEmpty_whenAuthenticate2FA_ifUnsuccessful() throws Exception {
+    public void shouldReturnEmpty_whenAuthenticate2FA_ifUnsuccessful_whenTheUserNeverLoggedIn() {
         User user = aUser();
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
@@ -464,10 +469,32 @@ public class UserServicesTest {
         UserEntity savedUser = argumentCaptor.getValue();
         assertThat(savedUser.getLoginCounter(), is(1));
         assertThat(savedUser.isDisabled(), is(false));
+        assertThat(savedUser.getLastLoggedInAt(), is(nullValue()));
     }
 
     @Test
-    public void shouldReturnEmptyAndDisable_whenAuthenticate2FA_ifUnsuccessfulMaxRetry() throws Exception {
+    public void shouldReturnEmpty_whenAuthenticate2FA_ifUnsuccessful_whenTheUserLoggedInAtLeastOnce() {
+        ZonedDateTime lastLoggedInDateTime = ZonedDateTime.now(ZoneId.of("UTC")).minusDays(7);
+        User user = aUser();
+        UserEntity userEntity = aUserEntityWithTrimmings(user);
+        userEntity.setLastLoggedInAt(lastLoggedInDateTime);
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+        when(secondFactorAuthenticator.authorize(user.getOtpKey(), 123456)).thenReturn(false);
+        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
+
+        Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getExternalId(), 123456);
+
+        assertFalse(tokenOptional.isPresent());
+
+        UserEntity savedUser = argumentCaptor.getValue();
+        assertThat(savedUser.getLoginCounter(), is(1));
+        assertThat(savedUser.isDisabled(), is(false));
+        assertThat(savedUser.getLastLoggedInAt().equals(lastLoggedInDateTime), is(true));
+    }
+
+    @Test
+    public void shouldReturnEmptyAndDisable_whenAuthenticate2FA_ifUnsuccessfulMaxRetry() {
         User user = aUser();
         user.setLoginCounter(3);
         UserEntity userEntity = aUserEntityWithTrimmings(user);
@@ -486,7 +513,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnEmpty_whenAuthenticate2FA_ifUserNotFound() throws Exception {
+    public void shouldReturnEmpty_whenAuthenticate2FA_ifUserNotFound() {
         String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
 
@@ -562,7 +589,7 @@ public class UserServicesTest {
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.authorize("New OTP key", 123456)).thenReturn(true);
 
-        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP,123456);
+        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP, 123456);
 
         assertThat(result.get().getOtpKey(), is("New OTP key"));
         assertThat(result.get().getProvisionalOtpKey(), is(nullValue()));
@@ -588,7 +615,7 @@ public class UserServicesTest {
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.authorize("New OTP key", 123456)).thenReturn(false);
 
-        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP,123456);
+        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP, 123456);
 
         assertFalse(result.isPresent());
 
@@ -608,7 +635,7 @@ public class UserServicesTest {
 
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
 
-        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP,123456);
+        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP, 123456);
 
         assertFalse(result.isPresent());
 
@@ -628,7 +655,7 @@ public class UserServicesTest {
 
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
 
-        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP,123456);
+        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP, 123456);
 
         assertFalse(result.isPresent());
 
@@ -649,7 +676,7 @@ public class UserServicesTest {
 
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
 
-        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP,123456);
+        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP, 123456);
 
         assertFalse(result.isPresent());
 
@@ -664,7 +691,7 @@ public class UserServicesTest {
         String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
 
-        Optional<User> result = userServices.activateNewOtpKey(nonExistentExternalId, SecondFactorMethod.SMS,123456);
+        Optional<User> result = userServices.activateNewOtpKey(nonExistentExternalId, SecondFactorMethod.SMS, 123456);
 
         assertFalse(result.isPresent());
 
@@ -683,7 +710,7 @@ public class UserServicesTest {
 
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
 
-        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP,123456);
+        Optional<User> result = userServices.activateNewOtpKey(user.getExternalId(), SecondFactorMethod.APP, 123456);
 
         assertFalse(result.isPresent());
 
@@ -696,12 +723,13 @@ public class UserServicesTest {
     private User aUser() {
         return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", asList("1"),
                 newArrayList(), "784rh", "8948924", newArrayList(), null, SecondFactorMethod.SMS,
-                null, null);
+                null, null, null);
     }
+
     private User anotherUser() {
         return User.from(randomInt(), ANOTHER_USER_EXTERNAL_ID, ANOTHER_USER_USERNAME, "random-password",
                 "email@example.com", asList("1"), newArrayList(), "784rh", "8948924", newArrayList(),
-                null, SecondFactorMethod.SMS, null, null);
+                null, SecondFactorMethod.SMS, null, null, null);
     }
 
     private Role aRole() {

@@ -198,6 +198,6 @@ public class UserInviteCompleterTest {
         Service service = Service.from(serviceId, serviceExternalId, Service.DEFAULT_NAME_VALUE);
         return User.from(randomInt(), randomUuid(), "a-username", "random-password", email, asList("1"), asList(service), "784rh", "8948924",
                 asList(ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"))), null,
-                SecondFactorMethod.SMS, null, null);
+                SecondFactorMethod.SMS, null, null, null);
     }
 }

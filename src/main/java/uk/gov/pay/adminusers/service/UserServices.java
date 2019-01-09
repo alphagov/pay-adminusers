@@ -109,7 +109,6 @@ public class UserServices {
     }
 
     /**
-     *
      * @param externalIds
      * @return A {@link List} of {@link User} or an empty {@link List} otherwise
      */
@@ -175,6 +174,7 @@ public class UserServices {
     @Transactional
     public Optional<User> authenticateSecondFactor(String externalId, int code) {
         logger.debug("OTP attempt - user_id={}", externalId);
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
         return userDao.findByExternalId(externalId)
                 .map(userEntity -> {
                     if (userEntity.isDisabled()) {
@@ -183,13 +183,14 @@ public class UserServices {
                     }
                     if (secondFactorAuthenticator.authorize(userEntity.getOtpKey(), code)) {
                         userEntity.setLoginCounter(0);
-                        userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+                        userEntity.setUpdatedAt(now);
+                        userEntity.setLastLoggedInAt(now);
                         userDao.merge(userEntity);
                         logger.info("Successful OTP. user_id={}", userEntity.getExternalId());
                         return Optional.of(linksBuilder.decorate(userEntity.toUser()));
                     } else {
                         userEntity.setLoginCounter(userEntity.getLoginCounter() + 1);
-                        userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+                        userEntity.setUpdatedAt(now);
                         userEntity.setDisabled(userEntity.getLoginCounter() > loginAttemptCap);
                         userDao.merge(userEntity);
                         if (userEntity.isDisabled()) {
@@ -288,7 +289,7 @@ public class UserServices {
             changeUserTelephoneNumber(user, patchRequest.getValue());
         } else if (PATH_FEATURES.equals(patchRequest.getPath())) {
             changeUserFeatures(user, patchRequest.getValue());
-        }  else {
+        } else {
             String error = format("Invalid patch request with path [%s]", patchRequest.getPath());
             logger.error(error);
             throw new RuntimeException(error);

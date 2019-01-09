@@ -163,6 +163,6 @@ public class ServiceRoleUpdaterTest {
     private User aUser(String externalId) {
         return User.from(randomInt(), externalId, "random-name", "random-password", "random@example.com",
                 asList("1"), newArrayList(), "784rh", "8948924", newArrayList(), null,
-                SecondFactorMethod.SMS, null, null);
+                SecondFactorMethod.SMS, null, null, null);
     }
 }

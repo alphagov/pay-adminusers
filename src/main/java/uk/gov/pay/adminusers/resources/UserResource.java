@@ -164,8 +164,8 @@ public class UserResource {
                 .orElseGet(() -> {
                     boolean provisional = payload != null && payload.get("provisional") != null && payload.get("provisional").asBoolean();
                     return userServices.newSecondFactorPasscode(externalId, provisional)
-                        .map(twoFAToken -> Response.status(OK).type(APPLICATION_JSON).build())
-                        .orElseGet(() -> Response.status(NOT_FOUND).build());
+                            .map(twoFAToken -> Response.status(OK).type(APPLICATION_JSON).build())
+                            .orElseGet(() -> Response.status(NOT_FOUND).build());
                 });
     }
 
@@ -181,7 +181,6 @@ public class UserResource {
                 .orElseGet(() -> userServices.authenticateSecondFactor(externalId, payload.get("code").asInt())
                         .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                         .orElseGet(() -> Response.status(UNAUTHORIZED).build()));
-
     }
 
     @Path(SECOND_FACTOR_PROVISION_RESOURCE)

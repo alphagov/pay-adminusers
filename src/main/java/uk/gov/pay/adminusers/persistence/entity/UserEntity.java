@@ -82,6 +82,10 @@ public class UserEntity extends AbstractEntity {
     @Convert(converter = UTCDateTimeConverter.class)
     private ZonedDateTime provisionalOtpKeyCreatedAt;
 
+    @Column(name = "last_logged_in_at")
+    @Convert(converter = UTCDateTimeConverter.class)
+    private ZonedDateTime lastLoggedInAt;
+
     public UserEntity() {
         //for jpa
     }
@@ -154,9 +158,13 @@ public class UserEntity extends AbstractEntity {
         this.loginCounter = loginCount;
     }
 
-    public String getFeatures() { return features; }
+    public String getFeatures() {
+        return features;
+    }
 
-    public void setFeatures(String features) { this.features = features; }
+    public void setFeatures(String features) {
+        this.features = features;
+    }
 
     public List<RoleEntity> getRoles() {
         return servicesRoles.isEmpty() ? newArrayList() : singletonList(servicesRoles.get(0).getRole());
@@ -208,6 +216,14 @@ public class UserEntity extends AbstractEntity {
 
     public void setProvisionalOtpKeyCreatedAt(ZonedDateTime provisionalOtpKeyCreatedAt) {
         this.provisionalOtpKeyCreatedAt = provisionalOtpKeyCreatedAt;
+    }
+
+    public ZonedDateTime getLastLoggedInAt() {
+        return lastLoggedInAt;
+    }
+
+    public void setLastLoggedInAt(ZonedDateTime lastLoggedInAt) {
+        this.lastLoggedInAt = lastLoggedInAt;
     }
 
     /**
@@ -275,7 +291,7 @@ public class UserEntity extends AbstractEntity {
         }
 
         User user = User.from(getId(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber,
-                serviceRoles, features, secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt);
+                serviceRoles, features, secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt);
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);

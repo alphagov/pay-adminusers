@@ -43,15 +43,16 @@ public class User {
     private SecondFactorMethod secondFactor;
     private String provisionalOtpKey;
     private ZonedDateTime provisionalOtpKeyCreatedAt;
+    private ZonedDateTime lastLoggedInAt;
     private List<Link> links = new ArrayList<>();
     private Integer sessionVersion = 0;
 
     public static User from(Integer id, String externalId, String username, String password, String email,
                             List<String> gatewayAccountIds, List<Service> services, String otpKey, String telephoneNumber,
                             List<ServiceRole> serviceRoles, String features, SecondFactorMethod secondFactor, String provisionalOtpKey,
-                            ZonedDateTime provisionalOtpKeyCreatedAt) {
+                            ZonedDateTime provisionalOtpKeyCreatedAt, ZonedDateTime lastLoggedInAt) {
         User user = new User(id, externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber,
-                serviceRoles, features, secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt);
+                serviceRoles, features, secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt);
         return user;
     }
 
@@ -62,7 +63,8 @@ public class User {
                  @JsonProperty("service_roles") List<ServiceRole> serviceRoles, @JsonProperty("features") String features,
                  @JsonProperty("second_factor") SecondFactorMethod secondFactor,
                  @JsonProperty("provisional_otp_key") String provisionalOtpKey,
-                 @JsonProperty("provisional_otp_key_created_at") ZonedDateTime provisionalOtpKeyCreatedAt) {
+                 @JsonProperty("provisional_otp_key_created_at") ZonedDateTime provisionalOtpKeyCreatedAt,
+                 @JsonProperty("last_logged_in_at") ZonedDateTime lastLoggedInAt) {
         this.id = id;
         this.externalId = externalId;
         this.username = username;
@@ -77,6 +79,7 @@ public class User {
         this.secondFactor = secondFactor;
         this.provisionalOtpKey = provisionalOtpKey;
         this.provisionalOtpKeyCreatedAt = provisionalOtpKeyCreatedAt;
+        this.lastLoggedInAt = lastLoggedInAt;
     }
 
     @JsonIgnore
@@ -176,6 +179,14 @@ public class User {
 
     public void setProvisionalOtpKeyCreatedAt(ZonedDateTime provisionalOtpKeyCreatedAt) {
         this.provisionalOtpKeyCreatedAt = provisionalOtpKeyCreatedAt;
+    }
+
+    public ZonedDateTime getLastLoggedInAt() {
+        return lastLoggedInAt;
+    }
+
+    public void setLastLoggedInAt(ZonedDateTime lastLoggedInAt) {
+        this.lastLoggedInAt = lastLoggedInAt;
     }
 
     /**
