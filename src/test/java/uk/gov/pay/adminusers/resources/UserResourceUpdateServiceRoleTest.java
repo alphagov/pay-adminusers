@@ -41,8 +41,8 @@ public class UserResourceUpdateServiceRoleTest extends IntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("username", is(user.getUsername()))
-                .body("role.name", is("view-and-refund"))
-                .body("role.description", is("View and Refund"));
+                .body("service_roles[0].role.name", is("view-and-refund"))
+                .body("service_roles[0].role.description", is("View and Refund"));
     }
 
     @Test

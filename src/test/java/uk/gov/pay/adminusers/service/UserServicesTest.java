@@ -720,14 +720,14 @@ public class UserServicesTest {
     }
 
     private User aUser() {
-        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", Collections.singletonList("1"),
-                newArrayList(), "784rh", "8948924", newArrayList(), null, SecondFactorMethod.SMS,
-                null, null, null);
+        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password",
+                "email@example.com","784rh", "8948924", newArrayList(),
+                null, SecondFactorMethod.SMS,null, null, null);
     }
 
     private User anotherUser() {
         return User.from(randomInt(), ANOTHER_USER_EXTERNAL_ID, ANOTHER_USER_USERNAME, "random-password",
-                "email@example.com", Collections.singletonList("1"), newArrayList(), "784rh", "8948924", newArrayList(),
+                "email@example.com", "784rh", "8948924", newArrayList(),
                 null, SecondFactorMethod.SMS, null, null, null);
     }
 

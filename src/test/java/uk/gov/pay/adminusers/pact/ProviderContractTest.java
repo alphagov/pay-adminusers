@@ -319,7 +319,6 @@ public class ProviderContractTest {
                 .withUsername(username)
                 .withPassword(passwordHasher.hash(password))
                 .withEmail("user-" + username + "@example.com")
-                .withGatewayAccountIds(Arrays.asList(gatewayAccount1, gatewayAccount2))
                 .withTelephoneNumber("45334534634")
                 .withOtpKey("34f34")
                 .withProvisionalOtpKey("94423")

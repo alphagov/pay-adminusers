@@ -25,9 +25,11 @@ public class LinksBuilderTest {
     public void shouldConstruct_userSelfLinkCorrectly() throws Exception {
         Service service = Service.from(2, "34783g87ebg764r", Service.DEFAULT_NAME_VALUE);
         Role role = Role.role(2, "blah", "blah");
+        ServiceRole serviceRole = ServiceRole.from(service, role);
+
         User user = User.from(randomInt(), randomUuid(), "a-username", "a-password", "email@example.com",
-                Collections.singletonList("1"), Collections.singletonList(service), "4wrwef", "123435", Collections.singletonList(ServiceRole.from(service, role)),
-                null, SecondFactorMethod.SMS, null, null, null);
+                "4wrwef", "123435", Collections.singletonList(serviceRole), null,
+                SecondFactorMethod.SMS, null, null, null);
         User decoratedUser = linksBuilder.decorate(user);
 
         String linkJson = new ObjectMapper().writeValueAsString(decoratedUser.getLinks().get(0));

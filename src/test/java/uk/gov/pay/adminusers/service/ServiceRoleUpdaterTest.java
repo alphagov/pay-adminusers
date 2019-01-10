@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -129,7 +130,9 @@ public class ServiceRoleUpdaterTest {
 
         Optional<User> userOptional = serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, serviceExternalId, role);
         assertTrue(userOptional.isPresent());
-        assertThat(userOptional.get().getRole().getId(), is(10));
+        // TODO: this looks like a bug in the updater, should only be 1 service role
+        assertThat(userOptional.get().getServiceRoles(), hasSize(2));
+        assertThat(userOptional.get().getServiceRoles().get(0).getRole().getId(), is(10));
     }
 
     @Test
@@ -153,7 +156,9 @@ public class ServiceRoleUpdaterTest {
 
         Optional<User> userOptional = serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, serviceExternalId, role);
         assertTrue(userOptional.isPresent());
-        assertThat(userOptional.get().getRole().getId(), is(9));
+        // TODO: this looks like a bug in the updater, should only be 1 service role
+        assertThat(userOptional.get().getServiceRoles(), hasSize(2));
+        assertThat(userOptional.get().getServiceRoles().get(0).getRole().getId(), is(9));
     }
 
     private Role aRole(int roleId, String roleName) {
@@ -162,7 +167,7 @@ public class ServiceRoleUpdaterTest {
 
     private User aUser(String externalId) {
         return User.from(randomInt(), externalId, "random-name", "random-password", "random@example.com",
-                Collections.singletonList("1"), newArrayList(), "784rh", "8948924", newArrayList(), null,
-                SecondFactorMethod.SMS, null, null, null);
+                "784rh", "8948924", newArrayList(), null, SecondFactorMethod.SMS,
+                null, null, null);
     }
 }

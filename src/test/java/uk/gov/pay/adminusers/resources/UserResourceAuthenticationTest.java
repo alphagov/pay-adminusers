@@ -80,12 +80,8 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("username", is(username))
-                .body("gateway_account_ids", hasSize(0))
-                .body("service_ids", hasSize(0))
-                .body("services", hasSize(0))
-                .body("_links", hasSize(1))
-                .body("role", is(nullValue()))
-                .body("permissions", hasSize(0));
+                .body("service_roles", hasSize(0))
+                .body("_links", hasSize(1));
     }
 
     @Test

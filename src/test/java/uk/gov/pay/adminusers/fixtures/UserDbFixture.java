@@ -27,7 +27,6 @@ public class UserDbFixture {
     private String email = username + "@example.com";
     private String telephoneNumber = "07700900000";
     private String features = "FEATURE_1, FEATURE_2";
-    private List<String> gatewayAccountIds = newArrayList();
     private String provisionalOtpKey;
 
     private UserDbFixture(DatabaseTestHelper databaseTestHelper) {
@@ -39,9 +38,8 @@ public class UserDbFixture {
     }
 
     public User insertUser() {
-        List<Service> services = serviceRolePairs.stream().map(Pair::getLeft).collect(Collectors.toList());
         List<ServiceRole> serviceRoles = serviceRolePairs.stream().map(servicePair -> ServiceRole.from(servicePair.getLeft(), servicePair.getRight())).collect(Collectors.toList());
-        User user = User.from(randomInt(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber,
+        User user = User.from(randomInt(), externalId, username, password, email, otpKey, telephoneNumber,
                 serviceRoles, features, SecondFactorMethod.SMS, provisionalOtpKey, null, null);
 
         databaseTestHelper.add(user);
@@ -82,12 +80,6 @@ public class UserDbFixture {
 
     public UserDbFixture withFeatures(String features) {
         this.features = features;
-        return this;
-    }
-
-    @Deprecated //Use gatewayAccountIds in service
-    public UserDbFixture withGatewayAccountIds(List<String> gatewayAccountIds) {
-        this.gatewayAccountIds = gatewayAccountIds;
         return this;
     }
 
