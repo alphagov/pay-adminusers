@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.pay.adminusers.exception.ValidationException;
 
 import java.io.IOException;
 import java.util.Comparator;

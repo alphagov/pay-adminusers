@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.codahale.metrics.health.HealthCheck;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import io.dropwizard.setup.Environment;

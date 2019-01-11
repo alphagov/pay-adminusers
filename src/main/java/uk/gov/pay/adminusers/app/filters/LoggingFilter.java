@@ -8,7 +8,6 @@ import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
