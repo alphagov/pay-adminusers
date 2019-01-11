@@ -15,10 +15,10 @@ import org.junit.runners.model.Statement;
 import org.skife.jdbi.v2.DBI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.PostgreSQLContainer;
 import uk.gov.pay.adminusers.app.AdminUsersApp;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
-import uk.gov.pay.commons.testing.db.PostgresDockerRule;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -35,7 +35,7 @@ public class DropwizardAppWithPostgresRule implements TestRule {
     private static final String JPA_UNIT = "AdminUsersUnit";
 
     private final String configFilePath;
-    private final PostgresDockerRule postgres;
+    private final PostgreSQLContainer postgreSQLContainer;
     private final DropwizardAppRule<AdminUsersConfig> app;
     private final RuleChain rules;
 
@@ -47,19 +47,20 @@ public class DropwizardAppWithPostgresRule implements TestRule {
 
     public DropwizardAppWithPostgresRule(String configPath, ConfigOverride... configOverrides) {
         configFilePath = resourceFilePath(configPath);
-        postgres = new PostgresDockerRule();
+        postgreSQLContainer = new PostgreSQLContainer();
+        postgreSQLContainer.start();
         List<ConfigOverride> cfgOverrideList = newArrayList(configOverrides);
-        cfgOverrideList.add(config("database.url", postgres.getConnectionUrl()));
-        cfgOverrideList.add(config("database.user", postgres.getUsername()));
-        cfgOverrideList.add(config("database.password", postgres.getPassword()));
+        cfgOverrideList.add(config("database.url", postgreSQLContainer.getJdbcUrl()));
+        cfgOverrideList.add(config("database.user", postgreSQLContainer.getUsername()));
+        cfgOverrideList.add(config("database.password", postgreSQLContainer.getPassword()));
 
         app = new DropwizardAppRule<>(
                 AdminUsersApp.class,
                 configFilePath,
                 cfgOverrideList.toArray(new ConfigOverride[cfgOverrideList.size()])
         );
-        createJpaModule(postgres);
-        rules = RuleChain.outerRule(postgres).around(app);
+        createJpaModule(postgreSQLContainer);
+        rules = RuleChain.outerRule(postgreSQLContainer).around(app);
         registerShutdownHook();
     }
 
@@ -85,7 +86,7 @@ public class DropwizardAppWithPostgresRule implements TestRule {
     private void doSecondaryDatabaseMigration() throws SQLException, LiquibaseException {
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword());
+            connection = DriverManager.getConnection(postgreSQLContainer.getJdbcUrl(), postgreSQLContainer.getUsername(), postgreSQLContainer.getPassword());
             Liquibase migrator = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator.update("");
         } finally {
@@ -104,16 +105,16 @@ public class DropwizardAppWithPostgresRule implements TestRule {
 
     private void registerShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            postgres.stop();
+            postgreSQLContainer.stop();
         }));
     }
 
-    private JpaPersistModule createJpaModule(final PostgresDockerRule postgres) {
+    private JpaPersistModule createJpaModule(final PostgreSQLContainer postgreSQLContainer) {
         final Properties properties = new Properties();
-        properties.put("javax.persistence.jdbc.driver", postgres.getDriverClass());
-        properties.put("javax.persistence.jdbc.url", postgres.getConnectionUrl());
-        properties.put("javax.persistence.jdbc.user", postgres.getUsername());
-        properties.put("javax.persistence.jdbc.password", postgres.getPassword());
+        properties.put("javax.persistence.jdbc.driver", postgreSQLContainer.getDriverClassName());
+        properties.put("javax.persistence.jdbc.url", postgreSQLContainer.getJdbcUrl());
+        properties.put("javax.persistence.jdbc.user", postgreSQLContainer.getUsername());
+        properties.put("javax.persistence.jdbc.password", postgreSQLContainer.getPassword());
 
         final JpaPersistModule jpaModule = new JpaPersistModule(JPA_UNIT);
         jpaModule.properties(properties);

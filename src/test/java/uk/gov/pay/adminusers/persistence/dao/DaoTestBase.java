@@ -4,17 +4,16 @@ import com.google.inject.persist.jpa.JpaPersistModule;
 import liquibase.Liquibase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.After;
+import org.junit.Before;
 import org.skife.jdbi.v2.DBI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.PostgreSQLContainer;
 import uk.gov.pay.adminusers.infra.GuicedTestEnvironment;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
-import uk.gov.pay.commons.testing.db.PostgresDockerRule;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -29,47 +28,49 @@ public class DaoTestBase {
 
     private static Logger logger = LoggerFactory.getLogger(DaoTestBase.class);
 
-    @ClassRule
-    public static PostgresDockerRule postgres = new PostgresDockerRule();
+    public PostgreSQLContainer postgreSQLContainer;
 
     protected static DatabaseTestHelper databaseHelper;
     private static JpaPersistModule jpaModule;
     protected static GuicedTestEnvironment env;
 
-    @BeforeClass
-    public static void setup() throws Exception {
+    @Before
+    public void setup() throws Exception {
+        postgreSQLContainer = new PostgreSQLContainer();
+        postgreSQLContainer.start();
+
         final Properties properties = new Properties();
-        properties.put("javax.persistence.jdbc.driver", postgres.getDriverClass());
-        properties.put("javax.persistence.jdbc.url", postgres.getConnectionUrl());
-        properties.put("javax.persistence.jdbc.user", postgres.getUsername());
-        properties.put("javax.persistence.jdbc.password", postgres.getPassword());
+        properties.put("javax.persistence.jdbc.driver", postgreSQLContainer.getDriverClassName());
+        properties.put("javax.persistence.jdbc.url", postgreSQLContainer.getJdbcUrl());
+        properties.put("javax.persistence.jdbc.user", postgreSQLContainer.getUsername());
+        properties.put("javax.persistence.jdbc.password", postgreSQLContainer.getPassword());
 
         jpaModule = new JpaPersistModule("AdminUsersUnit");
         jpaModule.properties(properties);
 
-        databaseHelper = new DatabaseTestHelper(new DBI(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword()));
+        databaseHelper = new DatabaseTestHelper(new DBI(postgreSQLContainer.getJdbcUrl(), postgreSQLContainer.getUsername(), postgreSQLContainer.getPassword()));
 
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword());
+            connection = DriverManager.getConnection(postgreSQLContainer.getJdbcUrl(), postgreSQLContainer.getUsername(), postgreSQLContainer.getPassword());
 
             Liquibase migrator = new Liquibase("config/initial-db-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             Liquibase migrator2 = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator.update("");
             migrator2.update("");
         } finally {
-            if(connection != null)
+            if (connection != null)
                 connection.close();
         }
 
         env = GuicedTestEnvironment.from(jpaModule).start();
     }
 
-    @AfterClass
-    public static void tearDown() {
+    @After
+    public void tearDown() {
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword());
+            connection = DriverManager.getConnection(postgreSQLContainer.getJdbcUrl(), postgreSQLContainer.getUsername(), postgreSQLContainer.getPassword());
             Liquibase migrator = new Liquibase("config/initial-db-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             Liquibase migrator2 = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator2.dropAll();
@@ -79,6 +80,7 @@ public class DaoTestBase {
             logger.error("Error stopping docker", e);
         }
         env.stop();
+        postgreSQLContainer.stop();
     }
 
     protected Role aRole() {
