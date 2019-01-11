@@ -55,7 +55,7 @@ public class ForgottenPasswordServicesTest {
     private ForgottenPasswordServices forgottenPasswordServices;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         LinksConfig mockLinks = mock(LinksConfig.class);
         when(mockLinks.getSelfserviceUrl()).thenReturn(SELFSERVICE_URL);
         when(mockConfig.getLinks()).thenReturn(mockLinks);
@@ -63,7 +63,7 @@ public class ForgottenPasswordServicesTest {
     }
 
     @Test
-    public void shouldSendAForgottenPasswordNotification_whenCreating_ifUserFound() throws Exception {
+    public void shouldSendAForgottenPasswordNotification_whenCreating_ifUserFound() {
 
         ArgumentCaptor<ForgottenPasswordEntity> expectedForgottenPassword = ArgumentCaptor.forClass(ForgottenPasswordEntity.class);
 
@@ -87,7 +87,7 @@ public class ForgottenPasswordServicesTest {
     }
 
     @Test
-    public void shouldStillCreateAForgottenPassword_whenNotificationFails_onCreate_ifUserFound() throws Exception {
+    public void shouldStillCreateAForgottenPassword_whenNotificationFails_onCreate_ifUserFound() {
 
         ArgumentCaptor<ForgottenPasswordEntity> expectedForgottenPassword = ArgumentCaptor.forClass(ForgottenPasswordEntity.class);
 
@@ -113,7 +113,7 @@ public class ForgottenPasswordServicesTest {
     }
 
     @Test
-    public void shouldReturnEmpty_whenCreating_ifUserNotFound() throws Exception {
+    public void shouldReturnEmpty_whenCreating_ifUserNotFound() {
 
         String nonExistentUser = "non-existent-user";
         when(userDao.findByUsername(nonExistentUser)).thenReturn(Optional.empty());
@@ -125,7 +125,7 @@ public class ForgottenPasswordServicesTest {
     }
 
     @Test
-    public void shouldFindForgottenPassword_whenFindByCode_ifFound() throws Exception {
+    public void shouldFindForgottenPassword_whenFindByCode_ifFound() {
         String existingCode = "existing-code";
         ForgottenPasswordEntity forgottenPasswordEntity = mockForgottenPassword(existingCode);
         when(forgottenPasswordDao.findNonExpiredByCode(existingCode)).thenReturn(Optional.of(forgottenPasswordEntity));
@@ -137,7 +137,7 @@ public class ForgottenPasswordServicesTest {
     }
 
     @Test
-    public void shouldReturnEmpty_whenFindByCode_ifNotFound() throws Exception {
+    public void shouldReturnEmpty_whenFindByCode_ifNotFound() {
         String nonExistentCode = "non-existent-code";
         when(forgottenPasswordDao.findNonExpiredByCode(nonExistentCode)).thenReturn(Optional.empty());
 

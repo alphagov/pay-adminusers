@@ -25,12 +25,12 @@ public class ServiceFinderTest {
     ServiceFinder serviceFinder;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         serviceFinder = new ServiceFinder(serviceDao, new LinksBuilder("http://localhost"));
     }
 
     @Test
-    public void shouldReturnService_ifFoundByGatewayAccountId() throws Exception {
+    public void shouldReturnService_ifFoundByGatewayAccountId() {
         String gatewayAccountId = "1";
         ServiceEntity serviceEntity = new ServiceEntity();
         serviceEntity.addGatewayAccountIds(gatewayAccountId);
@@ -43,7 +43,7 @@ public class ServiceFinderTest {
     }
 
     @Test
-    public void shouldReturnEmpty_ifNotFound() throws Exception {
+    public void shouldReturnEmpty_ifNotFound() {
         String gatewayAccountId = "1";
         when(serviceDao.findByGatewayAccountId(gatewayAccountId)).thenReturn(Optional.empty());
         Optional<Service> serviceOptional = serviceFinder.byGatewayAccountId(gatewayAccountId);

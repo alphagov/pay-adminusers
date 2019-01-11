@@ -28,7 +28,7 @@ public class UserResourcePatchTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldIncreaseSessionVersion_whenPatchAttempt() throws Exception {
+    public void shouldIncreaseSessionVersion_whenPatchAttempt() {
 
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "append", "path", "sessionVersion", "value", 2));
 
@@ -43,7 +43,7 @@ public class UserResourcePatchTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldUpdateTelephoneNumber_whenPatchAttempt() throws Exception {
+    public void shouldUpdateTelephoneNumber_whenPatchAttempt() {
 
         String newTelephoneNumber = "07700900001";
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", newTelephoneNumber));
@@ -60,7 +60,7 @@ public class UserResourcePatchTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldUpdateFeatures_whenPatchAttempt() throws Exception {
+    public void shouldUpdateFeatures_whenPatchAttempt() {
 
         String newFeatures = "SUPER_FEATURE_1, SECRET_SQUIRREL_FEATURE";
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "features", "value", newFeatures));
@@ -77,7 +77,7 @@ public class UserResourcePatchTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldDisableUser_whenPatchAttempt() throws Exception {
+    public void shouldDisableUser_whenPatchAttempt() {
 
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "disabled", "value", "true"));
 
@@ -92,7 +92,7 @@ public class UserResourcePatchTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn404_whenUnknownExternalIdIsSupplied() throws Exception {
+    public void shouldReturn404_whenUnknownExternalIdIsSupplied() {
 
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "append", "path", "sessionVersion", "value", 1));
 
@@ -106,7 +106,7 @@ public class UserResourcePatchTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldError_whenPatchRequiredFieldsAreMissing() throws Exception {
+    public void shouldError_whenPatchRequiredFieldsAreMissing() {
 
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("blah", "sessionVersion", "value", 1));
 

@@ -38,12 +38,12 @@ public class UserOtpDispatcherTest {
     InviteOtpDispatcher userOtpDispatcher;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         userOtpDispatcher = new UserOtpDispatcher(inviteDao, secondFactorAuthenticator, new PasswordHasher(), notificationService);
     }
 
     @Test
-    public void shouldSuccess_whenDispatchUserOtp_ifInviteEntityExist() throws Exception {
+    public void shouldSuccess_whenDispatchUserOtp_ifInviteEntityExist() {
         String inviteCode = "valid-invite-code";
         String telephone = "78562835762";
         InviteEntity inviteEntity = new InviteEntity();
@@ -66,7 +66,7 @@ public class UserOtpDispatcherTest {
     }
 
     @Test
-    public void shouldFail_whenDispatchServiceOtp_ifInviteEntityNotFound() throws Exception {
+    public void shouldFail_whenDispatchServiceOtp_ifInviteEntityNotFound() {
         String inviteCode = "non-existent-code";
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.empty());
 

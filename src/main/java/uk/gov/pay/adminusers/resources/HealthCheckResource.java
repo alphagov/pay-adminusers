@@ -34,7 +34,7 @@ public class HealthCheckResource {
     @GET
     @Path(HEALTHCHECK)
     @Produces(APPLICATION_JSON)
-    public Response healthCheck() throws JsonProcessingException {
+    public Response healthCheck() {
         SortedMap<String, HealthCheck.Result> results = environment.healthChecks().runHealthChecks();
 
         Map<String, Map<String, Object>> response = getResponse(results);

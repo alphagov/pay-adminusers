@@ -33,13 +33,13 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
     private ForgottenPasswordDao forgottenPasswordDao;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         userDao = env.getInstance(UserDao.class);
         forgottenPasswordDao = env.getInstance(ForgottenPasswordDao.class);
     }
 
     @Test
-    public void shouldPersistAForgottenPasswordEntity() throws Exception {
+    public void shouldPersistAForgottenPasswordEntity() {
         String forgottenPasswordCode = random(10);
         String username = randomUuid();
         String email = username + "@example.com";
@@ -64,7 +64,7 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
     }
 
     @Test
-    public void shouldFindForgottenPasswordByCode_ifNotExpired() throws Exception {
+    public void shouldFindForgottenPasswordByCode_ifNotExpired() {
         String forgottenPasswordCode = random(10);
         String username = randomUuid();
         String email = username + "@example.com";
@@ -86,7 +86,7 @@ public class ForgottenPasswordDaoTest extends DaoTestBase {
     }
 
     @Test
-    public void shouldNotFindForgottenPasswordByCode_ifExpired() throws Exception {
+    public void shouldNotFindForgottenPasswordByCode_ifExpired() {
         String forgottenPasswordCode = randomUuid();
         String username = randomUuid();
         String email = username + "@example.com";

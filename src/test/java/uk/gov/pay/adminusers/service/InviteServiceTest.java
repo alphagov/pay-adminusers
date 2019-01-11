@@ -103,7 +103,7 @@ public class InviteServiceTest {
     }
 
     @Test
-    public void validateOtpAndCreateUser_shouldCreateInvitedUserOnSuccessfulInvite() throws Exception {
+    public void validateOtpAndCreateUser_shouldCreateInvitedUserOnSuccessfulInvite() {
 
         mocksCreateInvite();
         when(mockSecondFactorAuthenticator.authorize(otpKey, passCode)).thenReturn(true);
@@ -118,7 +118,7 @@ public class InviteServiceTest {
     }
 
     @Test
-    public void validateOtpAndCreateUser_shouldDisableInviteOnSuccessfulInvite() throws Exception {
+    public void validateOtpAndCreateUser_shouldDisableInviteOnSuccessfulInvite() {
 
         mocksCreateInvite();
         when(mockSecondFactorAuthenticator.authorize(otpKey, passCode)).thenReturn(true);
@@ -133,7 +133,7 @@ public class InviteServiceTest {
     }
 
     @Test
-    public void validateOtpAndCreateUser_shouldErrorWhenDisabled_evenIfOtpValidationIsSuccessful() throws Exception {
+    public void validateOtpAndCreateUser_shouldErrorWhenDisabled_evenIfOtpValidationIsSuccessful() {
 
         InviteEntity anInvite = mocksCreateInvite();
         anInvite.setDisabled(Boolean.TRUE);
@@ -147,7 +147,7 @@ public class InviteServiceTest {
     }
 
     @Test
-    public void validateOtpAndCreateUser_shouldErrorAndDisableWhenInvalidOtpValidation_ifMaxRetryExceeded() throws Exception {
+    public void validateOtpAndCreateUser_shouldErrorAndDisableWhenInvalidOtpValidation_ifMaxRetryExceeded() {
 
         InviteEntity anInvite = mocksCreateInvite();
         anInvite.setLoginCounter(2);
@@ -168,7 +168,7 @@ public class InviteServiceTest {
     }
 
     @Test
-    public void validateOtpAndCreateUser_shouldErrorAndIncrementLoginCounterWhenInvalidOtpValidation() throws Exception {
+    public void validateOtpAndCreateUser_shouldErrorAndIncrementLoginCounterWhenInvalidOtpValidation() {
 
         InviteEntity anInvite = mocksCreateInvite();
         anInvite.setLoginCounter(1);
@@ -189,7 +189,7 @@ public class InviteServiceTest {
     }
 
     @Test
-    public void validateOtpAndCreateUser_shouldCreateInvitedUserAndResetLoginCounterAndDisableInviteWhenValidOtpValidation() throws Exception {
+    public void validateOtpAndCreateUser_shouldCreateInvitedUserAndResetLoginCounterAndDisableInviteWhenValidOtpValidation() {
 
         InviteEntity anInvite = mocksCreateInvite();
         anInvite.setLoginCounter(2);
@@ -211,7 +211,7 @@ public class InviteServiceTest {
     }
 
     @Test
-    public void validateOtpAndCreateUser_shouldErrorWhenInviteNotFound() throws Exception {
+    public void validateOtpAndCreateUser_shouldErrorWhenInviteNotFound() {
 
         String notFoundInviteCode = "not-found-invite-code";
         when(mockInviteDao.findByCode(notFoundInviteCode)).thenReturn(Optional.empty());

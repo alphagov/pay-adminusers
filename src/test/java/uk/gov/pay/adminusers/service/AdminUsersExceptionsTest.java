@@ -12,7 +12,7 @@ import static org.hamcrest.core.Is.is;
 public class AdminUsersExceptionsTest {
 
     @Test
-    public void shouldCreateARoleUnavailabeException() throws Exception {
+    public void shouldCreateARoleUnavailabeException() {
         WebApplicationException undefinedRoleException = AdminUsersExceptions.undefinedRoleException("non-existent-role");
         assertThat(undefinedRoleException.getResponse().getStatus(), is(400));
         Map<String, List<String>> entity = (Map<String, List<String>>) undefinedRoleException.getResponse().getEntity();
@@ -20,7 +20,7 @@ public class AdminUsersExceptionsTest {
     }
 
     @Test
-    public void shouldCreateAConflictingUsernameException() throws Exception {
+    public void shouldCreateAConflictingUsernameException() {
         WebApplicationException undefinedRoleException = AdminUsersExceptions.conflictingUsername("existing-user");
         assertThat(undefinedRoleException.getResponse().getStatus(), is(409));
         Map<String, List<String>> entity = (Map<String, List<String>>) undefinedRoleException.getResponse().getEntity();
@@ -28,7 +28,7 @@ public class AdminUsersExceptionsTest {
     }
 
     @Test
-    public void shouldCreateAnInternalServerErrorException() throws Exception {
+    public void shouldCreateAnInternalServerErrorException() {
         WebApplicationException undefinedRoleException = AdminUsersExceptions.internalServerError("server error");
         assertThat(undefinedRoleException.getResponse().getStatus(), is(500));
         Map<String, List<String>> entity = (Map<String, List<String>>) undefinedRoleException.getResponse().getEntity();

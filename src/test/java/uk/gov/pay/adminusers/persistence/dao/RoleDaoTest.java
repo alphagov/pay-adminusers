@@ -17,12 +17,12 @@ public class RoleDaoTest extends DaoTestBase {
     private RoleDao roleDao;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         roleDao = env.getInstance(RoleDao.class);
     }
 
     @Test
-    public void shouldFindARoleByRoleName() throws Exception {
+    public void shouldFindARoleByRoleName() {
 
         Role role1 = roleDbFixture(databaseHelper).insertRole();
         Role role2 = roleDbFixture(databaseHelper).insertRole();

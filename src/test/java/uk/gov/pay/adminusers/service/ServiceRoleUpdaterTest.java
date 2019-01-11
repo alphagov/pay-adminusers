@@ -51,12 +51,12 @@ public class ServiceRoleUpdaterTest {
     private static final String NON_EXISTENT_USER_EXTERNAL_ID = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         serviceRoleUpdater = new ServiceRoleUpdater(userDao, serviceDao, roleDao, new LinksBuilder("http://localhost"));
     }
 
     @Test
-    public void shouldReturnEmpty_ifUserNotFound_whenUpdatingServiceRole() throws Exception {
+    public void shouldReturnEmpty_ifUserNotFound_whenUpdatingServiceRole() {
         when(userDao.findByExternalId(NON_EXISTENT_USER_EXTERNAL_ID)).thenReturn(Optional.empty());
 
         Optional<User> userOptional = serviceRoleUpdater.doUpdate(NON_EXISTENT_USER_EXTERNAL_ID, randomUuid(), "randomRole");
@@ -64,7 +64,7 @@ public class ServiceRoleUpdaterTest {
     }
 
     @Test
-    public void shouldError_ifRoleNotFound_whenUpdatingServiceRole() throws Exception {
+    public void shouldError_ifRoleNotFound_whenUpdatingServiceRole() {
         String randomRole = "randomRole";
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID))));
         when(roleDao.findByRoleName(randomRole)).thenReturn(Optional.empty());
@@ -75,7 +75,7 @@ public class ServiceRoleUpdaterTest {
     }
 
     @Test
-    public void shouldError_ifServiceNotBelongToUser_whenUpdatingServiceRole() throws Exception {
+    public void shouldError_ifServiceNotBelongToUser_whenUpdatingServiceRole() {
         String role = "a-role";
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID))));
         when(roleDao.findByRoleName(role)).thenReturn(Optional.of(new RoleEntity(aRole(1, role))));
@@ -86,7 +86,7 @@ public class ServiceRoleUpdaterTest {
     }
 
     @Test
-    public void shouldError_ifCountOfServiceAdminsLessThan1_whenUpdatingServiceRole() throws Exception {
+    public void shouldError_ifCountOfServiceAdminsLessThan1_whenUpdatingServiceRole() {
         String role = "a-role";
         String serviceExternalId = "sxrdctfvygbuhinj";
 
@@ -110,7 +110,7 @@ public class ServiceRoleUpdaterTest {
     }
 
     @Test
-    public void shouldReturnUpdatedUser_whenUpdatingServiceRoleSuccess() throws Exception {
+    public void shouldReturnUpdatedUser_whenUpdatingServiceRoleSuccess() {
         String role = "another-non-admin-role";
         String serviceExternalId = "sxrdctfvygbuhinj";
 
@@ -133,7 +133,7 @@ public class ServiceRoleUpdaterTest {
     }
 
     @Test
-    public void shouldReturnUpdatedUser_whenDowngradingAdminWhenEnoughAdminsSuccess() throws Exception {
+    public void shouldReturnUpdatedUser_whenDowngradingAdminWhenEnoughAdminsSuccess() {
         String role = "non-admin-role";
         String serviceExternalId = "sxrdctfvygbuhinj";
 

@@ -51,7 +51,7 @@ public class ProviderContractTest {
     private static DatabaseTestHelper dbHelper;
 
     @BeforeClass
-    public static void setUpService() throws Exception {
+    public static void setUpService() {
         target = new HttpTarget(app.getLocalPort());
         dbHelper = app.getDatabaseTestHelper();
         // make sure we create services(including gateway account ids) before users
@@ -64,7 +64,7 @@ public class ProviderContractTest {
     }
 
     @State("a valid forgotten password entry and a related user exists")
-    public void aUserExistsWithAForgottenPasswordRequest() throws Exception {
+    public void aUserExistsWithAForgottenPasswordRequest() {
         String code = "avalidforgottenpasswordtoken";
         String userExternalId = RandomIdGenerator.randomUuid();
         createUserWithinAService(userExternalId, RandomIdGenerator.randomUuid(), "password");
@@ -73,14 +73,14 @@ public class ProviderContractTest {
     }
 
     @State("a user exists with max login attempts")
-    public void aUserExistsWithMaxLoginAttempts() throws Exception {
+    public void aUserExistsWithMaxLoginAttempts() {
         String username = "user-login-attempts-max";
         createUserWithinAService(RandomIdGenerator.randomUuid(), username, "password");
         dbHelper.updateLoginCount(username, 10);
     }
 
     @State("a forgotten password entry exist")
-    public void aForgottenPasswordEntryExist() throws Exception {
+    public void aForgottenPasswordEntryExist() {
         String code = "existing-code";
         String existingUserExternalId = "7d19aff33f8948deb97ed16b2912dcd3";
         List<Map<String, Object>> userByName = dbHelper.findUserByExternalId(existingUserExternalId);
@@ -88,7 +88,7 @@ public class ProviderContractTest {
     }
 
     @State("a user and user admin exists in service with the given ids before a delete operation")
-    public void aUserAndUserAdminExistBeforeADelete() throws Exception {
+    public void aUserAndUserAdminExistBeforeADelete() {
 
         String existingUserExternalId = "pact-delete-user-id";
         String existingUserRemoverExternalId = "pact-delete-remover-id";
@@ -106,7 +106,7 @@ public class ProviderContractTest {
     }
 
     @State("a user exists but not the remover before a delete operation")
-    public void aUserExistButRemoverBeforeADelete() throws Exception {
+    public void aUserExistButRemoverBeforeADelete() {
 
         String existingUserExternalId = "pact-user-no-remover-test";
         String existingServiceExternalId = "pact-service-no-remover-test";

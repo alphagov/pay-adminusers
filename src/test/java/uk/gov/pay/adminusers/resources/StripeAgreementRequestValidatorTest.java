@@ -19,7 +19,7 @@ public class StripeAgreementRequestValidatorTest {
     private StripeAgreementRequestValidator validator;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         validator = new StripeAgreementRequestValidator(new RequestValidations());
     }
     

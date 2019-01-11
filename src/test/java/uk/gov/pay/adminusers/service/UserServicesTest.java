@@ -76,14 +76,14 @@ public class UserServicesTest {
     private static final String ANOTHER_USER_USERNAME = "another-random-name";
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         userServices = new UserServices(userDao, passwordHasher,
                 new LinksBuilder("http://localhost"), 3,
                 () -> notificationService, secondFactorAuthenticator);
     }
 
     @Test
-    public void shouldFindAUserByExternalId() throws Exception {
+    public void shouldFindAUserByExternalId() {
         User user = aUser();
 
         UserEntity userEntity = aUserEntityWithTrimmings(user);
@@ -98,7 +98,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldFindAUsersByExternalIds() throws Exception {
+    public void shouldFindAUsersByExternalIds() {
         User user1 = aUser();
         User user2 = anotherUser();
 
@@ -115,7 +115,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnEmpty_WhenFindByExternalId_ifNotFound() throws Exception {
+    public void shouldReturnEmpty_WhenFindByExternalId_ifNotFound() {
         when(userDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(Optional.empty());
 
         Optional<User> userOptional = userServices.findUserByExternalId(USER_EXTERNAL_ID);
@@ -123,7 +123,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldFindAUserByUserName() throws Exception {
+    public void shouldFindAUserByUserName() {
         User user = aUser();
 
         UserEntity userEntity = aUserEntityWithTrimmings(user);
@@ -138,7 +138,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnEmpty_WhenFindByUserName_ifNotFound() throws Exception {
+    public void shouldReturnEmpty_WhenFindByUserName_ifNotFound() {
         when(userDao.findByUsername(USER_USERNAME)).thenReturn(Optional.empty());
 
         Optional<User> userOptional = userServices.findUserByUsername(USER_USERNAME);
@@ -146,7 +146,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUserAndResetLoginCount_ifAuthenticationSuccessfulAndUserNotDisabled() throws Exception {
+    public void shouldReturnUserAndResetLoginCount_ifAuthenticationSuccessfulAndUserNotDisabled() {
         User user = aUser();
         user.setLoginCounter(2);
 
@@ -168,7 +168,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUserAndNotResetLoginCount_ifAuthenticationSuccessfulButUserDisabled() throws Exception {
+    public void shouldReturnUserAndNotResetLoginCount_ifAuthenticationSuccessfulButUserDisabled() {
         User user = aUser();
         user.setLoginCounter(2);
         user.setDisabled(true);
@@ -191,7 +191,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnEmptyAndIncrementLoginCount_ifAuthenticationFail() throws Exception {
+    public void shouldReturnEmptyAndIncrementLoginCount_ifAuthenticationFail() {
         User user = aUser();
         user.setLoginCounter(1);
         UserEntity userEntity = aUserEntityWithTrimmings(user);
@@ -211,7 +211,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldLockUser_onTooManyAuthFailures() throws Exception {
+    public void shouldLockUser_onTooManyAuthFailures() {
         User user = aUser();
         user.setLoginCounter(2);
         UserEntity userEntity = aUserEntityWithTrimmings(user);
@@ -229,7 +229,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUser_whenIncrementingSessionVersion_ifUserFound() throws Exception {
+    public void shouldReturnUser_whenIncrementingSessionVersion_ifUserFound() {
         User user = aUser();
 
         JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "sessionVersion", "op", "append", "value", "2"));
@@ -246,7 +246,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUser_withDisabled_ifUserFoundDuringPatch() throws Exception {
+    public void shouldReturnUser_withDisabled_ifUserFoundDuringPatch() {
         User user = aUser();
 
         JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "disabled", "op", "replace", "value", "true"));
@@ -266,7 +266,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldResetLoginCounter_whenTheUserIsEnabled() throws Exception {
+    public void shouldResetLoginCounter_whenTheUserIsEnabled() {
         User user = aUser();
         user.setDisabled(Boolean.TRUE);
         user.setLoginCounter(11);
@@ -287,7 +287,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldUpdateTelephoneNumber_whenReplacingTelephoneNumber_ifUserFound() throws Exception {
+    public void shouldUpdateTelephoneNumber_whenReplacingTelephoneNumber_ifUserFound() {
         User user = aUser();
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         userEntity.setTelephoneNumber("11111111111");
@@ -311,7 +311,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldUpdateFeatures_whenPathIsFeatures_ifUserFound() throws Exception {
+    public void shouldUpdateFeatures_whenPathIsFeatures_ifUserFound() {
         User user = aUser();
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         userEntity.setFeatures("1");
@@ -335,7 +335,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturn2FAToken_whenCreate2FA_ifUserFound() throws Exception {
+    public void shouldReturn2FAToken_whenCreate2FA_ifUserFound() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
@@ -352,7 +352,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldZeroPad2FATokenTo6Digits_whenCreate2FA() throws Exception {
+    public void shouldZeroPad2FATokenTo6Digits_whenCreate2FA() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
@@ -369,7 +369,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturn2FAToken_whenCreate2FA_evenIfNotifyThrowsAnError() throws Exception {
+    public void shouldReturn2FAToken_whenCreate2FA_evenIfNotifyThrowsAnError() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
@@ -392,7 +392,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnEmpty_whenCreate2FA_ifUserNotFound() throws Exception {
+    public void shouldReturnEmpty_whenCreate2FA_ifUserNotFound() {
         String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
 

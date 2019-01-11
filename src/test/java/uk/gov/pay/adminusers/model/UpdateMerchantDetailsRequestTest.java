@@ -23,7 +23,7 @@ public class UpdateMerchantDetailsRequestTest {
     private final String email = "dd-merchant@example.com";
 
     @Test
-    public void shouldConstructMerchantDetails_fromMinimalValidJson() throws Exception {
+    public void shouldConstructMerchantDetails_fromMinimalValidJson() {
         Map<String, Object> payload = ImmutableMap.<String, Object>builder()
                 .put("name", name)
                 .put("address_line1", addressLine1)
@@ -42,7 +42,7 @@ public class UpdateMerchantDetailsRequestTest {
     }
 
     @Test
-    public void shouldConstructMerchantDetails_fromCompleteValidJson() throws Exception {
+    public void shouldConstructMerchantDetails_fromCompleteValidJson() {
         Map<String, Object> payload = ImmutableMap.<String, Object>builder()
                 .put("name", name)
                 .put("telephone_number", telephoneNumber)

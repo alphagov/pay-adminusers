@@ -22,12 +22,12 @@ public class ServiceUpdateRequestTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
     }
 
     @Test
-    public void shouldTransformToObjectCorrectly() throws ValidationException, IOException {
+    public void shouldTransformToObjectCorrectly() throws IOException {
         Map<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of("image_url", "image url", "css_url", "css url"));
         String content = objectMapper.writeValueAsString(payload);
         JsonNode jsonNode = objectMapper.readTree(content);

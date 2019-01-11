@@ -14,7 +14,7 @@ import java.time.ZonedDateTime;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class ZonedDateTimeSerializer extends JsonSerializer<ZonedDateTime> {
     @Override
-    public void serialize(ZonedDateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
+    public void serialize(ZonedDateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeString(DateTimeUtils.toUTCDateString(value));
     }
 }

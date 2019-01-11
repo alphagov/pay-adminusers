@@ -20,12 +20,12 @@ public class InviteExpiryTest {
     }
 
     @Test
-    public void isExpired_shouldNotBeExpire_whenRecentlyCreated() throws Exception {
+    public void isExpired_shouldNotBeExpire_whenRecentlyCreated() {
         assertThat(inviteEntity.isExpired(), is(false));
     }
 
     @Test
-    public void isExpired_shouldBeExpire_whenExpiryDateIsInThePast() throws Exception {
+    public void isExpired_shouldBeExpire_whenExpiryDateIsInThePast() {
 
         inviteEntity.setExpiryDate(ZonedDateTime.now(ZoneId.of("UTC")).minus(1, SECONDS));
         assertThat(inviteEntity.isExpired(), is(true));

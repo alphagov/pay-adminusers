@@ -19,12 +19,12 @@ public class ForgottenPasswordValidatorTest {
     private ForgottenPasswordValidator validator;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         validator = new ForgottenPasswordValidator();
     }
 
     @Test
-    public void shouldReturnErrors_ifJsonNodeIsNull() throws Exception {
+    public void shouldReturnErrors_ifJsonNodeIsNull() {
 
         Optional<Errors> errorsOptional = validator.validateCreateRequest(null);
 
@@ -33,7 +33,7 @@ public class ForgottenPasswordValidatorTest {
     }
 
     @Test
-    public void shouldReturnErrors_ifNoUserNameElement() throws Exception {
+    public void shouldReturnErrors_ifNoUserNameElement() {
 
         JsonNode jsonNode = mock(JsonNode.class);
         when(jsonNode.get("username")).thenReturn(null);
@@ -44,7 +44,7 @@ public class ForgottenPasswordValidatorTest {
     }
 
     @Test
-    public void shouldReturnErrors_ifUsernameIsBlank() throws Exception {
+    public void shouldReturnErrors_ifUsernameIsBlank() {
 
         JsonNode jsonNode = mock(JsonNode.class);
         JsonNode userNameMock = mock(JsonNode.class);
@@ -57,7 +57,7 @@ public class ForgottenPasswordValidatorTest {
     }
 
     @Test
-    public void shouldReturnEmpty_ifAUsernameIsPresent() throws Exception {
+    public void shouldReturnEmpty_ifAUsernameIsPresent() {
         JsonNode jsonNode = mock(JsonNode.class);
         JsonNode userNameMock = mock(JsonNode.class);
         when(jsonNode.get("username")).thenReturn(userNameMock);

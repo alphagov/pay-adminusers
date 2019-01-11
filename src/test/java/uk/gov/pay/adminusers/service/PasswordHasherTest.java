@@ -11,7 +11,7 @@ import static org.hamcrest.core.Is.is;
 public class PasswordHasherTest {
 
     @Test
-    public void shouldHashAPlainTextPassword() throws Exception {
+    public void shouldHashAPlainTextPassword() {
         PasswordHasher passwordHasher = new PasswordHasher();
 
         String hashedPassword = passwordHasher.hash("plain text password");
@@ -19,7 +19,7 @@ public class PasswordHasherTest {
     }
 
     @Test
-    public void shouldMatchToTrue_ifSamePassword() throws Exception {
+    public void shouldMatchToTrue_ifSamePassword() {
         PasswordHasher passwordHasher = new PasswordHasher();
         String hashedPassword = passwordHasher.hash("plain text password");
 
@@ -27,7 +27,7 @@ public class PasswordHasherTest {
     }
 
     @Test
-    public void shouldMatchToFalse_ifDifferentPassword() throws Exception {
+    public void shouldMatchToFalse_ifDifferentPassword() {
         PasswordHasher passwordHasher = new PasswordHasher();
         String hashedPassword = passwordHasher.hash("existing password");
 

@@ -70,7 +70,7 @@ public class InviteResourceGenerateOtpTest extends IntegrationTest {
 
 
     @Test
-    public void generateOtp_shouldSucceed_forServiceInvite_evenWhenTokenIsExpired_sinceItShouldBeValidatedOnGetInvite() throws Exception {
+    public void generateOtp_shouldSucceed_forServiceInvite_evenWhenTokenIsExpired_sinceItShouldBeValidatedOnGetInvite() {
         givenAnExistingServiceInvite();
         givenSetup()
                 .when()
