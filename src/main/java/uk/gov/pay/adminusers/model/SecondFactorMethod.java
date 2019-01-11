@@ -13,7 +13,7 @@ public enum SecondFactorMethod {
         @Override
         public String toString() {
             return "app";
-        };
+        }
     }
 
 }
