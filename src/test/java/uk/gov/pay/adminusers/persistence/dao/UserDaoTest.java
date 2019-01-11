@@ -29,6 +29,7 @@ import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -177,7 +178,7 @@ public class UserDaoTest extends DaoTestBase {
         List<String> externalIds = Arrays.asList(user1.getExternalId(), user2.getExternalId());
 
         List<UserEntity> userEntities = userDao.findByExternalIds(externalIds);
-        assertTrue(userEntities.size() == 2);
+        assertEquals(2, userEntities.size());
 
         UserEntity foundUser1 = userEntities.get(0);
         assertThat(foundUser1.getExternalId(), is(user1.getExternalId()));
