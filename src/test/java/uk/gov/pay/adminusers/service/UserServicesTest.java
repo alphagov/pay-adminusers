@@ -107,7 +107,7 @@ public class UserServicesTest {
         when(userDao.findByExternalIds(Arrays.asList(user1.getExternalId(), user2.getExternalId()))).thenReturn(Arrays.asList(userEntity1, userEntity2));
 
         List<User> users = userServices.findUsersByExternalIds(Arrays.asList(user1.getExternalId(), user2.getExternalId()));
-        assertEquals(2, users.size());
+        assertThat(users.size(), is(2));
 
         assertThat(users.get(0).getExternalId(), is(user1.getExternalId()));
         assertThat(users.get(1).getExternalId(), is(user2.getExternalId()));
