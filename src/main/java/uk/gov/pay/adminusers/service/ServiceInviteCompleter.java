@@ -72,11 +72,11 @@ public class ServiceInviteCompleter extends InviteCompleter {
                         InviteCompleteResponse response = new InviteCompleteResponse(invite);
                         response.setServiceExternalId(serviceEntity.getExternalId());
                         response.setUserExternalId(userEntity.getExternalId());
-                        return Optional.of(response);
+                        return response;
                     } else {
                         throw internalServerError(format("Attempting to complete a service invite for a non service invite of type. invite-code = %s", inviteEntity.getCode()));
                     }
-                }).orElseGet(Optional::empty);
+                });
     }
 
 }
