@@ -27,13 +27,13 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static java.util.Arrays.asList;
 import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
@@ -107,7 +107,7 @@ public class UserServicesTest {
         when(userDao.findByExternalIds(Arrays.asList(user1.getExternalId(), user2.getExternalId()))).thenReturn(Arrays.asList(userEntity1, userEntity2));
 
         List<User> users = userServices.findUsersByExternalIds(Arrays.asList(user1.getExternalId(), user2.getExternalId()));
-        assertEquals(2, users.size());
+        assertThat(users.size(), is(2));
 
         assertThat(users.get(0).getExternalId(), is(user1.getExternalId()));
         assertThat(users.get(1).getExternalId(), is(user2.getExternalId()));
@@ -720,14 +720,14 @@ public class UserServicesTest {
     }
 
     private User aUser() {
-        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", asList("1"),
+        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", Collections.singletonList("1"),
                 newArrayList(), "784rh", "8948924", newArrayList(), null, SecondFactorMethod.SMS,
                 null, null, null);
     }
 
     private User anotherUser() {
         return User.from(randomInt(), ANOTHER_USER_EXTERNAL_ID, ANOTHER_USER_USERNAME, "random-password",
-                "email@example.com", asList("1"), newArrayList(), "784rh", "8948924", newArrayList(),
+                "email@example.com", Collections.singletonList("1"), newArrayList(), "784rh", "8948924", newArrayList(),
                 null, SecondFactorMethod.SMS, null, null, null);
     }
 
@@ -746,7 +746,7 @@ public class UserServicesTest {
         serviceEntity.setId(randomInt());
 
         Role role = aRole();
-        role.setPermissions(asList(aPermission()));
+        role.setPermissions(Collections.singletonList(aPermission()));
 
         ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity, new RoleEntity(role));
         userEntity.addServiceRole(serviceRoleEntity);

@@ -5,11 +5,11 @@ import com.google.common.collect.ImmutableMap;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static javax.ws.rs.core.Response.Status.*;
 
 public class AdminUsersExceptions {
@@ -40,8 +40,7 @@ public class AdminUsersExceptions {
     }
 
     public static WebApplicationException conflictingServiceGatewayAccountsForUser() {
-        String error = format("List of gateway accounts not matching one of the existing services");
-        return buildWebApplicationException(error, CONFLICT.getStatusCode());
+        return buildWebApplicationException("List of gateway accounts not matching one of the existing services", CONFLICT.getStatusCode());
     }
 
     public static WebApplicationException conflictingServiceRoleForUser(String userExternalId, String serviceExternalId) {
@@ -102,7 +101,7 @@ public class AdminUsersExceptions {
     }
 
     private static WebApplicationException buildWebApplicationException(String error, int status) {
-        Map<String, List<String>> errors = ImmutableMap.of("errors", asList(error));
+        Map<String, List<String>> errors = ImmutableMap.of("errors", Collections.singletonList(error));
         Response response = Response.status(status)
                 .entity(errors)
                 .build();

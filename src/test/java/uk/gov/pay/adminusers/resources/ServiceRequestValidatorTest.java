@@ -86,7 +86,7 @@ public class ServiceRequestValidatorTest {
 
         given(mockServiceUpdateOperationValidator.validate(operation1)).willReturn(Collections.emptyList());
         given(mockServiceUpdateOperationValidator.validate(operation2)).willReturn(Arrays.asList("Error 1", "Error 2"));
-        given(mockServiceUpdateOperationValidator.validate(operation3)).willReturn(Arrays.asList("Error 3"));
+        given(mockServiceUpdateOperationValidator.validate(operation3)).willReturn(Collections.singletonList("Error 3"));
 
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(payload);
 

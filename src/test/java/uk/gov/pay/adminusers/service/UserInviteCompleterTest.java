@@ -24,9 +24,9 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.Optional;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
@@ -182,8 +182,7 @@ public class UserInviteCompleterTest {
         RoleEntity role = new RoleEntity(role(ADMIN.getId(), "admin", "Admin Role"));
         senderUser.addServiceRole(new ServiceRoleEntity(service, role));
 
-        InviteEntity anInvite = anInvite(email, inviteCode, otpKey, senderUser, service, role);
-        return anInvite;
+        return anInvite(email, inviteCode, otpKey, senderUser, service, role);
     }
 
     private InviteEntity anInvite(String email, String code, String otpKey, UserEntity userEntity, ServiceEntity serviceEntity, RoleEntity roleEntity) {
@@ -196,8 +195,8 @@ public class UserInviteCompleterTest {
 
     private User aUser(String email) {
         Service service = Service.from(serviceId, serviceExternalId, Service.DEFAULT_NAME_VALUE);
-        return User.from(randomInt(), randomUuid(), "a-username", "random-password", email, asList("1"), asList(service), "784rh", "8948924",
-                asList(ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"))), null,
+        return User.from(randomInt(), randomUuid(), "a-username", "random-password", email, Collections.singletonList("1"), Collections.singletonList(service), "784rh", "8948924",
+                Collections.singletonList(ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"))), null,
                 SecondFactorMethod.SMS, null, null, null);
     }
 }

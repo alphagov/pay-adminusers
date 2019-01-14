@@ -61,7 +61,7 @@ public class UserResourceCreateServiceRoleTest extends IntegrationTest {
                 .then()
                 .statusCode(400)
                 .body("errors", Matchers.hasSize(1))
-                .body("errors[0]", is(format("Field [service_external_id] is required")));
+                .body("errors[0]", is("Field [service_external_id] is required"));
     }
 
     @Test

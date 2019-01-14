@@ -10,8 +10,8 @@ import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
 
 import java.time.ZonedDateTime;
+import java.util.Collections;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
@@ -26,7 +26,7 @@ public class LinksBuilderTest {
         Service service = Service.from(2, "34783g87ebg764r", Service.DEFAULT_NAME_VALUE);
         Role role = Role.role(2, "blah", "blah");
         User user = User.from(randomInt(), randomUuid(), "a-username", "a-password", "email@example.com",
-                asList("1"), asList(service), "4wrwef", "123435", asList(ServiceRole.from(service, role)),
+                Collections.singletonList("1"), Collections.singletonList(service), "4wrwef", "123435", Collections.singletonList(ServiceRole.from(service, role)),
                 null, SecondFactorMethod.SMS, null, null, null);
         User decoratedUser = linksBuilder.decorate(user);
 

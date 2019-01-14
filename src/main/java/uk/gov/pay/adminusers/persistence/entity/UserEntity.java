@@ -287,7 +287,7 @@ public class UserEntity extends AbstractEntity {
         if (!this.servicesRoles.isEmpty()) {
             services = this.servicesRoles.stream()
                     .map(serviceRole -> serviceRole.getService().toService()).collect(toList());
-            serviceRoles = this.servicesRoles.stream().map(serviceRoleEntity -> serviceRoleEntity.toServiceRole()).collect(toList());
+            serviceRoles = this.servicesRoles.stream().map(ServiceRoleEntity::toServiceRole).collect(toList());
         }
 
         User user = User.from(getId(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber,

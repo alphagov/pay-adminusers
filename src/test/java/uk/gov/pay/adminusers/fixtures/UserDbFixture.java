@@ -39,7 +39,7 @@ public class UserDbFixture {
     }
 
     public User insertUser() {
-        List<Service> services = serviceRolePairs.stream().map(servicePair -> servicePair.getLeft()).collect(Collectors.toList());
+        List<Service> services = serviceRolePairs.stream().map(Pair::getLeft).collect(Collectors.toList());
         List<ServiceRole> serviceRoles = serviceRolePairs.stream().map(servicePair -> ServiceRole.from(servicePair.getLeft(), servicePair.getRight())).collect(Collectors.toList());
         User user = User.from(randomInt(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber,
                 serviceRoles, features, SecondFactorMethod.SMS, provisionalOtpKey, null, null);

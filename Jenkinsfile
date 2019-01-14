@@ -25,7 +25,7 @@ pipeline {
     stage('Maven Build') {
       steps {
         script {
-          def long stepBuildTime = System.currentTimeMillis()
+          long stepBuildTime = System.currentTimeMillis()
           sh 'mvn clean package'
           runProviderContractTests()
           postSuccessfulMetrics("adminusers.maven-build", stepBuildTime)
