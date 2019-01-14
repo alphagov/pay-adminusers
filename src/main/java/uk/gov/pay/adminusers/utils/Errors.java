@@ -3,10 +3,10 @@ package uk.gov.pay.adminusers.utils;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Arrays.asList;
 
 public class Errors {
 
@@ -17,7 +17,7 @@ public class Errors {
     }
 
     public static Errors from(String error) {
-        return new Errors(asList(error));
+        return new Errors(Collections.singletonList(error));
     }
 
     public static Errors from(List<String> errorList) {
