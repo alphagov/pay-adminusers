@@ -36,10 +36,7 @@ public class ServiceDao extends JpaDao<ServiceEntity> {
                 .setParameter("gatewayAccountId", gatewayAccountId)
                 .getResultList().stream().findFirst();
 
-        if (gatewayAccount.isPresent()) {
-            return Optional.of(gatewayAccount.get().getService());
-        }
-        return Optional.empty();
+        return gatewayAccount.map(GatewayAccountIdEntity::getService);
     }
 
     public Long countOfUsersWithRoleForService(String serviceExternalId, Integer roleId) {
