@@ -78,7 +78,7 @@ public class InviteResource {
         InviteCompleteRequest inviteCompleteRequest = new InviteCompleteRequest();
         if (payload != null && payload.get(InviteCompleteRequest.FIELD_GATEWAY_ACCOUNT_IDS) != null) {
             List<String> gatewayAccountIds = newArrayList(payload.get(InviteCompleteRequest.FIELD_GATEWAY_ACCOUNT_IDS).elements())
-                    .stream().map(gatewayAccountIdNode -> gatewayAccountIdNode.textValue()).collect(Collectors.toList());
+                    .stream().map(JsonNode::textValue).collect(Collectors.toList());
             inviteCompleteRequest.setGatewayAccountIds(gatewayAccountIds);
         }
         return inviteCompleteRequest;
@@ -197,7 +197,7 @@ public class InviteResource {
         return inviteValidator.validateOtpValidationRequest(payload)
                 .map(errors -> Response.status((BAD_REQUEST)).entity(errors).build())
                 .orElseGet(() -> inviteService.validateOtp(InviteValidateOtpRequest.from(payload))
-                        .map(error -> handleValidateOtpAndCreateUserException(error))
+                        .map(this::handleValidateOtpAndCreateUserException)
                         .orElseGet(() -> Response.status(OK).build()));
     }
 

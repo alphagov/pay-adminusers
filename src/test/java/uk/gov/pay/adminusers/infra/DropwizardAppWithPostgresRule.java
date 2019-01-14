@@ -98,9 +98,7 @@ public class DropwizardAppWithPostgresRule implements TestRule {
     }
 
     private void registerShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            postgres.stop();
-        }));
+        Runtime.getRuntime().addShutdownHook(new Thread(postgres::stop));
     }
 
     private JpaPersistModule createJpaModule(final PostgresDockerRule postgres) {

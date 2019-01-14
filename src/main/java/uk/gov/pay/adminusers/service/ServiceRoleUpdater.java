@@ -7,10 +7,7 @@ import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
-import uk.gov.pay.adminusers.persistence.entity.Role;
-import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
-import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
-import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.adminusers.persistence.entity.*;
 
 import java.util.Optional;
 
@@ -47,7 +44,7 @@ public class ServiceRoleUpdater {
         //Deprecated : Until selfservice is moved to use the service externalId.
         if (StringUtils.isNumeric(serviceId)) {
             serviceExternalId = serviceDao.findById(Integer.valueOf(serviceId))
-                    .map(serviceEntity -> serviceEntity.getExternalId())
+                    .map(ServiceEntity::getExternalId)
                     .orElseThrow(() -> serviceDoesNotExistError(serviceId));
         }
 

@@ -162,14 +162,12 @@ public class DatabaseTestHelper {
                         .bind("description", role.getDescription())
                         .execute()
         );
-        role.getPermissions().forEach(permission -> {
-            jdbi.withHandle(handle ->
-                    handle.createStatement("INSERT INTO role_permission(role_id, permission_id) VALUES (:roleId, :permissionId)")
-                            .bind("roleId", role.getId())
-                            .bind("permissionId", permission.getId())
-                            .execute()
-            );
-        });
+        role.getPermissions().forEach(permission -> jdbi.withHandle(handle ->
+                handle.createStatement("INSERT INTO role_permission(role_id, permission_id) VALUES (:roleId, :permissionId)")
+                        .bind("roleId", role.getId())
+                        .bind("permissionId", permission.getId())
+                        .execute()
+        ));
         return this;
     }
 

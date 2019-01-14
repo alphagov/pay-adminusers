@@ -76,7 +76,7 @@ public class ServiceInviteCompleter extends InviteCompleter {
                     } else {
                         throw internalServerError(format("Attempting to complete a service invite for a non service invite of type. invite-code = %s", inviteEntity.getCode()));
                     }
-                }).orElseGet(() -> Optional.empty());
+                }).orElseGet(Optional::empty);
     }
 
 }

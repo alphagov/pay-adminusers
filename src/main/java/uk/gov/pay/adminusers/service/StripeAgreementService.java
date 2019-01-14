@@ -25,7 +25,7 @@ public class StripeAgreementService {
 
     public Optional<StripeAgreement> findStripeAgreementByServiceId(int serviceId) {
         return stripeAgreementDao.findByServiceId(serviceId)
-                .map((stripeAgreementEntity -> stripeAgreementEntity.toStripeAgreement()));
+                .map((StripeAgreementEntity::toStripeAgreement));
     }
     
     public void doCreate(int serviceId, String ipAddress, LocalDateTime agreementTime) {
