@@ -28,7 +28,7 @@ public class StripeAgreementDaoTest extends DaoTestBase {
     private StripeAgreementDao stripeAgreementDao;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         stripeAgreementDao = env.getInstance(StripeAgreementDao.class);
     }
 

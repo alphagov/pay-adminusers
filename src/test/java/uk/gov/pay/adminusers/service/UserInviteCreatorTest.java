@@ -86,7 +86,7 @@ public class UserInviteCreatorTest {
     }
 
     @Test
-    public void create_shouldSendNotificationOnSuccessfulInvite() throws Exception {
+    public void create_shouldSendNotificationOnSuccessfulInvite() {
 
         mockInviteSuccess_ForNonExistingUser_nonExistingInvite();
         CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
@@ -106,7 +106,7 @@ public class UserInviteCreatorTest {
     }
 
     @Test
-    public void shouldReturnEmpty_ifServiceNotFound() throws Exception {
+    public void shouldReturnEmpty_ifServiceNotFound() {
         when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.empty());
         InviteUserRequest inviteUserRequest = inviteRequestFrom(senderEmail, email, roleName);
         Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
@@ -116,7 +116,7 @@ public class UserInviteCreatorTest {
     }
 
     @Test
-    public void create_shouldStillCreateTheInviteFailingOnSendingEmail() throws Exception {
+    public void create_shouldStillCreateTheInviteFailingOnSendingEmail() {
 
         mockInviteSuccess_ForNonExistingUser_nonExistingInvite();
 
@@ -139,7 +139,7 @@ public class UserInviteCreatorTest {
     }
 
     @Test
-    public void create_shouldFailWithConflict_WhenValidInviteExistsInvitingUserIsDifferent() throws Exception {
+    public void create_shouldFailWithConflict_WhenValidInviteExistsInvitingUserIsDifferent() {
 
         ServiceEntity service = new ServiceEntity();
         service.setId(serviceId);
@@ -168,7 +168,7 @@ public class UserInviteCreatorTest {
     }
 
     @Test
-    public void create_shouldFailWithPreConditionFailed_ifUserAlreadyInService() throws Exception {
+    public void create_shouldFailWithPreConditionFailed_ifUserAlreadyInService() {
 
         ServiceEntity service = new ServiceEntity();
         service.setId(serviceId);
@@ -191,7 +191,7 @@ public class UserInviteCreatorTest {
     }
 
     @Test
-    public void create_shouldResendTheSameInviteEmail_ifAValidInviteExistsForTheSameServiceBySameSender_forNewUser() throws Exception {
+    public void create_shouldResendTheSameInviteEmail_ifAValidInviteExistsForTheSameServiceBySameSender_forNewUser() {
 
         //Given
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
@@ -214,7 +214,7 @@ public class UserInviteCreatorTest {
     }
 
     @Test
-    public void create_shouldErrorForbidden_ifSenderCannotInviteUsersToTheSpecifiedService() throws Exception {
+    public void create_shouldErrorForbidden_ifSenderCannotInviteUsersToTheSpecifiedService() {
         InviteEntity inviteEntity = mockInviteSuccess_ForNonExistingUser_nonExistingInvite();
         inviteEntity.getSender().getServicesRoles().clear();
 
@@ -225,7 +225,7 @@ public class UserInviteCreatorTest {
     }
 
     @Test
-    public void create_shouldResendTheSameInviteEmail_ifAValidInviteExistsForTheSameServiceBySameSender_forExistingUser() throws Exception {
+    public void create_shouldResendTheSameInviteEmail_ifAValidInviteExistsForTheSameServiceBySameSender_forExistingUser() {
 
         //Given
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
@@ -244,7 +244,7 @@ public class UserInviteCreatorTest {
     }
 
     @Test
-    public void create_shouldResendTheSameInviteEmail_ifAValidInviteExistsForTheSameServiceBySameSender_forExistingUser_evenIfNotifyThrowsAnError() throws Exception {
+    public void create_shouldResendTheSameInviteEmail_ifAValidInviteExistsForTheSameServiceBySameSender_forExistingUser_evenIfNotifyThrowsAnError() {
 
         //Given
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
@@ -265,7 +265,7 @@ public class UserInviteCreatorTest {
     }
 
     @Test
-    public void create_shouldOnlyConsider_nonExpiredNonDisabledSameService_whenCheckingForExistingInvite() throws Exception {
+    public void create_shouldOnlyConsider_nonExpiredNonDisabledSameService_whenCheckingForExistingInvite() {
 
         InviteEntity validInvite = mockInviteSuccess_existingInvite();
         InviteEntity expiredInvite = new InviteEntity();

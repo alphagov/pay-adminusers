@@ -48,7 +48,7 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldGetForgottenPassword_whenGetByCode_forAnExistingForgottenPassword() throws Exception {
+    public void shouldGetForgottenPassword_whenGetByCode_forAnExistingForgottenPassword() {
 
         String username = randomUuid();
         String email = username + "@example.com";
@@ -66,7 +66,7 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn404_whenGetByCode_forNonExistingForgottenPassword() throws Exception {
+    public void shouldReturn404_whenGetByCode_forNonExistingForgottenPassword() {
 
         givenSetup()
                 .when()
@@ -78,7 +78,7 @@ public class ForgottenPasswordResourceTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn404_whenGetByCode_andCodeExceedsMaxLength() throws Exception {
+    public void shouldReturn404_whenGetByCode_andCodeExceedsMaxLength() {
 
         givenSetup()
                 .when()

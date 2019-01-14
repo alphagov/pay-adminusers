@@ -33,7 +33,7 @@ public class InviteDaoTest extends DaoTestBase {
     private UserDao userDao;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         inviteDao = env.getInstance(InviteDao.class);
         roleDao = env.getInstance(RoleDao.class);
         serviceDao = env.getInstance(ServiceDao.class);

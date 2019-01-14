@@ -44,7 +44,7 @@ public class UserEntityTest {
     }
 
     @Test
-    public void creatingAUser_shouldSetGatewayAccountAndRole_whenServiceRoleIsSet() throws Exception {
+    public void creatingAUser_shouldSetGatewayAccountAndRole_whenServiceRoleIsSet() {
         UserEntity userEntity = new UserEntity();
         String gatewayAccountId = "1";
         ServiceEntity service = new ServiceEntity(newArrayList(gatewayAccountId));

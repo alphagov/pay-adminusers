@@ -25,23 +25,22 @@ public class DatabaseHealthCheck extends HealthCheck {
     private Integer statsHealthy = 0;
 
     static {
-        longDatabaseStatsMap = new HashMap<String, Long>();
-        longDatabaseStatsMap.put("numbackends", 0l);
-        longDatabaseStatsMap.put("numbackends", 0l);
-        longDatabaseStatsMap.put("xact_commit", 0l);
-        longDatabaseStatsMap.put("xact_rollback", 0l);
-        longDatabaseStatsMap.put("blks_read", 0l);
-        longDatabaseStatsMap.put("blks_hit", 0l);
-        longDatabaseStatsMap.put("tup_returned", 0l);
-        longDatabaseStatsMap.put("tup_fetched", 0l);
-        longDatabaseStatsMap.put("tup_inserted", 0l);
-        longDatabaseStatsMap.put("tup_updated", 0l);
-        longDatabaseStatsMap.put("tup_deleted", 0l);
-        longDatabaseStatsMap.put("conflicts", 0l);
-        longDatabaseStatsMap.put("temp_files", 0l);
-        longDatabaseStatsMap.put("temp_bytes", 0l);
-        longDatabaseStatsMap.put("deadlocks", 0l);
-        doubleDatabaseStatsMap = new HashMap<String, Double>();
+        longDatabaseStatsMap = new HashMap<>();
+        longDatabaseStatsMap.put("numbackends", 0L);
+        longDatabaseStatsMap.put("xact_commit", 0L);
+        longDatabaseStatsMap.put("xact_rollback", 0L);
+        longDatabaseStatsMap.put("blks_read", 0L);
+        longDatabaseStatsMap.put("blks_hit", 0L);
+        longDatabaseStatsMap.put("tup_returned", 0L);
+        longDatabaseStatsMap.put("tup_fetched", 0L);
+        longDatabaseStatsMap.put("tup_inserted", 0L);
+        longDatabaseStatsMap.put("tup_updated", 0L);
+        longDatabaseStatsMap.put("tup_deleted", 0L);
+        longDatabaseStatsMap.put("conflicts", 0L);
+        longDatabaseStatsMap.put("temp_files", 0L);
+        longDatabaseStatsMap.put("temp_bytes", 0L);
+        longDatabaseStatsMap.put("deadlocks", 0L);
+        doubleDatabaseStatsMap = new HashMap<>();
         doubleDatabaseStatsMap.put("blk_read_time", 0.0);
         doubleDatabaseStatsMap.put("blk_write_time", 0.0);
     }
@@ -65,19 +64,13 @@ public class DatabaseHealthCheck extends HealthCheck {
     }
 
     @Override
-    protected Result check() throws Exception {
-        Connection connection = null;
-        try {
-            connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+    protected Result check() {
+        try (Connection connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword)) {
             connection.setReadOnly(true);
             updateMetricData(connection);
             return connection.isValid(2) ? Result.healthy() : Result.unhealthy("Could not validate the DB connection.");
         } catch (Exception e) {
             return Result.unhealthy(e.getMessage());
-        } finally {
-            if (connection != null) {
-                connection.close();
-            }
         }
     }
 

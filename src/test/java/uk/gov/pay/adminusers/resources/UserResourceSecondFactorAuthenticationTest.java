@@ -23,7 +23,7 @@ public class UserResourceSecondFactorAuthenticationTest extends IntegrationTest 
     private String username;
 
     @Before
-    public void createValidUser() throws Exception {
+    public void createValidUser() {
         String username = randomUuid();
         String email = username + "@example.com";
         User user = userDbFixture(databaseHelper).withOtpKey(OTP_KEY).withUsername(username).withEmail(email).insertUser();
@@ -103,7 +103,7 @@ public class UserResourceSecondFactorAuthenticationTest extends IntegrationTest 
     }
 
     @Test
-    public void shouldReturnNotFound_forNonExistentUser_when2FAAuthCreateRequest() throws Exception {
+    public void shouldReturnNotFound_forNonExistentUser_when2FAAuthCreateRequest() {
         String nonExistingExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         givenSetup()
                 .when()

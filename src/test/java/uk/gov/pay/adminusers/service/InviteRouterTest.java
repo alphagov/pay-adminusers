@@ -31,12 +31,12 @@ public class InviteRouterTest {
     InviteRouter inviteRouter;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         inviteRouter = new InviteRouter(inviteServiceFactory, inviteDao);
     }
 
     @Test
-    public void shouldResolve_serviceInviteCompleter_withValidation() throws Exception {
+    public void shouldResolve_serviceInviteCompleter_withValidation() {
         String inviteCode = "a-code";
         InviteEntity inviteEntity = anInvite(inviteCode, SERVICE);
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
@@ -49,7 +49,7 @@ public class InviteRouterTest {
     }
 
     @Test
-    public void shouldResolve_userInviteCompleter_withoutValidation() throws Exception {
+    public void shouldResolve_userInviteCompleter_withoutValidation() {
         String inviteCode = "a-code";
         InviteEntity inviteEntity = anInvite(inviteCode, USER);
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
@@ -62,7 +62,7 @@ public class InviteRouterTest {
     }
 
     @Test
-    public void shouldResolve_userInviteDispatcher_withValidation() throws Exception {
+    public void shouldResolve_userInviteDispatcher_withValidation() {
         String inviteCode = "a-code";
         InviteEntity inviteEntity = anInvite(inviteCode, USER);
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
@@ -75,7 +75,7 @@ public class InviteRouterTest {
     }
 
     @Test
-    public void shouldResolve_serviceInviteDispatcher_withoutValidation() throws Exception {
+    public void shouldResolve_serviceInviteDispatcher_withoutValidation() {
         String inviteCode = "a-code";
         InviteEntity inviteEntity = anInvite(inviteCode, SERVICE);
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));

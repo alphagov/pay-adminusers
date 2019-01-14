@@ -24,13 +24,13 @@ public class ResetPasswordValidatorTest {
     private ForgottenPasswordDao forgottenPasswordDao;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         forgottenPasswordDao = mock(ForgottenPasswordDao.class);
         resetPasswordValidator = new ResetPasswordValidator(new RequestValidations());
     }
 
     @Test
-    public void shouldReturnErrors_ifJsonNodeIsNull() throws Exception {
+    public void shouldReturnErrors_ifJsonNodeIsNull() {
 
         Optional<Errors> errorsOptional = resetPasswordValidator.validateResetRequest(null);
 

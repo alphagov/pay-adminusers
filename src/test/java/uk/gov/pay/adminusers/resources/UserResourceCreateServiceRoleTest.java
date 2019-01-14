@@ -21,7 +21,7 @@ import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 public class UserResourceCreateServiceRoleTest extends IntegrationTest {
 
     @Test
-    public void shouldSuccess_whenAddServiceRoleForUser() throws Exception {
+    public void shouldSuccess_whenAddServiceRoleForUser() {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
         Service service = serviceDbFixture(databaseHelper).insertService();
         String username = randomUuid();
@@ -44,7 +44,7 @@ public class UserResourceCreateServiceRoleTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldError_whenAddServiceRoleForUser_ifMandatoryParamsMissing() throws Exception {
+    public void shouldError_whenAddServiceRoleForUser_ifMandatoryParamsMissing() {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
         serviceDbFixture(databaseHelper).insertService();
         String username = randomUuid();
@@ -65,7 +65,7 @@ public class UserResourceCreateServiceRoleTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldError_whenAddServiceRoleForUser_ifUserAlreadyHasService() throws Exception {
+    public void shouldError_whenAddServiceRoleForUser_ifUserAlreadyHasService() {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
         String roleName = "view-and-refund";
         roleDbFixture(databaseHelper).withName(roleName).insertAdmin();

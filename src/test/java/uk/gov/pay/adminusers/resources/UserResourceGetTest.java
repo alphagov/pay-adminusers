@@ -21,7 +21,7 @@ import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 public class UserResourceGetTest extends IntegrationTest {
 
     @Test
-    public void shouldReturnUser_whenGetUserWithExternalId() throws Exception {
+    public void shouldReturnUser_whenGetUserWithExternalId() {
         String gatewayAccount1 = valueOf(nextInt());
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
@@ -60,7 +60,7 @@ public class UserResourceGetTest extends IntegrationTest {
 
 
     @Test
-    public void shouldReturn404_whenGetUser_withNonExistentExternalId() throws Exception {
+    public void shouldReturn404_whenGetUser_withNonExistentExternalId() {
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -70,7 +70,7 @@ public class UserResourceGetTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn404_whenGetUser_withInvalidMaxLengthExternalId() throws Exception {
+    public void shouldReturn404_whenGetUser_withInvalidMaxLengthExternalId() {
         givenSetup()
                 .when()
                 .accept(JSON)

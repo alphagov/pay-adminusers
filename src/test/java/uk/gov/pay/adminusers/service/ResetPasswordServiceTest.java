@@ -33,7 +33,7 @@ public class ResetPasswordServiceTest {
     private ResetPasswordService resetPasswordService;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         mockUserDao = mock(UserDao.class);
         mockForgottenPasswordDao = mock(ForgottenPasswordDao.class);
         mockPasswordHasher = mock(PasswordHasher.class);

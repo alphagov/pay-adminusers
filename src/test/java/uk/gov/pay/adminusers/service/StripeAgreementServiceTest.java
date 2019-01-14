@@ -35,7 +35,7 @@ public class StripeAgreementServiceTest {
     private StripeAgreementService stripeAgreementService;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         stripeAgreementService = new StripeAgreementService(mockedStripeAgreementDao);
     }
 

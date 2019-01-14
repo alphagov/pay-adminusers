@@ -20,7 +20,7 @@ public class ErrorsTest {
     private ObjectMapper mapper;
 
     @Before
-    public void before() throws Exception {
+    public void before() {
         mapper = new ObjectMapper();
     }
 
