@@ -9,6 +9,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.StripeAgreement;
+import uk.gov.pay.adminusers.model.StripeAgreementRequest;
 import uk.gov.pay.adminusers.persistence.dao.StripeAgreementDao;
 import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
 
@@ -63,15 +64,15 @@ public class StripeAgreementServiceTest {
     @Test
     public void shouldCreateNewStripeAgreement() {
         int serviceId = 1;
-        String ipAddress = "192.0.2.0";
+        StripeAgreementRequest stripeAgreementRequest = new StripeAgreementRequest("192.0.2.0");
         LocalDateTime agreementTime = LocalDateTime.now();
 
-        stripeAgreementService.doCreate(serviceId, ipAddress, agreementTime);
+        stripeAgreementService.doCreate(serviceId, stripeAgreementRequest, agreementTime);
         
         verify(mockedStripeAgreementDao, times(1))
                 .persist(stripeAgreementEntityArgumentCaptor.capture());
         
-        assertThat(stripeAgreementEntityArgumentCaptor.getValue().getIpAddress(), is(ipAddress));
+        assertThat(stripeAgreementEntityArgumentCaptor.getValue().getIpAddress(), is(stripeAgreementRequest.getIpAddress()));
         assertThat(stripeAgreementEntityArgumentCaptor.getValue().getServiceId(), is(serviceId));
         assertThat(stripeAgreementEntityArgumentCaptor.getValue().getAgreementTime(), is(agreementTime));
     }

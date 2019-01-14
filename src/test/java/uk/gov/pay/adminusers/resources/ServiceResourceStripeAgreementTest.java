@@ -63,8 +63,7 @@ public class ServiceResourceStripeAgreementTest extends IntegrationTest {
                 .post(format("/v1/api/services/%s/stripe-agreement", service.getExternalId()))
                 .then()
                 .statusCode(409)
-                .body("errors", hasSize(1))
-                .body("errors[0]", is("Stripe agreement information is already stored for this service"));
+                .body("message", is("Stripe agreement information is already stored for this service"));
     }
 
     @Test
@@ -76,9 +75,23 @@ public class ServiceResourceStripeAgreementTest extends IntegrationTest {
                 .body(payload)
                 .post(format("/v1/api/services/%s/stripe-agreement", service.getExternalId()))
                 .then()
-                .statusCode(400)
+                .statusCode(422)
                 .body("errors", hasSize(1))
-                .body("errors[0]", is("Field [ip_address] must be a valid IP address"));
+                .body("errors[0]", is("ipAddress must be valid IP address"));
+    }
+
+    @Test
+    public void shouldReturn_400_whenIpAddressIsNotAString() {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of(FIELD_IP_ADDRESS, 100));
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .body(payload)
+                .post(format("/v1/api/services/%s/stripe-agreement", service.getExternalId()))
+                .then()
+                .statusCode(422)
+                .body("errors", hasSize(1))
+                .body("errors[0]", is("ipAddress must be valid IP address"));
     }
 
     @Test

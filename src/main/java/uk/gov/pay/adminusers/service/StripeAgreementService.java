@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.StripeAgreement;
+import uk.gov.pay.adminusers.model.StripeAgreementRequest;
 import uk.gov.pay.adminusers.persistence.dao.StripeAgreementDao;
 import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
 
@@ -28,8 +29,8 @@ public class StripeAgreementService {
                 .map((StripeAgreementEntity::toStripeAgreement));
     }
     
-    public void doCreate(int serviceId, String ipAddress, LocalDateTime agreementTime) {
+    public void doCreate(int serviceId, StripeAgreementRequest stripeAgreementRequest, LocalDateTime agreementTime) {
         logger.info(format("Creating stripe agreement for service %s", serviceId));
-        stripeAgreementDao.persist(new StripeAgreementEntity(serviceId, ipAddress, agreementTime));
+        stripeAgreementDao.persist(new StripeAgreementEntity(serviceId, stripeAgreementRequest.getIpAddress(), agreementTime));
     }
 }
