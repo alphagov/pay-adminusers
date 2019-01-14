@@ -83,14 +83,9 @@ public class DropwizardAppWithPostgresRule implements TestRule {
     }
 
     private void doSecondaryDatabaseMigration() throws SQLException, LiquibaseException {
-        Connection connection = null;
-        try {
-            connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword());
+        try (Connection connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword())) {
             Liquibase migrator = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator.update("");
-        } finally {
-            if (connection != null)
-                connection.close();
         }
     }
 

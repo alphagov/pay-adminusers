@@ -23,9 +23,7 @@ public class MigrateToInitialDbState extends ConfiguredCommand<AdminUsersConfig>
 
     @Override
     protected void run(Bootstrap<AdminUsersConfig> bootstrap, Namespace namespace, AdminUsersConfig configuration) throws Exception {
-        Connection connection = null;
-        try {
-            connection = getDatabaseConnection(configuration);
+        try (Connection connection = getDatabaseConnection(configuration)) {
             PreparedStatement statement = connection.prepareStatement("select exists (select * from pg_tables where tablename='users')");
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
@@ -42,10 +40,6 @@ public class MigrateToInitialDbState extends ConfiguredCommand<AdminUsersConfig>
         } catch (SQLException e) {
             logger.error("Error during initial DB setup", e.getMessage());
             throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                connection.close();
-            }
         }
     }
 
