@@ -51,9 +51,8 @@ public class User {
                             List<String> gatewayAccountIds, List<Service> services, String otpKey, String telephoneNumber,
                             List<ServiceRole> serviceRoles, String features, SecondFactorMethod secondFactor, String provisionalOtpKey,
                             ZonedDateTime provisionalOtpKeyCreatedAt, ZonedDateTime lastLoggedInAt) {
-        User user = new User(id, externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber,
+        return new User(id, externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber,
                 serviceRoles, features, secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt);
-        return user;
     }
 
     private User(Integer id, @JsonProperty("external_id") String externalId, @JsonProperty("username") String username,
