@@ -9,6 +9,7 @@ import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.CustomBrandingConverter;
+import uk.gov.pay.adminusers.persistence.entity.GovUkPayAgreementEntity;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
@@ -350,6 +351,22 @@ public class DatabaseTestHelper {
                 handle.createQuery("SELECT * FROM stripe_agreements WHERE id = :id")
                         .bind("id", id)
                         .list());
+    }
+    
+    public List<Map<String, Object>> findGovUkPayAgreementEntity(Integer id) {
+        return jdbi.withHandle(handle -> 
+                handle.createQuery("SELECT * FROM govuk_pay_agreements WHERE id = :id")
+                .bind("id", id)
+                .list());
+    }
+    
+    public DatabaseTestHelper insertGovUkPayAgreementEntity(GovUkPayAgreementEntity entity) {
+        jdbi.withHandle(handle -> handle.createStatement("INSERT INTO govuk_pay_agreements(service_id, agreement_time, email) VALUES (:serviceId, :agreementTime, :email)")
+                .bind("serviceId", entity.getServiceId())
+                .bind("email", entity.getEmail())
+                .bind("agreementTime", entity.getAgreementTime())
+                .execute());
+        return this;
     }
 
     public DatabaseTestHelper insertStripeAgreementEntity(StripeAgreementEntity stripeAgreementEntity) {
