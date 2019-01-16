@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 
 @Entity
@@ -41,11 +43,20 @@ public class StripeAgreementEntity {
     }
     
     public static StripeAgreementEntity from(StripeAgreement stripeAgreement) {
-        return new StripeAgreementEntity(stripeAgreement.getServiceId(), stripeAgreement.getIpAddress(), stripeAgreement.getAgreementTime());
+        return new StripeAgreementEntity(
+                stripeAgreement.getServiceId(),
+                stripeAgreement.getIpAddress().getHostAddress(),
+                stripeAgreement.getAgreementTime()
+        );
     }
     
     public StripeAgreement toStripeAgreement() {
-        return new StripeAgreement(serviceId, ipAddress, agreementTime);
+        try {
+            return new StripeAgreement(serviceId, InetAddress.getByName(ipAddress), agreementTime);
+        } catch (UnknownHostException e) {
+            // Ip addresses are validated before storing them in the table so its very unlikely this will happen.
+            throw new RuntimeException(String.format("%s is not a valid InetAddress.", ipAddress));
+        }
     }
 
     public int getId() {

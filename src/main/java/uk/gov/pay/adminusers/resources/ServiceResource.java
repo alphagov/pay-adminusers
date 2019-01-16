@@ -34,6 +34,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
@@ -229,7 +231,7 @@ public class ServiceResource {
     @POST
     @Consumes(APPLICATION_JSON)
     public Response createStripeAgreement(@PathParam("serviceExternalId") String serviceExternalId,
-                                          @NotNull @Valid StripeAgreementRequest stripeAgreementRequest) {
+                                          @NotNull @Valid StripeAgreementRequest stripeAgreementRequest) throws UnknownHostException {
         LOGGER.info("Create stripe agreement POST request - [ {} ]", stripeAgreementRequest.toString());
 
         ServiceEntity service = serviceDao.findByExternalId(serviceExternalId)
@@ -240,7 +242,9 @@ public class ServiceResource {
                     Status.CONFLICT);
         }
 
-        stripeAgreementService.doCreate(service.getId(), stripeAgreementRequest, LocalDateTime.now(ZoneOffset.UTC));
+        stripeAgreementService.doCreate(service.getId(),
+                InetAddress.getByName(stripeAgreementRequest.getIpAddress()),
+                LocalDateTime.now(ZoneOffset.UTC));
 
         return Response.status(OK).build();
     }

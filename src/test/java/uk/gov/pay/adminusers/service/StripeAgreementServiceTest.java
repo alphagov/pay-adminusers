@@ -13,6 +13,8 @@ import uk.gov.pay.adminusers.model.StripeAgreementRequest;
 import uk.gov.pay.adminusers.persistence.dao.StripeAgreementDao;
 import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -56,18 +58,18 @@ public class StripeAgreementServiceTest {
                 .findStripeAgreementByServiceId(serviceId);
         
         assertTrue(maybeStripeAgreement.isPresent());
-        assertThat(maybeStripeAgreement.get().getIpAddress(), is(ipAddress));
+        assertThat(maybeStripeAgreement.get().getIpAddress().getHostAddress(), is(ipAddress));
         assertThat(maybeStripeAgreement.get().getAgreementTime(), is(agreementTime));
         assertThat(maybeStripeAgreement.get().getServiceId(), is(serviceId));
     }
     
     @Test
-    public void shouldCreateNewStripeAgreement() {
+    public void shouldCreateNewStripeAgreement() throws UnknownHostException {
         int serviceId = 1;
         StripeAgreementRequest stripeAgreementRequest = new StripeAgreementRequest("192.0.2.0");
         LocalDateTime agreementTime = LocalDateTime.now();
 
-        stripeAgreementService.doCreate(serviceId, stripeAgreementRequest, agreementTime);
+        stripeAgreementService.doCreate(serviceId, InetAddress.getByName(stripeAgreementRequest.getIpAddress()), agreementTime);
         
         verify(mockedStripeAgreementDao, times(1))
                 .persist(stripeAgreementEntityArgumentCaptor.capture());

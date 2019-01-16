@@ -67,7 +67,7 @@ public class ServiceResourceStripeAgreementTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn_400_whenProvidedInvalidIPAddress() {
+    public void shouldReturn_422_whenProvidedInvalidIPAddress() {
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of(FIELD_IP_ADDRESS, "257.0.0.0"));
         givenSetup()
                 .when()
@@ -81,7 +81,7 @@ public class ServiceResourceStripeAgreementTest extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn_400_whenIpAddressIsNotAString() {
+    public void shouldReturn_422_whenIpAddressIsNotAString() {
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of(FIELD_IP_ADDRESS, 100));
         givenSetup()
                 .when()
@@ -111,7 +111,6 @@ public class ServiceResourceStripeAgreementTest extends IntegrationTest {
 
     @Test
     public void shouldReturn_NOT_FOUND_whenStripeAgreementDoesNotExist() {
-
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -122,7 +121,6 @@ public class ServiceResourceStripeAgreementTest extends IntegrationTest {
 
     @Test
     public void shouldReturn_NOT_FOUND_whenServiceDoesNotExist() {
-
         givenSetup()
                 .when()
                 .accept(JSON)
