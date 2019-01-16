@@ -27,7 +27,7 @@ public class StripeAgreementEntity {
     @Column(name = "ip_address")
     private String ipAddress;
 
-    @Column(name = "agreement_time", columnDefinition = "TIMESTAMP WITHOUT TIME ZONE NOT NULL")
+    @Column(name = "agreement_time", columnDefinition = "TIMESTAMP WITH TIME ZONE NOT NULL")
     private LocalDateTime agreementTime;
 
     public StripeAgreementEntity() {
