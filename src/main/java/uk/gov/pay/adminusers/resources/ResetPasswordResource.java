@@ -46,7 +46,7 @@ public class ResetPasswordResource {
                         .entity(errors).build())
                 .orElseGet(() -> resetPasswordService.updatePassword(payload.get(FIELD_CODE).asText(), payload.get(FIELD_PASSWORD).asText())
                         .map(userId -> {
-                            logger.info("user {} updated password successfully. user_id={}", userId);
+                            logger.info("user ID {} updated password successfully", userId);
                             return Response.status(NO_CONTENT).build();
                         })
                         .orElseGet(() -> Response.status(NOT_FOUND)
