@@ -16,14 +16,14 @@ public class GovUkPayAgreementDao extends JpaDao<GovUkPayAgreementEntity> {
         super(entityManager, GovUkPayAgreementEntity.class);
     }
     
-    public Optional<GovUkPayAgreementEntity> findByServiceId(int serviceId) {
+    public Optional<GovUkPayAgreementEntity> findByExternalServiceId(String externalServiceId) {
 
-        String query = "SELECT s FROM GovUkPayAgreementEntity s " +
-                "WHERE s.serviceId = :serviceId";
+        String query = "SELECT agreement FROM GovUkPayAgreementEntity agreement " +
+                "WHERE agreement.service.externalId  = :externalServiceId";
 
         return entityManager.get()
                 .createQuery(query, GovUkPayAgreementEntity.class)
-                .setParameter("serviceId", serviceId)
+                .setParameter("externalServiceId", externalServiceId)
                 .getResultStream()
                 .findFirst();
     }

@@ -353,18 +353,18 @@ public class DatabaseTestHelper {
                         .list());
     }
     
-    public List<Map<String, Object>> findGovUkPayAgreementEntity(Integer id) {
+    public List<Map<String, Object>> findGovUkPayAgreementEntity(Integer serviceId) {
         return jdbi.withHandle(handle -> 
-                handle.createQuery("SELECT * FROM govuk_pay_agreements WHERE id = :id")
-                .bind("id", id)
+                handle.createQuery("SELECT * FROM govuk_pay_agreements WHERE service_id = :id")
+                .bind("id", serviceId)
                 .list());
     }
     
     public DatabaseTestHelper insertGovUkPayAgreementEntity(GovUkPayAgreementEntity entity) {
         jdbi.withHandle(handle -> handle.createStatement("INSERT INTO govuk_pay_agreements(service_id, agreement_time, email) VALUES (:serviceId, :agreementTime, :email)")
-                .bind("serviceId", entity.getServiceId())
+                .bind("serviceId", entity.getService().getId())
                 .bind("email", entity.getEmail())
-                .bind("agreementTime", entity.getAgreementTime())
+                .bind("agreementTime", from(entity.getAgreementTime().toInstant()))
                 .execute());
         return this;
     }
