@@ -8,10 +8,11 @@ import java.time.LocalDateTime;
 
 public class GovUkPayAgreement {
 
+    public static final String FIELD_EMAIL = "email";
     @JsonIgnore
     private int serviceId;
 
-    @JsonProperty("email")
+    @JsonProperty(FIELD_EMAIL)
     private String email;
 
     @JsonProperty("agreement_time")
