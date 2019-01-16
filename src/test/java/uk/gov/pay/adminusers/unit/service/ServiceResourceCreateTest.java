@@ -18,7 +18,6 @@ import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.adminusers.resources.ServiceRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceResource;
 import uk.gov.pay.adminusers.resources.ServiceUpdateOperationValidator;
-import uk.gov.pay.adminusers.resources.StripeAgreementRequestValidator;
 import uk.gov.pay.adminusers.service.ServiceCreator;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 import uk.gov.pay.adminusers.service.StripeAgreementService;
@@ -64,7 +63,6 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
     private static RequestValidations requestValidations = new RequestValidations();
     private static ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(requestValidations, new ServiceUpdateOperationValidator(requestValidations));
     private static StripeAgreementService stripeAgreementService = mock(StripeAgreementService.class);
-    private static StripeAgreementRequestValidator stripeAgreementRequestValidator = new StripeAgreementRequestValidator(new RequestValidations());
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
@@ -74,8 +72,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
                     linksBuilder,
                     serviceRequestValidator,
                     mockedServicesFactory,
-                    stripeAgreementService,
-                    stripeAgreementRequestValidator))
+                    stripeAgreementService))
             .build();
 
     @Captor

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import java.net.InetAddress;
 import java.time.LocalDateTime;
 
 public class StripeAgreement {
@@ -14,12 +15,12 @@ public class StripeAgreement {
     private int serviceId;
     
     @JsonProperty(FIELD_IP_ADDRESS)
-    private String ipAddress;
+    private InetAddress ipAddress;
     
     @JsonProperty("agreement_time")
     private LocalDateTime agreementTime;
 
-    public StripeAgreement(int serviceId, String ipAddress, LocalDateTime agreementTime) {
+    public StripeAgreement(int serviceId, InetAddress ipAddress, LocalDateTime agreementTime) {
         this.serviceId = serviceId;
         this.ipAddress = ipAddress;
         this.agreementTime = agreementTime;
@@ -29,7 +30,7 @@ public class StripeAgreement {
         return serviceId;
     }
 
-    public String getIpAddress() {
+    public InetAddress getIpAddress() {
         return ipAddress;
     }
 
