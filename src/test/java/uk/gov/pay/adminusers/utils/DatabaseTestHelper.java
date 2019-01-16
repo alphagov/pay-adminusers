@@ -12,7 +12,6 @@ import uk.gov.pay.adminusers.persistence.entity.CustomBrandingConverter;
 import uk.gov.pay.adminusers.persistence.entity.GovUkPayAgreementEntity;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
-import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 
 import java.sql.Timestamp;

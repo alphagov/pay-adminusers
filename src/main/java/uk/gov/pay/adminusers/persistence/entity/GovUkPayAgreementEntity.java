@@ -42,7 +42,7 @@ public class GovUkPayAgreementEntity {
         this.email = email;
         this.agreementTime = agreementTime;
     }
-
+    
     public GovUkPayAgreement toGovUkPayAgreement() {
         return new GovUkPayAgreement(email, agreementTime);
     }
