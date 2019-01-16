@@ -40,7 +40,7 @@ public class ServiceRoleDaoTest extends DaoTestBase {
                         .withEmail(email)
                         .insertUser();
         UserServiceId userServiceId = new UserServiceId();
-        userServiceId.setServiceId(user.getServices().get(0).getId());
+        userServiceId.setServiceId(user.getServiceRoles().get(0).getService().getId());
         userServiceId.setUserId(user.getId());
 
         List<Map<String, Object>> serviceRoles = databaseHelper.findServiceRoleForUser(user.getId());

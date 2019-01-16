@@ -179,7 +179,11 @@ public class InviteResource {
                     ValidateOtpAndCreateUserResult validateOtpAndCreateUserResult = inviteService.validateOtpAndCreateUser(InviteValidateOtpRequest.from(payload));
                     if (!validateOtpAndCreateUserResult.isError()) {
                         User createdUser = validateOtpAndCreateUserResult.getUser();
-                        LOGGER.info("User created successfully from invitation [{}] for gateway accounts [{}]", createdUser.getExternalId(), String.join(", ", createdUser.getGatewayAccountIds()));
+                        String serviceIds = createdUser.getServiceRoles().stream()
+                                .map(serviceRole -> serviceRole.getService().getExternalId())
+                                .collect(Collectors.joining(", "));
+                        
+                        LOGGER.info("User created successfully from invitation [{}] for services [{}]", createdUser.getExternalId(), serviceIds);
                         return Response.status(CREATED).type(APPLICATION_JSON).entity(createdUser).build();
                     }
                     return handleValidateOtpAndCreateUserException(validateOtpAndCreateUserResult.getError());

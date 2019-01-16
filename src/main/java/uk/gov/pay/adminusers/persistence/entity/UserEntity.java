@@ -3,7 +3,6 @@ package uk.gov.pay.adminusers.persistence.entity;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
-import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
 
@@ -280,22 +279,17 @@ public class UserEntity extends AbstractEntity {
 
     public User toUser() {
 
-        List<String> gatewayAccountIds = newArrayList();
-        List<Service> services = newArrayList();
         List<ServiceRole> serviceRoles = newArrayList();
 
         if (!this.servicesRoles.isEmpty()) {
-            services = this.servicesRoles.stream()
-                    .map(serviceRole -> serviceRole.getService().toService()).collect(toList());
             serviceRoles = this.servicesRoles.stream().map(ServiceRoleEntity::toServiceRole).collect(toList());
         }
 
-        User user = User.from(getId(), externalId, username, password, email, gatewayAccountIds, services, otpKey, telephoneNumber,
-                serviceRoles, features, secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt);
+        User user = User.from(getId(), externalId, username, password, email, otpKey, telephoneNumber, serviceRoles,
+                features, secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt);
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);
-        user.setRoles(this.getRoles().stream().map(RoleEntity::toRole).collect(toList()));
 
         return user;
     }

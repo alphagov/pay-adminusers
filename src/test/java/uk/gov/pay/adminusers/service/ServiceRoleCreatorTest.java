@@ -131,7 +131,7 @@ public class ServiceRoleCreatorTest {
 
     private User aUser(String externalId) {
         return User.from(randomInt(), externalId, "random-name", "random-password", "random@example.com",
-                Collections.singletonList("1"), newArrayList(), "784rh", "8948924", newArrayList(), null,
-                SecondFactorMethod.SMS, null, null, null);
+                "784rh", "8948924", newArrayList(), null, SecondFactorMethod.SMS,
+                null, null, null);
     }
 }
