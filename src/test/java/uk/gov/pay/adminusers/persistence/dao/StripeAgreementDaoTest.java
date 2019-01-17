@@ -7,7 +7,8 @@ import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
 
 import javax.persistence.RollbackException;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,7 +40,7 @@ public class StripeAgreementDaoTest extends DaoTestBase {
                 .insertService()
                 .getId();
 
-        StripeAgreementEntity stripeAgreementEntity = new StripeAgreementEntity(serviceId, "192.0.2.0", LocalDateTime.now());
+        StripeAgreementEntity stripeAgreementEntity = new StripeAgreementEntity(serviceId, "192.0.2.0", ZonedDateTime.now(ZoneId.of("UTC")));
         stripeAgreementDao.persist(stripeAgreementEntity);
 
         assertThat(stripeAgreementEntity.getId(), is(notNullValue()));
@@ -48,7 +49,7 @@ public class StripeAgreementDaoTest extends DaoTestBase {
         assertThat(searchResults.get(0).get("service_id"), is(stripeAgreementEntity.getServiceId()));
         assertThat(searchResults.get(0).get("ip_address"), is(stripeAgreementEntity.getIpAddress()));
         assertThat(searchResults.get(0).get("id"), is(stripeAgreementEntity.getId()));
-        assertThat(((Timestamp) searchResults.get(0).get("agreement_time")).toLocalDateTime(), is(stripeAgreementEntity.getAgreementTime()));
+        assertThat(searchResults.get(0).get("agreement_time"), is(Timestamp.from(stripeAgreementEntity.getAgreementTime().toInstant())));
     }
 
     @Test
@@ -58,10 +59,10 @@ public class StripeAgreementDaoTest extends DaoTestBase {
                 .insertService()
                 .getId();
 
-        StripeAgreementEntity stripeAgreementEntity = new StripeAgreementEntity(serviceId, "192.0.2.0", LocalDateTime.now());
+        StripeAgreementEntity stripeAgreementEntity = new StripeAgreementEntity(serviceId, "192.0.2.0", ZonedDateTime.now(ZoneId.of("UTC")));
         stripeAgreementDao.persist(stripeAgreementEntity);
 
-        StripeAgreementEntity anotherStripeAgreementEntity = new StripeAgreementEntity(serviceId, "192.0.2.1", LocalDateTime.now());
+        StripeAgreementEntity anotherStripeAgreementEntity = new StripeAgreementEntity(serviceId, "192.0.2.1", ZonedDateTime.now(ZoneId.of("UTC")));
         try {
             stripeAgreementDao.persist(anotherStripeAgreementEntity);
             fail();

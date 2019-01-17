@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.persistence.entity;
 import uk.gov.pay.adminusers.model.StripeAgreement;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,7 +12,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "stripe_agreements")
@@ -30,13 +31,14 @@ public class StripeAgreementEntity {
     private String ipAddress;
 
     @Column(name = "agreement_time", columnDefinition = "TIMESTAMP WITH TIME ZONE NOT NULL")
-    private LocalDateTime agreementTime;
+    @Convert(converter = UTCDateTimeConverter.class)
+    private ZonedDateTime agreementTime;
 
     public StripeAgreementEntity() {
         // for jpa
     }
 
-    public StripeAgreementEntity(int serviceId, String ipAddress, LocalDateTime agreementTime) {
+    public StripeAgreementEntity(int serviceId, String ipAddress, ZonedDateTime agreementTime) {
         this.serviceId = serviceId;
         this.ipAddress = ipAddress;
         this.agreementTime = agreementTime;
@@ -71,7 +73,7 @@ public class StripeAgreementEntity {
         return ipAddress;
     }
 
-    public LocalDateTime getAgreementTime() {
+    public ZonedDateTime getAgreementTime() {
         return agreementTime;
     }
 }

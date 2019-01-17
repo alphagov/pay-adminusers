@@ -8,7 +8,7 @@ import uk.gov.pay.adminusers.persistence.dao.StripeAgreementDao;
 import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
 
 import java.net.InetAddress;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static java.lang.String.format;
@@ -29,7 +29,7 @@ public class StripeAgreementService {
                 .map((StripeAgreementEntity::toStripeAgreement));
     }
     
-    public void doCreate(int serviceId, InetAddress ipAddress, LocalDateTime agreementTime) {
+    public void doCreate(int serviceId, InetAddress ipAddress, ZonedDateTime agreementTime) {
         logger.info(format("Creating stripe agreement for service %s", serviceId));
         stripeAgreementDao.persist(new StripeAgreementEntity(serviceId, ipAddress.getHostAddress(), agreementTime));
     }

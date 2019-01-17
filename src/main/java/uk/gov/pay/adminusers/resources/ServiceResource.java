@@ -36,8 +36,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -244,7 +244,7 @@ public class ServiceResource {
 
         stripeAgreementService.doCreate(service.getId(),
                 InetAddress.getByName(stripeAgreementRequest.getIpAddress()),
-                LocalDateTime.now(ZoneOffset.UTC));
+                ZonedDateTime.now(ZoneId.of("UTC")));
 
         return Response.status(OK).build();
     }

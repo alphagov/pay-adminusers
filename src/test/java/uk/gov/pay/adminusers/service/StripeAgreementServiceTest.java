@@ -15,7 +15,7 @@ import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -46,7 +46,7 @@ public class StripeAgreementServiceTest {
     public void shouldReturnStripeAgreement() {
         int serviceId = 1;
         String ipAddress = "192.0.2.0";
-        LocalDateTime agreementTime = LocalDateTime.now();
+        ZonedDateTime agreementTime = ZonedDateTime.now();
         
         StripeAgreementEntity stripeAgreementEntity = 
                 new StripeAgreementEntity(serviceId, ipAddress, agreementTime);
@@ -67,7 +67,7 @@ public class StripeAgreementServiceTest {
     public void shouldCreateNewStripeAgreement() throws UnknownHostException {
         int serviceId = 1;
         StripeAgreementRequest stripeAgreementRequest = new StripeAgreementRequest("192.0.2.0");
-        LocalDateTime agreementTime = LocalDateTime.now();
+        ZonedDateTime agreementTime = ZonedDateTime.now();
 
         stripeAgreementService.doCreate(serviceId, InetAddress.getByName(stripeAgreementRequest.getIpAddress()), agreementTime);
         

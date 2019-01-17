@@ -373,7 +373,7 @@ public class DatabaseTestHelper {
         jdbi.withHandle(handle -> handle
                 .createStatement("INSERT INTO stripe_agreements(service_id, agreement_time, ip_address) VALUES (:serviceId, :agreementTime, :ipAddress)")
                 .bind("serviceId", stripeAgreementEntity.getServiceId())
-                .bind("agreementTime", stripeAgreementEntity.getAgreementTime())
+                .bind("agreementTime", from(stripeAgreementEntity.getAgreementTime().toInstant()))
                 .bind("ipAddress", stripeAgreementEntity.getIpAddress())
                 .execute());
         return this;
