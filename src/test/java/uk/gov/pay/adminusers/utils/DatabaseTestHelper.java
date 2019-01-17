@@ -369,12 +369,12 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public DatabaseTestHelper insertStripeAgreementEntity(StripeAgreementEntity stripeAgreementEntity) {
+    public DatabaseTestHelper insertStripeAgreementEntity(int serviceId, ZonedDateTime agreementTime, String ipAddress) {
         jdbi.withHandle(handle -> handle
                 .createStatement("INSERT INTO stripe_agreements(service_id, agreement_time, ip_address) VALUES (:serviceId, :agreementTime, :ipAddress)")
-                .bind("serviceId", stripeAgreementEntity.getServiceId())
-                .bind("agreementTime", from(stripeAgreementEntity.getAgreementTime().toInstant()))
-                .bind("ipAddress", stripeAgreementEntity.getIpAddress())
+                .bind("serviceId", serviceId)
+                .bind("agreementTime", from(agreementTime.toInstant()))
+                .bind("ipAddress", ipAddress)
                 .execute());
         return this;
     }

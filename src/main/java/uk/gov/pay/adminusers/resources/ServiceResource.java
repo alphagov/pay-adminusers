@@ -36,8 +36,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -234,17 +232,8 @@ public class ServiceResource {
                                           @NotNull @Valid StripeAgreementRequest stripeAgreementRequest) throws UnknownHostException {
         LOGGER.info("Create stripe agreement POST request - [ {} ]", stripeAgreementRequest.toString());
 
-        ServiceEntity service = serviceDao.findByExternalId(serviceExternalId)
-                .orElseThrow( () -> new WebApplicationException(Status.NOT_FOUND));
-        
-        if (stripeAgreementService.findStripeAgreementByServiceId(service.getId()).isPresent()) {
-            throw new WebApplicationException("Stripe agreement information is already stored for this service",
-                    Status.CONFLICT);
-        }
-
-        stripeAgreementService.doCreate(service.getId(),
-                InetAddress.getByName(stripeAgreementRequest.getIpAddress()),
-                ZonedDateTime.now(ZoneId.of("UTC")));
+        stripeAgreementService.doCreate(serviceExternalId,
+                InetAddress.getByName(stripeAgreementRequest.getIpAddress()));
 
         return Response.status(OK).build();
     }
@@ -254,8 +243,7 @@ public class ServiceResource {
     @Produces(APPLICATION_JSON)
     public StripeAgreement getStripeAgreement(@PathParam("serviceExternalId") String serviceExternalId) {
 
-        return serviceDao.findByExternalId(serviceExternalId)
-                .flatMap(serviceEntity -> stripeAgreementService.findStripeAgreementByServiceId(serviceEntity.getId()))
+        return stripeAgreementService.findStripeAgreementByServiceId(serviceExternalId)
                 .orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));
     }
 
