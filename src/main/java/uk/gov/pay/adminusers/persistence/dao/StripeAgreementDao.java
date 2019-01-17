@@ -17,14 +17,14 @@ public class StripeAgreementDao extends JpaDao<StripeAgreementEntity> {
     }
 
 
-    public Optional<StripeAgreementEntity> findByServiceId(int serviceId) {
+    public Optional<StripeAgreementEntity> findByServiceExternalId(String serviceExternalId) {
 
         String query = "SELECT s FROM StripeAgreementEntity s " +
-                "WHERE s.serviceId = :serviceId";
+                "WHERE s.service.externalId = :serviceExternalId";
 
         return entityManager.get()
                 .createQuery(query, StripeAgreementEntity.class)
-                .setParameter("serviceId", serviceId)
+                .setParameter("serviceExternalId", serviceExternalId)
                 .getResultStream()
                 .findFirst();
     }

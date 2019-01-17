@@ -7,8 +7,10 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.fixtures.StripeAgreementDbFixture;
 import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
 import uk.gov.pay.adminusers.utils.DateTimeUtils;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
@@ -52,7 +54,7 @@ public class ServiceResourceStripeAgreementTest extends IntegrationTest {
 
     @Test
     public void shouldReturn_409_whenStripeAgreementAlreadyExists() {
-        StripeAgreementEntity stripeAgreement = StripeAgreementDbFixture.stripeAgreementDbFixture(databaseHelper)
+        StripeAgreementDbFixture.stripeAgreementDbFixture(databaseHelper)
                 .withServiceId(service.getId())
                 .insert();
         
@@ -97,8 +99,13 @@ public class ServiceResourceStripeAgreementTest extends IntegrationTest {
 
     @Test
     public void shouldGetStripeAgreementDetails() {
-        StripeAgreementEntity stripeAgreement = StripeAgreementDbFixture.stripeAgreementDbFixture(databaseHelper)
+        ZonedDateTime agreementTime = ZonedDateTime.now(ZoneId.of("UTC"));
+        String ipAddress = "192.0.2.0";
+        
+        StripeAgreementDbFixture.stripeAgreementDbFixture(databaseHelper)
                 .withServiceId(service.getId())
+                .withIpAddress(ipAddress)
+                .withAgreementTime(agreementTime)
                 .insert();
         
         givenSetup()
@@ -106,8 +113,8 @@ public class ServiceResourceStripeAgreementTest extends IntegrationTest {
                 .get(format("/v1/api/services/%s/stripe-agreement", service.getExternalId()))
                 .then()
                 .statusCode(200)
-                .body("ip_address", is(stripeAgreement.getIpAddress()))
-                .body("agreement_time", is(DateTimeUtils.toUTCDateString(stripeAgreement.getAgreementTime())));
+                .body("ip_address", is(ipAddress))
+                .body("agreement_time", is(DateTimeUtils.toUTCDateString(agreementTime)));
     }
 
     @Test
