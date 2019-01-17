@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.net.InetAddress;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 public class StripeAgreement {
     
@@ -18,9 +18,9 @@ public class StripeAgreement {
     private InetAddress ipAddress;
     
     @JsonProperty("agreement_time")
-    private LocalDateTime agreementTime;
+    private ZonedDateTime agreementTime;
 
-    public StripeAgreement(int serviceId, InetAddress ipAddress, LocalDateTime agreementTime) {
+    public StripeAgreement(int serviceId, InetAddress ipAddress, ZonedDateTime agreementTime) {
         this.serviceId = serviceId;
         this.ipAddress = ipAddress;
         this.agreementTime = agreementTime;
@@ -34,8 +34,8 @@ public class StripeAgreement {
         return ipAddress;
     }
 
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    public LocalDateTime getAgreementTime() {
+    @JsonSerialize(using = ZonedDateTimeSerializer.class)
+    public ZonedDateTime getAgreementTime() {
         return agreementTime;
     }
 }

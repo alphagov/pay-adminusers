@@ -3,14 +3,15 @@ package uk.gov.pay.adminusers.fixtures;
 import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 public class StripeAgreementDbFixture {
 
     private final DatabaseTestHelper databaseTestHelper;
     private String ipAddress = "192.0.2.0";
     private int serviceId;
-    private LocalDateTime agreementTime = LocalDateTime.now();
+    private ZonedDateTime agreementTime = ZonedDateTime.now(ZoneId.of("UTC"));
 
     private StripeAgreementDbFixture(DatabaseTestHelper databaseTestHelper) {
         this.databaseTestHelper = databaseTestHelper;
@@ -36,7 +37,7 @@ public class StripeAgreementDbFixture {
         return this;
     }
 
-    public StripeAgreementDbFixture withAgreementTime(LocalDateTime agreementTime) {
+    public StripeAgreementDbFixture withAgreementTime(ZonedDateTime agreementTime) {
         this.agreementTime = agreementTime;
         return this;
     }

@@ -8,6 +8,7 @@ import org.junit.Test;
 import uk.gov.pay.adminusers.fixtures.StripeAgreementDbFixture;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
+import uk.gov.pay.adminusers.utils.DateTimeUtils;
 
 import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
@@ -106,7 +107,7 @@ public class ServiceResourceStripeAgreementTest extends IntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("ip_address", is(stripeAgreement.getIpAddress()))
-                .body("agreement_time", is(stripeAgreement.getAgreementTime().toString()));
+                .body("agreement_time", is(DateTimeUtils.toUTCDateString(stripeAgreement.getAgreementTime())));
     }
 
     @Test
