@@ -15,7 +15,6 @@ import io.dropwizard.setup.Environment;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.AdminUsersModule;
 import uk.gov.pay.adminusers.app.config.PersistenceServiceInitialiser;
-import uk.gov.pay.adminusers.app.filters.LoggingFilter;
 import uk.gov.pay.adminusers.app.healthchecks.DatabaseHealthCheck;
 import uk.gov.pay.adminusers.app.healthchecks.DependentResourceWaitCommand;
 import uk.gov.pay.adminusers.app.healthchecks.MigrateToInitialDbState;
@@ -33,6 +32,7 @@ import uk.gov.pay.adminusers.resources.InviteResource;
 import uk.gov.pay.adminusers.resources.ResetPasswordResource;
 import uk.gov.pay.adminusers.resources.ServiceResource;
 import uk.gov.pay.adminusers.resources.UserResource;
+import uk.gov.pay.commons.utils.logging.LoggingFilter;
 import uk.gov.pay.commons.utils.xray.Xray;
 
 import javax.net.ssl.HttpsURLConnection;

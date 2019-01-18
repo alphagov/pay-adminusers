@@ -21,12 +21,7 @@ public class DependentResourceWaitCommand extends ConfiguredCommand<AdminUsersCo
 
     @Override
     protected void run(Bootstrap<AdminUsersConfig> bs, Namespace ns, AdminUsersConfig conf) {
-        new ApplicationStartupDependentResourceChecker(new DatabaseStartupResource(conf.getDataSourceFactory()), duration -> {
-            try {
-                Thread.sleep(duration.getNano() / 1000);
-            } catch (InterruptedException ignored) {
-            }
-        })
+        new ApplicationStartupDependentResourceChecker(new DatabaseStartupResource(conf.getDataSourceFactory()))
                 .checkAndWaitForResource();
     }
 }
