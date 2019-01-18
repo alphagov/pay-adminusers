@@ -2,6 +2,8 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
 import org.slf4j.Logger;
+import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
+import uk.gov.pay.adminusers.exception.StripeAgreementAlreadyExistsException;
 import uk.gov.pay.adminusers.logger.PayLoggerFactory;
 import uk.gov.pay.adminusers.model.StripeAgreement;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -39,11 +41,10 @@ public class StripeAgreementService {
     
     public void doCreate(String serviceExternalId, InetAddress ipAddress) {
         ServiceEntity serviceEntity = serviceDao.findByExternalId(serviceExternalId)
-                .orElseThrow( () -> new WebApplicationException(Response.Status.NOT_FOUND));
+                .orElseThrow( () -> new ServiceNotFoundException(serviceExternalId));
         
         if (stripeAgreementDao.findByServiceExternalId(serviceExternalId).isPresent()) {
-            throw new WebApplicationException("Stripe agreement information is already stored for this service",
-                    Response.Status.CONFLICT);
+            throw new StripeAgreementAlreadyExistsException();
         }
 
         logger.info(format("Creating stripe agreement for service %s", serviceExternalId));

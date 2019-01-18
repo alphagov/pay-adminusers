@@ -21,7 +21,8 @@ import uk.gov.pay.adminusers.app.healthchecks.DependentResourceWaitCommand;
 import uk.gov.pay.adminusers.app.healthchecks.MigrateToInitialDbState;
 import uk.gov.pay.adminusers.app.healthchecks.Ping;
 import uk.gov.pay.adminusers.app.util.TrustingSSLSocketFactory;
-import uk.gov.pay.adminusers.exception.ServiceNotFoundExceptionMapper;
+import uk.gov.pay.adminusers.exception.ConflictExceptionMapper;
+import uk.gov.pay.adminusers.exception.NotFoundExceptionMapper;
 import uk.gov.pay.adminusers.exception.ValidationExceptionMapper;
 import uk.gov.pay.adminusers.resources.EmailResource;
 import uk.gov.pay.adminusers.resources.ForgottenPasswordResource;
@@ -88,7 +89,8 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
 
         // Register the custom ExceptionMapper(s)
         environment.jersey().register(new ValidationExceptionMapper());
-        environment.jersey().register(new ServiceNotFoundExceptionMapper());
+        environment.jersey().register(new NotFoundExceptionMapper());
+        environment.jersey().register(new ConflictExceptionMapper());
         environment.jersey().register(new InvalidEmailRequestExceptionMapper());
         environment.jersey().register(new InvalidMerchantDetailsExceptionMapper());
 
