@@ -2,7 +2,7 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.StripeAgreement;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.StripeAgreementDao;
@@ -20,7 +20,7 @@ import static java.lang.String.format;
 
 public class StripeAgreementService {
 
-    private static Logger logger = PayLoggerFactory.getLogger(StripeAgreementService.class);
+    private static Logger logger = LoggerFactory.getLogger(StripeAgreementService.class);
 
     private final StripeAgreementDao stripeAgreementDao;
     private ServiceDao serviceDao;

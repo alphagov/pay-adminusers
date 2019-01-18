@@ -3,7 +3,7 @@ package uk.gov.pay.adminusers.service;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
@@ -19,7 +19,7 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class ForgottenPasswordServices {
 
-    private static final Logger logger = PayLoggerFactory.getLogger(ForgottenPasswordServices.class);
+    private static final Logger logger = LoggerFactory.getLogger(ForgottenPasswordServices.class);
     private static final String SELFSERVICE_FORGOTTEN_PASSWORD_PATH = "reset-password";
 
     private final UserDao userDao;

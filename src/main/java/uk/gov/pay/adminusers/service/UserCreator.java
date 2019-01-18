@@ -3,7 +3,7 @@ package uk.gov.pay.adminusers.service;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
@@ -22,7 +22,7 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.undefinedRoleEx
 
 public class UserCreator {
 
-    private static final Logger logger = PayLoggerFactory.getLogger(UserCreator.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserCreator.class);
 
     private final UserDao userDao;
     private final RoleDao roleDao;

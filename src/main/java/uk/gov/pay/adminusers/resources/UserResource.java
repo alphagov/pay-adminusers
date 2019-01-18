@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import io.dropwizard.jersey.PATCH;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
@@ -42,7 +42,7 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerE
 @Path("/")
 public class UserResource {
 
-    private static final Logger logger = PayLoggerFactory.getLogger(UserResource.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserResource.class);
 
     public static final String API_VERSION_PATH = "/v1";
     public static final String USERS_RESOURCE = API_VERSION_PATH + "/api/users";

@@ -3,7 +3,7 @@ package uk.gov.pay.adminusers.service;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteServiceRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
@@ -26,7 +26,7 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerE
 
 public class ServiceInviteCreator {
 
-    private static final Logger LOGGER = PayLoggerFactory.getLogger(ServiceInviteCreator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceInviteCreator.class);
     private final InviteDao inviteDao;
     private final UserDao userDao;
     private final RoleDao roleDao;
