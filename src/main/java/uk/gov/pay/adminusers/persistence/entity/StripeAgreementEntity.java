@@ -8,6 +8,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.net.InetAddress;
@@ -23,9 +27,10 @@ public class StripeAgreementEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "stripe_agreements_id_seq_gen")
     private int id;
-
-    @Column(name = "service_id")
-    private int serviceId;
+    
+    @OneToOne
+    @JoinColumn(name = "service_id", referencedColumnName = "id")
+    private ServiceEntity service;
 
     @Column(name = "ip_address")
     private String ipAddress;
@@ -38,23 +43,15 @@ public class StripeAgreementEntity {
         // for jpa
     }
 
-    public StripeAgreementEntity(int serviceId, String ipAddress, ZonedDateTime agreementTime) {
-        this.serviceId = serviceId;
+    public StripeAgreementEntity(ServiceEntity service, String ipAddress, ZonedDateTime agreementTime) {
+        this.service = service;
         this.ipAddress = ipAddress;
         this.agreementTime = agreementTime;
     }
     
-    public static StripeAgreementEntity from(StripeAgreement stripeAgreement) {
-        return new StripeAgreementEntity(
-                stripeAgreement.getServiceId(),
-                stripeAgreement.getIpAddress().getHostAddress(),
-                stripeAgreement.getAgreementTime()
-        );
-    }
-    
     public StripeAgreement toStripeAgreement() {
         try {
-            return new StripeAgreement(serviceId, InetAddress.getByName(ipAddress), agreementTime);
+            return new StripeAgreement(InetAddress.getByName(ipAddress), agreementTime);
         } catch (UnknownHostException e) {
             // Ip addresses are validated before storing them in the table so its very unlikely this will happen.
             throw new RuntimeException(String.format("%s is not a valid InetAddress.", ipAddress));
@@ -65,8 +62,8 @@ public class StripeAgreementEntity {
         return id;
     }
 
-    public int getServiceId() {
-        return serviceId;
+    public ServiceEntity getService() {
+        return service;
     }
 
     public String getIpAddress() {

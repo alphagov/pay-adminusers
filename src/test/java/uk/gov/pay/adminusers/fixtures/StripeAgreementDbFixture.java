@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.fixtures;
 
-import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.time.ZoneId;
@@ -21,10 +20,8 @@ public class StripeAgreementDbFixture {
         return new StripeAgreementDbFixture(databaseTestHelper);
     }
 
-    public StripeAgreementEntity insert() {
-        StripeAgreementEntity stripeAgreementEntity = new StripeAgreementEntity(serviceId, ipAddress, agreementTime);
-        databaseTestHelper.insertStripeAgreementEntity(stripeAgreementEntity);
-        return stripeAgreementEntity;
+    public void insert() {
+        databaseTestHelper.insertStripeAgreementEntity(serviceId, agreementTime, ipAddress);
     }
 
     public StripeAgreementDbFixture withIpAddress(String ipAddress) {

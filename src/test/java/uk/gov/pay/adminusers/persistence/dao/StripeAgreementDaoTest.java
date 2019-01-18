@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.persistence.dao;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
 
 import javax.persistence.RollbackException;
@@ -13,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -27,26 +27,30 @@ import static uk.gov.pay.adminusers.fixtures.StripeAgreementDbFixture.stripeAgre
 public class StripeAgreementDaoTest extends DaoTestBase {
 
     private StripeAgreementDao stripeAgreementDao;
+    private ServiceDao serviceDao;
 
     @Before
     public void before() {
         stripeAgreementDao = env.getInstance(StripeAgreementDao.class);
+        serviceDao = env.getInstance(ServiceDao.class);
     }
 
     @Test
     public void shouldPersistStripeAgreementEntity() {
-        int serviceId = serviceDbFixture(databaseHelper)
+        Service service = serviceDbFixture(databaseHelper)
                 .withGatewayAccountIds(randomInt().toString())
-                .insertService()
-                .getId();
+                .insertService();
+        
+        Optional<ServiceEntity> serviceEntity = serviceDao.findByExternalId(service.getExternalId());
+        assertThat(serviceEntity.isPresent(), is(true));
 
-        StripeAgreementEntity stripeAgreementEntity = new StripeAgreementEntity(serviceId, "192.0.2.0", ZonedDateTime.now(ZoneId.of("UTC")));
+        StripeAgreementEntity stripeAgreementEntity = new StripeAgreementEntity(serviceEntity.get(), "192.0.2.0", ZonedDateTime.now(ZoneId.of("UTC")));
         stripeAgreementDao.persist(stripeAgreementEntity);
 
         assertThat(stripeAgreementEntity.getId(), is(notNullValue()));
         List<Map<String, Object>> searchResults = databaseHelper.findStripeAgreementById(stripeAgreementEntity.getId());
         assertThat(searchResults.size(), is(1));
-        assertThat(searchResults.get(0).get("service_id"), is(stripeAgreementEntity.getServiceId()));
+        assertThat(searchResults.get(0).get("service_id"), is(stripeAgreementEntity.getService().getId()));
         assertThat(searchResults.get(0).get("ip_address"), is(stripeAgreementEntity.getIpAddress()));
         assertThat(searchResults.get(0).get("id"), is(stripeAgreementEntity.getId()));
         assertThat(searchResults.get(0).get("agreement_time"), is(Timestamp.from(stripeAgreementEntity.getAgreementTime().toInstant())));
@@ -54,20 +58,22 @@ public class StripeAgreementDaoTest extends DaoTestBase {
 
     @Test
     public void shouldNotPersistStripeAgreementEntityWhenOneAlreadyExistsForService() {
-        int serviceId = serviceDbFixture(databaseHelper)
+        Service service = serviceDbFixture(databaseHelper)
                 .withGatewayAccountIds(randomInt().toString())
-                .insertService()
-                .getId();
+                .insertService();
 
-        StripeAgreementEntity stripeAgreementEntity = new StripeAgreementEntity(serviceId, "192.0.2.0", ZonedDateTime.now(ZoneId.of("UTC")));
+        Optional<ServiceEntity> serviceEntity = serviceDao.findByExternalId(service.getExternalId());
+        assertThat(serviceEntity.isPresent(), is(true));
+
+        StripeAgreementEntity stripeAgreementEntity = new StripeAgreementEntity(serviceEntity.get(), "192.0.2.0", ZonedDateTime.now(ZoneId.of("UTC")));
         stripeAgreementDao.persist(stripeAgreementEntity);
 
-        StripeAgreementEntity anotherStripeAgreementEntity = new StripeAgreementEntity(serviceId, "192.0.2.1", ZonedDateTime.now(ZoneId.of("UTC")));
+        StripeAgreementEntity anotherStripeAgreementEntity = new StripeAgreementEntity(serviceEntity.get(), "192.0.2.1", ZonedDateTime.now(ZoneId.of("UTC")));
         try {
             stripeAgreementDao.persist(anotherStripeAgreementEntity);
             fail();
         } catch (RollbackException e) {
-            assertTrue(e.getMessage().contains("Key (service_id)=(" + serviceId + ") already exists."));
+            assertTrue(e.getMessage().contains("Key (service_id)=(" + serviceEntity.get().getId() + ") already exists."));
         }
     }
 
@@ -76,27 +82,32 @@ public class StripeAgreementDaoTest extends DaoTestBase {
         Service service = serviceDbFixture(databaseHelper)
                 .insertService();
 
-        StripeAgreementEntity stripeAgreementEntity = stripeAgreementDbFixture(databaseHelper)
+        ZonedDateTime agreementTime = ZonedDateTime.now(ZoneId.of("UTC"));
+        String ipAddress = "192.0.2.0";
+        
+        stripeAgreementDbFixture(databaseHelper)
+                .withAgreementTime(agreementTime)
+                .withIpAddress(ipAddress)
                 .withServiceId(service.getId())
                 .insert();
 
-        Optional<StripeAgreementEntity> maybeStripeAgreementEntity = stripeAgreementDao.findByServiceId(stripeAgreementEntity.getServiceId());
+        Optional<StripeAgreementEntity> maybeStripeAgreementEntity = stripeAgreementDao.findByServiceExternalId(service.getExternalId());
         assertTrue(maybeStripeAgreementEntity.isPresent());
-        assertThat(maybeStripeAgreementEntity.get().getIpAddress(), is(stripeAgreementEntity.getIpAddress()));
-        assertThat(maybeStripeAgreementEntity.get().getServiceId(), is(stripeAgreementEntity.getServiceId()));
-        assertThat(maybeStripeAgreementEntity.get().getAgreementTime(), is(stripeAgreementEntity.getAgreementTime()));
+        assertThat(maybeStripeAgreementEntity.get().getIpAddress(), is(ipAddress));
+        assertThat(maybeStripeAgreementEntity.get().getService().getId(), is(service.getId()));
+        assertThat(maybeStripeAgreementEntity.get().getAgreementTime(), is(agreementTime));
     }
 
     @Test
     public void shouldNotFindStripeAgreementEntityWhenNoneExistForServiceId() {
         Service service = serviceDbFixture(databaseHelper)
                 .insertService();
-
+        
         stripeAgreementDbFixture(databaseHelper)
                 .withServiceId(service.getId())
                 .insert();
 
-        Optional<StripeAgreementEntity> maybeStripeAgreementEntity = stripeAgreementDao.findByServiceId(nextInt());
+        Optional<StripeAgreementEntity> maybeStripeAgreementEntity = stripeAgreementDao.findByServiceExternalId("123");
         assertFalse(maybeStripeAgreementEntity.isPresent());
     }
 }
