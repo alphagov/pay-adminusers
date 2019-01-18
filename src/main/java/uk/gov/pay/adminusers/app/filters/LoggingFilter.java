@@ -4,7 +4,7 @@ import com.google.common.base.Stopwatch;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -14,12 +14,8 @@ import static java.lang.String.format;
 
 public class LoggingFilter implements Filter {
 
-    public static final String HEADER_REQUEST_ID = "X-Request-Id";
-    private static final Logger logger = PayLoggerFactory.getLogger(LoggingFilter.class);
-
-    public static String currentRequestId() {
-        return MDC.get(HEADER_REQUEST_ID);
-    }
+    private static final String HEADER_REQUEST_ID = "X-Request-Id";
+    private static final Logger logger = LoggerFactory.getLogger(LoggingFilter.class);
 
     @Override
     public void init(FilterConfig filterConfig) {

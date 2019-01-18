@@ -3,7 +3,7 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.service.EmailService;
 
 import javax.ws.rs.Consumes;
@@ -17,7 +17,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 @Path("/")
 public class EmailResource {
 
-    private static final Logger logger = PayLoggerFactory.getLogger(EmailResource.class);
+    private static final Logger logger = LoggerFactory.getLogger(EmailResource.class);
 
     private final EmailService notificationService;
     private final EmailRequestParser emailRequestParser;

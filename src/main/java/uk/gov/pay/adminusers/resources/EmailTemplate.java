@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 
 public enum EmailTemplate {
     ON_DEMAND_MANDATE_CREATED,
@@ -12,7 +12,7 @@ public enum EmailTemplate {
     ON_DEMAND_PAYMENT_CONFIRMED,
     PAYMENT_FAILED;
 
-    private static final Logger LOGGER = PayLoggerFactory.getLogger(EmailTemplate.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmailTemplate.class);
 
     public static EmailTemplate fromString(String type) {
         for (EmailTemplate typeEnum : values()) {

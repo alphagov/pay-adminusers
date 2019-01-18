@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 public class EmailRequestParser {
 
-    private static final Logger LOGGER = PayLoggerFactory.getLogger(EmailRequestParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmailRequestParser.class);
 
     private ObjectMapper mapper;
 

@@ -2,7 +2,7 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.GovUkPayAgreement;
 import uk.gov.pay.adminusers.persistence.dao.GovUkPayAgreementDao;
 import uk.gov.pay.adminusers.persistence.entity.GovUkPayAgreementEntity;
@@ -15,7 +15,7 @@ import static java.lang.String.format;
 
 public class GovUkPayAgreementService {
 
-    private final static Logger LOGGER = PayLoggerFactory.getLogger(GovUkPayAgreementService.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(GovUkPayAgreementService.class);
     private final GovUkPayAgreementDao agreementDao;
     
     @Inject
