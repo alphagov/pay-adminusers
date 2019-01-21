@@ -130,6 +130,12 @@ public class NotificationService {
         return sendEmailAsync(CARD, inviteExistingUserEmailTemplateId, email, personalisation);
     }
 
+    CompletableFuture<String> sendLiveAccountCreatedEmail(String email, String serviceLiveAccountLink) {
+        HashMap<String, String> personalisation = newHashMap();
+        personalisation.put("service_live_account_link", serviceLiveAccountLink);
+        return sendEmailAsync(CARD, notifyConfiguration.getLiveAccountCreatedEmailTemplateId(), email, personalisation);
+    }
+
     public CompletableFuture<String> sendEmailAsync(PaymentType paymentType, final String templateId, final String email, final Map<String, String> personalisation) {
         return CompletableFuture.supplyAsync(() -> {
             Stopwatch responseTimeStopwatch = Stopwatch.createStarted();

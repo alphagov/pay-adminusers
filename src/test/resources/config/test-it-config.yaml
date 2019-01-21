@@ -66,6 +66,7 @@ notify:
   inviteServiceEmailTemplateId: ${NOTIFY_INVITE_SERVICE_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-email-template-id}
   inviteServiceUserExistsEmailTemplateId: ${NOTIFY_INVITE_SERVICE_USER_EXITS_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-user-exists-email-template-id}
   inviteServiceUserDisabledEmailTemplateId: ${NOTIFY_INVITE_SERVICE_USER_DISABLED_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-user-disabled-email-template-id}
+  liveAccountCreatedEmailTemplateId: ${NOTIFY_LIVE_ACCOUNT_CREATED_EMAIL_TEMPLATE_ID:-pay-notify-live-account-created-email-template-id}
 
 notifyDirectDebit:
   mandateCancelledEmailTemplateId: ${NOTIFY_MANDATE_CANCELLED_EMAIL_TEMPLATE_ID:-pay-mandate-cancelled-email-template-id}
@@ -86,6 +87,7 @@ links:
   selfserviceLoginUrl: ${SELFSERVICE_LOGIN_URL:-https://selfservice.pymnt.localdomain/login}
   selfserviceForgottenPasswordUrl: ${SELFSERVICE_FORGOTTEN_PASSWORD_URL:-https://selfservice.pymnt.localdomain/reset-password}
   supportUrl: ${SUPPORT_URL:-https://frontend.pymnt.localdomain/contact/}
+  selfserviceServicesUrl: ${SELFSERVICE_SERVICES_URL:-https://selfservice.pymnt.localdomain/services}
 
 baseUrl: ${BASE_URL:-http://localhost:8080}
 loginAttemptCap: ${LOGIN_ATTEMPT_CAP:-10}
