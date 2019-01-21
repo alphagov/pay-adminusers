@@ -1,39 +1,29 @@
 package uk.gov.pay.adminusers.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class GovUkPayAgreement {
 
-    public static final String FIELD_EMAIL = "email";
-    @JsonIgnore
-    private int serviceId;
-
-    @JsonProperty(FIELD_EMAIL)
     private String email;
 
-    @JsonProperty("agreement_time")
-    private LocalDateTime agreementTime;
+    private ZonedDateTime agreementTime;
     
-    public GovUkPayAgreement(Integer serviceId, String email, LocalDateTime agreementTime) {
-        this.serviceId = serviceId;
+    public GovUkPayAgreement(String email, ZonedDateTime agreementTime) {
         this.email = email;
         this.agreementTime = agreementTime;
     }
-
-    public int getServiceId() {
-        return serviceId;
-    }
-
+    
     public String getEmail() {
         return email;
     }
 
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    public LocalDateTime getAgreementTime() {
+    @JsonSerialize(using = ZonedDateTimeSerializer.class)
+    public ZonedDateTime getAgreementTime() {
         return agreementTime;
     }
 }
