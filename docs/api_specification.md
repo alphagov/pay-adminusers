@@ -1096,6 +1096,54 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
+## POST /v1/api/services/`{serviceExternalId}`/stripe-agreement
+
+This endpoint records that a Stripe terms have been accepted for the service.
+
+### Request example
+```
+POST v1/api/services/7d19aff33f8948deb97ed16b2912dcd3/stripe-agreement
+Content-Type: application/json
+{
+    "ip_address": "192.0.0.0"
+}
+```
+
+### Request body description
+
+| Field                    | required | Description                                                    | Supported Values     |
+| ------------------------ |:--------:| -------------------------------------------------------------- |----------------------|
+| `ip_address`             |   X      | the IP address the acceptance of terms request originated from |                      |
+
+### Response Example
+
+```
+200 OK
+```
+
+-----------------------------------------------------------------------------------------------------------
+
+### GET /v1/api/services/`{serviceExternalId}`/stripe-agreement
+
+This endpoint retrieves the IP address and timestamp that the Stripe terms were accepted on for the service.
+
+### Request example
+```
+GET v1/api/services/7d19aff33f8948deb97ed16b2912dcd3/stripe-agreement
+```
+
+### Response example
+```
+200 OK
+Content-Type: application/json
+{
+    "ip_address": "192.0.0.0",
+    "agreement_time": "2019-01-21T10:31:28.968Z"
+}
+```
+
+-----------------------------------------------------------------------------------------------------------
+
 ## POST /v1/api/invites/`{code}`/complete
 
 This endpoint completes the invite by creating user/service and invalidating itself.

@@ -31,6 +31,8 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 | [```/v1/api/services/{externalId}/users```](/docs/api_specification.md#get-v1apiservicesserviceexternalidusers)               | GET     |  returns the users for a service with the given external id     |
 | [```/v1/api/services/{externalId}```](/docs/api_specification.md#patch-v1apiservicesserviceexternalid)               | PATCH   |  Updates the value of a service attribute     |
 | [```/v1/api/services?gatewayAccountId={gateway_account_id}```](/docs/api_specification.md#get-v1apiservicesgatewayaccountidgatewayaccountid)    | GET   |  Find the service with the given gateway account id associated with  |
+| [```/v1/api/services/{externalId}/stripe-agreement```](/docs/api_specification.md#post-v1apiservicesserviceexternalidstripe-agreement)  | POST | Record acceptance of Stripe terms |
+| [```/v1/api/services/{externalId}/stripe-agreement```](/docs/api_specification.md#get-v1apiservicesserviceexternalidstripe-agreement)  | GET | Get details about the acceptance of Stripe terms |
 | [```/v1/api/invites/{code}/complete```](/docs/api_specification.md#post-v1apiinvitescodecomplete)               | POST   |  Completes an invitation by creating user/service     |
 | [```/v1/api/invites/{code}/otp/generate```](/docs/api_specification.md#post-v1apiinvitescodeotpgenerate)               | POST   |  Generates and sends otp verification code to the phone number registered in the invite     |
 ****
