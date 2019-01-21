@@ -15,9 +15,12 @@ import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.adminusers.service.GovUkPayAgreementService;
 import uk.gov.pay.adminusers.service.LinksBuilder;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 import uk.gov.pay.adminusers.service.StripeAgreementService;
+import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
 import javax.validation.Valid;
@@ -36,6 +39,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -70,6 +75,8 @@ public class ServiceResource {
     private final ServiceRequestValidator serviceRequestValidator;
     private final ServiceServicesFactory serviceServicesFactory;
     private final StripeAgreementService stripeAgreementService;
+    private final GovUkPayAgreementRequestValidator govUkPayAgreementRequestValidator;
+    private final GovUkPayAgreementService govUkPayAgreementService;
 
     @Inject
     public ServiceResource(UserDao userDao,
@@ -77,7 +84,9 @@ public class ServiceResource {
                            LinksBuilder linksBuilder,
                            ServiceRequestValidator serviceRequestValidator,
                            ServiceServicesFactory serviceServicesFactory,
-                           StripeAgreementService stripeAgreementService
+                           StripeAgreementService stripeAgreementService,
+                           GovUkPayAgreementRequestValidator govUkPayAgreementRequestValidator,
+                           GovUkPayAgreementService govUkPayAgreementService
     ) {
         this.userDao = userDao;
         this.serviceDao = serviceDao;
@@ -85,6 +94,8 @@ public class ServiceResource {
         this.serviceRequestValidator = serviceRequestValidator;
         this.serviceServicesFactory = serviceServicesFactory;
         this.stripeAgreementService = stripeAgreementService;
+        this.govUkPayAgreementRequestValidator = govUkPayAgreementRequestValidator;
+        this.govUkPayAgreementService = govUkPayAgreementService;
     }
 
     @GET
@@ -163,10 +174,10 @@ public class ServiceResource {
         LOGGER.info("Service PATCH request - [ {} ]", serviceExternalId);
         return serviceRequestValidator.validateUpdateAttributeRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> processPayload(serviceExternalId, payload));
+                .orElseGet(() -> processUpdateServiceAttributePayload(serviceExternalId, payload));
     }
 
-    private Response processPayload(String serviceExternalId, JsonNode payload) {
+    private Response processUpdateServiceAttributePayload(String serviceExternalId, JsonNode payload) {
 
         final List<ServiceUpdateRequest> requests = ServiceUpdateRequest.getUpdateRequests(payload);
         return serviceServicesFactory.serviceUpdater().doUpdate(serviceExternalId, requests)
@@ -245,6 +256,40 @@ public class ServiceResource {
 
         return stripeAgreementService.findStripeAgreementByServiceId(serviceExternalId)
                 .orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));
+    }
+    
+    @Path("/{serviceExternalId}/govuk-pay-agreement")
+    @POST
+    @Consumes(APPLICATION_JSON)
+    public Response createGovUkPayAgreement(@PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
+        return govUkPayAgreementRequestValidator.validateCreateRequest(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> createGovUkPayAgreementFromPayload(serviceExternalId, payload));
+    }
+
+    @Path("/{serviceExternalId}/govuk-pay-agreement")
+    @GET
+    @Produces(APPLICATION_JSON)
+    public Response getGovUkPayAgreement(@PathParam("serviceExternalId") String serviceExternalId) {
+        return govUkPayAgreementService.findGovUkPayAgreementByServiceId(serviceExternalId)
+                .map(agreement -> Response.status(OK).entity(agreement).build())
+                .orElse(Response.status(NOT_FOUND).build());
+    }
+    
+    private Response createGovUkPayAgreementFromPayload(String serviceExternalId, JsonNode payload) {
+        if (govUkPayAgreementService.findGovUkPayAgreementByServiceId(serviceExternalId).isPresent()) {
+            return Response.status(CONFLICT)
+                    .entity(Errors.from("GOV.UK Pay agreement information is already stored for this service"))
+                    .build();
+        }
+        
+        ServiceEntity serviceEntity = serviceDao.findByExternalId(serviceExternalId)
+                .orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));
+        UserEntity userEntity = userDao.findByExternalId(payload.get("user_external_id").asText())
+                .orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));
+        govUkPayAgreementService.doCreate(serviceEntity, userEntity.getEmail(), ZonedDateTime.now(ZoneOffset.UTC));
+        
+        return Response.status(OK).build();
     }
 
     private Map<SupportedLanguage, String> getServiceNameVariants(JsonNode payload) {
