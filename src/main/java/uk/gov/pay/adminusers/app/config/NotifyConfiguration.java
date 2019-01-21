@@ -46,6 +46,10 @@ public class NotifyConfiguration extends Configuration {
     @Valid
     @NotNull
     private String inviteServiceUserDisabledEmailTemplateId;
+    
+    @Valid
+    @NotNull
+    private String liveAccountCreatedEmailTemplateId;
 
     public String getCardApiKey() {
         return cardApiKey;
@@ -87,4 +91,7 @@ public class NotifyConfiguration extends Configuration {
         return inviteUserExistingEmailTemplateId;
     }
 
+    public String getLiveAccountCreatedEmailTemplateId() {
+        return liveAccountCreatedEmailTemplateId;
+    }
 }

@@ -9,6 +9,7 @@ public class LinksConfig extends Configuration {
     private String selfserviceLoginUrl;
     private String selfserviceForgottenPasswordUrl;
     private String supportUrl;
+    private String selfserviceServicesUrl;
 
     public String getSelfserviceUrl() {
         return selfserviceUrl;
@@ -28,5 +29,9 @@ public class LinksConfig extends Configuration {
 
     public String getSupportUrl() {
         return supportUrl;
+    }
+    
+    public String getSelfserviceServicesUrl() {
+        return selfserviceServicesUrl;
     }
 }
