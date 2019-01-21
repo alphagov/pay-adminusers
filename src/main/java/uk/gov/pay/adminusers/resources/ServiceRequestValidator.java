@@ -20,6 +20,8 @@ public class ServiceRequestValidator {
     static final String FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE = "address_postcode";
     static final String FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY = "address_country";
     static final String FIELD_MERCHANT_DETAILS_EMAIL = "email";
+
+    private static final int FIELD_MERCHANT_DETAILS_NAME_MAX_LENGTH = 255;
     private static final int FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH = 255;
 
     private final RequestValidations requestValidations;
@@ -34,7 +36,7 @@ public class ServiceRequestValidator {
     Optional<Errors> validateUpdateAttributeRequest(JsonNode payload) {
         List<String> errors = new ArrayList<>();
         if (!payload.isArray()) {
-            errors  = serviceUpdateOperationValidator.validate(payload);
+            errors = serviceUpdateOperationValidator.validate(payload);
         } else {
             for (JsonNode updateOperation : payload) {
                 errors.addAll(serviceUpdateOperationValidator.validate(updateOperation));
@@ -47,12 +49,17 @@ public class ServiceRequestValidator {
     }
 
     void validateUpdateMerchantDetailsRequest(JsonNode payload) throws ValidationException {
-        Optional<List<String>> errors = requestValidations.checkExistsAndNotEmpty(payload,
+        Optional<List<String>> missingMandatoryFieldErrors = requestValidations.checkExistsAndNotEmpty(payload,
                 FIELD_MERCHANT_DETAILS_NAME, FIELD_MERCHANT_DETAILS_ADDRESS_LINE1,
                 FIELD_MERCHANT_DETAILS_ADDRESS_CITY, FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE,
                 FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY);
-        if (errors.isPresent()) {
-            throw new ValidationException(Errors.from(errors.get()));
+        if (missingMandatoryFieldErrors.isPresent()) {
+            throw new ValidationException(Errors.from(missingMandatoryFieldErrors.get()));
+        }
+
+        Optional<List<String>> invalidLengthFieldErrors = requestValidations.checkMaxLength(payload, FIELD_MERCHANT_DETAILS_NAME_MAX_LENGTH, FIELD_MERCHANT_DETAILS_NAME);
+        if (invalidLengthFieldErrors.isPresent()) {
+            throw new ValidationException(Errors.from(invalidLengthFieldErrors.get()));
         }
 
         if (payload.has(FIELD_MERCHANT_DETAILS_EMAIL)) {
