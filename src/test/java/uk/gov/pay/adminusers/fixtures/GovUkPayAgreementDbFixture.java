@@ -1,16 +1,19 @@
 package uk.gov.pay.adminusers.fixtures;
 
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.GovUkPayAgreementEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 public class GovUkPayAgreementDbFixture {
 
     private final DatabaseTestHelper databaseTestHelper;
     private String email = "someone@exmaple.org";
-    private Integer serviceId;
-    private LocalDateTime agreementTime = LocalDateTime.now();
+    private ZonedDateTime agreementTime = ZonedDateTime.now(ZoneOffset.UTC);
+    private ServiceEntity serviceEntity;
     
     private GovUkPayAgreementDbFixture(DatabaseTestHelper databaseTestHelper) {
         this.databaseTestHelper = databaseTestHelper;
@@ -21,14 +24,18 @@ public class GovUkPayAgreementDbFixture {
     }
     
     public GovUkPayAgreementEntity insert() {
-        GovUkPayAgreementEntity entity = new GovUkPayAgreementEntity(serviceId, email, agreementTime);
+        if (serviceEntity == null) {
+            serviceEntity = ServiceEntity.from(ServiceDbFixture.serviceDbFixture(databaseTestHelper).insertService());
+        }
+        GovUkPayAgreementEntity entity = new GovUkPayAgreementEntity(email, agreementTime);
+        entity.setService(serviceEntity);
         databaseTestHelper.insertGovUkPayAgreementEntity(entity);
         
         return entity;
     }
     
-    public GovUkPayAgreementDbFixture withServiceId(Integer serviceId) {
-        this.serviceId = serviceId;
+    public GovUkPayAgreementDbFixture withServiceEntity(ServiceEntity serviceEntity) {
+        this.serviceEntity = serviceEntity;
         return this;
     }
     
@@ -37,7 +44,7 @@ public class GovUkPayAgreementDbFixture {
         return this;
     }
     
-    public GovUkPayAgreementDbFixture withAgreementTime(LocalDateTime agreementTime) {
+    public GovUkPayAgreementDbFixture withAgreementTime(ZonedDateTime agreementTime) {
         this.agreementTime = agreementTime;
         return this;
     }
