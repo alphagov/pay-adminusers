@@ -1,7 +1,85 @@
-#API Specification
+# API Specification
 These are the endpoints and methods available for managing users on GOV.UK Pay.
 
-## POST /v1/api/users
+### The user object
+
+| Field                            | always present | Description                                                        |
+|----------------------------------|:--------------:|--------------------------------------------------------------------|
+| `external_id`                    | X              | External id for the user                                           |
+| `username`                       | X              | Username for the user                                              |
+| `email`                          | X              | email address                                                      |
+| `telephone_number`               | X              | user's mobile/phone number                                         |
+| `otp_key`                        | X              | top key for this user                                              |
+| `service_roles`                  | X              | The service roles assigned to this user                            |
+| `service_roles[i].service`       | X              | The service that the user has a role assigned for                  |
+| `service_roles[i].role`          | X              | The role that the user has for the associated service              |
+| `features`                       | X              | the user's active feature flags                                    |
+| `second_factor`                  | X              | the second factor authentication method                            |
+| `provisional_otp_key`            | X              | an otp key that has been provisioned for use but not yet activated |
+| `provisional_otp_key_created_at` | X              | the timestamp that the provisional otp key was issued at           |
+| `last_logged_in_at`              | X              | the timestamp of the last login                                    |
+| `disabled`                       | X              | indicates whether the user is disabled                             |
+| `login_counter`                  | X              | the number of times the user has logged in                         |
+| `sessionVersion`                 | X              | the session version                                                |
+| `_links`                         | X              | Self link for this user.                                           |
+
+#### Example
+```
+{
+    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
+    "username": "abcd1234",
+    "email": "email@example.com",
+    "telephone_number": "447700900000",
+    "otp_key": "43c3c4t",
+    "service_roles": [
+            {
+                "service": {
+                    "id": 1,
+                    "external_id": "73ba1ec4ed6a4238a59f16ad97b4fa12",
+                    "name": "System Generated",
+                    "gateway_account_ids": [
+                        "1"
+                    ],
+                    "_links": [],
+                    "service_name": {
+                        "en": "System Generated"
+                    },
+                    "redirect_to_service_immediately_on_terminal_state": false,
+                    "collect_billing_address": true,
+                    "current_go_live_stage": "NOT_STARTED"
+                },
+                "role": {
+                    "name": "admin",
+                    "description": "Administrator",
+                    "permissions": [
+                        {
+                            "name": "users-service:read",
+                            "description": "Viewusersinservice"
+                        }
+                    ]
+                }
+            }
+        ]
+    "features": null,
+    "second_factor": "SMS",
+    "provisional_otp_key": null,
+    "provisional_otp_key_created_at": null,
+    "last_logged_in_at": null,
+    "disabled": false,
+    "login_counter": 0,
+    "sessionVersion": 0,
+    "_links": [{
+        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
+        "rel" : "self",
+        "method" : "GET"
+    }]
+    
+}
+```
+
+-----------------------------------------------------------------------------------------------------------
+
+### POST /v1/api/users
 
 This endpoint creates a new account in this connector.
 
@@ -38,36 +116,10 @@ Content-Type: application/json
 201 OK
 Content-Type: application/json
 {
-    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
-    "username": "abcd1234",
-    "email": "email@example.com",
-    "gateway_account_ids": ["1"],
-    "telephone_number": "49875792",
-    "otp_key": "43c3c4t",
-    "role": {"admin","Administrator"},
-    "permissions":["perm-1","perm-2","perm-3"], 
-    "_links": [{
-        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
-        "rel" : "self",
-        "method" : "GET"
-    }]
-    
+  ..user object..
 }
 ```
-
-#### Response field description
-
-| Field                    | always present | Description                                   |
-| ------------------------ |:--------------:| --------------------------------------------- |
-| `external_id`     | X              | External id for the user       |
-| `username`     | X              | Username for the user       |
-| `gateway_account_ids`     | X              | The account Ids created by the connector       |
-| `email`                   | X              | email address     |
-| `telephone_number`            | X              | user's mobile/phone number |
-| `otp_key`           | X              | top key for this user      |
-| `role`           | X              | Role assigned to this user      |
-| `permissions`                  | X              | names of all the permissions granted by this role.     |
-| `_links`                  | X              | Self link for this user.     |
+See [The user object](#the-user-object)
 
 -----------------------------------------------------------------------------------------------------------
 
@@ -87,39 +139,10 @@ GET /v1/api/users/7d19aff33f8948deb97ed16b2912dcd3
 200 OK
 Content-Type: application/json
 {
-    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
-    "username": "abcd1234",
-    "email": "email@example.com",
-    "gateway_account_ids": ["1"],
-    "telephone_number": "447700900000",
-    "otp_key": "43c3c4t",
-    "role": {"admin","Administrator"},
-    "sessionVersion": 0,
-    "permissions":["perm-1","perm-2","perm-3"], 
-    "_links": [{
-        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
-        "rel" : "self",
-        "method" : "GET"
-    }]
-    
+    ..user object..
 }
 ```
-
-#### Response field description
-
-| Field                    | always present | Description                                   |
-| ------------------------ |:--------------:| --------------------------------------------- |
-| `external_id`     | X              | External id for the user       |
-| `username`     | X              | Username for the user       |
-| `gateway_account_ids`     | X              | The account Ids created by the connector       |
-| `email`                   | X              | email address     |
-| `telephone_number`            | X              | user's mobile/phone number |
-| `otp_key`           | X              | top key for this user      |
-| `role`           | X              | Role assigned to this user      |
-| `permissions`                  | X              | names of all the permissions granted by this role.     |
-| `_links`                  | X              | Self link for this user.     |
-
------------------------------------------------------------------------------------------------------------
+See [The user object](#the-user-object)
 
 ## GET /v1/api/users/?ids=`{externalId1}`,`{externalId2}`...
 
@@ -141,56 +164,13 @@ GET /v1/api/users?=ids=7d19aff33f8948deb97ed16b2912dcd3,4e89tlf59f9148deb79ed61b
 200 OK
 Content-Type: application/json
 [
-{
-    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
-    "username": "abcd1234",
-    "email": "email@example.com",
-    "gateway_account_ids": ["1"],
-    "telephone_number": "447700900000",
-    "otp_key": "43c3c4t",
-    "role": {"admin","Administrator"},
-    "sessionVersion": 0,
-    "permissions":["perm-1","perm-2","perm-3"], 
-    "_links": [{
-        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
-        "rel" : "self",
-        "method" : "GET"
-    }]
-    
-},
-{
-    "external_id": "4e89tlf59f9148deb79ed61b9212bhj7",
-    "username": "efgh5678",
-    "email": "email2@example.com",
-    "gateway_account_ids": ["1"],
-    "telephone_number": "447700900001",
-    "otp_key": "21d7g4t",
-    "role": {"admin","Administrator"},
-    "sessionVersion": 0,
-    "permissions":["perm-1","perm-2","perm-3"], 
-    "_links": [{
-        "href": "http://adminusers.service/v1/api/users/4e89tlf59f9148deb79ed61b9212bhj7",
-        "rel" : "self",
-        "method" : "GET"
-    }]
-    
-}
+    {
+        ..user object..
+    },
+    ...
 ]
 ```
-
-#### Response field description
-
-| Field                    | always present | Description                                   |
-| ------------------------ |:--------------:| --------------------------------------------- |
-| `[i].external_id`     | X              | External id for this user       |
-| `[i].username`     | X              | Username for this user       |
-| `[i].gateway_account_ids`     | X              | The account Ids created by the connector       |
-| `[i].email`                   | X              | email address     |
-| `[i].telephone_number`            | X              | user's mobile/phone number |
-| `[i].otp_key`           | X              | top key for this user      |
-| `[i].role`           | X              | Role assigned to this user      |
-| `[i].permissions`                  | X              | names of all the permissions granted by this role.     |
-| `[i]._links`                  | X              | Self link for this user.     |
+See [The user object](#the-user-object)
 
 -----------------------------------------------------------------------------------------------------------
 
@@ -217,23 +197,10 @@ Content-Type: application/json
 200 OK
 Content-Type: application/json
 {
-    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
-    "username": "abcd1234",
-    "email": "email@example.com",
-    "gateway_account_ids": ["1"],
-    "telephone_number": "447700900000",
-    "otp_key": "43c3c4t",
-    "sessionVersion": 2,
-    "role": {"admin","Administrator"},
-    "permissions":["perm-1","perm-2","perm-3"], 
-    "_links": [{
-        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
-        "rel" : "self",
-        "method" : "GET"
-    }]
-    
+  ..user object.
 }
 ```
+See [The user object](#the-user-object)
 
 #### Request field description
 
@@ -243,6 +210,7 @@ Content-Type: application/json
 | `op`                     |   X      | type of adjustment to be performed on attribute            | [append &#124; replace]   |
 | `value`                  |   X      | value to be used for performing the op                     |                      |
 
+-----------------------------------------------------------------------------------------------------------
 
 ## POST /v1/api/users/authenticate
 
@@ -277,22 +245,10 @@ if authorised:
 200 OK
 Content-Type: application/json
 {
-    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
-    "username": "abcd1234",
-    "email": "email@example.com",
-    "gateway_account_ids": ["1"],
-    "telephone_number": "447700900000",
-    "otp_key": "43c3c4t",
-    "role": {"admin","Administrator"},
-    "permissions":["perm-1","perm-2","perm-3"], 
-    "_links": [{
-        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
-        "rel" : "self",
-        "method" : "GET"
-    }]
-    
+    ..user object..
 }
 ```
+See [The user object](#the-user-object)
 
 if un-authorised:
 ```
@@ -411,23 +367,10 @@ Content-Type: application/json
 200 OK
 Content-Type: application/json
 {
-    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
-    "username": "abcd1234",
-    "email": "email@example.com",
-    "gateway_account_ids": ["1"],
-    "telephone_number": "447700900000",
-    "otp_key": "43c3c4t",
-    "sessionVersion": 2,
-    "role": {"view-and-refund","View and Refund"},
-    "permissions":["perm-1","perm-2","perm-3"], 
-    "_links": [{
-        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
-        "rel" : "self",
-        "method" : "GET"
-    }]
-    
+    ..user object.
 }
 ```
+See [The user object](#the-user-object)
 
 if user not found:
 ```
@@ -489,28 +432,10 @@ Content-Type: application/json
 200 OK
 Content-Type: application/json
 {
-    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
-    "username": "abcd1234",
-    "email": "email@example.com",
-    "gateway_account_ids": ["1"],
-    "telephone_number": "447700900000",
-    "otp_key": "43c3c4t",
-    "sessionVersion": 2,
-    "service_role":[{
-        service:{external_id: "ahq8745yq387",name:"service-name"},
-        role:{
-            name:"view-and-refund", 
-            permissions:[{name:"perm-1", description:"perm-description"}]
-        }  
-    }],
-    "_links": [{
-        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
-        "rel" : "self",
-        "method" : "GET"
-    }]
-    
+    ..user object..
 }
 ```
+See [The user object](#the-user-object)
 
 if user not found:
 ```
@@ -623,24 +548,10 @@ POST /v1/api/users/7d19aff33f8948deb97ed16b2912dcd3/second-factor/provision
 200 OK
 Content-Type: application/json
 {
-    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
-    "username": "abcd1234",
-    "email": "email@example.com",
-    "gateway_account_ids": ["1"],
-    "telephone_number": "447700900000",
-    "otp_key": "43c3c4t",
-    "sessionVersion": 2,
-    "role": {"admin","Administrator"},
-    "permissions":["perm-1","perm-2","perm-3"],
-    "provisional_otp_key": "5h8oe39",
-    "provisional_otp_key_created_at": "2018-04-03T17:52:03.123Z",
-    "_links": [{
-        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
-        "rel" : "self",
-        "method" : "GET"
-    }]
+    ..user object.
 }
 ```
+See [The user object](#the-user-object)
 
 ## POST /v1/api/users/`{externalId}`/second-factor/activate
 
@@ -672,23 +583,10 @@ Content-Type: application/json
 200 OK
 Content-Type: application/json
 {
-    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
-    "username": "abcd1234",
-    "email": "email@example.com",
-    "gateway_account_ids": ["1"],
-    "telephone_number": "447700900000",
-    "otp_key": "5h8oe39",
-    "second_factor": "APP",
-    "sessionVersion": 2,
-    "role": {"admin","Administrator"},
-    "permissions":["perm-1","perm-2","perm-3"],
-    "_links": [{
-        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3",
-        "rel" : "self",
-        "method" : "GET"
-    }]
+    ..user object..
 }
 ```
+See [The user object](#the-user-object)
 
 -----------------------------------------------------------------------------------------------------------
 
@@ -845,81 +743,13 @@ GET /v1/api/services/7d19aff33f8948deb97ed16b2912dcd3/users
 Content-Type: application/json
 [
   {
-    "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
-    "username": "abcd1234",
-    "email": "email@example.com",
-    "gateway_account_ids": [1],
-    "otp_key": "43c3c4t",
-    "telephone_number": "447700900000",
-    "service_roles": [
-      {
-        "service": {
-          "id": 45,
-          "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
-          "name": "Service name",
-          "gateway_account_ids": [
-            "1",
-          ],
-          "merchant_details": {
-            "name": "Name",
-            "address_line1": "Address line 1",
-            "address_city": "City",
-            "address_postcode": "EC1 8AB",
-            "address_country": "GB",
-          },
-          "_links": [],
-          "redirect_to_service_immediately_on_terminal_state": false,
-          "collect_billing_address": true
-        },
-        "role": {
-          "name": "admin",
-          "role": {"admin","Administrator"},
-          "permissions":["perm-1","perm-2","perm-3"]
-        }
-      }
-    ],
-    "features": "",
-    "second_factor": "SMS",
-    "provisional_otp_key": null,
-    "provisional_otp_key_created_at": null,
-    "services": [
-      {
-        "id": 1,
-        "external_id": "7d19aff33f8948deb97ed16b2912dcd3",
-        "name": "Service name",
-        "gateway_account_ids": [
-          "1",
-        ],
-        "merchant_details": {
-          "name": "Name",
-          "address_line1": "Address line 1",
-          "address_city": "City",
-          "address_postcode": "EC1 8AB",
-          "address_country": "GB",
-        },
-        "_links": [],
-        "redirect_to_service_immediately_on_terminal_state": false,
-        "collect_billing_address": true
-      }
-    ],
-    "disabled": false,
-    "login_counter": 0,
-    "session_version": 1,
-    "service_ids": [
-      "1",
-    ],
-    "_links": [
-      {
-        "rel": "self",
-        "method": "GET",
-        "href": "http://adminusers.service/v1/api/users/7d19aff33f8948deb97ed16b2912dcd3"
-      }
-    ],
-    "role": {"admin","Administrator"},
-    "permissions":["perm-1","perm-2","perm-3"],
-  }
+    ..user object..
+  },
+  ...
 ]
 ```
+See [The user object](#the-user-object)
+
 -----------------------------------------------------------------------------------------------------------
 ## GET /v1/api/services?gatewayAccountId={gateway_account_id}
 
