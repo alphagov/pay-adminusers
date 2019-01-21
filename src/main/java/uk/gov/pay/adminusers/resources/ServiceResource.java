@@ -18,6 +18,7 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import uk.gov.pay.adminusers.service.GovUkPayAgreementService;
 import uk.gov.pay.adminusers.service.LinksBuilder;
+import uk.gov.pay.adminusers.service.SendLiveAccountCreatedEmailService;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 import uk.gov.pay.adminusers.service.StripeAgreementService;
 import uk.gov.pay.adminusers.utils.Errors;
@@ -77,6 +78,8 @@ public class ServiceResource {
     private final StripeAgreementService stripeAgreementService;
     private final GovUkPayAgreementRequestValidator govUkPayAgreementRequestValidator;
     private final GovUkPayAgreementService govUkPayAgreementService;
+    private final SendLiveAccountCreatedEmailService sendLiveAccountCreatedEmailService;
+    
 
     @Inject
     public ServiceResource(UserDao userDao,
@@ -86,8 +89,8 @@ public class ServiceResource {
                            ServiceServicesFactory serviceServicesFactory,
                            StripeAgreementService stripeAgreementService,
                            GovUkPayAgreementRequestValidator govUkPayAgreementRequestValidator,
-                           GovUkPayAgreementService govUkPayAgreementService
-    ) {
+                           GovUkPayAgreementService govUkPayAgreementService,
+                           SendLiveAccountCreatedEmailService sendLiveAccountCreatedEmailService) {
         this.userDao = userDao;
         this.serviceDao = serviceDao;
         this.linksBuilder = linksBuilder;
@@ -96,6 +99,7 @@ public class ServiceResource {
         this.stripeAgreementService = stripeAgreementService;
         this.govUkPayAgreementRequestValidator = govUkPayAgreementRequestValidator;
         this.govUkPayAgreementService = govUkPayAgreementService;
+        this.sendLiveAccountCreatedEmailService = sendLiveAccountCreatedEmailService;
     }
 
     @GET
@@ -255,7 +259,7 @@ public class ServiceResource {
     public StripeAgreement getStripeAgreement(@PathParam("serviceExternalId") String serviceExternalId) {
 
         return stripeAgreementService.findStripeAgreementByServiceId(serviceExternalId)
-                .orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));
+                .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
     }
     
     @Path("/{serviceExternalId}/govuk-pay-agreement")
@@ -289,6 +293,16 @@ public class ServiceResource {
                 .orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));
         govUkPayAgreementService.doCreate(serviceEntity, userEntity.getEmail(), ZonedDateTime.now(ZoneOffset.UTC));
         
+        return Response.status(OK).build();
+    }
+    
+    @Path("/{serviceExternalId}/send-live-email")
+    @POST
+    @Produces(APPLICATION_JSON)
+    public Response sendLiveAccountCreatedEmail(@PathParam("serviceExternalId") String serviceExternalId) {
+        serviceDao.findByExternalId(serviceExternalId)
+                .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
+        sendLiveAccountCreatedEmailService.sendEmail(serviceExternalId);
         return Response.status(OK).build();
     }
 
