@@ -9,7 +9,6 @@ import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.CustomBrandingConverter;
-import uk.gov.pay.adminusers.persistence.entity.GovUkPayAgreementEntity;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
@@ -359,11 +358,11 @@ public class DatabaseTestHelper {
                 .list());
     }
     
-    public DatabaseTestHelper insertGovUkPayAgreementEntity(GovUkPayAgreementEntity entity) {
+    public DatabaseTestHelper insertGovUkPayAgreementEntity(int serviceId, String email, ZonedDateTime agreementTime) {
         jdbi.withHandle(handle -> handle.createStatement("INSERT INTO govuk_pay_agreements(service_id, agreement_time, email) VALUES (:serviceId, :agreementTime, :email)")
-                .bind("serviceId", entity.getService().getId())
-                .bind("email", entity.getEmail())
-                .bind("agreementTime", from(entity.getAgreementTime().toInstant()))
+                .bind("serviceId", serviceId)
+                .bind("email", email)
+                .bind("agreementTime", from(agreementTime.toInstant()))
                 .execute());
         return this;
     }
