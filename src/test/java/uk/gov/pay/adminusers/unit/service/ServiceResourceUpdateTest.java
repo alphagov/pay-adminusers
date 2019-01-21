@@ -9,9 +9,11 @@ import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntityBuilder;
+import uk.gov.pay.adminusers.resources.GovUkPayAgreementRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceResource;
 import uk.gov.pay.adminusers.resources.ServiceUpdateOperationValidator;
+import uk.gov.pay.adminusers.service.GovUkPayAgreementService;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 import uk.gov.pay.adminusers.service.ServiceUpdater;
 import uk.gov.pay.adminusers.service.StripeAgreementService;
@@ -47,6 +49,8 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     private static RequestValidations requestValidations = new RequestValidations();
     private static ServiceRequestValidator requestValidator = new ServiceRequestValidator(requestValidations, new ServiceUpdateOperationValidator(requestValidations));
     private static StripeAgreementService stripeAgreementService = mock(StripeAgreementService.class);
+    private static GovUkPayAgreementRequestValidator payAgreementRequestValidator = new GovUkPayAgreementRequestValidator(requestValidations);
+    private static GovUkPayAgreementService agreementService = mock(GovUkPayAgreementService.class);
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
@@ -56,7 +60,9 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
                     linksBuilder,
                     requestValidator,
                     mockedServicesFactory,
-                    stripeAgreementService))
+                    stripeAgreementService,
+                    payAgreementRequestValidator,
+                    agreementService))
             .build();
 
     @Before
