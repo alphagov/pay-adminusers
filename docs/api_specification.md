@@ -977,6 +977,7 @@ Content-Type: application/json
 ### POST /v1/api/services/`{serviceExternalId}`/send-live-email
 
 This endpoint will send an email to the user who signed the agreement with GOV.UK Pay for the service informing them that their service is now live.
+The email address used is the email address of the user provided to the [POST /v1/api/services/`{serviceExternalId}`/govuk-pay-agreement](#post-v1apiservicesserviceexternalidgovuk-pay-agreement) endpoint.
 
 ### Request example
 ```
