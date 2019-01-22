@@ -939,7 +939,7 @@ Content-Type: application/json
 }
 ```
 
-### Request body description
+#### Request body description
 
 | Field                    | required | Description                                                    | Supported Values     |
 | ------------------------ |:--------:| -------------------------------------------------------------- |----------------------|
@@ -974,6 +974,53 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
+### POST /v1/api/services/`{serviceExternalId}`/govuk-pay-agreement
+
+This endpoint records that a GOV.UK Pay agreement has been accepted for the service.
+
+### Request example
+```
+POST v1/api/services/7d19aff33f8948deb97ed16b2912dcd3/govuk-pay-agreement
+Content-Type: application/json
+{
+    "user_external_id": "abcde1234"
+}
+```
+
+#### Request body description
+
+| Field                    | required | Description                                                    | Supported Values     |
+| ------------------------ |:--------:| -------------------------------------------------------------- |----------------------|
+| `user_external_id`       |   X      | external id of the user's whom accepted the online terms       |                      |
+
+### Response Example
+
+```
+200 OK
+```
+
+-----------------------------------------------------------------------------------------------------------
+
+### GET /v1/api/services/`{serviceExternalId}`/govuk-pay-agreement
+
+This endpoint retrieves the user's email address and timestamp that the GOV.UK Pay terms were accepted on for the service.
+
+### Request example
+```
+GET v1/api/services/7d19aff33f8948deb97ed16b2912dcd3/govuk-pay-agreement
+```
+
+### Response example
+```
+200 OK
+Content-Type: application/json
+{
+    "email": "someone@somedepartment.gov.uk",
+    "agreement_time": "2019-01-22T13:31:28.968Z"
+}
+```
+-----------------------------------------------------------------------------------------------------------
+
 ### POST /v1/api/services/`{serviceExternalId}`/send-live-email
 
 This endpoint will send an email to the user who signed the agreement with GOV.UK Pay for the service informing them that their service is now live.
@@ -981,7 +1028,7 @@ The email address used is the email address of the user provided to the [POST /v
 
 ### Request example
 ```
-GET v1/api/services/7d19aff33f8948deb97ed16b2912dcd3/send-live-email
+POST v1/api/services/7d19aff33f8948deb97ed16b2912dcd3/send-live-email
 ```
 
 ### Response example
