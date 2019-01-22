@@ -14,6 +14,7 @@ import uk.gov.pay.adminusers.resources.ServiceRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceResource;
 import uk.gov.pay.adminusers.resources.ServiceUpdateOperationValidator;
 import uk.gov.pay.adminusers.service.GovUkPayAgreementService;
+import uk.gov.pay.adminusers.service.SendLiveAccountCreatedEmailService;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 import uk.gov.pay.adminusers.service.ServiceUpdater;
 import uk.gov.pay.adminusers.service.StripeAgreementService;
@@ -51,6 +52,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     private static StripeAgreementService stripeAgreementService = mock(StripeAgreementService.class);
     private static GovUkPayAgreementRequestValidator payAgreementRequestValidator = new GovUkPayAgreementRequestValidator(requestValidations);
     private static GovUkPayAgreementService agreementService = mock(GovUkPayAgreementService.class);
+    private static SendLiveAccountCreatedEmailService sendLiveAccountCreatedEmailService = mock(SendLiveAccountCreatedEmailService.class);
 
     @ClassRule
     public static final ResourceTestRule resources = ResourceTestRule.builder()
@@ -62,7 +64,8 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
                     mockedServicesFactory,
                     stripeAgreementService,
                     payAgreementRequestValidator,
-                    agreementService))
+                    agreementService,
+                    sendLiveAccountCreatedEmailService))
             .build();
 
     @Before

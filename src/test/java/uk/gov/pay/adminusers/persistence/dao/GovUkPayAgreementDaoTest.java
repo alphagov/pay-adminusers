@@ -76,9 +76,9 @@ public class GovUkPayAgreementDaoTest extends DaoTestBase{
         Service service = serviceDbFixture(databaseHelper)
                 .withExternalId("abcde1234")
                 .insertService();
-        Optional<ServiceEntity> serviceEntity = serviceDao.findByExternalId(service.getExternalId());
+
         govUkPayAgreementDbFixture(databaseHelper)
-                .withServiceEntity(serviceEntity.get())
+                .withServiceId(service.getId())
                 .insert();
         Optional<GovUkPayAgreementEntity> maybeEntity = agreementDao.findByExternalServiceId("abcd1235");
         assertThat(maybeEntity.isPresent(), is(false));

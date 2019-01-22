@@ -112,10 +112,8 @@ public class ServiceResourceGovUkPayAgreementResourceTest extends IntegrationTes
     
     @Test
     public void shouldReturn_409_whenAgreementAlreadyExists() {
-        ServiceEntity serviceEntity = ServiceEntity.from(service);
-        serviceEntity.setId(service.getId());
         GovUkPayAgreementDbFixture.govUkPayAgreementDbFixture(databaseHelper)
-                .withServiceEntity(serviceEntity)
+                .withServiceId(service.getId())
                 .insert();
 
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("user_external_id", user.getExternalId()));
@@ -132,11 +130,9 @@ public class ServiceResourceGovUkPayAgreementResourceTest extends IntegrationTes
     
     @Test
     public void shouldReturnAgreement_whenExists() {
-        ServiceEntity serviceEntity = ServiceEntity.from(service);
-        serviceEntity.setId(service.getId());
         ZonedDateTime agreementTime = ZonedDateTime.now(ZoneOffset.UTC);
         GovUkPayAgreementDbFixture.govUkPayAgreementDbFixture(databaseHelper)
-                .withServiceEntity(serviceEntity)
+                .withServiceId(service.getId())
                 .withEmail(user.getEmail())
                 .withAgreementTime(agreementTime)
                 .insert();
