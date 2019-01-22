@@ -21,6 +21,7 @@ import uk.gov.pay.adminusers.app.healthchecks.DependentResourceWaitCommand;
 import uk.gov.pay.adminusers.app.healthchecks.MigrateToInitialDbState;
 import uk.gov.pay.adminusers.app.healthchecks.Ping;
 import uk.gov.pay.adminusers.app.util.TrustingSSLSocketFactory;
+import uk.gov.pay.adminusers.exception.ConflictExceptionMapper;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundExceptionMapper;
 import uk.gov.pay.adminusers.exception.ValidationExceptionMapper;
 import uk.gov.pay.adminusers.resources.EmailResource;
@@ -91,6 +92,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(new ServiceNotFoundExceptionMapper());
         environment.jersey().register(new InvalidEmailRequestExceptionMapper());
         environment.jersey().register(new InvalidMerchantDetailsExceptionMapper());
+        environment.jersey().register(new ConflictExceptionMapper());
 
         HttpsURLConnection.setDefaultSSLSocketFactory(new TrustingSSLSocketFactory());
         
