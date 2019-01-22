@@ -3,14 +3,14 @@ package uk.gov.pay.adminusers.service;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
+import uk.gov.pay.adminusers.exception.StripeAgreementExistsException;
 import uk.gov.pay.adminusers.model.StripeAgreement;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.StripeAgreementDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.net.InetAddress;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -39,11 +39,10 @@ public class StripeAgreementService {
     
     public void doCreate(String serviceExternalId, InetAddress ipAddress) {
         ServiceEntity serviceEntity = serviceDao.findByExternalId(serviceExternalId)
-                .orElseThrow( () -> new WebApplicationException(Response.Status.NOT_FOUND));
+                .orElseThrow(() -> new ServiceNotFoundException(serviceExternalId));
         
         if (stripeAgreementDao.findByServiceExternalId(serviceExternalId).isPresent()) {
-            throw new WebApplicationException("Stripe agreement information is already stored for this service",
-                    Response.Status.CONFLICT);
+            throw new StripeAgreementExistsException();
         }
 
         logger.info(format("Creating stripe agreement for service %s", serviceExternalId));

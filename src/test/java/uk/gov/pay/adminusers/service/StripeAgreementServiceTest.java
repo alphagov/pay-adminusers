@@ -10,6 +10,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
+import uk.gov.pay.adminusers.exception.StripeAgreementExistsException;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.StripeAgreement;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.StripeAgreementDao;
@@ -97,8 +100,7 @@ public class StripeAgreementServiceTest {
         String serviceExternalId = "abc123";
         when(mockedServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.empty());
         
-        expectedException.expect(WebApplicationException.class);
-        expectedException.expectMessage("HTTP 404 Not Found");
+        expectedException.expect(ServiceNotFoundException.class);
         
         stripeAgreementService.doCreate(serviceExternalId, InetAddress.getByName("192.0.2.0"));
     }
@@ -113,7 +115,7 @@ public class StripeAgreementServiceTest {
         StripeAgreementEntity mockStripeAgreementEntity = mock(StripeAgreementEntity.class);
         when(mockedStripeAgreementDao.findByServiceExternalId(serviceExternalId)).thenReturn(Optional.of(mockStripeAgreementEntity));
 
-        expectedException.expect(WebApplicationException.class);
+        expectedException.expect(StripeAgreementExistsException.class);
         expectedException.expectMessage("Stripe agreement information is already stored for this service");
 
         stripeAgreementService.doCreate(serviceExternalId, InetAddress.getByName("192.0.2.0"));

@@ -4,6 +4,7 @@ import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
 
 import static java.lang.String.format;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.fixtures.GovUkPayAgreementDbFixture.govUkPayAgreementDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
@@ -38,6 +39,7 @@ public class ServiceResourceSendLiveAccountCreatedEmailTest extends IntegrationT
                 .post(format("/v1/api/services/%s/send-live-email", service.getExternalId()))
                 .then()
                 .statusCode(409)
-                .body("message", is("Nobody from this service is on record as having agreed to the legal terms"));
+                .body("errors", hasSize(1))
+                .body("errors[0]", is("Nobody from this service is on record as having agreed to the legal terms"));
     }
 }

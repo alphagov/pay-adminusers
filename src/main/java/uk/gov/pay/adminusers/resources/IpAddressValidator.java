@@ -14,7 +14,8 @@ public class IpAddressValidator implements ConstraintValidator<ValidIpAddress, O
 
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
-        
-        return InetAddressValidator.getInstance().isValid(value.toString());
+        // it is considered best practice to return true if value is null and use the @NotNull constraint where
+        // necessary
+        return value == null || InetAddressValidator.getInstance().isValid(value.toString());
     }
 }
