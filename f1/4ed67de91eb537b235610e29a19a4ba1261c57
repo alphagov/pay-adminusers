@@ -5,3 +5,5 @@ release.alpha_release-347.date=2019-01-21:07:51:38
 staging-2.tag=FAILED-347
 
 staging-2.FAILED-347.date=
+
+staging-2.FAILED-347.status=failed
