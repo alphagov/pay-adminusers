@@ -25,12 +25,15 @@ import static org.mockito.BDDMockito.given;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceRequestValidatorTest {
-    
+
+    private static String DEFAULT_MERCHANT_DETAILS_NAME = "Merchant name";
+    private static String DEFAULT_MERCHANT_DETAILS_EMAIL = "merchant-user@example.com";
+
     @Mock
     private ServiceUpdateOperationValidator mockServiceUpdateOperationValidator;
 
     private ServiceRequestValidator serviceRequestValidator;
-    
+
     @Before
     public void setUp() {
         serviceRequestValidator = new ServiceRequestValidator(new RequestValidations(), mockServiceUpdateOperationValidator);
@@ -39,7 +42,7 @@ public class ServiceRequestValidatorTest {
     @Test
     public void shouldSuccess_whenValidateUpdateAttributeRequestSucceeds_withSingleOperation() {
         ObjectNode payload = createUpdateOperation("this", "will", "succeed");
-        
+
         given(mockServiceUpdateOperationValidator.validate(payload)).willReturn(Collections.emptyList());
 
         Optional<Errors> errors = serviceRequestValidator.validateUpdateAttributeRequest(payload);
@@ -96,7 +99,7 @@ public class ServiceRequestValidatorTest {
         assertThat(errors.get().getErrors(), hasItem("Error 2"));
         assertThat(errors.get().getErrors(), hasItem("Error 3"));
     }
-    
+
     @Test
     public void shouldAllowNonNumericGatewayAccounts_whenFindingServices() {
         Optional<Errors> errors = serviceRequestValidator.validateFindRequest("non-numeric-id");
@@ -106,12 +109,12 @@ public class ServiceRequestValidatorTest {
     @Test
     public void shouldSuccess_updatingMerchantDetails() throws ValidationException {
         ObjectNode payload = JsonNodeFactory.instance.objectNode();
-        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_NAME, "name");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_NAME, DEFAULT_MERCHANT_DETAILS_NAME);
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_LINE1, "line1");
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_CITY, "city");
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY, "country");
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, "postcode");
-        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_EMAIL, "dd-merchant@example.com");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_EMAIL, DEFAULT_MERCHANT_DETAILS_EMAIL);
 
         serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
     }
@@ -149,32 +152,47 @@ public class ServiceRequestValidatorTest {
         serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
     }
 
-    @Test
-    public void shouldFail_updatingMerchantDetails_whenInvalidEmail() {
-        ObjectNode payload = createMerchantDetailsJsonPayload("invalid@example.com-uk");
+    @Test(expected = ValidationException.class)
+    public void shouldFail_updatingMerchantDetails_whenInvalidEmail() throws ValidationException {
+        ObjectNode payload = createMerchantDetailsJsonPayload(DEFAULT_MERCHANT_DETAILS_NAME, "invalid@example.com-uk");
 
         try {
             serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
         } catch (ValidationException e) {
             assertThat(e.getErrors().getErrors(), hasItem("Field [email] must be a valid email address"));
+            throw e;
         }
     }
 
-    @Test
-    public void shouldFail_updatingMerchantDetails_whenEmailOver255() {
+    @Test(expected = ValidationException.class)
+    public void shouldFail_updatingMerchantDetails_whenEmailOver255() throws ValidationException {
         String longEmail = RandomStringUtils.randomAlphanumeric(256);
-        ObjectNode payload = createMerchantDetailsJsonPayload(longEmail);
+        ObjectNode payload = createMerchantDetailsJsonPayload(DEFAULT_MERCHANT_DETAILS_NAME, longEmail);
 
         try {
             serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
         } catch (ValidationException e) {
             assertThat(e.getErrors().getErrors(), hasItem("Field [email] must have a maximum length of 255 characters"));
+            throw e;
         }
     }
 
-    private static ObjectNode createMerchantDetailsJsonPayload(String email) {
+    @Test(expected = ValidationException.class)
+    public void shouldFail_updatingMerchantDetails_whenNameOver255() throws ValidationException {
+        String longName = RandomStringUtils.randomAlphanumeric(256);
+        ObjectNode payload = createMerchantDetailsJsonPayload(longName, DEFAULT_MERCHANT_DETAILS_EMAIL);
+
+        try {
+            serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
+        } catch (ValidationException e) {
+            assertThat(e.getErrors().getErrors(), hasItem("Field [name] must have a maximum length of 255 characters"));
+            throw e;
+        }
+    }
+
+    private static ObjectNode createMerchantDetailsJsonPayload(String name, String email) {
         ObjectNode payload = JsonNodeFactory.instance.objectNode();
-        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_NAME, "Merchant name");
+        payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_NAME, name);
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_LINE1, "line1");
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_CITY, "city");
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY, "country");
@@ -182,7 +200,7 @@ public class ServiceRequestValidatorTest {
         payload.put(ServiceRequestValidator.FIELD_MERCHANT_DETAILS_EMAIL, email);
         return payload;
     }
-    
+
     private static ObjectNode createUpdateOperation(String path, String op, String value) {
         ObjectNode operation = JsonNodeFactory.instance.objectNode();
         operation.put(ServiceUpdateRequest.FIELD_PATH, path);
