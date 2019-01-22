@@ -974,6 +974,22 @@ Content-Type: application/json
 
 -----------------------------------------------------------------------------------------------------------
 
+### POST /v1/api/services/`{serviceExternalId}`/send-live-email
+
+This endpoint will send an email to the user who signed the agreement with GOV.UK Pay for the service informing them that their service is now live.
+
+### Request example
+```
+GET v1/api/services/7d19aff33f8948deb97ed16b2912dcd3/send-live-email
+```
+
+### Response example
+```
+200 OK
+```
+
+-----------------------------------------------------------------------------------------------------------
+
 ## POST /v1/api/invites/`{code}`/complete
 
 This endpoint completes the invite by creating user/service and invalidating itself.
