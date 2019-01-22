@@ -3,7 +3,7 @@ package uk.gov.pay.adminusers.service;
 import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
@@ -21,7 +21,7 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
 
 public class InviteService {
 
-    private static final Logger LOGGER = PayLoggerFactory.getLogger(InviteService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InviteService.class);
 
     private static final String SIX_DIGITS_WITH_LEADING_ZEROS = "%06d";
 

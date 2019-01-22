@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.persistence.dao.ServiceRoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
@@ -14,7 +14,7 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.forbiddenOperat
 
 public class ServiceUserRemover {
 
-    private static final Logger LOGGER = PayLoggerFactory.getLogger(ServiceUserRemover.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceUserRemover.class);
     private static final String OPERATION = "remove user";
 
     private final UserDao userDao;

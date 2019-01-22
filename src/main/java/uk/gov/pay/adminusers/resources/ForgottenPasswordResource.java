@@ -3,7 +3,7 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.service.ForgottenPasswordServices;
 import uk.gov.pay.adminusers.utils.Errors;
 
@@ -20,7 +20,7 @@ public class ForgottenPasswordResource {
 
     public static final String FORGOTTEN_PASSWORDS_RESOURCE = "/v1/api/forgotten-passwords";
     private static final String FORGOTTEN_PASSWORD_RESOURCE = FORGOTTEN_PASSWORDS_RESOURCE + "/{code}";
-    private static final Logger logger = PayLoggerFactory.getLogger(ForgottenPasswordResource.class);
+    private static final Logger logger = LoggerFactory.getLogger(ForgottenPasswordResource.class);
 
     private static final int MAX_LENGTH = 255;
     private final ForgottenPasswordServices forgottenPasswordServices;

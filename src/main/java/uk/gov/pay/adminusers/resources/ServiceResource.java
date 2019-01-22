@@ -6,7 +6,7 @@ import io.dropwizard.jersey.PATCH;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
 import uk.gov.pay.adminusers.exception.ValidationException;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.model.StripeAgreement;
@@ -66,7 +66,7 @@ import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_NAME;
 @Path(SERVICES_RESOURCE)
 public class ServiceResource {
 
-    private static final Logger LOGGER = PayLoggerFactory.getLogger(ServiceResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceResource.class);
     static final String HEADER_USER_CONTEXT = "GovUkPay-User-Context";
     public static final String SERVICES_RESOURCE = "/v1/api/services";
 

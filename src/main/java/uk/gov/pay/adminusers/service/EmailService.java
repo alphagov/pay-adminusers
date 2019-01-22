@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import liquibase.exception.ServiceNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -23,7 +23,7 @@ import static uk.gov.pay.adminusers.model.PaymentType.DIRECT_DEBIT;
 
 public class EmailService {
 
-    private static final Logger LOGGER = PayLoggerFactory.getLogger(EmailService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
     private static final String SERVICE_NAME_KEY = "service name";
     private static final String ORGANISATION_NAME_KEY = "organisation name";
     private static final String ORGANISATION_PHONE_NUMBER_KEY = "organisation phone number";

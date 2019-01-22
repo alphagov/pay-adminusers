@@ -3,7 +3,7 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.*;
 import uk.gov.pay.adminusers.service.*;
 import uk.gov.pay.adminusers.utils.Errors;
@@ -25,7 +25,7 @@ public class InviteResource {
 
     public static final String INVITES_RESOURCE = "/v1/api/invites";
 
-    private static final Logger LOGGER = PayLoggerFactory.getLogger(InviteResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InviteResource.class);
     private static final int MAX_LENGTH_CODE = 255;
 
     private final InviteService inviteService;

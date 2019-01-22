@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
@@ -27,7 +27,7 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
 
 public class UserInviteCreator {
 
-    private static final Logger LOGGER = PayLoggerFactory.getLogger(UserInviteCreator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserInviteCreator.class);
 
     private final InviteDao inviteDao;
     private final UserDao userDao;

@@ -5,7 +5,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.SecondFactorToken;
@@ -29,7 +29,7 @@ import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TELEPHONE_NUMBER;
 
 public class UserServices {
 
-    private static Logger logger = PayLoggerFactory.getLogger(UserServices.class);
+    private static Logger logger = LoggerFactory.getLogger(UserServices.class);
 
     private final UserDao userDao;
     private final PasswordHasher passwordHasher;

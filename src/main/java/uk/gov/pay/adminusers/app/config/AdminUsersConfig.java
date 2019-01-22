@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 public class AdminUsersConfig extends Configuration {
 
-    private static final Logger logger = PayLoggerFactory.getLogger(AdminUsersConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(AdminUsersConfig.class);
 
     @Valid
     @NotNull

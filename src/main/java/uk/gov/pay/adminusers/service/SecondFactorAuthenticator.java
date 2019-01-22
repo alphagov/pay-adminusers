@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorConfig;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
@@ -15,7 +15,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class SecondFactorAuthenticator {
 
-    private static final Logger logger = PayLoggerFactory.getLogger(SecondFactorAuthenticator.class);
+    private static final Logger logger = LoggerFactory.getLogger(SecondFactorAuthenticator.class);
 
     private static final Pattern BASE32_ALPHABET = Pattern.compile("[A-Z2-7]+");
 

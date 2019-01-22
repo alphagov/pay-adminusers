@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import jersey.repackaged.com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.logger.PayLoggerFactory;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.service.ResetPasswordService;
 
 import javax.ws.rs.Consumes;
@@ -20,7 +20,7 @@ import static uk.gov.pay.adminusers.utils.Errors.from;
 @Path("/")
 public class ResetPasswordResource {
 
-    private static final Logger logger = PayLoggerFactory.getLogger(ResetPasswordResource.class);
+    private static final Logger logger = LoggerFactory.getLogger(ResetPasswordResource.class);
     private static final String RESET_PASSWORD_RESOURCE = "/v1/api/reset-password";
     static final String FIELD_CODE = "forgotten_password_code";
     static final String FIELD_PASSWORD = "new_password";
