@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.fixtures.GovUkPayAgreementDbFixture;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.utils.DateTimeUtils;
@@ -29,7 +30,9 @@ public class ServiceResourceGovUkPayAgreementResourceTest extends IntegrationTes
     @Before
     public void setup() {
         service = serviceDbFixture(databaseHelper).insertService();
-        user = userDbFixture(databaseHelper).insertUser();
+        user = userDbFixture(databaseHelper)
+                .withServiceRole(service, 1)
+                .insertUser();
     }
     
     @Test
@@ -41,7 +44,7 @@ public class ServiceResourceGovUkPayAgreementResourceTest extends IntegrationTes
                 .body(payload)
                 .post(format("/v1/api/services/%s/govuk-pay-agreement", service.getExternalId()))
                 .then()
-                .statusCode(200);
+                .statusCode(201);
     }
 
     @Test
@@ -57,7 +60,7 @@ public class ServiceResourceGovUkPayAgreementResourceTest extends IntegrationTes
     }
 
     @Test
-    public void shouldReturn_404_whenUserNotFound() {
+    public void shouldReturn_400_whenUserNotFound() {
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("user_external_id", "abcde1234"));
         givenSetup()
                 .when()
@@ -65,7 +68,8 @@ public class ServiceResourceGovUkPayAgreementResourceTest extends IntegrationTes
                 .body(payload)
                 .post(format("/v1/api/services/%s/govuk-pay-agreement", service.getExternalId()))
                 .then()
-                .statusCode(404);
+                .statusCode(400)
+                .body("errors[0]", is("Field [user_external_id] must be a valid user ID"));
     }
     
     @Test
@@ -126,6 +130,22 @@ public class ServiceResourceGovUkPayAgreementResourceTest extends IntegrationTes
                 .statusCode(409)
                 .body("errors", hasSize(1))
                 .body("errors[0]", is("GOV.UK Pay agreement information is already stored for this service"));
+    }
+    
+    @Test
+    public void shouldReturn_400_whenUserDoesNotBelongToService() {
+        user = userDbFixture(databaseHelper)
+                .insertUser();
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("user_external_id", user.getExternalId()));
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .body(payload)
+                .post(format("/v1/api/services/%s/govuk-pay-agreement", service.getExternalId()))
+                .then()
+                .statusCode(400)
+                .body("errors[0]", is("User does not belong to the given service"));
+        
     }
     
     @Test

@@ -50,6 +50,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -266,6 +267,7 @@ public class ServiceResource {
     @Path("/{serviceExternalId}/govuk-pay-agreement")
     @POST
     @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
     public Response createGovUkPayAgreement(@PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
         return govUkPayAgreementRequestValidator.validateCreateRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -278,7 +280,7 @@ public class ServiceResource {
     public Response getGovUkPayAgreement(@PathParam("serviceExternalId") String serviceExternalId) {
         return govUkPayAgreementService.findGovUkPayAgreementByServiceId(serviceExternalId)
                 .map(agreement -> Response.status(OK).entity(agreement).build())
-                .orElse(Response.status(NOT_FOUND).build());
+                .orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));
     }
     
     private Response createGovUkPayAgreementFromPayload(String serviceExternalId, JsonNode payload) {
@@ -290,11 +292,16 @@ public class ServiceResource {
         
         ServiceEntity serviceEntity = serviceDao.findByExternalId(serviceExternalId)
                 .orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));
-        UserEntity userEntity = userDao.findByExternalId(payload.get("user_external_id").asText())
-                .orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));
-        govUkPayAgreementService.doCreate(serviceEntity, userEntity.getEmail(), ZonedDateTime.now(ZoneOffset.UTC));
+        Optional<UserEntity> userEntity = userDao.findByExternalId(payload.get("user_external_id").asText());
+        if (!userEntity.isPresent()) {
+            return Response.status(BAD_REQUEST).entity(Errors.from("Field [user_external_id] must be a valid user ID")).build();
+        }
+        if (!userEntity.get().getServicesRole(serviceExternalId).isPresent()) {
+            return Response.status(BAD_REQUEST).entity(Errors.from("User does not belong to the given service")).build();
+        }
+        govUkPayAgreementService.doCreate(serviceEntity, userEntity.get().getEmail(), ZonedDateTime.now(ZoneOffset.UTC));
         
-        return Response.status(OK).build();
+        return Response.status(CREATED).build();
     }
     
     @Path("/{serviceExternalId}/send-live-email")
