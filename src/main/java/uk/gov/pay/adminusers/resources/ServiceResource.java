@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import io.dropwizard.jersey.PATCH;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
 import uk.gov.pay.adminusers.exception.ValidationException;
-import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.model.StripeAgreement;
@@ -243,6 +243,7 @@ public class ServiceResource {
     @Path("/{serviceExternalId}/stripe-agreement")
     @POST
     @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
     public Response createStripeAgreement(@PathParam("serviceExternalId") String serviceExternalId,
                                           @NotNull @Valid StripeAgreementRequest stripeAgreementRequest) throws UnknownHostException {
         LOGGER.info("Create stripe agreement POST request - [ {} ]", stripeAgreementRequest.toString());
@@ -250,7 +251,7 @@ public class ServiceResource {
         stripeAgreementService.doCreate(serviceExternalId,
                 InetAddress.getByName(stripeAgreementRequest.getIpAddress()));
 
-        return Response.status(OK).build();
+        return Response.status(CREATED).build();
     }
 
     @Path("/{serviceExternalId}/stripe-agreement")

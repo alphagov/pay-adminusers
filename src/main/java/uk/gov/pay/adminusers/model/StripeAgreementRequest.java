@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.pay.adminusers.resources.ValidIpAddress;
 
+import javax.validation.constraints.NotNull;
+
 public class StripeAgreementRequest {
-    
+
+    @NotNull
     @ValidIpAddress
     private final String ipAddress;
     
