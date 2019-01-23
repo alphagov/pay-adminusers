@@ -13,3 +13,5 @@ release.alpha_release-353.date=2019-01-22:15:22:21
 staging-2.tag=FAILED-351
 
 staging-2.FAILED-351.date=
+
+staging-2.FAILED-351.status=failed
