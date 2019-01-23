@@ -33,6 +33,8 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 | [```/v1/api/services?gatewayAccountId={gateway_account_id}```](/docs/api_specification.md#get-v1apiservicesgatewayaccountidgatewayaccountid)    | GET   |  Find the service with the given gateway account id associated with  |
 | [```/v1/api/services/{externalId}/stripe-agreement```](/docs/api_specification.md#post-v1apiservicesserviceexternalidstripe-agreement)  | POST | Record acceptance of Stripe terms |
 | [```/v1/api/services/{externalId}/stripe-agreement```](/docs/api_specification.md#get-v1apiservicesserviceexternalidstripe-agreement)  | GET | Get details about the acceptance of Stripe terms |
+| [```/v1/api/services/{externalId}/govuk-pay-agreement```](/docs/api_specification.md#post-v1apiservicesserviceexternalidgovuk-pay-agreement)  | POST | Record acceptance of GOV.UK Pay terms |
+| [```/v1/api/services/{externalId}/govuk-pay-agreement```](/docs/api_specification.md#get-v1apiservicesserviceexternalidgovuk-pay-agreement)  | GET | Get details about the acceptance of GOV.UK Pay terms |
 | [```/v1/api/services/{externalId}/send-live-email```](/docs/api_specification.md#post-v1apiservicesserviceexternalidsend-live-email)  | POST | Sends an email to the user who signed the service agreement to inform them that their service is live |
 | [```/v1/api/invites/{code}/complete```](/docs/api_specification.md#post-v1apiinvitescodecomplete)               | POST   |  Completes an invitation by creating user/service     |
 | [```/v1/api/invites/{code}/otp/generate```](/docs/api_specification.md#post-v1apiinvitescodeotpgenerate)               | POST   |  Generates and sends otp verification code to the phone number registered in the invite     |
