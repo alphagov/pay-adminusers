@@ -5,3 +5,5 @@ release.alpha_release-357.date=2019-01-23:11:36:01
 staging-2.tag=alpha_staging-2-357
 
 staging-2.alpha_staging-2-357.date=2019-01-23:12:41:16
+
+staging-2.alpha_staging-2-357.status=success
