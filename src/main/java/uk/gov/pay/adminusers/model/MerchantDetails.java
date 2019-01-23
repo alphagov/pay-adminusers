@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import java.util.Objects;
+
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class MerchantDetails {
@@ -83,28 +85,18 @@ public class MerchantDetails {
 
         MerchantDetails that = (MerchantDetails) o;
 
-        if (!name.equals(that.name)) return false;
-        if (telephoneNumber != null ? !telephoneNumber.equals(that.telephoneNumber) : that.telephoneNumber != null)
-            return false;
-        if (!addressLine1.equals(that.addressLine1)) return false;
-        if (addressLine2 != null ? !addressLine2.equals(that.addressLine2) : that.addressLine2 != null) return false;
-        if (!addressCity.equals(that.addressCity)) return false;
-        if (!addressPostcode.equals(that.addressPostcode)) return false;
-        if (email != null ? !email.equals(that.email) : that.email != null) return false;
-        return addressCountry.equals(that.addressCountry);
+        return Objects.equals(name, that.name)
+                && Objects.equals(telephoneNumber, that.telephoneNumber)
+                && Objects.equals(addressLine1, that.addressLine1)
+                && Objects.equals(addressLine2, that.addressLine2)
+                && Objects.equals(addressCity, that.addressCity)
+                && Objects.equals(addressPostcode, that.addressPostcode)
+                && Objects.equals(email, that.email)
+                && Objects.equals(addressCountry, that.addressCountry);
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + (telephoneNumber != null ? telephoneNumber.hashCode() : 0);
-        result = 31 * result + addressLine1.hashCode();
-        result = 31 * result + (addressLine2 != null ? addressLine2.hashCode() : 0);
-        result = 31 * result + addressCity.hashCode();
-        result = 31 * result + addressPostcode.hashCode();
-        result = 31 * result + addressCountry.hashCode();
-        result = 31 * result + (email != null ? email.hashCode() : 0);
-        return result;
+        return Objects.hash(telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry, email);
     }
-
 }
