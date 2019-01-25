@@ -81,48 +81,75 @@ public class ServiceUpdateOperationValidator {
     }
 
     private List<String> validateValueIsValidForPath(JsonNode operation) {
-        List<String> errors = new ArrayList<>();
-
         String path = operation.get(FIELD_PATH).asText();
         if (FIELD_CUSTOM_BRANDING.equals(path)) {
-            errors.addAll(checkIfValidJson(operation.get(FIELD_VALUE), FIELD_CUSTOM_BRANDING));
+            return validateCustomBrandingValue(operation);
         } else if (FIELD_NAME.equals(path) || path.startsWith(FIELD_SERVICE_NAME_PREFIX)) {
-            if (FIELD_NAME.equals(path) || path.endsWith('/' + SupportedLanguage.ENGLISH.toString())) {
-                requestValidations.checkExistsAndNotEmpty(operation, FIELD_VALUE).ifPresent(errors::addAll);
-            } else {
-                requestValidations.checkExists(operation, FIELD_VALUE).ifPresent(errors::addAll);
-            }
-            if (errors.isEmpty()) {
-                requestValidations.checkIsString(operation, FIELD_VALUE).ifPresent(errors::addAll);
-            }
-            if (errors.isEmpty()) {
-                requestValidations.checkMaxLength(operation, SERVICE_NAME_MAX_LENGTH, FIELD_VALUE).ifPresent(errors::addAll);
-            }
+            return validateServiceNameValue(operation, path);
         } else if (FIELD_REDIRECT_NAME.equals(path)) {
-            requestValidations.checkExists(operation, FIELD_VALUE).ifPresent(errors::addAll);
-            if (errors.isEmpty()) {
-                requestValidations.checkIsStrictBoolean(operation, FIELD_VALUE).ifPresent(errors::addAll);
-            }
+            return validateDirectlyRedirectValue(operation);
         } else if (FIELD_COLLECT_BILLING_ADDRESS.equals(path)) {
-            requestValidations.checkExists(operation, FIELD_VALUE).ifPresent(errors::addAll);
-            if (errors.isEmpty()) {
-                requestValidations.checkIsStrictBoolean(operation, FIELD_VALUE).ifPresent(errors::addAll);
-            }
+            return validateCollectBillingAddressValue(operation);
         } else if (FIELD_CURRENT_GO_LIVE_STAGE.equals(path)) {
+            return validateCurrentGoLiveStageValue(operation);
+        }
+        
+        return Collections.emptyList();
+    }
+
+    private List<String> validateCustomBrandingValue(JsonNode operation) {
+        return checkIfValidJson(operation.get(FIELD_VALUE), FIELD_CUSTOM_BRANDING);
+    }
+
+    private List<String> validateServiceNameValue(JsonNode operation, String path) {
+        List<String> errors = new ArrayList<>();
+        if (FIELD_NAME.equals(path) || path.endsWith('/' + SupportedLanguage.ENGLISH.toString())) {
             requestValidations.checkExistsAndNotEmpty(operation, FIELD_VALUE).ifPresent(errors::addAll);
-            if (errors.isEmpty()) {
-                requestValidations.checkIsString(
-                        format("Field [%s] must be one of %s", FIELD_VALUE, GO_LIVE_STAGES), 
-                        operation, 
-                        FIELD_VALUE).ifPresent(errors::addAll);
-            }
-            if (errors.isEmpty()) {
-                requestValidations.isValidEnumValue(operation, GO_LIVE_STAGES, FIELD_VALUE).ifPresent(errors::addAll);
-            }
+        } else {
+            requestValidations.checkExists(operation, FIELD_VALUE).ifPresent(errors::addAll);
+        }
+        if (errors.isEmpty()) {
+            requestValidations.checkIsString(operation, FIELD_VALUE).ifPresent(errors::addAll);
+        }
+        if (errors.isEmpty()) {
+            requestValidations.checkMaxLength(operation, SERVICE_NAME_MAX_LENGTH, FIELD_VALUE).ifPresent(errors::addAll);
         }
         return errors;
     }
 
+    private List<String> validateDirectlyRedirectValue(JsonNode operation) {
+        List<String> errors = new ArrayList<>();
+        requestValidations.checkExists(operation, FIELD_VALUE).ifPresent(errors::addAll);
+        if (errors.isEmpty()) {
+            requestValidations.checkIsStrictBoolean(operation, FIELD_VALUE).ifPresent(errors::addAll);
+        }
+        return errors;
+    }
+
+    private List<String> validateCollectBillingAddressValue(JsonNode operation) {
+        List<String> errors = new ArrayList<>();
+        requestValidations.checkExists(operation, FIELD_VALUE).ifPresent(errors::addAll);
+        if (errors.isEmpty()) {
+            requestValidations.checkIsStrictBoolean(operation, FIELD_VALUE).ifPresent(errors::addAll);
+        }
+        return errors;
+    }
+
+    private List<String> validateCurrentGoLiveStageValue(JsonNode operation) {
+        List<String> errors = new ArrayList<>();
+        requestValidations.checkExistsAndNotEmpty(operation, FIELD_VALUE).ifPresent(errors::addAll);
+        if (errors.isEmpty()) {
+            requestValidations.checkIsString(
+                    format("Field [%s] must be one of %s", FIELD_VALUE, GO_LIVE_STAGES),
+                    operation,
+                    FIELD_VALUE).ifPresent(errors::addAll);
+        }
+        if (errors.isEmpty()) {
+            requestValidations.isValidEnumValue(operation, GO_LIVE_STAGES, FIELD_VALUE).ifPresent(errors::addAll);
+        }
+        return errors;
+    }
+    
     private List<String> validateOperationIsValidForPath(JsonNode operation) {
         String path = operation.get(FIELD_PATH).asText();
 
