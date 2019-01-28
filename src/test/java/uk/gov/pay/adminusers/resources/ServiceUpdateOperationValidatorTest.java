@@ -15,22 +15,10 @@ import static org.hamcrest.core.Is.is;
 
 public class ServiceUpdateOperationValidatorTest {
 
+    private static final String GO_LIVE_STAGE_INVALID_ERROR_MESSAGE = "Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_NAME, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, TERMS_AGREED_STRIPE, TERMS_AGREED_WORLDPAY, TERMS_AGREED_SMARTPAY, TERMS_AGREED_EPDQ, DENIED, LIVE]";
+    
     private final ObjectMapper mapper = new ObjectMapper();
     private final ServiceUpdateOperationValidator serviceUpdateOperationValidator = new ServiceUpdateOperationValidator(new RequestValidations());
-
-    @Test
-    public void shouldSuccess_whenUpdateName_withAllFieldsPresentAndValid() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "replace", "value", "example-name");
-
-        List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
-
-        assertThat(errors.isEmpty(), is(true));
-    }
-
-    @Test
-    public void shouldFail_whenUpdateName_whenNameFieldPresentAndItIsTooLong() {
-        replaceShouldFailWhenStringValueIsTooLong("name", 50);
-    }
 
     @Test
     public void shouldFail_whenUpdate_whenMissingRequiredField() {
@@ -45,7 +33,10 @@ public class ServiceUpdateOperationValidatorTest {
 
     @Test
     public void shouldFail_whenUpdate_whenInvalidPath() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "xyz", "op", "replace", "value", "example-name");
+        ImmutableMap<String, String> payload = ImmutableMap.of(
+                "path", "xyz",
+                "op", "replace",
+                "value", "example-name");
 
         List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
 
@@ -55,61 +46,43 @@ public class ServiceUpdateOperationValidatorTest {
 
     @Test
     public void shouldFail_whenUpdate_whenInvalidOperationForSuppliedPath() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "name", "op", "add", "value", "example-name");
+        shouldFailForAddOperation("name", "example-name");
+    }
 
-        List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
+    @Test
+    public void shouldSuccess_whenUpdateName_withAllFieldsPresentAndValid() {
+        replaceShouldSucceed("name", "example-name");
+    }
 
-        assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Operation [add] is invalid for path [name]"));
+    @Test
+    public void shouldFail_whenUpdateName_whenNameFieldPresentAndItIsTooLong() {
+        replaceShouldFailWhenStringValueIsTooLong("name", 50);
     }
 
     @Test
     public void shouldSuccess_replacingCustomBranding() {
-        ImmutableMap<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace",
-                "value", ImmutableMap.of("image_url", "image url", "css_url", "css url"));
-
-        List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
-
-        assertThat(errors.isEmpty(), is(true));
+        ImmutableMap<String, String> branding = ImmutableMap.of("image_url", "image url", "css_url", "css url");
+        replaceShouldSucceed("custom_branding", branding);
     }
 
     @Test
     public void shouldSuccess_replacingCustomBranding_forEmptyObject() {
-        ImmutableMap<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of());
-
-        List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
-
-        assertThat(errors.isEmpty(), is(true));
+        replaceShouldSucceed("custom_branding", ImmutableMap.of());
     }
 
     @Test
     public void shouldError_ifCustomBrandingIsEmptyString() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "");
-
-        List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
-
-        assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Value for path [custom_branding] must be a JSON"));
+        replaceShouldFailWhenValueIsEmptyString("custom_branding", "Value for path [custom_branding] must be a JSON");
     }
 
     @Test
     public void shouldError_ifCustomBrandingIsNull() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace");
-
-        List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
-
-        assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Value for path [custom_branding] must be a JSON"));
+        replaceShouldFailWhenValueIsNull("custom_branding", "Value for path [custom_branding] must be a JSON");
     }
 
     @Test
     public void shouldError_replacingCustomBranding_ifValueIsNotJSON() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "&*£&^(P%£");
-
-        List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
-
-        assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Value for path [custom_branding] must be a JSON"));
+        replaceShouldFailWhenValueIsString("custom_branding", "Value for path [custom_branding] must be a JSON");
     }
 
     @Test
@@ -134,7 +107,10 @@ public class ServiceUpdateOperationValidatorTest {
 
     @Test
     public void shouldFail_whenUpdateServiceName_whenPathContainsUnsupportedLanguage() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("path", "service_name/xx", "op", "replace", "value", "example-name");
+        ImmutableMap<String, String> payload = ImmutableMap.of(
+                "path", "service_name/xx",
+                "op", "replace",
+                "value", "example-name");
 
         List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
 
@@ -153,20 +129,8 @@ public class ServiceUpdateOperationValidatorTest {
     }
 
     @Test
-    public void shouldFail_whenUpdateRedirectToService_whenOpIsNotPresent() {
-        ObjectNode payload = mapper.createObjectNode();
-        payload.put("path", "redirect_to_service_immediately_on_terminal_state");
-        payload.put("value", true);
-
-        List<String> errors = serviceUpdateOperationValidator.validate(payload);
-
-        assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Field [op] is required"));
-    }
-
-    @Test
     public void shouldFail_whenUpdateRedirectToService_whenValueIsNotBoolean() {
-        replaceShouldFailWhenValueIsString("redirect_to_service_immediately_on_terminal_state");
+        replaceShouldFailWhenValueIsString("redirect_to_service_immediately_on_terminal_state", "Field [value] must be a boolean");
     }
 
     @Test
@@ -185,20 +149,8 @@ public class ServiceUpdateOperationValidatorTest {
     }
 
     @Test
-    public void shouldFail_whenUpdateCollectBillingAddress_whenOpIsNotPresent() {
-        ObjectNode payload = mapper.createObjectNode();
-        payload.put("path", "collect_billing_address");
-        payload.put("value", true);
-
-        List<String> errors = serviceUpdateOperationValidator.validate(payload);
-
-        assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Field [op] is required"));
-    }
-
-    @Test
     public void shouldFail_whenUpdateCollectBillingAddress_whenValueIsNotBoolean() {
-        replaceShouldFailWhenValueIsString("collect_billing_address");
+        replaceShouldFailWhenValueIsString("collect_billing_address", "Field [value] must be a boolean");
     }
 
     @Test
@@ -224,7 +176,7 @@ public class ServiceUpdateOperationValidatorTest {
         payload.put("value", "CAKE_ORDERED");
         List<String> errors = serviceUpdateOperationValidator.validate(payload);
         assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_NAME, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, TERMS_AGREED_STRIPE, TERMS_AGREED_WORLDPAY, TERMS_AGREED_SMARTPAY, TERMS_AGREED_EPDQ, DENIED, LIVE]"));
+        assertThat(errors, hasItem(GO_LIVE_STAGE_INVALID_ERROR_MESSAGE));
     }
 
     @Test
@@ -233,25 +185,13 @@ public class ServiceUpdateOperationValidatorTest {
     }
 
     @Test
-    public void shouldFail_updatingCurrentGoLiveStage_whenOperationIsMissing() {
-        ObjectNode payload = mapper.createObjectNode();
-        payload.put("path", "current_go_live_stage");
-        payload.put("value", "CHOSEN_PSP_STRIPE");
-
-        List<String> errors = serviceUpdateOperationValidator.validate(payload);
-
-        assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Field [op] is required"));
-    }
-
-    @Test
     public void shouldFail_updatingCurrentGoLiveStage_whenValueIsNumeric() {
-        replaceShouldFailWhenValueIsNumeric("current_go_live_stage", "Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_NAME, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, TERMS_AGREED_STRIPE, TERMS_AGREED_WORLDPAY, TERMS_AGREED_SMARTPAY, TERMS_AGREED_EPDQ, DENIED, LIVE]");
+        replaceShouldFailWhenValueIsNumeric("current_go_live_stage", GO_LIVE_STAGE_INVALID_ERROR_MESSAGE);
     }
 
     @Test
     public void shouldFail_updatingCurrentGoLiveStage_whenValueIsBoolean() {
-        replaceShouldFailWhenValueIsBoolean("current_go_live_stage", "Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_NAME, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, TERMS_AGREED_STRIPE, TERMS_AGREED_WORLDPAY, TERMS_AGREED_SMARTPAY, TERMS_AGREED_EPDQ, DENIED, LIVE]");
+        replaceShouldFailWhenValueIsBoolean("current_go_live_stage", GO_LIVE_STAGE_INVALID_ERROR_MESSAGE);
     }
 
     @Test
@@ -577,7 +517,7 @@ public class ServiceUpdateOperationValidatorTest {
         assertThat(errors, hasItem(expectedErrorMessage));
     }
 
-    private void replaceShouldFailWhenValueIsString(String path) {
+    private void replaceShouldFailWhenValueIsString(String path, String expectedErrorMessage) {
         ObjectNode payload = mapper.createObjectNode();
         payload.put("path", path);
         payload.put("op", "replace");
@@ -586,7 +526,7 @@ public class ServiceUpdateOperationValidatorTest {
         List<String> errors = serviceUpdateOperationValidator.validate(payload);
 
         assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Field [value] must be a boolean"));
+        assertThat(errors, hasItem(expectedErrorMessage));
     }
 
     private void replaceShouldFailWhenValueMissing(String path) {
@@ -599,23 +539,31 @@ public class ServiceUpdateOperationValidatorTest {
     }
 
     private void replaceShouldFailWhenValueIsNull(String path) {
+        replaceShouldFailWhenValueIsNull(path, "Field [value] is required");
+    }
+
+    private void replaceShouldFailWhenValueIsNull(String path, String expectedErrorMessage) {
         ObjectNode payload = mapper.createObjectNode();
         payload.put("path", path);
         payload.put("op", "replace");
         payload.putNull("value");
         List<String> errors = serviceUpdateOperationValidator.validate(payload);
         assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Field [value] is required"));
+        assertThat(errors, hasItem(expectedErrorMessage));
     }
 
     private void replaceShouldFailWhenValueIsEmptyString(String path) {
+        replaceShouldFailWhenValueIsEmptyString(path,"Field [value] is required");
+    }
+
+    private void replaceShouldFailWhenValueIsEmptyString(String path, String expectedErrorMessage) {
         ObjectNode payload = mapper.createObjectNode();
         payload.put("path", path);
         payload.put("op", "replace");
         payload.put("value", "");
         List<String> errors = serviceUpdateOperationValidator.validate(payload);
         assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("Field [value] is required"));
+        assertThat(errors, hasItem(expectedErrorMessage));
     }
 
     private void replaceShouldFailWhenStringValueIsTooLong(String path, int expectedMaxLength) {

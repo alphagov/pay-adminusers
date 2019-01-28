@@ -173,10 +173,11 @@ public class ServiceUpdateOperationValidator {
 
     private List<String> validateNotNullStringValueWithMaxLength(JsonNode operation, boolean allowEmpty, int maxLength) {
         List<String> errors = new ArrayList<>();
-        if (allowEmpty)
+        if (allowEmpty) {
             requestValidations.checkExists(operation, FIELD_VALUE).ifPresent(errors::addAll);
-        else
+        } else {
             requestValidations.checkExistsAndNotEmpty(operation, FIELD_VALUE).ifPresent(errors::addAll);
+        }
         
         if (errors.isEmpty()) {
             requestValidations.checkIsString(operation, FIELD_VALUE).ifPresent(errors::addAll);
