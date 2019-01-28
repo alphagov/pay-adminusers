@@ -23,6 +23,14 @@ import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_COLLECT_BILLING
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CURRENT_GO_LIVE_STAGE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CUSTOM_BRANDING;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT_IDS;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_ADDRESS_CITY;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_ADDRESS_COUNRTY;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_EMAIL;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_NAME;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_NAME;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_REDIRECT_NAME;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_SERVICE_NAME_PREFIX;
@@ -34,10 +42,19 @@ public class ServiceUpdateOperationValidator {
 
     private static final int SERVICE_NAME_MAX_LENGTH = 50;
 
+    private static final int FIELD_MERCHANT_DETAILS_NAME_MAX_LENGTH = 255;
+    private static final int FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1_MAX_LENGTH = 255;
+    private static final int FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2_MAX_LENGTH = 255;
+    private static final int FIELD_MERCHANT_DETAILS_ADDRESS_CITY_MAX_LENGTH = 255;
+    private static final int FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY_CODE_MAX_LENGTH = 10;
+    private static final int FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE_MAX_LENGTH = 25;
+    private static final int FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH = 255;
+    private static final int FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER_MAX_LENGTH = 255;
+
     private final Map<String, List<String>> validAttributeUpdateOperations;
 
     private final RequestValidations requestValidations;
-    
+
     private static final EnumSet<GoLiveStage> GO_LIVE_STAGES = EnumSet.allOf(GoLiveStage.class);
 
     @Inject
@@ -49,6 +66,14 @@ public class ServiceUpdateOperationValidator {
         validAttributeUpdateOperations.put(FIELD_REDIRECT_NAME, singletonList(REPLACE));
         validAttributeUpdateOperations.put(FIELD_COLLECT_BILLING_ADDRESS, singletonList(REPLACE));
         validAttributeUpdateOperations.put(FIELD_CURRENT_GO_LIVE_STAGE, singletonList(REPLACE));
+        validAttributeUpdateOperations.put(FIELD_MERCHANT_DETAILS_NAME, singletonList(REPLACE));
+        validAttributeUpdateOperations.put(FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1, singletonList(REPLACE));
+        validAttributeUpdateOperations.put(FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2, singletonList(REPLACE));
+        validAttributeUpdateOperations.put(FIELD_MERCHANT_DETAILS_ADDRESS_CITY, singletonList(REPLACE));
+        validAttributeUpdateOperations.put(FIELD_MERCHANT_DETAILS_ADDRESS_COUNRTY, singletonList(REPLACE));
+        validAttributeUpdateOperations.put(FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, singletonList(REPLACE));
+        validAttributeUpdateOperations.put(FIELD_MERCHANT_DETAILS_EMAIL, singletonList(REPLACE));
+        validAttributeUpdateOperations.put(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, singletonList(REPLACE));
         Arrays.stream(SupportedLanguage.values()).forEach(lang ->
                 validAttributeUpdateOperations.put(FIELD_SERVICE_NAME_PREFIX + '/' + lang.toString(), singletonList(REPLACE)));
         this.validAttributeUpdateOperations = validAttributeUpdateOperations.build();
@@ -87,13 +112,29 @@ public class ServiceUpdateOperationValidator {
         } else if (FIELD_NAME.equals(path) || path.startsWith(FIELD_SERVICE_NAME_PREFIX)) {
             return validateServiceNameValue(operation, path);
         } else if (FIELD_REDIRECT_NAME.equals(path)) {
-            return validateDirectlyRedirectValue(operation);
+            return validateMandatoryBooleanValue(operation);
         } else if (FIELD_COLLECT_BILLING_ADDRESS.equals(path)) {
-            return validateCollectBillingAddressValue(operation);
+            return validateMandatoryBooleanValue(operation);
         } else if (FIELD_CURRENT_GO_LIVE_STAGE.equals(path)) {
             return validateCurrentGoLiveStageValue(operation);
+        } else if (FIELD_MERCHANT_DETAILS_NAME.equals(path)) {
+            return validateNotNullStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_NAME_MAX_LENGTH);
+        } else if (FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1.equals(path)) {
+            return validateNotNullStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1_MAX_LENGTH);
+        } else if (FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2.equals(path)) {
+            return validateNotNullStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2_MAX_LENGTH);
+        } else if (FIELD_MERCHANT_DETAILS_ADDRESS_CITY.equals(path)) {
+            return validateNotNullStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_CITY_MAX_LENGTH);
+        } else if (FIELD_MERCHANT_DETAILS_ADDRESS_COUNRTY.equals(path)) {
+            return validateNotNullStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY_CODE_MAX_LENGTH);
+        } else if (FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE.equals(path)) {
+            return validateNotNullStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE_MAX_LENGTH);
+        } else if (FIELD_MERCHANT_DETAILS_EMAIL.equals(path)) {
+            return validateNotNullStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH);
+        } else if (FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER.equals(path)) {
+            return validateNotNullStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER_MAX_LENGTH);
         }
-        
+
         return Collections.emptyList();
     }
 
@@ -102,31 +143,11 @@ public class ServiceUpdateOperationValidator {
     }
 
     private List<String> validateServiceNameValue(JsonNode operation, String path) {
-        List<String> errors = new ArrayList<>();
-        if (FIELD_NAME.equals(path) || path.endsWith('/' + SupportedLanguage.ENGLISH.toString())) {
-            requestValidations.checkExistsAndNotEmpty(operation, FIELD_VALUE).ifPresent(errors::addAll);
-        } else {
-            requestValidations.checkExists(operation, FIELD_VALUE).ifPresent(errors::addAll);
-        }
-        if (errors.isEmpty()) {
-            requestValidations.checkIsString(operation, FIELD_VALUE).ifPresent(errors::addAll);
-        }
-        if (errors.isEmpty()) {
-            requestValidations.checkMaxLength(operation, SERVICE_NAME_MAX_LENGTH, FIELD_VALUE).ifPresent(errors::addAll);
-        }
-        return errors;
+        boolean allowEmpty = !FIELD_NAME.equals(path) && !path.endsWith('/' + SupportedLanguage.ENGLISH.toString());
+        return validateNotNullStringValueWithMaxLength(operation, allowEmpty, SERVICE_NAME_MAX_LENGTH);
     }
 
-    private List<String> validateDirectlyRedirectValue(JsonNode operation) {
-        List<String> errors = new ArrayList<>();
-        requestValidations.checkExists(operation, FIELD_VALUE).ifPresent(errors::addAll);
-        if (errors.isEmpty()) {
-            requestValidations.checkIsStrictBoolean(operation, FIELD_VALUE).ifPresent(errors::addAll);
-        }
-        return errors;
-    }
-
-    private List<String> validateCollectBillingAddressValue(JsonNode operation) {
+    private List<String> validateMandatoryBooleanValue(JsonNode operation) {
         List<String> errors = new ArrayList<>();
         requestValidations.checkExists(operation, FIELD_VALUE).ifPresent(errors::addAll);
         if (errors.isEmpty()) {
@@ -149,7 +170,25 @@ public class ServiceUpdateOperationValidator {
         }
         return errors;
     }
-    
+
+    private List<String> validateNotNullStringValueWithMaxLength(JsonNode operation, boolean allowEmpty, int maxLength) {
+        List<String> errors = new ArrayList<>();
+        if (allowEmpty) {
+            requestValidations.checkExists(operation, FIELD_VALUE).ifPresent(errors::addAll);
+        } else {
+            requestValidations.checkExistsAndNotEmpty(operation, FIELD_VALUE).ifPresent(errors::addAll);
+        }
+        
+        if (errors.isEmpty()) {
+            requestValidations.checkIsString(operation, FIELD_VALUE).ifPresent(errors::addAll);
+        }
+        if (errors.isEmpty()) {
+            requestValidations.checkMaxLength(operation, maxLength, FIELD_VALUE).ifPresent(errors::addAll);
+        }
+        
+        return errors;
+    }
+
     private List<String> validateOperationIsValidForPath(JsonNode operation) {
         String path = operation.get(FIELD_PATH).asText();
 
