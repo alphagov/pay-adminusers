@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import uk.gov.pay.commons.api.json.ApiResponseDateTimeSerializer;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -45,7 +46,7 @@ public class ForgottenPassword {
         return code;
     }
 
-    @JsonSerialize(using = ZonedDateTimeSerializer.class)
+    @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
     public ZonedDateTime getDate() {
         return date;
     }

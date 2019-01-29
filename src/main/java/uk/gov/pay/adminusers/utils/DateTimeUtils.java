@@ -7,10 +7,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
+import static uk.gov.pay.commons.model.ApiResponseDateTimeFormatter.ISO_INSTANT_MILLISECOND_PRECISION;
+
 public class DateTimeUtils {
 
     private static final ZoneId UTC = ZoneId.of("Z");
-    private static DateTimeFormatter dateTimeFormatterUTC = DateTimeFormatter.ISO_INSTANT.withZone(UTC);
     private static DateTimeFormatter dateTimeFormatterAny = DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
     /**
@@ -49,7 +50,7 @@ public class DateTimeUtils {
      * @return UTC ISO_8601 date string
      */
     public static String toUTCDateString(ZonedDateTime dateTime) {
-        return dateTime.format(dateTimeFormatterUTC);
+        return ISO_INSTANT_MILLISECOND_PRECISION.format(dateTime);
     }
 
 

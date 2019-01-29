@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import uk.gov.pay.commons.api.json.ApiResponseDateTimeSerializer;
 
 import java.net.InetAddress;
 import java.time.ZonedDateTime;
@@ -25,7 +26,7 @@ public class StripeAgreement {
         return ipAddress;
     }
 
-    @JsonSerialize(using = ZonedDateTimeSerializer.class)
+    @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
     public ZonedDateTime getAgreementTime() {
         return agreementTime;
     }
