@@ -6,6 +6,7 @@ import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import java.util.Objects;
 
 @Embeddable
 public class MerchantDetailsEntity {
@@ -155,27 +156,19 @@ public class MerchantDetailsEntity {
 
         MerchantDetailsEntity that = (MerchantDetailsEntity) o;
 
-        if (!name.equals(that.name)) return false;
-        if (telephoneNumber != null ? !telephoneNumber.equals(that.telephoneNumber) : that.telephoneNumber != null)
-            return false;
-        if (!addressLine1.equals(that.addressLine1)) return false;
-        if (addressLine2 != null ? !addressLine2.equals(that.addressLine2) : that.addressLine2 != null) return false;
-        if (!addressCity.equals(that.addressCity)) return false;
-        if (!addressPostcode.equals(that.addressPostcode)) return false;
-        if (email != null ? !email.equals(that.email) : that.email != null) return false;
-        return addressCountryCode.equals(that.addressCountryCode);
+        return Objects.equals(name, that.name)
+                && Objects.equals(telephoneNumber, that.telephoneNumber)
+                && Objects.equals(addressLine1, that.addressLine1)
+                && Objects.equals(addressLine2, that.addressLine2)
+                && Objects.equals(addressCity, that.addressCity)
+                && Objects.equals(addressPostcode, that.addressPostcode)
+                && Objects.equals(email, that.email)
+                && Objects.equals(addressCountryCode, that.addressCountryCode);
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + (telephoneNumber != null ? telephoneNumber.hashCode() : 0);
-        result = 31 * result + addressLine1.hashCode();
-        result = 31 * result + (addressLine2 != null ? addressLine2.hashCode() : 0);
-        result = 31 * result + addressCity.hashCode();
-        result = 31 * result + addressPostcode.hashCode();
-        result = 31 * result + addressCountryCode.hashCode();
-        result = 31 * result + (email != null ? email.hashCode() : 0);
-        return result;
+        return Objects.hash(name, telephoneNumber, addressLine1, addressLine2, addressCity,
+                addressPostcode, addressCountryCode, email);
     }
 }
