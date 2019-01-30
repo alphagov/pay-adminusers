@@ -10,13 +10,13 @@ import java.util.Optional;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class UpdateMerchantDetailsRequest {
 
-    public static final String FIELD_NAME = "name";
-    public static final String FIELD_TELEPHONE_NUMBER = "telephone_number";
-    public static final String FIELD_ADDRESS_LINE1 = "address_line1";
-    public static final String FIELD_ADDRESS_LINE2 = "address_line2";
-    public static final String FIELD_ADDRESS_CITY = "address_city";
-    public static final String FIELD_ADDRESS_POSTCODE = "address_postcode";
-    public static final String FIELD_ADDRESS_COUNTRY = "address_country";
+    private static final String FIELD_NAME = "name";
+    private static final String FIELD_TELEPHONE_NUMBER = "telephone_number";
+    private static final String FIELD_ADDRESS_LINE1 = "address_line1";
+    private static final String FIELD_ADDRESS_LINE2 = "address_line2";
+    private static final String FIELD_ADDRESS_CITY = "address_city";
+    private static final String FIELD_ADDRESS_POSTCODE = "address_postcode";
+    private static final String FIELD_ADDRESS_COUNTRY = "address_country";
     private static final String FIELD_EMAIL = "email";
 
     private String name;
