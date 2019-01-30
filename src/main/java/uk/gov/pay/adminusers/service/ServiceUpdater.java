@@ -40,10 +40,7 @@ public class ServiceUpdater {
     public static final String FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE = "merchant_details/address_postcode";
     public static final String FIELD_MERCHANT_DETAILS_EMAIL = "merchant_details/email";
     public static final String FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER = "merchant_details/telephone_number";
-    
-
     private final ServiceDao serviceDao;
-
     private final Map<String, BiConsumer<ServiceUpdateRequest, ServiceEntity>> attributeUpdaters;
 
     @Inject
@@ -55,6 +52,15 @@ public class ServiceUpdater {
         attributeUpdaters.put(FIELD_REDIRECT_NAME, updateRedirectImmediately());
         attributeUpdaters.put(FIELD_COLLECT_BILLING_ADDRESS, updateCollectBillingAddress());
         attributeUpdaters.put(FIELD_CURRENT_GO_LIVE_STAGE, updateCurrentGoLiveStage());
+        attributeUpdaters.put(FIELD_MERCHANT_DETAILS_NAME, updateMerchantDetailsName());
+        attributeUpdaters.put(FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1, updateMerchantDetailsAddressLine1());
+        attributeUpdaters.put(FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2, updateMerchantDetailsAddressLine2());
+        attributeUpdaters.put(FIELD_MERCHANT_DETAILS_ADDRESS_CITY, updateMerchantDetailsAddressCity());
+        attributeUpdaters.put(FIELD_MERCHANT_DETAILS_ADDRESS_COUNRTY, updateMerchantDetailsAddressCountry());
+        attributeUpdaters.put(FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, updateMerchantDetailsAddressPostcode());
+        attributeUpdaters.put(FIELD_MERCHANT_DETAILS_EMAIL, updateMerchantDetailsEmail());
+        attributeUpdaters.put(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, updateMerchantDetailsPhone());
+
         Arrays.stream(SupportedLanguage.values())
                 .forEach(language -> attributeUpdaters.put(FIELD_SERVICE_NAME_PREFIX + '/' + language.toString(), updateMultilingualServiceName()));
         this.attributeUpdaters = attributeUpdaters.build();
@@ -133,5 +139,55 @@ public class ServiceUpdater {
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateCurrentGoLiveStage() {
         return (serviceUpdateRequest, serviceEntity) ->
                 serviceEntity.setCurrentGoLiveStage(GoLiveStage.valueOf(serviceUpdateRequest.valueAsString()));
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateMerchantDetailsName() {
+        return (serviceUpdateRequest, serviceEntity) ->
+                getOrCreateMerchantDetails(serviceEntity).setName(serviceUpdateRequest.valueAsString());
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateMerchantDetailsAddressLine1() {
+        return (serviceUpdateRequest, serviceEntity) ->
+                getOrCreateMerchantDetails(serviceEntity).setAddressLine1(serviceUpdateRequest.valueAsString());
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateMerchantDetailsAddressLine2() {
+        return (serviceUpdateRequest, serviceEntity) ->
+                getOrCreateMerchantDetails(serviceEntity).setAddressLine2(serviceUpdateRequest.valueAsString());
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateMerchantDetailsAddressCity() {
+        return (serviceUpdateRequest, serviceEntity) ->
+                getOrCreateMerchantDetails(serviceEntity).setAddressCity(serviceUpdateRequest.valueAsString());
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateMerchantDetailsAddressCountry() {
+        return (serviceUpdateRequest, serviceEntity) ->
+                getOrCreateMerchantDetails(serviceEntity).setAddressCountryCode(serviceUpdateRequest.valueAsString());
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateMerchantDetailsAddressPostcode() {
+        return (serviceUpdateRequest, serviceEntity) ->
+                getOrCreateMerchantDetails(serviceEntity).setAddressPostcode(serviceUpdateRequest.valueAsString());
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateMerchantDetailsEmail() {
+        return (serviceUpdateRequest, serviceEntity) ->
+                getOrCreateMerchantDetails(serviceEntity).setEmail(serviceUpdateRequest.valueAsString());
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateMerchantDetailsPhone() {
+        return (serviceUpdateRequest, serviceEntity) ->
+                getOrCreateMerchantDetails(serviceEntity).setTelephoneNumber(serviceUpdateRequest.valueAsString());
+    }
+
+    private MerchantDetailsEntity getOrCreateMerchantDetails(ServiceEntity serviceEntity) {
+        if (serviceEntity.getMerchantDetailsEntity() != null) {
+            return serviceEntity.getMerchantDetailsEntity();
+        }
+
+        MerchantDetailsEntity merchantDetailsEntity = new MerchantDetailsEntity();
+        serviceEntity.setMerchantDetailsEntity(merchantDetailsEntity);
+        return merchantDetailsEntity;
     }
 }

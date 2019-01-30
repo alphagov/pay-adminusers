@@ -3,7 +3,6 @@ package uk.gov.pay.adminusers.persistence.entity;
 import uk.gov.pay.adminusers.model.MerchantDetails;
 import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
 
-import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.util.Objects;
@@ -14,14 +13,12 @@ public class MerchantDetailsEntity {
     @Column(name = "merchant_name")
     private String name;
 
-    @Nullable
     @Column(name = "merchant_telephone_number")
     private String telephoneNumber;
 
     @Column(name = "merchant_address_line1")
     private String addressLine1;
 
-    @Nullable
     @Column(name = "merchant_address_line2")
     private String addressLine2;
 
@@ -34,7 +31,6 @@ public class MerchantDetailsEntity {
     @Column(name = "merchant_address_country")
     private String addressCountryCode;
 
-    @Nullable
     @Column(name = "merchant_email")
     private String email;
 

@@ -1,5 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
@@ -15,6 +17,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
+import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
 public class ServiceResourceUpdateMerchantDetailsTest extends IntegrationTest {
 
@@ -109,4 +112,54 @@ public class ServiceResourceUpdateMerchantDetailsTest extends IntegrationTest {
                 .body("errors", hasItems("Field [name] is required"));
     }
 
+    @Test
+    public void shouldSucceed_whenPatchUpdatingMultipleMerchantDetails() {
+        String serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
+        String addressLine1 = "1 Spider Lane";
+        String addressCountry = "Somewhere";
+        ArrayNode payload = mapper.createArrayNode();
+
+        payload.add(mapper.valueToTree(ImmutableMap.of(
+                "op", "replace",
+                "path", "merchant_details/address_line_1",
+                "value", addressLine1)));
+
+        payload.add(mapper.valueToTree(ImmutableMap.of(
+                "op", "replace",
+                "path", "merchant_details/address_country",
+                "value", addressCountry)));
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .body(payload)
+                .patch(format(SERVICE_RESOURCE, serviceExternalId))
+                .then()
+                .statusCode(200)
+                .body("merchant_details.address_line1", is(addressLine1))
+                .body("merchant_details.address_country", is(addressCountry));
+    }
+
+    @Test
+    public void shouldSucceed_whenPatchUpdatingAddressLine1AndMerchantDetailsIsNull() {
+        String serviceExternalId = serviceDbFixture(databaseHelper)
+                .withMerchantDetails(null)
+                .insertService()
+                .getExternalId();
+
+        String addressLine1 = "1 Spider Lane";
+        JsonNode payload = mapper.valueToTree(ImmutableMap.of(
+                "op", "replace",
+                "path", "merchant_details/address_line_1",
+                "value", addressLine1));
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .body(payload)
+                .patch(format(SERVICE_RESOURCE, serviceExternalId))
+                .then()
+                .statusCode(200)
+                .body("merchant_details.address_line1", is(addressLine1));
+    }
 }
