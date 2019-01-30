@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.utils;
 
 import org.junit.Test;
-
 import java.time.ZonedDateTime;
 
 import static junit.framework.TestCase.assertEquals;

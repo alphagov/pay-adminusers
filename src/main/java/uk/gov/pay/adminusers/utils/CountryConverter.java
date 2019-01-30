@@ -21,8 +21,8 @@ public class CountryConverter {
     @Inject
     public CountryConverter(ObjectMapper objectMapper) throws IOException {
         this.objectMapper = objectMapper;
-        String countries = Resources.toString(Resources.getResource(COUNTRIES_FILE_PATH), Charsets.UTF_8);
-        this.countries = createMap(countries);
+        String textCountries = Resources.toString(Resources.getResource(COUNTRIES_FILE_PATH), Charsets.UTF_8);
+        this.countries = createMap(textCountries);
     }
 
     private Map<String, String> createMap(String countries) throws IOException {
