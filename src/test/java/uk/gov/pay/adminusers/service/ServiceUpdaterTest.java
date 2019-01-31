@@ -294,8 +294,8 @@ public class ServiceUpdaterTest {
 
         ArrayList<ServiceUpdateRequest> serviceUpdateRequests = newArrayList(
                 serviceUpdateRequest("replace", "merchant_details/name", name),
-                serviceUpdateRequest("replace", "merchant_details/address_line_1", addressLine1),
-                serviceUpdateRequest("replace", "merchant_details/address_line_2", addressLine2),
+                serviceUpdateRequest("replace", "merchant_details/address_line1", addressLine1),
+                serviceUpdateRequest("replace", "merchant_details/address_line2", addressLine2),
                 serviceUpdateRequest("replace", "merchant_details/address_city", addressCity),
                 serviceUpdateRequest("replace", "merchant_details/address_country", addressCountry),
                 serviceUpdateRequest("replace", "merchant_details/address_postcode", addressPostcode),
@@ -326,7 +326,7 @@ public class ServiceUpdaterTest {
     @Test
     public void shouldUpdateMerchantDetailsAddressLine1Successfully_WhenExistingMerchantDetails() {
         String updatedAddressLine1 = "1 Spider Lane";
-        ServiceUpdateRequest request = serviceUpdateRequest("replace", "merchant_details/address_line_1", updatedAddressLine1);
+        ServiceUpdateRequest request = serviceUpdateRequest("replace", "merchant_details/address_line1", updatedAddressLine1);
         MerchantDetailsEntity merchantDetails = aMerchantDetailsEntity().build();
         ServiceEntity serviceEntity = aServiceEntity()
                 .withMerchantDetailsEntity(merchantDetails)
