@@ -33,8 +33,8 @@ public class ServiceUpdater {
     public static final String FIELD_COLLECT_BILLING_ADDRESS = "collect_billing_address";
     public static final String FIELD_CURRENT_GO_LIVE_STAGE = "current_go_live_stage";
     public static final String FIELD_MERCHANT_DETAILS_NAME = "merchant_details/name";
-    public static final String FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1 = "merchant_details/address_line_1";
-    public static final String FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2 = "merchant_details/address_line_2";
+    public static final String FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1 = "merchant_details/address_line1";
+    public static final String FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2 = "merchant_details/address_line2";
     public static final String FIELD_MERCHANT_DETAILS_ADDRESS_CITY = "merchant_details/address_city";
     public static final String FIELD_MERCHANT_DETAILS_ADDRESS_COUNRTY = "merchant_details/address_country";
     public static final String FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE = "merchant_details/address_postcode";

@@ -246,67 +246,67 @@ public class ServiceUpdateOperationValidatorTest {
 
     @Test
     public void shouldFail_updatingMerchantDetailsAddressLine1_whenNotAllowedOperation() {
-        shouldFailForAddOperation("merchant_details/address_line_1", "any value");
+        shouldFailForAddOperation("merchant_details/address_line1", "any value");
     }
 
     @Test
     public void shouldFail_updatingMerchantDetailsAddressLine1_whenValueIsNotString() {
-        replaceShouldFailWhenValueIsNumeric("merchant_details/address_line_1", "Field [value] must be a string");
+        replaceShouldFailWhenValueIsNumeric("merchant_details/address_line1", "Field [value] must be a string");
     }
 
     @Test
     public void shouldFail_updatingMerchantDetailsAddressLine1_whenValueIsMissing() {
-        replaceShouldFailWhenValueMissing("merchant_details/address_line_1");
+        replaceShouldFailWhenValueMissing("merchant_details/address_line1");
     }
 
     @Test
     public void shouldFail_updatingMerchantDetailsAddressLine1_whenValueIsNull() {
-        replaceShouldFailWhenValueIsNull("merchant_details/address_line_1");
+        replaceShouldFailWhenValueIsNull("merchant_details/address_line1");
     }
 
     @Test
     public void shouldFail_updatingMerchantDetailsAddressLine1_whenValueIsEmptyString() {
-        replaceShouldFailWhenValueIsEmptyString("merchant_details/address_line_1");
+        replaceShouldFailWhenValueIsEmptyString("merchant_details/address_line1");
     }
 
     @Test
     public void shouldFail_updatingMerchantDetailsAddressLine1_whenValueIsTooLong() {
-        replaceShouldFailWhenStringValueIsTooLong("merchant_details/address_line_1", 255);
+        replaceShouldFailWhenStringValueIsTooLong("merchant_details/address_line1", 255);
     }
 
     @Test
     public void shouldSucceed_updatingMerchantDetailsAddressLine1() {
-        replaceShouldSucceed("merchant_details/address_line_1", "1 Builders Avenue");
+        replaceShouldSucceed("merchant_details/address_line1", "1 Builders Avenue");
     }
 
     @Test
     public void shouldFail_updatingMerchantDetailsAddressLine2_whenNotAllowedOperation() {
-        shouldFailForAddOperation("merchant_details/address_line_2", "any value");
+        shouldFailForAddOperation("merchant_details/address_line2", "any value");
     }
 
     @Test
     public void shouldFail_updatingMerchantDetailsAddressLine2_whenValueIsNotString() {
-        replaceShouldFailWhenValueIsNumeric("merchant_details/address_line_2", "Field [value] must be a string");
+        replaceShouldFailWhenValueIsNumeric("merchant_details/address_line2", "Field [value] must be a string");
     }
 
     @Test
     public void shouldFail_updatingMerchantDetailsAddressLine2_whenValueIsMissing() {
-        replaceShouldFailWhenValueMissing("merchant_details/address_line_2");
+        replaceShouldFailWhenValueMissing("merchant_details/address_line2");
     }
 
     @Test
     public void shouldFail_updatingMerchantDetailsAddressLine2_whenValueIsNull() {
-        replaceShouldFailWhenValueIsNull("merchant_details/address_line_2");
+        replaceShouldFailWhenValueIsNull("merchant_details/address_line2");
     }
 
     @Test
     public void shouldFail_updatingMerchantDetailsAddressLine2_whenValueIsTooLong() {
-        replaceShouldFailWhenStringValueIsTooLong("merchant_details/address_line_2", 255);
+        replaceShouldFailWhenStringValueIsTooLong("merchant_details/address_line2", 255);
     }
 
     @Test
     public void shouldSucceed_updatingMerchantDetailsAddressLine2_whenValueIsEmptyString() {
-        replaceShouldSucceed("merchant_details/address_line_2", "");
+        replaceShouldSucceed("merchant_details/address_line2", "");
     }
 
     @Test

@@ -121,7 +121,7 @@ public class ServiceResourceUpdateMerchantDetailsTest extends IntegrationTest {
 
         payload.add(mapper.valueToTree(ImmutableMap.of(
                 "op", "replace",
-                "path", "merchant_details/address_line_1",
+                "path", "merchant_details/address_line1",
                 "value", addressLine1)));
 
         payload.add(mapper.valueToTree(ImmutableMap.of(
@@ -150,7 +150,7 @@ public class ServiceResourceUpdateMerchantDetailsTest extends IntegrationTest {
         String addressLine1 = "1 Spider Lane";
         JsonNode payload = mapper.valueToTree(ImmutableMap.of(
                 "op", "replace",
-                "path", "merchant_details/address_line_1",
+                "path", "merchant_details/address_line1",
                 "value", addressLine1));
 
         givenSetup()
