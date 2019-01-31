@@ -21,7 +21,6 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.ws.rs.WebApplicationException;
-import java.util.Collections;
 import java.util.Optional;
 
 import static com.google.common.collect.Lists.newArrayList;

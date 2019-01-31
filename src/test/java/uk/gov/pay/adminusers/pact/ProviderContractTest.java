@@ -25,7 +25,6 @@ import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.service.PasswordHasher;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 

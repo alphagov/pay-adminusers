@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.validator.routines.InetAddressValidator;
 import uk.gov.pay.adminusers.utils.email.EmailValidator;
 
 import java.util.EnumSet;
