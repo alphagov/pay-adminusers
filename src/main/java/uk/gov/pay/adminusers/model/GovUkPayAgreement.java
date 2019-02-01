@@ -13,12 +13,12 @@ public class GovUkPayAgreement {
     private String email;
 
     private ZonedDateTime agreementTime;
-    
+
     public GovUkPayAgreement(String email, ZonedDateTime agreementTime) {
         this.email = email;
         this.agreementTime = agreementTime;
     }
-    
+
     public String getEmail() {
         return email;
     }

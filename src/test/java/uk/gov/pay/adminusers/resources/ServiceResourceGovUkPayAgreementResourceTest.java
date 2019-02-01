@@ -7,10 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.fixtures.GovUkPayAgreementDbFixture;
 import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
-import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
-import uk.gov.pay.adminusers.utils.DateTimeUtils;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -21,6 +18,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
+import static uk.gov.pay.commons.model.ApiResponseDateTimeFormatter.ISO_INSTANT_MILLISECOND_PRECISION;
 
 public class ServiceResourceGovUkPayAgreementResourceTest extends IntegrationTest {
 
@@ -157,6 +155,7 @@ public class ServiceResourceGovUkPayAgreementResourceTest extends IntegrationTes
                 .withAgreementTime(agreementTime)
                 .insert();
 
+        final String expectedAgreementDate = ISO_INSTANT_MILLISECOND_PRECISION.format(agreementTime);
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -164,7 +163,7 @@ public class ServiceResourceGovUkPayAgreementResourceTest extends IntegrationTes
                 .then()
                 .statusCode(200)
                 .body("email", is(user.getEmail()))
-                .body("agreement_time", is(DateTimeUtils.toUTCDateString(agreementTime)));
+                .body("agreement_time", is(expectedAgreementDate));
     }
     
     @Test
