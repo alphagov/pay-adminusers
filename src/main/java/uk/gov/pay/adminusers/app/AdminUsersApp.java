@@ -62,7 +62,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
                 return configuration.getDataSourceFactory();
             }
         });
-        
+
         bootstrap.addCommand(new DependentResourceWaitCommand());
         bootstrap.addCommand(new MigrateToInitialDbState());
     }
@@ -95,7 +95,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(new ConflictExceptionMapper());
 
         HttpsURLConnection.setDefaultSSLSocketFactory(new TrustingSSLSocketFactory());
-        
+
         Xray.init(environment, "pay-adminusers", java.util.Optional.empty(), API_VERSION_PATH + "/*");
     }
 

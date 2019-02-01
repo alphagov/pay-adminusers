@@ -8,13 +8,14 @@ import java.net.InetAddress;
 import java.time.ZonedDateTime;
 
 public class StripeAgreement {
-    
+
     public static final String FIELD_IP_ADDRESS = "ip_address";
-    
+
     @JsonProperty(FIELD_IP_ADDRESS)
     private InetAddress ipAddress;
-    
+
     @JsonProperty("agreement_time")
+    @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
     private ZonedDateTime agreementTime;
 
     public StripeAgreement(InetAddress ipAddress, ZonedDateTime agreementTime) {
@@ -26,7 +27,6 @@ public class StripeAgreement {
         return ipAddress;
     }
 
-    @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
     public ZonedDateTime getAgreementTime() {
         return agreementTime;
     }
