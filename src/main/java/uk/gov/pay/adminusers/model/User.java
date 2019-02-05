@@ -30,7 +30,7 @@ public class User {
     private Boolean disabled = Boolean.FALSE;
     private Integer loginCounter = 0;
     private String features;
-    private List<ServiceRole> serviceRoles = new ArrayList<>();
+    private List<ServiceRole> serviceRoles;
     private SecondFactorMethod secondFactor;
     private String provisionalOtpKey;
     private ZonedDateTime provisionalOtpKeyCreatedAt;
