@@ -6,11 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collections;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 public class Errors {
 
-    private List<String> errors = newArrayList();
+    private List<String> errors;
 
     private Errors(@JsonProperty("errors") List<String> errors) {
         this.errors = errors;

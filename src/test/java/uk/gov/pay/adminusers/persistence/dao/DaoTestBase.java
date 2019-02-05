@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.infra.GuicedTestEnvironment;
 import uk.gov.pay.adminusers.model.Permission;
-import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 import uk.gov.pay.commons.testing.db.PostgresDockerRule;
 
@@ -23,7 +22,6 @@ import java.util.Properties;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.Permission.permission;
-import static uk.gov.pay.adminusers.model.Role.role;
 
 public class DaoTestBase {
 
@@ -33,8 +31,7 @@ public class DaoTestBase {
     public static PostgresDockerRule postgres = new PostgresDockerRule();
 
     protected static DatabaseTestHelper databaseHelper;
-    private static JpaPersistModule jpaModule;
-    protected static GuicedTestEnvironment env;
+    static GuicedTestEnvironment env;
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -44,8 +41,7 @@ public class DaoTestBase {
         properties.put("javax.persistence.jdbc.user", postgres.getUsername());
         properties.put("javax.persistence.jdbc.password", postgres.getPassword());
 
-        jpaModule = new JpaPersistModule("AdminUsersUnit");
-        jpaModule.properties(properties);
+        JpaPersistModule jpaModule = new JpaPersistModule("AdminUsersUnit").properties(properties);
 
         databaseHelper = new DatabaseTestHelper(new DBI(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword()));
 
@@ -62,29 +58,21 @@ public class DaoTestBase {
 
     @AfterClass
     public static void tearDown() {
-        Connection connection = null;
-        try {
-            connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword());
+        try (Connection connection = DriverManager.getConnection(
+                postgres.getConnectionUrl(),
+                postgres.getUsername(),
+                postgres.getPassword())) {
             Liquibase migrator = new Liquibase("config/initial-db-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             Liquibase migrator2 = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator2.dropAll();
             migrator.dropAll();
-            connection.close();
         } catch (Exception e) {
             logger.error("Error stopping docker", e);
         }
         env.stop();
     }
 
-    protected Role aRole() {
-        return aRole("role-name-" + randomUuid());
-    }
-
-    protected Role aRole(String name) {
-        return role(randomInt(), name, "role-description" + randomUuid());
-    }
-
-    protected Permission aPermission() {
+    Permission aPermission() {
         return permission(randomInt(), "permission-name-" + randomUuid(), "permission-description" + randomUuid());
     }
 }

@@ -32,8 +32,8 @@ public class CreateUserRequest {
     private String username;
     private String password;
     private String email;
-    private List<String> gatewayAccountIds = new ArrayList<>();
-    private List<String> serviceExternalIds = new ArrayList<>();
+    private List<String> gatewayAccountIds;
+    private List<String> serviceExternalIds;
     private String telephoneNumber;
     private String otpKey;
     private String features;
