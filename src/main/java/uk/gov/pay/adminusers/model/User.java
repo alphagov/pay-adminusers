@@ -9,9 +9,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.Collections.emptyList;
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class User {

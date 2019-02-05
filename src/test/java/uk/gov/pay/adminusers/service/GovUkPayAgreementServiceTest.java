@@ -33,7 +33,7 @@ public class GovUkPayAgreementServiceTest {
     
     private GovUkPayAgreementService agreementService;
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         agreementService = new GovUkPayAgreementService(mockedAgreementDao);
     }
     
