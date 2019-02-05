@@ -15,7 +15,6 @@ import org.junit.runner.RunWith;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.fixtures.RoleDbFixture;
 import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
-import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.infra.DropwizardAppWithPostgresRule;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.GoLiveStage;
@@ -33,11 +32,13 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
+import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 @RunWith(PactRunner.class)
 @Provider("adminusers")
 @PactBroker(scheme = "https", host = "pact-broker-test.cloudapps.digital", tags = {"${PACT_CONSUMER_TAG}", "test", "staging", "production"},
         authentication = @PactBrokerAuth(username = "${PACT_BROKER_USERNAME}", password = "${PACT_BROKER_PASSWORD}"))
+//@PactFolder("pacts")
 public class ProviderContractTest {
 
     @ClassRule
@@ -66,7 +67,7 @@ public class ProviderContractTest {
     public void aUserExistsWithAForgottenPasswordRequest() {
         String code = "avalidforgottenpasswordtoken";
         String userExternalId = RandomIdGenerator.randomUuid();
-        createUserWithinAService(userExternalId, RandomIdGenerator.randomUuid(), "password");
+        createUserWithinAService(userExternalId, RandomIdGenerator.randomUuid(), "password", "cp5wa");
         List<Map<String, Object>> userByExternalId = dbHelper.findUserByExternalId(userExternalId);
         dbHelper.add(ForgottenPassword.forgottenPassword(code, userExternalId), (Integer) userByExternalId.get(0).get("id"));
     }
@@ -74,7 +75,7 @@ public class ProviderContractTest {
     @State("a user exists with max login attempts")
     public void aUserExistsWithMaxLoginAttempts() {
         String username = "user-login-attempts-max";
-        createUserWithinAService(RandomIdGenerator.randomUuid(), username, "password");
+        createUserWithinAService(RandomIdGenerator.randomUuid(), username, "password", "cp5wa");
         dbHelper.updateLoginCount(username, 10);
     }
 
@@ -82,6 +83,7 @@ public class ProviderContractTest {
     public void aForgottenPasswordEntryExist() {
         String code = "existing-code";
         String existingUserExternalId = "7d19aff33f8948deb97ed16b2912dcd3";
+        createUserWithinAService(existingUserExternalId, "forgotten-password-user", "password", "cp5wa");
         List<Map<String, Object>> userByName = dbHelper.findUserByExternalId(existingUserExternalId);
         dbHelper.add(ForgottenPassword.forgottenPassword(code, existingUserExternalId), (Integer) userByName.get(0).get("id"));
     }
@@ -98,10 +100,10 @@ public class ProviderContractTest {
 
         String username1 = randomUuid();
         String email1 = username1 + "@example.com";
-        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withUsername(username1).withEmail(email1).insertUser();
+        userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withUsername(username1).withEmail(email1).insertUser();
         String username2 = randomUuid();
         String email2 = username2 + "@example.com";
-        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserRemoverExternalId).withServiceRole(service, role.getId()).withUsername(username2).withEmail(email2).insertUser();
+        userDbFixture(dbHelper).withExternalId(existingUserRemoverExternalId).withServiceRole(service, role.getId()).withUsername(username2).withEmail(email2).insertUser();
     }
 
     @State("a user exists but not the remover before a delete operation")
@@ -115,12 +117,11 @@ public class ProviderContractTest {
 
         String username = randomUuid();
         String email = username + "@example.com";
-        UserDbFixture.userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withUsername(username).withEmail(email).insertUser();
+        userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withUsername(username).withEmail(email).insertUser();
     }
 
     @State({"a forgotten password does not exists",
             "a user does not exist",
-            "a user exists",
             "no user exits with the given name",
             "a user exits with the given name",
             "a valid (non-expired) forgotten password entry does not exist",
@@ -134,76 +135,34 @@ public class ProviderContractTest {
     public void noSetUp() {
     }
 
-    @State("a user exists with the given external id 7d19aff33f8948deb97ed16b2912dcd3")
+    @State({"a user exists with the given external id 7d19aff33f8948deb97ed16b2912dcd3",
+            "a user exists",
+            "a user exists with username existing-user",
+            "a user exists with username existing-user and password password",
+            "a user exists with role for service with id cp5wa",
+            "a user exists with external id 7d19aff33f8948deb97ed16b2912dcd3 with admin role for service with id cp5wa"})
     public void aUserExistsWithGivenExternalId() {
-        createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", "password");
+        createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", "password", "cp5wa");
     }
-
-    @State("a user exists with the given external id rtglNotStartedUserExtId")
-    public void aUserExistsWithGivenExternalIdAndNotStartedGoLiveStage() {
-        createUserWithinAService("rtglNotStartedUserExtId", "rtglNotStarted", "password");
-    }
-
-    @State("a user exists with the given external id rtglEnteredOrgNameUserExtId")
-    public void aUserExistsWithGivenExternalIdAndEnteredOrganisationNameGoLiveStage() {
-        createUserWithinAService("rtglEnteredOrgNameUserExtId", "rtglEnteredOrgName", "password");
-    }
-
-    @State("a user exists with the given external id rtglChosenPspStripeUserExtId")
-    public void aUserExistsWithGivenExternalIdAndChosenPspStripeGoLiveStage() {
-        createUserWithinAService("rtglChosenPspStripeUserExtId", "rtglChosenPspStripe", "password");
-    }
-
-    @State("a user exists with the given external id rtglChosenPspWorldPayUserExtId")
-    public void aUserExistsWithGivenExternalIdAndChosenPspWorldPayGoLiveStage() {
-        createUserWithinAService("rtglChosenPspWorldPayUserExtId", "rtglChosenPspWorldPay", "password");
-    }
-
-    @State("a user exists with the given external id rtglChosenPspSmartPayUserExtId")
-    public void aUserExistsWithGivenExternalIdAndChosenPspSmartPayGoLiveStage() {
-        createUserWithinAService("rtglChosenPspSmartPayUserExtId", "rtglChosenPspSmartPay", "password");
-    }
-
-    @State("a user exists with the given external id rtglChosenPspEpdqUserExtId")
-    public void aUserExistsWithGivenExternalIdAndChosenPspEpdqGoLiveStage() {
-        createUserWithinAService("rtglChosenPspEpdqUserExtId", "rtglChosenPspEpdq", "password");
-    }
-
-    @State("a user exists with the given external id rtglTermsOkStripeUserExtId")
-    public void aUserExistsWithGivenExternalIdAndTermsAgreedStripeGoLiveStage() {
-        createUserWithinAService("rtglTermsOkStripeUserExtId", "rtglTermsOkStripe", "password");
-    }
-
-    @State("a user exists with the given external id rtglTermsOkWorldPayUserExtId")
-    public void aUserExistsWithGivenExternalIdAndTermsAgreedWorldPayGoLiveStage() {
-        createUserWithinAService("rtglTermsOkWorldPayUserExtId", "rtglTermsOkWorldPay", "password");
-    }
-
-    @State("a user exists with the given external id rtglTermsOkSmartPayUserExtId")
-    public void aUserExistsWithGivenExternalIdAndTermsAgreedSmartPayGoLiveStage() {
-        createUserWithinAService("rtglTermsOkSmartPayUserExtId", "rtglTermsOkSmartPay", "password");
-    }
-
-    @State("a user exists with the given external id rtglTermsOkEpdqUserExtId")
-    public void aUserExistsWithGivenExternalIdAndTermsAgreedEpdqGoLiveStage() {
-        createUserWithinAService("rtglTermsOkEpdqUserExtId", "rtglTermsOkEpdq", "password");
-    }
-
-    @State("a user exists with the given external id rtglDeniedUserExtId")
-    public void aUserExistsWithGivenExternalIdAndDeniedGoLiveStage() {
-        createUserWithinAService("rtglDeniedUserExtId", "rtglDenied", "password");
-    }
-
-    @State("a user exists with the given external id rtglLiveUserExtId")
-    public void aUserExistsWithGivenExternalIdAndLiveGoLiveStage() {
-        createUserWithinAService("rtglLiveUserExtId", "rtglLive", "password");
-    }
-
-    @State("a service exists with external id cp5wa and billing address collection enabled")
-    public void aServiceExistsWithBillingAddressCollectionEnabled() {
+    
+    @State("a user exists external id 7d19aff33f8948deb97ed16b2912dcd3 and a service exists with external id cp5wa")
+    public void aUserExistsNotAssignedToService() {
         serviceDbFixture(dbHelper)
                 .withExternalId("cp5wa")
-                .withCollectBillingAddress(true)
+                .insertService();
+
+        userDbFixture(dbHelper)
+                .withExternalId("7d19aff33f8948deb97ed16b2912dcd3")
+                .insertUser();
+    }
+
+    @State({"a service exists with external id cp5wa and billing address collection enabled",
+            "a service exists with external id cp5wa",
+            "a service exists with external id cp5wa with gateway account with id 111"})
+    public void aServiceExists() {
+        serviceDbFixture(dbHelper)
+                .withExternalId("cp5wa")
+                .withGatewayAccountIds("111")
                 .insertService();
     }
 
@@ -214,106 +173,41 @@ public class ProviderContractTest {
                 .withGoLiveStage(GoLiveStage.NOT_STARTED)
                 .insertService();
     }
-
-    @State("a service exists with external id rtglEnteredOrgName and go live stage equals to ENTERED_ORGANISATION_NAME")
-    public void aServiceExistsWithEnteredOrganisationNameGoLiveStage() {
-        serviceDbFixture(dbHelper)
-                .withExternalId("rtglEnteredOrgName")
-                .withGoLiveStage(GoLiveStage.ENTERED_ORGANISATION_NAME)
+    
+    @State("a service exists with external id cp5wa with multiple admin users")
+    public void aServiceExistsWithMultipleAdmins() {
+        Service service = serviceDbFixture(dbHelper)
+                .withExternalId("cp5wa")
                 .insertService();
+
+        Role role = createRole();
+        createUserWithRoleForService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", "password", role, service);
+        createUserWithRoleForService("admin-2-id", "admin-2", "password", role, service);
     }
 
-    @State("a service exists with external id rtglChosenPspStripe and go live stage equals to CHOSEN_PSP_STRIPE")
-    public void aServiceExistsWithChosenPspStripeGoLiveStage() {
-        serviceDbFixture(dbHelper)
-                .withExternalId("rtglChosenPspStripe")
-                .withGoLiveStage(GoLiveStage.CHOSEN_PSP_STRIPE)
-                .insertService();
-    }
-
-    @State("a service exists with external id rtglChosenPspWorldPay and go live stage equals to CHOSEN_PSP_WORLDPAY")
-    public void aServiceExistsWithChosenPspWorldPayGoLiveStage() {
-        serviceDbFixture(dbHelper)
-                .withExternalId("rtglChosenPspWorldPay")
-                .withGoLiveStage(GoLiveStage.CHOSEN_PSP_WORLDPAY)
-                .insertService();
-    }
-
-    @State("a service exists with external id rtglChosenPspSmartPay and go live stage equals to CHOSEN_PSP_SMARTPAY")
-    public void aServiceExistsWithChosenPspSmartPayGoLiveStage() {
-        serviceDbFixture(dbHelper)
-                .withExternalId("rtglChosenPspSmartPay")
-                .withGoLiveStage(GoLiveStage.CHOSEN_PSP_SMARTPAY)
-                .insertService();
-    }
-
-    @State("a service exists with external id rtglChosenPspEpdq and go live stage equals to CHOSEN_PSP_EPDQ")
-    public void aServiceExistsWithChosenPspEpdqGoLiveStage() {
-        serviceDbFixture(dbHelper)
-                .withExternalId("rtglChosenPspEpdq")
-                .withGoLiveStage(GoLiveStage.CHOSEN_PSP_EPDQ)
-                .insertService();
-    }
-
-    @State("a service exists with external id rtglTermsOkStripe and go live stage equals to TERMS_AGREED_STRIPE")
-    public void aServiceExistsWithTermsAgreedStripeGoLiveStage() {
-        serviceDbFixture(dbHelper)
-                .withExternalId("rtglTermsOkStripe")
-                .withGoLiveStage(GoLiveStage.TERMS_AGREED_STRIPE)
-                .insertService();
-    }
-
-    @State("a service exists with external id rtglTermsOkWorldPay and go live stage equals to TERMS_AGREED_WORLDPAY")
-    public void aServiceExistsWithTermsAgreedWorldPayGoLiveStage() {
-        serviceDbFixture(dbHelper)
-                .withExternalId("rtglTermsOkWorldPay")
-                .withGoLiveStage(GoLiveStage.TERMS_AGREED_WORLDPAY)
-                .insertService();
-    }
-
-    @State("a service exists with external id rtglTermsOkSmartPay and go live stage equals to TERMS_AGREED_SMARTPAY")
-    public void aServiceExistsWithTermsAgreedSmartPayGoLiveStage() {
-        serviceDbFixture(dbHelper)
-                .withExternalId("rtglTermsOkSmartPay")
-                .withGoLiveStage(GoLiveStage.TERMS_AGREED_SMARTPAY)
-                .insertService();
-    }
-
-    @State("a service exists with external id rtglTermsOkEpdq and go live stage equals to TERMS_AGREED_EPDQ")
-    public void aServiceExistsWithTermsAgreedEpdqGoLiveStage() {
-        serviceDbFixture(dbHelper)
-                .withExternalId("rtglTermsOkEpdq")
-                .withGoLiveStage(GoLiveStage.TERMS_AGREED_EPDQ)
-                .insertService();
-    }
-
-    @State("a service exists with external id rtglDenied and go live stage equals to DENIED")
-    public void aServiceExistsWithDeniedGoLiveStage() {
-        serviceDbFixture(dbHelper)
-                .withExternalId("rtglDenied")
-                .withGoLiveStage(GoLiveStage.DENIED)
-                .insertService();
-    }
-
-    @State("a service exists with external id rtglLive and go live stage equals to LIVE")
-    public void aServiceExistsWithLiveGoLiveStage() {
-        serviceDbFixture(dbHelper)
-                .withExternalId("rtglLive")
-                .withGoLiveStage(GoLiveStage.LIVE)
-                .insertService();
-    }
-
-    private static void createUserWithinAService(String externalId, String username, String password) {
+    private static void createUserWithinAService(String externalId, String username, String password, String serviceExternalId) {
         String gatewayAccount1 = randomNumeric(5);
         String gatewayAccount2 = randomNumeric(5);
-        Role role = Role.role(randomInt(), "admin", "Administrator");
-        roleDbFixture(dbHelper).insert(role,
+        Service service = serviceDbFixture(dbHelper)
+                .withExternalId(serviceExternalId)
+                .withGatewayAccountIds(gatewayAccount1, gatewayAccount2)
+                .insertService();
+
+        Role role = createRole();
+        createUserWithRoleForService(externalId, username, password, role, service);
+    }
+    
+    private static Role createRole() {
+        Role role = Role.role(2,"admin", "Administrator");
+        return roleDbFixture(dbHelper).insert(role,
                 Permission.permission(randomInt(), "perm-1", "permission-1-description"),
                 Permission.permission(randomInt(), "perm-2", "permission-2-description"),
                 Permission.permission(randomInt(), "perm-3", "permission-3-description"));
-        Service service = serviceDbFixture(dbHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
-
-        UserDbFixture.userDbFixture(dbHelper)
+    }
+    
+    private static void createUserWithRoleForService(String externalId, String username, String password, Role role, Service service)
+    {
+        userDbFixture(dbHelper)
                 .withExternalId(externalId)
                 .withUsername(username)
                 .withPassword(passwordHasher.hash(password))
