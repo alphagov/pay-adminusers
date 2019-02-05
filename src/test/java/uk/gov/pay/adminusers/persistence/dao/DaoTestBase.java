@@ -62,14 +62,14 @@ public class DaoTestBase {
 
     @AfterClass
     public static void tearDown() {
-        Connection connection = null;
-        try {
-            connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword());
+        try (Connection connection = DriverManager.getConnection(
+                postgres.getConnectionUrl(),
+                postgres.getUsername(),
+                postgres.getPassword())) {
             Liquibase migrator = new Liquibase("config/initial-db-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             Liquibase migrator2 = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator2.dropAll();
             migrator.dropAll();
-            connection.close();
         } catch (Exception e) {
             logger.error("Error stopping docker", e);
         }
