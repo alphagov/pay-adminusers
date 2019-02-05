@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.infra.GuicedTestEnvironment;
 import uk.gov.pay.adminusers.model.Permission;
-import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 import uk.gov.pay.commons.testing.db.PostgresDockerRule;
 
@@ -23,7 +22,6 @@ import java.util.Properties;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.Permission.permission;
-import static uk.gov.pay.adminusers.model.Role.role;
 
 public class DaoTestBase {
 
@@ -74,14 +72,6 @@ public class DaoTestBase {
             logger.error("Error stopping docker", e);
         }
         env.stop();
-    }
-
-    protected Role aRole() {
-        return aRole("role-name-" + randomUuid());
-    }
-
-    protected Role aRole(String name) {
-        return role(randomInt(), name, "role-description" + randomUuid());
     }
 
     protected Permission aPermission() {
