@@ -21,6 +21,7 @@ public class EmailValidator {
                 "assembly\\.wales",
                 "careinspectorate\\.com",
                 "cynulliad\\.cymru",
+                "derrystrabane\\.com",
                 "gov\\.scot",
                 "gov\\.uk",
                 "gov\\.wales",
