@@ -2,11 +2,11 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
-import org.apache.commons.lang3.StringUtils;
 import uk.gov.pay.adminusers.model.InviteServiceRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.service.AdminUsersExceptions;
 import uk.gov.pay.adminusers.utils.Errors;
+import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.util.List;
@@ -83,7 +83,6 @@ public class InviteRequestValidator {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
 
-
         String email = payload.get(InviteServiceRequest.FIELD_EMAIL).asText();
         if (!isValid(email)) {
             return Optional.of(Errors.from(format("Field [%s] must be a valid email address", InviteServiceRequest.FIELD_EMAIL)));
@@ -92,7 +91,7 @@ public class InviteRequestValidator {
         }
 
         String telephoneNumber = payload.get(InviteServiceRequest.FIELD_TELEPHONE_NUMBER).asText();
-        if (telephoneNumber.length() < 11 || !StringUtils.isNumeric(telephoneNumber)) {
+        if (!TelephoneNumberUtility.isValidPhoneNumber(telephoneNumber)) {
             return Optional.of(Errors.from(format("Field [%s] must be a valid telephone number", InviteServiceRequest.FIELD_TELEPHONE_NUMBER)));
         }
 

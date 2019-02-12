@@ -316,19 +316,8 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void shouldFail_ifTelephoneNumberIsNonNumeric() {
-        ImmutableMap<String, String> payload = ImmutableMap.of( "email", "example@example.gov.uk","telephone_number", "A800001066", "password", "super-secure-password");
-        JsonNode payloadNode = objectMapper.valueToTree(payload);
-        Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
-
-        assertTrue(errors.isPresent());
-        assertThat(errors.get().getErrors(),hasItems("Field [telephone_number] must be a valid telephone number"));
-        assertThat(errors.get().getErrors().size(),is(1));
-    }
-
-    @Test
-    public void shouldFail_ifTelephoneNumberTooShort() {
-        ImmutableMap<String, String> payload = ImmutableMap.of( "email", "example@example.gov.uk","telephone_number", "12345678", "password", "super-secure-password");
+    public void shouldFail_ifTelephoneNumberIsInvalid() {
+        ImmutableMap<String, String> payload = ImmutableMap.of( "email", "example@example.gov.uk","telephone_number", "0770090000A", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
 

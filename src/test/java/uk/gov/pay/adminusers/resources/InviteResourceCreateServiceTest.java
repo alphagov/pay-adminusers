@@ -23,7 +23,7 @@ public class InviteResourceCreateServiceTest extends IntegrationTest {
     @Test
     public void shouldSuccess_WhenAllRequiredFieldsAreProvidedAndValid() throws Exception {
         String email = "example@example.gov.uk";
-        String telephoneNumber = "07700900000";
+        String telephoneNumber = "02079304433";
         ImmutableMap<String, String> payload = ImmutableMap.of("telephone_number", telephoneNumber, "email", email, "password", "plain_text_password");
 
         givenSetup()
@@ -34,7 +34,7 @@ public class InviteResourceCreateServiceTest extends IntegrationTest {
                 .then()
                 .statusCode(CREATED.getStatusCode())
                 .body("email", is(email.toLowerCase()))
-                .body("telephone_number", is(telephoneNumber))
+                .body("telephone_number", is("+442079304433"))
                 .body("_links", hasSize(2))
                 .body("_links[0].href", matchesPattern("^https://selfservice.pymnt.localdomain/invites/[0-9a-z]{32}$"))
                 .body("_links[0].method", is("GET"))
@@ -81,7 +81,7 @@ public class InviteResourceCreateServiceTest extends IntegrationTest {
         String email = username + "@example.gov.uk";
         UserDbFixture.userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
 
-        String telephoneNumber = "07700900000";
+        String telephoneNumber = "02079304433";
         ImmutableMap<String, String> payload = ImmutableMap.of("telephone_number", telephoneNumber, "email", email, "password", "plain_text_password");
 
         givenSetup()

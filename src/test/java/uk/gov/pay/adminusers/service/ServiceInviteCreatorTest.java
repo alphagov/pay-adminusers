@@ -54,7 +54,7 @@ public class ServiceInviteCreatorTest {
     @Test
     public void shouldSuccess_serviceInvite_IfEmailDoesNotConflict() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
+        InviteServiceRequest request = new InviteServiceRequest("password", email, "02079304433");
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(newArrayList());
@@ -68,7 +68,7 @@ public class ServiceInviteCreatorTest {
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
-        assertThat(invite.getTelephoneNumber(), is(request.getTelephoneNumber()));
+        assertThat(invite.getTelephoneNumber(), is("+442079304433"));
         assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
 
@@ -78,7 +78,7 @@ public class ServiceInviteCreatorTest {
     @Test
     public void shouldSuccess_serviceInvite_evenIfNotifyThrowsAnError() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "08976543215");
+        InviteServiceRequest request = new InviteServiceRequest("password", email, "02079304433");
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(newArrayList());
@@ -92,7 +92,7 @@ public class ServiceInviteCreatorTest {
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
-        assertThat(invite.getTelephoneNumber(), is(request.getTelephoneNumber()));
+        assertThat(invite.getTelephoneNumber(), is("+442079304433"));
         assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
 
