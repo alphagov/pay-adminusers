@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
 import uk.gov.pay.adminusers.exception.ValidationException;
+import uk.gov.pay.adminusers.model.GovUkPayAgreement;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.model.StripeAgreement;
@@ -298,9 +299,9 @@ public class ServiceResource {
         if (!userEntity.get().getServicesRole(serviceExternalId).isPresent()) {
             return Response.status(BAD_REQUEST).entity(Errors.from("User does not belong to the given service")).build();
         }
-        govUkPayAgreementService.doCreate(serviceEntity, userEntity.get().getEmail(), ZonedDateTime.now(ZoneOffset.UTC));
+        GovUkPayAgreement govUkPayAgreement = govUkPayAgreementService.doCreate(serviceEntity, userEntity.get().getEmail(), ZonedDateTime.now(ZoneOffset.UTC));
         
-        return Response.status(CREATED).build();
+        return Response.status(CREATED).entity(govUkPayAgreement).build();
     }
     
     @Path("/{serviceExternalId}/send-live-email")

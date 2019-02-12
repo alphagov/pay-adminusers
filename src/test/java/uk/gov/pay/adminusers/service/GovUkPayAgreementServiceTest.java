@@ -59,10 +59,13 @@ public class GovUkPayAgreementServiceTest {
     public void shouldCreateNewGovUkPayAgreement() {
         ServiceEntity serviceEntity = new ServiceEntity();
         String email = "someone@example.com";
+        ZonedDateTime now = ZonedDateTime.now();
         
-        agreementService.doCreate(serviceEntity, email, ZonedDateTime.now());
+        GovUkPayAgreement agreement = agreementService.doCreate(serviceEntity, email, now);
         
         verify(mockedAgreementDao).persist(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().getEmail(), is(email));
+        assertThat(agreement.getEmail(), is(email));
+        assertThat(agreement.getAgreementTime(), is(now));
     }
 }
