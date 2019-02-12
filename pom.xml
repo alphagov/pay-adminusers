@@ -190,6 +190,11 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>com.googlecode.libphonenumber</groupId>
+            <artifactId>libphonenumber</artifactId>
+            <version>8.10.5</version>
+        </dependency>
+        <dependency>
             <groupId>uk.gov.pay</groupId>
             <artifactId>utils</artifactId>
             <version>${pay-java-commons.version}</version>
