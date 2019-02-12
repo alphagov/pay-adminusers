@@ -279,7 +279,7 @@ public class InviteUserRequestValidatorTest {
 
     @Test
     public void shouldSuccess_ifAllFieldsArePresentAndValidEmailDomain() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("email", "example@example.gov.uk", "telephone_number", "08000001066", "password", "super-secure-password");
+        ImmutableMap<String, String> payload = ImmutableMap.of("email", "example@example.gov.uk", "telephone_number", "02079304433", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
 
@@ -288,7 +288,7 @@ public class InviteUserRequestValidatorTest {
 
     @Test
     public void shouldFail_ifMissingRequiredField() {
-        ImmutableMap<String, String> payload = ImmutableMap.of( "telephone_number", "08000001066", "password", "super-secure-password");
+        ImmutableMap<String, String> payload = ImmutableMap.of( "telephone_number", "02079304433", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
 
@@ -299,7 +299,7 @@ public class InviteUserRequestValidatorTest {
 
     @Test
     public void shouldFail_ifInvalidEmailFormat() {
-        ImmutableMap<String, String> payload = ImmutableMap.of( "email", "exampleatexample.com", "telephone_number", "08000001066", "password", "super-secure-password");
+        ImmutableMap<String, String> payload = ImmutableMap.of( "email", "exampleatexample.com", "telephone_number", "02079304433", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
 
@@ -310,7 +310,7 @@ public class InviteUserRequestValidatorTest {
 
     @Test(expected = WebApplicationException.class)
     public void shouldFail_ifEmailAddressNotPublicSector() {
-        ImmutableMap<String, String> payload = ImmutableMap.of( "email", "example@example.co.uk","telephone_number", "08000001066", "password", "super-secure-password");
+        ImmutableMap<String, String> payload = ImmutableMap.of( "email", "example@example.com","telephone_number", "02079304433", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         validator.validateCreateServiceRequest(payloadNode);
     }

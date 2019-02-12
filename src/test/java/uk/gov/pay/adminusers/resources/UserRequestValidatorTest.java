@@ -156,22 +156,30 @@ public class UserRequestValidatorTest {
     }
 
     @Test
-    public void shouldSuccess_replacingTelephoneNumber_whenPatching() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", "07700900000"));
+    public void shouldSuccess_replacingTelephoneNumber_whenPatchingLocalTelephoneNumber() {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", "02079304433"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
         assertFalse(optionalErrors.isPresent());
     }
 
     @Test
-    public void shouldError_replacingTelephoneNumber_whenPatchingIfNonNumeric() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", "+44 7700 900 000"));
+    public void shouldSuccess_replacingTelephoneNumber_whenPatchingInternationalTelephoneNumber() {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", "+442079304433"));
+        Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
+
+        assertFalse(optionalErrors.isPresent());
+    }
+
+    @Test
+    public void shouldError_replacingTelephoneNumber_whenPatchingInvalidTelephoneNumber() {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", "(╯°□°）╯︵ ┻━┻"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
         Errors errors = optionalErrors.get();
 
         assertThat(errors.getErrors().size(), is(1));
-        assertThat(errors.getErrors(), hasItems("path [telephone_number] must contain a numeric value"));
+        assertThat(errors.getErrors(), hasItems("path [telephone_number] must contain a valid telephone number"));
     }
 
     @Test
@@ -194,13 +202,13 @@ public class UserRequestValidatorTest {
     }
 
     @Test
-    public void shouldError_ifNumericFieldsAreNotNumeric() throws Exception {
+    public void shouldError_ifTelephoneNumberFieldIsInvalid() throws Exception {
         String invalidPayload = "{" +
                 "\"username\": \"a-username\"," +
                 "\"password\": \"a-password\"," +
                 "\"email\": \"email@example.com\"," +
                 "\"gateway_account_ids\": [\"1\"]," +
-                "\"telephone_number\": \"not-a-number\"," +
+                "\"telephone_number\": \"(╯°□°）╯︵ ┻━┻\"," +
                 "\"otp_key\": \"12345\"," +
                 "\"role_name\": \"a-role\"" +
                 "}";
@@ -212,7 +220,7 @@ public class UserRequestValidatorTest {
 
         assertThat(errors.getErrors().size(), is(1));
         assertThat(errors.getErrors(), hasItems(
-                "Field [telephone_number] must be a number"));
+                "Field [telephone_number] must be a valid telephone number"));
 
     }
 
@@ -246,7 +254,7 @@ public class UserRequestValidatorTest {
                 "\"password\": \"a-password\"," +
                 "\"email\": \"email@example.com\"," +
                 "\"gateway_account_ids\": [\"1\"]," +
-                "\"telephone_number\": \"12345\"," +
+                "\"telephone_number\": \"02079304433\"," +
                 "\"otp_key\": \"12345\"," +
                 "\"role_name\": \"a-role\"" +
                 "}";

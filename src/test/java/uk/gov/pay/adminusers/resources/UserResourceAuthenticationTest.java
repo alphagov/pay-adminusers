@@ -44,7 +44,7 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
                 .body("service_roles", hasSize(1))
                 .body("service_roles[0].service.external_id", is(notNullValue()))
                 .body("service_roles[0].service.name", is(notNullValue()))
-                .body("telephone_number", is("45334534634"))
+                .body("telephone_number", is("+442079304433"))
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
                 .body("disabled", is(false))
@@ -114,7 +114,7 @@ public class UserResourceAuthenticationTest extends IntegrationTest {
                 .put("password", "password-" + username)
                 .put("email", "user-" + username + "@example.com")
                 .put("service_external_ids", new String[]{service.getExternalId()})
-                .put("telephone_number", "45334534634")
+                .put("telephone_number", "+442079304433")
                 .put("otp_key", "34f34")
                 .put("role_name", "admin")
                 .build();

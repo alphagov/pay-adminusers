@@ -29,7 +29,7 @@ public class UserResourceCreateTest extends IntegrationTest {
         ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
                 .put("username", username)
                 .put("email", "user-" + username + "@example.com")
-                .put("telephone_number", "45334534634")
+                .put("telephone_number", "+442079304433")
                 .put("otp_key", "34f34")
                 .put("role_name", "admin")
                 .build();
@@ -51,7 +51,7 @@ public class UserResourceCreateTest extends IntegrationTest {
                 .body("password", nullValue())
                 .body("email", is("user-" + username + "@example.com"))
                 .body("service_roles", hasSize(0))
-                .body("telephone_number", is("45334534634"))
+                .body("telephone_number", is("+442079304433"))
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
                 .body("disabled", is(false));
@@ -81,7 +81,7 @@ public class UserResourceCreateTest extends IntegrationTest {
                 .put("username", username)
                 .put("email", "user-" + username + "@example.com")
                 .put("service_external_ids", new String[]{valueOf(serviceExternalId)})
-                .put("telephone_number", "45334534634")
+                .put("telephone_number", "+442079304433")
                 .put("otp_key", "34f34")
                 .put("role_name", "admin")
                 .build();
@@ -105,7 +105,7 @@ public class UserResourceCreateTest extends IntegrationTest {
                 .body("service_roles", hasSize(1))
                 .body("service_roles[0].service.external_id", is(serviceExternalId))
                 .body("service_roles[0].service.name", is(service.getName()))
-                .body("telephone_number", is("45334534634"))
+                .body("telephone_number", is("+442079304433"))
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
                 .body("disabled", is(false))
@@ -133,7 +133,7 @@ public class UserResourceCreateTest extends IntegrationTest {
                 .put("username", username)
                 .put("email", "user-" + username + "@example.com")
                 .put("gateway_account_ids", new String[]{"1", "2"})
-                .put("telephone_number", "45334534634")
+                .put("telephone_number", "02079304433")
                 .put("otp_key", "34f34")
                 .put("role_name", "invalid-role")
                 .build();
@@ -182,7 +182,7 @@ public class UserResourceCreateTest extends IntegrationTest {
                 .put("username", username)
                 .put("email", email)
                 .put("gateway_account_ids", new String[]{gatewayAccount})
-                .put("telephone_number", "45334534634")
+                .put("telephone_number", "02079304433")
                 .put("role_name", "admin")
                 .build();
 

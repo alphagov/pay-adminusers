@@ -29,7 +29,7 @@ public class InviteResourceServiceCompleteTest extends IntegrationTest {
     @Test
     public void shouldReturn200withDisabledInviteLinkingToCreatedUser_WhenPassedAValidInviteCode_withoutGatewayAccountIds() {
         String email = format("%s@example.gov.uk", randomUuid());
-        String telephoneNumber = "07700900000";
+        String telephoneNumber = "+447700900000";
         String password = "valid_password";
 
         String inviteCode = inviteDbFixture(databaseHelper)
@@ -64,7 +64,7 @@ public class InviteResourceServiceCompleteTest extends IntegrationTest {
     @Test
     public void shouldReturn200withDisabledInviteLinkingToCreatedUser_WhenPassedAValidInviteCode_withGatewayAccountIds() throws Exception {
         String email = format("%s@example.gov.uk", randomUuid());
-        String telephoneNumber = "07700900000";
+        String telephoneNumber = "+447700900000";
         String password = "valid_password";
         String gatewayAccountId1 = String.valueOf(randomInt());
         String gatewayAccountId2 = String.valueOf(randomInt());
@@ -108,7 +108,7 @@ public class InviteResourceServiceCompleteTest extends IntegrationTest {
     @Test
     public void shouldReturn410_WhenSameInviteCodeCompletedTwice() {
         String email = format("%s@example.gov.uk", randomUuid());
-        String telephoneNumber = "07700900000";
+        String telephoneNumber = "+447700900000";
         String password = "valid_password";
 
         String inviteCode = inviteDbFixture(databaseHelper)
@@ -134,7 +134,7 @@ public class InviteResourceServiceCompleteTest extends IntegrationTest {
     public void shouldReturn409_ifAUserExistsWithTheSameEmail_whenServiceInviteCompletes() {
         String email = format("%s@example.gov.uk", randomUuid());
         String username = email;
-        String telephoneNumber = "07700900000";
+        String telephoneNumber = "+447700900000";
         String password = "valid_password";
 
         String inviteCode = inviteDbFixture(databaseHelper)
@@ -158,7 +158,7 @@ public class InviteResourceServiceCompleteTest extends IntegrationTest {
     @Test
     public void shouldReturn410_WheninviteIsDisabled() {
         String email = format("%s@example.gov.uk", randomUuid());
-        String telephoneNumber = "07700900000";
+        String telephoneNumber = "+447700900000";
         String password = "valid_password";
 
         String inviteCode = inviteDbFixture(databaseHelper)

@@ -22,7 +22,7 @@ public class UserEntityTest {
     public void shouldConstructAUser_fromMinimalValidUserJson() throws Exception {
         String minimumUserJson = "{" +
                 "\"username\": \"a-username\"," +
-                "\"telephone_number\": \"2123524\"," +
+                "\"telephone_number\": \"+442079304433\"," +
                 "\"gateway_account_ids\": [\"1\", \"2\"]," +
                 "\"email\": \"email@example.com\"" +
                 "}";

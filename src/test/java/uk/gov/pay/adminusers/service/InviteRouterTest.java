@@ -91,7 +91,7 @@ public class InviteRouterTest {
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setCode(code);
         inviteEntity.setEmail("example@example.com");
-        inviteEntity.setTelephoneNumber("2746234782");
+        inviteEntity.setTelephoneNumber("+442079304433");
         inviteEntity.setOtpKey("u73t2b7");
         inviteEntity.setType(inviteType);
         return inviteEntity;

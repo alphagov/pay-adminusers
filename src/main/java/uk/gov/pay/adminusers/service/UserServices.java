@@ -12,6 +12,7 @@ import uk.gov.pay.adminusers.model.SecondFactorToken;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -300,7 +301,7 @@ public class UserServices {
     }
 
     private void changeUserTelephoneNumber(UserEntity userEntity, String telephoneNumber) {
-        userEntity.setTelephoneNumber(telephoneNumber);
+        userEntity.setTelephoneNumber(TelephoneNumberUtility.formatToE164(telephoneNumber));
         userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
         userDao.merge(userEntity);
     }

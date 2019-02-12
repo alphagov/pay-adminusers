@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.google.common.collect.ImmutableList;
 import uk.gov.pay.adminusers.utils.email.EmailValidator;
+import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -42,13 +43,17 @@ public class RequestValidations {
     public Optional<List<String>> checkMaxLength(JsonNode payload, int maxLength, String... fieldNames) {
         return applyCheck(payload, exceedsMaxLength(maxLength), fieldNames, "Field [%s] must have a maximum length of " + maxLength + " characters");
     }
-    
+
     public Optional<List<String>> checkIsString(JsonNode payload, String... fieldNames) {
         return applyCheck(payload, isNotString(), fieldNames, "Field [%s] must be a string");
     }
 
     public Optional<List<String>> checkIsString(String errorMsg, JsonNode payload, String... fieldNames) {
         return applyCheck(payload, isNotString(), fieldNames, errorMsg);
+    }
+
+    public Optional<List<String>> checkIsValidTelephoneNumber(JsonNode payload, String... fieldNames) {
+        return applyCheck(payload, isNotValidTelephoneNumber(), fieldNames, "Field [%s] must be a valid telephone number");
     }
 
     private Function<JsonNode, Boolean> exceedsMaxLength(int maxLength) {
@@ -64,7 +69,7 @@ public class RequestValidations {
         }
         return errors.isEmpty() ? Optional.empty() : Optional.of(errors);
     }
-    
+
     public Optional<List<String>> isValidEnumValue(JsonNode payload, EnumSet<?> enumSet, String field) {
         String value = payload.get(field).asText();
         if (enumSet.stream().noneMatch(constant -> constant.name().equals(value))) {
@@ -84,7 +89,7 @@ public class RequestValidations {
             }
         };
     }
-    
+
     private Function<JsonNode, Boolean> notExists() {
         return (JsonNode jsonElement) -> isNullValue().apply(jsonElement);
     }
@@ -120,9 +125,13 @@ public class RequestValidations {
     static Function<JsonNode, Boolean> isNotStrictBoolean() {
         return jsonNode -> !jsonNode.isBoolean();
     }
-    
+
     static Function<JsonNode, Boolean> isNotString() {
         return jsonNode -> !jsonNode.isTextual();
+    }
+
+    static Function<JsonNode, Boolean> isNotValidTelephoneNumber() {
+        return jsonNode -> !TelephoneNumberUtility.isValidPhoneNumber(jsonNode.asText());
     }
 
     public Optional<List<String>> isValidEmail(JsonNode payload, String... fieldNames) {

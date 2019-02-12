@@ -45,7 +45,7 @@ public class UserRequestValidator {
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
-        Optional<List<String>> invalidData = requestValidations.checkIsNumeric(payload, FIELD_TELEPHONE_NUMBER);
+        Optional<List<String>> invalidData = requestValidations.checkIsValidTelephoneNumber(payload, FIELD_TELEPHONE_NUMBER);
         if (invalidData.isPresent()) {
             return Optional.of(Errors.from(invalidData.get()));
         }
