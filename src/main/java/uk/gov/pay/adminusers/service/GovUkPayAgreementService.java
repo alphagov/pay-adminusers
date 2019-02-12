@@ -29,10 +29,11 @@ public class GovUkPayAgreementService {
                 .map(GovUkPayAgreementEntity::toGovUkPayAgreement);
     }
 
-    public void doCreate(ServiceEntity serviceEntity, String email, ZonedDateTime agreementTime) {
+    public GovUkPayAgreement doCreate(ServiceEntity serviceEntity, String email, ZonedDateTime agreementTime) {
         LOGGER.info(format("Creating GOV.UK Pay agreement for service %s", serviceEntity.getExternalId()));
         GovUkPayAgreementEntity agreementEntity = new GovUkPayAgreementEntity(email, agreementTime);
         agreementEntity.setService(serviceEntity);
         agreementDao.persist(agreementEntity);
+        return agreementEntity.toGovUkPayAgreement();
     }
 }

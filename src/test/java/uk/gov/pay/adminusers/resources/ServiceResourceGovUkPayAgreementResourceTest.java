@@ -16,6 +16,7 @@ import static com.jayway.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 import static uk.gov.pay.commons.model.ApiResponseDateTimeFormatter.ISO_INSTANT_MILLISECOND_PRECISION;
@@ -24,12 +25,14 @@ public class ServiceResourceGovUkPayAgreementResourceTest extends IntegrationTes
 
     private Service service;
     private User user;
+    private String email = randomUuid() + "@example.org";
 
     @Before
     public void setup() {
         service = serviceDbFixture(databaseHelper).insertService();
         user = userDbFixture(databaseHelper)
                 .withServiceRole(service, 1)
+                .withEmail(email)
                 .insertUser();
     }
     
@@ -42,7 +45,8 @@ public class ServiceResourceGovUkPayAgreementResourceTest extends IntegrationTes
                 .body(payload)
                 .post(format("/v1/api/services/%s/govuk-pay-agreement", service.getExternalId()))
                 .then()
-                .statusCode(201);
+                .statusCode(201)
+                .body("email", is(email));
     }
 
     @Test
