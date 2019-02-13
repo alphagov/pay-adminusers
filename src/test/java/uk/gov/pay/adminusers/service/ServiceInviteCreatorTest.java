@@ -54,7 +54,7 @@ public class ServiceInviteCreatorTest {
     @Test
     public void shouldSuccess_serviceInvite_IfEmailDoesNotConflict() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "02079304433");
+        InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(newArrayList());
@@ -68,7 +68,7 @@ public class ServiceInviteCreatorTest {
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
-        assertThat(invite.getTelephoneNumber(), is("+442079304433"));
+        assertThat(invite.getTelephoneNumber(), is("+441134960000"));
         assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
 
@@ -78,7 +78,7 @@ public class ServiceInviteCreatorTest {
     @Test
     public void shouldSuccess_serviceInvite_evenIfNotifyThrowsAnError() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "02079304433");
+        InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(newArrayList());
@@ -92,7 +92,7 @@ public class ServiceInviteCreatorTest {
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
-        assertThat(invite.getTelephoneNumber(), is("+442079304433"));
+        assertThat(invite.getTelephoneNumber(), is("+441134960000"));
         assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
 
@@ -101,7 +101,7 @@ public class ServiceInviteCreatorTest {
     @Test
     public void shouldSuccess_ifUserAlreadyHasAValidServiceInvitationWithGivenEmail() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "02079304433");
+        InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         UserEntity sender = mock(UserEntity.class);
         ServiceEntity service = mock(ServiceEntity.class);
         RoleEntity role = mock(RoleEntity.class);
@@ -129,7 +129,7 @@ public class ServiceInviteCreatorTest {
     @Test
     public void shouldSuccess_serviceInvite_evenIfUserAlreadyHasAValidUserInvitationWithGivenEmail() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "02079304433");
+        InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         UserEntity sender = mock(UserEntity.class);
         ServiceEntity service = mock(ServiceEntity.class);
         RoleEntity role = mock(RoleEntity.class);
@@ -157,7 +157,7 @@ public class ServiceInviteCreatorTest {
     @Test
     public void shouldError_ifUserAlreadyExistsWithGivenEmail() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "02079304433");
+        InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         UserEntity existingUserEntity = new UserEntity();
         when(userDao.findByEmail(email)).thenReturn(Optional.of(existingUserEntity));
         when(linksConfig.getSupportUrl()).thenReturn("http://frontend");
@@ -178,7 +178,7 @@ public class ServiceInviteCreatorTest {
     @Test
     public void shouldError_ifUserAlreadyExistsAndDisabledWithGivenEmail() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "02079304433");
+        InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         UserEntity existingUserEntity = new UserEntity();
         existingUserEntity.setDisabled(true);
         when(userDao.findByEmail(email)).thenReturn(Optional.of(existingUserEntity));
@@ -196,7 +196,7 @@ public class ServiceInviteCreatorTest {
     @Test
     public void shouldError_ifRoleDoesNotExists() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "02079304433");
+        InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(newArrayList());
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.empty());

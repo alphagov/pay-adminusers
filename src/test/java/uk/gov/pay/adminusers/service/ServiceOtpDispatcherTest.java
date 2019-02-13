@@ -36,7 +36,7 @@ public class ServiceOtpDispatcherTest {
     @Test
     public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExist() {
         String inviteCode = "valid-invite-code";
-        String telephone = "+442079304433";
+        String telephone = "+441134960000";
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setCode(inviteCode);
         inviteEntity.setType(InviteType.SERVICE);

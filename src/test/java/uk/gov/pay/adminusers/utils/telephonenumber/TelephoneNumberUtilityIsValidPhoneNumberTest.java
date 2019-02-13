@@ -26,29 +26,29 @@ public class TelephoneNumberUtilityIsValidPhoneNumberTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
                 // valid phone numbers: local format
-                {"02079304433", true},
-                {"0207 930 4433", true},
-                {"0207-930-4433", true},
-                {"(0207) 930 4433", true},
-                {"(0207) 930-4433", true},
-                {"(0207) / 930-4433", true},
-                {"   02079304433   ", true},
+                {"01134960000", true},
+                {"0113 496 0000", true},
+                {"0113-496-0000", true},
+                {"(0113) 496 0000", true},
+                {"(0113) 496-0000", true},
+                {"(0113) / 496-0000", true},
+                {"   01134960000   ", true},
 
                 // valid phone numbers: international format
-                {"+442079304433", true},
-                {"+44207 930 4433", true},
-                {"+44207-930-4433", true},
-                {"(+44207) 930 4433", true},
-                {"(+44207) 930-4433", true},
-                {"(+44207) / 930-4433", true},
-                {"   +442079304433   ", true},
-                {"00442079304433", true},
-                {"0044207 930 4433", true},
-                {"0044207-930-4433", true},
-                {"(0044207) 930 4433", true},
-                {"(0044207) 930-4433", true},
-                {"(0044207) / 930-4433", true},
-                {"   00442079304433   ", true},
+                {"+441134960000", true},
+                {"+44113 496 0000", true},
+                {"+44113-496-0000", true},
+                {"(+44113) 496 0000", true},
+                {"(+44113) 496-0000", true},
+                {"(+44113) / 496-0000", true},
+                {"   +441134960000   ", true},
+                {"00441134960000", true},
+                {"0044113 496 0000", true},
+                {"0044113-496-0000", true},
+                {"(0044113) 496 0000", true},
+                {"(0044113) 496-0000", true},
+                {"(0044113) / 496-0000", true},
+                {"   00441134960000   ", true},
 
                 // invalid phone numbers
                 {null, false},
@@ -61,11 +61,11 @@ public class TelephoneNumberUtilityIsValidPhoneNumberTest {
                 {"(0770) 090-0000", false},
                 {"(0770) / 090-0000", false},
                 {"   07700900000   ", false},
-                {"0207930443a", false},
-                {"+44207930443a", false},
-                {"0044207930443a", false},
+                {"0113496443a", false},
+                {"+44113496443a", false},
+                {"0044113496443a", false},
                 {"0770090000a", false},
-                {"O2O793O4433", false}, // letter "O" instead of "0"
+                {"O2O793O0000", false}, // letter "O" instead of "0"
                 {"abc", false}
         });
     }

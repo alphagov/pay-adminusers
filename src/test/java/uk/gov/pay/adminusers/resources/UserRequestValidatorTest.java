@@ -157,7 +157,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldSuccess_replacingTelephoneNumber_whenPatchingLocalTelephoneNumber() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", "02079304433"));
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", "01134960000"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
         assertFalse(optionalErrors.isPresent());
@@ -165,7 +165,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldSuccess_replacingTelephoneNumber_whenPatchingInternationalTelephoneNumber() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", "+442079304433"));
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", "+441134960000"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
         assertFalse(optionalErrors.isPresent());
@@ -254,7 +254,7 @@ public class UserRequestValidatorTest {
                 "\"password\": \"a-password\"," +
                 "\"email\": \"email@example.com\"," +
                 "\"gateway_account_ids\": [\"1\"]," +
-                "\"telephone_number\": \"02079304433\"," +
+                "\"telephone_number\": \"01134960000\"," +
                 "\"otp_key\": \"12345\"," +
                 "\"role_name\": \"a-role\"" +
                 "}";
