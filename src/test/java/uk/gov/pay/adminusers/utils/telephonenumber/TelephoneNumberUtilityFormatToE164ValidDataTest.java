@@ -17,7 +17,7 @@ public class TelephoneNumberUtilityFormatToE164ValidDataTest {
         String result = TelephoneNumberUtility.formatToE164(telephoneNumber);
 
         // Then
-        assertThat("Expected " + telephoneNumber + " to be " + testResult, result, is(testResult));
+        assertThat(result, is(testResult));
     }
 
 }

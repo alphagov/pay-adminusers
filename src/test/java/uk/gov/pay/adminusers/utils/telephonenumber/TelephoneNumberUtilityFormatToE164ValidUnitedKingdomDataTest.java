@@ -50,7 +50,7 @@ public class TelephoneNumberUtilityFormatToE164ValidUnitedKingdomDataTest {
     @Test
     public void formatToE164_shouldEvaluateToE164FormattedTelephoneNumber() {
         String result = TelephoneNumberUtility.formatToE164(telephoneNumber);
-        assertThat("Expected " + telephoneNumber + " to be " + TEST_RESULT, result, is(TEST_RESULT));
+        assertThat(result, is(TEST_RESULT));
     }
 
 }
