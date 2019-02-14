@@ -39,15 +39,15 @@ public class StripeAgreementRequestTest {
     public void shouldErrorForInvalidIPAddress() {
         StripeAgreementRequest stripeAgreementRequest = new StripeAgreementRequest("257.0.2.0");
         Set<ConstraintViolation<StripeAgreementRequest>> violations = validator.validate(stripeAgreementRequest);
-        assertThat(validator.validate(stripeAgreementRequest).size(), is(1));
-        assertThat(validator.validate(stripeAgreementRequest).iterator().next().getMessage(), is("must be valid IP address"));
+        assertThat(violations.size(), is(1));
+        assertThat(violations.iterator().next().getMessage(), is("must be valid IP address"));
     }
 
     @Test
     public void shouldErrorWhenIpAddressIsEmpty() {
         StripeAgreementRequest stripeAgreementRequest = new StripeAgreementRequest("");
         Set<ConstraintViolation<StripeAgreementRequest>> violations = validator.validate(stripeAgreementRequest);
-        assertThat(validator.validate(stripeAgreementRequest).size(), is(1));
-        assertThat(validator.validate(stripeAgreementRequest).iterator().next().getMessage(), is("must be valid IP address"));
+        assertThat(violations.size(), is(1));
+        assertThat(violations.iterator().next().getMessage(), is("must be valid IP address"));
     }
 }
