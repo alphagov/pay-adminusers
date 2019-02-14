@@ -61,11 +61,18 @@ public class NotificationService {
 
     CompletableFuture<String> sendSecondFactorPasscodeSms(String phoneNumber, String passcode) {
         return CompletableFuture.supplyAsync(() -> {
+            // convert back to local format for backward compatibility
+            String formattedPhoneNumber;
+            if (phoneNumber.startsWith("+44")) {
+                formattedPhoneNumber = phoneNumber.replaceFirst("\\+44", "0");
+            } else {
+                formattedPhoneNumber = phoneNumber;
+            }
             HashMap<String, String> personalisation = newHashMap();
             personalisation.put("code", passcode);
             Stopwatch responseTimeStopwatch = Stopwatch.createStarted();
             try {
-                SendSmsResponse response = notifyClientProvider.get(CARD).sendSms(secondFactorSmsTemplateId, phoneNumber, personalisation, null);
+                SendSmsResponse response = notifyClientProvider.get(CARD).sendSms(secondFactorSmsTemplateId, formattedPhoneNumber, personalisation, null);
                 return response.getNotificationId().toString();
             } catch (Exception e) {
                 metricRegistry.counter("notify-operations.sms.failures").inc();
