@@ -36,13 +36,12 @@ public class ServiceOtpDispatcherTest {
     @Test
     public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExist() {
         String inviteCode = "valid-invite-code";
-        String telephone = "78562835762";
+        String telephone = "+441134960000";
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setCode(inviteCode);
         inviteEntity.setType(InviteType.SERVICE);
         inviteEntity.setOtpKey("otp-key");
         inviteEntity.setTelephoneNumber(telephone);
-
 
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
         when(secondFactorAuthenticator.newPassCode("otp-key")).thenReturn(123456);

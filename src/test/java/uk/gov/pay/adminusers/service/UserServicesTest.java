@@ -289,9 +289,9 @@ public class UserServicesTest {
     public void shouldUpdateTelephoneNumber_whenReplacingTelephoneNumber_ifUserFound() {
         User user = aUser();
         UserEntity userEntity = aUserEntityWithTrimmings(user);
-        userEntity.setTelephoneNumber("11111111111");
+        userEntity.setTelephoneNumber("+447700900000");
 
-        String newTelephoneNumber = "07700900000";
+        String newTelephoneNumber = "+441134960000";
         JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "telephone_number", "op", "replace", "value", newTelephoneNumber));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);

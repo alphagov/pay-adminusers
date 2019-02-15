@@ -4,6 +4,7 @@ import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
+import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -234,7 +235,9 @@ public class InviteEntity extends AbstractEntity {
         userEntity.setPassword(password);
         userEntity.setEmail(email);
         userEntity.setOtpKey(otpKey);
-        userEntity.setTelephoneNumber(telephoneNumber);
+        if (telephoneNumber != null) {
+            userEntity.setTelephoneNumber(TelephoneNumberUtility.formatToE164(telephoneNumber));
+        }
         userEntity.setSecondFactor(SecondFactorMethod.SMS);
         userEntity.setLoginCounter(0);
         userEntity.setDisabled(Boolean.FALSE);

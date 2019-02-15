@@ -15,6 +15,7 @@ import static org.apache.commons.lang3.tuple.Pair.of;
 import static uk.gov.pay.adminusers.model.PatchRequest.*;
 import static uk.gov.pay.adminusers.validations.RequestValidations.isNotBoolean;
 import static uk.gov.pay.adminusers.validations.RequestValidations.isNotNumeric;
+import static uk.gov.pay.adminusers.validations.RequestValidations.isNotValidTelephoneNumber;
 
 public class UserPatchValidations {
 
@@ -29,7 +30,7 @@ public class UserPatchValidations {
     private static final Multimap<String, Pair<Function<JsonNode, Boolean>, String>> USER_PATCH_PATH_VALIDATIONS = new ImmutableListMultimap.Builder<String, Pair<Function<JsonNode, Boolean>, String>>()
             .put(PATH_SESSION_VERSION, of(isNotNumeric(), format("path [%s] must contain a value of positive integer", PATH_SESSION_VERSION)))
             .put(PATH_DISABLED, of(isNotBoolean(), format("path [%s] must be contain value [true | false]", PATH_DISABLED)))
-            .put(PATH_TELEPHONE_NUMBER, of(isNotNumeric(), format("path [%s] must contain a numeric value", PATH_TELEPHONE_NUMBER)))
+            .put(PATH_TELEPHONE_NUMBER, of(isNotValidTelephoneNumber(), format("path [%s] must contain a valid telephone number", PATH_TELEPHONE_NUMBER)))
             .build();
 
     public static boolean isPathAllowed(String path){

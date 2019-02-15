@@ -25,7 +25,7 @@ public class UserDbFixture {
     private String otpKey = RandomStringUtils.randomAlphabetic(10);
     private String password = "password-" + username;
     private String email = username + "@example.com";
-    private String telephoneNumber = "07700900000";
+    private String telephoneNumber = "+447700900000";
     private String features = "FEATURE_1, FEATURE_2";
     private String provisionalOtpKey;
 

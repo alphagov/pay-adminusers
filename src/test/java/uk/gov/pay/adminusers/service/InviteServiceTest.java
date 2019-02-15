@@ -225,7 +225,7 @@ public class InviteServiceTest {
     @Test
     public void generateOtp_shouldSendNotificationOnSuccessfulInviteUpdate() {
 
-        String telephoneNumber = "+4498765423";
+        String telephoneNumber = "+441134960000";
         String plainPassword = "my-secure-pass";
 
         InviteEntity inviteEntity = new InviteEntity();
@@ -250,7 +250,7 @@ public class InviteServiceTest {
     @Test
     public void generateOtp_shouldStillUpdateTheInviteWhen2FAFails() {
 
-        String telephoneNumber = "+4498765423";
+        String telephoneNumber = "+441134960000";
         String plainPassword = "my-secure-pass";
 
         InviteEntity inviteEntity = new InviteEntity();

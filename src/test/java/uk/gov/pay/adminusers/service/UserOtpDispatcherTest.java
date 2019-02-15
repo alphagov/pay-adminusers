@@ -45,7 +45,7 @@ public class UserOtpDispatcherTest {
     @Test
     public void shouldSuccess_whenDispatchUserOtp_ifInviteEntityExist() {
         String inviteCode = "valid-invite-code";
-        String telephone = "78562835762";
+        String telephone = "+441134960000";
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setCode(inviteCode);
         inviteEntity.setType(InviteType.USER);

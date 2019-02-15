@@ -2,8 +2,8 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.app.config.LinksConfig;
 import org.slf4j.LoggerFactory;
+import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteServiceRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
@@ -11,6 +11,7 @@ import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -89,7 +90,7 @@ public class ServiceInviteCreator {
 
     private Invite constructInviteAndSendEmail(InviteServiceRequest inviteServiceRequest, InviteEntity inviteEntity, Function<InviteEntity, Void> saveOrUpdate) {
         String inviteUrl = format("%s/%s", linksConfig.getSelfserviceInvitesUrl(), inviteEntity.getCode());
-        inviteEntity.setTelephoneNumber(inviteServiceRequest.getTelephoneNumber());
+        inviteEntity.setTelephoneNumber(TelephoneNumberUtility.formatToE164(inviteServiceRequest.getTelephoneNumber()));
         inviteEntity.setPassword(passwordHasher.hash(inviteServiceRequest.getPassword()));
         saveOrUpdate.apply(inviteEntity);
         sendServiceInviteNotification(inviteEntity, inviteUrl);

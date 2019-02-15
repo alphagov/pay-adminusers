@@ -5,6 +5,7 @@ import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
+import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
 import java.util.Locale;
 
@@ -31,7 +32,7 @@ public class UserOtpDispatcher extends InviteOtpDispatcher {
     public boolean dispatchOtp(String inviteCode) {
         return inviteDao.findByCode(inviteCode)
                 .map(inviteEntity -> {
-                    inviteEntity.setTelephoneNumber(inviteOtpRequest.getTelephoneNumber());
+                    inviteEntity.setTelephoneNumber(TelephoneNumberUtility.formatToE164(inviteOtpRequest.getTelephoneNumber()));
                     inviteEntity.setPassword(passwordHasher.hash(inviteOtpRequest.getPassword()));
                     inviteDao.merge(inviteEntity);
                     int newPassCode = secondFactorAuthenticator.newPassCode(inviteEntity.getOtpKey());

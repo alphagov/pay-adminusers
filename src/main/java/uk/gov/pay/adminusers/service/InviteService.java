@@ -10,6 +10,7 @@ import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -17,7 +18,9 @@ import java.util.Locale;
 import java.util.Optional;
 
 import static java.lang.String.format;
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.invalidOtpAuthCodeInviteException;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.notFoundInviteException;
 
 public class InviteService {
 
@@ -48,13 +51,14 @@ public class InviteService {
         this.loginAttemptCap = loginAttemptCap;
     }
 
-    @Deprecated // Refactor to adopt UserOtpDispatcher. And Avoid using generic InviteOtpRequest object to avoid having to use optional fields
+    @Deprecated
     @Transactional
+    // Refactor to adopt UserOtpDispatcher. And Avoid using generic InviteOtpRequest object to avoid having to use optional fields
     public void reGenerateOtp(InviteOtpRequest inviteOtpRequest) {
         Optional<InviteEntity> inviteOptional = inviteDao.findByCode(inviteOtpRequest.getCode());
         if (inviteOptional.isPresent()) {
             InviteEntity invite = inviteOptional.get();
-            invite.setTelephoneNumber(inviteOtpRequest.getTelephoneNumber());
+            invite.setTelephoneNumber(TelephoneNumberUtility.formatToE164(inviteOtpRequest.getTelephoneNumber()));
             inviteDao.merge(invite);
             int newPassCode = secondFactorAuthenticator.newPassCode(invite.getOtpKey());
             String passcode = String.format(Locale.ENGLISH, SIX_DIGITS_WITH_LEADING_ZEROS, newPassCode);

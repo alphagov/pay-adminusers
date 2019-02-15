@@ -45,7 +45,7 @@ public class UserResourcePatchTest extends IntegrationTest {
     @Test
     public void shouldUpdateTelephoneNumber_whenPatchAttempt() {
 
-        String newTelephoneNumber = "07700900001";
+        String newTelephoneNumber = "+441134960000";
         JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", newTelephoneNumber));
 
         givenSetup()

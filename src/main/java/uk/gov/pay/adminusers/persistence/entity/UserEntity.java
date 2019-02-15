@@ -5,6 +5,7 @@ import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -238,7 +239,7 @@ public class UserEntity extends AbstractEntity {
         userEntity.setPassword(user.getPassword());
         userEntity.setEmail(user.getEmail());
         userEntity.setOtpKey(user.getOtpKey());
-        userEntity.setTelephoneNumber(user.getTelephoneNumber());
+        userEntity.setTelephoneNumber(TelephoneNumberUtility.formatToE164(user.getTelephoneNumber()));
         userEntity.setSecondFactor(user.getSecondFactor());
         userEntity.setProvisionalOtpKey(user.getProvisionalOtpKey());
         userEntity.setProvisionalOtpKeyCreatedAt(user.getProvisionalOtpKeyCreatedAt());
@@ -265,7 +266,7 @@ public class UserEntity extends AbstractEntity {
         userEntity.setPassword(createUserRequest.getPassword());
         userEntity.setEmail(createUserRequest.getEmail());
         userEntity.setOtpKey(createUserRequest.getOtpKey());
-        userEntity.setTelephoneNumber(createUserRequest.getTelephoneNumber());
+        userEntity.setTelephoneNumber(TelephoneNumberUtility.formatToE164(createUserRequest.getTelephoneNumber()));
         userEntity.setSecondFactor(SecondFactorMethod.SMS);
         userEntity.setLoginCounter(0);
         userEntity.setFeatures(createUserRequest.getFeatures());
