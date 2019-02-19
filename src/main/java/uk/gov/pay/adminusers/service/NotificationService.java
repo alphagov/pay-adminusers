@@ -5,6 +5,7 @@ import com.google.common.base.Stopwatch;
 import uk.gov.pay.adminusers.app.config.NotifyConfiguration;
 import uk.gov.pay.adminusers.app.config.NotifyDirectDebitConfiguration;
 import uk.gov.pay.adminusers.model.PaymentType;
+import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 import uk.gov.service.notify.SendEmailResponse;
 import uk.gov.service.notify.SendSmsResponse;
 
@@ -65,7 +66,7 @@ public class NotificationService {
             personalisation.put("code", passcode);
             Stopwatch responseTimeStopwatch = Stopwatch.createStarted();
             try {
-                SendSmsResponse response = notifyClientProvider.get(CARD).sendSms(secondFactorSmsTemplateId, phoneNumber, personalisation, null);
+                SendSmsResponse response = notifyClientProvider.get(CARD).sendSms(secondFactorSmsTemplateId, TelephoneNumberUtility.formatToE164(phoneNumber), personalisation, null);
                 return response.getNotificationId().toString();
             } catch (Exception e) {
                 metricRegistry.counter("notify-operations.sms.failures").inc();
