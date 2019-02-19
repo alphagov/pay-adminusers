@@ -33,6 +33,11 @@ public class TelephoneNumberUtilityIsValidPhoneNumberTest {
                 {"(0113) 496-0000", true},
                 {"(0113) / 496-0000", true},
                 {"   01134960000   ", true},
+                {"0113--496--0000", true},
+                {"#01134960000", true},
+                {"<01134960000", true},
+                {">01134960000", true},
+                {"[0113]4960000", true},
 
                 // valid phone numbers: international format
                 {"+441134960000", true},
@@ -42,6 +47,11 @@ public class TelephoneNumberUtilityIsValidPhoneNumberTest {
                 {"(+44113) 496-0000", true},
                 {"(+44113) / 496-0000", true},
                 {"   +441134960000   ", true},
+                {"+44--113--496--0000", true},
+                {"#+441134960000", true},
+                {"<+441134960000", true},
+                {">+441134960000", true},
+                {"+[44]1134960000", true},
                 {"00441134960000", true},
                 {"0044113 496 0000", true},
                 {"0044113-496-0000", true},
@@ -49,6 +59,11 @@ public class TelephoneNumberUtilityIsValidPhoneNumberTest {
                 {"(0044113) 496-0000", true},
                 {"(0044113) / 496-0000", true},
                 {"   00441134960000   ", true},
+                {"0044--113--496--0000", true},
+                {"#00441134960000", true},
+                {"<00441134960000", true},
+                {">00441134960000", true},
+                {"[0044]1134960000", true},
 
                 // invalid phone numbers
                 {null, false},
