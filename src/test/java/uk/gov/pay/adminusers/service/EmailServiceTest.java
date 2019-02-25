@@ -48,9 +48,6 @@ public class EmailServiceTest {
     private ServiceDao mockServiceDao;
 
     @Mock
-    private NotifyConfiguration mockNotificationConfiguration;
-
-    @Mock
     private NotifyDirectDebitConfiguration mockNotifyDirectDebitConfiguration;
 
     @Mock

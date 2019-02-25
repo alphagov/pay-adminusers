@@ -138,16 +138,6 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public DatabaseTestHelper addUserToAServiceRole(int userId, int serviceId, int roleId) {
-        jdbi.withHandle(handle -> handle
-                .createStatement("INSERT INTO user_services_roleS(user_id, service_id, role_id) VALUES(:userId, :serviceId, :roleId)")
-                .bind("userId", userId)
-                .bind("serviceId", serviceId)
-                .bind("roleId", roleId)
-                .execute());
-        return this;
-    }
-
     //inserting if not exist, just to be safe for fixed value inserts like Admin role
     public DatabaseTestHelper add(Role role) {
         jdbi.withHandle(handle ->
@@ -203,14 +193,6 @@ public class DatabaseTestHelper {
                 h.createQuery("SELECT service_id FROM user_services_roles " +
                         "WHERE user_id = :userId")
                         .bind("userId", userId)
-                        .list());
-    }
-
-    public List<Map<String, Object>> findGatewayAccountsByService(String serviceExternalId) {
-        return jdbi.withHandle(h ->
-                h.createQuery("SELECT sga.gateway_account_id FROM service_gateway_accounts sga, services s " +
-                        "WHERE s.id = sga.service_id AND s.external_id = :serviceExternalId")
-                        .bind("serviceExternalId", serviceExternalId)
                         .list());
     }
 
@@ -377,7 +359,7 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public DatabaseTestHelper addServiceName(ServiceNameEntity entity, Integer serviceId) {
+    private DatabaseTestHelper addServiceName(ServiceNameEntity entity, Integer serviceId) {
         jdbi.withHandle(handle -> handle
                 .createStatement("INSERT INTO service_names(id, service_id, language, name) VALUES (:id, :serviceId, :language, :name)")
                 .bind("id", entity.getId())
