@@ -19,6 +19,7 @@ public class EmailValidator {
         PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER = Collections.unmodifiableList(Arrays.asList(
                 "acas\\.org\\.uk",
                 "assembly\\.wales",
+                "caa\\.co\\.uk",
                 "careinspectorate\\.com",
                 "cynulliad\\.cymru",
                 "derrystrabane\\.com",

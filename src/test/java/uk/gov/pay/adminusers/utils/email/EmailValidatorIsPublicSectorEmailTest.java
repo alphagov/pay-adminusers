@@ -60,6 +60,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 // all valid emails with domains
                 {"valid@acas.org.uk", true},
                 {"valid@assembly.wales", true},
+                {"valid@caa.co.uk", true},
                 {"valid@careinspectorate.com", true},
                 {"valid@cynulliad.cymru", true},
                 {"valid@derrystrabane.com", true},
