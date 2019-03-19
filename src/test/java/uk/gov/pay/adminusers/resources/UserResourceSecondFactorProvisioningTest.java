@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.User;
 
-import static com.jayway.restassured.http.ContentType.JSON;
+import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;

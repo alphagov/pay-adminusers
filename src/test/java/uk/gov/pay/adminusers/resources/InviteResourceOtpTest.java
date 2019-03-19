@@ -1,9 +1,9 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.google.common.collect.ImmutableMap;
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.ValidatableResponse;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
+import io.restassured.http.ContentType;
+import io.restassured.response.ValidatableResponse;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.fixtures.InviteDbFixture;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.io.BaseEncoding.base32;
-import static com.jayway.restassured.http.ContentType.JSON;
+import static io.restassured.http.ContentType.JSON;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.apache.commons.lang3.RandomStringUtils.random;
 import static org.hamcrest.Matchers.hasSize;
@@ -110,7 +110,7 @@ public class InviteResourceOtpTest extends IntegrationTest {
         givenSetup()
                 .when()
                 .body(mapper.writeValueAsString(invitationOtpRequest))
-                .contentType(ContentType.JSON)
+                .contentType(JSON)
                 .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(NOT_FOUND.getStatusCode());
@@ -136,7 +136,7 @@ public class InviteResourceOtpTest extends IntegrationTest {
         givenSetup()
                 .when()
                 .body(mapper.writeValueAsString(invitationOtpRequest))
-                .contentType(ContentType.JSON)
+                .contentType(JSON)
                 .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(UNAUTHORIZED.getStatusCode());
@@ -163,7 +163,7 @@ public class InviteResourceOtpTest extends IntegrationTest {
         givenSetup()
                 .when()
                 .body(mapper.writeValueAsString(invitationOtpRequest))
-                .contentType(ContentType.JSON)
+                .contentType(JSON)
                 .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(GONE.getStatusCode());
@@ -185,7 +185,7 @@ public class InviteResourceOtpTest extends IntegrationTest {
         givenSetup()
                 .when()
                 .body(mapper.writeValueAsString(invitationRequest))
-                .contentType(ContentType.JSON)
+                .contentType(JSON)
                 .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(BAD_REQUEST.getStatusCode());
@@ -214,7 +214,7 @@ public class InviteResourceOtpTest extends IntegrationTest {
         givenSetup()
                 .when()
                 .body(mapper.writeValueAsString(resendRequest))
-                .contentType(ContentType.JSON)
+                .contentType(JSON)
                 .post(INVITES_RESEND_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(OK.getStatusCode());
@@ -235,7 +235,7 @@ public class InviteResourceOtpTest extends IntegrationTest {
         givenSetup()
                 .when()
                 .body(mapper.writeValueAsString(invitationRequest))
-                .contentType(ContentType.JSON)
+                .contentType(JSON)
                 .post(INVITES_RESEND_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(BAD_REQUEST.getStatusCode());
@@ -256,7 +256,7 @@ public class InviteResourceOtpTest extends IntegrationTest {
         givenSetup()
                 .when()
                 .body(mapper.writeValueAsString(sendRequest))
-                .contentType(ContentType.JSON)
+                .contentType(JSON)
                 .post(SERVICE_INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(OK.getStatusCode());
@@ -279,7 +279,7 @@ public class InviteResourceOtpTest extends IntegrationTest {
         givenSetup()
                 .when()
                 .body(mapper.writeValueAsString(sendRequest))
-                .contentType(ContentType.JSON)
+                .contentType(JSON)
                 .post(SERVICE_INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(UNAUTHORIZED.getStatusCode());

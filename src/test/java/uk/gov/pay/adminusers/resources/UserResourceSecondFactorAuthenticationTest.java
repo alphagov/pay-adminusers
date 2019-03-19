@@ -8,7 +8,7 @@ import org.junit.Test;
 import uk.gov.pay.adminusers.model.User;
 
 import static com.google.common.io.BaseEncoding.base32;
-import static com.jayway.restassured.http.ContentType.JSON;
+import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;

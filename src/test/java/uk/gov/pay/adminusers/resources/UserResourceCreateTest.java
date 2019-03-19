@@ -1,14 +1,14 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.google.common.collect.ImmutableMap;
-import com.jayway.restassured.response.ValidatableResponse;
+import io.restassured.response.ValidatableResponse;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
 
 import java.util.List;
 import java.util.Map;
 
-import static com.jayway.restassured.http.ContentType.JSON;
+import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.RandomUtils.nextInt;

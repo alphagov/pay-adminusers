@@ -1,6 +1,6 @@
 package uk.gov.pay.adminusers.unit.service;
 
-import com.jayway.restassured.path.json.JsonPath;
+import io.restassured.path.json.JsonPath;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.service.LinksBuilder;
 import uk.gov.pay.commons.model.SupportedLanguage;

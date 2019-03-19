@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.unit.service;
 
-import com.jayway.restassured.path.json.JsonPath;
 import io.dropwizard.testing.junit.ResourceTestRule;
+import io.restassured.path.json.JsonPath;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;

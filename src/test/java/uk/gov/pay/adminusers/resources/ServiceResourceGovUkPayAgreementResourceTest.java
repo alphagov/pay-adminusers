@@ -12,7 +12,7 @@ import uk.gov.pay.adminusers.model.User;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
-import static com.jayway.restassured.http.ContentType.JSON;
+import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
