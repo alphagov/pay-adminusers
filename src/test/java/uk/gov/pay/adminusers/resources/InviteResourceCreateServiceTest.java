@@ -2,7 +2,7 @@ package uk.gov.pay.adminusers.resources;
 
 
 import com.google.common.collect.ImmutableMap;
-import com.jayway.restassured.http.ContentType;
+import io.restassured.http.ContentType;
 import org.junit.Test;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 

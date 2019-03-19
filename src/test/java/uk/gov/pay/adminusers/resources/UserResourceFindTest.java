@@ -7,7 +7,7 @@ import uk.gov.pay.adminusers.model.User;
 
 import java.util.Map;
 
-import static com.jayway.restassured.http.ContentType.JSON;
+import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;

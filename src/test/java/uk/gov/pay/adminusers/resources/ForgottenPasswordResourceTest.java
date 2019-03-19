@@ -3,7 +3,7 @@ package uk.gov.pay.adminusers.resources;
 import org.junit.Test;
 
 import static com.google.common.collect.ImmutableMap.of;
-import static com.jayway.restassured.http.ContentType.JSON;
+import static io.restassured.http.ContentType.JSON;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;

@@ -8,7 +8,7 @@ import uk.gov.pay.adminusers.model.MerchantDetails;
 
 import java.util.Map;
 
-import static com.jayway.restassured.http.ContentType.JSON;
+import static io.restassured.http.ContentType.JSON;
 
 public class EmailResourceTest extends IntegrationTest {
 
