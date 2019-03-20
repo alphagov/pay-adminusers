@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.model;
 public enum GoLiveStage {
     NOT_STARTED,
     ENTERED_ORGANISATION_NAME,
+    ENTERED_ORGANISATION_ADDRESS,
     CHOSEN_PSP_STRIPE,
     CHOSEN_PSP_WORLDPAY,
     CHOSEN_PSP_SMARTPAY,
