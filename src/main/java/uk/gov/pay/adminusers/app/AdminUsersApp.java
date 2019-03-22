@@ -19,7 +19,6 @@ import uk.gov.pay.adminusers.app.healthchecks.DatabaseHealthCheck;
 import uk.gov.pay.adminusers.app.healthchecks.DependentResourceWaitCommand;
 import uk.gov.pay.adminusers.app.healthchecks.MigrateToInitialDbState;
 import uk.gov.pay.adminusers.app.healthchecks.Ping;
-import uk.gov.pay.adminusers.app.util.TrustingSSLSocketFactory;
 import uk.gov.pay.adminusers.exception.ConflictExceptionMapper;
 import uk.gov.pay.adminusers.exception.NotFoundExceptionMapper;
 import uk.gov.pay.adminusers.exception.ValidationExceptionMapper;
@@ -35,7 +34,6 @@ import uk.gov.pay.adminusers.resources.UserResource;
 import uk.gov.pay.commons.utils.logging.LoggingFilter;
 import uk.gov.pay.commons.utils.xray.Xray;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.EnumSet.of;
@@ -93,8 +91,6 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(new InvalidEmailRequestExceptionMapper());
         environment.jersey().register(new InvalidMerchantDetailsExceptionMapper());
         environment.jersey().register(new ConflictExceptionMapper());
-
-        HttpsURLConnection.setDefaultSSLSocketFactory(new TrustingSSLSocketFactory());
 
         Xray.init(environment, "pay-adminusers", java.util.Optional.empty(), API_VERSION_PATH + "/*");
     }
