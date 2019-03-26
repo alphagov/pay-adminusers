@@ -84,7 +84,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@socialworkengland.org.uk", true},
                 {"valid@ucds.email", true},
                 {"valid@wmca.org.uk", true},
-
+                {"valid@york.ac.uk", true},
 
                 // all valid emails with subdomains
                 {"valid@subdomain.acas.org.uk", true},
@@ -112,6 +112,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@subdomain.socialworkengland.org.uk", true},
                 {"valid@subdomain.ucds.email", true},
                 {"valid@subdomain.wmca.org.uk", true},
+                {"valid@subdomain.york.ac.uk", true},
 
         });
     }
