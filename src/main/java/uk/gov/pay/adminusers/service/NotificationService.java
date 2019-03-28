@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
-import static uk.gov.pay.adminusers.app.util.TrustStoreLoader.getSSLContext;
 import static uk.gov.pay.adminusers.model.PaymentType.CARD;
 import static uk.gov.pay.adminusers.model.Service.DEFAULT_NAME_VALUE;
 
@@ -43,7 +42,7 @@ public class NotificationService {
         this.notifyConfiguration = notifyConfiguration;
         this.notifyDirectDebitConfiguration = notifyDirectDebitConfiguration;
 
-        this.notifyClientProvider = new NotifyClientProvider(notifyConfiguration, getSSLContext());
+        this.notifyClientProvider = new NotifyClientProvider(notifyConfiguration);
         this.secondFactorSmsTemplateId = notifyConfiguration.getSecondFactorSmsTemplateId();
         this.inviteEmailTemplateId = notifyConfiguration.getInviteUserEmailTemplateId();
         this.inviteExistingUserEmailTemplateId = notifyConfiguration.getInviteUserExistingEmailTemplateId();
