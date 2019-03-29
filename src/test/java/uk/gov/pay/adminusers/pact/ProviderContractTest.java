@@ -165,6 +165,14 @@ public class ProviderContractTest {
                 .withGatewayAccountIds("111")
                 .insertService();
     }
+    
+    @State({"a service exists with custom branding and a gateway account with id 111"})
+    public void aServiceExistsWithCustomBranding() {
+        serviceDbFixture(dbHelper)
+                .withGatewayAccountIds("111")
+                .withCustomBranding("https://example.org/mycss", "https://example.org/myimage")
+                .insertService();
+    }
 
     @State("a service exists with external id rtglNotStarted and go live stage equals to NOT_STARTED")
     public void aServiceExistsWithNotStartedGoLiveStage() {
