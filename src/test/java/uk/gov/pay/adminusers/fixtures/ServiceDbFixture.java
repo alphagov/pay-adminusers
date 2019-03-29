@@ -1,9 +1,12 @@
 package uk.gov.pay.adminusers.fixtures;
 
+import com.google.common.collect.ImmutableMap;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.MerchantDetails;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
+
+import java.util.Map;
 
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
@@ -22,6 +25,7 @@ public class ServiceDbFixture {
     );
     private boolean collectBillingAddress = true;
     private GoLiveStage goLiveStage = GoLiveStage.NOT_STARTED;
+    private Map<String, Object> customBranding;
 
     private ServiceDbFixture(DatabaseTestHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
@@ -50,6 +54,14 @@ public class ServiceDbFixture {
         this.goLiveStage = goLiveStage;
         return this;
     }
+    
+    public ServiceDbFixture withCustomBranding(String cssUrl, String imageUrl) {
+        this.customBranding = ImmutableMap.of(
+                "css_url", cssUrl,
+                "image_url", imageUrl
+        );
+        return this;
+    }
 
     public Service insertService() {
         int serviceId = id == null ? nextInt() : id;
@@ -60,6 +72,7 @@ public class ServiceDbFixture {
         service.setCollectBillingAddress(collectBillingAddress);
         service.getServiceNames().put("en", service.getName());
         service.setGoLiveStage(goLiveStage);
+        service.setCustomBranding(customBranding);
         databaseHelper.addService(service, gatewayAccountIds);
 
         return service;
