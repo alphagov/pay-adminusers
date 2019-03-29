@@ -6,7 +6,7 @@ RUN_APP=${RUN_APP:-true}
 
 if [ -n "${CERTS_PATH:-}" ]; then
   i=0
-  truststore=/etc/ssl/certs/java/cacerts
+  truststore=$JAVA_HOME/lib/security/cacerts
   truststore_pass=changeit
   existing_fingerprints=$(keytool -list -keystore "$truststore" -storepass "$truststore_pass"| sed -ne 's/^Certificate fingerprint (SHA1): //p')
   for cert in "$CERTS_PATH"/*; do
