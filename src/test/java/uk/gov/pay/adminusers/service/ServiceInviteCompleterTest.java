@@ -22,6 +22,7 @@ import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.commons.model.SupportedLanguage;
 
 import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
@@ -101,6 +102,7 @@ public class ServiceInviteCompleterTest {
                 .map(GatewayAccountIdEntity::getGatewayAccountId)
                 .collect(toList()), hasItems("2", "1"));
         assertThat(serviceEntity.getName(), is(Service.DEFAULT_NAME_VALUE));
+        assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
         assertThat(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
         assertThat(serviceEntity.isCollectBillingAddress(), is(true));
 
@@ -131,6 +133,7 @@ public class ServiceInviteCompleterTest {
         ServiceEntity serviceEntity = expectedService.getValue();
         assertThat(serviceEntity.getGatewayAccountIds().isEmpty(), is(true));
         assertThat(serviceEntity.getName(), is(Service.DEFAULT_NAME_VALUE));
+        assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
         assertThat(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
         assertThat(serviceEntity.isCollectBillingAddress(), is(true));
 

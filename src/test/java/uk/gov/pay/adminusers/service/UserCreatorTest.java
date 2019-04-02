@@ -18,6 +18,7 @@ import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.commons.model.SupportedLanguage;
 
 import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
@@ -80,9 +81,18 @@ public class UserCreatorTest {
         assertThat(user.getEmail(), is("email@example.com"));
         assertThat(user.getSecondFactor(), is(SecondFactorMethod.SMS));
         assertThat(user.getServiceRoles().size(), is(1));
-        
+
+        ArgumentCaptor<ServiceEntity> serviceEntityArgumentCaptor = ArgumentCaptor.forClass(ServiceEntity.class);
+        verify(mockServiceDao).persist(serviceEntityArgumentCaptor.capture());
+        ServiceEntity serviceEntity = serviceEntityArgumentCaptor.getValue();
+        assertThat(serviceEntity.getName(), is(Service.DEFAULT_NAME_VALUE));
+        assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
+        assertThat(serviceEntity.getGatewayAccountIds().get(0).getGatewayAccountId(), is("1"));
+        assertThat(serviceEntity.getGatewayAccountIds().get(1).getGatewayAccountId(), is("2"));
+
         Service service = user.getServiceRoles().get(0).getService();
         assertThat(service.getName(), is (Service.DEFAULT_NAME_VALUE));
+        assertThat(service.getServiceNames().get(SupportedLanguage.ENGLISH.toString()), is (Service.DEFAULT_NAME_VALUE));
         assertThat(service.getGatewayAccountIds(), is(asList("1", "2")));
         assertThat(service.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
         assertThat(service.isCollectBillingAddress(), is(true));
