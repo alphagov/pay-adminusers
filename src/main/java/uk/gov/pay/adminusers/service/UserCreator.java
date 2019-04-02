@@ -13,6 +13,8 @@ import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
+import uk.gov.pay.commons.model.SupportedLanguage;
 
 import java.util.List;
 import java.util.Optional;
@@ -79,6 +81,7 @@ public class UserCreator {
                 .map(serviceEntity -> new ServiceRoleEntity(serviceEntity, role))
                 .orElseGet(() -> {
                     ServiceEntity service = new ServiceEntity(gatewayAccountIds);
+                    service.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, service.getName()));
                     serviceDao.persist(service);
                     return new ServiceRoleEntity(service, role);
                 });
