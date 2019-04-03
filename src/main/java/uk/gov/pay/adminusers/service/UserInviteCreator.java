@@ -3,8 +3,8 @@ package uk.gov.pay.adminusers.service;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.app.config.LinksConfig;
 import org.slf4j.LoggerFactory;
+import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
@@ -14,6 +14,7 @@ import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.commons.model.SupportedLanguage;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +24,10 @@ import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.InviteType.USER;
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingInvite;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.forbiddenOperationException;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.undefinedRoleException;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.userAlreadyInService;
 
 public class UserInviteCreator {
 
@@ -105,7 +109,8 @@ public class UserInviteCreator {
     private void sendUserInviteNotification(InviteEntity inviteEntity, String inviteUrl, ServiceEntity serviceEntity, Optional<UserEntity> existingUser) {
         UserEntity sender = inviteEntity.getSender();
         if (existingUser.isPresent()) {
-            notificationService.sendInviteExistingUserEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl, serviceEntity.getName())
+            String serviceName = serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName();
+            notificationService.sendInviteExistingUserEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl, serviceName)
                     .thenAcceptAsync(notificationId -> LOGGER.info("sent invite email successfully by user [{}], notification id [{}]", sender.getExternalId(), notificationId))
                     .exceptionally(exception -> {
                         LOGGER.error(format("error sending email by user [%s]", sender.getExternalId()), exception);

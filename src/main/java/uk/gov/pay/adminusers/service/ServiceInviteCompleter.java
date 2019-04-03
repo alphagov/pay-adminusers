@@ -17,7 +17,9 @@ import uk.gov.pay.commons.model.SupportedLanguage;
 import java.util.Optional;
 
 import static java.lang.String.format;
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmail;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
 
 public class ServiceInviteCompleter extends InviteCompleter {
 
@@ -57,7 +59,7 @@ public class ServiceInviteCompleter extends InviteCompleter {
                     if (inviteEntity.isServiceType()) {
                         UserEntity userEntity = inviteEntity.mapToUserEntity();
                         ServiceEntity serviceEntity = ServiceEntity.from(Service.from());
-                        serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, serviceEntity.getName()));
+                        serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, Service.DEFAULT_NAME_VALUE));
                         if (!data.getGatewayAccountIds().isEmpty()) {
                             serviceEntity.addGatewayAccountIds(data.getGatewayAccountIds().toArray(new String[0]));
                         }

@@ -99,6 +99,21 @@ public class ServiceEntity {
         this.id = id;
     }
 
+    /**
+     * @deprecated Replaced by {@link #getServiceNames()}:
+     * 
+     * <pre>
+     * {@code
+     * serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName();
+     * }
+     * </pre>
+     * 
+     * This should be equivalent to <code>getName()</code> as long as the ServiceEntity is loaded
+     * from the database and {@link #addOrUpdateServiceName(ServiceNameEntity)} is always used to
+     * update the name
+     * 
+     */
+    @Deprecated
     public String getName() {
         return name;
     }

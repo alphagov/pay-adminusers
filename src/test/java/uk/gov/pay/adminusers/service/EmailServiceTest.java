@@ -9,12 +9,12 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.pay.adminusers.app.config.NotifyConfiguration;
 import uk.gov.pay.adminusers.app.config.NotifyDirectDebitConfiguration;
 import uk.gov.pay.adminusers.model.PaymentType;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.adminusers.resources.EmailTemplate;
 import uk.gov.pay.adminusers.resources.InvalidMerchantDetailsException;
 import uk.gov.pay.adminusers.utils.CountryConverter;
@@ -28,6 +28,7 @@ import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static uk.gov.pay.commons.model.SupportedLanguage.ENGLISH;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EmailServiceTest {
@@ -72,7 +73,7 @@ public class EmailServiceTest {
         given(mockNotifyDirectDebitConfiguration.getOnDemandMandateCreatedEmailTemplateId()).willReturn("NOTIFY_ON_DEMAND_MANDATE_CREATED_EMAIL_TEMPLATE_ID_VALUE");
         given(mockNotifyDirectDebitConfiguration.getOnDemandPaymentConfirmedEmailTemplateId()).willReturn("NOTIFY_ON_DEMAND_PAYMENT_CONFIRMED_EMAIL_TEMPLATE_ID_VALUE");
         given(mockServiceDao.findByGatewayAccountId(GATEWAY_ACCOUNT_ID)).willReturn(Optional.of(mockServiceEntity));
-        given(mockServiceEntity.getName()).willReturn("a service");
+        given(mockServiceEntity.getServiceNames()).willReturn(Map.of(ENGLISH, ServiceNameEntity.from(ENGLISH, "a service")));
         given(mockCountryConverter.getCountryNameFrom(ADDRESS_COUNTRY_CODE)).willReturn(Optional.of("Cake Land"));
         emailService = new EmailService(mockNotificationService, mockCountryConverter, mockServiceDao);
     }
