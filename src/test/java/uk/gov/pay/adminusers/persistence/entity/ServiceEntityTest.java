@@ -12,12 +12,13 @@ import static org.junit.Assert.assertThat;
 public class ServiceEntityTest {
     
     @Test
-    public void addOrUpdateServiceName_shouldUpdateNameWhenAddingEnName_andNoPreviousEnName() {
+    public void addOrUpdateServiceName_shouldUpdateNameWhenAddingEnName() {
         ServiceNameEntity serviceNameEntity = ServiceNameEntity.from(SupportedLanguage.ENGLISH, "newest-en-name");
         ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity().withName("old-en-name").build();
 
         assertThat(serviceEntity.getName(), is("old-en-name"));
-        assertThat(serviceEntity.getServiceNames().size(), is(0));
+        assertThat(serviceEntity.getServiceNames().size(), is(1));
+        assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is("old-en-name"));
 
         serviceEntity.addOrUpdateServiceName(serviceNameEntity);
 

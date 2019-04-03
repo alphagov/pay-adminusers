@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
+import static java.util.Comparator.comparing;
 import static java.util.stream.IntStream.range;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
@@ -56,7 +57,7 @@ public class ServiceDaoTest extends DaoTestBase {
     }
 
     @Test
-    public void shouldSaveAService_withCustomisations_andNoServiceName() throws Exception {
+    public void shouldSaveAService_withCustomisations() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
         serviceDao.persist(thisServiceEntity);
 
@@ -70,8 +71,6 @@ public class ServiceDaoTest extends DaoTestBase {
         assertThat(storedBranding.keySet().size(), is(2));
         assertThat(storedBranding.keySet(), hasItems("image_url", "css_url"));
         assertThat(storedBranding.values(), hasItems("image url", "css url"));
-
-        assertNoServiceNameRecords(thisServiceEntity);
     }
 
     @Test
@@ -92,7 +91,7 @@ public class ServiceDaoTest extends DaoTestBase {
         List<Map<String, Object>> savedServiceName = databaseHelper.findServiceNameByServiceId(thisServiceEntity.getId());
 
         assertThat(savedServiceName.size(), is(2));
-        savedServiceName.sort(Comparator.comparing(item -> String.valueOf(item.get("language"))));
+        savedServiceName.sort(comparing(item -> String.valueOf(item.get("language"))));
         assertThat(savedServiceName.get(0).get("service_id"), is(Long.valueOf(thisServiceEntity.getId())));
         assertThat(savedServiceName.get(0).get("language"), is("cy"));
         assertThat(savedServiceName.get(0).get("name"), is(CY_NAME));
@@ -116,11 +115,16 @@ public class ServiceDaoTest extends DaoTestBase {
         assertThat(savedService.get(0).get("external_id"), is(thisServiceEntity.getExternalId()));
         Map<String, Object> storedBranding = new CustomBrandingConverter().convertToEntityAttribute((PGobject) savedService.get(0).get("custom_branding"));
         assertNull(storedBranding);
+
         List<Map<String, Object>> savedServiceName = databaseHelper.findServiceNameByServiceId(thisServiceEntity.getId());
-        assertThat(savedServiceName.size(), is(1));
+        savedServiceName.sort(Comparator.comparing(item -> String.valueOf(item.get("language"))));
+        assertThat(savedServiceName.size(), is(2));
         assertThat(savedServiceName.get(0).get("service_id"), is(Long.valueOf(thisServiceEntity.getId())));
         assertThat(savedServiceName.get(0).get("language"), is("cy"));
         assertThat(savedServiceName.get(0).get("name"), is(CY_NAME));
+        assertThat(savedServiceName.get(1).get("service_id"), is(Long.valueOf(thisServiceEntity.getId())));
+        assertThat(savedServiceName.get(1).get("language"), is("en"));
+        assertThat(savedServiceName.get(1).get("name"), is(EN_NAME));
     }
 
     @Test
@@ -144,8 +148,6 @@ public class ServiceDaoTest extends DaoTestBase {
         assertThat(savedService.get(0).get("merchant_address_postcode"), is(merchantDetails.getAddressPostcode()));
         assertThat(savedService.get(0).get("merchant_address_country"), is(merchantDetails.getAddressCountryCode()));
         assertThat(savedService.get(0).get("merchant_email"), is(merchantDetails.getEmail()));
-
-        assertNoServiceNameRecords(thisServiceEntity);
     }
 
     @Test
