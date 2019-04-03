@@ -12,6 +12,7 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.resources.EmailTemplate;
 import uk.gov.pay.adminusers.resources.InvalidMerchantDetailsException;
 import uk.gov.pay.adminusers.utils.CountryConverter;
+import uk.gov.pay.commons.model.SupportedLanguage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -81,14 +82,14 @@ public class EmailService {
         }
 
         ImmutableMap<String, String> personalisation = ImmutableMap.of(
-                SERVICE_NAME_KEY, service.getName(),
+                SERVICE_NAME_KEY, service.getServiceNames().get(SupportedLanguage.ENGLISH).getName(),
                 ORGANISATION_NAME_KEY, merchantDetails.getName(),
                 ORGANISATION_ADDRESS_KEY, formatMerchantAddress(merchantDetails),
                 ORGANISATION_PHONE_NUMBER_KEY, merchantDetails.getTelephoneNumber(),
                 ORGANISATION_EMAIL_ADDRESS_KEY, merchantDetails.getEmail()
         );
 
-        return new HashMap<EmailTemplate, StaticEmailContent>() {
+        return new HashMap<>() {
             {
                 put(EmailTemplate.ONE_OFF_PAYMENT_CONFIRMED, new StaticEmailContent(
                         notificationService.getNotifyDirectDebitConfiguration().getOneOffMandateAndPaymentCreatedEmailTemplateId(),

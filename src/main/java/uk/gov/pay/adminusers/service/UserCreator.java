@@ -5,6 +5,7 @@ import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -81,7 +82,7 @@ public class UserCreator {
                 .map(serviceEntity -> new ServiceRoleEntity(serviceEntity, role))
                 .orElseGet(() -> {
                     ServiceEntity service = new ServiceEntity(gatewayAccountIds);
-                    service.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, service.getName()));
+                    service.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, Service.DEFAULT_NAME_VALUE));
                     serviceDao.persist(service);
                     return new ServiceRoleEntity(service, role);
                 });

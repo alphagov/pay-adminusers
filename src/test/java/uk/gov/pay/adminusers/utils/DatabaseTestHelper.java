@@ -12,6 +12,7 @@ import uk.gov.pay.adminusers.persistence.entity.CustomBrandingConverter;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
+import uk.gov.pay.commons.model.SupportedLanguage;
 
 import java.sql.Timestamp;
 import java.time.ZoneId;
@@ -226,6 +227,8 @@ public class DatabaseTestHelper {
                     .execute();
         });
 
+        addServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, service.getName()), service.getId());
+        
         for (String gatewayAccountId : gatewayAccountIds) {
             jdbi.withHandle(handle ->
                     handle.createStatement("INSERT INTO service_gateway_accounts(service_id, gateway_account_id) VALUES (:serviceId, :gatewayAccountId)")
@@ -361,8 +364,7 @@ public class DatabaseTestHelper {
 
     private DatabaseTestHelper addServiceName(ServiceNameEntity entity, Integer serviceId) {
         jdbi.withHandle(handle -> handle
-                .createStatement("INSERT INTO service_names(id, service_id, language, name) VALUES (:id, :serviceId, :language, :name)")
-                .bind("id", entity.getId())
+                .createStatement("INSERT INTO service_names(service_id, language, name) VALUES (:serviceId, :language, :name)")
                 .bind("serviceId", serviceId)
                 .bind("language", entity.getLanguage().toString())
                 .bind("name", entity.getName())

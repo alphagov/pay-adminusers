@@ -25,6 +25,8 @@ import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
+import uk.gov.pay.commons.model.SupportedLanguage;
 
 import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
@@ -281,7 +283,9 @@ public class UserInviteCreatorTest {
         emptyServiceInvite.setExpiryDate(ZonedDateTime.now().plusDays(1));
 
         InviteEntity nonMatchingServiceInvite = new InviteEntity();
-        nonMatchingServiceInvite.setService(ServiceEntity.from(Service.from("another-service")));
+        ServiceEntity serviceEntity = ServiceEntity.from(Service.from("another-service"));
+        serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, serviceEntity.getName()));
+        nonMatchingServiceInvite.setService(serviceEntity);
         nonMatchingServiceInvite.setExpiryDate(ZonedDateTime.now().plusDays(1));
 
         when(mockInviteDao.findByEmail(email)).thenReturn(newArrayList(expiredInvite, disabledInvite, emptyServiceInvite, nonMatchingServiceInvite, validInvite));
@@ -302,6 +306,7 @@ public class UserInviteCreatorTest {
 
     private InviteEntity mockInviteSuccess_existingInvite() {
         ServiceEntity service = new ServiceEntity();
+        service.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, service.getName()));
         service.setId(serviceId);
         service.setExternalId(serviceExternalId);
 
