@@ -11,8 +11,6 @@ import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
-import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
-import uk.gov.pay.commons.model.SupportedLanguage;
 
 import java.util.Optional;
 
@@ -59,7 +57,6 @@ public class ServiceInviteCompleter extends InviteCompleter {
                     if (inviteEntity.isServiceType()) {
                         UserEntity userEntity = inviteEntity.mapToUserEntity();
                         ServiceEntity serviceEntity = ServiceEntity.from(Service.from());
-                        serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, Service.DEFAULT_NAME_VALUE));
                         if (!data.getGatewayAccountIds().isEmpty()) {
                             serviceEntity.addGatewayAccountIds(data.getGatewayAccountIds().toArray(new String[0]));
                         }

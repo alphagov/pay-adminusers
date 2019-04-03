@@ -200,6 +200,8 @@ public class ServiceEntity {
     public static ServiceEntity from(Service service) {
         ServiceEntity serviceEntity = new ServiceEntity();
         serviceEntity.setName(service.getName());
+        service.getServiceNames().forEach((languageCode, serviceName) ->
+                serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.fromIso639AlphaTwoCode(languageCode), serviceName)));
         serviceEntity.setExternalId(service.getExternalId());
         serviceEntity.setRedirectToServiceImmediatelyOnTerminalState(service.isRedirectToServiceImmediatelyOnTerminalState());
         serviceEntity.setCollectBillingAddress(service.isCollectBillingAddress());
