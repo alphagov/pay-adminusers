@@ -95,9 +95,10 @@ public final class ServiceEntityBuilder {
         ServiceEntity serviceEntity = new ServiceEntity();
         serviceEntity.setId(id);
         serviceEntity.setExternalId(externalId);
-        serviceEntity.setName(name);
         serviceEntity.setMerchantDetailsEntity(merchantDetailsEntity);
         serviceEntity.setCustomBranding(customBranding);
+        serviceEntity.setName(name);
+        serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, name));
         serviceName.forEach(serviceEntity::addOrUpdateServiceName);
         gatewayAccountIds.forEach(g -> serviceEntity.addGatewayAccountIds(g.getGatewayAccountId()));
         serviceEntity.setRedirectToServiceImmediatelyOnTerminalState(redirectToServiceImmediatelyOnTerminalState);
