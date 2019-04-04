@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.persistence.entity;
 import com.google.common.collect.ImmutableList;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
@@ -171,7 +172,8 @@ public class ServiceEntity {
     }
 
     public Service toService() {
-        Service service = Service.from(id, externalId, name, getServiceNames(), this.redirectToServiceImmediatelyOnTerminalState, this.collectBillingAddress, this.currentGoLiveStage);
+        Service service = Service.from(id, externalId, ServiceName.from(getServiceNames().values()),
+                this.redirectToServiceImmediatelyOnTerminalState, this.collectBillingAddress, this.currentGoLiveStage);
         service.setGatewayAccountIds(gatewayAccountIds.stream()
                 .map(GatewayAccountIdEntity::getGatewayAccountId)
                 .collect(Collectors.toList()));

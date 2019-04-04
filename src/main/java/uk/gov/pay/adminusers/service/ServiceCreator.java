@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.service;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
@@ -30,7 +31,8 @@ public class ServiceCreator {
                             Optional<List<String>> gatewayAccountIdsOptional,
                             Map<SupportedLanguage, String> serviceNameVariants) {
         Service service = serviceName
-                .map(Service::from)
+                .map(ServiceName::new)
+                .map(name -> Service.from(name))
                 .orElseGet(Service::from);
 
         ServiceEntity serviceEntity = ServiceEntity.from(service);

@@ -5,6 +5,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
@@ -49,7 +50,8 @@ public class UserDbFixture {
     }
 
     public UserDbFixture withServiceRole(int serviceId, int roleId) {
-        this.serviceRolePairs.add(Pair.of(Service.from(serviceId, randomUuid(), Service.DEFAULT_NAME_VALUE), Role.role(roleId, "roleName", "roleDescription")));
+        this.serviceRolePairs.add(Pair.of(Service.from(serviceId, randomUuid(), new ServiceName(Service.DEFAULT_NAME_VALUE)),
+                Role.role(roleId, "roleName", "roleDescription")));
         return this;
     }
 

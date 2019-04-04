@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceName;
 
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public class ServiceResourceUpdateMerchantDetailsTest extends IntegrationTest {
     @Test
     public void shouldSuccess_whenUpdatingMerchantDetails() throws Exception {
         String serviceExternalId = randomUuid();
-        Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
+        Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
         databaseHelper.addService(service, randomInt().toString());
         Map<String, Object> payload = ImmutableMap.<String, Object>builder()
                 .put("name", "somename")
@@ -58,7 +59,7 @@ public class ServiceResourceUpdateMerchantDetailsTest extends IntegrationTest {
     @Test
     public void shouldSuccess_whenUpdatingMerchantDetails_withoutOptionalFields() throws Exception {
         String serviceExternalId = randomUuid();
-        Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
+        Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
         databaseHelper.addService(service, randomInt().toString());
         Map<String, Object> payload = ImmutableMap.<String, Object>builder()
                 .put("name", "somename")
@@ -89,7 +90,7 @@ public class ServiceResourceUpdateMerchantDetailsTest extends IntegrationTest {
     @Test
     public void shouldFail_whenUpdatingMerchantDetails_withMissingMandatoryFieldName() throws Exception {
         String serviceExternalId = randomUuid();
-        Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
+        Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
         databaseHelper.addService(service, randomInt().toString());
         Map<String, Object> payload = ImmutableMap.<String, Object>builder()
                 .put("telephone_number", "03069990000")

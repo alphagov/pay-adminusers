@@ -14,6 +14,7 @@ import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
@@ -283,7 +284,7 @@ public class UserInviteCreatorTest {
         emptyServiceInvite.setExpiryDate(ZonedDateTime.now().plusDays(1));
 
         InviteEntity nonMatchingServiceInvite = new InviteEntity();
-        ServiceEntity serviceEntity = ServiceEntity.from(Service.from("another-service"));
+        ServiceEntity serviceEntity = ServiceEntity.from(Service.from(new ServiceName("another-service")));
         serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, serviceEntity.getName()));
         nonMatchingServiceInvite.setService(serviceEntity);
         nonMatchingServiceInvite.setExpiryDate(ZonedDateTime.now().plusDays(1));
@@ -370,7 +371,7 @@ public class UserInviteCreatorTest {
     }
 
     private User aUser(String email) {
-        Service service = Service.from(serviceId, serviceExternalId, Service.DEFAULT_NAME_VALUE);
+        Service service = Service.from(serviceId, serviceExternalId, new ServiceName(Service.DEFAULT_NAME_VALUE));
         ServiceRole serviceRole = ServiceRole.from(service, role(ADMIN.getId(),"Admin", "Administrator"));
         return User.from(randomInt(), randomUuid(), "a-username", "random-password", email,
                 "784rh", "8948924", Collections.singletonList(serviceRole), null,

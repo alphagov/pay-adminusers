@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.resources;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceName;
 
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public class ServiceResourceUpdateCustomBrandingTest extends IntegrationTest {
     public void shouldSuccess_whenUpdatingCustomBranding() throws Exception {
 
         String serviceExternalId = randomUuid();
-        Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
+        Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
         databaseHelper.addService(service, randomInt().toString());
 
         Map<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of("image_url","image url","css_url","css url"));
@@ -41,7 +42,7 @@ public class ServiceResourceUpdateCustomBrandingTest extends IntegrationTest {
     public void shouldReplaceWithEmpty_whenUpdatingCustomBranding_withEmptyObject() throws Exception {
         String serviceExternalId = randomUuid();
         Map<String, Object> existingBranding = ImmutableMap.of("css_url","existing css", "image_url","existing image");
-        Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
+        Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
         service.setCustomBranding(existingBranding);
 
         Map<String, Object> payloadWithEmptyBranding = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of());
@@ -64,7 +65,7 @@ public class ServiceResourceUpdateCustomBrandingTest extends IntegrationTest {
     public void shouldReturn400_whenUpdatingServiceCustomisations_ifPayloadNotJson() throws Exception {
 
         String serviceExternalId = randomUuid();
-        Service service = Service.from(randomInt(), serviceExternalId, "existing-name");
+        Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
         Map<String, Object> customBranding = ImmutableMap.of("css_url","existing css", "image_url","existing image");
         service.setCustomBranding(customBranding);
         databaseHelper.addService(service, randomInt().toString());

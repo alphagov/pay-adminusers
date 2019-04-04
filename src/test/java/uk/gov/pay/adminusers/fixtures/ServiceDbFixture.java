@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.MerchantDetails;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.util.Map;
@@ -67,10 +68,9 @@ public class ServiceDbFixture {
         int serviceId = id == null ? nextInt() : id;
         String extId = externalId == null ? randomUuid() : externalId;
 
-        Service service = Service.from(serviceId, extId, name);
+        Service service = Service.from(serviceId, extId, new ServiceName(name));
         service.setMerchantDetails(merchantDetails);
         service.setCollectBillingAddress(collectBillingAddress);
-        service.getServiceNames().put("en", service.getName());
         service.setGoLiveStage(goLiveStage);
         service.setCustomBranding(customBranding);
         databaseHelper.addService(service, gatewayAccountIds);

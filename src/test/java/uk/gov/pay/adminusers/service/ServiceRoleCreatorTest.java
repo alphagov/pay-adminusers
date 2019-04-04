@@ -11,6 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -121,7 +122,7 @@ public class ServiceRoleCreatorTest {
     }
 
     private Service aService(String serviceExternalId) {
-        return Service.from(randomInt(), serviceExternalId, "random-service");
+        return Service.from(randomInt(), serviceExternalId, new ServiceName("random-service"));
     }
 
     private Role aRole(int roleId, String roleName) {

@@ -6,6 +6,7 @@ import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
 
@@ -23,7 +24,7 @@ public class LinksBuilderTest {
 
     @Test
     public void shouldConstruct_userSelfLinkCorrectly() throws Exception {
-        Service service = Service.from(2, "34783g87ebg764r", Service.DEFAULT_NAME_VALUE);
+        Service service = Service.from(2, "34783g87ebg764r", new ServiceName(Service.DEFAULT_NAME_VALUE));
         Role role = Role.role(2, "blah", "blah");
         ServiceRole serviceRole = ServiceRole.from(service, role);
 
