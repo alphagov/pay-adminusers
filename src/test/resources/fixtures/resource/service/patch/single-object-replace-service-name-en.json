@@ -1,5 +1,5 @@
 {
   "op": "replace",
-  "path": "name",
+  "path": "service_name/en",
   "value": "new-en-name"
 }

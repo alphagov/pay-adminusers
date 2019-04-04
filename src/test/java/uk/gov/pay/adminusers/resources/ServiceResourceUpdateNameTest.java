@@ -22,8 +22,8 @@ public class ServiceResourceUpdateNameTest extends IntegrationTest {
         serviceExternalId = service.getExternalId();
     }
     @Test
-    public void shouldUpdateBothNameAndEnglishServiceName_whenUpdatingName() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "name", "value", "New Service Name"));
+    public void shouldUpdateBothNameAndEnglishServiceName_whenUpdatingEnglishName() {
+        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "service_name/en", "value", "New Service Name"));
         givenSetup()
                 .when()
                 .accept(JSON)
