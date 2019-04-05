@@ -4,8 +4,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -24,7 +24,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] {
+        return List.of(new Object[][] {
                 // main validations
                 {"", false},
                 {"@", false},
@@ -59,6 +59,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
 
                 // all valid emails with domains
                 {"valid@acas.org.uk", true},
+                {"valid@accessplanit.com", true},
                 {"valid@assembly.wales", true},
                 {"valid@caa.co.uk", true},
                 {"valid@careinspectorate.com", true},
@@ -88,6 +89,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
 
                 // all valid emails with subdomains
                 {"valid@subdomain.acas.org.uk", true},
+                {"valid@subdomain.accessplanit.com", true},
                 {"valid@subdomain.assembly.wales", true},
                 {"valid@subdomain.careinspectorate.com", true},
                 {"valid@subdomain.cynulliad.cymru", true},
