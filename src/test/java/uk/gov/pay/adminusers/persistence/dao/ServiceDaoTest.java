@@ -12,6 +12,7 @@ import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.CustomBrandingConverter;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
@@ -278,7 +279,7 @@ public class ServiceDaoTest extends DaoTestBase {
         databaseHelper.add(role);
 
         String gatewayAccountId1 = randomInt().toString();
-        Service service1 = Service.from(randomInt(), externalId, Service.DEFAULT_NAME_VALUE);
+        Service service1 = Service.from(randomInt(), externalId, new ServiceName(Service.DEFAULT_NAME_VALUE));
         databaseHelper.addService(service1, gatewayAccountId1);
 
         range(0, noOfUsers - 1).forEach(i -> {
@@ -291,7 +292,7 @@ public class ServiceDaoTest extends DaoTestBase {
         String gatewayAccountId2 = randomInt().toString();
         Integer serviceId2 = randomInt();
         String externalId2 = randomUuid();
-        Service service2 = Service.from(serviceId2, externalId2, Service.DEFAULT_NAME_VALUE);
+        Service service2 = Service.from(serviceId2, externalId2, new ServiceName(Service.DEFAULT_NAME_VALUE));
         databaseHelper.addService(service2, gatewayAccountId2);
 
         //same user 2 diff services - should count only once

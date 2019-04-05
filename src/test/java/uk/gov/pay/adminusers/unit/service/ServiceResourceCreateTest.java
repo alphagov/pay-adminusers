@@ -12,6 +12,7 @@ import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
@@ -233,7 +234,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
     private Service buildService(Optional<String> maybeName,
                                  Optional<List<String>> maybeAccountIds,
                                  Map<SupportedLanguage, String> serviceNameVariants) {
-        Service service = maybeName.map(Service::from)
+        Service service = maybeName.map(ServiceName::new).map(name -> Service.from(name))
                 .orElseGet(Service::from);
         ServiceEntity serviceEntity = ServiceEntity.from(service);
         serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, service.getName()));

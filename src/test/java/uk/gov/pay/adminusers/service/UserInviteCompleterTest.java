@@ -12,6 +12,7 @@ import uk.gov.pay.adminusers.model.InviteCompleteResponse;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
@@ -194,7 +195,7 @@ public class UserInviteCompleterTest {
     }
 
     private User aUser(String email) {
-        Service service = Service.from(serviceId, serviceExternalId, Service.DEFAULT_NAME_VALUE);
+        Service service = Service.from(serviceId, serviceExternalId, new ServiceName(Service.DEFAULT_NAME_VALUE));
         ServiceRole serviceRole = ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"));
         return User.from(randomInt(), randomUuid(), "a-username", "random-password", email,
                 "784rh", "8948924", Collections.singletonList(serviceRole), null,

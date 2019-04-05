@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -17,6 +18,8 @@ import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
+import uk.gov.pay.commons.model.SupportedLanguage;
 
 import javax.ws.rs.WebApplicationException;
 import java.util.Collections;
@@ -121,6 +124,7 @@ public class ServiceRoleUpdaterTest {
         RoleEntity currentRoleEntity = new RoleEntity(aRole(9, "non-admin-role"));
 
         ServiceEntity serviceEntity = new ServiceEntity(Collections.singletonList("1"));
+        serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, Service.DEFAULT_NAME_VALUE));
         serviceEntity.setExternalId(serviceExternalId);
 
         userEntity.addServiceRole(new ServiceRoleEntity(serviceEntity, currentRoleEntity));
@@ -146,6 +150,7 @@ public class ServiceRoleUpdaterTest {
         RoleEntity currentRoleEntity = new RoleEntity(aRole(ADMIN.getId(), "admin"));
 
         ServiceEntity serviceEntity = new ServiceEntity(Collections.singletonList("1"));
+        serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, Service.DEFAULT_NAME_VALUE));
         serviceEntity.setExternalId(serviceExternalId);
 
         userEntity.addServiceRole(new ServiceRoleEntity(serviceEntity, currentRoleEntity));

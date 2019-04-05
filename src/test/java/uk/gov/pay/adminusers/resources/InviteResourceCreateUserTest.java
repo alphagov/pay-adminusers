@@ -5,6 +5,7 @@ import io.restassured.http.ContentType;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.model.User;
 
 import static java.lang.String.format;
@@ -126,7 +127,7 @@ public class InviteResourceCreateUserTest extends IntegrationTest {
         User user = userDbFixture(databaseHelper)
                 .withUsername(existingUserUsername)
                 .withEmail(existingUserEmail)
-                .withServiceRole(Service.from(serviceId, serviceExternalId, "service name"), 2)
+                .withServiceRole(Service.from(serviceId, serviceExternalId, new ServiceName("service name")), 2)
                 .insertUser();
 
 

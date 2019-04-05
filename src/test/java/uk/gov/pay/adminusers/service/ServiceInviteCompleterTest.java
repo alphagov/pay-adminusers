@@ -22,6 +22,7 @@ import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
 import javax.ws.rs.WebApplicationException;
@@ -115,6 +116,7 @@ public class ServiceInviteCompleterTest {
     @Test
     public void shouldCreateServiceAndUser_withoutGatewayAccounts_whenPassedValidServiceInviteCode() {
         ServiceEntity service = new ServiceEntity();
+        service.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, Service.DEFAULT_NAME_VALUE));
         service.setId(serviceId);
 
         InviteEntity anInvite = createInvite();
@@ -210,6 +212,7 @@ public class ServiceInviteCompleterTest {
     private InviteEntity createInvite() {
 
         ServiceEntity service = new ServiceEntity();
+        service.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, Service.DEFAULT_NAME_VALUE));
         service.setId(serviceId);
 
         UserEntity senderUser = new UserEntity();

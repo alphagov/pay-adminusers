@@ -1,18 +1,15 @@
 package uk.gov.pay.adminusers.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import org.apache.commons.lang3.StringUtils;
-import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
-import uk.gov.pay.commons.model.SupportedLanguage;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -26,65 +23,49 @@ public class Service {
 
     private Integer id;
     private String externalId;
-    private String name = DEFAULT_NAME_VALUE;
     private List<Link> links = new ArrayList<>();
     private List<String> gatewayAccountIds = new ArrayList<>();
     private Map<String, Object> customBranding;
     private MerchantDetails merchantDetails;
-    private Map<String, String> serviceNames;
     private boolean redirectToServiceImmediatelyOnTerminalState;
     private boolean collectBillingAddress;
     private GoLiveStage goLiveStage;
 
+    @JsonIgnore
+    private ServiceName serviceName;
+
     public static Service from() {
-        return from(DEFAULT_NAME_VALUE);
+        return from(new ServiceName(DEFAULT_NAME_VALUE));
     }
 
-    public static Service from(String name) {
-        return from(randomInt(), randomUuid(), name);
+    public static Service from(ServiceName serviceName) {
+        return from(randomInt(), randomUuid(), serviceName);
     }
 
-    public static Service from(String name, Map<SupportedLanguage, ServiceNameEntity> multilingualServiceNames) {
-        return from(randomInt(), randomUuid(), name, multilingualServiceNames);
-    }
-
-    public static Service from(Integer id, String externalId, String name) {
-        return new Service(id, externalId, name, Collections.emptyMap(), false, true, NOT_STARTED);
-    }
-
-    public static Service from(Integer id, String externalId, String name, Map<SupportedLanguage, ServiceNameEntity> multilingualServiceNames) {
-        return new Service(id, externalId, name, multilingualServiceNames, false, true, NOT_STARTED);
+    public static Service from(Integer id, String externalId, ServiceName serviceName) {
+        return from(id, externalId, serviceName, false, true, NOT_STARTED);
     }
 
     public static Service from(Integer id,
                                String externalId,
-                               String name,
-                               Map<SupportedLanguage,
-                                       ServiceNameEntity> multilingualServiceNames,
+                               ServiceName serviceName,
                                boolean redirectToServiceImmediatelyOnTerminalState,
                                boolean collectBillingAddress,
                                GoLiveStage goLiveStage) {
-        return new Service(id, externalId, name, multilingualServiceNames, redirectToServiceImmediatelyOnTerminalState, collectBillingAddress, goLiveStage);
+        return new Service(id, externalId, serviceName, redirectToServiceImmediatelyOnTerminalState, collectBillingAddress, goLiveStage);
     }
 
     private Service(@JsonProperty("id") Integer id,
                     @JsonProperty("external_id") String externalId,
-                    @JsonProperty("name") String name,
-                    Map<SupportedLanguage, ServiceNameEntity> multilingualServiceNames,
+                    ServiceName serviceName,
                     boolean redirectToServiceImmediatelyOnTerminalState,
                     boolean collectBillingAddress,
                     GoLiveStage goLiveStage) {
         this.id = id;
         this.externalId = externalId;
-        this.name = name;
         this.redirectToServiceImmediatelyOnTerminalState = redirectToServiceImmediatelyOnTerminalState;
         this.collectBillingAddress = collectBillingAddress;
-
-        this.serviceNames = new LinkedHashMap<>();
-        serviceNames.put(SupportedLanguage.ENGLISH.toString(), name);
-        multilingualServiceNames.entrySet().stream()
-                .filter(entry -> StringUtils.isNotBlank(entry.getValue().getName()))
-                .forEach(entry -> serviceNames.put(entry.getKey().toString(), entry.getValue().getName()));
+        this.serviceName = serviceName;
         this.goLiveStage = goLiveStage;
     }
 
@@ -104,12 +85,9 @@ public class Service {
         this.id = id;
     }
 
+    @JsonProperty("name")
     public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+        return serviceName.getEnglish();
     }
 
     @JsonProperty("_links")
@@ -155,7 +133,8 @@ public class Service {
 
     @JsonProperty("service_name")
     public Map<String, String> getServiceNames() {
-        return serviceNames;
+        return serviceName.getEnglishAndTranslations().entrySet().stream()
+                .collect(Collectors.toUnmodifiableMap(languageToName -> languageToName.getKey().toString(), Map.Entry::getValue));
     }
 
     @JsonProperty("redirect_to_service_immediately_on_terminal_state")
