@@ -74,7 +74,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateName_andServiceNameEn_whenReplaceName_inSingleObject() {
+    public void shouldUpdateExistingEnServiceNameIncludingLegacyName_inSingleObject() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
@@ -97,7 +97,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateName_andServiceNameEn_whenReplaceServiceNameEn() {
+    public void shouldUpdateExistingEnServiceNameIncludingLegacyName() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
@@ -120,7 +120,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateName_ServiceNameEn_andServiceNameCy_whenReplaceServiceNameEn_AndReplaceServiceNameCy_withNoExistingServiceNameCy() {
+    public void shouldUpdateExistingEnServiceNameAndNonExistingCyServiceName() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
@@ -144,7 +144,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateServiceNameCy_whenReplaceServiceNameCy() {
+    public void shouldUpdateExistingCyServiceName() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withServiceNameEntity(SupportedLanguage.WELSH, "old-cy-name")
@@ -170,7 +170,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateName_ServiceNameEn_AndServiceNameCy_whenReplaceServiceNameEn_AndReplaceServiceNameCy() {
+    public void shouldUpdateExistingEnServiceNameAndExistingCyServiceName() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, "old-en-name")
@@ -197,7 +197,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldRemoveServiceNameCy_whenReplaceServiceNameCyWithBlank() {
+    public void shouldRemoveCyServiceNameWhenReplacedWithBlank() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, "old-en-name")
