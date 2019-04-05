@@ -148,8 +148,30 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldSuccess_whenCreateAServiceWithName_andGatewayAccountIds() {
+    public void shouldSuccess_whenCreateAServiceWithEnglishNameOnly() {
+        PAYLOAD_MAP.put("service_name", Map.of(SupportedLanguage.ENGLISH.toString(), EN_SERVICE_NAME));
 
+        Service service = buildService(Optional.empty(), Optional.empty(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
+        given(mockedServiceCreator.doCreate(Optional.empty(), Optional.empty(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)))
+                .willReturn(service);
+        Response response = resources.target(SERVICES_RESOURCE)
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.json(PAYLOAD_MAP), Response.class);
+
+        assertThat(response.getStatus(), is(201));
+
+        String body = response.readEntity(String.class);
+        JsonPath json = JsonPath.from(body);
+
+        assertThat(json.get("external_id"), is(notNullValue()));
+        assertThat(json.get("name"), is(EN_SERVICE_NAME));
+        assertEnServiceNameJson(EN_SERVICE_NAME, json);
+        assertThat(json.getMap("service_name"), not(hasKey("cy")));
+        assertLinks(json.get("external_id"), json);
+    }
+
+    @Test
+    public void shouldSuccess_whenCreateAServiceWithName_andGatewayAccountIds() {
         PAYLOAD_MAP.put(FIELD_NAME, EN_SERVICE_NAME);
         String anotherGatewayAccountId = "another-gateway-account-id";
         List<String> gatewayAccounts = Arrays.asList(GATEWAY_ACCOUNT_ID, anotherGatewayAccountId);
@@ -175,20 +197,41 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldSuccess_whenCreateAServiceWithName_andGatewayAccountIds_andServiceNameVariants_englishAndCymru() {
+    public void shouldSuccess_whenCreateAServiceWithEnglishName_andGatewayAccountIds() {
+        PAYLOAD_MAP.put("service_name", Map.of(SupportedLanguage.ENGLISH.toString(), EN_SERVICE_NAME));
+        String anotherGatewayAccountId = "another-gateway-account-id";
+        List<String> gatewayAccounts = Arrays.asList(GATEWAY_ACCOUNT_ID, anotherGatewayAccountId);
+        PAYLOAD_MAP.put(FIELD_GATEWAY_ACCOUNT_IDS, gatewayAccounts);
 
+        Service service = buildService(Optional.empty(), Optional.of(gatewayAccounts), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
+        given(mockedServiceCreator.doCreate(Optional.empty(), Optional.of(gatewayAccounts), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)))
+                .willReturn(service);
+
+        Response response = resources.target(SERVICES_RESOURCE)
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.json(PAYLOAD_MAP), Response.class);
+        assertThat(response.getStatus(), is(201));
+
+        String body = response.readEntity(String.class);
+        JsonPath json = JsonPath.from(body);
+
+        assertThat(json.get("name"), is(EN_SERVICE_NAME));
+        assertThat(json.get("external_id"), is(notNullValue()));
+        assertEnServiceNameJson(EN_SERVICE_NAME, json);
+        assertThat(json.getMap("service_name"), not(hasKey("cy")));
+        assertLinks(json.get("external_id"), json);
+    }
+
+    @Test
+    public void shouldSuccess_whenCreateAServiceWithName_andGatewayAccountIds_andServiceNameVariants_englishAndCymru() {
         PAYLOAD_MAP.put(FIELD_NAME, EN_SERVICE_NAME);
         String anotherGatewayAccountId = "another-gateway-account-id";
         List<String> gatewayAccounts = Arrays.asList(GATEWAY_ACCOUNT_ID, anotherGatewayAccountId);
         PAYLOAD_MAP.put(FIELD_GATEWAY_ACCOUNT_IDS, gatewayAccounts);
-        Map<String, String> nameVariants = new HashMap<>();
-        nameVariants.put("en", EN_SERVICE_NAME);
-        nameVariants.put("cy", CY_SERVICE_NAME);
-        PAYLOAD_MAP.put("service_name", nameVariants);
+        PAYLOAD_MAP.put("service_name",
+                Map.of(SupportedLanguage.ENGLISH.toString(), EN_SERVICE_NAME, SupportedLanguage.WELSH.toString(), CY_SERVICE_NAME));
 
-        Map<SupportedLanguage, String> serviceName = new HashMap<>();
-        serviceName.put(SupportedLanguage.ENGLISH, EN_SERVICE_NAME);
-        serviceName.put(SupportedLanguage.WELSH, CY_SERVICE_NAME);
+        Map<SupportedLanguage, String> serviceName = Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME, SupportedLanguage.WELSH, CY_SERVICE_NAME);
 
         Service service = buildService(Optional.of(EN_SERVICE_NAME), Optional.of(gatewayAccounts), serviceName);
         given(mockedServiceCreator.doCreate(Optional.of(EN_SERVICE_NAME), Optional.of(gatewayAccounts), serviceName))
