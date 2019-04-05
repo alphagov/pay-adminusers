@@ -211,18 +211,14 @@ public class ServiceEntity {
     }
 
     public void addOrUpdateServiceName(ServiceNameEntity newServiceName) {
-        if (newServiceName.getLanguage().equals(SupportedLanguage.ENGLISH)) {
-            setName(newServiceName.getName());
-        }
         newServiceName.setService(this);
-        final Optional<ServiceNameEntity> existingServiceName = serviceNames.stream()
-                .filter(n -> n.getLanguage().equals(newServiceName.getLanguage()))
-                .findFirst();
-        if (existingServiceName.isPresent()) {
-            existingServiceName.get().setName(newServiceName.getName());
-        } else {
-            serviceNames.add(newServiceName);
-        }
+        serviceNames.stream()
+                .filter(serviceName -> serviceName.getLanguage().equals(newServiceName.getLanguage()))
+                .findFirst()
+                .ifPresentOrElse(
+                        existingServiceName -> existingServiceName.setName(newServiceName.getName()),
+                        () -> serviceNames.add(newServiceName)
+                );
     }
 
     public Map<SupportedLanguage, ServiceNameEntity> getServiceNames() {

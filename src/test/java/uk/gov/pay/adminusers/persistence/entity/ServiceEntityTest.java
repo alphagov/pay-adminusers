@@ -13,23 +13,34 @@ import static org.junit.Assert.assertThat;
 
 public class ServiceEntityTest {
 
+    private static final String ENGLISH_SERVICE_NAME = "Apply for your licence";
+    private static final String WELSH_SERVICE_NAME = "Gwneud cais am eich trwydded";
+
     @Test
-    public void addOrUpdateServiceName_shouldUpdateNameWhenAddingEnName() {
-        ServiceNameEntity serviceNameEntity = ServiceNameEntity.from(SupportedLanguage.ENGLISH, "newest-en-name");
-        ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity()
-                .withName("old-en-name")
-                .withServiceName(Set.of(ServiceNameEntity.from(SupportedLanguage.ENGLISH, "old-en-name")))
-                .build();
+    public void shouldUpdateExistingServiceName() {
+        ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity().build();
 
-        assertThat(serviceEntity.getName(), is("old-en-name"));
         assertThat(serviceEntity.getServiceNames().size(), is(1));
-        assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is("old-en-name"));
+        assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
 
-        serviceEntity.addOrUpdateServiceName(serviceNameEntity);
+        serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, ENGLISH_SERVICE_NAME));
 
-        assertThat(serviceEntity.getName(), is("newest-en-name"));
         assertThat(serviceEntity.getServiceNames().size(), is(1));
-        assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is("newest-en-name"));
+        assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(ENGLISH_SERVICE_NAME));
+    }
+
+    @Test
+    public void shouldAddNewServiceName() {
+        ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity().build();
+
+        assertThat(serviceEntity.getServiceNames().size(), is(1));
+        assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
+
+        serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.WELSH, WELSH_SERVICE_NAME));
+
+        assertThat(serviceEntity.getServiceNames().size(), is(2));
+        assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
+        assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.WELSH).getName(), is(WELSH_SERVICE_NAME));
     }
 
     @Test
@@ -37,4 +48,5 @@ public class ServiceEntityTest {
         Service service = ServiceEntityBuilder.aServiceEntity().build().toService();
         assertThat(service.getGoLiveStage(), is(GoLiveStage.NOT_STARTED));
     }
+
 }
