@@ -49,9 +49,9 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static uk.gov.pay.adminusers.resources.ServiceResource.FIELD_NAME;
 import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT_IDS;
-import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_NAME;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceResourceCreateTest extends ServiceResourceBaseTest {

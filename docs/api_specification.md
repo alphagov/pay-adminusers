@@ -791,30 +791,13 @@ Content-Type: application/json
 ## PATCH /v1/api/services/`{serviceExternalId}`
 
 This endpoint modifies updatable attributes of a service. Currently supports:
- - Update the name of a service
-- Update the multilingual service names of a service
+ - Update the name of a service (including translations)
  - Add new gateway account(s) to a service
  - Update/replace the custom branding of a service
 
  Request can either be a single object or an array of objects. It’s similar to (but not 100% compliant with) [JSON Patch](http://jsonpatch.com/).
 
-### Request example (for updating name)
-
-```
-PATCH /v1/api/services/7d19aff33f8948deb97ed16b2912dcd3
-Content-Type: application/json
-{
- "op": "replace",
- "path": "name", 
- "value": "updated-service-name" 
-}
-
-```
-
-Updating `name` will also update `service_name/en` (see below).
-
-
-### Request example (for updating the Welsh multilingual service name)
+### Request example (for updating service name in a language)
 
 ```
 PATCH /v1/api/services/7d19aff33f8948deb97ed16b2912dcd3
@@ -826,9 +809,6 @@ Content-Type: application/json
 }
 
 ```
-
-Updating `service_name/en` will also update `name` (see above).
-
 
 ### Request example (for assigning gateway accounts)
 
@@ -895,7 +875,7 @@ Content-Type: application/json
 | Field                    | required | Description                                                      | Supported Values                                                                                                                                     |
 | ------------------------ | -------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `op`                     |   X      | operation to perform on attribute                                | `replace`, `add`                                                                                                                                     |
-| `path`                   |   X      | attribute that is affecting                                      | `gateway_account_ids` , `name`, `service_name/xx`, `custom_branding`, `redirect_to_service_immediately_on_terminal_state`, `collect_billing_address` |
+| `path`                   |   X      | attribute that is affecting                                      | `gateway_account_ids`, `service_name/xx`, `custom_branding`, `redirect_to_service_immediately_on_terminal_state`, `collect_billing_address` |
 | `value`                  |   X      | value to be replaced                                             |                                                                                                                                                      |
 
 Note that in `service_name/xx`, `xx` must be replaced by a supported ISO-639-1 language code.

@@ -74,12 +74,12 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateName_andServiceNameEn_whenReplaceName_inSingleObject() {
+    public void shouldUpdateExistingEnServiceNameIncludingLegacyName_inSingleObject() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/single-object-replace-name.json");
+        String jsonPayload = fixture("fixtures/resource/service/patch/single-object-replace-service-name-en.json");
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
@@ -97,30 +97,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateName_andServiceNameEn_whenReplaceName() {
-
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
-        String externalId = thisServiceEntity.getExternalId();
-
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-name.json");
-        when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
-        when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
-
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
-                .request()
-                .method("PATCH", Entity.json(jsonPayload));
-
-        assertThat(response.getStatus(), is(200));
-
-        String body = response.readEntity(String.class);
-        JsonPath json = JsonPath.from(body);
-
-        assertThat(json.get("name"), is("new-en-name"));
-        assertEnServiceNameJson("new-en-name", json);
-    }
-
-    @Test
-    public void shouldUpdateName_andServiceNameEn_whenReplaceServiceNameEn() {
+    public void shouldUpdateExistingEnServiceNameIncludingLegacyName() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
@@ -143,12 +120,12 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateName_ServiceNameEn_andServiceNameCy_whenReplaceName_AndReplaceServiceNameCy_withNoExistingServiceNameCy() {
+    public void shouldUpdateExistingEnServiceNameAndNonExistingCyServiceName() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-name-replace-service-name-cy.json");
+        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-service-name-en-replace-service-name-cy.json");
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
@@ -167,34 +144,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateName_ServiceNameEn_AndServiceNameCy_whenReplaceName_andReplaceServiceNameCy() {
-
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
-                .withName("old-en-name")
-                .withServiceNameEntity(SupportedLanguage.WELSH, "old-cy-name")
-                .build();
-        String externalId = thisServiceEntity.getExternalId();
-
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-name-replace-service-name-cy.json");
-        when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
-        when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
-
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
-                .request()
-                .method("PATCH", Entity.json(jsonPayload));
-
-        assertThat(response.getStatus(), is(200));
-
-        String body = response.readEntity(String.class);
-        JsonPath json = JsonPath.from(body);
-
-        assertThat(json.get("name"), is("new-en-name"));
-        assertEnServiceNameJson("new-en-name", json);
-        assertCyServiceNameJson("new-cy-name", json);
-    }
-
-    @Test
-    public void shouldUpdateServiceNameCy_whenReplaceServiceNameCy() {
+    public void shouldUpdateExistingCyServiceName() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withServiceNameEntity(SupportedLanguage.WELSH, "old-cy-name")
@@ -220,7 +170,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateName_ServiceNameEn_AndServiceNameCy_whenReplaceServiceNameEn_AndReplaceServiceNameCy() {
+    public void shouldUpdateExistingEnServiceNameAndExistingCyServiceName() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, "old-en-name")
@@ -247,7 +197,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldRemoveServiceNameCy_whenReplaceServiceNameCyWithBlank() {
+    public void shouldRemoveCyServiceNameWhenReplacedWithBlank() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, "old-en-name")
@@ -275,7 +225,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldError404_ifServiceExternalIdDoesNotExist() {
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-name.json");
+        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-service-name-en.json");
         String externalId = "externalId";
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.empty());
 
@@ -292,7 +242,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-name-missing-value.json");
+        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-service-name-en-missing-value.json");
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
@@ -338,7 +288,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-missing-op-name.json");
+        String jsonPayload = fixture("fixtures/resource/service/patch/array-missing-op-service-name-en.json");
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 

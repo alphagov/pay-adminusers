@@ -25,7 +25,6 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingServ
 
 public class ServiceUpdater {
 
-    public static final String FIELD_NAME = "name";
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
     public static final String FIELD_CUSTOM_BRANDING = "custom_branding";
     public static final String FIELD_SERVICE_NAME_PREFIX = "service_name";
@@ -46,7 +45,6 @@ public class ServiceUpdater {
     @Inject
     public ServiceUpdater(ServiceDao serviceDao) {
         ImmutableMap.Builder<String, BiConsumer<ServiceUpdateRequest, ServiceEntity>> attributeUpdaters = ImmutableMap.builder();
-        attributeUpdaters.put(FIELD_NAME, updateServiceName());
         attributeUpdaters.put(FIELD_GATEWAY_ACCOUNT_IDS, assignGatewayAccounts());
         attributeUpdaters.put(FIELD_CUSTOM_BRANDING, updateCustomBranding());
         attributeUpdaters.put(FIELD_REDIRECT_NAME, updateRedirectImmediately());
@@ -62,7 +60,7 @@ public class ServiceUpdater {
         attributeUpdaters.put(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, updateMerchantDetailsPhone());
 
         Arrays.stream(SupportedLanguage.values())
-                .forEach(language -> attributeUpdaters.put(FIELD_SERVICE_NAME_PREFIX + '/' + language.toString(), updateMultilingualServiceName()));
+                .forEach(language -> attributeUpdaters.put(FIELD_SERVICE_NAME_PREFIX + '/' + language.toString(), updateServiceName()));
         this.attributeUpdaters = attributeUpdaters.build();
         this.serviceDao = serviceDao;
     }
@@ -96,11 +94,6 @@ public class ServiceUpdater {
                 }).orElseThrow(() -> new ServiceNotFoundException(serviceExternalId));
     }
 
-    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateServiceName() {
-        return (serviceUpdateRequest, serviceEntity) -> serviceEntity
-                .addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, serviceUpdateRequest.valueAsString()));
-    }
-
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> assignGatewayAccounts() {
         return (serviceUpdateRequest, serviceEntity) -> {
             List<String> gatewayAccountIds = serviceUpdateRequest.valueAsList();
@@ -116,7 +109,7 @@ public class ServiceUpdater {
         return (serviceUpdateRequest, serviceEntity) -> serviceEntity.setCustomBranding(serviceUpdateRequest.valueAsObject());
     }
 
-    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateMultilingualServiceName() {
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateServiceName() {
         return (serviceUpdateRequest, serviceEntity) -> {
             String path = serviceUpdateRequest.getPath();
             assert path.matches(FIELD_SERVICE_NAME_PREFIX + "/[a-z]+") : "Path must be 'service_name/en' etc.";

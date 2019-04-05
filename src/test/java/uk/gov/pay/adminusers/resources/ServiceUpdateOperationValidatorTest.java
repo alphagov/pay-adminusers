@@ -46,17 +46,7 @@ public class ServiceUpdateOperationValidatorTest {
 
     @Test
     public void shouldFail_whenUpdate_whenInvalidOperationForSuppliedPath() {
-        shouldFailForAddOperation("name", "example-name");
-    }
-
-    @Test
-    public void shouldSuccess_whenUpdateName_withAllFieldsPresentAndValid() {
-        replaceShouldSucceed("name", "example-name");
-    }
-
-    @Test
-    public void shouldFail_whenUpdateName_whenNameFieldPresentAndItIsTooLong() {
-        replaceShouldFailWhenStringValueIsTooLong("name", 50);
+        shouldFailForAddOperation("collect_billing_address", false);
     }
 
     @Test
@@ -160,7 +150,7 @@ public class ServiceUpdateOperationValidatorTest {
 
     @Test
     public void shouldFail_updatingServiceName_whenValueIsNumeric() {
-        replaceShouldFailWhenValueIsNumeric("name", "Field [value] must be a string");
+        replaceShouldFailWhenValueIsNumeric("service_name/en", "Field [value] must be a string");
     }
 
     @Test

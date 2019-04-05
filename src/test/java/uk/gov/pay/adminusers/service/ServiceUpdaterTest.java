@@ -55,22 +55,6 @@ public class ServiceUpdaterTest {
     }
 
     @Test
-    public void shouldUpdateNameSuccessfully() {
-        String nameToUpdate = "new-name";
-        ServiceUpdateRequest request = serviceUpdateRequest("replace", "name", nameToUpdate);
-        ServiceEntity serviceEntity = new ServiceEntity();
-
-        when(serviceDao.findByExternalId(SERVICE_ID)).thenReturn(of(serviceEntity));
-
-        Optional<Service> maybeService = updater.doUpdate(SERVICE_ID, request);
-
-        assertThat(maybeService.isPresent(), is(true));
-        assertThat(maybeService.get().getServiceNames().size(), is(1));
-        assertThat(maybeService.get().getServiceNames().get("en"), is(nameToUpdate));
-        verify(serviceDao).merge(serviceEntity);
-    }
-
-    @Test
     public void shouldSuccess_updateMerchantDetails() throws ServiceNotFoundException {
         String name = "name";
         String telephoneNumber = "03069990000";
@@ -193,7 +177,7 @@ public class ServiceUpdaterTest {
     }
 
     @Test
-    public void shouldUpdateMultilingualServiceNameSuccessfully() {
+    public void shouldUpdateServiceNameSuccessfully() {
         String nameToUpdate = "new-cy-name";
         ServiceUpdateRequest request = serviceUpdateRequest("replace", "service_name/cy", nameToUpdate);
         ServiceEntity serviceEntity = mock(ServiceEntity.class);

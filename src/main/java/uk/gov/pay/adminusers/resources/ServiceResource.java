@@ -62,7 +62,6 @@ import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT_IDS;
-import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_NAME;
 
 @Path(SERVICES_RESOURCE)
 public class ServiceResource {
@@ -70,6 +69,8 @@ public class ServiceResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceResource.class);
     static final String HEADER_USER_CONTEXT = "GovUkPay-User-Context";
     public static final String SERVICES_RESOURCE = "/v1/api/services";
+
+    public static final String FIELD_NAME = "name";
 
     private final UserDao userDao;
     private final ServiceDao serviceDao;

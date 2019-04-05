@@ -31,7 +31,6 @@ import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAIL
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_EMAIL;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_NAME;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER;
-import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_NAME;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_REDIRECT_NAME;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_SERVICE_NAME_PREFIX;
 
@@ -60,7 +59,6 @@ public class ServiceUpdateOperationValidator {
     @Inject
     public ServiceUpdateOperationValidator(RequestValidations requestValidations) {
         ImmutableMap.Builder<String, List<String>> validAttributeUpdateOperations = ImmutableMap.builder();
-        validAttributeUpdateOperations.put(FIELD_NAME, singletonList(REPLACE));
         validAttributeUpdateOperations.put(FIELD_GATEWAY_ACCOUNT_IDS, singletonList(ADD));
         validAttributeUpdateOperations.put(FIELD_CUSTOM_BRANDING, singletonList(REPLACE));
         validAttributeUpdateOperations.put(FIELD_REDIRECT_NAME, singletonList(REPLACE));
@@ -109,7 +107,7 @@ public class ServiceUpdateOperationValidator {
         String path = operation.get(FIELD_PATH).asText();
         if (FIELD_CUSTOM_BRANDING.equals(path)) {
             return validateCustomBrandingValue(operation);
-        } else if (FIELD_NAME.equals(path) || path.startsWith(FIELD_SERVICE_NAME_PREFIX)) {
+        } else if (path.startsWith(FIELD_SERVICE_NAME_PREFIX)) {
             return validateServiceNameValue(operation, path);
         } else if (FIELD_REDIRECT_NAME.equals(path)) {
             return validateMandatoryBooleanValue(operation);
@@ -143,7 +141,7 @@ public class ServiceUpdateOperationValidator {
     }
 
     private List<String> validateServiceNameValue(JsonNode operation, String path) {
-        boolean allowEmpty = !FIELD_NAME.equals(path) && !path.endsWith('/' + SupportedLanguage.ENGLISH.toString());
+        boolean allowEmpty = !path.endsWith('/' + SupportedLanguage.ENGLISH.toString());
         return validateNotNullStringValueWithMaxLength(operation, allowEmpty, SERVICE_NAME_MAX_LENGTH);
     }
 
