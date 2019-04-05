@@ -85,7 +85,6 @@ public class UserCreatorTest {
         ArgumentCaptor<ServiceEntity> serviceEntityArgumentCaptor = ArgumentCaptor.forClass(ServiceEntity.class);
         verify(mockServiceDao).persist(serviceEntityArgumentCaptor.capture());
         ServiceEntity serviceEntity = serviceEntityArgumentCaptor.getValue();
-        assertThat(serviceEntity.getName(), is(Service.DEFAULT_NAME_VALUE));
         assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
         assertThat(serviceEntity.getGatewayAccountIds().get(0).getGatewayAccountId(), is("1"));
         assertThat(serviceEntity.getGatewayAccountIds().get(1).getGatewayAccountId(), is("2"));

@@ -78,7 +78,6 @@ public class ServiceDaoTest extends DaoTestBase {
     public void shouldSaveAService_withMultipleServiceNames() {
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withCustomBranding(null)
-                .withName(EN_NAME)
                 .withServiceNameEntity(SupportedLanguage.WELSH, CY_NAME)
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, EN_NAME)
                 .build();
@@ -105,7 +104,7 @@ public class ServiceDaoTest extends DaoTestBase {
     public void shouldSaveAService_withoutCustomisations_andServiceName() {
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withCustomBranding(null)
-                .withName(EN_NAME)
+                .withServiceNameEntity(SupportedLanguage.ENGLISH, EN_NAME)
                 .withServiceNameEntity(SupportedLanguage.WELSH, CY_NAME)
                 .build();
         serviceDao.persist(thisServiceEntity);
@@ -193,7 +192,6 @@ public class ServiceDaoTest extends DaoTestBase {
                 createServiceName(SupportedLanguage.WELSH, CY_NAME)
         ));
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
-                .withName(EN_NAME)
                 .withServiceName(serviceNames)
                 .build();
 
@@ -323,7 +321,8 @@ public class ServiceDaoTest extends DaoTestBase {
     private void assertServiceEntity(ServiceEntity thisEntity, ServiceEntity thatEntity) {
         assertThat(thisEntity.getId(), is(thatEntity.getId()));
         assertThat(thisEntity.getExternalId(), is(thatEntity.getExternalId()));
-        assertThat(thisEntity.getName(), is(thatEntity.getName()));
+        assertThat(thisEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(),
+                is(thatEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName()));
         assertThat(thisEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(thatEntity.isRedirectToServiceImmediatelyOnTerminalState()));
         assertThat(thisEntity.isCollectBillingAddress(), is(thatEntity.isCollectBillingAddress()));
     }
@@ -334,8 +333,4 @@ public class ServiceDaoTest extends DaoTestBase {
         assertThat(thisServiceEntity.getCustomBranding().values(), hasItems("image url", "css url"));
     }
 
-    private void assertNoServiceNameRecords(ServiceEntity thisServiceEntity) {
-        List<Map<String, Object>> savedServiceName = databaseHelper.findServiceNameByServiceId(thisServiceEntity.getId());
-        assertThat(savedServiceName.size(), is(0));
-    }
 }

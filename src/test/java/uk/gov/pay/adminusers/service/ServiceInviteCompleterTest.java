@@ -102,7 +102,6 @@ public class ServiceInviteCompleterTest {
         assertThat(serviceEntity.getGatewayAccountIds().stream()
                 .map(GatewayAccountIdEntity::getGatewayAccountId)
                 .collect(toList()), hasItems("2", "1"));
-        assertThat(serviceEntity.getName(), is(Service.DEFAULT_NAME_VALUE));
         assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
         assertThat(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
         assertThat(serviceEntity.isCollectBillingAddress(), is(true));
@@ -134,7 +133,6 @@ public class ServiceInviteCompleterTest {
 
         ServiceEntity serviceEntity = expectedService.getValue();
         assertThat(serviceEntity.getGatewayAccountIds().isEmpty(), is(true));
-        assertThat(serviceEntity.getName(), is(Service.DEFAULT_NAME_VALUE));
         assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
         assertThat(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
         assertThat(serviceEntity.isCollectBillingAddress(), is(true));

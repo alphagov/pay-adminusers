@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,9 +42,6 @@ public class ServiceEntity {
 
     @Column(name = "external_id")
     private String externalId;
-
-    @Column(name = "name")
-    private String name = Service.DEFAULT_NAME_VALUE;
 
     @Column(name = "redirect_to_service_immediately_on_terminal_state")
     private boolean redirectToServiceImmediatelyOnTerminalState = false;
@@ -98,29 +94,6 @@ public class ServiceEntity {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    /**
-     * @deprecated Replaced by {@link #getServiceNames()}:
-     * 
-     * <pre>
-     * {@code
-     * serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName();
-     * }
-     * </pre>
-     * 
-     * This should be equivalent to <code>getName()</code> as long as the ServiceEntity is loaded
-     * from the database and {@link #addOrUpdateServiceName(ServiceNameEntity)} is always used to
-     * update the name
-     * 
-     */
-    @Deprecated
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public boolean isRedirectToServiceImmediatelyOnTerminalState() {
@@ -201,7 +174,6 @@ public class ServiceEntity {
 
     public static ServiceEntity from(Service service) {
         ServiceEntity serviceEntity = new ServiceEntity();
-        serviceEntity.setName(service.getName());
         service.getServiceNames().forEach((languageCode, serviceName) ->
                 serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.fromIso639AlphaTwoCode(languageCode), serviceName)));
         serviceEntity.setExternalId(service.getExternalId());
