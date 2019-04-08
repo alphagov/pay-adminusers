@@ -43,11 +43,6 @@ public final class ServiceEntityBuilder {
         return this;
     }
 
-    public ServiceEntityBuilder withName(String name) {
-        this.name = name;
-        return this;
-    }
-
     public ServiceEntityBuilder withMerchantDetailsEntity(MerchantDetailsEntity merchantDetailsEntity) {
         this.merchantDetailsEntity = merchantDetailsEntity;
         return this;
@@ -97,7 +92,6 @@ public final class ServiceEntityBuilder {
         serviceEntity.setExternalId(externalId);
         serviceEntity.setMerchantDetailsEntity(merchantDetailsEntity);
         serviceEntity.setCustomBranding(customBranding);
-        serviceEntity.setName(name);
         serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, name));
         serviceName.forEach(serviceEntity::addOrUpdateServiceName);
         gatewayAccountIds.forEach(g -> serviceEntity.addGatewayAccountIds(g.getGatewayAccountId()));

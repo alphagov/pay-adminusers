@@ -85,8 +85,8 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
         String body = response.readEntity(String.class);
         JsonPath json = JsonPath.from(body);
 
-        assertThat(json.get("name"), is(serviceEntity.getName()));
-        assertEnServiceNameJson(serviceEntity.getName(), json);
+        assertThat(json.get("name"), is(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName()));
+        assertEnServiceNameJson(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), json);
         assertThat(json.getMap("service_name"), not(hasKey("cy")));
         assertMerchantDetails(serviceEntity.getMerchantDetailsEntity(), json);
         assertLinks(serviceExternalId, json);
@@ -109,8 +109,8 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
         String body = response.readEntity(String.class);
         JsonPath json = JsonPath.from(body);
 
-        assertThat(json.get("name"), is(serviceEntity.getName()));
-        assertEnServiceNameJson(serviceEntity.getName(), json);
+        assertThat(json.get("name"), is(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName()));
+        assertEnServiceNameJson(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), json);
         assertCyServiceNameJson(CY_SERVICE_NAME, json);
         assertMerchantDetails(serviceEntity.getMerchantDetailsEntity(), json);
         assertLinks(serviceExternalId, json);
@@ -120,7 +120,6 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
     public void shouldGetServiceById_withServiceNameVariantsForEn_andCy() {
         String serviceExternalId = randomUuid();
         ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity()
-                .withName(EN_SERVICE_NAME)
                 .withExternalId(serviceExternalId)
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)
                 .withServiceNameEntity(SupportedLanguage.WELSH, CY_SERVICE_NAME)
@@ -133,7 +132,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
         String body = response.readEntity(String.class);
         JsonPath json = JsonPath.from(body);
 
-        assertThat(json.get("name"), is(serviceEntity.getName()));
+        assertThat(json.get("name"), is(EN_SERVICE_NAME));
         assertEnServiceNameJson(EN_SERVICE_NAME, json);
         assertCyServiceNameJson(CY_SERVICE_NAME, json);
         assertMerchantDetails(serviceEntity.getMerchantDetailsEntity(), json);
@@ -161,8 +160,8 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
         String body = response.readEntity(String.class);
         JsonPath json = JsonPath.from(body);
 
-        assertThat(json.get("name"), is(serviceEntity.getName()));
-        assertEnServiceNameJson(serviceEntity.getName(), json);
+        assertThat(json.get("name"), is(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName()));
+        assertEnServiceNameJson(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), json);
         assertMerchantDetails(serviceEntity.getMerchantDetailsEntity(), json);
         assertLinks(serviceEntity.getExternalId(), json);
         assertThat(json.get("redirect_to_service_immediately_on_terminal_state"), is(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState()));
