@@ -146,30 +146,20 @@ public class ServiceResource {
     @Consumes(APPLICATION_JSON)
     public Response createService(JsonNode payload) {
         LOGGER.info("Create Service POST request - [ {} ]", payload);
-        Optional<String> serviceName = extractServiceName(payload);
-        Optional<List<String>> gatewayAccountIds = extractGatewayAccountIds(payload);
+        List<String> gatewayAccountIds = extractGatewayAccountIds(payload);
         Map<SupportedLanguage, String> serviceNameVariants = getServiceNameVariants(payload);
 
-        Service service = serviceServicesFactory.serviceCreator().doCreate(serviceName, gatewayAccountIds, serviceNameVariants);
+        Service service = serviceServicesFactory.serviceCreator().doCreate(gatewayAccountIds, serviceNameVariants);
         return Response.status(CREATED).entity(service).build();
 
     }
 
-    private Optional<List<String>> extractGatewayAccountIds(JsonNode payload) {
+    private List<String> extractGatewayAccountIds(JsonNode payload) {
         if (payload == null || payload.get(FIELD_GATEWAY_ACCOUNT_IDS) == null) {
-            return Optional.empty();
+            return Collections.emptyList();
         }
         List<JsonNode> gatewayAccountIds = newArrayList(payload.get(FIELD_GATEWAY_ACCOUNT_IDS).elements());
-        return Optional.of(gatewayAccountIds.stream()
-                .map(JsonNode::textValue)
-                .collect(Collectors.toList()));
-    }
-
-    private Optional<String> extractServiceName(JsonNode payload) {
-        if (payload == null || payload.get(FIELD_NAME) == null || isBlank(payload.get(FIELD_NAME).textValue())) {
-            return Optional.empty();
-        }
-        return Optional.of(payload.get(FIELD_NAME).textValue());
+        return gatewayAccountIds.stream().map(JsonNode::textValue).collect(Collectors.toUnmodifiableList());
     }
 
     @Path("/{serviceExternalId}")

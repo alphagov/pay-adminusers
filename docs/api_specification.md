@@ -503,7 +503,6 @@ Content-Type: application/json
 
 | Field                    | required | Description                                                      | Supported Values     |
 | ------------------------ |:--------:| ---------------------------------------------------------------- |----------------------|
-| `name`       |         | a name for the service          |  |
 | `gateway_account_ids`            |          | valid gateway account IDs from connector | |
 | `service_name` | | object where keys are supported ISO-639-1 language codes and values are translated service names | key must be `"en"` or `"cy"` |
 
