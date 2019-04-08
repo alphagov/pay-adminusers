@@ -20,9 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -61,7 +59,7 @@ public class ServiceCreatorTest {
 
     @Test
     public void shouldSuccess_whenProvidedWith_noParameters() {
-        Service service = serviceCreator.doCreate(Optional.empty(), Optional.empty(), Collections.emptyMap());
+        Service service = serviceCreator.doCreate(Collections.emptyList(), Collections.emptyMap());
 
         verify(mockedServiceDao, never()).checkIfGatewayAccountsUsed(anyList());
         verify(mockedServiceDao, times(1)).persist(persistedServiceEntity.capture());
@@ -76,7 +74,7 @@ public class ServiceCreatorTest {
 
     @Test
     public void shouldSuccess_whenProvidedWith_onlyAValidName() {
-        Service service = serviceCreator.doCreate(Optional.of(EN_SERVICE_NAME), Optional.empty(), Collections.emptyMap());
+        Service service = serviceCreator.doCreate(Collections.emptyList(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
 
         verify(mockedServiceDao, never()).checkIfGatewayAccountsUsed(anyList());
         verify(mockedServiceDao, times(1)).persist(persistedServiceEntity.capture());
@@ -90,9 +88,10 @@ public class ServiceCreatorTest {
 
     @Test
     public void shouldSuccess_whenProvidedWith_multipleValidNames_andNoGatewayAccountIds() {
-        Map<SupportedLanguage, String> serviceNameVariants = new HashMap<>();
-        serviceNameVariants.put(SupportedLanguage.WELSH, CY_SERVICE_NAME);
-        Service service = serviceCreator.doCreate(Optional.of(EN_SERVICE_NAME), Optional.empty(), serviceNameVariants);
+        Map<SupportedLanguage, String> serviceNames = new HashMap<>();
+        serviceNames.put(SupportedLanguage.ENGLISH, EN_SERVICE_NAME);
+        serviceNames.put(SupportedLanguage.WELSH, CY_SERVICE_NAME);
+        Service service = serviceCreator.doCreate(Collections.emptyList(), serviceNames);
 
         verify(mockedServiceDao, never()).checkIfGatewayAccountsUsed(anyList());
         verify(mockedServiceDao, times(1)).persist(persistedServiceEntity.capture());
@@ -110,7 +109,7 @@ public class ServiceCreatorTest {
     public void shouldSuccess_whenProvidedWith_unassignedGatewayId() {
         String gatewayAccountId_2 = "gatewayAccountId_2";
         String gatewayAccountId_1 = "gatewayAccountId_1";
-        Service service = serviceCreator.doCreate(Optional.empty(), Optional.of(asList(gatewayAccountId_1, gatewayAccountId_2)), Collections.emptyMap());
+        Service service = serviceCreator.doCreate(List.of(gatewayAccountId_1, gatewayAccountId_2), Collections.emptyMap());
 
         verify(mockedServiceDao, times(1)).checkIfGatewayAccountsUsed(anyList());
         verify(mockedServiceDao, times(1)).persist(persistedServiceEntity.capture());
@@ -135,7 +134,7 @@ public class ServiceCreatorTest {
     public void shouldSuccess_whenProvidedWith_validName_AndUnassignedGatewayId() {
         String gatewayAccountId_2 = "gatewayAccountId_2";
         String gatewayAccountId_1 = "gatewayAccountId_1";
-        Service service = serviceCreator.doCreate(Optional.of(EN_SERVICE_NAME), Optional.of(asList(gatewayAccountId_1, gatewayAccountId_2)), Collections.emptyMap());
+        Service service = serviceCreator.doCreate(List.of(gatewayAccountId_1, gatewayAccountId_2), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
 
         verify(mockedServiceDao, times(1)).checkIfGatewayAccountsUsed(anyList());
         verify(mockedServiceDao, times(1)).persist(persistedServiceEntity.capture());
@@ -153,9 +152,9 @@ public class ServiceCreatorTest {
 
     @Test(expected = WebApplicationException.class)
     public void shouldFail_whenProvidedAConflictingGatewayID() {
-        List<String> gatewayAccountsIds = Collections.singletonList("3");
+        List<String> gatewayAccountsIds = List.of("3");
         when(mockedServiceDao.checkIfGatewayAccountsUsed(gatewayAccountsIds)).thenReturn(true);
-        serviceCreator.doCreate(Optional.of(EN_SERVICE_NAME), Optional.of(gatewayAccountsIds), Collections.emptyMap());
+        serviceCreator.doCreate(gatewayAccountsIds, Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
     }
 
     private void assertEnServiceNameMap(Service service, String serviceName) {

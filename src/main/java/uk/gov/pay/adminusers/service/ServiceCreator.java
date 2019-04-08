@@ -3,7 +3,6 @@ package uk.gov.pay.adminusers.service;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
@@ -11,7 +10,6 @@ import uk.gov.pay.commons.model.SupportedLanguage;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingServiceGatewayAccounts;
 
@@ -27,23 +25,15 @@ public class ServiceCreator {
     }
 
     @Transactional
-    public Service doCreate(Optional<String> serviceName,
-                            Optional<List<String>> gatewayAccountIdsOptional,
-                            Map<SupportedLanguage, String> serviceNameVariants) {
-        Service service = serviceName
-                .map(ServiceName::new)
-                .map(name -> Service.from(name))
-                .orElseGet(Service::from);
+    public Service doCreate(List<String> gatewayAccountIds, Map<SupportedLanguage, String> serviceName) {
+        ServiceEntity serviceEntity = ServiceEntity.from(Service.from());
+        serviceName.forEach((language, name) -> serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(language, name)));
 
-        ServiceEntity serviceEntity = ServiceEntity.from(service);
-        serviceNameVariants.forEach((language, name) -> serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(language, name)));
-
-        if (gatewayAccountIdsOptional.isPresent()) {
-            List<String> gatewayAccountsIds = gatewayAccountIdsOptional.get();
-            if (serviceDao.checkIfGatewayAccountsUsed(gatewayAccountsIds)) {
-                throw conflictingServiceGatewayAccounts(gatewayAccountsIds);
+        if (!gatewayAccountIds.isEmpty()) {
+            if (serviceDao.checkIfGatewayAccountsUsed(gatewayAccountIds)) {
+                throw conflictingServiceGatewayAccounts(gatewayAccountIds);
             }
-            serviceEntity.addGatewayAccountIds(gatewayAccountsIds.toArray(new String[0]));
+            serviceEntity.addGatewayAccountIds(gatewayAccountIds.toArray(new String[0]));
         }
         serviceDao.persist(serviceEntity);
         return linksBuilder.decorate(serviceEntity.toService());

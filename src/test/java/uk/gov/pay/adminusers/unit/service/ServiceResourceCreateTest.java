@@ -12,7 +12,6 @@ import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
@@ -36,7 +35,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -102,8 +100,8 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldSuccess_whenCreateAServiceWithoutParameters() {
-        Service service = buildService(Optional.empty(), Optional.empty(), Collections.emptyMap());
-        given(mockedServiceCreator.doCreate(Optional.empty(), Optional.empty(), Collections.emptyMap()))
+        Service service = buildService(Collections.emptyList(), Collections.emptyMap());
+        given(mockedServiceCreator.doCreate(Collections.emptyList(), Collections.emptyMap()))
                 .willReturn(service);
         Response response = resources.target(SERVICES_RESOURCE)
                 .request(MediaType.APPLICATION_JSON)
@@ -125,11 +123,10 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldSuccess_whenCreateAServiceWithNameOnly() {
+        PAYLOAD_MAP.put("service_name", Map.of(SupportedLanguage.ENGLISH.toString(), EN_SERVICE_NAME));
 
-        PAYLOAD_MAP.put(FIELD_NAME, EN_SERVICE_NAME);
-
-        Service service = buildService(Optional.of(EN_SERVICE_NAME), Optional.empty(), Collections.emptyMap());
-        given(mockedServiceCreator.doCreate(Optional.of(EN_SERVICE_NAME), Optional.empty(), Collections.emptyMap()))
+        Service service = buildService(Collections.emptyList(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
+        given(mockedServiceCreator.doCreate(Collections.emptyList(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)))
                 .willReturn(service);
         Response response = resources.target(SERVICES_RESOURCE)
                 .request(MediaType.APPLICATION_JSON)
@@ -151,8 +148,8 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
     public void shouldSuccess_whenCreateAServiceWithEnglishNameOnly() {
         PAYLOAD_MAP.put("service_name", Map.of(SupportedLanguage.ENGLISH.toString(), EN_SERVICE_NAME));
 
-        Service service = buildService(Optional.empty(), Optional.empty(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
-        given(mockedServiceCreator.doCreate(Optional.empty(), Optional.empty(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)))
+        Service service = buildService(Collections.emptyList(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
+        given(mockedServiceCreator.doCreate(Collections.emptyList(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)))
                 .willReturn(service);
         Response response = resources.target(SERVICES_RESOURCE)
                 .request(MediaType.APPLICATION_JSON)
@@ -172,13 +169,13 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldSuccess_whenCreateAServiceWithName_andGatewayAccountIds() {
-        PAYLOAD_MAP.put(FIELD_NAME, EN_SERVICE_NAME);
+        PAYLOAD_MAP.put("service_name", Map.of(SupportedLanguage.ENGLISH.toString(), EN_SERVICE_NAME));
         String anotherGatewayAccountId = "another-gateway-account-id";
         List<String> gatewayAccounts = Arrays.asList(GATEWAY_ACCOUNT_ID, anotherGatewayAccountId);
         PAYLOAD_MAP.put(FIELD_GATEWAY_ACCOUNT_IDS, gatewayAccounts);
 
-        Service service = buildService(Optional.of(EN_SERVICE_NAME), Optional.of(gatewayAccounts), Collections.emptyMap());
-        given(mockedServiceCreator.doCreate(Optional.of(EN_SERVICE_NAME), Optional.of(gatewayAccounts), Collections.emptyMap()))
+        Service service = buildService(gatewayAccounts, Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
+        given(mockedServiceCreator.doCreate(gatewayAccounts, Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)))
                 .willReturn(service);
 
         Response response = resources.target(SERVICES_RESOURCE)
@@ -200,11 +197,11 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
     public void shouldSuccess_whenCreateAServiceWithEnglishName_andGatewayAccountIds() {
         PAYLOAD_MAP.put("service_name", Map.of(SupportedLanguage.ENGLISH.toString(), EN_SERVICE_NAME));
         String anotherGatewayAccountId = "another-gateway-account-id";
-        List<String> gatewayAccounts = Arrays.asList(GATEWAY_ACCOUNT_ID, anotherGatewayAccountId);
+        List<String> gatewayAccounts = List.of(GATEWAY_ACCOUNT_ID, anotherGatewayAccountId);
         PAYLOAD_MAP.put(FIELD_GATEWAY_ACCOUNT_IDS, gatewayAccounts);
 
-        Service service = buildService(Optional.empty(), Optional.of(gatewayAccounts), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
-        given(mockedServiceCreator.doCreate(Optional.empty(), Optional.of(gatewayAccounts), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)))
+        Service service = buildService(gatewayAccounts, Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
+        given(mockedServiceCreator.doCreate(gatewayAccounts, Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)))
                 .willReturn(service);
 
         Response response = resources.target(SERVICES_RESOURCE)
@@ -226,15 +223,15 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
     public void shouldSuccess_whenCreateAServiceWithName_andGatewayAccountIds_andServiceNameVariants_englishAndCymru() {
         PAYLOAD_MAP.put(FIELD_NAME, EN_SERVICE_NAME);
         String anotherGatewayAccountId = "another-gateway-account-id";
-        List<String> gatewayAccounts = Arrays.asList(GATEWAY_ACCOUNT_ID, anotherGatewayAccountId);
+        List<String> gatewayAccounts = List.of(GATEWAY_ACCOUNT_ID, anotherGatewayAccountId);
         PAYLOAD_MAP.put(FIELD_GATEWAY_ACCOUNT_IDS, gatewayAccounts);
         PAYLOAD_MAP.put("service_name",
                 Map.of(SupportedLanguage.ENGLISH.toString(), EN_SERVICE_NAME, SupportedLanguage.WELSH.toString(), CY_SERVICE_NAME));
 
         Map<SupportedLanguage, String> serviceName = Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME, SupportedLanguage.WELSH, CY_SERVICE_NAME);
 
-        Service service = buildService(Optional.of(EN_SERVICE_NAME), Optional.of(gatewayAccounts), serviceName);
-        given(mockedServiceCreator.doCreate(Optional.of(EN_SERVICE_NAME), Optional.of(gatewayAccounts), serviceName))
+        Service service = buildService(gatewayAccounts, serviceName);
+        given(mockedServiceCreator.doCreate(gatewayAccounts, serviceName))
                 .willReturn(service);
 
         Response response = resources.target(SERVICES_RESOURCE)
@@ -274,18 +271,10 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         Mockito.verify(mockedServiceDao, never()).persist(serviceEntityArgumentCaptor.capture());
     }
 
-    private Service buildService(Optional<String> maybeName,
-                                 Optional<List<String>> maybeAccountIds,
-                                 Map<SupportedLanguage, String> serviceNameVariants) {
-        Service service = maybeName.map(ServiceName::new).map(name -> Service.from(name))
-                .orElseGet(Service::from);
-        ServiceEntity serviceEntity = ServiceEntity.from(service);
-        serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, service.getName()));
-        serviceNameVariants.forEach((k, v) -> serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(k, v)));
-        if (maybeAccountIds.isPresent()) {
-            List<String> gatewayAccountsIds = maybeAccountIds.get();
-            serviceEntity.addGatewayAccountIds(gatewayAccountsIds.toArray(new String[0]));
-        }
+    private Service buildService(List<String> gatewayAccountIds, Map<SupportedLanguage, String> serviceNames) {
+        ServiceEntity serviceEntity = ServiceEntity.from(Service.from());
+        serviceNames.forEach((language, name) -> serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(language, name)));
+        serviceEntity.addGatewayAccountIds(gatewayAccountIds.toArray(new String[0]));
         return linksBuilder.decorate(serviceEntity.toService());
     }
 }
