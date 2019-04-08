@@ -207,13 +207,12 @@ public class DatabaseTestHelper {
                 merchantDetails = new MerchantDetails();
             }
             return handle.createStatement("INSERT INTO services(" +
-                    "id, name, custom_branding, " +
+                    "id, custom_branding, " +
                     "merchant_name, merchant_telephone_number, merchant_address_line1, merchant_address_line2, merchant_address_city, " +
                     "merchant_address_postcode, merchant_address_country, merchant_email, external_id) " +
-                    "VALUES (:id, :name, :customBranding, :merchantName, :merchantTelephoneNumber, :merchantAddressLine1, :merchantAddressLine2, " +
+                    "VALUES (:id, :customBranding, :merchantName, :merchantTelephoneNumber, :merchantAddressLine1, :merchantAddressLine2, " +
                     ":merchantAddressCity, :merchantAddressPostcode, :merchantAddressCountry, :merchantEmail, :externalId)")
                     .bind("id", service.getId())
-                    .bind("name", service.getName())
                     .bind("customBranding", customBranding)
                     .bind("merchantName", merchantDetails.getName())
                     .bind("merchantTelephoneNumber", merchantDetails.getTelephoneNumber())
