@@ -1,10 +1,10 @@
 server:
   applicationConnectors:
     - type: http
-      port: ${PORT}
+      port: ${PORT:-8080}
   adminConnectors:
     - type: http
-      port: ${ADMIN_PORT}
+      port: ${ADMIN_PORT:-8081}
 
 logging:
   level: INFO
@@ -96,5 +96,3 @@ secondFactorAuthentication:
 # valid time windows should be the current window plus an even number of past and future windows which to validate against
   validTimeWindows: 9
   timeWindowInSeconds: 30
-
-
