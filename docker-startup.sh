@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 set -eu
-RUN_MIGRATION=${RUN_MIGRATION:-false}
-RUN_APP=${RUN_APP:-true}
+
+: "${RUN_MIGRATION:=false}"
+: "${RUN_APP:=true}"
 
 if [ -n "${CERTS_PATH:-}" ]; then
   i=0
