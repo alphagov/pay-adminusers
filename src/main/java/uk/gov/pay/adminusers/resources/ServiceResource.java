@@ -43,13 +43,12 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -309,12 +308,11 @@ public class ServiceResource {
     private Map<SupportedLanguage, String> getServiceNameVariants(JsonNode payload) {
         if (payload.hasNonNull("service_name")) {
             JsonNode serviceName = payload.get("service_name");
-            return Map.copyOf(Arrays.stream(SupportedLanguage.values()).collect(HashMap::new,
-                    (variants, supportedLanguage) -> {
-                        if (serviceName.hasNonNull(supportedLanguage.toString())) {
-                            variants.put(supportedLanguage, serviceName.get(supportedLanguage.toString()).asText());
-                        }
-                    }, HashMap::putAll));
+            return Stream.of(SupportedLanguage.values())
+                    .filter(supportedLanguage -> serviceName.hasNonNull(supportedLanguage.toString()))
+                    .collect(Collectors.toUnmodifiableMap(
+                            supportedLanguage -> supportedLanguage,
+                            supportedLanguage -> serviceName.get(supportedLanguage.toString()).asText()));
         }
         return Collections.emptyMap();
     }
