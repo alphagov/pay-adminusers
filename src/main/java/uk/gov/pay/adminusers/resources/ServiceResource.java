@@ -43,6 +43,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -307,15 +308,13 @@ public class ServiceResource {
 
     private Map<SupportedLanguage, String> getServiceNameVariants(JsonNode payload) {
         if (payload.hasNonNull("service_name")) {
-            JsonNode supportedLanguage = payload.get("service_name");
-            Map<SupportedLanguage, String> variants = new HashMap<>();
-            if (supportedLanguage.hasNonNull(SupportedLanguage.ENGLISH.toString())) {
-                variants.put(SupportedLanguage.ENGLISH, supportedLanguage.get(SupportedLanguage.ENGLISH.toString()).asText());
-            }
-            if (supportedLanguage.hasNonNull(SupportedLanguage.WELSH.toString())) {
-                variants.put(SupportedLanguage.WELSH, supportedLanguage.get(SupportedLanguage.WELSH.toString()).asText());
-            }
-            return variants;
+            JsonNode serviceName = payload.get("service_name");
+            return Map.copyOf(Arrays.stream(SupportedLanguage.values()).collect(HashMap::new,
+                    (variants, supportedLanguage) -> {
+                        if (serviceName.hasNonNull(supportedLanguage.toString())) {
+                            variants.put(supportedLanguage, serviceName.get(supportedLanguage.toString()).asText());
+                        }
+                    }, HashMap::putAll));
         }
         return Collections.emptyMap();
     }
