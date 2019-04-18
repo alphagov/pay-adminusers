@@ -39,6 +39,7 @@ public class EmailValidator {
                 "parliament\\.scot",
                 "parliament\\.uk",
                 "police\\.uk",
+                "prrt\\.org",
                 "scotent\\.co\\.uk",
                 "slc\\.co\\.uk",
                 "socialworkengland\\.org\\.uk",
