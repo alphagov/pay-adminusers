@@ -3,9 +3,51 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 
 ## Environment Variables
 
-* `BASE_URL`:  This is the publicly visible URL for the pay admin users root. Defaults to http://localhost:8080 if not set.
-* `DB_USER`: database username for adminusers DB.
-* `DB_PASSWORD`: database password for adminusers DB.
+| NAME                    | DESCRIPTION                                                                    |
+| ----------------------- | ------------------------------------------------------------------------------ |
+| `ADMIN_PORT`                                                   | The port number to listen for Dropwizard admin requests on. Defaults to `8081`. |
+| `BASE_URL`                                                     | This is the publicly visible URL for the pay admin users root. Defaults to `http://localhost:8080`. |
+| `CERTS_PATH`                                                   | If set, add all certificates in this directory to the default Java truststore. |
+| `DB_HOST`                                                      | The hostname of the database server. |
+| `DB_NAME`                                                      | The name of the database on `DB_HOST`. Defaults to `adminusers`. |
+| `DB_PASSWORD`                                                  | The password for the `DB_USER` user. |
+| `DB_PORT`                                                      | The port number it use when connecting to the database server. Defaults to `5432`. |
+| `DB_SSL_OPTION`                                                | To turn TLS on this value must be set as `ssl=true`. Otherwise must be empty. |
+| `DB_USER`                                                      | The username to log into the database as. |
+| `FORGOTTEN_PASSWORD_EXPIRY_MINUTES`                            | The number of minutes password reset tokens are valid for. Defaults to `90`. |
+| `JAVA_HOME`                                                    | The location of the JRE. Set to `/opt/java/openjdk` in the `Dockerfile`. |
+| `JAVA_OPTS`                                                    | Commandline arguments to pass to the java runtime. Optional. |
+| `JPA_LOG_LEVEL`                                                | The logging level to set for JPA. Defaults to `WARNING`. |
+| `JPA_SQL_LOG_LEVEL`                                            | The logging level to set for JPA SQL logging. Defaults to `WARNING`. |
+| `LOGIN_ATTEMPT_CAP`                                            | The number of consecutive failed logins a user can have before their account is disabled. Defaults to `10`. |
+| `METRICS_HOST`                                                 | The hostname to send graphite metrics to. Defaults to `localhost`. |
+| `METRICS_PORT`                                                 | The port number to send graphite metrics to. Defaults to `8092`. |
+| `NOTIFY_2FA_TEMPLATE_ID`                                       | The GOV.UK Notify template ID to use for sending MFA codes via SMS. Defaults to `pay-notify-two-factor-template-id`. |
+| `NOTIFY_API_KEY`                                               | The GOV.UK Notify API key to use when sending card payment messages. Defaults to `api_key-pay-notify-service-id-pay-notify-secret-needs-to-be-32-chars-fsghdngfhmhfkrgsfs`. |
+| `NOTIFY_BASE_URL`                                              | The URL of GOV.UK Notify's API. Defaults to `https://stubs.pymnt.localdomain/notify`. |
+| `NOTIFY_DIRECT_DEBIT_API_KEY`                                  | The GOV.UK Notify API key to use when sending Direct Debit emails. Defaults to `api_key-pay-notify-service-id-pay-notify-secret-needs-to-be-32-chars-fsghdngfhmhfkrgsfs`. |
+| `NOTIFY_FORGOTTEN_PASSWORD_EMAIL_TEMPLATE_ID`                  | The GOV.UK Notify template ID to use when sending a password reset email to a user of the admin tool. Defaults to `pay-notify-forgotten-password-email-template-id`. |
+| `NOTIFY_INVITE_SERVICE_EMAIL_TEMPLATE_ID`                      | The GOV.UK Notify template ID to use when sending a confirmation email to a user registering for an admin tool account. Defaults to `pay-notify-invite-service-email-template-id`. |
+| `NOTIFY_INVITE_SERVICE_USER_DISABLED_EMAIL_TEMPLATE_ID`        | The GOV.UK Notify template ID to use when sending an email to a user who is trying to register for an admin tool account but already has a disabled one. Defaults to `pay-notify-invite-service-user-disabled-email-template-id`. |
+| `NOTIFY_INVITE_SERVICE_USER_EXITS_EMAIL_TEMPLATE_ID`           | The GOV.UK Notify template ID to use when sending an email to a user who is trying to register for an admin tool account but already has one. Defaults to `pay-notify-invite-service-user-exists-email-template-id`. |
+| `NOTIFY_INVITE_USER_EMAIL_TEMPLATE_ID`                         | The GOV.UK Notify template ID to use when sending an invitation to collaborate on a service to a user who does not yet have an admin tool account. Defaults to `pay-notify-invite-user-email-template-id`. |
+| `NOTIFY_INVITE_USER_EXISTING_EMAIL_TEMPLATE_ID`                | The GOV.UK Notify template ID to use when sending an invitation to collaborate on service to a user who already has an admin tool account. Defaults to `pay-notify-invite-user-existing-email-template-id`. |
+| `NOTIFY_LIVE_ACCOUNT_CREATED_EMAIL_TEMPLATE_ID`                | The GOV.UK Notify template ID to use when sending an email to an admin tool user who has requested to go live using our procured payment provider. Defaults to `pay-notify-live-account-created-email-template-id`. |
+| `NOTIFY_MANDATE_CANCELLED_EMAIL_TEMPLATE_ID`                   | The GOV.UK Notify template ID to use when sending an email to a paying user to inform them their Direct Debit mandate has been cancelled. Defaults to `pay-mandate-cancelled-email-template-id`. |
+| `NOTIFY_MANDATE_FAILED_EMAIL_TEMPLATE_ID`                      | The GOV.UK Notify template ID to use when sending an email to a paying user to inform them their request to set up an on-demand Direct Debit mandate failed. Defaults to `pay-mandate-failed-email-template-id`. |
+| `NOTIFY_ONE_OFF_MANDATE_AND_PAYMENT_CREATED_EMAIL_TEMPLATE_ID` | The GOV.UK Notify template ID to use when sending an email to a paying user to inform them their request to set up a one-off Direct Debit payment was successful. Defaults to `pay-one-off-mandate-and-payment-created-email-template-id`. |
+| `NOTIFY_ON_DEMAND_MANDATE_CREATED_EMAIL_TEMPLATE_ID`           | The GOV.UK Notify template ID to use when sending an email to a paying user to inform them their request to set up an on-demand Direct Debit mandate was successful. Defaults to `pay-on-demand-mandate-created-email-template-id`. |
+| `NOTIFY_ON_DEMAND_PAYMENT_CONFIRMED_EMAIL_TEMPLATE_ID`         | The GOV.UK Notify template ID to use when sending an email to a paying user to inform them that an on-demand Direct Debit payment will be taken. Defaults to `pay-on-demand-payment-confirmed-email-template-id`. |
+| `NOTIFY_PAYMENT_FAILED_EMAIL_TEMPLATE_ID`                      | The GOV.UK Notify template ID to use when sending an email to a paying user to inform them that a Direct Debit payment failed to be taken. Defaults to `pay-payment-failed-email-template-id`. |
+| `PORT`                                                         | The port number to listen for requests on. Defaults to `8080`. |
+| `RUN_APP`                                                      | Set to `true` to run the application. Defaults to `true`. |
+| `RUN_MIGRATION`                                                | Set to `true` to run a database migration. Defaults to `false`. |
+| `SELFSERVICE_FORGOTTEN_PASSWORD_URL`                           | The URL to the password reset page of the admin portal. Defaults to `https://selfservice.pymnt.localdomain/reset-password`. |
+| `SELFSERVICE_INVITES_URL`                                      | The URL to the invitation page of the admin portal. Defaults to `https://selfservice.pymnt.localdomain/invites`. |
+| `SELFSERVICE_LOGIN_URL`                                        | The URL to the login page of the admin portal. Defaults to `https://selfservice.pymnt.localdomain/login`. |
+| `SELFSERVICE_SERVICES_URL`                                     | The URL to the services page of the admin portal. Defaults to `https://selfservice.pymnt.localdomain/services`. |
+| `SELFSERVICE_URL`                                              | The URL to the admin portal. Defaults to `https://selfservice.pymnt.localdomain`. |
+| `SUPPORT_URL`                                                  | The URL users can visit to get support. Defaults to `https://frontend.pymnt.localdomain/contact/`. |
  
 ## API Specification
  
