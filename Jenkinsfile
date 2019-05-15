@@ -28,7 +28,7 @@ pipeline {
         script {
           long stepBuildTime = System.currentTimeMillis()
           sh 'mvn -version'
-          sh 'mvn clean package'
+          sh 'mvn clean verify'
           runProviderContractTests()
           postSuccessfulMetrics("adminusers.maven-build", stepBuildTime)
         }
