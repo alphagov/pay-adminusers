@@ -50,7 +50,7 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
                 .body("disabled", is(false))
                 .body("_links", hasSize(1))
                 .body("service_roles[0].role.name", is("admin"))
-                .body("service_roles[0].role.permissions", hasSize(43));
+                .body("service_roles[0].role.permissions", hasSize(45));
     }
 
     @Test
