@@ -251,7 +251,7 @@
         <dependency>
             <groupId>au.com.dius</groupId>
             <artifactId>pact-jvm-provider-junit_2.12</artifactId>
-            <version>3.6.7</version>
+            <version>3.6.8</version>
             <scope>test</scope>
         </dependency>
         <dependency>
