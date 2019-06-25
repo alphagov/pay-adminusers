@@ -13,7 +13,7 @@ RUN echo networkaddress.cache.ttl=$DNS_TTL >> "$JAVA_HOME/conf/security/java.sec
 RUN wget -qO - https://s3.amazonaws.com/rds-downloads/rds-ca-2015-root.pem       | keytool -importcert -noprompt -cacerts -storepass changeit -alias rds-ca-2015-root \
  && wget -qO - https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem | keytool -importcert -noprompt -cacerts -storepass changeit -alias rds-combined-ca-bundle
 
-RUN ["apk", "add", "--no-cache", "bash"]
+RUN ["apk", "add", "--no-cache", "bash", "tini"]
 
 ENV PORT 8080
 ENV ADMIN_PORT 8081
@@ -27,4 +27,6 @@ ADD docker-startup.sh /app/docker-startup.sh
 ADD target/*.yaml /app/
 ADD target/pay-*-allinone.jar /app/
 
-CMD bash ./docker-startup.sh
+ENTRYPOINT ["tini", "-e", "143", "--"]
+
+CMD ["bash", "./docker-startup.sh"]
