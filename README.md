@@ -42,10 +42,6 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 | `PORT`                                                         | The port number to listen for requests on. Defaults to `8080`. |
 | `RUN_APP`                                                      | Set to `true` to run the application. Defaults to `true`. |
 | `RUN_MIGRATION`                                                | Set to `true` to run a database migration. Defaults to `false`. |
-| `SELFSERVICE_FORGOTTEN_PASSWORD_URL`                           | The URL to the password reset page of the admin portal. Defaults to `https://selfservice.pymnt.localdomain/reset-password`. |
-| `SELFSERVICE_INVITES_URL`                                      | The URL to the invitation page of the admin portal. Defaults to `https://selfservice.pymnt.localdomain/invites`. |
-| `SELFSERVICE_LOGIN_URL`                                        | The URL to the login page of the admin portal. Defaults to `https://selfservice.pymnt.localdomain/login`. |
-| `SELFSERVICE_SERVICES_URL`                                     | The URL to the services page of the admin portal. Defaults to `https://selfservice.pymnt.localdomain/services`. |
 | `SELFSERVICE_URL`                                              | The URL to the admin portal. Defaults to `https://selfservice.pymnt.localdomain`. |
 | `SUPPORT_URL`                                                  | The URL users can visit to get support. Defaults to `https://frontend.pymnt.localdomain/contact/`. |
  
