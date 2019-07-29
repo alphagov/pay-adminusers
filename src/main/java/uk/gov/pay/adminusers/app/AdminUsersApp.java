@@ -15,7 +15,7 @@ import io.dropwizard.setup.Environment;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.AdminUsersModule;
 import uk.gov.pay.adminusers.app.config.PersistenceServiceInitialiser;
-import uk.gov.pay.adminusers.app.healthchecks.DatabaseHealthCheck;
+import uk.gov.pay.commons.utils.healthchecks.DatabaseHealthCheck;
 import uk.gov.pay.adminusers.app.healthchecks.DependentResourceWaitCommand;
 import uk.gov.pay.adminusers.app.healthchecks.MigrateToInitialDbState;
 import uk.gov.pay.adminusers.app.healthchecks.Ping;
@@ -32,6 +32,7 @@ import uk.gov.pay.adminusers.resources.ResetPasswordResource;
 import uk.gov.pay.adminusers.resources.ServiceResource;
 import uk.gov.pay.adminusers.resources.UserResource;
 import uk.gov.pay.commons.utils.logging.LoggingFilter;
+import uk.gov.pay.commons.utils.metrics.DatabaseMetricsService;
 import uk.gov.pay.commons.utils.xray.Xray;
 
 import java.util.concurrent.TimeUnit;
@@ -76,7 +77,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
                 .addMappingForUrlPatterns(of(REQUEST), true, API_VERSION_PATH + "/*");
 
         environment.healthChecks().register("ping", new Ping());
-        environment.healthChecks().register("database", injector.getInstance(DatabaseHealthCheck.class));
+        environment.healthChecks().register("database", new DatabaseHealthCheck(configuration.getDataSourceFactory()));
         environment.jersey().register(injector.getInstance(UserResource.class));
         environment.jersey().register(injector.getInstance(ServiceResource.class));
         environment.jersey().register(injector.getInstance(ForgottenPasswordResource.class));
@@ -96,12 +97,20 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
     }
 
     private void initialiseMetrics(AdminUsersConfig configuration, Environment environment) {
+        DatabaseMetricsService metricsService = new DatabaseMetricsService(configuration.getDataSourceFactory(), environment.metrics(), "adminusers");
+
+        environment
+                .lifecycle()
+                .scheduledExecutorService("metricscollector")
+                .threads(1)
+                .build()
+                .scheduleAtFixedRate(metricsService::updateMetricData, 0, GRAPHITE_SENDING_PERIOD_SECONDS / 2, TimeUnit.SECONDS);
+
         GraphiteSender graphiteUDP = new GraphiteUDP(configuration.getGraphiteHost(), Integer.valueOf(configuration.getGraphitePort()));
         GraphiteReporter.forRegistry(environment.metrics())
                 .prefixedWith(SERVICE_METRICS_NODE)
                 .build(graphiteUDP)
                 .start(GRAPHITE_SENDING_PERIOD_SECONDS, TimeUnit.SECONDS);
-
     }
 
     public static void main(String[] args) throws Exception {
