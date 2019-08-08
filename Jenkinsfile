@@ -57,7 +57,7 @@ pipeline {
     stage('Tests') {
       failFast true
       parallel {
-        stage('Card Payment End-to-End Tests') {
+        stage('End-to-End Tests') {
             when {
                 anyOf {
                   branch 'master'
@@ -65,7 +65,7 @@ pipeline {
                 }
             }
             steps {
-                runCardPaymentsE2E("adminusers")
+                runAppE2E("adminusers", "card")
             }
         }
       }
