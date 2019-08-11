@@ -18,7 +18,6 @@ import uk.gov.pay.adminusers.app.config.PersistenceServiceInitialiser;
 import uk.gov.pay.commons.utils.healthchecks.DatabaseHealthCheck;
 import uk.gov.pay.adminusers.app.healthchecks.DependentResourceWaitCommand;
 import uk.gov.pay.adminusers.app.healthchecks.MigrateToInitialDbState;
-import uk.gov.pay.adminusers.app.healthchecks.Ping;
 import uk.gov.pay.adminusers.exception.ConflictExceptionMapper;
 import uk.gov.pay.adminusers.exception.NotFoundExceptionMapper;
 import uk.gov.pay.adminusers.exception.ValidationExceptionMapper;
@@ -76,7 +75,6 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.servlets().addFilter("LoggingFilter", new LoggingFilter())
                 .addMappingForUrlPatterns(of(REQUEST), true, API_VERSION_PATH + "/*");
 
-        environment.healthChecks().register("ping", new Ping());
         environment.healthChecks().register("database", new DatabaseHealthCheck(configuration.getDataSourceFactory()));
         environment.jersey().register(injector.getInstance(UserResource.class));
         environment.jersey().register(injector.getInstance(ServiceResource.class));
