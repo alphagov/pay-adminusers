@@ -48,7 +48,7 @@ public class MigrateToInitialDbState extends ConfiguredCommand<AdminUsersConfig>
             Liquibase migrator = new Liquibase("config/initial-db-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator.update("");
         } catch (LiquibaseException e) {
-            logger.error("Error performing liquibase initial database migration - {}", e);
+            logger.error("Error performing liquibase initial database migration", e);
             throw new RuntimeException(e);
         }
     }
