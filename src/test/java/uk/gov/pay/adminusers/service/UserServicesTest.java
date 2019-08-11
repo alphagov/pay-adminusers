@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,11 +31,12 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static java.util.Collections.emptyList;
 import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
@@ -235,7 +235,7 @@ public class UserServicesTest {
     public void shouldReturnUser_whenIncrementingSessionVersion_ifUserFound() {
         User user = aUser();
 
-        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "sessionVersion", "op", "append", "value", "2"));
+        JsonNode node = new ObjectMapper().valueToTree(Map.of("path", "sessionVersion", "op", "append", "value", "2"));
         UserEntity userEntity = aUserEntityWithTrimmings(user);
 
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
@@ -252,7 +252,7 @@ public class UserServicesTest {
     public void shouldReturnUser_withDisabled_ifUserFoundDuringPatch() {
         User user = aUser();
 
-        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "disabled", "op", "replace", "value", "true"));
+        JsonNode node = new ObjectMapper().valueToTree(Map.of("path", "disabled", "op", "replace", "value", "true"));
 
         UserEntity userEntity = aUserEntityWithTrimmings(user);
 
@@ -274,7 +274,7 @@ public class UserServicesTest {
         user.setDisabled(Boolean.TRUE);
         user.setLoginCounter(11);
 
-        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "disabled", "op", "replace", "value", "false"));
+        JsonNode node = new ObjectMapper().valueToTree(Map.of("path", "disabled", "op", "replace", "value", "false"));
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(userEntityOptional);
@@ -296,7 +296,7 @@ public class UserServicesTest {
         userEntity.setTelephoneNumber("+447700900000");
 
         String newTelephoneNumber = "+441134960000";
-        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "telephone_number", "op", "replace", "value", newTelephoneNumber));
+        JsonNode node = new ObjectMapper().valueToTree(Map.of("path", "telephone_number", "op", "replace", "value", newTelephoneNumber));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
 
@@ -320,7 +320,7 @@ public class UserServicesTest {
         userEntity.setFeatures("1");
 
         String newFeature = "1,2,3";
-        JsonNode node = new ObjectMapper().valueToTree(ImmutableMap.of("path", "features", "op", "replace", "value", newFeature));
+        JsonNode node = new ObjectMapper().valueToTree(Map.of("path", "features", "op", "replace", "value", newFeature));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
 
@@ -725,13 +725,13 @@ public class UserServicesTest {
 
     private User aUser() {
         return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password",
-                "email@example.com","784rh", "8948924", newArrayList(),
+                "email@example.com","784rh", "8948924", emptyList(),
                 null, SecondFactorMethod.SMS,null, null, null);
     }
 
     private User anotherUser() {
         return User.from(randomInt(), ANOTHER_USER_EXTERNAL_ID, ANOTHER_USER_USERNAME, "random-password",
-                "email@example.com", "784rh", "8948924", newArrayList(),
+                "email@example.com", "784rh", "8948924", emptyList(),
                 null, SecondFactorMethod.SMS, null, null, null);
     }
 
@@ -746,7 +746,7 @@ public class UserServicesTest {
     private UserEntity aUserEntityWithTrimmings(User user) {
         UserEntity userEntity = UserEntity.from(user);
 
-        ServiceEntity serviceEntity = new ServiceEntity(newArrayList("a-gateway-account"));
+        ServiceEntity serviceEntity = new ServiceEntity(List.of("a-gateway-account"));
         serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, Service.DEFAULT_NAME_VALUE));
         serviceEntity.setId(randomInt());
 

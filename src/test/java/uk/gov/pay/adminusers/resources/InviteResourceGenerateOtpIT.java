@@ -1,11 +1,13 @@
 package uk.gov.pay.adminusers.resources;
 
-import com.google.common.collect.ImmutableMap;
 import io.restassured.http.ContentType;
 import org.junit.Test;
 import uk.gov.pay.adminusers.fixtures.InviteDbFixture;
 
+import java.util.Map;
+
 import static java.lang.String.format;
+import static java.util.Collections.emptyMap;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.apache.commons.lang3.RandomStringUtils.random;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
@@ -23,10 +25,9 @@ public class InviteResourceGenerateOtpIT extends IntegrationTest {
     @Test
     public void generateOtp_shouldSucceed_forUserInvite_evenWhenTokenIsExpired_sinceItShouldBeValidatedOnGetInvite() throws Exception {
         givenAnExistingUserInvite();
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .put("telephone_number", TELEPHONE_NUMBER)
-                .put("password", PASSWORD)
-                .build();
+        Map<Object, Object> invitationRequest = Map.of(
+                "telephone_number", TELEPHONE_NUMBER,
+                "password", PASSWORD);
 
         givenSetup()
                 .when()
@@ -39,10 +40,9 @@ public class InviteResourceGenerateOtpIT extends IntegrationTest {
 
     @Test
     public void generateOtp_should_FailforUserInvite_whenInviteDoesNotExist() throws Exception {
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .put("telephone_number", TELEPHONE_NUMBER)
-                .put("password", PASSWORD)
-                .build();
+        Map<Object, Object> invitationRequest = Map.of(
+                "telephone_number", TELEPHONE_NUMBER,
+                "password", PASSWORD);
 
         givenSetup()
                 .when()
@@ -56,8 +56,7 @@ public class InviteResourceGenerateOtpIT extends IntegrationTest {
     @Test
     public void generateOtp_shouldFail_forUserInvite_whenAllMandatoryFieldsAreMissing() throws Exception {
         givenAnExistingUserInvite();
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .build();
+        Map<Object, Object> invitationRequest = emptyMap();
 
         givenSetup()
                 .when()

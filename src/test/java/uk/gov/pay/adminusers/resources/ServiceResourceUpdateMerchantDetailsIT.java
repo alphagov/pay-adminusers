@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
@@ -27,16 +26,15 @@ public class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
         databaseHelper.addService(service, randomInt().toString());
-        Map<String, Object> payload = ImmutableMap.<String, Object>builder()
-                .put("name", "somename")
-                .put("telephone_number", "03069990000")
-                .put("address_line1", "line1")
-                .put("address_line2", "line2")
-                .put("address_city", "city")
-                .put("address_country", "country")
-                .put("address_postcode", "postcode")
-                .put("email", "dd-merchant@example.com")
-                .build();
+        Map<String, Object> payload = Map.of(
+                "name", "somename",
+                "telephone_number", "03069990000",
+                "address_line1", "line1",
+                "address_line2", "line2",
+                "address_city", "city",
+                "address_country", "country",
+                "address_postcode", "postcode",
+                "email", "dd-merchant@example.com");
 
         givenSetup()
                 .when()
@@ -61,13 +59,12 @@ public class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
         databaseHelper.addService(service, randomInt().toString());
-        Map<String, Object> payload = ImmutableMap.<String, Object>builder()
-                .put("name", "somename")
-                .put("address_line1", "line1")
-                .put("address_city", "city")
-                .put("address_country", "country")
-                .put("address_postcode", "postcode")
-                .build();
+        Map<String, Object> payload = Map.of(
+                "name", "somename",
+                "address_line1", "line1",
+                "address_city", "city",
+                "address_country", "country",
+                "address_postcode", "postcode");
 
         givenSetup()
                 .when()
@@ -92,14 +89,13 @@ public class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
         databaseHelper.addService(service, randomInt().toString());
-        Map<String, Object> payload = ImmutableMap.<String, Object>builder()
-                .put("telephone_number", "03069990000")
-                .put("address_line1", "line1")
-                .put("address_line2", "line2")
-                .put("address_city", "city")
-                .put("address_country", "country")
-                .put("address_postcode", "postcode")
-                .build();
+        Map<String, Object> payload = Map.of(
+                "telephone_number", "03069990000",
+                "address_line1", "line1",
+                "address_line2", "line2",
+                "address_city", "city",
+                "address_country", "country",
+                "address_postcode", "postcode");
 
         givenSetup()
                 .when()
@@ -120,12 +116,12 @@ public class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
         String addressCountry = "Somewhere";
         ArrayNode payload = mapper.createArrayNode();
 
-        payload.add(mapper.valueToTree(ImmutableMap.of(
+        payload.add(mapper.valueToTree(Map.of(
                 "op", "replace",
                 "path", "merchant_details/address_line1",
                 "value", addressLine1)));
 
-        payload.add(mapper.valueToTree(ImmutableMap.of(
+        payload.add(mapper.valueToTree(Map.of(
                 "op", "replace",
                 "path", "merchant_details/address_country",
                 "value", addressCountry)));
@@ -149,7 +145,7 @@ public class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
                 .getExternalId();
 
         String addressLine1 = "1 Spider Lane";
-        JsonNode payload = mapper.valueToTree(ImmutableMap.of(
+        JsonNode payload = mapper.valueToTree(Map.of(
                 "op", "replace",
                 "path", "merchant_details/address_line1",
                 "value", addressLine1));

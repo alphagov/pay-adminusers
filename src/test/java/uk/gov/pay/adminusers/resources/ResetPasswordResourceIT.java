@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.resources;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,10 +35,9 @@ public class ResetPasswordResourceIT extends IntegrationTest {
         String forgottenPasswordCode = forgottenPasswordDbFixture(databaseHelper, userId).insertForgottenPassword();
         String password = "iPromiseIWon'tForgetThisPassword";
 
-        ImmutableMap<Object, Object> payload = ImmutableMap.builder()
-                .put("forgotten_password_code", forgottenPasswordCode)
-                .put("new_password", password)
-                .build();
+        Map<Object, Object> payload = Map.of(
+                "forgotten_password_code", forgottenPasswordCode,
+                "new_password", password);
 
         givenSetup()
                 .when()
@@ -61,10 +59,9 @@ public class ResetPasswordResourceIT extends IntegrationTest {
     @Test
     public void resetPassword_shouldReturn400_whenCodeIsInvalid_andCurrentEncryptedPasswordShouldNotChange() throws Exception {
 
-        ImmutableMap<Object, Object> payload = ImmutableMap.builder()
-                .put("forgotten_password_code", "aCodeThatDoesNotExist")
-                .put("new_password", "iPromiseIWon'tForgetThisPassword")
-                .build();
+        Map<Object, Object> payload = Map.of(
+                "forgotten_password_code", "aCodeThatDoesNotExist",
+                "new_password", "iPromiseIWon'tForgetThisPassword");
 
         givenSetup()
                 .when()
@@ -89,10 +86,9 @@ public class ResetPasswordResourceIT extends IntegrationTest {
 
         String expiredForgottenPasswordCode = forgottenPasswordDbFixture(databaseHelper, userId).expired().insertForgottenPassword();
 
-        ImmutableMap<Object, Object> payload = ImmutableMap.builder()
-                .put("forgotten_password_code", expiredForgottenPasswordCode)
-                .put("new_password", "iPromiseIWon'tForgetThisPassword")
-                .build();
+        Map<Object, Object> payload = Map.of(
+                "forgotten_password_code", expiredForgottenPasswordCode,
+                "new_password", "iPromiseIWon'tForgetThisPassword");
 
         givenSetup()
                 .when()

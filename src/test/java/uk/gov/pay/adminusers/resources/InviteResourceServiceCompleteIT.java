@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.resources;
 
-import com.google.common.collect.ImmutableMap;
 import io.restassured.response.ValidatableResponse;
 import org.junit.Test;
 
@@ -69,7 +68,7 @@ public class InviteResourceServiceCompleteIT extends IntegrationTest {
         String gatewayAccountId1 = String.valueOf(randomInt());
         String gatewayAccountId2 = String.valueOf(randomInt());
 
-        ImmutableMap<String, List<String>> payload = ImmutableMap.of("gateway_account_ids", asList(gatewayAccountId1, gatewayAccountId2));
+        Map<String, List<String>> payload = Map.of("gateway_account_ids", asList(gatewayAccountId1, gatewayAccountId2));
 
         String inviteCode = inviteDbFixture(databaseHelper)
                 .withTelephoneNumber(telephoneNumber)

@@ -3,7 +3,6 @@ package uk.gov.pay.adminusers.model;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,7 +26,7 @@ public class ServiceUpdateRequestTest {
 
     @Test
     public void shouldTransformToObjectCorrectly() throws IOException {
-        Map<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of("image_url", "image url", "css_url", "css url"));
+        Map<String, Object> payload = Map.of("path", "custom_branding", "op", "replace", "value", Map.of("image_url", "image url", "css_url", "css url"));
         String content = objectMapper.writeValueAsString(payload);
         JsonNode jsonNode = objectMapper.readTree(content);
         ServiceUpdateRequest request = ServiceUpdateRequest.from(jsonNode);

@@ -2,10 +2,11 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
+
+import java.util.Map;
 
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
@@ -23,7 +24,7 @@ public class ServiceResourceUpdateNameIT extends IntegrationTest {
     }
     @Test
     public void shouldUpdateBothNameAndEnglishServiceName_whenUpdatingEnglishName() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "service_name/en", "value", "New Service Name"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "replace", "path", "service_name/en", "value", "New Service Name"));
         givenSetup()
                 .when()
                 .accept(JSON)

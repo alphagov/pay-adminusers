@@ -19,10 +19,11 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.ws.rs.WebApplicationException;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
@@ -57,7 +58,7 @@ public class ServiceInviteCreatorTest {
         InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(inviteDao.findByEmail(email)).thenReturn(newArrayList());
+        when(inviteDao.findByEmail(email)).thenReturn(emptyList());
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
         when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn(CompletableFuture.completedFuture("done"));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
@@ -81,7 +82,7 @@ public class ServiceInviteCreatorTest {
         InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(inviteDao.findByEmail(email)).thenReturn(newArrayList());
+        when(inviteDao.findByEmail(email)).thenReturn(emptyList());
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
         when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn(CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException("done");
@@ -113,7 +114,7 @@ public class ServiceInviteCreatorTest {
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(sender.getExternalId()).thenReturn("inviter-id");
         when(sender.getEmail()).thenReturn("inviter@example.com");
-        when(inviteDao.findByEmail(email)).thenReturn(newArrayList(validInvite));
+        when(inviteDao.findByEmail(email)).thenReturn(List.of(validInvite));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         when(notificationService.sendServiceInviteEmail(eq(email), anyString()))
                 .thenReturn(CompletableFuture.completedFuture("done"));
@@ -142,7 +143,7 @@ public class ServiceInviteCreatorTest {
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(sender.getExternalId()).thenReturn("inviter-id");
         when(sender.getEmail()).thenReturn("inviter@example.com");
-        when(inviteDao.findByEmail(email)).thenReturn(newArrayList(validInvite));
+        when(inviteDao.findByEmail(email)).thenReturn(List.of(validInvite));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         when(notificationService.sendServiceInviteEmail(eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
                 .thenReturn(CompletableFuture.completedFuture("done"));
@@ -198,7 +199,7 @@ public class ServiceInviteCreatorTest {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(inviteDao.findByEmail(email)).thenReturn(newArrayList());
+        when(inviteDao.findByEmail(email)).thenReturn(emptyList());
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.empty());
 
         thrown.expect(WebApplicationException.class);

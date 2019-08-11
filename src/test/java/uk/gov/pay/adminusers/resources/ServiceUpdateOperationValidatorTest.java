@@ -2,13 +2,14 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.util.List;
+import java.util.Map;
 
+import static java.util.Collections.emptyMap;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -22,7 +23,7 @@ public class ServiceUpdateOperationValidatorTest {
 
     @Test
     public void shouldFail_whenUpdate_whenMissingRequiredField() {
-        ImmutableMap<String, String> payload = ImmutableMap.of("value", "example-name");
+        Map<String, String> payload = Map.of("value", "example-name");
 
         List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
 
@@ -33,7 +34,7 @@ public class ServiceUpdateOperationValidatorTest {
 
     @Test
     public void shouldFail_whenUpdate_whenInvalidPath() {
-        ImmutableMap<String, String> payload = ImmutableMap.of(
+        Map<String, String> payload = Map.of(
                 "path", "xyz",
                 "op", "replace",
                 "value", "example-name");
@@ -51,13 +52,13 @@ public class ServiceUpdateOperationValidatorTest {
 
     @Test
     public void shouldSuccess_replacingCustomBranding() {
-        ImmutableMap<String, String> branding = ImmutableMap.of("image_url", "image url", "css_url", "css url");
+        Map<String, String> branding = Map.of("image_url", "image url", "css_url", "css url");
         replaceShouldSucceed("custom_branding", branding);
     }
 
     @Test
     public void shouldSuccess_replacingCustomBranding_forEmptyObject() {
-        replaceShouldSucceed("custom_branding", ImmutableMap.of());
+        replaceShouldSucceed("custom_branding", emptyMap());
     }
 
     @Test
@@ -97,7 +98,7 @@ public class ServiceUpdateOperationValidatorTest {
 
     @Test
     public void shouldFail_whenUpdateServiceName_whenPathContainsUnsupportedLanguage() {
-        ImmutableMap<String, String> payload = ImmutableMap.of(
+        Map<String, String> payload = Map.of(
                 "path", "service_name/xx",
                 "op", "replace",
                 "value", "example-name");
@@ -476,7 +477,7 @@ public class ServiceUpdateOperationValidatorTest {
     }
     
     private void shouldFailForAddOperation(String path, Object value) {
-        ImmutableMap<String, Object> payload = ImmutableMap.of(
+        Map<String, Object> payload = Map.of(
                 "path", path,
                 "op", "add",
                 "value", value);
@@ -567,7 +568,7 @@ public class ServiceUpdateOperationValidatorTest {
     }
 
     private void replaceShouldSucceed(String path, Object value) {
-        ImmutableMap<String, Object> payload = ImmutableMap.of(
+        Map<String, Object> payload = Map.of(
                 "path", path,
                 "op", "replace",
                 "value", value);

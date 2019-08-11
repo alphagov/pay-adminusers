@@ -2,9 +2,10 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.GoLiveStage;
+
+import java.util.Map;
 
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
@@ -18,7 +19,7 @@ public class ServiceResourceUpdateGoLiveStageIT extends IntegrationTest {
     public void shouldUpdateGoLiveStage() {
         String serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
         JsonNode payload = new ObjectMapper()
-                .valueToTree(ImmutableMap.of(
+                .valueToTree(Map.of(
                         "op", "replace",
                         "path", "current_go_live_stage",
                         "value", "CHOSEN_PSP_STRIPE"));

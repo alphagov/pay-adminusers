@@ -2,10 +2,11 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.User;
+
+import java.util.Map;
 
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
@@ -30,7 +31,7 @@ public class UserResourcePatchIT extends IntegrationTest {
     @Test
     public void shouldIncreaseSessionVersion_whenPatchAttempt() {
 
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "append", "path", "sessionVersion", "value", 2));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "append", "path", "sessionVersion", "value", 2));
 
         givenSetup()
                 .when()
@@ -46,7 +47,7 @@ public class UserResourcePatchIT extends IntegrationTest {
     public void shouldUpdateTelephoneNumber_whenPatchAttempt() {
 
         String newTelephoneNumber = "+441134960000";
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", newTelephoneNumber));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "replace", "path", "telephone_number", "value", newTelephoneNumber));
 
         givenSetup()
                 .when()
@@ -63,7 +64,7 @@ public class UserResourcePatchIT extends IntegrationTest {
     public void shouldUpdateFeatures_whenPatchAttempt() {
 
         String newFeatures = "SUPER_FEATURE_1, SECRET_SQUIRREL_FEATURE";
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "features", "value", newFeatures));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "replace", "path", "features", "value", newFeatures));
 
         givenSetup()
                 .when()
@@ -79,7 +80,7 @@ public class UserResourcePatchIT extends IntegrationTest {
     @Test
     public void shouldDisableUser_whenPatchAttempt() {
 
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "disabled", "value", "true"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "replace", "path", "disabled", "value", "true"));
 
         givenSetup()
                 .when()
@@ -94,7 +95,7 @@ public class UserResourcePatchIT extends IntegrationTest {
     @Test
     public void shouldReturn404_whenUnknownExternalIdIsSupplied() {
 
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "append", "path", "sessionVersion", "value", 1));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "append", "path", "sessionVersion", "value", 1));
 
         givenSetup()
                 .when()
@@ -108,7 +109,7 @@ public class UserResourcePatchIT extends IntegrationTest {
     @Test
     public void shouldError_whenPatchRequiredFieldsAreMissing() {
 
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("blah", "sessionVersion", "value", 1));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("blah", "sessionVersion", "value", 1));
 
         givenSetup()
                 .when()

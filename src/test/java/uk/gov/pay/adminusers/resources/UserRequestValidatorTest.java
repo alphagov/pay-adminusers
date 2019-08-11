@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
@@ -12,6 +11,7 @@ import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
 import static junit.framework.TestCase.assertFalse;
@@ -117,7 +117,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldError_ifSessionVersionNotNumeric_whenPatching() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "append", "path", "sessionVersion", "value", "1r"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "append", "path", "sessionVersion", "value", "1r"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
         assertTrue(optionalErrors.isPresent());
@@ -129,7 +129,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldError_ifDisabledNotBoolean_whenPatching() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "disabled", "value", "1r"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "replace", "path", "disabled", "value", "1r"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
         assertTrue(optionalErrors.isPresent());
@@ -141,7 +141,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldSuccess_forDisabled_whenPatching() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "disabled", "value", "true"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "replace", "path", "disabled", "value", "true"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
         assertFalse(optionalErrors.isPresent());
@@ -149,7 +149,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldSuccess_forSessionVersion_whenPatching() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "append", "path", "sessionVersion", "value", "2"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "append", "path", "sessionVersion", "value", "2"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
         assertFalse(optionalErrors.isPresent());
@@ -157,7 +157,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldSuccess_replacingTelephoneNumber_whenPatchingLocalTelephoneNumber() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", "01134960000"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "replace", "path", "telephone_number", "value", "01134960000"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
         assertFalse(optionalErrors.isPresent());
@@ -165,7 +165,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldSuccess_replacingTelephoneNumber_whenPatchingInternationalTelephoneNumber() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", "+441134960000"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "replace", "path", "telephone_number", "value", "+441134960000"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
         assertFalse(optionalErrors.isPresent());
@@ -173,7 +173,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldError_replacingTelephoneNumber_whenPatchingInvalidTelephoneNumber() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("op", "replace", "path", "telephone_number", "value", "(╯°□°）╯︵ ┻━┻"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "replace", "path", "telephone_number", "value", "(╯°□°）╯︵ ┻━┻"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
 
         Errors errors = optionalErrors.get();
@@ -184,7 +184,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldSuccess_whenAddingServiceRole() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("service_external_id", "blah-blah", "role_name", "blah"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("service_external_id", "blah-blah", "role_name", "blah"));
         Optional<Errors> optionalErrors = validator.validateAssignServiceRequest(payload);
 
         assertFalse(optionalErrors.isPresent());
@@ -192,7 +192,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldError_whenAddingServiceRole_ifRequiredParamMissing() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("service_external_id", "blah-blah"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("service_external_id", "blah-blah"));
         Optional<Errors> optionalErrors = validator.validateAssignServiceRequest(payload);
 
         Errors errors = optionalErrors.get();
@@ -266,7 +266,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldSuccess_ifValidSearchRequest_whenFindingAUser() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("username", "some-existing-user"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("username", "some-existing-user"));
         Optional<Errors> optionalErrors = validator.validateFindRequest(payload);
 
         assertThat(optionalErrors.isPresent(), is(false));
@@ -290,7 +290,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldSuccess_ifProvisionalTrue_whenValidateNewSecondFactorPasscodeRequest() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("provisional", true));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("provisional", true));
 
         Optional<Errors> optionalErrors = validator.validateNewSecondFactorPasscodeRequest(payload);
 
@@ -299,7 +299,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldSuccess_ifProvisionalFalse_whenValidateNewSecondFactorPasscodeRequest() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("provisional", false));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("provisional", false));
 
         Optional<Errors> optionalErrors = validator.validateNewSecondFactorPasscodeRequest(payload);
 
@@ -308,7 +308,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldError_ifProvisionalNotBoolean_whenValidateNewSecondFactorPasscodeRequest() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("provisional", "maybe"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("provisional", "maybe"));
 
         Optional<Errors> optionalErrors = validator.validateNewSecondFactorPasscodeRequest(payload);
 
@@ -321,7 +321,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldError_ifCodeMissing_whenValidate2faActivateRequest() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("second_factor", "SMS"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("second_factor", "SMS"));
 
         Optional<Errors> optionalErrors = validator.validate2faActivateRequest(payload);
 
@@ -334,7 +334,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldError_ifCodeNotNumeric_whenValidate2faActivateRequest() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("code", "I am not a number, I’m a free man!",
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("code", "I am not a number, I’m a free man!",
                 "second_factor", "SMS"));
 
         Optional<Errors> optionalErrors = validator.validate2faActivateRequest(payload);
@@ -348,7 +348,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldError_ifSecondFactorMissing_whenValidate2faActivateRequest() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("code", 123456));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("code", 123456));
 
         Optional<Errors> optionalErrors = validator.validate2faActivateRequest(payload);
 
@@ -361,7 +361,7 @@ public class UserRequestValidatorTest {
 
     @Test
     public void shouldError_ifSecondFactorInvalid_whenValidate2faActivateRequest() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("code", 123456,
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("code", 123456,
                 "second_factor", "PINKY_SWEAR"));
 
         Optional<Errors> optionalErrors = validator.validate2faActivateRequest(payload);

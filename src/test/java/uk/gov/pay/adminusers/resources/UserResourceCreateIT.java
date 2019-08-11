@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.resources;
 
-import com.google.common.collect.ImmutableMap;
 import io.restassured.response.ValidatableResponse;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
@@ -11,6 +10,7 @@ import java.util.Map;
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
+import static java.util.Collections.emptyMap;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
@@ -26,13 +26,12 @@ public class UserResourceCreateIT extends IntegrationTest {
     @Test
     public void shouldCreateAUser_Successfully() throws Exception {
         String username = randomUuid();
-        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
-                .put("username", username)
-                .put("email", "user-" + username + "@example.com")
-                .put("telephone_number", "+441134960000")
-                .put("otp_key", "34f34")
-                .put("role_name", "admin")
-                .build();
+        Map<Object, Object> userPayload = Map.of(
+                "username", username,
+                "email", "user-" + username + "@example.com",
+                "telephone_number", "+441134960000",
+                "otp_key", "34f34",
+                "role_name", "admin");
 
         ValidatableResponse response = givenSetup().when()
                 .body(mapper.writeValueAsString(userPayload))
@@ -77,14 +76,13 @@ public class UserResourceCreateIT extends IntegrationTest {
         String serviceExternalId = service.getExternalId();
         String username = randomUuid();
 
-        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
-                .put("username", username)
-                .put("email", "user-" + username + "@example.com")
-                .put("service_external_ids", new String[]{valueOf(serviceExternalId)})
-                .put("telephone_number", "+441134960000")
-                .put("otp_key", "34f34")
-                .put("role_name", "admin")
-                .build();
+        Map<Object, Object> userPayload = Map.of(
+                "username", username,
+                "email", "user-" + username + "@example.com",
+                "service_external_ids", new String[]{valueOf(serviceExternalId)},
+                "telephone_number", "+441134960000",
+                "otp_key", "34f34",
+                "role_name", "admin");
 
         ValidatableResponse response = givenSetup().when()
                 .body(mapper.writeValueAsString(userPayload))
@@ -129,14 +127,13 @@ public class UserResourceCreateIT extends IntegrationTest {
     @Test
     public void shouldError400_IfRoleDoesNotExist() throws Exception {
         String username = randomUuid();
-        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
-                .put("username", username)
-                .put("email", "user-" + username + "@example.com")
-                .put("gateway_account_ids", new String[]{"1", "2"})
-                .put("telephone_number", "01134960000")
-                .put("otp_key", "34f34")
-                .put("role_name", "invalid-role")
-                .build();
+        Map<Object, Object> userPayload = Map.of(
+                "username", username,
+                "email", "user-" + username + "@example.com",
+                "gateway_account_ids", new String[]{"1", "2"},
+                "telephone_number", "01134960000",
+                "otp_key", "34f34",
+                "role_name", "invalid-role");
 
         givenSetup()
                 .when()
@@ -152,7 +149,7 @@ public class UserResourceCreateIT extends IntegrationTest {
 
     @Test
     public void shouldError400_whenFieldsMissingForUserCreation() throws Exception {
-        ImmutableMap<Object, Object> invalidPayload = ImmutableMap.builder().build();
+        Map<Object, Object> invalidPayload = emptyMap();
 
         givenSetup()
                 .when()
@@ -178,13 +175,12 @@ public class UserResourceCreateIT extends IntegrationTest {
         String email = username + "@example.com";
         userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
 
-        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
-                .put("username", username)
-                .put("email", email)
-                .put("gateway_account_ids", new String[]{gatewayAccount})
-                .put("telephone_number", "01134960000")
-                .put("role_name", "admin")
-                .build();
+        Map<Object, Object> userPayload = Map.of(
+                "username", username,
+                "email", email,
+                "gateway_account_ids", new String[]{gatewayAccount},
+                "telephone_number", "01134960000",
+                "role_name", "admin");
 
         givenSetup()
                 .when()

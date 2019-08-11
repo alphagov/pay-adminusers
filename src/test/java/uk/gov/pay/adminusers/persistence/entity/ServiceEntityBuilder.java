@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.math.RandomUtils;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.GoLiveStage;
@@ -19,7 +18,7 @@ public final class ServiceEntityBuilder {
     private String externalId = RandomIdGenerator.randomUuid();
     private String name = Service.DEFAULT_NAME_VALUE;
     private MerchantDetailsEntity merchantDetailsEntity = MerchantDetailsEntityBuilder.aMerchantDetailsEntity().build();
-    private Map<String, Object> customBranding = ImmutableMap.of("image_url", "image url", "css_url", "css url");
+    private Map<String, Object> customBranding = Map.of("image_url", "image url", "css_url", "css url");
     private List<GatewayAccountIdEntity> gatewayAccountIds = new ArrayList<>();
     private Set<ServiceNameEntity> serviceName = new HashSet<>();
     private boolean redirectToServiceImmediatelyOnTerminalState = false;

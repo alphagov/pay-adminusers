@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,7 +25,7 @@ public class ErrorsTest {
 
     @Test
     public void shouldMarshalMultipleErrorsCorrectly() throws Exception {
-        List<String> errorList = ImmutableList.of("Error 1", "Error 2", "Error 3");
+        List<String> errorList = List.of("Error 1", "Error 2", "Error 3");
         Errors errors = Errors.from(errorList);
 
         String errorsJson = mapper.writeValueAsString(errors);

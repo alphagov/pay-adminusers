@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
 import uk.gov.pay.adminusers.model.MerchantDetails;
@@ -14,11 +13,11 @@ public class EmailResourceIT extends IntegrationTest {
 
     private ObjectMapper objectMapper = new ObjectMapper();
     private static final String GATEWAY_ACCOUNT_ID = "DIRECT_DEBIT:mdshfsehdtfsdtjg";
-    private Map<String, Object> validEmailRequest = ImmutableMap.of(
+    private Map<String, Object> validEmailRequest = Map.of(
             "address", "cake@directdebitteam.test",
             "gateway_account_external_id", GATEWAY_ACCOUNT_ID,
             "template", "MANDATE_CANCELLED",
-            "personalisation", ImmutableMap.of(
+            "personalisation", Map.of(
                     "mandate reference", "mandatereference",
                     "org name", "cake service"
             )

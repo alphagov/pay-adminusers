@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.resources;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.User;
@@ -27,7 +26,7 @@ public class UserResourceFindIT extends IntegrationTest {
     @Test
     public void shouldFindSuccessfully_existingUserByUserName() throws Exception {
 
-        Map<String, String> findPayload = ImmutableMap.of("username", username);
+        Map<String, String> findPayload = Map.of("username", username);
 
         givenSetup()
                 .when()
@@ -41,7 +40,7 @@ public class UserResourceFindIT extends IntegrationTest {
 
     @Test
     public void shouldError404_ifUserNotFound() throws Exception {
-        Map<String, String> findPayload = ImmutableMap.of("username", "unknown-user@somewhere.com");
+        Map<String, String> findPayload = Map.of("username", "unknown-user@somewhere.com");
 
         givenSetup()
                 .when()
@@ -55,7 +54,7 @@ public class UserResourceFindIT extends IntegrationTest {
 
     @Test
     public void shouldError400_ifFieldsMissing() throws Exception {
-        Map<String, String> findPayload = ImmutableMap.of("", "");
+        Map<String, String> findPayload = Map.of("", "");
 
         givenSetup()
                 .when()

@@ -2,12 +2,12 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
+import java.util.Map;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,14 +25,14 @@ public class GovUkPayAgreementRequestValidatorTest {
     
     @Test
     public void shouldPassValidation() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("user_external_id", "abcde1234"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", "abcde1234"));
         Optional<Errors> optionalErrors = validator.validateCreateRequest(payload);
         assertThat(optionalErrors.isPresent(), is(false));
     }
     
     @Test
     public void shouldFailValidation_whenUserExternalIdIsEmpty() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("user_external_id", ""));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", ""));
         Optional<Errors> optionalErrors = validator.validateCreateRequest(payload);
         assertThat(optionalErrors.isPresent(), is(true));
         assertThat(optionalErrors.get().getErrors().size(), is(1));
@@ -41,7 +41,7 @@ public class GovUkPayAgreementRequestValidatorTest {
     
     @Test
     public void shouldFailValidation_whenUserExternalIdIsNotString() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("user_external_id", true));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", true));
         Optional<Errors> optionalErrors = validator.validateCreateRequest(payload);
         assertThat(optionalErrors.isPresent(), is(true));
         assertThat(optionalErrors.get().getErrors().size(), is(1));
@@ -50,7 +50,7 @@ public class GovUkPayAgreementRequestValidatorTest {
     
     @Test
     public void shouldFailValidation_whenUserExternalIdIsMissing() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("luser_external_id", "abcde1234"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("luser_external_id", "abcde1234"));
         Optional<Errors> optionalErrors = validator.validateCreateRequest(payload);
         assertThat(optionalErrors.isPresent(), is(true));
         assertThat(optionalErrors.get().getErrors().size(), is(1));

@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.service;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -126,7 +125,7 @@ public class InviteFinderTest {
         when(mockUserDao.findByEmail(firstEmail)).thenReturn(Optional.empty());
         when(mockUserDao.findByEmail(secondEmail)).thenReturn(Optional.empty());
         when(mockInviteDao.findAllByServiceId(externalServiceId)).thenReturn(
-                ImmutableList.of(firstInviteEntity, secondInviteEntity, disabledInviteEntity, expiredInviteEntity)
+                List.of(firstInviteEntity, secondInviteEntity, disabledInviteEntity, expiredInviteEntity)
         );
         List<Invite> invites = inviteFinder.findAllActiveInvites(externalServiceId);
         assertThat(invites.size(), is(2));

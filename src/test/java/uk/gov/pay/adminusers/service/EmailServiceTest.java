@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.service;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -81,7 +80,7 @@ public class EmailServiceTest {
     @Test
     public void shouldSendAnEmailForOneOffPaymentConfirmed() throws InvalidMerchantDetailsException {
         EmailTemplate template = EmailTemplate.ONE_OFF_PAYMENT_CONFIRMED;
-        Map<String, String> personalisation = ImmutableMap.of(
+        Map<String, String> personalisation = Map.of(
                 "field 1", "theValueOfField1",
                 "field 2", "theValueOfField2"
         );
@@ -113,7 +112,7 @@ public class EmailServiceTest {
     @Test
     public void shouldSendAnEmailForOnDemandPaymentConfirmed() throws InvalidMerchantDetailsException {
         EmailTemplate template = EmailTemplate.ON_DEMAND_PAYMENT_CONFIRMED;
-        Map<String, String> personalisation = ImmutableMap.of(
+        Map<String, String> personalisation = Map.of(
                 "field 1", "theValueOfField1",
                 "field 2", "theValueOfField2"
         );
@@ -145,7 +144,7 @@ public class EmailServiceTest {
     @Test
     public void shouldSendAnEmailForPaymentFailed() throws InvalidMerchantDetailsException {
         EmailTemplate template = EmailTemplate.PAYMENT_FAILED;
-        Map<String, String> personalisation = ImmutableMap.of(
+        Map<String, String> personalisation = Map.of(
                 "field 1", "theValueOfField1",
                 "field 2", "theValueOfField2"
         );
@@ -175,7 +174,7 @@ public class EmailServiceTest {
     @Test
     public void shouldSendAnEmailForMandateFailed() throws InvalidMerchantDetailsException {
         EmailTemplate template = EmailTemplate.MANDATE_FAILED;
-        Map<String, String> personalisation = ImmutableMap.of(
+        Map<String, String> personalisation = Map.of(
                 "field 1", "theValueOfField1",
                 "field 2", "theValueOfField2"
         );
@@ -207,7 +206,7 @@ public class EmailServiceTest {
     @Test
     public void shouldSendAnEmailForOnDemandMandateCreated() throws InvalidMerchantDetailsException {
         EmailTemplate template = EmailTemplate.ON_DEMAND_MANDATE_CREATED;
-        Map<String, String> personalisation = ImmutableMap.of(
+        Map<String, String> personalisation = Map.of(
                 "field 1", "theValueOfField1",
                 "field 2", "theValueOfField2"
         );
@@ -239,7 +238,7 @@ public class EmailServiceTest {
     @Test
     public void shouldSendAnEmailForOneOffMandateCreated() throws InvalidMerchantDetailsException {
         EmailTemplate template = EmailTemplate.ONE_OFF_MANDATE_CREATED;
-        Map<String, String> personalisation = ImmutableMap.of(
+        Map<String, String> personalisation = Map.of(
                 "field 1", "theValueOfField1",
                 "field 2", "theValueOfField2"
         );
@@ -271,7 +270,7 @@ public class EmailServiceTest {
     @Test
     public void shouldThrowAnExceptionIfMerchantDetailsAreMissing() throws InvalidMerchantDetailsException {
         EmailTemplate template = EmailTemplate.MANDATE_FAILED;
-        Map<String, String> personalisation = ImmutableMap.of(
+        Map<String, String> personalisation = Map.of(
                 "field 1", "theValueOfField1",
                 "field 2", "theValueOfField2"
         );
@@ -297,7 +296,7 @@ public class EmailServiceTest {
     @Test
     public void shouldNotDisplayCountryNameForInvalidCountryCode() throws InvalidMerchantDetailsException {
         EmailTemplate template = EmailTemplate.ONE_OFF_PAYMENT_CONFIRMED;
-        Map<String, String> personalisation = ImmutableMap.of(
+        Map<String, String> personalisation = Map.of(
                 "field 1", "theValueOfField1",
                 "field 2", "theValueOfField2"
         );

@@ -2,12 +2,13 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
+
+import java.util.Map;
 
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
@@ -28,7 +29,7 @@ public class UserResourceCreateServiceRoleIT extends IntegrationTest {
         String email = username + "@example.com";
         User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
 
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("service_external_id", service.getExternalId(), "role_name", role.getName()));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("service_external_id", service.getExternalId(), "role_name", role.getName()));
 
         givenSetup()
                 .when()
@@ -51,7 +52,7 @@ public class UserResourceCreateServiceRoleIT extends IntegrationTest {
         String email = username + "@example.com";
         User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
 
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("role_name", role.getName()));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("role_name", role.getName()));
 
         givenSetup()
                 .when()
@@ -74,7 +75,7 @@ public class UserResourceCreateServiceRoleIT extends IntegrationTest {
         String email = username + "@example.com";
         User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withUsername(username).withEmail(email).insertUser();
 
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("service_external_id", service.getExternalId(), "role_name", roleName));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("service_external_id", service.getExternalId(), "role_name", roleName));
 
         givenSetup()
                 .when()

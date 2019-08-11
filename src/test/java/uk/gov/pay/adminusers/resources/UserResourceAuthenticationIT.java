@@ -1,12 +1,12 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.service.PasswordHasher;
 
+import java.util.Map;
 import java.util.UUID;
 
 import static io.restassured.http.ContentType.JSON;
@@ -26,10 +26,9 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
 
         String username = createAValidUser(service);
 
-        ImmutableMap<Object, Object> authPayload = ImmutableMap.builder()
-                .put("username", username)
-                .put("password", "password-" + username)
-                .build();
+        Map<Object, Object> authPayload = Map.of(
+                "username", username,
+                "password", "password-" + username);
 
         givenSetup()
                 .when()
@@ -65,10 +64,9 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
                 .withEmail(email)
                 .withPassword(encryptedPassword).insertUser();
 
-        ImmutableMap<Object, Object> authPayload = ImmutableMap.builder()
-                .put("username", username)
-                .put("password", password)
-                .build();
+        Map<Object, Object> authPayload = Map.of(
+                "username", username,
+                "password", password);
 
         givenSetup()
                 .when()
@@ -90,10 +88,9 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
 
         String username = createAValidUser(service);
 
-        ImmutableMap<Object, Object> authPayload = ImmutableMap.builder()
-                .put("username", username)
-                .put("password", "invalid-password")
-                .build();
+        Map<Object, Object> authPayload = Map.of(
+                "username", username,
+                "password", "invalid-password");
 
         givenSetup()
                 .when()
@@ -109,15 +106,14 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
 
     private String createAValidUser(Service service) throws JsonProcessingException {
         String username = randomAlphanumeric(10) + UUID.randomUUID();
-        ImmutableMap<Object, Object> userPayload = ImmutableMap.builder()
-                .put("username", username)
-                .put("password", "password-" + username)
-                .put("email", "user-" + username + "@example.com")
-                .put("service_external_ids", new String[]{service.getExternalId()})
-                .put("telephone_number", "+441134960000")
-                .put("otp_key", "34f34")
-                .put("role_name", "admin")
-                .build();
+        Map<Object, Object> userPayload = Map.of(
+                "username", username,
+                "password", "password-" + username,
+                "email", "user-" + username + "@example.com",
+                "service_external_ids", new String[]{service.getExternalId()},
+                "telephone_number", "+441134960000",
+                "otp_key", "34f34",
+                "role_name", "admin");
 
         givenSetup()
                 .when()

@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.resources;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
@@ -9,6 +8,7 @@ import java.util.Map;
 
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
+import static java.util.Collections.emptyMap;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
@@ -23,7 +23,7 @@ public class ServiceResourceUpdateCustomBrandingIT extends IntegrationTest {
         Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
         databaseHelper.addService(service, randomInt().toString());
 
-        Map<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of("image_url","image url","css_url","css url"));
+        Map<String, Object> payload = Map.of("path", "custom_branding", "op", "replace", "value", Map.of("image_url","image url","css_url","css url"));
 
         givenSetup()
                 .when()
@@ -41,11 +41,11 @@ public class ServiceResourceUpdateCustomBrandingIT extends IntegrationTest {
     @Test
     public void shouldReplaceWithEmpty_whenUpdatingCustomBranding_withEmptyObject() throws Exception {
         String serviceExternalId = randomUuid();
-        Map<String, Object> existingBranding = ImmutableMap.of("css_url","existing css", "image_url","existing image");
+        Map<String, Object> existingBranding = Map.of("css_url","existing css", "image_url","existing image");
         Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
         service.setCustomBranding(existingBranding);
 
-        Map<String, Object> payloadWithEmptyBranding = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of());
+        Map<String, Object> payloadWithEmptyBranding = Map.of("path", "custom_branding", "op", "replace", "value", emptyMap());
         databaseHelper.addService(service, randomInt().toString());
 
 
@@ -66,11 +66,11 @@ public class ServiceResourceUpdateCustomBrandingIT extends IntegrationTest {
 
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
-        Map<String, Object> customBranding = ImmutableMap.of("css_url","existing css", "image_url","existing image");
+        Map<String, Object> customBranding = Map.of("css_url","existing css", "image_url","existing image");
         service.setCustomBranding(customBranding);
         databaseHelper.addService(service, randomInt().toString());
 
-        Map<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", "blah");
+        Map<String, Object> payload = Map.of("path", "custom_branding", "op", "replace", "value", "blah");
 
         givenSetup()
                 .when()
@@ -85,7 +85,7 @@ public class ServiceResourceUpdateCustomBrandingIT extends IntegrationTest {
     @Test
     public void shouldReturn404_whenUpdatingServiceCustomisations_ifNotFound() throws Exception {
 
-        Map<String, Object> payload = ImmutableMap.of("path", "custom_branding", "op", "replace", "value", ImmutableMap.of("image_url","image url","css_url","css url"));
+        Map<String, Object> payload = Map.of("path", "custom_branding", "op", "replace", "value", Map.of("image_url","image url","css_url","css url"));
 
         givenSetup()
                 .when()

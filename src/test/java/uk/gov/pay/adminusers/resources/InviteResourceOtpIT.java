@@ -1,8 +1,6 @@
 package uk.gov.pay.adminusers.resources;
 
-import com.google.common.collect.ImmutableMap;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
-import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +11,7 @@ import java.util.Map;
 
 import static com.google.common.io.BaseEncoding.base32;
 import static io.restassured.http.ContentType.JSON;
+import static java.util.Collections.emptyMap;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.apache.commons.lang3.RandomStringUtils.random;
 import static org.hamcrest.Matchers.hasSize;
@@ -52,10 +51,9 @@ public class InviteResourceOtpIT extends IntegrationTest {
                 .insertInvite();
 
         // generate valid invitationOtpRequest and execute it
-        ImmutableMap<Object, Object> invitationOtpRequest = ImmutableMap.builder()
-                .put("code", code)
-                .put("otp", PASSCODE)
-                .build();
+        Map<Object, Object> invitationOtpRequest = Map.of(
+                "code", code,
+                "otp", PASSCODE);
 
         assertThat(databaseHelper.findInviteByCode(code).size(), is(1));
 
@@ -102,10 +100,9 @@ public class InviteResourceOtpIT extends IntegrationTest {
     @Test
     public void validateOtp_shouldFail_whenInvalidCode() throws Exception {
 
-        ImmutableMap<Object, Object> invitationOtpRequest = ImmutableMap.builder()
-                .put("code", "non-existent-code")
-                .put("otp", PASSCODE)
-                .build();
+        Map<Object, Object> invitationOtpRequest = Map.of(
+                "code", "non-existent-code",
+                "otp", PASSCODE);
 
         givenSetup()
                 .when()
@@ -128,10 +125,9 @@ public class InviteResourceOtpIT extends IntegrationTest {
                 .insertInvite();
 
         // generate invalid invitationOtpRequest and execute it
-        ImmutableMap<Object, Object> invitationOtpRequest = ImmutableMap.builder()
-                .put("code", code)
-                .put("otp", 123456)
-                .build();
+        Map<Object, Object> invitationOtpRequest = Map.of(
+                "code", code,
+                "otp", 123456);
 
         givenSetup()
                 .when()
@@ -155,10 +151,9 @@ public class InviteResourceOtpIT extends IntegrationTest {
                 .insertInvite();
 
         // generate invalid invitationOtpRequest and execute it
-        ImmutableMap<Object, Object> invitationOtpRequest = ImmutableMap.builder()
-                .put("code", code)
-                .put("otp", 123456)
-                .build();
+        Map<Object, Object> invitationOtpRequest = Map.of(
+                "code", code,
+                "otp", 123456);
 
         givenSetup()
                 .when()
@@ -178,13 +173,9 @@ public class InviteResourceOtpIT extends IntegrationTest {
 
     @Test
     public void validateOtp_shouldFail_whenAllMandatoryFieldsAreMissing() throws Exception {
-
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .build();
-
         givenSetup()
                 .when()
-                .body(mapper.writeValueAsString(invitationRequest))
+                .body(mapper.writeValueAsString(emptyMap()))
                 .contentType(JSON)
                 .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
@@ -206,10 +197,9 @@ public class InviteResourceOtpIT extends IntegrationTest {
 
         // generate new invitationOtpRequest with new telephone number
         String newTelephoneNumber = "+447452222222";
-        ImmutableMap<Object, Object> resendRequest = ImmutableMap.builder()
-                .put("code", code)
-                .put("telephone_number", newTelephoneNumber)
-                .build();
+        Map<Object, Object> resendRequest = Map.of(
+                "code", code,
+                "telephone_number", newTelephoneNumber);
 
         givenSetup()
                 .when()
@@ -229,12 +219,9 @@ public class InviteResourceOtpIT extends IntegrationTest {
     @Test
     public void resendOtp_shouldFail_whenAllMandatoryFieldsAreMissing() throws Exception {
 
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .build();
-
         givenSetup()
                 .when()
-                .body(mapper.writeValueAsString(invitationRequest))
+                .body(mapper.writeValueAsString(emptyMap()))
                 .contentType(JSON)
                 .post(INVITES_RESEND_OTP_RESOURCE_URL)
                 .then()
@@ -248,10 +235,9 @@ public class InviteResourceOtpIT extends IntegrationTest {
                 .withOtpKey(OTP_KEY)
                 .insertInvite();
 
-        ImmutableMap<Object, Object> sendRequest = ImmutableMap.builder()
-                .put("code", code)
-                .put("otp", PASSCODE)
-                .build();
+        Map<Object, Object> sendRequest = Map.of(
+                "code", code,
+                "otp", PASSCODE);
 
         givenSetup()
                 .when()
@@ -271,10 +257,9 @@ public class InviteResourceOtpIT extends IntegrationTest {
 
         int invalidOtp = 111111;
 
-        ImmutableMap<Object, Object> sendRequest = ImmutableMap.builder()
-                .put("code", code)
-                .put("otp", invalidOtp)
-                .build();
+        Map<Object, Object> sendRequest = Map.of(
+                "code", code,
+                "otp", invalidOtp);
 
         givenSetup()
                 .when()

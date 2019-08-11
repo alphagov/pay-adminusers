@@ -2,11 +2,12 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
+
+import java.util.Map;
 
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
@@ -31,7 +32,7 @@ public class UserResourceUpdateServiceRoleIT extends IntegrationTest {
         String email2 = username2 + "@example.com";
         userDbFixture(databaseHelper).withServiceRole(service, role.getId()).withUsername(username2).withEmail(email2).insertUser();
 
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("role_name", "view-and-refund"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("role_name", "view-and-refund"));
 
         givenSetup()
                 .when()
@@ -48,7 +49,7 @@ public class UserResourceUpdateServiceRoleIT extends IntegrationTest {
     @Test
     public void shouldError404_ifUserNotFound_whenUpdatingServiceRole() {
         String serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("role_name", "view-and-refund"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("role_name", "view-and-refund"));
 
         givenSetup()
                 .when()
@@ -68,7 +69,7 @@ public class UserResourceUpdateServiceRoleIT extends IntegrationTest {
         String email = username + "@example.com";
         User user = userDbFixture(databaseHelper).withServiceRole(service, role.getId()).withUsername(username).withEmail(email).insertUser();
 
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("role_name", "view-and-refund"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("role_name", "view-and-refund"));
 
         givenSetup()
                 .when()
