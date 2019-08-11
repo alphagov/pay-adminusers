@@ -24,7 +24,7 @@ public class AdminUsersConfig extends Configuration {
     @NotNull
     private String graphiteHost;
     @NotNull
-    private String graphitePort;
+    private Integer graphitePort;
 
     @NotNull
     private String baseUrl;
@@ -67,7 +67,7 @@ public class AdminUsersConfig extends Configuration {
         return graphiteHost;
     }
 
-    public String getGraphitePort() {
+    public Integer getGraphitePort() {
         return graphitePort;
     }
 
