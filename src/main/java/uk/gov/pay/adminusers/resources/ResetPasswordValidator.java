@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static com.google.common.collect.ImmutableList.of;
 import static uk.gov.pay.adminusers.resources.ResetPasswordResource.FIELD_CODE;
 import static uk.gov.pay.adminusers.resources.ResetPasswordResource.FIELD_PASSWORD;
 
@@ -25,7 +24,7 @@ public class ResetPasswordValidator {
     public Optional<Errors> validateResetRequest(JsonNode payload) {
 
         if (payload == null) {
-            return Optional.of(Errors.from(of("invalid JSON")));
+            return Optional.of(Errors.from(List.of("invalid JSON")));
         }
 
         Optional<List<String>> missingMandatoryFields = requestValidations.checkExistsAndNotEmpty(payload, FIELD_CODE, FIELD_PASSWORD);

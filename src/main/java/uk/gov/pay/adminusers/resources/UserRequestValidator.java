@@ -2,18 +2,17 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
-import jersey.repackaged.com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.tuple.Pair;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static uk.gov.pay.adminusers.model.User.FIELD_EMAIL;
 import static uk.gov.pay.adminusers.model.User.FIELD_PASSWORD;
@@ -82,7 +81,7 @@ public class UserRequestValidator {
         try {
             SecondFactorMethod.valueOf(secondFactor);
         } catch (IllegalArgumentException e) {
-            return Optional.of(Errors.from(ImmutableList.of(format("Invalid second_factor [%s]", secondFactor))));
+            return Optional.of(Errors.from(List.of(format("Invalid second_factor [%s]", secondFactor))));
         }
         return Optional.empty();
     }
@@ -107,11 +106,11 @@ public class UserRequestValidator {
         String op = payload.get("op").asText();
 
         if (!isPathAllowed(path)) {
-            return Optional.of(Errors.from(ImmutableList.of(format("Patching path [%s] not allowed", path))));
+            return Optional.of(Errors.from(List.of(format("Patching path [%s] not allowed", path))));
         }
 
         if (!isAllowedOpForPath(path, op)) {
-            return Optional.of(Errors.from(ImmutableList.of(format("Operation [%s] not allowed for path [%s]", op, path))));
+            return Optional.of(Errors.from(List.of(format("Operation [%s] not allowed for path [%s]", op, path))));
         }
 
         Optional<List<String>> invalidData = checkValidPatchValue(payload.get("value"), getUserPatchPathValidations(path));
@@ -125,7 +124,7 @@ public class UserRequestValidator {
     }
 
     private Optional<List<String>> checkValidPatchValue(JsonNode valueNode, Collection<Pair<Function<JsonNode, Boolean>, String>> pathValidations) {
-        List<String> errors = newArrayList();
+        List<String> errors = new ArrayList<>();
         pathValidations.forEach(validationPair -> {
             if (validationPair.getLeft().apply(valueNode)) {
                 errors.add(validationPair.getRight());

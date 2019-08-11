@@ -5,16 +5,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.google.common.collect.ImmutableList;
-import uk.gov.pay.adminusers.utils.Comparators;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
+import static uk.gov.pay.adminusers.utils.Comparators.numericallyThenLexicographically;
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class CreateUserRequest {
@@ -44,21 +42,19 @@ public class CreateUserRequest {
     }
 
     public static CreateUserRequest from(JsonNode node) {
-        List<String> gatewayAccountIds = new ArrayList<>();
-        List<String> serviceExternalIds = new ArrayList<>();
+        final List<String> gatewayAccountIds = new ArrayList<>();
+        final List<String> serviceExternalIds = new ArrayList<>();
         try {
             if (node.get(FIELD_GATEWAY_ACCOUNT_IDS) != null) {
-                gatewayAccountIds =
-                        ImmutableList.copyOf(node.get(FIELD_GATEWAY_ACCOUNT_IDS).iterator())
-                                .stream().map(JsonNode::asText)
-                                .sorted(Comparators.numericallyThenLexicographically())
-                                .collect(Collectors.toList());
+                node.get(FIELD_GATEWAY_ACCOUNT_IDS)
+                        .iterator()
+                        .forEachRemaining((gatewayAccountId) -> gatewayAccountIds.add(gatewayAccountId.asText()));
+                gatewayAccountIds.sort(numericallyThenLexicographically());
             }
             if (node.get(FIELD_SERVICE_EXTERNAL_IDS) != null) {
-                serviceExternalIds =
-                        ImmutableList.copyOf(node.get(FIELD_SERVICE_EXTERNAL_IDS).iterator())
-                                .stream().map(JsonNode::asText)
-                                .collect(Collectors.toList());
+                node.get(FIELD_SERVICE_EXTERNAL_IDS)
+                        .iterator()
+                        .forEachRemaining((serviceExternalIdNode) -> serviceExternalIds.add(serviceExternalIdNode.asText()));
             }
             String username = node.get(FIELD_USERNAME).asText();
             String password = getOrElseRandom(node.get(FIELD_PASSWORD), randomUuid());

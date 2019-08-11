@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.service;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
@@ -16,11 +15,13 @@ import uk.gov.pay.commons.model.SupportedLanguage;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
+import static java.util.Map.entry;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingServiceGatewayAccounts;
 
 public class ServiceUpdater {
@@ -44,24 +45,25 @@ public class ServiceUpdater {
 
     @Inject
     public ServiceUpdater(ServiceDao serviceDao) {
-        ImmutableMap.Builder<String, BiConsumer<ServiceUpdateRequest, ServiceEntity>> attributeUpdaters = ImmutableMap.builder();
-        attributeUpdaters.put(FIELD_GATEWAY_ACCOUNT_IDS, assignGatewayAccounts());
-        attributeUpdaters.put(FIELD_CUSTOM_BRANDING, updateCustomBranding());
-        attributeUpdaters.put(FIELD_REDIRECT_NAME, updateRedirectImmediately());
-        attributeUpdaters.put(FIELD_COLLECT_BILLING_ADDRESS, updateCollectBillingAddress());
-        attributeUpdaters.put(FIELD_CURRENT_GO_LIVE_STAGE, updateCurrentGoLiveStage());
-        attributeUpdaters.put(FIELD_MERCHANT_DETAILS_NAME, updateMerchantDetailsName());
-        attributeUpdaters.put(FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1, updateMerchantDetailsAddressLine1());
-        attributeUpdaters.put(FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2, updateMerchantDetailsAddressLine2());
-        attributeUpdaters.put(FIELD_MERCHANT_DETAILS_ADDRESS_CITY, updateMerchantDetailsAddressCity());
-        attributeUpdaters.put(FIELD_MERCHANT_DETAILS_ADDRESS_COUNRTY, updateMerchantDetailsAddressCountry());
-        attributeUpdaters.put(FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, updateMerchantDetailsAddressPostcode());
-        attributeUpdaters.put(FIELD_MERCHANT_DETAILS_EMAIL, updateMerchantDetailsEmail());
-        attributeUpdaters.put(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, updateMerchantDetailsPhone());
+        Map<String, BiConsumer<ServiceUpdateRequest, ServiceEntity>> attributeUpdaters = new HashMap<>((Map.ofEntries(
+                entry(FIELD_GATEWAY_ACCOUNT_IDS, assignGatewayAccounts()),
+                entry(FIELD_CUSTOM_BRANDING, updateCustomBranding()),
+                entry(FIELD_REDIRECT_NAME, updateRedirectImmediately()),
+                entry(FIELD_COLLECT_BILLING_ADDRESS, updateCollectBillingAddress()),
+                entry(FIELD_CURRENT_GO_LIVE_STAGE, updateCurrentGoLiveStage()),
+                entry(FIELD_MERCHANT_DETAILS_NAME, updateMerchantDetailsName()),
+                entry(FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1, updateMerchantDetailsAddressLine1()),
+                entry(FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2, updateMerchantDetailsAddressLine2()),
+                entry(FIELD_MERCHANT_DETAILS_ADDRESS_CITY, updateMerchantDetailsAddressCity()),
+                entry(FIELD_MERCHANT_DETAILS_ADDRESS_COUNRTY, updateMerchantDetailsAddressCountry()),
+                entry(FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, updateMerchantDetailsAddressPostcode()),
+                entry(FIELD_MERCHANT_DETAILS_EMAIL, updateMerchantDetailsEmail()),
+                entry(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, updateMerchantDetailsPhone())
+        )));
 
         Arrays.stream(SupportedLanguage.values())
                 .forEach(language -> attributeUpdaters.put(FIELD_SERVICE_NAME_PREFIX + '/' + language.toString(), updateServiceName()));
-        this.attributeUpdaters = attributeUpdaters.build();
+        this.attributeUpdaters = Map.copyOf(attributeUpdaters);
         this.serviceDao = serviceDao;
     }
 

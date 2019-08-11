@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableMap;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 import uk.gov.pay.commons.model.SupportedLanguage;
@@ -11,11 +10,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
+import static java.util.Map.entry;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_OP;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_PATH;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_VALUE;
@@ -58,23 +59,24 @@ public class ServiceUpdateOperationValidator {
 
     @Inject
     public ServiceUpdateOperationValidator(RequestValidations requestValidations) {
-        ImmutableMap.Builder<String, List<String>> validAttributeUpdateOperations = ImmutableMap.builder();
-        validAttributeUpdateOperations.put(FIELD_GATEWAY_ACCOUNT_IDS, singletonList(ADD));
-        validAttributeUpdateOperations.put(FIELD_CUSTOM_BRANDING, singletonList(REPLACE));
-        validAttributeUpdateOperations.put(FIELD_REDIRECT_NAME, singletonList(REPLACE));
-        validAttributeUpdateOperations.put(FIELD_COLLECT_BILLING_ADDRESS, singletonList(REPLACE));
-        validAttributeUpdateOperations.put(FIELD_CURRENT_GO_LIVE_STAGE, singletonList(REPLACE));
-        validAttributeUpdateOperations.put(FIELD_MERCHANT_DETAILS_NAME, singletonList(REPLACE));
-        validAttributeUpdateOperations.put(FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1, singletonList(REPLACE));
-        validAttributeUpdateOperations.put(FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2, singletonList(REPLACE));
-        validAttributeUpdateOperations.put(FIELD_MERCHANT_DETAILS_ADDRESS_CITY, singletonList(REPLACE));
-        validAttributeUpdateOperations.put(FIELD_MERCHANT_DETAILS_ADDRESS_COUNRTY, singletonList(REPLACE));
-        validAttributeUpdateOperations.put(FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, singletonList(REPLACE));
-        validAttributeUpdateOperations.put(FIELD_MERCHANT_DETAILS_EMAIL, singletonList(REPLACE));
-        validAttributeUpdateOperations.put(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, singletonList(REPLACE));
+        Map<String, List<String>> validAttributeUpdateOperations = new HashMap<>(Map.ofEntries(
+                entry(FIELD_GATEWAY_ACCOUNT_IDS, singletonList(ADD)),
+                entry(FIELD_CUSTOM_BRANDING, singletonList(REPLACE)),
+                entry(FIELD_REDIRECT_NAME, singletonList(REPLACE)),
+                entry(FIELD_COLLECT_BILLING_ADDRESS, singletonList(REPLACE)),
+                entry(FIELD_CURRENT_GO_LIVE_STAGE, singletonList(REPLACE)),
+                entry(FIELD_MERCHANT_DETAILS_NAME, singletonList(REPLACE)),
+                entry(FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1, singletonList(REPLACE)),
+                entry(FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2, singletonList(REPLACE)),
+                entry(FIELD_MERCHANT_DETAILS_ADDRESS_CITY, singletonList(REPLACE)),
+                entry(FIELD_MERCHANT_DETAILS_ADDRESS_COUNRTY, singletonList(REPLACE)),
+                entry(FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, singletonList(REPLACE)),
+                entry(FIELD_MERCHANT_DETAILS_EMAIL, singletonList(REPLACE)),
+                entry(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, singletonList(REPLACE))
+        ));
         Arrays.stream(SupportedLanguage.values()).forEach(lang ->
                 validAttributeUpdateOperations.put(FIELD_SERVICE_NAME_PREFIX + '/' + lang.toString(), singletonList(REPLACE)));
-        this.validAttributeUpdateOperations = validAttributeUpdateOperations.build();
+        this.validAttributeUpdateOperations = Map.copyOf(validAttributeUpdateOperations);
         this.requestValidations = requestValidations;
     }
 
@@ -190,7 +192,7 @@ public class ServiceUpdateOperationValidator {
     private List<String> validateOperationIsValidForPath(JsonNode operation) {
         String path = operation.get(FIELD_PATH).asText();
 
-        if (!validAttributeUpdateOperations.keySet().contains(path)) {
+        if (!validAttributeUpdateOperations.containsKey(path)) {
             return singletonList(format("Path [%s] is invalid", path));
         }
 

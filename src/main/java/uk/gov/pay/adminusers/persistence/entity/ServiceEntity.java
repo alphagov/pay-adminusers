@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
-import com.google.common.collect.ImmutableList;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
@@ -121,7 +120,7 @@ public class ServiceEntity {
     }
 
     public List<GatewayAccountIdEntity> getGatewayAccountIds() {
-        return ImmutableList.copyOf(this.gatewayAccountIds);
+        return List.copyOf(this.gatewayAccountIds);
     }
 
     public GatewayAccountIdEntity getGatewayAccountId() {

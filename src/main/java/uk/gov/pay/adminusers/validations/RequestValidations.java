@@ -3,16 +3,15 @@ package uk.gov.pay.adminusers.validations;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
-import com.google.common.collect.ImmutableList;
 import uk.gov.pay.adminusers.utils.email.EmailValidator;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -61,7 +60,7 @@ public class RequestValidations {
     }
 
     public Optional<List<String>> applyCheck(JsonNode payload, Function<JsonNode, Boolean> check, String[] fieldNames, String errorMessage) {
-        List<String> errors = newArrayList();
+        List<String> errors = new ArrayList<>();
         for (String fieldName : fieldNames) {
             if (check.apply(payload.get(fieldName))) {
                 errors.add(format(errorMessage, fieldName));
@@ -119,7 +118,7 @@ public class RequestValidations {
     }
 
     static Function<JsonNode, Boolean> isNotBoolean() {
-        return jsonNode -> !ImmutableList.of("true", "false").contains(jsonNode.asText().toLowerCase());
+        return jsonNode -> !List.of("true", "false").contains(jsonNode.asText().toLowerCase());
     }
 
     static Function<JsonNode, Boolean> isNotStrictBoolean() {

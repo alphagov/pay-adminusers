@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.codahale.metrics.health.HealthCheck;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import io.dropwizard.setup.Environment;
 
@@ -37,7 +36,7 @@ public class HealthCheckResource {
         Map<String, Map<String, Object>> response = results.entrySet()
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
-                        healthcheckResult -> ImmutableMap.of(
+                        healthcheckResult -> Map.of(
                                 "healthy", healthcheckResult.getValue().isHealthy(),
                                 "message", defaultString(healthcheckResult.getValue().getMessage(), "Healthy")
                         )
