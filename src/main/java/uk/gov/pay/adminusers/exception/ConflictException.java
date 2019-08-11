@@ -1,8 +1,7 @@
 package uk.gov.pay.adminusers.exception;
 
-public class ConflictException extends RuntimeException {
-
-    public ConflictException(String message) {
+class ConflictException extends RuntimeException {
+    ConflictException(String message) {
         super(message);
     }
 }
