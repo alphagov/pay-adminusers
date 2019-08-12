@@ -3,15 +3,11 @@ package uk.gov.pay.adminusers.app.config;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 public class AdminUsersConfig extends Configuration {
-
-    private static final Logger logger = LoggerFactory.getLogger(AdminUsersConfig.class);
 
     @Valid
     @NotNull
@@ -24,7 +20,7 @@ public class AdminUsersConfig extends Configuration {
     @NotNull
     private String graphiteHost;
     @NotNull
-    private String graphitePort;
+    private Integer graphitePort;
 
     @NotNull
     private String baseUrl;
@@ -67,7 +63,7 @@ public class AdminUsersConfig extends Configuration {
         return graphiteHost;
     }
 
-    public String getGraphitePort() {
+    public Integer getGraphitePort() {
         return graphitePort;
     }
 
