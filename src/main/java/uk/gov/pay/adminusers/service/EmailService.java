@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.service;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import liquibase.exception.ServiceNotFoundException;
 import org.apache.commons.lang3.StringUtils;
@@ -81,7 +80,7 @@ public class EmailService {
             throw new InvalidMerchantDetailsException("Merchant details are missing mandatory fields: can't send email for account " + gatewayAccountId);
         }
 
-        ImmutableMap<String, String> personalisation = ImmutableMap.of(
+        final Map<String, String> personalisation = Map.of(
                 SERVICE_NAME_KEY, service.getServiceNames().get(SupportedLanguage.ENGLISH).getName(),
                 ORGANISATION_NAME_KEY, merchantDetails.getName(),
                 ORGANISATION_ADDRESS_KEY, formatMerchantAddress(merchantDetails),
@@ -89,38 +88,28 @@ public class EmailService {
                 ORGANISATION_EMAIL_ADDRESS_KEY, merchantDetails.getEmail()
         );
 
-        return new HashMap<>() {
-            {
-                put(EmailTemplate.ONE_OFF_PAYMENT_CONFIRMED, new StaticEmailContent(
+        return Map.of(
+                EmailTemplate.ONE_OFF_PAYMENT_CONFIRMED, new StaticEmailContent(
                         notificationService.getNotifyDirectDebitConfiguration().getOneOffMandateAndPaymentCreatedEmailTemplateId(),
-                        personalisation
-                ));
-                put(EmailTemplate.ON_DEMAND_PAYMENT_CONFIRMED, new StaticEmailContent(
+                        personalisation),
+                EmailTemplate.ON_DEMAND_PAYMENT_CONFIRMED, new StaticEmailContent(
                         notificationService.getNotifyDirectDebitConfiguration().getOnDemandPaymentConfirmedEmailTemplateId(),
-                        personalisation
-                ));
-                put(EmailTemplate.PAYMENT_FAILED, new StaticEmailContent(
+                        personalisation),
+                EmailTemplate.PAYMENT_FAILED, new StaticEmailContent(
                         notificationService.getNotifyDirectDebitConfiguration().getPaymentFailedEmailTemplateId(),
-                        personalisation
-                ));
-                put(EmailTemplate.MANDATE_CANCELLED, new StaticEmailContent(
+                        personalisation),
+                EmailTemplate.MANDATE_CANCELLED, new StaticEmailContent(
                         notificationService.getNotifyDirectDebitConfiguration().getMandateCancelledEmailTemplateId(),
-                        personalisation
-                ));
-                put(EmailTemplate.MANDATE_FAILED, new StaticEmailContent(
+                        personalisation),
+                EmailTemplate.MANDATE_FAILED, new StaticEmailContent(
                         notificationService.getNotifyDirectDebitConfiguration().getMandateFailedEmailTemplateId(),
-                        personalisation
-                ));
-                put(EmailTemplate.ON_DEMAND_MANDATE_CREATED, new StaticEmailContent(
+                        personalisation),
+                EmailTemplate.ON_DEMAND_MANDATE_CREATED, new StaticEmailContent(
                         notificationService.getNotifyDirectDebitConfiguration().getOnDemandMandateCreatedEmailTemplateId(),
-                        personalisation
-                ));
-                put(EmailTemplate.ONE_OFF_MANDATE_CREATED, new StaticEmailContent(
+                        personalisation),
+                EmailTemplate.ONE_OFF_MANDATE_CREATED, new StaticEmailContent(
                         notificationService.getNotifyDirectDebitConfiguration().getOneOffMandateAndPaymentCreatedEmailTemplateId(),
-                        personalisation
-                ));
-            }
-        };
+                        personalisation));
     }
 
     private ServiceEntity getServiceFor(String gatewayAccountId) {
@@ -129,12 +118,10 @@ public class EmailService {
     }
 
     public CompletableFuture<String> sendEmail(String email, String gatewayAccountId, EmailTemplate template, Map<String, String> dynamicContent) throws InvalidMerchantDetailsException {
-        Map<EmailTemplate, StaticEmailContent> templateMappingsFor = getTemplateMappingsFor(gatewayAccountId);
-        Map<String, String> staticContent = templateMappingsFor.get(template).getPersonalisation();
-        Map<String, String> allContent = new HashMap<>();
-        allContent.putAll(staticContent);
-        allContent.putAll(dynamicContent);
+        StaticEmailContent staticEmailContent = getTemplateMappingsFor(gatewayAccountId).get(template);
+        Map<String, String> staticContent = new HashMap<>(staticEmailContent.getPersonalisation());
+        staticContent.putAll(dynamicContent);
         LOGGER.info("Sending direct debit email for " + template.toString());
-        return notificationService.sendEmailAsync(DIRECT_DEBIT, templateMappingsFor.get(template).getTemplateId(), email, allContent);
+        return notificationService.sendEmailAsync(DIRECT_DEBIT, staticEmailContent.getTemplateId(), email, staticContent);
     }
 }
