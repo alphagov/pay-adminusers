@@ -26,7 +26,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static io.dropwizard.testing.ConfigOverride.config;
 import static io.dropwizard.testing.ResourceHelpers.resourceFilePath;
 
@@ -48,10 +47,10 @@ public class DropwizardAppWithPostgresRule implements TestRule {
     public DropwizardAppWithPostgresRule(String configPath, ConfigOverride... configOverrides) {
         configFilePath = resourceFilePath(configPath);
         postgres = new PostgresDockerRule();
-        List<ConfigOverride> cfgOverrideList = newArrayList(configOverrides);
-        cfgOverrideList.add(config("database.url", postgres.getConnectionUrl()));
-        cfgOverrideList.add(config("database.user", postgres.getUsername()));
-        cfgOverrideList.add(config("database.password", postgres.getPassword()));
+        List<ConfigOverride> cfgOverrideList = List.of(
+                config("database.url", postgres.getConnectionUrl()),
+                config("database.user", postgres.getUsername()),
+                config("database.password", postgres.getPassword()));
 
         app = new DropwizardAppRule<>(
                 AdminUsersApp.class,

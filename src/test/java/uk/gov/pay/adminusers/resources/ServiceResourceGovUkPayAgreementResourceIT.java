@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.fixtures.GovUkPayAgreementDbFixture;
@@ -11,6 +10,7 @@ import uk.gov.pay.adminusers.model.User;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Map;
 
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
@@ -38,7 +38,7 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
     
     @Test
     public void shouldCreateGovUkPayAgreement() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("user_external_id", user.getExternalId()));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", user.getExternalId()));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -51,7 +51,7 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
 
     @Test
     public void shouldReturn_404_whenServiceNotFound() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("user_external_id", user.getExternalId()));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", user.getExternalId()));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -63,7 +63,7 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
 
     @Test
     public void shouldReturn_400_whenUserNotFound() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("user_external_id", "abcde1234"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", "abcde1234"));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -76,7 +76,7 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
     
     @Test
     public void shouldReturn_400_whenUserExternalIdIsNotAString() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("user_external_id", 100));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", 100));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -90,7 +90,7 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
 
     @Test
     public void shouldReturn_400_whenUserExternalIdIsEmpty() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("user_external_id", ""));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", ""));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -104,7 +104,7 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
 
     @Test
     public void shouldReturn_400_whenUserExternalIdIsMissing() {
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("user_id", user.getExternalId()));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_id", user.getExternalId()));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -122,7 +122,7 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
                 .withServiceId(service.getId())
                 .insert();
 
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("user_external_id", user.getExternalId()));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", user.getExternalId()));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -138,7 +138,7 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
     public void shouldReturn_400_whenUserDoesNotBelongToService() {
         user = userDbFixture(databaseHelper)
                 .insertUser();
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("user_external_id", user.getExternalId()));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", user.getExternalId()));
         givenSetup()
                 .when()
                 .accept(JSON)

@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +13,7 @@ import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -51,7 +51,7 @@ public class UserOtpDispatcherTest {
         inviteEntity.setType(InviteType.USER);
         inviteEntity.setOtpKey("otp-key");
 
-        JsonNode payload = new ObjectMapper().valueToTree(ImmutableMap.of("telephone_number", telephone, "password", "random"));
+        JsonNode payload = new ObjectMapper().valueToTree(Map.of("telephone_number", telephone, "password", "random"));
         userOtpDispatcher = userOtpDispatcher.withData(InviteOtpRequest.from(payload));
 
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));

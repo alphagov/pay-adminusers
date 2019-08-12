@@ -1,10 +1,11 @@
 package uk.gov.pay.adminusers.resources;
 
 
-import com.google.common.collect.ImmutableMap;
 import io.restassured.http.ContentType;
 import org.junit.Test;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
+
+import java.util.Map;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
@@ -24,7 +25,7 @@ public class InviteResourceCreateServiceIT extends IntegrationTest {
     public void shouldSuccess_WhenAllRequiredFieldsAreProvidedAndValid() throws Exception {
         String email = "example@example.gov.uk";
         String telephoneNumber = "01134960000";
-        ImmutableMap<String, String> payload = ImmutableMap.of("telephone_number", telephoneNumber, "email", email, "password", "plain_text_password");
+        Map<String, String> payload = Map.of("telephone_number", telephoneNumber, "email", email, "password", "plain_text_password");
 
         givenSetup()
                 .when()
@@ -44,7 +45,7 @@ public class InviteResourceCreateServiceIT extends IntegrationTest {
     @Test
     public void shouldFail_WhenMandatoryFieldsAreMissing() throws Exception {
         String telephoneNumber = "07700900000";
-        ImmutableMap<String, String> payload = ImmutableMap.of("telephone_number", telephoneNumber, "password", "plain_text_password");
+        Map<String, String> payload = Map.of("telephone_number", telephoneNumber, "password", "plain_text_password");
 
         givenSetup()
                 .when()
@@ -61,7 +62,7 @@ public class InviteResourceCreateServiceIT extends IntegrationTest {
     public void shouldFail_WhenEmailIsNotPublicSectorDomain() throws Exception {
         String email = "example@example.com";
         String telephoneNumber = "07700900000";
-        ImmutableMap<String, String> payload = ImmutableMap.of("telephone_number", telephoneNumber, "email", email, "password", "plain_text_password");
+        Map<String, String> payload = Map.of("telephone_number", telephoneNumber, "email", email, "password", "plain_text_password");
 
         givenSetup()
                 .when()
@@ -82,7 +83,7 @@ public class InviteResourceCreateServiceIT extends IntegrationTest {
         UserDbFixture.userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
 
         String telephoneNumber = "01134960000";
-        ImmutableMap<String, String> payload = ImmutableMap.of("telephone_number", telephoneNumber, "email", email, "password", "plain_text_password");
+        Map<String, String> payload = Map.of("telephone_number", telephoneNumber, "email", email, "password", "plain_text_password");
 
         givenSetup()
                 .when()

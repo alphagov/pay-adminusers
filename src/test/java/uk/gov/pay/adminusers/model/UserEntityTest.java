@@ -8,7 +8,8 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -47,9 +48,9 @@ public class UserEntityTest {
     public void creatingAUser_shouldSetGatewayAccountAndRole_whenServiceRoleIsSet() {
         UserEntity userEntity = new UserEntity();
         String gatewayAccountId = "1";
-        ServiceEntity service = new ServiceEntity(newArrayList(gatewayAccountId));
+        ServiceEntity service = new ServiceEntity(List.of(gatewayAccountId));
         Role role = role(1, "role", "hey");
-        role.setPermissions(newArrayList(permission(1, "perm1", "perm1 desc"), permission(2, "perm2", "perm2 desc")));
+        role.setPermissions(List.of(permission(1, "perm1", "perm1 desc"), permission(2, "perm2", "perm2 desc")));
         RoleEntity roleEntity = new RoleEntity(role);
         ServiceRoleEntity serviceRole = new ServiceRoleEntity(service, roleEntity);
 

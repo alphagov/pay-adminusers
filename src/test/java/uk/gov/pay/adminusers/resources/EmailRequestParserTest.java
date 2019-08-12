@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,11 +26,11 @@ public class EmailRequestParserTest {
 
     @Test
     public void shouldCreateAnEmailRequestForAValidPayload() throws InvalidEmailRequestException {
-        Map<String, Object> body = ImmutableMap.of(
+        Map<String, Object> body = Map.of(
           "address", "aaa@bbb.test",
           "gateway_account_external_id", "DIRECT_DEBIT:23847roidfghdkkj",
           "template", "MANDATE_CANCELLED",
-          "personalisation", ImmutableMap.of(
+          "personalisation", Map.of(
                   "field 1", "theValueOfField1",
                   "field 2", "theValueOfField2"
                 )
@@ -41,7 +40,7 @@ public class EmailRequestParserTest {
         assertThat(emailRequest.getEmailAddress(), is("aaa@bbb.test"));
         assertThat(emailRequest.getGatewayAccountId(), is("DIRECT_DEBIT:23847roidfghdkkj"));
         assertThat(emailRequest.getTemplate(), is(EmailTemplate.MANDATE_CANCELLED));
-        assertThat(emailRequest.getPersonalisation(), is(ImmutableMap.of(
+        assertThat(emailRequest.getPersonalisation(), is(Map.of(
                 "field 1", "theValueOfField1",
                 "field 2", "theValueOfField2"
         )));
@@ -49,9 +48,9 @@ public class EmailRequestParserTest {
 
     @Test
     public void shouldThrowAnExceptionForAnInvalidPayload() throws InvalidEmailRequestException {
-        Map<String, Object> body = ImmutableMap.of(
+        Map<String, Object> body = Map.of(
                 "template", "MANDATE_CANCELLED",
-                "personalisation", ImmutableMap.of(
+                "personalisation", Map.of(
                         "field 1", "theValueOfField1",
                         "field 2", "theValueOfField2"
                 )

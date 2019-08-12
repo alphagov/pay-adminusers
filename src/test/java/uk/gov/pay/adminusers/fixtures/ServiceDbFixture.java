@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.fixtures;
 
-import com.google.common.collect.ImmutableMap;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.MerchantDetails;
 import uk.gov.pay.adminusers.model.Service;
@@ -57,7 +56,7 @@ public class ServiceDbFixture {
     }
     
     public ServiceDbFixture withCustomBranding(String cssUrl, String imageUrl) {
-        this.customBranding = ImmutableMap.of(
+        this.customBranding = Map.of(
                 "css_url", cssUrl,
                 "image_url", imageUrl
         );

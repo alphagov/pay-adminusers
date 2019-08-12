@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -20,12 +19,10 @@ import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
 import javax.ws.rs.WebApplicationException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static java.util.Optional.of;
@@ -108,7 +105,7 @@ public class ServiceUpdaterTest {
     public void shouldSuccess_updateCustomBranding_whenBrandingProvided() {
         ServiceUpdateRequest request = mock(ServiceUpdateRequest.class);
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
-        Map<String, Object> customBranding = ImmutableMap.of("image_url", "image url", "css_url", "css url");
+        Map<String, Object> customBranding = Map.of("image_url", "image url", "css_url", "css url");
 
         when(request.getPath()).thenReturn("custom_branding");
         when(request.valueAsObject()).thenReturn(customBranding);
@@ -197,7 +194,7 @@ public class ServiceUpdaterTest {
 
     @Test
     public void shouldUpdateRedirectImmediatelySuccessfully() {
-        ServiceUpdateRequest request = ServiceUpdateRequest.from(new ObjectNode(JsonNodeFactory.instance, ImmutableMap.of(
+        ServiceUpdateRequest request = ServiceUpdateRequest.from(new ObjectNode(JsonNodeFactory.instance, Map.of(
                 "path", new TextNode("redirect_to_service_immediately_on_terminal_state"),
                 "value", BooleanNode.valueOf(true),
                 "op", new TextNode("replace"))));
@@ -215,7 +212,7 @@ public class ServiceUpdaterTest {
 
     @Test
     public void shouldUpdateCollectBillingAddressSuccessfully() {
-        ServiceUpdateRequest request = ServiceUpdateRequest.from(new ObjectNode(JsonNodeFactory.instance, ImmutableMap.of(
+        ServiceUpdateRequest request = ServiceUpdateRequest.from(new ObjectNode(JsonNodeFactory.instance, Map.of(
                 "path", new TextNode("collect_billing_address"),
                 "value", BooleanNode.valueOf(false),
                 "op", new TextNode("replace"))));
@@ -276,7 +273,7 @@ public class ServiceUpdaterTest {
         String email = "someone@example.com";
         String telephoneNumber = "000";
 
-        ArrayList<ServiceUpdateRequest> serviceUpdateRequests = newArrayList(
+        List<ServiceUpdateRequest> serviceUpdateRequests = List.of(
                 serviceUpdateRequest("replace", "merchant_details/name", name),
                 serviceUpdateRequest("replace", "merchant_details/address_line1", addressLine1),
                 serviceUpdateRequest("replace", "merchant_details/address_line2", addressLine2),
@@ -328,7 +325,7 @@ public class ServiceUpdaterTest {
 
     private static ServiceUpdateRequest serviceUpdateRequest(String op, String path, String value) {
         return ServiceUpdateRequest.from(
-                new ObjectNode(JsonNodeFactory.instance, ImmutableMap.of(
+                new ObjectNode(JsonNodeFactory.instance, Map.of(
                         "op", new TextNode(op),
                         "path", new TextNode(path),
                         "value", new TextNode(value))));

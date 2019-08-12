@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import java.util.Map;
@@ -24,13 +23,12 @@ public class UpdateMerchantDetailsRequestTest {
 
     @Test
     public void shouldConstructMerchantDetails_fromMinimalValidJson() {
-        Map<String, Object> payload = ImmutableMap.<String, Object>builder()
-                .put("name", name)
-                .put("address_line1", addressLine1)
-                .put("address_city", addressCity)
-                .put("address_country", addressCountry)
-                .put("address_postcode", addressPostcode)
-                .build();
+        Map<String, Object> payload = Map.of(
+                "name", name,
+                "address_line1", addressLine1,
+                "address_city", addressCity,
+                "address_country", addressCountry,
+                "address_postcode", addressPostcode);
         JsonNode jsonNode = new ObjectMapper().valueToTree(payload);
         UpdateMerchantDetailsRequest updateMerchantDetailsRequest = UpdateMerchantDetailsRequest.from(jsonNode);
         assertThat(updateMerchantDetailsRequest.getName(), is(name));
@@ -43,16 +41,15 @@ public class UpdateMerchantDetailsRequestTest {
 
     @Test
     public void shouldConstructMerchantDetails_fromCompleteValidJson() {
-        Map<String, Object> payload = ImmutableMap.<String, Object>builder()
-                .put("name", name)
-                .put("telephone_number", telephoneNumber)
-                .put("address_line1", addressLine1)
-                .put("address_line2", addressLine2)
-                .put("address_city", addressCity)
-                .put("address_country", addressCountry)
-                .put("address_postcode", addressPostcode)
-                .put("email", email)
-                .build();
+        Map<String, Object> payload = Map.of(
+                "name", name,
+                "telephone_number", telephoneNumber,
+                "address_line1", addressLine1,
+                "address_line2", addressLine2,
+                "address_city", addressCity,
+                "address_country", addressCountry,
+                "address_postcode", addressPostcode,
+                "email", email);
         JsonNode jsonNode = new ObjectMapper().valueToTree(payload);
         UpdateMerchantDetailsRequest updateMerchantDetailsRequest = UpdateMerchantDetailsRequest.from(jsonNode);
         assertThat(updateMerchantDetailsRequest.getName(), is(name));

@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.service;
 
-
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Before;
@@ -32,10 +31,11 @@ import uk.gov.pay.commons.model.SupportedLanguage;
 import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertFalse;
@@ -162,7 +162,7 @@ public class UserInviteCreatorTest {
         InviteEntity anInvite = anInvite(email, inviteCode, "otpKey", someOtherSender, service, role);
 
 
-        when(mockInviteDao.findByEmail(email)).thenReturn(newArrayList(anInvite));
+        when(mockInviteDao.findByEmail(email)).thenReturn(List.of(anInvite));
         InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 409 Conflict");
@@ -288,7 +288,7 @@ public class UserInviteCreatorTest {
         nonMatchingServiceInvite.setService(serviceEntity);
         nonMatchingServiceInvite.setExpiryDate(ZonedDateTime.now().plusDays(1));
 
-        when(mockInviteDao.findByEmail(email)).thenReturn(newArrayList(expiredInvite, disabledInvite, emptyServiceInvite, nonMatchingServiceInvite, validInvite));
+        when(mockInviteDao.findByEmail(email)).thenReturn(List.of(expiredInvite, disabledInvite, emptyServiceInvite, nonMatchingServiceInvite, validInvite));
 
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
         CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
@@ -321,7 +321,7 @@ public class UserInviteCreatorTest {
 
         String inviteCode = randomUuid();
         InviteEntity anInvite = anInvite(email, inviteCode, "otpKey", sameSender, service, role);
-        when(mockInviteDao.findByEmail(email)).thenReturn(newArrayList(anInvite));
+        when(mockInviteDao.findByEmail(email)).thenReturn(List.of(anInvite));
         return anInvite;
     }
 
@@ -332,7 +332,7 @@ public class UserInviteCreatorTest {
         service.setExternalId(serviceExternalId);
 
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(mockInviteDao.findByEmail(email)).thenReturn(newArrayList());
+        when(mockInviteDao.findByEmail(email)).thenReturn(emptyList());
         when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.of(service));
         when(mockRoleDao.findByRoleName(roleName)).thenReturn(Optional.of(new RoleEntity()));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");

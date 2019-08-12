@@ -4,7 +4,8 @@ import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.List;
+
 import static org.apache.commons.lang3.RandomStringUtils.random;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -41,7 +42,7 @@ public class RoleDbFixture {
         for (Permission permission : permissions) {
             databaseHelper.add(permission);
         }
-        role.setPermissions(newArrayList(permissions));
+        role.setPermissions(List.of(permissions));
         databaseHelper.add(role);
         return role;
     }

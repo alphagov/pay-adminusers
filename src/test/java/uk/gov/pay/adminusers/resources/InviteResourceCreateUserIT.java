@@ -1,12 +1,13 @@
 package uk.gov.pay.adminusers.resources;
 
-import com.google.common.collect.ImmutableMap;
 import io.restassured.http.ContentType;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.model.User;
+
+import java.util.Map;
 
 import static java.lang.String.format;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -59,12 +60,11 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
 
         String email = randomAlphanumeric(5) + "-invite@example.com";
 
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .put("sender", senderExternalId)
-                .put("email", email)
-                .put("role_name", roleAdminName)
-                .put("service_external_id", service.getExternalId())
-                .build();
+        Map<Object, Object> invitationRequest = Map.of(
+                "sender", senderExternalId,
+                "email", email,
+                "role_name", roleAdminName,
+                "service_external_id", service.getExternalId());
 
         givenSetup()
                 .when()
@@ -92,12 +92,11 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
                 .withServiceExternalId(serviceExternalId)
                 .insertInvite();
 
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .put("sender", senderExternalId)
-                .put("email", existingUserEmail)
-                .put("role_name", roleAdminName)
-                .put("service_external_id", serviceExternalId)
-                .build();
+        Map<Object, Object> invitationRequest = Map.of(
+                "sender", senderExternalId,
+                "email", existingUserEmail,
+                "role_name", roleAdminName,
+                "service_external_id", serviceExternalId);
 
         givenSetup()
                 .when()
@@ -131,12 +130,11 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
                 .insertUser();
 
 
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .put("sender", senderExternalId)
-                .put("email", existingUserEmail)
-                .put("role_name", roleAdminName)
-                .put("service_external_id", serviceExternalId)
-                .build();
+        Map<Object, Object> invitationRequest = Map.of(
+                "sender", senderExternalId,
+                "email", existingUserEmail,
+                "role_name", roleAdminName,
+                "service_external_id", serviceExternalId);
 
         givenSetup()
                 .when()
@@ -154,12 +152,11 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
     public void createInvitation_shouldFail_whenServiceDoesNotExist() throws Exception {
 
         String nonExistentServiceId = "non existant service external id";
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .put("sender", senderExternalId)
-                .put("email", randomAlphanumeric(5) + "-invite@example.com")
-                .put("role_name", roleAdminName)
-                .put("service_external_id", nonExistentServiceId)
-                .build();
+        Map<Object, Object> invitationRequest = Map.of(
+                "sender", senderExternalId,
+                "email", randomAlphanumeric(5) + "-invite@example.com",
+                "role_name", roleAdminName,
+                "service_external_id", nonExistentServiceId);
 
         givenSetup()
                 .when()
@@ -175,12 +172,11 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
     @Test
     public void createInvitation_shouldFail_whenRoleDoesNotExist() throws Exception {
 
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .put("sender", senderExternalId)
-                .put("email", randomAlphanumeric(5) + "-invite@example.com")
-                .put("role_name", "non-existing-role")
-                .put("service_external_id", service.getExternalId())
-                .build();
+        Map<Object, Object> invitationRequest = Map.of(
+                "sender", senderExternalId,
+                "email", randomAlphanumeric(5) + "-invite@example.com",
+                "role_name", "non-existing-role",
+                "service_external_id", service.getExternalId());
 
         givenSetup()
                 .when()
@@ -199,12 +195,11 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
 
         String email = randomAlphanumeric(5) + "-invite@example.com";
 
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .put("sender", "does-not-exist")
-                .put("email", email)
-                .put("role_name", roleAdminName)
-                .put("service_external_id", service.getExternalId())
-                .build();
+        Map<Object, Object> invitationRequest = Map.of(
+                "sender", "does-not-exist",
+                "email", email,
+                "role_name", roleAdminName,
+                "service_external_id", service.getExternalId());
 
         givenSetup()
                 .when()
@@ -227,12 +222,11 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
                 .withEmail(senderEmail)
                 .insertUser().getExternalId();
 
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .put("sender", senderWithNoAdminRole)
-                .put("email", randomUuid() + "-invite@example.com")
-                .put("role_name", roleAdminName)
-                .put("service_external_id", service.getExternalId())
-                .build();
+        Map<Object, Object> invitationRequest = Map.of(
+                "sender", senderWithNoAdminRole,
+                "email", randomUuid() + "-invite@example.com",
+                "role_name", roleAdminName,
+                "service_external_id", service.getExternalId());
 
         givenSetup()
                 .when()
@@ -258,12 +252,11 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
                 .withEmail(senderEmail)
                 .insertUser().getExternalId();
 
-        ImmutableMap<Object, Object> invitationRequest = ImmutableMap.builder()
-                .put("sender", senderExternalId)
-                .put("email", randomUuid() + "-invite@example.com")
-                .put("role_name", roleAdminName)
-                .put("service_external_id", service.getExternalId())
-                .build();
+        Map<Object, Object> invitationRequest = Map.of(
+                "sender", senderExternalId,
+                "email", randomUuid() + "-invite@example.com",
+                "role_name", roleAdminName,
+                "service_external_id", service.getExternalId());
 
         givenSetup()
                 .when()

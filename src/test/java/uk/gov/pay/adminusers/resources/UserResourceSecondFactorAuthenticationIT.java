@@ -1,11 +1,12 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.ImmutableMap;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.User;
+
+import java.util.Map;
 
 import static com.google.common.io.BaseEncoding.base32;
 import static io.restassured.http.ContentType.JSON;
@@ -45,7 +46,7 @@ public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
 
     @Test
     public void shouldCreate2FA_forAValidNewSecondFactorPasscodeRequest_withProvisionalFalse() throws JsonProcessingException {
-        ImmutableMap<String, Boolean> body = ImmutableMap.of("provisional", false);
+        Map<String, Boolean> body = Map.of("provisional", false);
 
         givenSetup()
                 .when()
@@ -60,7 +61,7 @@ public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
     public void shouldCreate2FA_forAValidNewSecondFactorPasscodeRequest_withProvisionalTrue() throws JsonProcessingException {
         databaseHelper.updateProvisionalOtpKey(username, "ABCDEFGHIJKLMNOP");
 
-        ImmutableMap<String, Boolean> body = ImmutableMap.of("provisional", true);
+        Map<String, Boolean> body = Map.of("provisional", true);
 
         givenSetup()
                 .when()
@@ -73,7 +74,7 @@ public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
 
     @Test
     public void shouldReturnNotFound_forAValidNewSecondFactorPasscodeRequest_withProvisionalTrue_ifNoProvisionalOtpKey() throws JsonProcessingException {
-        ImmutableMap<String, Boolean> body = ImmutableMap.of("provisional", true);
+        Map<String, Boolean> body = Map.of("provisional", true);
 
         givenSetup()
                 .when()
@@ -88,7 +89,7 @@ public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
     public void shouldAuthenticate2FA_forAValid2FAAuthRequest() throws Exception {
         GoogleAuthenticator testAuthenticator = new GoogleAuthenticator();
         int passcode = testAuthenticator.getTotpPassword(base32().encode(OTP_KEY.getBytes()));
-        ImmutableMap<String, Integer> authBody = ImmutableMap.of("code", passcode);
+        Map<String, Integer> authBody = Map.of("code", passcode);
 
         givenSetup()
                 .when()
@@ -116,7 +117,7 @@ public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
     @Test
     public void shouldReturnUnauthorized_onInvalid2FACode_during2FAAuth() throws Exception {
         int invalidPasscode = 111111;
-        ImmutableMap<String, Integer> authBody = ImmutableMap.of("code", invalidPasscode);
+        Map<String, Integer> authBody = Map.of("code", invalidPasscode);
 
         givenSetup()
                 .when()
@@ -132,7 +133,7 @@ public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
         databaseHelper.updateLoginCount(username, 10);
 
         int invalidPasscode = 111111;
-        ImmutableMap<String, Integer> authBody = ImmutableMap.of("code", invalidPasscode);
+        Map<String, Integer> authBody = Map.of("code", invalidPasscode);
 
         givenSetup()
                 .when()

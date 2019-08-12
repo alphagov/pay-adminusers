@@ -10,17 +10,17 @@ import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class UserDbFixture {
 
     private final DatabaseTestHelper databaseTestHelper;
-    private List<Pair<Service, Role>> serviceRolePairs = newArrayList();
+    private List<Pair<Service, Role>> serviceRolePairs = new ArrayList<>();
     private String externalId = randomUuid();
     private String username = randomUuid();
     private String otpKey = RandomStringUtils.randomAlphabetic(10);

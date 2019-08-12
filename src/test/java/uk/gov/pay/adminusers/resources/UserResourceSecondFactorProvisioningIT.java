@@ -1,11 +1,12 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.ImmutableMap;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.User;
+
+import java.util.Map;
 
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
@@ -74,7 +75,7 @@ public class UserResourceSecondFactorProvisioningIT extends IntegrationTest {
         givenSetup()
                 .when()
                 .accept(JSON)
-                .body(mapper.writeValueAsString(ImmutableMap.of("second_factor", "APP", "code", passCode)))
+                .body(mapper.writeValueAsString(Map.of("second_factor", "APP", "code", passCode)))
                 .post(format(USER_2FA_ACTIVATE_URL, externalId))
                 .then()
                 .statusCode(200)
@@ -102,7 +103,7 @@ public class UserResourceSecondFactorProvisioningIT extends IntegrationTest {
         givenSetup()
                 .when()
                 .accept(JSON)
-                .body(mapper.writeValueAsString(ImmutableMap.of("second_factor", "NOT VALID", "code", passCode)))
+                .body(mapper.writeValueAsString(Map.of("second_factor", "NOT VALID", "code", passCode)))
                 .post(format(USER_2FA_ACTIVATE_URL, externalId))
                 .then()
                 .statusCode(400);
@@ -125,7 +126,7 @@ public class UserResourceSecondFactorProvisioningIT extends IntegrationTest {
         givenSetup()
                 .when()
                 .accept(JSON)
-                .body(mapper.writeValueAsString(ImmutableMap.of("second_factor", "APP", "code", passCode + 1)))
+                .body(mapper.writeValueAsString(Map.of("second_factor", "APP", "code", passCode + 1)))
                 .post(format(USER_2FA_ACTIVATE_URL, externalId))
                 .then()
                 .statusCode(401);

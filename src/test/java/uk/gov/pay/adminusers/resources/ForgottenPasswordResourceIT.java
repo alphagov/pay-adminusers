@@ -2,7 +2,8 @@ package uk.gov.pay.adminusers.resources;
 
 import org.junit.Test;
 
-import static com.google.common.collect.ImmutableMap.of;
+import java.util.Map;
+
 import static io.restassured.http.ContentType.JSON;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
@@ -25,7 +26,7 @@ public class ForgottenPasswordResourceIT extends IntegrationTest {
 
         givenSetup()
                 .when()
-                .body(mapper.writeValueAsString(of("username", username)))
+                .body(mapper.writeValueAsString(Map.of("username", username)))
                 .contentType(JSON)
                 .accept(JSON)
                 .post(FORGOTTEN_PASSWORDS_RESOURCE_URL)
@@ -38,7 +39,7 @@ public class ForgottenPasswordResourceIT extends IntegrationTest {
 
         givenSetup()
                 .when()
-                .body(mapper.writeValueAsString(of("username", "non-existent-user")))
+                .body(mapper.writeValueAsString(Map.of("username", "non-existent-user")))
                 .contentType(JSON)
                 .accept(JSON)
                 .post(FORGOTTEN_PASSWORDS_RESOURCE_URL)

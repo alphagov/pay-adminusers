@@ -25,7 +25,7 @@ import javax.ws.rs.WebApplicationException;
 import java.util.Collections;
 import java.util.Optional;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
@@ -172,7 +172,7 @@ public class ServiceRoleUpdaterTest {
 
     private User aUser(String externalId) {
         return User.from(randomInt(), externalId, "random-name", "random-password", "random@example.com",
-                "784rh", "8948924", newArrayList(), null, SecondFactorMethod.SMS,
+                "784rh", "8948924", emptyList(), null, SecondFactorMethod.SMS,
                 null, null, null);
     }
 }
