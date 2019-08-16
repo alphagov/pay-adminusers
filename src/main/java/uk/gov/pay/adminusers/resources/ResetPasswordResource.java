@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
-import jersey.repackaged.com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.service.ResetPasswordService;
@@ -12,6 +11,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
+
+import java.util.List;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
@@ -50,7 +51,7 @@ public class ResetPasswordResource {
                             return Response.status(NO_CONTENT).build();
                         })
                         .orElseGet(() -> Response.status(NOT_FOUND)
-                                .entity(from(ImmutableList.of(String.format("Field [%s] non-existent/expired", FIELD_CODE))))
+                                .entity(from(List.of(String.format("Field [%s] non-existent/expired", FIELD_CODE))))
                                 .build()));
     }
 }

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
@@ -167,7 +167,7 @@ public class UserEntity extends AbstractEntity {
     }
 
     public List<RoleEntity> getRoles() {
-        return servicesRoles.isEmpty() ? newArrayList() : singletonList(servicesRoles.get(0).getRole());
+        return servicesRoles.isEmpty() ? emptyList() : singletonList(servicesRoles.get(0).getRole());
     }
 
     public ZonedDateTime getUpdatedAt() {
@@ -280,7 +280,7 @@ public class UserEntity extends AbstractEntity {
 
     public User toUser() {
 
-        List<ServiceRole> serviceRoles = newArrayList();
+        List<ServiceRole> serviceRoles = new ArrayList<>();
 
         if (!this.servicesRoles.isEmpty()) {
             serviceRoles = this.servicesRoles.stream().map(ServiceRoleEntity::toServiceRole).collect(toList());

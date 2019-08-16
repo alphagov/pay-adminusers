@@ -9,14 +9,12 @@ import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 import uk.gov.service.notify.SendEmailResponse;
 import uk.gov.service.notify.SendSmsResponse;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
 import static uk.gov.pay.adminusers.model.PaymentType.CARD;
 import static uk.gov.pay.adminusers.model.Service.DEFAULT_NAME_VALUE;
@@ -61,11 +59,9 @@ public class NotificationService {
 
     CompletableFuture<String> sendSecondFactorPasscodeSms(String phoneNumber, String passcode) {
         return CompletableFuture.supplyAsync(() -> {
-            HashMap<String, String> personalisation = newHashMap();
-            personalisation.put("code", passcode);
             Stopwatch responseTimeStopwatch = Stopwatch.createStarted();
             try {
-                SendSmsResponse response = notifyClientProvider.get(CARD).sendSms(secondFactorSmsTemplateId, TelephoneNumberUtility.formatToE164(phoneNumber), personalisation, null);
+                SendSmsResponse response = notifyClientProvider.get(CARD).sendSms(secondFactorSmsTemplateId, TelephoneNumberUtility.formatToE164(phoneNumber), Map.of("code", passcode), null);
                 return response.getNotificationId().toString();
             } catch (Exception e) {
                 metricRegistry.counter("notify-operations.sms.failures").inc();
@@ -78,61 +74,61 @@ public class NotificationService {
     }
 
     CompletableFuture<String> sendInviteEmail(String sender, String email, String inviteUrl) {
-        HashMap<String, String> personalisation = newHashMap();
-        personalisation.put("username", sender);
-        personalisation.put("link", inviteUrl);
+        Map<String, String> personalisation = Map.of(
+                "username", sender,
+                "link", inviteUrl);
         return sendEmailAsync(CARD, inviteEmailTemplateId, email, personalisation);
     }
 
     CompletableFuture<String> sendServiceInviteEmail(String email, String inviteUrl) {
-        HashMap<String, String> personalisation = newHashMap();
-        personalisation.put("name", email);
-        personalisation.put("link", inviteUrl);
+        Map<String, String> personalisation = Map.of(
+                "name", email,
+                "link", inviteUrl);
         return sendEmailAsync(CARD, notifyConfiguration.getInviteServiceEmailTemplateId(), email, personalisation);
     }
 
     CompletableFuture<String> sendForgottenPasswordEmail(String email, String forgottenPasswordUrl) {
-        HashMap<String, String> personalisation = newHashMap();
-        personalisation.put("code", forgottenPasswordUrl);
+        Map<String, String> personalisation = Map.of("code", forgottenPasswordUrl);
         return sendEmailAsync(CARD, forgottenPasswordEmailTemplateId, email, personalisation);
     }
 
     CompletionStage<String> sendServiceInviteUserExistsEmail(String email, String signInLink, String forgottenPasswordLink, String feedbackLink) {
-        HashMap<String, String> personalisation = newHashMap();
-        personalisation.put("signin_link", signInLink);
-        personalisation.put("forgotten_password_link", forgottenPasswordLink);
-        personalisation.put("feedback_link", feedbackLink);
+        Map<String, String> personalisation = Map.of(
+                "signin_link", signInLink,
+                "forgotten_password_link", forgottenPasswordLink,
+                "feedback_link", feedbackLink);
         return sendEmailAsync(CARD, notifyConfiguration.getInviteServiceUserExistsEmailTemplateId(), email, personalisation);
     }
 
     CompletableFuture<String> sendServiceInviteUserDisabledEmail(String email, String supportUrl) {
-        HashMap<String, String> personalisation = newHashMap();
-        personalisation.put("feedback_link", supportUrl);
+        Map<String, String> personalisation = Map.of("feedback_link", supportUrl);
         return sendEmailAsync(CARD, notifyConfiguration.getInviteServiceUserDisabledEmailTemplateId(), email, personalisation);
     }
 
     CompletableFuture<String> sendInviteExistingUserEmail(String sender, String email, String inviteUrl, String serviceName) {
-        String collaborateServiceNamePart, joinServiceNamePart = "";
-        HashMap<String, String> personalisation = newHashMap();
-
-        personalisation.put("username", sender);
-        personalisation.put("link", inviteUrl);
+        String collaborateServiceNamePart;
+        String joinServiceNamePart;
 
         if (serviceName.equals(DEFAULT_NAME_VALUE)) {
             collaborateServiceNamePart = "join a new service";
+            joinServiceNamePart = "";
         } else {
             collaborateServiceNamePart = format("collaborate on %s", serviceName);
             joinServiceNamePart = serviceName;
         }
-        personalisation.put("collaborateServiceNamePart", collaborateServiceNamePart);
-        personalisation.put("joinServiceNamePart", joinServiceNamePart);
+
+        Map<String, String> personalisation = Map.of(
+                "username", sender,
+                "link", inviteUrl,
+                "collaborateServiceNamePart", collaborateServiceNamePart,
+                "joinServiceNamePart", joinServiceNamePart
+        );
 
         return sendEmailAsync(CARD, inviteExistingUserEmailTemplateId, email, personalisation);
     }
 
     CompletableFuture<String> sendLiveAccountCreatedEmail(String email, String serviceLiveAccountLink) {
-        HashMap<String, String> personalisation = newHashMap();
-        personalisation.put("service_live_account_link", serviceLiveAccountLink);
+        Map<String, String> personalisation = Map.of("service_live_account_link", serviceLiveAccountLink);
         return sendEmailAsync(CARD, notifyConfiguration.getLiveAccountCreatedEmailTemplateId(), email, personalisation);
     }
 

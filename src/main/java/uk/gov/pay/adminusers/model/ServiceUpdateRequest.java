@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.model;
 
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,8 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class ServiceUpdateRequest {
@@ -41,13 +38,12 @@ public class ServiceUpdateRequest {
     }
 
     public List<String> valueAsList() {
+        List<String> values = new ArrayList<>();
         if (value != null && value.isArray()) {
-            return newArrayList(value.elements())
-                    .stream()
-                    .map(JsonNode::textValue)
-                    .collect(toList());
+            value.elements()
+                    .forEachRemaining(node -> values.add(node.textValue()));
         }
-        return Collections.emptyList();
+        return values;
     }
 
     public Map<String, Object> valueAsObject() {

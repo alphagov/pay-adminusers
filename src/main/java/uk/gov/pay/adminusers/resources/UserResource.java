@@ -2,8 +2,6 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import io.dropwizard.jersey.PATCH;
 import org.slf4j.Logger;
@@ -270,6 +268,6 @@ public class UserResource {
     }
 
     private Map<String, List<String>> unauthorisedErrorMessage() {
-        return ImmutableMap.of("errors", ImmutableList.of("invalid username and/or password"));
+        return Map.of("errors", List.of("invalid username and/or password"));
     }
 }

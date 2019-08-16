@@ -43,6 +43,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +51,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -155,11 +155,12 @@ public class ServiceResource {
     }
 
     private List<String> extractGatewayAccountIds(JsonNode payload) {
-        if (payload == null || payload.get(FIELD_GATEWAY_ACCOUNT_IDS) == null) {
-            return Collections.emptyList();
+        List<String> gatewayAccountIds = new ArrayList<>();
+        if (payload != null && payload.get(FIELD_GATEWAY_ACCOUNT_IDS) != null) {
+            payload.get(FIELD_GATEWAY_ACCOUNT_IDS)
+                    .elements().forEachRemaining((node) -> gatewayAccountIds.add(node.textValue()));
         }
-        List<JsonNode> gatewayAccountIds = newArrayList(payload.get(FIELD_GATEWAY_ACCOUNT_IDS).elements());
-        return gatewayAccountIds.stream().map(JsonNode::textValue).collect(Collectors.toUnmodifiableList());
+        return List.copyOf(gatewayAccountIds);
     }
 
     @Path("/{serviceExternalId}")

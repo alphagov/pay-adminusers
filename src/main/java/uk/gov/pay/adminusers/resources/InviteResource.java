@@ -10,11 +10,11 @@ import uk.gov.pay.adminusers.utils.Errors;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -77,8 +77,10 @@ public class InviteResource {
     private InviteCompleteRequest inviteCompleteRequestFrom(JsonNode payload) {
         InviteCompleteRequest inviteCompleteRequest = new InviteCompleteRequest();
         if (payload != null && payload.get(InviteCompleteRequest.FIELD_GATEWAY_ACCOUNT_IDS) != null) {
-            List<String> gatewayAccountIds = newArrayList(payload.get(InviteCompleteRequest.FIELD_GATEWAY_ACCOUNT_IDS).elements())
-                    .stream().map(JsonNode::textValue).collect(Collectors.toList());
+            List<String> gatewayAccountIds = new ArrayList<>();
+            payload.get(InviteCompleteRequest.FIELD_GATEWAY_ACCOUNT_IDS)
+                    .elements()
+                    .forEachRemaining((node) -> gatewayAccountIds.add(node.textValue()));
             inviteCompleteRequest.setGatewayAccountIds(gatewayAccountIds);
         }
         return inviteCompleteRequest;

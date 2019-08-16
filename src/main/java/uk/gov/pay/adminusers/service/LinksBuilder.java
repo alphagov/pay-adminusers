@@ -1,10 +1,10 @@
 package uk.gov.pay.adminusers.service;
 
-import com.google.common.collect.ImmutableList;
 import uk.gov.pay.adminusers.model.*;
 import uk.gov.pay.adminusers.model.Link.Rel;
 
 import java.net.URI;
+import java.util.List;
 
 import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.resources.ForgottenPasswordResource.FORGOTTEN_PASSWORDS_RESOURCE;
@@ -24,7 +24,7 @@ public class LinksBuilder {
         URI uri = fromUri(baseUrl).path(USERS_RESOURCE).path(user.getExternalId())
                 .build();
         Link selfLink = Link.from(Rel.self, "GET", uri.toString());
-        user.setLinks(ImmutableList.of(selfLink));
+        user.setLinks(List.of(selfLink));
         return user;
     }
 
@@ -32,7 +32,7 @@ public class LinksBuilder {
         URI uri = fromUri(baseUrl).path(SERVICES_RESOURCE).path(String.valueOf(service.getExternalId()))
                 .build();
         Link selfLink = Link.from(Rel.self, "GET", uri.toString());
-        service.setLinks(ImmutableList.of(selfLink));
+        service.setLinks(List.of(selfLink));
         return service;
     }
 
@@ -40,7 +40,7 @@ public class LinksBuilder {
         URI uri = fromUri(baseUrl).path(FORGOTTEN_PASSWORDS_RESOURCE).path(forgottenPassword.getCode())
                 .build();
         Link selfLink = Link.from(Rel.self, "GET", uri.toString());
-        forgottenPassword.setLinks(ImmutableList.of(selfLink));
+        forgottenPassword.setLinks(List.of(selfLink));
         return forgottenPassword;
     }
 

@@ -2,8 +2,6 @@ package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 public class InviteOtpRequest {
 
     public static final String FIELD_CODE = "code";
@@ -25,7 +23,7 @@ public class InviteOtpRequest {
     }
 
     public static InviteOtpRequest from(JsonNode jsonNode) {
-        if(jsonNode == null || newArrayList(jsonNode.fieldNames()).isEmpty()) {
+        if(jsonNode == null || !jsonNode.fieldNames().hasNext()) {
             return new InviteOtpRequest();
         } else {
             String password = (jsonNode.get(FIELD_PASSWORD) != null) ? jsonNode.get(FIELD_PASSWORD).asText() : null;
