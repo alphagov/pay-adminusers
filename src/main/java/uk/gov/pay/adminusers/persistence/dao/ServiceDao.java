@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.persistence.dao;
 
-import com.google.common.base.Joiner;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
@@ -50,9 +49,8 @@ public class ServiceDao extends JpaDao<ServiceEntity> {
 
     public boolean checkIfGatewayAccountsUsed(List<String> gatewayAccountsIds) {
         String query = "SELECT count(*) FROM service_gateway_accounts WHERE gateway_account_id IN (?)";
-        String idsString = Joiner.on(",").join(gatewayAccountsIds);
         long count = (long) entityManager.get().createNativeQuery(query)
-                .setParameter(1, idsString)
+                .setParameter(1, String.join(",", gatewayAccountsIds))
                 .getSingleResult();
         return count > 0;
     }

@@ -1,8 +1,6 @@
 package uk.gov.pay.adminusers.utils.email;
 
-import com.google.common.base.Joiner;
-
-import java.util.*;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,7 +48,7 @@ public class EmailValidator {
     }
     private static final Pattern PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERN;
     static {
-        String domainRegExPatternString = Joiner.on("|").join(PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER);
+        String domainRegExPatternString = String.join("|", PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER);
 
         // We are splitting the logic into two parts for whitelisted domains and subdomains
         String regExDomainsOnlyPart = "(" + domainRegExPatternString + ")";
