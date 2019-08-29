@@ -11,7 +11,6 @@
         <hamcrest.version>2.1</hamcrest.version>
         <eclipselink.version>2.7.4</eclipselink.version>
         <guice.version>4.2.2</guice.version>
-        <guava.version>28.0-jre</guava.version>
         <jackson.version>2.9.9</jackson.version>
         <pay-java-commons.version>1.0.20190816103843</pay-java-commons.version>
     </properties>
@@ -120,11 +119,6 @@
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
             <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
