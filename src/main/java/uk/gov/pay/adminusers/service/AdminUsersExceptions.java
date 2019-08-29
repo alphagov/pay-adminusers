@@ -1,7 +1,5 @@
 package uk.gov.pay.adminusers.service;
 
-import com.google.common.base.Joiner;
-
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -90,7 +88,7 @@ public class AdminUsersExceptions {
     }
 
     public static WebApplicationException conflictingServiceGatewayAccounts(List<String> gatewayAccountsIds) {
-        String error = format("One or more of the following gateway account ids has already assigned to another service: [%s]", Joiner.on(",").join(gatewayAccountsIds));
+        String error = format("One or more of the following gateway account ids has already assigned to another service: [%s]", String.join(",", gatewayAccountsIds));
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 

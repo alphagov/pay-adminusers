@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.validations;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang3.tuple.Pair;
@@ -19,7 +18,7 @@ import static uk.gov.pay.adminusers.validations.RequestValidations.isNotValidTel
 
 public class UserPatchValidations {
 
-    private static final List<String> PATCH_ALLOWED_PATHS = ImmutableList.of(PATH_SESSION_VERSION, PATH_DISABLED, PATH_TELEPHONE_NUMBER, PATH_FEATURES);
+    private static final List<String> PATCH_ALLOWED_PATHS = List.of(PATH_SESSION_VERSION, PATH_DISABLED, PATH_TELEPHONE_NUMBER, PATH_FEATURES);
     private static final Multimap<String, String> USER_PATCH_PATH_OPS = new ImmutableListMultimap.Builder<String, String>()
             .put(PATH_SESSION_VERSION, "append")
             .put(PATH_DISABLED, "replace")
