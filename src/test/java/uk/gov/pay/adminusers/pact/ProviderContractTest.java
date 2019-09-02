@@ -36,7 +36,7 @@ import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 @RunWith(PactRunner.class)
 @Provider("adminusers")
-@PactBroker(scheme = "https", host = "pact-broker-test.cloudapps.digital", tags = {"${PACT_CONSUMER_TAG}", "test", "staging", "production"},
+@PactBroker(scheme = "https", host = "pact-broker-test.cloudapps.digital", tags = {"${PACT_CONSUMER_TAG}", "test"},
         authentication = @PactBrokerAuth(username = "${PACT_BROKER_USERNAME}", password = "${PACT_BROKER_PASSWORD}"))
 //@PactFolder("pacts")
 public class ProviderContractTest {
