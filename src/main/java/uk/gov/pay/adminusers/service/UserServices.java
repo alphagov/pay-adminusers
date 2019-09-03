@@ -18,6 +18,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.parseBoolean;
@@ -137,13 +138,17 @@ public class UserServices {
                         int newPassCode = secondFactorAuthenticator.newPassCode(otpKey);
                         SecondFactorToken token = SecondFactorToken.from(externalId, newPassCode);
                         final String userExternalId = userEntity.getExternalId();
-                        notificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), token.getPasscode())
-                                .thenAcceptAsync(notificationId -> logger.info("sent 2FA token successfully to user [{}], notification id [{}]",
-                                        userExternalId, notificationId))
-                                .exceptionally(exception -> {
-                                    logger.error("error sending 2FA token to user [{}]", userExternalId, exception);
-                                    return null;
-                                });
+                        try {
+                            notificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), token.getPasscode())
+                                    .thenAcceptAsync(notificationId -> logger.info("sent 2FA token successfully to user [{}], notification id [{}]",
+                                            userExternalId, notificationId))
+                                    .exceptionally(exception -> {
+                                        logger.error("error sending 2FA token to user [{}]", userExternalId, exception);
+                                        return null;
+                                    }).get();
+                        } catch (InterruptedException | ExecutionException e) {
+                            logger.error("error sending 2FA token to user [{}]", userExternalId, e);
+                        }
                         if (useProvisionalOtpKey) {
                             logger.info("New 2FA token generated for User [{}] from provisional OTP key", userExternalId);
                         } else {

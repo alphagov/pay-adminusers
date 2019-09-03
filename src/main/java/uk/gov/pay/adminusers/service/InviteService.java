@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static java.lang.String.format;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.invalidOtpAuthCodeInviteException;
@@ -54,7 +55,7 @@ public class InviteService {
     @Deprecated
     @Transactional
     // Refactor to adopt UserOtpDispatcher. And Avoid using generic InviteOtpRequest object to avoid having to use optional fields
-    public void reGenerateOtp(InviteOtpRequest inviteOtpRequest) {
+    public CompletableFuture<Void> reGenerateOtp(InviteOtpRequest inviteOtpRequest) {
         Optional<InviteEntity> inviteOptional = inviteDao.findByCode(inviteOtpRequest.getCode());
         if (inviteOptional.isPresent()) {
             InviteEntity invite = inviteOptional.get();
@@ -62,14 +63,14 @@ public class InviteService {
             inviteDao.merge(invite);
             int newPassCode = secondFactorAuthenticator.newPassCode(invite.getOtpKey());
             String passcode = String.format(Locale.ENGLISH, SIX_DIGITS_WITH_LEADING_ZEROS, newPassCode);
-            notificationService.sendSecondFactorPasscodeSms(inviteOtpRequest.getTelephoneNumber(), passcode)
+            LOGGER.info("New 2FA token generated for invite code [{}]", inviteOtpRequest.getCode());
+            return notificationService.sendSecondFactorPasscodeSms(inviteOtpRequest.getTelephoneNumber(), passcode)
                     .thenAcceptAsync(notificationId -> LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]",
                             inviteOtpRequest.getCode(), notificationId))
                     .exceptionally(exception -> {
                         LOGGER.error(format("error sending 2FA token for invite code [%s]", inviteOtpRequest.getCode()), exception);
                         return null;
                     });
-            LOGGER.info("New 2FA token generated for invite code [{}]", inviteOtpRequest.getCode());
         } else {
             throw notFoundInviteException(inviteOtpRequest.getCode());
         }

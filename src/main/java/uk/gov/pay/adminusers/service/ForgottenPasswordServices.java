@@ -12,6 +12,7 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static java.lang.String.format;
 import static javax.ws.rs.core.UriBuilder.fromUri;
@@ -37,14 +38,14 @@ public class ForgottenPasswordServices {
         this.selfserviceBaseUrl = config.getLinks().getSelfserviceUrl();
     }
 
-    public void create(String username) {
+    public CompletableFuture<Void> create(String username) {
         Optional<UserEntity> userOptional = userDao.findByUsername(username);
         if (userOptional.isPresent()) {
             UserEntity userEntity = userOptional.get();
             ForgottenPasswordEntity forgottenPasswordEntity = new ForgottenPasswordEntity(randomUuid(), ZonedDateTime.now(), userEntity);
             forgottenPasswordDao.persist(forgottenPasswordEntity);
             String forgottenPasswordUrl = fromUri(selfserviceBaseUrl).path(SELFSERVICE_FORGOTTEN_PASSWORD_PATH).path(forgottenPasswordEntity.getCode()).build().toString();
-            notificationService.sendForgottenPasswordEmail(userEntity.getEmail(), forgottenPasswordUrl)
+            return notificationService.sendForgottenPasswordEmail(userEntity.getEmail(), forgottenPasswordUrl)
                     .thenAcceptAsync(notificationId -> logger.info("sent forgot password email successfully user [{}], notification id [{}]", userEntity.getExternalId(), notificationId))
                     .exceptionally(exception -> {
                         logger.error(format("error sending forgotten password email for user [%s]", userEntity.getExternalId()), exception);

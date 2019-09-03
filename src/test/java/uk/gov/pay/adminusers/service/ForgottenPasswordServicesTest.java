@@ -20,6 +20,7 @@ import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
@@ -63,7 +64,7 @@ public class ForgottenPasswordServicesTest {
     }
 
     @Test
-    public void shouldSendAForgottenPasswordNotification_whenCreating_ifUserFound() {
+    public void shouldSendAForgottenPasswordNotification_whenCreating_ifUserFound() throws ExecutionException, InterruptedException {
 
         ArgumentCaptor<ForgottenPasswordEntity> expectedForgottenPassword = ArgumentCaptor.forClass(ForgottenPasswordEntity.class);
 
@@ -77,7 +78,7 @@ public class ForgottenPasswordServicesTest {
                 .thenReturn(notifyPromise);
         doNothing().when(forgottenPasswordDao).persist(any(ForgottenPasswordEntity.class));
 
-        forgottenPasswordServices.create(username);
+        forgottenPasswordServices.create(username).get();
 
         assertThat(notifyPromise.isDone(), is(true));
         verify(forgottenPasswordDao).persist(expectedForgottenPassword.capture());
@@ -87,7 +88,7 @@ public class ForgottenPasswordServicesTest {
     }
 
     @Test
-    public void shouldStillCreateAForgottenPassword_whenNotificationFails_onCreate_ifUserFound() {
+    public void shouldStillCreateAForgottenPassword_whenNotificationFails_onCreate_ifUserFound() throws ExecutionException, InterruptedException {
 
         ArgumentCaptor<ForgottenPasswordEntity> expectedForgottenPassword = ArgumentCaptor.forClass(ForgottenPasswordEntity.class);
 
@@ -103,7 +104,7 @@ public class ForgottenPasswordServicesTest {
                 .thenReturn(errorPromise);
         doNothing().when(forgottenPasswordDao).persist(any(ForgottenPasswordEntity.class));
 
-        forgottenPasswordServices.create(username);
+        forgottenPasswordServices.create(username).get();
 
         assertThat(errorPromise.isCompletedExceptionally(), is(true));
         verify(forgottenPasswordDao).persist(expectedForgottenPassword.capture());
@@ -113,7 +114,7 @@ public class ForgottenPasswordServicesTest {
     }
 
     @Test
-    public void shouldReturnEmpty_whenCreating_ifUserNotFound() {
+    public void shouldReturnEmpty_whenCreating_ifUserNotFound() throws ExecutionException, InterruptedException {
 
         String nonExistentUser = "non-existent-user";
         when(userDao.findByUsername(nonExistentUser)).thenReturn(Optional.empty());
@@ -121,7 +122,7 @@ public class ForgottenPasswordServicesTest {
         expectedException.expect(WebApplicationException.class);
         expectedException.expectMessage(is("HTTP 404 Not Found"));
 
-        forgottenPasswordServices.create(nonExistentUser);
+        forgottenPasswordServices.create(nonExistentUser).get();
     }
 
     @Test

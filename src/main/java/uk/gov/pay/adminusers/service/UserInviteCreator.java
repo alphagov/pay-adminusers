@@ -18,6 +18,8 @@ import uk.gov.pay.commons.model.SupportedLanguage;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -26,6 +28,7 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.InviteType.USER;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingInvite;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.forbiddenOperationException;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.sendingInviteFailedException;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.undefinedRoleException;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.userAlreadyInService;
 
@@ -95,7 +98,11 @@ public class UserInviteCreator {
                         inviteEntity.setType(USER);
                         inviteDao.persist(inviteEntity);
                         String inviteUrl = fromUri(linksConfig.getSelfserviceInvitesUrl()).path(inviteEntity.getCode()).build().toString();
-                        sendUserInviteNotification(inviteEntity, inviteUrl, serviceEntity, existingUser);
+                        try {
+                            sendUserInviteNotification(inviteEntity, inviteUrl, serviceEntity, existingUser).get();
+                        } catch (InterruptedException | ExecutionException e) {
+                            throw sendingInviteFailedException(inviteUserRequest.getSender(), serviceEntity.getExternalId());
+                        }
                         Invite invite = inviteEntity.toInvite();
                         invite.setInviteLink(inviteUrl);
                         return Optional.of(invite);
@@ -106,24 +113,24 @@ public class UserInviteCreator {
                 .orElseThrow(() -> undefinedRoleException(inviteUserRequest.getRoleName()));
     }
 
-    private void sendUserInviteNotification(InviteEntity inviteEntity, String inviteUrl, ServiceEntity serviceEntity, Optional<UserEntity> existingUser) {
+    private CompletableFuture<Void> sendUserInviteNotification(InviteEntity inviteEntity, String inviteUrl, ServiceEntity serviceEntity, Optional<UserEntity> existingUser) {
         UserEntity sender = inviteEntity.getSender();
+        LOGGER.info("New invite created by User [{}]", sender.getExternalId());
         if (existingUser.isPresent()) {
             String serviceName = serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName();
-            notificationService.sendInviteExistingUserEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl, serviceName)
+            return notificationService.sendInviteExistingUserEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl, serviceName)
                     .thenAcceptAsync(notificationId -> LOGGER.info("sent invite email successfully by user [{}], notification id [{}]", sender.getExternalId(), notificationId))
                     .exceptionally(exception -> {
                         LOGGER.error(format("error sending email by user [%s]", sender.getExternalId()), exception);
                         return null;
                     });
         } else {
-            notificationService.sendInviteEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl)
+            return notificationService.sendInviteEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl)
                     .thenAcceptAsync(notificationId -> LOGGER.info("sent invite email successfully by user [{}], notification id [{}]", sender.getExternalId(), notificationId))
                     .exceptionally(exception -> {
                         LOGGER.error(format("error sending email by user [%s]", sender.getExternalId()), exception);
                         return null;
                     });
         }
-        LOGGER.info("New invite created by User [{}]", sender.getExternalId());
     }
 }

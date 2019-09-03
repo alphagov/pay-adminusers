@@ -78,6 +78,11 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, FORBIDDEN.getStatusCode());
     }
 
+    public static WebApplicationException sendingInviteFailedException(String externalId, String externalServiceId) {
+        String error = format("failed to send invite for user [%s] in service [%s]", externalId, externalServiceId);
+        return buildWebApplicationException(error, INTERNAL_SERVER_ERROR.getStatusCode());
+    }
+
     public static WebApplicationException internalServerError(String message) {
         return buildWebApplicationException(message, INTERNAL_SERVER_ERROR.getStatusCode());
     }

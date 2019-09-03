@@ -24,6 +24,7 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static java.lang.String.valueOf;
 import static javax.ws.rs.core.Response.Status.GONE;
@@ -223,7 +224,7 @@ public class InviteServiceTest {
     }
 
     @Test
-    public void generateOtp_shouldSendNotificationOnSuccessfulInviteUpdate() {
+    public void generateOtp_shouldSendNotificationOnSuccessfulInviteUpdate() throws ExecutionException, InterruptedException {
 
         String telephoneNumber = "+441134960000";
         String plainPassword = "my-secure-pass";
@@ -239,7 +240,7 @@ public class InviteServiceTest {
         when(mockNotificationService.sendSecondFactorPasscodeSms(eq(telephoneNumber), eq(valueOf(passCode))))
                 .thenReturn(errorPromise);
 
-        inviteService.reGenerateOtp(inviteOtpRequestFrom(inviteCode, telephoneNumber, plainPassword));
+        inviteService.reGenerateOtp(inviteOtpRequestFrom(inviteCode, telephoneNumber, plainPassword)).get();
 
         verify(mockInviteDao).merge(expectedInvite.capture());
         InviteEntity updatedInvite = expectedInvite.getValue();
@@ -248,7 +249,7 @@ public class InviteServiceTest {
     }
 
     @Test
-    public void generateOtp_shouldStillUpdateTheInviteWhen2FAFails() {
+    public void generateOtp_shouldStillUpdateTheInviteWhen2FAFails() throws ExecutionException, InterruptedException {
 
         String telephoneNumber = "+441134960000";
         String plainPassword = "my-secure-pass";
@@ -262,7 +263,7 @@ public class InviteServiceTest {
         when(mockNotificationService.sendSecondFactorPasscodeSms(eq(telephoneNumber), eq(valueOf(passCode))))
                 .thenReturn(notifyPromise);
 
-        inviteService.reGenerateOtp(inviteOtpRequestFrom(inviteCode, telephoneNumber, plainPassword));
+        inviteService.reGenerateOtp(inviteOtpRequestFrom(inviteCode, telephoneNumber, plainPassword)).get();
 
         verify(mockInviteDao).merge(expectedInvite.capture());
         InviteEntity updatedInvite = expectedInvite.getValue();
