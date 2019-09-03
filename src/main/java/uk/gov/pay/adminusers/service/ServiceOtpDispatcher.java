@@ -30,14 +30,16 @@ public class ServiceOtpDispatcher extends InviteOtpDispatcher {
                 .map(inviteEntity -> {
                     int newPassCode = secondFactorAuthenticator.newPassCode(inviteEntity.getOtpKey());
                     String passcode = format(Locale.ENGLISH, SIX_DIGITS_WITH_LEADING_ZEROS, newPassCode);
-                    notificationService.sendSecondFactorPasscodeSms(inviteEntity.getTelephoneNumber(), passcode)
-                            .thenAcceptAsync(notificationId -> LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]",
-                                    inviteEntity.getCode(), notificationId))
-                            .exceptionally(exception -> {
-                                LOGGER.error(format("error sending 2FA token for invite code [%s]", inviteEntity.getCode()), exception);
-                                return null;
-                            });
+
                     LOGGER.info("New 2FA token generated for invite code [{}]", inviteEntity.getCode());
+                    
+                    try {
+                        String notificationId = notificationService.sendSecondFactorPasscodeSms(inviteEntity.getTelephoneNumber(), passcode);
+                        LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]", inviteEntity.getCode(), notificationId);
+                    } catch (Exception e) {
+                        LOGGER.error(format("error sending 2FA token for invite code [%s]", inviteEntity.getCode()), e);
+                    }
+                    
                     return true;
                 }).orElseGet(() -> {
                     LOGGER.error("Unable to locate invite after validating and reaching to the service otp dispatcher. invite code [{}]", inviteCode);

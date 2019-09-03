@@ -1,14 +1,23 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.dropwizard.testing.ConfigOverride;
+import io.dropwizard.testing.junit.DropwizardClientRule;
 import io.restassured.specification.RequestSpecification;
 import org.junit.Before;
 import org.junit.ClassRule;
 import uk.gov.pay.adminusers.infra.DropwizardAppWithPostgresRule;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
+
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 public class IntegrationTest {
 
@@ -34,7 +43,29 @@ public class IntegrationTest {
     static final String INVITE_USER_RESOURCE_URL = "/v1/api/invites/user";
 
     @ClassRule
-    public static DropwizardAppWithPostgresRule app = new DropwizardAppWithPostgresRule();
+    public static final DropwizardAppWithPostgresRule app;
+
+    @ClassRule
+    public static final DropwizardClientRule notify;
+
+    @Path("/v2/notifications")
+    public static class NotifyResource {
+        @Path("/email")
+        @POST
+        @Produces(APPLICATION_JSON)
+        @Consumes(APPLICATION_JSON)
+        public Response sendEmail() {
+            String response = "{\"id\":\"f1356064-37b6-499c-bec9-a167646255ff\", \"content\": {\"subject\":\"hello\", \"body\":\"bla\"}, \"template\": {\"id\":\"f1356064-37b6-499c-bec9-a167646255ff\", \"version\":0, \"uri\":\"lol\"}}";
+            return Response.status(201).entity(response).type(APPLICATION_JSON).build();
+        }
+    }
+
+    static {
+        notify = new DropwizardClientRule(new NotifyResource());
+        app = new DropwizardAppWithPostgresRule(
+                ConfigOverride.config("notify.notificationBaseURL", () -> notify.baseUri().toString())
+        );
+    }
 
     protected DatabaseTestHelper databaseHelper;
     protected ObjectMapper mapper;

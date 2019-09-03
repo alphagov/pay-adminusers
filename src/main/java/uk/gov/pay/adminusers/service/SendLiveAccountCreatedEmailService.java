@@ -38,11 +38,11 @@ public class SendLiveAccountCreatedEmailService {
                 .build()
                 .toString();
 
-        notificationService.sendLiveAccountCreatedEmail(agreement.getEmail(), serviceLiveAccountUrl)
-                .thenAcceptAsync(notificationId -> LOGGER.info("Sent service is live email successfully, notification id [{}]", notificationId))
-                .exceptionally(exception -> {
-                    LOGGER.error("Error sending service is live email", exception);
-                    return null;
-                });
+        try {
+            String notificationId = notificationService.sendLiveAccountCreatedEmail(agreement.getEmail(), serviceLiveAccountUrl);
+            LOGGER.info("Sent service is live email successfully, notification id [{}]", notificationId);
+        } catch(Exception e) {
+            LOGGER.error("Error sending service is live email", e);
+        }
     }
 }

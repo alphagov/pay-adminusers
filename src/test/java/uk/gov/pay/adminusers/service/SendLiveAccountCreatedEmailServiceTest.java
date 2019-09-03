@@ -15,7 +15,6 @@ import uk.gov.pay.adminusers.persistence.dao.GovUkPayAgreementDao;
 import uk.gov.pay.adminusers.persistence.entity.GovUkPayAgreementEntity;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -57,15 +56,13 @@ public class SendLiveAccountCreatedEmailServiceTest {
         when(mockAgreement.getEmail()).thenReturn(email);
         when(mockGovUkPayAgreementDao.findByExternalServiceId(serviceExternalId)).thenReturn(Optional.of(mockAgreement));
 
-        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
         ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
         when(mockNotificationService.sendLiveAccountCreatedEmail(eq(email), urlCaptor.capture()))
-                .thenReturn(notifyPromise);
+                .thenReturn("random-notify-id");
         
         sendLiveAccountCreatedEmailService.sendEmail(serviceExternalId);
 
         assertThat(urlCaptor.getValue(), is(SELFSERVICE_SERVICES_URL + '/' + serviceExternalId + "/live-account"));
-        assertThat(notifyPromise.isDone(), is(true));
     }
 
     @Test

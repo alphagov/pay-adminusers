@@ -16,7 +16,6 @@ import uk.gov.pay.commons.model.SupportedLanguage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 import static uk.gov.pay.adminusers.model.PaymentType.DIRECT_DEBIT;
@@ -117,11 +116,11 @@ public class EmailService {
                 .orElseThrow(() -> new ServiceNotFoundException("Service not found"));
     }
 
-    public CompletableFuture<String> sendEmail(String email, String gatewayAccountId, EmailTemplate template, Map<String, String> dynamicContent) throws InvalidMerchantDetailsException {
+    public String sendEmail(String email, String gatewayAccountId, EmailTemplate template, Map<String, String> dynamicContent) throws InvalidMerchantDetailsException {
         StaticEmailContent staticEmailContent = getTemplateMappingsFor(gatewayAccountId).get(template);
         Map<String, String> staticContent = new HashMap<>(staticEmailContent.getPersonalisation());
         staticContent.putAll(dynamicContent);
         LOGGER.info("Sending direct debit email for " + template.toString());
-        return notificationService.sendEmailAsync(DIRECT_DEBIT, staticEmailContent.getTemplateId(), email, staticContent);
+        return notificationService.sendEmail(DIRECT_DEBIT, staticEmailContent.getTemplateId(), email, staticContent);
     }
 }

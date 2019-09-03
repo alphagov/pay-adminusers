@@ -33,7 +33,6 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static java.util.Collections.emptyList;
 import static org.hamcrest.core.Is.is;
@@ -92,10 +91,9 @@ public class UserInviteCreatorTest {
     public void create_shouldSendNotificationOnSuccessfulInvite() {
 
         mockInviteSuccess_ForNonExistingUser_nonExistingInvite();
-        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
 
         when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
-                .thenReturn(notifyPromise);
+                .thenReturn("random-notify-id");
 
         userInviteCreator.doInvite(inviteRequestFrom(senderExternalId, email, roleName));
 
@@ -105,7 +103,6 @@ public class UserInviteCreatorTest {
         assertThat(savedInvite.getEmail(), is(email));
         assertThat(savedInvite.getOtpKey(), is(notNullValue()));
         assertThat(savedInvite.getCode(), is(notNullValue()));
-        assertThat(notifyPromise.isDone(), is(true));
     }
 
     @Test
@@ -123,12 +120,8 @@ public class UserInviteCreatorTest {
 
         mockInviteSuccess_ForNonExistingUser_nonExistingInvite();
 
-        CompletableFuture<String> errorPromise = CompletableFuture.supplyAsync(() -> {
-            throw new RuntimeException("some error from notify");
-        });
-
         when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
-                .thenReturn(errorPromise);
+                .thenThrow(AdminUsersExceptions.userNotificationError(new RuntimeException("some error from notify")));
 
         userInviteCreator.doInvite(inviteRequestFrom(senderExternalId, email, roleName));
 
@@ -138,7 +131,6 @@ public class UserInviteCreatorTest {
         assertThat(savedInvite.getEmail(), is(email));
         assertThat(savedInvite.getOtpKey(), is(notNullValue()));
         assertThat(savedInvite.getCode(), is(notNullValue()));
-        assertThat(errorPromise.isCompletedExceptionally(), is(true));
     }
 
     @Test
@@ -199,9 +191,8 @@ public class UserInviteCreatorTest {
         //Given
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
         InviteEntity anInvite = mockInviteSuccess_existingInvite();
-        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
         when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
-                .thenReturn(notifyPromise);
+                .thenReturn("random-notify-id");
 
 
         //When
@@ -212,8 +203,6 @@ public class UserInviteCreatorTest {
         assertThat(invite.isPresent(), is(true));
         assertThat(invite.get().getCode(), is(anInvite.getCode()));
         assertThat(invite.get().getEmail(), is(anInvite.getEmail()));
-        assertThat(notifyPromise.isDone(), is(true));
-
     }
 
     @Test
@@ -233,9 +222,8 @@ public class UserInviteCreatorTest {
         //Given
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
         InviteEntity anInvite = mockInviteSuccess_existingInvite();
-        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
         when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
-                eq(anInvite.getService().getServiceNames().get(SupportedLanguage.ENGLISH).getName()))).thenReturn(notifyPromise);
+                eq(anInvite.getService().getServiceNames().get(SupportedLanguage.ENGLISH).getName()))).thenReturn("random-notify-id");
 
         InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
         Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
@@ -243,7 +231,6 @@ public class UserInviteCreatorTest {
         assertThat(invite.isPresent(), is(true));
         assertThat(invite.get().getCode(), is(anInvite.getCode()));
         assertThat(invite.get().getEmail(), is(anInvite.getEmail()));
-        assertThat(notifyPromise.isDone(), is(true));
     }
 
     @Test
@@ -252,11 +239,9 @@ public class UserInviteCreatorTest {
         //Given
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
         InviteEntity anInvite = mockInviteSuccess_existingInvite();
-        CompletableFuture<String> notifyPromise = CompletableFuture.supplyAsync(() -> {
-            throw new RuntimeException("some error from notify");
-        });
         when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
-                eq(anInvite.getService().getServiceNames().get(SupportedLanguage.ENGLISH).getName()))).thenReturn(notifyPromise);
+                eq(anInvite.getService().getServiceNames().get(SupportedLanguage.ENGLISH).getName())))
+                .thenThrow(AdminUsersExceptions.userNotificationError(new RuntimeException("some error from notify")));
 
         InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
         Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
@@ -264,7 +249,6 @@ public class UserInviteCreatorTest {
         assertThat(invite.isPresent(), is(true));
         assertThat(invite.get().getCode(), is(anInvite.getCode()));
         assertThat(invite.get().getEmail(), is(anInvite.getEmail()));
-        assertThat(notifyPromise.isDone(), is(true));
     }
 
     @Test
@@ -291,9 +275,8 @@ public class UserInviteCreatorTest {
         when(mockInviteDao.findByEmail(email)).thenReturn(List.of(expiredInvite, disabledInvite, emptyServiceInvite, nonMatchingServiceInvite, validInvite));
 
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
-        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
         when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
-                eq(validInvite.getService().getServiceNames().get(SupportedLanguage.ENGLISH).getName()))).thenReturn(notifyPromise);
+                eq(validInvite.getService().getServiceNames().get(SupportedLanguage.ENGLISH).getName()))).thenReturn("random-notify-id");
 
         InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
         Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
@@ -301,7 +284,6 @@ public class UserInviteCreatorTest {
         assertThat(invite.isPresent(), is(true));
         assertThat(invite.get().getCode(), is(validInvite.getCode()));
         assertThat(invite.get().getEmail(), is(validInvite.getEmail()));
-        assertThat(notifyPromise.isDone(), is(true));
     }
 
     private InviteEntity mockInviteSuccess_existingInvite() {

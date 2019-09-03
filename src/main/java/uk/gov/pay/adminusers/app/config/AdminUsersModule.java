@@ -98,7 +98,6 @@ public class AdminUsersModule extends AbstractModule {
     @Provides
     private NotificationService provideUserNotificationService() {
         return new NotificationService(
-                environment.lifecycle().executorService("2fa-sms-%d").build(),
                 configuration.getNotifyConfiguration(),
                 configuration.getNotifyDirectDebitConfiguration(),
                 environment.metrics());

@@ -100,32 +100,32 @@ public class ServiceInviteCreator {
     }
 
     private void sendServiceInviteNotification(InviteEntity invite, String targetUrl) {
-        notificationService.sendServiceInviteEmail(invite.getEmail(), targetUrl)
-                .thenAcceptAsync(notificationId -> LOGGER.info("sent create service invitation email successfully, notification id [{}]", notificationId))
-                .exceptionally(exception -> {
-                    LOGGER.error("error sending create service invitation", exception);
-                    return null;
-                });
         LOGGER.info("New service creation invitation created");
+        try {
+            String notificationId = notificationService.sendServiceInviteEmail(invite.getEmail(), targetUrl);
+            LOGGER.info("sent create service invitation email successfully, notification id [{}]", notificationId);
+        } catch(Exception e) {
+            LOGGER.error("error sending create service invitation", e);
+        }
     }
 
     private void sendUserDisabledNotification(String email, String userExternalId) {
-        notificationService.sendServiceInviteUserDisabledEmail(email, linksConfig.getSupportUrl())
-                .thenAcceptAsync(notificationId -> LOGGER.info("sent create service, user account disabled email successfully, notification id [{}]", notificationId))
-                .exceptionally(exception -> {
-                    LOGGER.error("error sending service creation, user account disabled email", exception);
-                    return null;
-                });
         LOGGER.info("Disabled existing user tried to create a service - user_id={}", userExternalId);
+        try {
+            String notificationId = notificationService.sendServiceInviteUserDisabledEmail(email, linksConfig.getSupportUrl());
+            LOGGER.info("sent create service, user account disabled email successfully, notification id [{}]", notificationId);
+        } catch (Exception e) {
+            LOGGER.error("error sending service creation, user account disabled email", e);
+        }
     }
 
     private void sendUserExistsNotification(String email, String userExternalId) {
-        notificationService.sendServiceInviteUserExistsEmail(email, linksConfig.getSelfserviceLoginUrl(), linksConfig.getSelfserviceForgottenPasswordUrl(), linksConfig.getSupportUrl())
-                .thenAcceptAsync(notificationId -> LOGGER.info("sent create service, user exists email successfully, notification id [{}]", notificationId))
-                .exceptionally(exception -> {
-                    LOGGER.error("error sending service creation, users exists email", exception);
-                    return null;
-                });
         LOGGER.info("Existing user tried to create a service - user_id={}", userExternalId);
+        try {
+            String notificationId = notificationService.sendServiceInviteUserExistsEmail(email, linksConfig.getSelfserviceLoginUrl(), linksConfig.getSelfserviceForgottenPasswordUrl(), linksConfig.getSupportUrl());
+            LOGGER.info("sent create service, user exists email successfully, notification id [{}]", notificationId);
+        } catch (Exception e) {
+            LOGGER.error("error sending service creation, users exists email", e);
+        }
     }
 }

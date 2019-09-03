@@ -37,14 +37,15 @@ public class UserOtpDispatcher extends InviteOtpDispatcher {
                     inviteDao.merge(inviteEntity);
                     int newPassCode = secondFactorAuthenticator.newPassCode(inviteEntity.getOtpKey());
                     String passcode = format(Locale.ENGLISH, SIX_DIGITS_WITH_LEADING_ZEROS, newPassCode);
-                    notificationService.sendSecondFactorPasscodeSms(inviteOtpRequest.getTelephoneNumber(), passcode)
-                            .thenAcceptAsync(notificationId -> LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]",
-                                    inviteCode, notificationId))
-                            .exceptionally(exception -> {
-                                LOGGER.error(format("error sending 2FA token for invite code [%s]", inviteCode), exception);
-                                return null;
-                            });
                     LOGGER.info("New 2FA token generated for invite code [{}]", inviteCode);
+                    
+                    try {
+                        String notificationId = notificationService.sendSecondFactorPasscodeSms(inviteOtpRequest.getTelephoneNumber(), passcode);
+                        LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]", inviteCode, notificationId);
+                    } catch (Exception e) {
+                        LOGGER.error(format("error sending 2FA token for invite code [%s]", inviteCode), e);
+                    }
+                    
                     return true;
                 }).orElseGet(() -> {
                     LOGGER.info("New 2FA token generated for invite code [{}]", inviteCode);
