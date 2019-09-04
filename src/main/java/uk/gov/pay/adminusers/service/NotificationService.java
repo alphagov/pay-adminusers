@@ -43,11 +43,11 @@ public class NotificationService {
         this.metricRegistry = metricRegistry;
     }
 
-    NotifyDirectDebitConfiguration getNotifyDirectDebitConfiguration() {
+    public NotifyDirectDebitConfiguration getNotifyDirectDebitConfiguration() {
         return notifyDirectDebitConfiguration;
     }
 
-    String sendSecondFactorPasscodeSms(String phoneNumber, String passcode) {
+    public String sendSecondFactorPasscodeSms(String phoneNumber, String passcode) {
         Stopwatch responseTimeStopwatch = Stopwatch.createStarted();
         try {
             SendSmsResponse response = notifyClientProvider.get(CARD).sendSms(secondFactorSmsTemplateId, TelephoneNumberUtility.formatToE164(phoneNumber), Map.of("code", passcode), null);
@@ -61,26 +61,26 @@ public class NotificationService {
         }
     }
 
-    String sendInviteEmail(String sender, String email, String inviteUrl) {
+    public String sendInviteEmail(String sender, String email, String inviteUrl) {
         Map<String, String> personalisation = Map.of(
                 "username", sender,
                 "link", inviteUrl);
         return sendEmail(CARD, inviteEmailTemplateId, email, personalisation);
     }
 
-    String sendServiceInviteEmail(String email, String inviteUrl) {
+    public String sendServiceInviteEmail(String email, String inviteUrl) {
         Map<String, String> personalisation = Map.of(
                 "name", email,
                 "link", inviteUrl);
         return sendEmail(CARD, notifyConfiguration.getInviteServiceEmailTemplateId(), email, personalisation);
     }
 
-    String sendForgottenPasswordEmail(String email, String forgottenPasswordUrl) {
+    public String sendForgottenPasswordEmail(String email, String forgottenPasswordUrl) {
         Map<String, String> personalisation = Map.of("code", forgottenPasswordUrl);
         return sendEmail(CARD, forgottenPasswordEmailTemplateId, email, personalisation);
     }
 
-    String sendServiceInviteUserExistsEmail(String email, String signInLink, String forgottenPasswordLink, String feedbackLink) {
+    public String sendServiceInviteUserExistsEmail(String email, String signInLink, String forgottenPasswordLink, String feedbackLink) {
         Map<String, String> personalisation = Map.of(
                 "signin_link", signInLink,
                 "forgotten_password_link", forgottenPasswordLink,
@@ -88,12 +88,12 @@ public class NotificationService {
         return sendEmail(CARD, notifyConfiguration.getInviteServiceUserExistsEmailTemplateId(), email, personalisation);
     }
 
-    String sendServiceInviteUserDisabledEmail(String email, String supportUrl) {
+    public String sendServiceInviteUserDisabledEmail(String email, String supportUrl) {
         Map<String, String> personalisation = Map.of("feedback_link", supportUrl);
         return sendEmail(CARD, notifyConfiguration.getInviteServiceUserDisabledEmailTemplateId(), email, personalisation);
     }
 
-    String sendInviteExistingUserEmail(String sender, String email, String inviteUrl, String serviceName) {
+    public String sendInviteExistingUserEmail(String sender, String email, String inviteUrl, String serviceName) {
         String collaborateServiceNamePart;
         String joinServiceNamePart;
 
@@ -115,7 +115,7 @@ public class NotificationService {
         return sendEmail(CARD, inviteExistingUserEmailTemplateId, email, personalisation);
     }
 
-    String sendLiveAccountCreatedEmail(String email, String serviceLiveAccountLink) {
+    public String sendLiveAccountCreatedEmail(String email, String serviceLiveAccountLink) {
         Map<String, String> personalisation = Map.of("service_live_account_link", serviceLiveAccountLink);
         return sendEmail(CARD, notifyConfiguration.getLiveAccountCreatedEmailTemplateId(), email, personalisation);
     }

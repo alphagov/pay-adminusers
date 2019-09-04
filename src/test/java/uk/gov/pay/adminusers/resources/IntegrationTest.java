@@ -48,6 +48,9 @@ public class IntegrationTest {
     @ClassRule
     public static final DropwizardClientRule notify;
 
+    protected DatabaseTestHelper databaseHelper;
+    protected ObjectMapper mapper;
+
     @Path("/v2/notifications")
     public static class NotifyResource {
         @Path("/email")
@@ -66,9 +69,6 @@ public class IntegrationTest {
                 ConfigOverride.config("notify.notificationBaseURL", () -> notify.baseUri().toString())
         );
     }
-
-    protected DatabaseTestHelper databaseHelper;
-    protected ObjectMapper mapper;
 
     @Before
     public void setUp() {
