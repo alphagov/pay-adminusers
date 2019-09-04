@@ -108,22 +108,20 @@ public class UserInviteCreator {
 
     private void sendUserInviteNotification(InviteEntity inviteEntity, String inviteUrl, ServiceEntity serviceEntity, Optional<UserEntity> existingUser) {
         UserEntity sender = inviteEntity.getSender();
-        if (existingUser.isPresent()) {
-            String serviceName = serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName();
-            notificationService.sendInviteExistingUserEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl, serviceName)
-                    .thenAcceptAsync(notificationId -> LOGGER.info("sent invite email successfully by user [{}], notification id [{}]", sender.getExternalId(), notificationId))
-                    .exceptionally(exception -> {
-                        LOGGER.error(format("error sending email by user [%s]", sender.getExternalId()), exception);
-                        return null;
-                    });
-        } else {
-            notificationService.sendInviteEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl)
-                    .thenAcceptAsync(notificationId -> LOGGER.info("sent invite email successfully by user [{}], notification id [{}]", sender.getExternalId(), notificationId))
-                    .exceptionally(exception -> {
-                        LOGGER.error(format("error sending email by user [%s]", sender.getExternalId()), exception);
-                        return null;
-                    });
-        }
         LOGGER.info("New invite created by User [{}]", sender.getExternalId());
+        try {
+            String notificationId;
+            
+            if (existingUser.isPresent()) {
+                String serviceName = serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName();
+                notificationId = notificationService.sendInviteExistingUserEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl, serviceName);
+            } else {
+                notificationId = notificationService.sendInviteEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl);
+            }
+
+            LOGGER.info("sent invite email successfully by user [{}], notification id [{}]", sender.getExternalId(), notificationId);
+        } catch(Exception e) {
+            LOGGER.error(format("error sending email by user [%s]", sender.getExternalId()), e);
+        }
     }
 }

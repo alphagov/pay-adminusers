@@ -23,7 +23,6 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static java.lang.String.valueOf;
 import static javax.ws.rs.core.Response.Status.GONE;
@@ -233,18 +232,14 @@ public class InviteServiceTest {
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
         when(mockSecondFactorAuthenticator.newPassCode(otpKey)).thenReturn(passCode);
         when(mockInviteDao.merge(any(InviteEntity.class))).thenReturn(inviteEntity);
-        CompletableFuture<String> errorPromise = CompletableFuture.supplyAsync(() -> {
-            throw new RuntimeException("some error from notify");
-        });
         when(mockNotificationService.sendSecondFactorPasscodeSms(eq(telephoneNumber), eq(valueOf(passCode))))
-                .thenReturn(errorPromise);
+                .thenThrow(AdminUsersExceptions.userNotificationError(new RuntimeException("some error from notify")));
 
         inviteService.reGenerateOtp(inviteOtpRequestFrom(inviteCode, telephoneNumber, plainPassword));
 
         verify(mockInviteDao).merge(expectedInvite.capture());
         InviteEntity updatedInvite = expectedInvite.getValue();
         assertThat(updatedInvite.getTelephoneNumber(), is(telephoneNumber));
-        assertThat(errorPromise.isCompletedExceptionally(), is(true));
     }
 
     @Test
@@ -258,16 +253,14 @@ public class InviteServiceTest {
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
         when(mockSecondFactorAuthenticator.newPassCode(otpKey)).thenReturn(passCode);
         when(mockInviteDao.merge(any(InviteEntity.class))).thenReturn(inviteEntity);
-        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
         when(mockNotificationService.sendSecondFactorPasscodeSms(eq(telephoneNumber), eq(valueOf(passCode))))
-                .thenReturn(notifyPromise);
+                .thenReturn("random-notify-id");
 
         inviteService.reGenerateOtp(inviteOtpRequestFrom(inviteCode, telephoneNumber, plainPassword));
 
         verify(mockInviteDao).merge(expectedInvite.capture());
         InviteEntity updatedInvite = expectedInvite.getValue();
         assertThat(updatedInvite.getTelephoneNumber(), is(telephoneNumber));
-        assertThat(notifyPromise.isDone(), is(true));
     }
 
     @Test

@@ -137,13 +137,14 @@ public class UserServices {
                         int newPassCode = secondFactorAuthenticator.newPassCode(otpKey);
                         SecondFactorToken token = SecondFactorToken.from(externalId, newPassCode);
                         final String userExternalId = userEntity.getExternalId();
-                        notificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), token.getPasscode())
-                                .thenAcceptAsync(notificationId -> logger.info("sent 2FA token successfully to user [{}], notification id [{}]",
-                                        userExternalId, notificationId))
-                                .exceptionally(exception -> {
-                                    logger.error("error sending 2FA token to user [{}]", userExternalId, exception);
-                                    return null;
-                                });
+                        
+                        try {
+                            String notificationId = notificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), token.getPasscode());
+                            logger.info("sent 2FA token successfully to user [{}], notification id [{}]", userExternalId, notificationId);
+                        } catch (Exception e) {
+                            logger.error("error sending 2FA token to user [{}]", userExternalId, e);
+                        }
+                        
                         if (useProvisionalOtpKey) {
                             logger.info("New 2FA token generated for User [{}] from provisional OTP key", userExternalId);
                         } else {

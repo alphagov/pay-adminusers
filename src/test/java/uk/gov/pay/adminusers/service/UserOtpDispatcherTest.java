@@ -15,7 +15,6 @@ import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -56,7 +55,7 @@ public class UserOtpDispatcherTest {
 
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
         when(secondFactorAuthenticator.newPassCode("otp-key")).thenReturn(123456);
-        when(notificationService.sendSecondFactorPasscodeSms(telephone, "123456")).thenReturn(CompletableFuture.completedFuture("success code from notify"));
+        when(notificationService.sendSecondFactorPasscodeSms(telephone, "123456")).thenReturn("success code from notify");
         boolean dispatched = userOtpDispatcher.dispatchOtp(inviteCode);
 
         verify(inviteDao).merge(expectedInvite.capture());

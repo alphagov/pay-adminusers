@@ -33,7 +33,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Collections.emptyList;
@@ -343,15 +342,13 @@ public class UserServicesTest {
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(123456);
-        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
         when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456")))
-                .thenReturn(notifyPromise);
+                .thenReturn("random-notify-id");
 
         Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), false);
 
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is("123456"));
-        assertTrue(notifyPromise.isDone());
     }
 
     @Test
@@ -360,15 +357,13 @@ public class UserServicesTest {
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(12345);
-        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
         when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("012345")))
-                .thenReturn(notifyPromise);
+                .thenReturn("random-notify-id");
 
         Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), false);
 
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is("012345"));
-        assertTrue(notifyPromise.isDone());
     }
 
     @Test
@@ -377,21 +372,14 @@ public class UserServicesTest {
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(123456);
-        CompletableFuture<String> errorPromise = CompletableFuture.supplyAsync(() -> {
-            throw new RuntimeException("some error from notify");
-        });
 
         when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456")))
-                .thenReturn(errorPromise);
+                .thenThrow(AdminUsersExceptions.userNotificationError(new Exception("some error from notify")));
 
         Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), false);
 
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is("123456"));
-
-        assertThat(errorPromise
-                .whenComplete((result, ex) -> System.out.println("errorPromise completed"))
-                .isCompletedExceptionally(), is(true));
     }
 
     @Test
@@ -411,15 +399,13 @@ public class UserServicesTest {
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getProvisionalOtpKey())).thenReturn(654321);
-        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
         when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("654321")))
-                .thenReturn(notifyPromise);
+                .thenReturn("random-notify-id");
 
         Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), true);
 
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is("654321"));
-        assertTrue(notifyPromise.isDone());
 
         verify(notificationService, never()).sendSecondFactorPasscodeSms(any(String.class), eq(user.getOtpKey()));
     }

@@ -98,7 +98,7 @@ public class EmailServiceTest {
         ArgumentCaptor<Map<String, String>> personalisationCaptor = forClass(Map.class);
         emailService.sendEmail(EMAIL_ADDRESS, GATEWAY_ACCOUNT_ID, template, personalisation);
 
-        verify(mockNotificationService).sendEmailAsync(eq(PaymentType.DIRECT_DEBIT), eq("NOTIFY_ONE_OFF_MANDATE_AND_PAYMENT_CREATED_EMAIL_TEMPLATE_ID_VALUE"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
+        verify(mockNotificationService).sendEmail(eq(PaymentType.DIRECT_DEBIT), eq("NOTIFY_ONE_OFF_MANDATE_AND_PAYMENT_CREATED_EMAIL_TEMPLATE_ID_VALUE"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
         Map<String, String> allContent = personalisationCaptor.getValue();
         assertThat(allContent.get("field 1"), is("theValueOfField1"));
         assertThat(allContent.get("field 2"), is("theValueOfField2"));
@@ -130,7 +130,7 @@ public class EmailServiceTest {
         ArgumentCaptor<Map<String, String>> personalisationCaptor = forClass(Map.class);
         emailService.sendEmail(EMAIL_ADDRESS, GATEWAY_ACCOUNT_ID, template, personalisation);
 
-        verify(mockNotificationService).sendEmailAsync(eq(PaymentType.DIRECT_DEBIT), eq("NOTIFY_ON_DEMAND_PAYMENT_CONFIRMED_EMAIL_TEMPLATE_ID_VALUE"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
+        verify(mockNotificationService).sendEmail(eq(PaymentType.DIRECT_DEBIT), eq("NOTIFY_ON_DEMAND_PAYMENT_CONFIRMED_EMAIL_TEMPLATE_ID_VALUE"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
         Map<String, String> allContent = personalisationCaptor.getValue();
         assertThat(allContent.get("field 1"), is("theValueOfField1"));
         assertThat(allContent.get("field 2"), is("theValueOfField2"));
@@ -163,7 +163,7 @@ public class EmailServiceTest {
 
         emailService.sendEmail(EMAIL_ADDRESS, GATEWAY_ACCOUNT_ID, template, personalisation);
 
-        verify(mockNotificationService).sendEmailAsync(eq(PaymentType.DIRECT_DEBIT), eq("NOTIFY_PAYMENT_FAILED_EMAIL_TEMPLATE_ID_VALUE"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
+        verify(mockNotificationService).sendEmail(eq(PaymentType.DIRECT_DEBIT), eq("NOTIFY_PAYMENT_FAILED_EMAIL_TEMPLATE_ID_VALUE"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
         Map<String, String> allContent = personalisationCaptor.getValue();
         assertThat(allContent.get("field 1"), is("theValueOfField1"));
         assertThat(allContent.get("field 2"), is("theValueOfField2"));
@@ -194,7 +194,7 @@ public class EmailServiceTest {
 
         emailService.sendEmail(EMAIL_ADDRESS, GATEWAY_ACCOUNT_ID, template, personalisation);
 
-        verify(mockNotificationService).sendEmailAsync(eq(PaymentType.DIRECT_DEBIT), eq("NOTIFY_MANDATE_FAILED_EMAIL_TEMPLATE_ID_VALUE"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
+        verify(mockNotificationService).sendEmail(eq(PaymentType.DIRECT_DEBIT), eq("NOTIFY_MANDATE_FAILED_EMAIL_TEMPLATE_ID_VALUE"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
         Map<String, String> allContent = personalisationCaptor.getValue();
         assertThat(allContent.get("field 1"), is("theValueOfField1"));
         assertThat(allContent.get("field 2"), is("theValueOfField2"));
@@ -226,7 +226,7 @@ public class EmailServiceTest {
 
         emailService.sendEmail(EMAIL_ADDRESS, GATEWAY_ACCOUNT_ID, template, personalisation);
 
-        verify(mockNotificationService).sendEmailAsync(eq(PaymentType.DIRECT_DEBIT), eq("NOTIFY_ON_DEMAND_MANDATE_CREATED_EMAIL_TEMPLATE_ID_VALUE"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
+        verify(mockNotificationService).sendEmail(eq(PaymentType.DIRECT_DEBIT), eq("NOTIFY_ON_DEMAND_MANDATE_CREATED_EMAIL_TEMPLATE_ID_VALUE"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
         Map<String, String> allContent = personalisationCaptor.getValue();
         assertThat(allContent.get("field 1"), is("theValueOfField1"));
         assertThat(allContent.get("field 2"), is("theValueOfField2"));
@@ -258,7 +258,7 @@ public class EmailServiceTest {
 
         emailService.sendEmail(EMAIL_ADDRESS, GATEWAY_ACCOUNT_ID, template, personalisation);
 
-        verify(mockNotificationService).sendEmailAsync(eq(PaymentType.DIRECT_DEBIT), eq("NOTIFY_ONE_OFF_MANDATE_AND_PAYMENT_CREATED_EMAIL_TEMPLATE_ID_VALUE"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
+        verify(mockNotificationService).sendEmail(eq(PaymentType.DIRECT_DEBIT), eq("NOTIFY_ONE_OFF_MANDATE_AND_PAYMENT_CREATED_EMAIL_TEMPLATE_ID_VALUE"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
         Map<String, String> allContent = personalisationCaptor.getValue();
         assertThat(allContent.get("field 1"), is("theValueOfField1"));
         assertThat(allContent.get("field 2"), is("theValueOfField2"));
@@ -315,7 +315,7 @@ public class EmailServiceTest {
         ArgumentCaptor<Map<String, String>> personalisationCaptor = forClass(Map.class);
         emailService.sendEmail(EMAIL_ADDRESS, GATEWAY_ACCOUNT_ID, template, personalisation);
 
-        verify(mockNotificationService).sendEmailAsync(eq(PaymentType.DIRECT_DEBIT), eq("NOTIFY_ONE_OFF_MANDATE_AND_PAYMENT_CREATED_EMAIL_TEMPLATE_ID_VALUE"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
+        verify(mockNotificationService).sendEmail(eq(PaymentType.DIRECT_DEBIT), eq("NOTIFY_ONE_OFF_MANDATE_AND_PAYMENT_CREATED_EMAIL_TEMPLATE_ID_VALUE"), eq(EMAIL_ADDRESS), personalisationCaptor.capture());
         Map<String, String> allContent = personalisationCaptor.getValue();
         assertThat(allContent.get("field 1"), is("theValueOfField1"));
         assertThat(allContent.get("field 2"), is("theValueOfField2"));

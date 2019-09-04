@@ -8,6 +8,7 @@ import liquibase.Liquibase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -40,22 +41,24 @@ public class DropwizardAppWithPostgresRule implements TestRule {
 
     private DatabaseTestHelper databaseTestHelper;
 
-    public DropwizardAppWithPostgresRule() {
-        this("config/test-it-config.yaml");
+    public DropwizardAppWithPostgresRule(ConfigOverride... configOverrides) {
+        this("config/test-it-config.yaml", configOverrides);
     }
 
     public DropwizardAppWithPostgresRule(String configPath, ConfigOverride... configOverrides) {
         configFilePath = resourceFilePath(configPath);
         postgres = new PostgresDockerRule();
-        List<ConfigOverride> cfgOverrideList = List.of(
+
+        ConfigOverride[] postgresOverrides = List.of(
                 config("database.url", postgres.getConnectionUrl()),
                 config("database.user", postgres.getUsername()),
-                config("database.password", postgres.getPassword()));
+                config("database.password", postgres.getPassword()))
+                .toArray(new ConfigOverride[0]);
 
         app = new DropwizardAppRule<>(
                 AdminUsersApp.class,
                 configFilePath,
-                cfgOverrideList.toArray(new ConfigOverride[0])
+                ArrayUtils.addAll(postgresOverrides, configOverrides)
         );
         createJpaModule(postgres);
         rules = RuleChain.outerRule(postgres).around(app);

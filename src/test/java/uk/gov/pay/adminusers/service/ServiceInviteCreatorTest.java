@@ -21,7 +21,6 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import javax.ws.rs.WebApplicationException;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -60,7 +59,7 @@ public class ServiceInviteCreatorTest {
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(emptyList());
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
-        when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn(CompletableFuture.completedFuture("done"));
+        when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn("done");
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
         when(passwordHasher.hash("password")).thenReturn("encrypted-password");
@@ -84,9 +83,7 @@ public class ServiceInviteCreatorTest {
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(emptyList());
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
-        when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn(CompletableFuture.supplyAsync(() -> {
-            throw new RuntimeException("done");
-        }));
+        when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenThrow(AdminUsersExceptions.userNotificationError(new RuntimeException("failed")));
         when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         Invite invite = serviceInviteCreator.doInvite(request);
@@ -117,7 +114,7 @@ public class ServiceInviteCreatorTest {
         when(inviteDao.findByEmail(email)).thenReturn(List.of(validInvite));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         when(notificationService.sendServiceInviteEmail(eq(email), anyString()))
-                .thenReturn(CompletableFuture.completedFuture("done"));
+                .thenReturn("done");
 
         Invite invite = serviceInviteCreator.doInvite(request);
 
@@ -146,7 +143,7 @@ public class ServiceInviteCreatorTest {
         when(inviteDao.findByEmail(email)).thenReturn(List.of(validInvite));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         when(notificationService.sendServiceInviteEmail(eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
-                .thenReturn(CompletableFuture.completedFuture("done"));
+                .thenReturn("done");
 
         Invite invite = serviceInviteCreator.doInvite(request);
 
@@ -167,7 +164,7 @@ public class ServiceInviteCreatorTest {
         when(linksConfig.getSelfserviceLoginUrl()).thenReturn("http://selfservice/login");
         when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
         when(notificationService.sendServiceInviteUserExistsEmail(eq(email), anyString(), anyString(), anyString()))
-                .thenReturn(CompletableFuture.completedFuture("done"));
+                .thenReturn("done");
 
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 409 Conflict");
@@ -185,7 +182,7 @@ public class ServiceInviteCreatorTest {
         when(userDao.findByEmail(email)).thenReturn(Optional.of(existingUserEntity));
         when(linksConfig.getSupportUrl()).thenReturn("http://frontend");
         when(notificationService.sendServiceInviteUserDisabledEmail(eq(email), anyString()))
-                .thenReturn(CompletableFuture.completedFuture("done"));
+                .thenReturn("done");
 
         thrown.expect(WebApplicationException.class);
         thrown.expectMessage("HTTP 409 Conflict");

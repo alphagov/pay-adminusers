@@ -19,7 +19,6 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
@@ -72,14 +71,12 @@ public class ForgottenPasswordServicesTest {
         UserEntity mockUser = mock(UserEntity.class);
         when(mockUser.getEmail()).thenReturn(email);
         when(userDao.findByUsername(username)).thenReturn(Optional.of(mockUser));
-        CompletableFuture<String> notifyPromise = CompletableFuture.completedFuture("random-notify-id");
         when(mockNotificationService.sendForgottenPasswordEmail(eq(email), matches("^http://selfservice/reset-password/[0-9a-z]{32}$")))
-                .thenReturn(notifyPromise);
+                .thenReturn("random-notify-id");
         doNothing().when(forgottenPasswordDao).persist(any(ForgottenPasswordEntity.class));
 
         forgottenPasswordServices.create(username);
 
-        assertThat(notifyPromise.isDone(), is(true));
         verify(forgottenPasswordDao).persist(expectedForgottenPassword.capture());
         ForgottenPasswordEntity savedForgottenPassword = expectedForgottenPassword.getValue();
         assertThat(savedForgottenPassword.getUser(), is(mockUser));
@@ -96,16 +93,12 @@ public class ForgottenPasswordServicesTest {
         UserEntity mockUser = mock(UserEntity.class);
         when(mockUser.getEmail()).thenReturn(email);
         when(userDao.findByUsername(username)).thenReturn(Optional.of(mockUser));
-        CompletableFuture<String> errorPromise = CompletableFuture.supplyAsync(() -> {
-            throw new RuntimeException("some error from notify");
-        });
         when(mockNotificationService.sendForgottenPasswordEmail(eq(email), matches("^http://selfservice/reset-password/[0-9a-z]{32}$")))
-                .thenReturn(errorPromise);
+                .thenThrow(AdminUsersExceptions.userNotificationError(new RuntimeException("some error from notify")));
         doNothing().when(forgottenPasswordDao).persist(any(ForgottenPasswordEntity.class));
 
         forgottenPasswordServices.create(username);
 
-        assertThat(errorPromise.isCompletedExceptionally(), is(true));
         verify(forgottenPasswordDao).persist(expectedForgottenPassword.capture());
         ForgottenPasswordEntity savedForgottenPassword = expectedForgottenPassword.getValue();
         assertThat(savedForgottenPassword.getUser(), is(mockUser));
