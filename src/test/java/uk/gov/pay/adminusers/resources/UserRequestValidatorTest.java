@@ -3,20 +3,17 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
-import static org.apache.commons.lang3.tuple.Pair.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
@@ -76,7 +73,7 @@ public class UserRequestValidatorTest {
     @Test
     public void shouldError_ifMandatoryPatchFieldsAreMissing() {
         JsonNode invalidPayload = mock(JsonNode.class);
-        mockValidValuesFor(invalidPayload, of("foo", "blah"), of("bar", "blah@blah.com"));
+        mockValidValuesFor(invalidPayload, Map.of("foo", "blah", "bar", "blah@blah.com"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(invalidPayload);
 
         assertTrue(optionalErrors.isPresent());
@@ -92,7 +89,7 @@ public class UserRequestValidatorTest {
     @Test
     public void shouldError_ifPathNotAllowed_whenPatching() {
         JsonNode invalidPayload = mock(JsonNode.class);
-        mockValidValuesFor(invalidPayload, of("op", "append"), of("path", "version"), of("value", "1"));
+        mockValidValuesFor(invalidPayload, Map.of("op", "append", "path", "version", "value", "1"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(invalidPayload);
 
         assertTrue(optionalErrors.isPresent());
@@ -105,7 +102,7 @@ public class UserRequestValidatorTest {
     @Test
     public void shouldError_ifPathOperationNotValid_whenPatching() {
         JsonNode invalidPayload = mock(JsonNode.class);
-        mockValidValuesFor(invalidPayload, of("op", "replace"), of("path", "sessionVersion"), of("value", "1"));
+        mockValidValuesFor(invalidPayload, Map.of("op", "replace", "path", "sessionVersion", "value", "1"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(invalidPayload);
 
         assertTrue(optionalErrors.isPresent());
@@ -385,12 +382,12 @@ public class UserRequestValidatorTest {
         assertThat(errors.getErrors(), hasItems("Field [username] is required"));
     }
 
-    private void mockValidValuesFor(JsonNode mockJsonNode, Pair<String, String>... mockFieldValues) {
-        for (Pair<String, String> mockFieldValue : mockFieldValues) {
+    private void mockValidValuesFor(JsonNode mockJsonNode, Map<String, String> mockFieldValues) {
+        for (Map.Entry<String, String> mockFieldValue : mockFieldValues.entrySet()) {
             JsonNode fieldMock = mock(JsonNode.class);
-            when(fieldMock.asText()).thenReturn(mockFieldValue.getRight());
-            when(mockJsonNode.get(mockFieldValue.getLeft())).thenReturn(fieldMock);
+            when(fieldMock.asText()).thenReturn(mockFieldValue.getValue());
+            when(mockJsonNode.get(mockFieldValue.getKey())).thenReturn(fieldMock);
         }
-        when(mockJsonNode.fieldNames()).thenReturn(Arrays.stream(mockFieldValues).map(Pair::getKey).iterator());
+        when(mockJsonNode.fieldNames()).thenReturn(mockFieldValues.keySet().iterator());
     }
 }
