@@ -7,7 +7,6 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 | ----------------------- | ------------------------------------------------------------------------------ |
 | `ADMIN_PORT`                                                   | The port number to listen for Dropwizard admin requests on. Defaults to `8081`. |
 | `BASE_URL`                                                     | This is the publicly visible URL for the pay admin users root. Defaults to `http://localhost:8080`. |
-| `CERTS_PATH`                                                   | If set, add all certificates in this directory to the default Java truststore. |
 | `DB_HOST`                                                      | The hostname of the database server. |
 | `DB_NAME`                                                      | The name of the database on `DB_HOST`. Defaults to `adminusers`. |
 | `DB_PASSWORD`                                                  | The password for the `DB_USER` user. |
