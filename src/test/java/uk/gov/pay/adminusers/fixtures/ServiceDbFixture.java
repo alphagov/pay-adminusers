@@ -6,6 +6,8 @@ import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.valueOf;
@@ -15,7 +17,7 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 public class ServiceDbFixture {
 
     private final DatabaseTestHelper databaseHelper;
-    private String[] gatewayAccountIds = new String[]{valueOf(nextInt())};
+    private List<String> gatewayAccountIds = List.of(valueOf(nextInt()));
     private Integer id;
     private String externalId;
     private String name = Service.DEFAULT_NAME_VALUE;
@@ -36,7 +38,7 @@ public class ServiceDbFixture {
     }
 
     public ServiceDbFixture withGatewayAccountIds(String... gatewayAccountIds) {
-        this.gatewayAccountIds = gatewayAccountIds;
+        this.gatewayAccountIds = Arrays.asList(gatewayAccountIds);
         return this;
     }
 
@@ -72,7 +74,7 @@ public class ServiceDbFixture {
         service.setCollectBillingAddress(collectBillingAddress);
         service.setGoLiveStage(goLiveStage);
         service.setCustomBranding(customBranding);
-        databaseHelper.addService(service, gatewayAccountIds);
+        databaseHelper.addService(service, gatewayAccountIds.toArray(new String[0]));
 
         return service;
     }
