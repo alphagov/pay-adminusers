@@ -96,7 +96,7 @@ public class AdminUsersModule extends AbstractModule {
     }
 
     @Provides
-    private NotificationService provideUserNotificationService() {
+    public NotificationService provideUserNotificationService() {
         return new NotificationService(
                 configuration.getNotifyConfiguration(),
                 configuration.getNotifyDirectDebitConfiguration(),
