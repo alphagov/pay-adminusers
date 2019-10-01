@@ -32,11 +32,11 @@ public class UserDao extends JpaDao<UserEntity> {
     public List<UserEntity> findByExternalIds(List<String> externalIds) {
         String query = "SELECT u FROM UserEntity u WHERE LOWER(u.externalId) in :externalIds";
 
-        externalIds = externalIds.stream().map(String::toLowerCase).collect(Collectors.toList());
+        List<String> lowerCaseExternalIds = externalIds.stream().map(String::toLowerCase).collect(Collectors.toList());
 
         return entityManager.get()
                 .createQuery(query, UserEntity.class)
-                .setParameter("externalIds", externalIds)
+                .setParameter("externalIds", lowerCaseExternalIds)
                 .getResultList();
     }
 

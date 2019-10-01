@@ -87,8 +87,8 @@ public class EmailValidator {
      * @return <b>boolean</b> whether or not it is from a public sector domain
      */
     public static boolean isPublicSectorEmail(String email) {
-        email = email.toLowerCase();
-        String[] emailParts = email.split("@");
+        String lowerCaseEmail = email.toLowerCase();
+        String[] emailParts = lowerCaseEmail.split("@");
         if ((emailParts.length != 2) || emailParts[0].isEmpty() || emailParts[1].isEmpty()) {
             return false;
         }

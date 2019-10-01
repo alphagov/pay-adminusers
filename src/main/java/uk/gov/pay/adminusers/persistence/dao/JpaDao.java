@@ -23,9 +23,11 @@ public abstract class JpaDao<T> {
 
     public void remove(T object) {
         if (!entityManager.get().contains(object)) {
-            object = entityManager.get().merge(object);
+            T mergedObject = entityManager.get().merge(object);
+            entityManager.get().remove(mergedObject);
+        } else {
+            entityManager.get().remove(object);
         }
-        entityManager.get().remove(object);
     }
 
     public <ID> Optional<T> findById(final ID id) {
