@@ -180,7 +180,6 @@ public class UserServicesTest {
 
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(true);
         when(userDao.findByUsername(USER_USERNAME)).thenReturn(Optional.of(userEntity));
-        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
 
         Optional<User> userOptional = userServices.authenticate(USER_USERNAME, "random-password");
         assertTrue(userOptional.isPresent());
