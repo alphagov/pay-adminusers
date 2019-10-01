@@ -1,10 +1,20 @@
-<ruleset name="Custom Rules"
+<ruleset name="GOV.UK Pay PMD Rules"
         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
 
-    <description>PMD (Legacy) Ruleset</description>
+    <description>GOV.UK Pay PMD rules, primarily for use by Codacy</description>
 
-    <rule ref="rulesets/java/strictexception.xml/AvoidThrowingRawExceptionTypes"/>
+    <rule ref="category/java/bestpractices.xml">
+        <!-- Some tests use hard-coded IP addresses --> 
+        <exclude name="AvoidUsingHardCodedIP"/>
+
+        <exclude name="JUnitAssertionsShouldIncludeMessage"/>
+
+        <exclude name="JUnitTestContainsTooManyAsserts"/>
+
+        <!-- Some tests e.g. REST Assured do not use asserts -->
+        <exclude name="JUnitTestsShouldIncludeAssert"/>
+    </rule>
 
 </ruleset>
