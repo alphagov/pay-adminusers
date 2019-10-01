@@ -8,12 +8,9 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
-import uk.gov.pay.adminusers.persistence.dao.RoleDao;
-import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
@@ -43,18 +40,10 @@ import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 @RunWith(MockitoJUnitRunner.class)
 public class InviteServiceTest {
 
-    private static final String SELFSERVICE_URL = "http://selfservice";
-
-    @Mock
-    private RoleDao mockRoleDao;
-    @Mock
-    private ServiceDao mockServiceDao;
     @Mock
     private UserDao mockUserDao;
     @Mock
     private InviteDao mockInviteDao;
-    @Mock
-    private AdminUsersConfig mockConfig;
     @Mock
     private NotificationService mockNotificationService;
     @Mock
@@ -70,7 +59,6 @@ public class InviteServiceTest {
     private String email = "invited@example.com";
     private int serviceId = 1;
     private String senderExternalId = "12345";
-    private String roleName = "view-only";
 
     @Before
     public void setup() {

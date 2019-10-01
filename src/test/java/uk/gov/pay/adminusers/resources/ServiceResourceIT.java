@@ -26,7 +26,6 @@ public class ServiceResourceIT extends IntegrationTest {
     private String serviceExternalId;
     private User userWithRoleAdminInService1;
     private User user1WithRoleViewInService1;
-    private User user2WithRoleViewInService1;
 
     @Before
     public void setup() {
@@ -55,7 +54,7 @@ public class ServiceResourceIT extends IntegrationTest {
 
         String username3 = "a" + randomUuid();
         String email3 = username3 + "@example.com";
-        user2WithRoleViewInService1 = userDbFixture(databaseHelper)
+        userDbFixture(databaseHelper)
                 .withServiceRole(service, roleView.getId())
                 .withUsername(username3)
                 .withEmail(email3)
