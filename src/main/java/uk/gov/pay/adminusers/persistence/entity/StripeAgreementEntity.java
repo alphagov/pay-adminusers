@@ -51,8 +51,8 @@ public class StripeAgreementEntity {
         try {
             return new StripeAgreement(InetAddress.getByName(ipAddress), agreementTime);
         } catch (UnknownHostException e) {
-            // Ip addresses are validated before storing them in the table so its very unlikely this will happen.
-            throw new RuntimeException(String.format("%s is not a valid InetAddress.", ipAddress));
+            // IP addresses are validated before storing them in the table so it’s very unlikely this will happen
+            throw new RuntimeException(String.format("%s is not a valid InetAddress.", ipAddress), e);
         }
     }
 
