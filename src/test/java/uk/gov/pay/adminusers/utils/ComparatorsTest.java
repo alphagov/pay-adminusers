@@ -9,7 +9,8 @@ import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static uk.gov.pay.adminusers.utils.Comparators.*;
+import static uk.gov.pay.adminusers.utils.Comparators.numericallyThenLexicographically;
+import static uk.gov.pay.adminusers.utils.Comparators.usingNumericComparator;
 
 public class ComparatorsTest {
 

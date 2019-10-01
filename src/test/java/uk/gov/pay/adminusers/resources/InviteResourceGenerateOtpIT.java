@@ -8,7 +8,9 @@ import java.util.Map;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
-import static javax.ws.rs.core.Response.Status.*;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.RandomStringUtils.random;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 

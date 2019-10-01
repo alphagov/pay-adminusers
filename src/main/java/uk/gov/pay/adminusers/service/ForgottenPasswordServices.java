@@ -2,8 +2,8 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
 import org.slf4j.Logger;
-import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import org.slf4j.LoggerFactory;
+import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;

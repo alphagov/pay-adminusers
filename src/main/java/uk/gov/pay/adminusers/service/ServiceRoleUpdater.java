@@ -7,11 +7,18 @@ import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
-import uk.gov.pay.adminusers.persistence.entity.*;
+import uk.gov.pay.adminusers.persistence.entity.Role;
+import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
+import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.util.Optional;
 
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.adminRoleLimitException;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingServiceForUser;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.serviceDoesNotExistError;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.undefinedRoleException;
 
 public class ServiceRoleUpdater {
 

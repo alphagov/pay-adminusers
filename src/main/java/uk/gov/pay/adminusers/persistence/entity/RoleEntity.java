@@ -3,7 +3,14 @@ package uk.gov.pay.adminusers.persistence.entity;
 import org.eclipse.persistence.annotations.ReadOnly;
 import uk.gov.pay.adminusers.model.Role;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

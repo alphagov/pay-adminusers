@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
 import com.google.inject.Inject;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

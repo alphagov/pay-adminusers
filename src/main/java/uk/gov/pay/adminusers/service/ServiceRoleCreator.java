@@ -13,7 +13,9 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.util.Optional;
 
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.*;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingServiceRoleForUser;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.serviceDoesNotExistError;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.undefinedRoleException;
 
 public class ServiceRoleCreator {
 
