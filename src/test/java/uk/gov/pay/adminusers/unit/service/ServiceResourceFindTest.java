@@ -54,7 +54,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
     private static SendLiveAccountCreatedEmailService sendLiveAccountCreatedEmailService = mock(SendLiveAccountCreatedEmailService.class);
 
     @ClassRule
-    public static final ResourceTestRule resources = ResourceTestRule.builder()
+    public static final ResourceTestRule RESOURCES = ResourceTestRule.builder()
             .addResource(new ServiceResource(
                     mockedUserDao,
                     mockedServiceDao,
@@ -78,7 +78,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
         ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity().withExternalId(serviceExternalId).build();
         given(mockedServiceDao.findByExternalId(serviceExternalId)).willReturn(Optional.of(serviceEntity));
 
-        Response response = resources.target(format("/v1/api/services/%s", serviceExternalId)).request().get();
+        Response response = RESOURCES.target(format("/v1/api/services/%s", serviceExternalId)).request().get();
 
         assertThat(response.getStatus(), is(200));
 
@@ -103,7 +103,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
                 .withServiceNameEntity(SupportedLanguage.WELSH, CY_SERVICE_NAME)
                 .build();
         given(mockedServiceDao.findByExternalId(serviceExternalId)).willReturn(Optional.of(serviceEntity));
-        Response response = resources.target(format("/v1/api/services/%s", serviceExternalId)).request().get();
+        Response response = RESOURCES.target(format("/v1/api/services/%s", serviceExternalId)).request().get();
 
         assertThat(response.getStatus(), is(200));
         String body = response.readEntity(String.class);
@@ -125,7 +125,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
                 .withServiceNameEntity(SupportedLanguage.WELSH, CY_SERVICE_NAME)
                 .build();
         given(mockedServiceDao.findByExternalId(serviceExternalId)).willReturn(Optional.of(serviceEntity));
-        Response response = resources.target(format("/v1/api/services/%s", serviceExternalId)).request().get();
+        Response response = RESOURCES.target(format("/v1/api/services/%s", serviceExternalId)).request().get();
 
         assertThat(response.getStatus(), is(200));
 
@@ -152,7 +152,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
 
         given(mockedServiceDao.findByGatewayAccountId(gatewayAccountId)).willReturn(Optional.of(serviceEntity));
 
-        Response response = resources.target("/v1/api/services")
+        Response response = RESOURCES.target("/v1/api/services")
                 .queryParam("gatewayAccountId", gatewayAccountId)
                 .request().get();
         assertThat(response.getStatus(), is(200));
@@ -174,7 +174,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
         String gatewayAccountId = randomUuid();
         given(mockedServiceDao.findByGatewayAccountId(gatewayAccountId)).willReturn(Optional.empty());
 
-        Response response = resources.target("/v1/api/services")
+        Response response = RESOURCES.target("/v1/api/services")
                 .queryParam("gatewayAccountId", gatewayAccountId)
                 .request().get();
         assertThat(response.getStatus(), is(404));
@@ -184,13 +184,13 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
     public void shouldReturn404_whenGetServiceById_ifNotFound() {
         String externalId = randomUuid();
         given(mockedServiceDao.findByExternalId(externalId)).willReturn(Optional.empty());
-        Response response = resources.target(format("/v1/api/services/%s", externalId)).request().get();
+        Response response = RESOURCES.target(format("/v1/api/services/%s", externalId)).request().get();
         assertThat(response.getStatus(), is(404));
     }
 
     @Test
     public void shouldReturnBadRequest_whenGetByGatewayAccountId_isMissingQueryParam() {
-        Response response = resources.target("/v1/api/services")
+        Response response = RESOURCES.target("/v1/api/services")
                 .queryParam("gatewayAccountId", "")
                 .request().get();
         assertThat(response.getStatus(), is(400));

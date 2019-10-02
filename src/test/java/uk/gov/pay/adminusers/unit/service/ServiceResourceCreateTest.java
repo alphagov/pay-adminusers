@@ -70,7 +70,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
     private static SendLiveAccountCreatedEmailService sendLiveAccountCreatedEmailService = mock(SendLiveAccountCreatedEmailService.class);
 
     @ClassRule
-    public static final ResourceTestRule resources = ResourceTestRule.builder()
+    public static final ResourceTestRule RESOURCES = ResourceTestRule.builder()
             .addResource(new ServiceResource(
                     mockedUserDao,
                     mockedServiceDao,
@@ -103,7 +103,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         Service service = buildService(Collections.emptyList(), Collections.emptyMap());
         given(mockedServiceCreator.doCreate(Collections.emptyList(), Collections.emptyMap()))
                 .willReturn(service);
-        Response response = resources.target(SERVICES_RESOURCE)
+        Response response = RESOURCES.target(SERVICES_RESOURCE)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(PAYLOAD_MAP), Response.class);
 
@@ -128,7 +128,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         Service service = buildService(Collections.emptyList(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
         given(mockedServiceCreator.doCreate(Collections.emptyList(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)))
                 .willReturn(service);
-        Response response = resources.target(SERVICES_RESOURCE)
+        Response response = RESOURCES.target(SERVICES_RESOURCE)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(PAYLOAD_MAP), Response.class);
 
@@ -151,7 +151,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         Service service = buildService(Collections.emptyList(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
         given(mockedServiceCreator.doCreate(Collections.emptyList(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)))
                 .willReturn(service);
-        Response response = resources.target(SERVICES_RESOURCE)
+        Response response = RESOURCES.target(SERVICES_RESOURCE)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(PAYLOAD_MAP), Response.class);
 
@@ -178,7 +178,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         given(mockedServiceCreator.doCreate(gatewayAccounts, Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)))
                 .willReturn(service);
 
-        Response response = resources.target(SERVICES_RESOURCE)
+        Response response = RESOURCES.target(SERVICES_RESOURCE)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(PAYLOAD_MAP), Response.class);
         assertThat(response.getStatus(), is(201));
@@ -204,7 +204,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         given(mockedServiceCreator.doCreate(gatewayAccounts, Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)))
                 .willReturn(service);
 
-        Response response = resources.target(SERVICES_RESOURCE)
+        Response response = RESOURCES.target(SERVICES_RESOURCE)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(PAYLOAD_MAP), Response.class);
         assertThat(response.getStatus(), is(201));
@@ -234,7 +234,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         given(mockedServiceCreator.doCreate(gatewayAccounts, serviceName))
                 .willReturn(service);
 
-        Response response = resources.target(SERVICES_RESOURCE)
+        Response response = RESOURCES.target(SERVICES_RESOURCE)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(PAYLOAD_MAP), Response.class);
 
@@ -259,7 +259,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
 
         given(mockedServicesFactory.serviceCreator()).willReturn(serviceCreator);
         given(mockedServiceDao.checkIfGatewayAccountsUsed(anyList())).willReturn(true);
-        Response response = resources.target(SERVICES_RESOURCE)
+        Response response = RESOURCES.target(SERVICES_RESOURCE)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(PAYLOAD_MAP), Response.class);
         assertThat(response.getStatus(), is(409));

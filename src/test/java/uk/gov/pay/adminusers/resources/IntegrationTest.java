@@ -43,10 +43,10 @@ public class IntegrationTest {
     /* default */ static final String INVITE_USER_RESOURCE_URL = "/v1/api/invites/user";
 
     @ClassRule
-    public static final DropwizardAppWithPostgresRule app;
+    public static final DropwizardAppWithPostgresRule APP;
 
     @ClassRule
-    public static final DropwizardClientRule notify;
+    public static final DropwizardClientRule NOTIFY;
 
     protected DatabaseTestHelper databaseHelper;
     protected ObjectMapper mapper;
@@ -64,20 +64,20 @@ public class IntegrationTest {
     }
 
     static {
-        notify = new DropwizardClientRule(new NotifyResource());
-        app = new DropwizardAppWithPostgresRule(
-                ConfigOverride.config("notify.notificationBaseURL", () -> notify.baseUri().toString())
+        NOTIFY = new DropwizardClientRule(new NotifyResource());
+        APP = new DropwizardAppWithPostgresRule(
+                ConfigOverride.config("notify.notificationBaseURL", () -> NOTIFY.baseUri().toString())
         );
     }
 
     @Before
     public void setUp() {
-        databaseHelper = app.getDatabaseTestHelper();
+        databaseHelper = APP.getDatabaseTestHelper();
         mapper = new ObjectMapper();
     }
 
     protected RequestSpecification givenSetup() {
-        return given().port(app.getLocalPort())
+        return given().port(APP.getLocalPort())
                 .contentType(JSON);
     }
 }
