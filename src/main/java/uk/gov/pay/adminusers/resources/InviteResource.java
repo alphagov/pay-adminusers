@@ -222,7 +222,7 @@ public class InviteResource {
         LOGGER.info("Invite POST request for validating otp for service create");
 
         return inviteValidator.validateOtpValidationRequest(payload)
-                .map(errors -> Response.status((BAD_REQUEST)).entity(errors).build())
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> inviteService.validateOtp(InviteValidateOtpRequest.from(payload))
                         .map(this::handleValidateOtpAndCreateUserException)
                         .orElseGet(() -> Response.status(OK).build()));

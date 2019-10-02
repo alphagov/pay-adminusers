@@ -89,7 +89,7 @@ public class EmailValidator {
     public static boolean isPublicSectorEmail(String email) {
         String lowerCaseEmail = email.toLowerCase();
         String[] emailParts = lowerCaseEmail.split("@");
-        if ((emailParts.length != 2) || emailParts[0].isEmpty() || emailParts[1].isEmpty()) {
+        if (emailParts.length != 2 || emailParts[0].isEmpty() || emailParts[1].isEmpty()) {
             return false;
         }
         String domain = emailParts[1];

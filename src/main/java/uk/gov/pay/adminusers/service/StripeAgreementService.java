@@ -33,8 +33,7 @@ public class StripeAgreementService {
     }
 
     public Optional<StripeAgreement> findStripeAgreementByServiceId(String serviceExternalId) {
-        return stripeAgreementDao.findByServiceExternalId(serviceExternalId)
-                .map((StripeAgreementEntity::toStripeAgreement));
+        return stripeAgreementDao.findByServiceExternalId(serviceExternalId).map(StripeAgreementEntity::toStripeAgreement);
     }
     
     public void doCreate(String serviceExternalId, InetAddress ipAddress) {

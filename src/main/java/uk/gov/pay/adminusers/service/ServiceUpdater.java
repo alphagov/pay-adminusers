@@ -45,7 +45,7 @@ public class ServiceUpdater {
 
     @Inject
     public ServiceUpdater(ServiceDao serviceDao) {
-        Map<String, BiConsumer<ServiceUpdateRequest, ServiceEntity>> attributeUpdaters = new HashMap<>((Map.ofEntries(
+        Map<String, BiConsumer<ServiceUpdateRequest, ServiceEntity>> attributeUpdaters = new HashMap<>(Map.ofEntries(
                 entry(FIELD_GATEWAY_ACCOUNT_IDS, assignGatewayAccounts()),
                 entry(FIELD_CUSTOM_BRANDING, updateCustomBranding()),
                 entry(FIELD_REDIRECT_NAME, updateRedirectImmediately()),
@@ -59,7 +59,7 @@ public class ServiceUpdater {
                 entry(FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, updateMerchantDetailsAddressPostcode()),
                 entry(FIELD_MERCHANT_DETAILS_EMAIL, updateMerchantDetailsEmail()),
                 entry(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, updateMerchantDetailsPhone())
-        )));
+        ));
 
         Arrays.stream(SupportedLanguage.values())
                 .forEach(language -> attributeUpdaters.put(FIELD_SERVICE_NAME_PREFIX + '/' + language.toString(), updateServiceName()));

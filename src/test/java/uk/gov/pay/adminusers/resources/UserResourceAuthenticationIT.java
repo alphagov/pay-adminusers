@@ -57,7 +57,7 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
         String username = randomUuid() + "@example.com";
         String email = username;
         String password = "password-" + username;
-        String encryptedPassword = (new PasswordHasher()).hash(password);
+        String encryptedPassword = new PasswordHasher().hash(password);
 
         UserDbFixture.userDbFixture(databaseHelper)
                 .withUsername(username)
