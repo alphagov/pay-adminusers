@@ -183,7 +183,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
     @Test
     public void shouldReturn404_whenGetServiceById_ifNotFound() {
         String externalId = randomUuid();
-        org.mockito.BDDMockito.given(mockedServiceDao.findByExternalId(externalId)).willReturn(Optional.empty());
+        given(mockedServiceDao.findByExternalId(externalId)).willReturn(Optional.empty());
         Response response = resources.target(format("/v1/api/services/%s", externalId)).request().get();
         assertThat(response.getStatus(), is(404));
     }

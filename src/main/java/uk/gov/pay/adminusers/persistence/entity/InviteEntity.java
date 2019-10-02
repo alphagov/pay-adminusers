@@ -15,7 +15,6 @@ import javax.persistence.Table;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import static java.time.ZonedDateTime.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static uk.gov.pay.adminusers.model.InviteType.USER;
 import static uk.gov.pay.adminusers.persistence.entity.UTCDateTimeConverter.UTC;
@@ -75,7 +74,7 @@ public class InviteEntity extends AbstractEntity {
     }
 
     public InviteEntity(String email, String code, String otpKey, RoleEntity role) {
-        this.date = now(ZoneId.of("UTC"));
+        this.date = ZonedDateTime.now(ZoneId.of("UTC"));
         initializeExpiry();
         this.code = code;
         this.otpKey = otpKey;
@@ -225,7 +224,7 @@ public class InviteEntity extends AbstractEntity {
     }
 
     public boolean isExpired() {
-        return now(UTC).isAfter(expiryDate);
+        return ZonedDateTime.now(UTC).isAfter(expiryDate);
     }
 
     public UserEntity mapToUserEntity() {

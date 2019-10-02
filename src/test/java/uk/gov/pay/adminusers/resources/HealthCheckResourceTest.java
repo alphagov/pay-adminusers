@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.jayway.jsonassert.JsonAssert;
 import io.dropwizard.setup.Environment;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,8 +51,8 @@ public class HealthCheckResourceTest {
 
         JsonAssert.with(body)
                 .assertThat("$.*", hasSize(2))
-                .assertThat("$.ping.healthy", Is.is(false))
-                .assertThat("$.deadlocks.healthy", Is.is(false));
+                .assertThat("$.ping.healthy", is(false))
+                .assertThat("$.deadlocks.healthy", is(false));
     }
 
     @Test
@@ -69,8 +68,8 @@ public class HealthCheckResourceTest {
 
         JsonAssert.with(body)
                 .assertThat("$.*", hasSize(2))
-                .assertThat("$.ping.healthy", Is.is(true))
-                .assertThat("$.deadlocks.healthy", Is.is(true));
+                .assertThat("$.ping.healthy", is(true))
+                .assertThat("$.deadlocks.healthy", is(true));
     }
 
     @Test
@@ -86,8 +85,8 @@ public class HealthCheckResourceTest {
 
         JsonAssert.with(body)
                 .assertThat("$.*", hasSize(2))
-                .assertThat("$.ping.healthy", Is.is(true))
-                .assertThat("$.deadlocks.healthy", Is.is(false));
+                .assertThat("$.ping.healthy", is(true))
+                .assertThat("$.deadlocks.healthy", is(false));
     }
 
 }

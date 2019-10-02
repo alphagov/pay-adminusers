@@ -272,7 +272,7 @@ public class ServiceResource {
     public Response getGovUkPayAgreement(@PathParam("serviceExternalId") String serviceExternalId) {
         return govUkPayAgreementService.findGovUkPayAgreementByServiceId(serviceExternalId)
                 .map(agreement -> Response.status(OK).entity(agreement).build())
-                .orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));
+                .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
     }
     
     private Response createGovUkPayAgreementFromPayload(String serviceExternalId, JsonNode payload) {
@@ -283,7 +283,7 @@ public class ServiceResource {
         }
         
         ServiceEntity serviceEntity = serviceDao.findByExternalId(serviceExternalId)
-                .orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));
+                .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
         Optional<UserEntity> userEntity = userDao.findByExternalId(payload.get("user_external_id").asText());
         if (!userEntity.isPresent()) {
             return Response.status(BAD_REQUEST).entity(Errors.from("Field [user_external_id] must be a valid user ID")).build();

@@ -51,7 +51,7 @@ public class ForgottenPasswordResource {
                         Response.status(BAD_REQUEST).type(APPLICATION_JSON).entity(errors).build())
                 .orElseGet(() -> {
                     forgottenPasswordServices.create(payload.get("username").asText());
-                    return Response.status(Response.Status.OK).build();
+                    return Response.status(OK).build();
                 });
     }
 
