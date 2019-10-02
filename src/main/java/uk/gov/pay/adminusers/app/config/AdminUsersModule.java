@@ -35,6 +35,7 @@ public class AdminUsersModule extends AbstractModule {
     private final Environment environment;
 
     public AdminUsersModule(final AdminUsersConfig configuration, final Environment environment) {
+        super();
         this.configuration = configuration;
         this.secondFactorAuthConfig = configuration.getSecondFactorAuthConfiguration();
         this.environment = environment;

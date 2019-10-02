@@ -18,6 +18,7 @@ public class ServiceOtpDispatcher extends InviteOtpDispatcher {
 
     @Inject
     public ServiceOtpDispatcher(InviteDao inviteDao, SecondFactorAuthenticator secondFactorAuthenticator, NotificationService notificationService) {
+        super();
         this.inviteDao = inviteDao;
         this.secondFactorAuthenticator = secondFactorAuthenticator;
         this.notificationService = notificationService;

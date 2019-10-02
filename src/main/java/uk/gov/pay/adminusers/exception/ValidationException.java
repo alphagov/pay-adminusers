@@ -7,6 +7,7 @@ public class ValidationException extends Throwable {
     private Errors errors;
 
     public ValidationException(Errors errors) {
+        super();
         this.errors = errors;
     }
 

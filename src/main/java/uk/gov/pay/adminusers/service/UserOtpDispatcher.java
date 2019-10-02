@@ -20,7 +20,10 @@ public class UserOtpDispatcher extends InviteOtpDispatcher {
     private final NotificationService notificationService;
 
     @Inject
-    public UserOtpDispatcher(InviteDao inviteDao, SecondFactorAuthenticator secondFactorAuthenticator, PasswordHasher passwordHasher, NotificationService notificationService) {
+    public UserOtpDispatcher(InviteDao inviteDao, SecondFactorAuthenticator secondFactorAuthenticator,
+                             PasswordHasher passwordHasher,
+                             NotificationService notificationService) {
+        super();
         this.inviteDao = inviteDao;
         this.secondFactorAuthenticator = secondFactorAuthenticator;
         this.passwordHasher = passwordHasher;

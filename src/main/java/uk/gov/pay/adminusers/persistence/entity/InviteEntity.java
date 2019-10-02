@@ -69,11 +69,15 @@ public class InviteEntity extends AbstractEntity {
     @Column(name = "type")
     private String type = USER.getType();
 
+    /**
+     * For JPA
+     */
     public InviteEntity() {
-        //for jpa
+        super();
     }
 
     public InviteEntity(String email, String code, String otpKey, RoleEntity role) {
+        super();
         this.date = ZonedDateTime.now(ZoneId.of("UTC"));
         initializeExpiry();
         this.code = code;
