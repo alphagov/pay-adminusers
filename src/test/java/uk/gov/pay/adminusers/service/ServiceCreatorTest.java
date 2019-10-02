@@ -107,9 +107,9 @@ public class ServiceCreatorTest {
 
     @Test
     public void shouldSuccess_whenProvidedWith_unassignedGatewayId() {
-        String gatewayAccountId_2 = "gatewayAccountId_2";
-        String gatewayAccountId_1 = "gatewayAccountId_1";
-        Service service = serviceCreator.doCreate(List.of(gatewayAccountId_1, gatewayAccountId_2), Collections.emptyMap());
+        String gatewayAccountId2 = "gatewayAccountId2";
+        String gatewayAccountId1 = "gatewayAccountId1";
+        Service service = serviceCreator.doCreate(List.of(gatewayAccountId1, gatewayAccountId2), Collections.emptyMap());
 
         verify(mockedServiceDao, times(1)).checkIfGatewayAccountsUsed(anyList());
         verify(mockedServiceDao, times(1)).persist(persistedServiceEntity.capture());
@@ -118,23 +118,23 @@ public class ServiceCreatorTest {
 
         List<String> persistedGatewayIds = persistedServiceEntity.getValue().getGatewayAccountIds().stream().map(GatewayAccountIdEntity::getGatewayAccountId).collect(toList());
         assertThat(persistedGatewayIds.size(), is(2));
-        assertThat(persistedGatewayIds, hasItems(gatewayAccountId_1, gatewayAccountId_2));
+        assertThat(persistedGatewayIds, hasItems(gatewayAccountId1, gatewayAccountId2));
 
-        assertThat(service.getGatewayAccountIds(), hasItems(gatewayAccountId_1, gatewayAccountId_2));
+        assertThat(service.getGatewayAccountIds(), hasItems(gatewayAccountId1, gatewayAccountId2));
         assertEnServiceNameMap(service, "System Generated");
         assertSelfLink(service);
 
         verify(mockedServiceDao).checkIfGatewayAccountsUsed(listArgumentCaptor.capture());
         List<String> gatewayAccounts = listArgumentCaptor.getValue();
         assertThat(gatewayAccounts.size(), is(2));
-        assertThat(gatewayAccounts, containsInAnyOrder(gatewayAccountId_1, gatewayAccountId_2));
+        assertThat(gatewayAccounts, containsInAnyOrder(gatewayAccountId1, gatewayAccountId2));
     }
 
     @Test
     public void shouldSuccess_whenProvidedWith_validName_AndUnassignedGatewayId() {
-        String gatewayAccountId_2 = "gatewayAccountId_2";
-        String gatewayAccountId_1 = "gatewayAccountId_1";
-        Service service = serviceCreator.doCreate(List.of(gatewayAccountId_1, gatewayAccountId_2), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
+        String gatewayAccountId2 = "gatewayAccountId2";
+        String gatewayAccountId1 = "gatewayAccountId1";
+        Service service = serviceCreator.doCreate(List.of(gatewayAccountId1, gatewayAccountId2), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
 
         verify(mockedServiceDao, times(1)).checkIfGatewayAccountsUsed(anyList());
         verify(mockedServiceDao, times(1)).persist(persistedServiceEntity.capture());
@@ -142,8 +142,8 @@ public class ServiceCreatorTest {
         assertThat(service.getName(), is(EN_SERVICE_NAME));
         List<String> persistedGatewayIds = persistedServiceEntity.getValue().getGatewayAccountIds().stream().map(GatewayAccountIdEntity::getGatewayAccountId).collect(toList());
         assertThat(persistedGatewayIds.size(), is(2));
-        assertThat(persistedGatewayIds, hasItems(gatewayAccountId_1, gatewayAccountId_1));
-        assertThat(service.getGatewayAccountIds(), hasItems(gatewayAccountId_1, gatewayAccountId_2));
+        assertThat(persistedGatewayIds, hasItems(gatewayAccountId1, gatewayAccountId1));
+        assertThat(service.getGatewayAccountIds(), hasItems(gatewayAccountId1, gatewayAccountId2));
 
         assertEnServiceNameMap(service, EN_SERVICE_NAME);
 
