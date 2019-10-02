@@ -31,7 +31,7 @@ public class DaoTestBase {
     public static PostgresDockerRule postgres = new PostgresDockerRule();
 
     protected static DatabaseTestHelper databaseHelper;
-    static GuicedTestEnvironment env;
+    protected static GuicedTestEnvironment env;
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -72,7 +72,7 @@ public class DaoTestBase {
         env.stop();
     }
 
-    Permission aPermission() {
+    protected Permission aPermission() {
         return permission(randomInt(), "permission-name-" + randomUuid(), "permission-description" + randomUuid());
     }
 }

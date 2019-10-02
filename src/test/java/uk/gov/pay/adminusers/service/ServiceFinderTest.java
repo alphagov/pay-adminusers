@@ -22,9 +22,9 @@ import static org.mockito.Mockito.when;
 public class ServiceFinderTest {
 
     @Mock
-    ServiceDao serviceDao;
+    private ServiceDao serviceDao;
 
-    ServiceFinder serviceFinder;
+    private ServiceFinder serviceFinder;
 
     @Before
     public void before() {

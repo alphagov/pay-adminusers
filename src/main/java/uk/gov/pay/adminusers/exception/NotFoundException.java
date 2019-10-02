@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.exception;
 
-class NotFoundException extends RuntimeException {
-    NotFoundException(String message) {
+/* default */ class NotFoundException extends RuntimeException {
+    /* default */ NotFoundException(String message) {
         super(message);
     }
 }

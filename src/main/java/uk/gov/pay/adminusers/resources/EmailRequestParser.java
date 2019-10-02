@@ -19,7 +19,7 @@ public class EmailRequestParser {
         this.mapper = mapper;
     }
 
-    EmailRequest parse(JsonNode payload) throws InvalidEmailRequestException {
+    /* default */ EmailRequest parse(JsonNode payload) throws InvalidEmailRequestException {
         try {
             String emailAddress = payload.get("address").asText();
             String gatewayAccountId = payload.get("gateway_account_external_id").asText();

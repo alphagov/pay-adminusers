@@ -24,8 +24,8 @@ public class ResetPasswordResource {
 
     private static final Logger logger = LoggerFactory.getLogger(ResetPasswordResource.class);
     private static final String RESET_PASSWORD_RESOURCE = "/v1/api/reset-password";
-    static final String FIELD_CODE = "forgotten_password_code";
-    static final String FIELD_PASSWORD = "new_password";
+    /* default */ static final String FIELD_CODE = "forgotten_password_code";
+    /* default */ static final String FIELD_PASSWORD = "new_password";
 
     private final ResetPasswordValidator resetPasswordValidator;
     private final ResetPasswordService resetPasswordService;

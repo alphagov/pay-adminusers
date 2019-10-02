@@ -21,26 +21,26 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 public class IntegrationTest {
 
-    static final String USERS_RESOURCE_URL = "/v1/api/users";
-    static final String FIND_RESOURCE_URL = "/v1/api/users/find";
-    static final String USER_RESOURCE_URL = "/v1/api/users/%s";
-    static final String USERS_AUTHENTICATE_URL = "/v1/api/users/authenticate";
-    static final String USER_2FA_URL = "/v1/api/users/%s/second-factor";
-    static final String USER_SERVICES_RESOURCE = USER_RESOURCE_URL + "/services";
-    static final String USER_SERVICE_RESOURCE = USER_RESOURCE_URL + "/services/%s";
+    /* default */ static final String USERS_RESOURCE_URL = "/v1/api/users";
+    /* default */ static final String FIND_RESOURCE_URL = "/v1/api/users/find";
+    /* default */ static final String USER_RESOURCE_URL = "/v1/api/users/%s";
+    /* default */ static final String USERS_AUTHENTICATE_URL = "/v1/api/users/authenticate";
+    /* default */ static final String USER_2FA_URL = "/v1/api/users/%s/second-factor";
+    /* default */ static final String USER_SERVICES_RESOURCE = USER_RESOURCE_URL + "/services";
+    /* default */ static final String USER_SERVICE_RESOURCE = USER_RESOURCE_URL + "/services/%s";
 
-    static final String INVITES_RESOURCE_URL = "/v1/api/invites";
-    static final String INVITES_GENERATE_OTP_RESOURCE_URL = "/v1/api/invites/%s/otp/generate";
-    static final String INVITES_RESEND_OTP_RESOURCE_URL = "/v1/api/invites/otp/resend";
-    static final String INVITES_VALIDATE_OTP_RESOURCE_URL = "/v1/api/invites/otp/validate";
+    /* default */ static final String INVITES_RESOURCE_URL = "/v1/api/invites";
+    /* default */ static final String INVITES_GENERATE_OTP_RESOURCE_URL = "/v1/api/invites/%s/otp/generate";
+    /* default */ static final String INVITES_RESEND_OTP_RESOURCE_URL = "/v1/api/invites/otp/resend";
+    /* default */ static final String INVITES_VALIDATE_OTP_RESOURCE_URL = "/v1/api/invites/otp/validate";
 
-    static final String SERVICE_INVITES_VALIDATE_OTP_RESOURCE_URL = "/v1/api/invites/otp/validate/service";
-    static final String SERVICES_RESOURCE = "/v1/api/services";
-    static final String SERVICE_RESOURCE = SERVICES_RESOURCE + "/%s";
+    /* default */ static final String SERVICE_INVITES_VALIDATE_OTP_RESOURCE_URL = "/v1/api/invites/otp/validate/service";
+    /* default */ static final String SERVICES_RESOURCE = "/v1/api/services";
+    /* default */ static final String SERVICE_RESOURCE = SERVICES_RESOURCE + "/%s";
 
     @Deprecated
-    static final String SERVICE_INVITES_RESOURCE_URL = "/v1/api/services/%d/invites";
-    static final String INVITE_USER_RESOURCE_URL = "/v1/api/invites/user";
+    /* default */ static final String SERVICE_INVITES_RESOURCE_URL = "/v1/api/services/%d/invites";
+    /* default */ static final String INVITE_USER_RESOURCE_URL = "/v1/api/invites/user";
 
     @ClassRule
     public static final DropwizardAppWithPostgresRule app;

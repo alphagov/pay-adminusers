@@ -99,7 +99,7 @@ public class InviteService {
                 .orElseGet(() -> Optional.of(notFoundInviteException(inviteOtpRequest.getCode())));
     }
 
-    Optional<WebApplicationException> validateOtp(InviteEntity inviteEntity, int otpCode) {
+    /* default */ Optional<WebApplicationException> validateOtp(InviteEntity inviteEntity, int otpCode) {
         if (inviteEntity.isDisabled()) {
             return Optional.of(inviteLockedException(inviteEntity.getCode()));
         }

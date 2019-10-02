@@ -80,7 +80,7 @@ public class ServiceUpdateOperationValidator {
         this.requestValidations = requestValidations;
     }
 
-    List<String> validate(JsonNode operation) {
+    /* default */ List<String> validate(JsonNode operation) {
         List<String> errors = validateOpAndPathExistAndNotEmpty(operation);
         if (!errors.isEmpty()) {
             return errors;

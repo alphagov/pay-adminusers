@@ -9,10 +9,10 @@ import java.util.Optional;
 @Transactional
 public abstract class JpaDao<T> {
 
-    final Provider<EntityManager> entityManager;
+    /* default */ final Provider<EntityManager> entityManager;
     private final Class<T> persistenceClass;
 
-    JpaDao(Provider<EntityManager> entityManager, Class<T> persistenceClass) {
+    /* default */ JpaDao(Provider<EntityManager> entityManager, Class<T> persistenceClass) {
         this.entityManager = entityManager;
         this.persistenceClass = persistenceClass;
     }

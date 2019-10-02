@@ -67,7 +67,7 @@ import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT
 public class ServiceResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceResource.class);
-    static final String HEADER_USER_CONTEXT = "GovUkPay-User-Context";
+    /* default */static final String HEADER_USER_CONTEXT = "GovUkPay-User-Context";
     public static final String SERVICES_RESOURCE = "/v1/api/services";
 
     public static final String FIELD_NAME = "name";

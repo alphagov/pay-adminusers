@@ -43,10 +43,10 @@ public class ServiceCreatorTest {
     private static final String BASE_URL = "http://localhost";
 
     @Mock
-    ServiceDao mockedServiceDao;
+    private ServiceDao mockedServiceDao;
 
     @Captor
-    ArgumentCaptor<ServiceEntity> persistedServiceEntity;
+    private ArgumentCaptor<ServiceEntity> persistedServiceEntity;
     @Captor
     private ArgumentCaptor<List<String>> listArgumentCaptor;
 

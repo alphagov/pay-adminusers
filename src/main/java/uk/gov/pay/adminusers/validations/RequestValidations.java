@@ -113,23 +113,23 @@ public class RequestValidations {
         );
     }
 
-    static Function<JsonNode, Boolean> isNotNumeric() {
+    /* default */ static Function<JsonNode, Boolean> isNotNumeric() {
         return jsonNode -> !isDigits(jsonNode.asText());
     }
 
-    static Function<JsonNode, Boolean> isNotBoolean() {
+    /* default */ static Function<JsonNode, Boolean> isNotBoolean() {
         return jsonNode -> !List.of("true", "false").contains(jsonNode.asText().toLowerCase());
     }
 
-    static Function<JsonNode, Boolean> isNotStrictBoolean() {
+    /* default */ static Function<JsonNode, Boolean> isNotStrictBoolean() {
         return jsonNode -> !jsonNode.isBoolean();
     }
 
-    static Function<JsonNode, Boolean> isNotString() {
+    /* default */ static Function<JsonNode, Boolean> isNotString() {
         return jsonNode -> !jsonNode.isTextual();
     }
 
-    static Function<JsonNode, Boolean> isNotValidTelephoneNumber() {
+    /* default */ static Function<JsonNode, Boolean> isNotValidTelephoneNumber() {
         return jsonNode -> !TelephoneNumberUtility.isValidPhoneNumber(jsonNode.asText());
     }
 
