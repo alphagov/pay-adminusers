@@ -51,14 +51,28 @@ public class Role {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Role role = (Role) o;
 
-        if (!id.equals(role.id)) return false;
-        if (!name.equals(role.name)) return false;
-        if (!description.equals(role.description)) return false;
+        if (!id.equals(role.id)) {
+            return false;
+        }
+
+        if (!name.equals(role.name)) {
+            return false;
+        }
+
+        if (!description.equals(role.description)) {
+            return false;
+        }
+
         return isEqualCollection(permissions, role.permissions);
     }
 

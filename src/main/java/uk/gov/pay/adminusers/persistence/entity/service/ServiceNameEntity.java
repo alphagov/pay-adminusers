@@ -87,8 +87,14 @@ public class ServiceNameEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
         ServiceNameEntity that = (ServiceNameEntity) o;
         return Objects.equals(service, that.service) &&
                 Objects.equals(language, that.language) &&
