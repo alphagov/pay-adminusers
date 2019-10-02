@@ -19,7 +19,7 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class ForgottenPasswordServices {
 
-    private static final Logger logger = LoggerFactory.getLogger(ForgottenPasswordServices.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ForgottenPasswordServices.class);
     private static final String SELFSERVICE_FORGOTTEN_PASSWORD_PATH = "reset-password";
 
     private final UserDao userDao;
@@ -47,13 +47,13 @@ public class ForgottenPasswordServices {
             
             try {
                 String notificationId = notificationService.sendForgottenPasswordEmail(userEntity.getEmail(), forgottenPasswordUrl);
-                logger.info("sent forgot password email successfully user [{}], notification id [{}]", userEntity.getExternalId(), notificationId);
+                LOGGER.info("sent forgot password email successfully user [{}], notification id [{}]", userEntity.getExternalId(), notificationId);
             } catch (Exception e) {
-                logger.error(format("error sending forgotten password email for user [%s]", userEntity.getExternalId()), e);
+                LOGGER.error(format("error sending forgotten password email for user [%s]", userEntity.getExternalId()), e);
             }
             
         } else {
-            logger.warn("Attempted forgotten password for non existent user {}", username);
+            LOGGER.warn("Attempted forgotten password for non existent user {}", username);
             throw AdminUsersExceptions.notFoundException();
         }
     }
@@ -62,7 +62,7 @@ public class ForgottenPasswordServices {
         return forgottenPasswordDao.findNonExpiredByCode(code)
                 .map(forgottenPasswordEntity -> Optional.of(linksBuilder.decorate(forgottenPasswordEntity.toForgottenPassword())))
                 .orElseGet(() -> {
-                    logger.warn("Attempted forgotten password GET for non-existent/expired code {}", code);
+                    LOGGER.warn("Attempted forgotten password GET for non-existent/expired code {}", code);
                     return Optional.empty();
                 });
     }

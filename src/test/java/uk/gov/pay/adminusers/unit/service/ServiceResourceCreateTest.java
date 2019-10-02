@@ -59,7 +59,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
     private static UserDao mockedUserDao = mock(UserDao.class);
     private static ServiceServicesFactory mockedServicesFactory = mock(ServiceServicesFactory.class);
 
-    private static ServiceCreator serviceCreator = new ServiceCreator(mockedServiceDao, linksBuilder);
+    private static ServiceCreator serviceCreator = new ServiceCreator(mockedServiceDao, LINKS_BUILDER);
     private static ServiceCreator mockedServiceCreator = mock(ServiceCreator.class);
 
     private static RequestValidations requestValidations = new RequestValidations();
@@ -74,7 +74,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
             .addResource(new ServiceResource(
                     mockedUserDao,
                     mockedServiceDao,
-                    linksBuilder,
+                    LINKS_BUILDER,
                     serviceRequestValidator,
                     mockedServicesFactory,
                     stripeAgreementService,
@@ -275,6 +275,6 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         ServiceEntity serviceEntity = ServiceEntity.from(Service.from());
         serviceNames.forEach((language, name) -> serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(language, name)));
         serviceEntity.addGatewayAccountIds(gatewayAccountIds.toArray(new String[0]));
-        return linksBuilder.decorate(serviceEntity.toService());
+        return LINKS_BUILDER.decorate(serviceEntity.toService());
     }
 }

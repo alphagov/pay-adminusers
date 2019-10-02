@@ -34,7 +34,7 @@ public abstract class ContractTest {
     @TestTarget
     public static Target target;
 
-    private static final PasswordHasher passwordHasher = new PasswordHasher();
+    private static final PasswordHasher PASSWORD_HASHER = new PasswordHasher();
     private static DatabaseTestHelper dbHelper;
 
     @BeforeClass
@@ -205,7 +205,7 @@ public abstract class ContractTest {
         userDbFixture(dbHelper)
                 .withExternalId(externalId)
                 .withUsername(username)
-                .withPassword(passwordHasher.hash(password))
+                .withPassword(PASSWORD_HASHER.hash(password))
                 .withEmail("user-" + username + "@example.com")
                 .withTelephoneNumber("45334534634")
                 .withOtpKey("34f34")

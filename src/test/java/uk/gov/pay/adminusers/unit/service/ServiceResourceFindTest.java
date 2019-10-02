@@ -46,7 +46,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
 
     private static ServiceServicesFactory mockedServicesFactory = mock(ServiceServicesFactory.class);
 
-    private static ServiceFinder serviceFinder = new ServiceFinder(mockedServiceDao, linksBuilder);
+    private static ServiceFinder serviceFinder = new ServiceFinder(mockedServiceDao, LINKS_BUILDER);
     private static ServiceRequestValidator serviceRequestValidator = new ServiceRequestValidator(new RequestValidations(), null);
     private static StripeAgreementService stripeAgreementService = mock(StripeAgreementService.class);
     private static GovUkPayAgreementRequestValidator payAgreementRequestValidator = new GovUkPayAgreementRequestValidator(new RequestValidations());
@@ -58,7 +58,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
             .addResource(new ServiceResource(
                     mockedUserDao,
                     mockedServiceDao,
-                    linksBuilder,
+                    LINKS_BUILDER,
                     serviceRequestValidator,
                     mockedServicesFactory,
                     stripeAgreementService,

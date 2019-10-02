@@ -17,7 +17,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 @Path("/")
 public class EmailResource {
 
-    private static final Logger logger = LoggerFactory.getLogger(EmailResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmailResource.class);
 
     private final EmailService notificationService;
     private final EmailRequestParser emailRequestParser;
@@ -33,11 +33,11 @@ public class EmailResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response sendEmail(JsonNode payload) throws InvalidEmailRequestException, InvalidMerchantDetailsException {
-        logger.info("Received email request");
+        LOGGER.info("Received email request");
         EmailRequest emailRequest = emailRequestParser.parse(payload);
         EmailTemplate template = emailRequest.getTemplate();
         String gatewayAccountId = emailRequest.getGatewayAccountId();
-        logger.info("Sending {} email for account {}", template, gatewayAccountId);
+        LOGGER.info("Sending {} email for account {}", template, gatewayAccountId);
         notificationService.sendEmail(
                 emailRequest.getEmailAddress(),
                 gatewayAccountId,

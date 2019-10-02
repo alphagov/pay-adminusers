@@ -25,7 +25,7 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.undefinedRoleEx
 
 public class UserCreator {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserCreator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserCreator.class);
 
     private final UserDao userDao;
     private final RoleDao roleDao;
@@ -78,7 +78,7 @@ public class UserCreator {
                     return null;
                 })
                 .orElseGet(() -> {
-                    logger.error("Unable to assign service with external id {} to user, as it does not exist", serviceExternalId);
+                    LOGGER.error("Unable to assign service with external id {} to user, as it does not exist", serviceExternalId);
                     return null;
                 }));
     }

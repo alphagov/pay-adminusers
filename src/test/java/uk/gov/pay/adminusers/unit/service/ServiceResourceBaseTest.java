@@ -18,7 +18,7 @@ abstract class ServiceResourceBaseTest {
 
     /* default */ static ServiceDao mockedServiceDao = mock(ServiceDao.class);
     private static final String HTTPS_BASE_URL = "https://base-url";
-    /* default */ static final LinksBuilder linksBuilder = new LinksBuilder(HTTPS_BASE_URL);
+    /* default */ static final LinksBuilder LINKS_BUILDER = new LinksBuilder(HTTPS_BASE_URL);
 
     /* default */ static void assertLinks(String serviceExternalId, JsonPath json) {
         assertThat(json.getList("_links"), hasSize(1));

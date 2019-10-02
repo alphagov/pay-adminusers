@@ -59,7 +59,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
             .addResource(new ServiceResource(
                     mockedUserDao,
                     mockedServiceDao,
-                    linksBuilder,
+                    LINKS_BUILDER,
                     requestValidator,
                     mockedServicesFactory,
                     stripeAgreementService,

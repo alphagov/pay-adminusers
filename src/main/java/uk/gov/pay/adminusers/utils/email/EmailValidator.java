@@ -11,41 +11,38 @@ public class EmailValidator {
      * - <a href="https://en.wikipedia.org/wiki/.uk">en.wikipedia.org/wiki/.uk</a><br>
      * - <a href="https://github.com/alphagov/notifications-admin/blob/9391181b2c7d077ea8fe0a72c718ab8f7fdbcd0c/app/config.py#L67">alphagov/notifications-admin</a><br>
      */
-    private static final List<String> PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER;
-    private static final org.apache.commons.validator.routines.EmailValidator commonsEmailValidator = org.apache.commons.validator.routines.EmailValidator.getInstance();
-    static {
-        PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER = List.of(
-                "acas\\.org\\.uk",
-                "accessplanit\\.com",
-                "assembly\\.wales",
-                "caa\\.co\\.uk",
-                "careinspectorate\\.com",
-                "cynulliad\\.cymru",
-                "derrystrabane\\.com",
-                "gov\\.scot",
-                "gov\\.uk",
-                "gov\\.wales",
-                "hmcts\\.net",
-                "judiciary\\.uk",
-                "llyw\\.cymru",
-                "mil\\.uk",
-                "mod\\.uk",
-                "naturalengland\\.org\\.uk",
-                "nhm\\.ac\\.uk",
-                "nhs\\.net",
-                "nhs\\.uk",
-                "parliament\\.scot",
-                "parliament\\.uk",
-                "police\\.uk",
-                "prrt\\.org",
-                "scotent\\.co\\.uk",
-                "slc\\.co\\.uk",
-                "socialworkengland\\.org\\.uk",
-                "ucds\\.email",
-                "wmca\\.org\\.uk",
-                "york\\.ac\\.uk"
-                );
-    }
+    private static final List<String> PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER = List.of(
+            "acas\\.org\\.uk",
+            "accessplanit\\.com",
+            "assembly\\.wales",
+            "caa\\.co\\.uk",
+            "careinspectorate\\.com",
+            "cynulliad\\.cymru",
+            "derrystrabane\\.com",
+            "gov\\.scot",
+            "gov\\.uk",
+            "gov\\.wales",
+            "hmcts\\.net",
+            "judiciary\\.uk",
+            "llyw\\.cymru",
+            "mil\\.uk",
+            "mod\\.uk",
+            "naturalengland\\.org\\.uk",
+            "nhm\\.ac\\.uk",
+            "nhs\\.net",
+            "nhs\\.uk",
+            "parliament\\.scot",
+            "parliament\\.uk",
+            "police\\.uk",
+            "prrt\\.org",
+            "scotent\\.co\\.uk",
+            "slc\\.co\\.uk",
+            "socialworkengland\\.org\\.uk",
+            "ucds\\.email",
+            "wmca\\.org\\.uk",
+            "york\\.ac\\.uk"
+    );
+
     private static final Pattern PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERN;
     static {
         String domainRegExPatternString = String.join("|", PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER);
@@ -57,6 +54,9 @@ public class EmailValidator {
                 Pattern.compile("^" + regExDomainsOnlyPart +  "|" + regExSubdomainsPart + "$");
     }
 
+    private static final org.apache.commons.validator.routines.EmailValidator COMMONS_EMAIL_VALIDATOR =
+            org.apache.commons.validator.routines.EmailValidator.getInstance();
+
     /**
      * <p>Checks if a field has a valid e-mail address.</p>
      *
@@ -65,7 +65,7 @@ public class EmailValidator {
      * @return true if the email address is valid.
      */
     public static boolean isValid(String email) {
-        return commonsEmailValidator.isValid(email);
+        return COMMONS_EMAIL_VALIDATOR.isValid(email);
     }
 
     /**
