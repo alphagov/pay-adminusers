@@ -57,7 +57,7 @@ public class DaoTestBase {
     }
 
     @AfterClass
-    public static void tearDown() {
+    public static void cleanUp() {
         try (Connection connection = DriverManager.getConnection(
                 postgres.getConnectionUrl(),
                 postgres.getUsername(),

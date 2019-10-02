@@ -118,9 +118,10 @@ public class Service {
      */
     public void setCustomBranding(Map<String, Object> customBranding) {
         if (customBranding != null && customBranding.isEmpty()) {
-            customBranding = null;
+            this.customBranding = null;
+        } else {
+            this.customBranding = customBranding;
         }
-        this.customBranding = customBranding;
     }
 
     public MerchantDetails getMerchantDetails() {

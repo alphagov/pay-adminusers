@@ -130,6 +130,6 @@ public class UserRequestValidator {
                 errors.add(validationPair.getRight());
             }
         });
-        return errors.size() != 0 ? Optional.of(errors) : Optional.empty();
+        return errors.isEmpty() ? Optional.empty() : Optional.of(errors);
     }
 }

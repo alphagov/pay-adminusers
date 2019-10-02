@@ -2,7 +2,13 @@ package uk.gov.pay.adminusers.persistence.entity;
 
 import uk.gov.pay.adminusers.model.ServiceRole;
 
-import javax.persistence.*;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "user_services_roles")

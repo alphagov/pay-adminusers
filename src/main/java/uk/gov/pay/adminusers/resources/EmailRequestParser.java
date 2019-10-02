@@ -28,7 +28,7 @@ public class EmailRequestParser {
             return new EmailRequest(emailAddress, gatewayAccountId, template, personalisation);
         } catch (Exception exc) {
             LOGGER.error("Error while parsing email request, exception: {}", exc.getMessage());
-            throw new InvalidEmailRequestException("Error while parsing email request body");
+            throw new InvalidEmailRequestException("Error while parsing email request body", exc);
         }
     }
 

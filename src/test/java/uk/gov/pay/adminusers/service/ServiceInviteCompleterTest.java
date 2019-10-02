@@ -13,7 +13,6 @@ import uk.gov.pay.adminusers.model.InviteCompleteResponse;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
-import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
@@ -44,8 +43,6 @@ import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceInviteCompleterTest {
     @Mock
-    private RoleDao mockRoleDao;
-    @Mock
     private ServiceDao mockServiceDao;
     @Mock
     private UserDao mockUserDao;
@@ -65,9 +62,7 @@ public class ServiceInviteCompleterTest {
     private String senderEmail = "sender@example.com";
     private String email = "invited@example.com";
     private int serviceId = 1;
-    private String serviceExternalId = "3453rmeuty87t";
     private String senderExternalId = "12345";
-    private String roleName = "view-only";
     private String baseUrl = "http://localhost";
 
     @Before

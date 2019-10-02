@@ -275,7 +275,7 @@ public class UserDaoIT extends DaoTestBase {
         String username = randomUuid();
         String email = username + "@example.com";
 
-        User user = userDbFixture(databaseHelper)
+        userDbFixture(databaseHelper)
                 .withServiceRole(service1, role1.getId()).withUsername(username).withEmail(email).insertUser();
 
         UserEntity existingUser = userDao.findByUsername(username).get();

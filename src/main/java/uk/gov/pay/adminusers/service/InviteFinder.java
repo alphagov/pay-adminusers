@@ -1,12 +1,13 @@
 package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
 

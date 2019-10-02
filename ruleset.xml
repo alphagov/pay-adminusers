@@ -6,8 +6,12 @@
     <description>GOV.UK Pay PMD rules, primarily for use by Codacy</description>
 
     <rule ref="category/java/bestpractices.xml">
+        <exclude name="AbstractClassWithoutAbstractMethod"/>
+
         <!-- Some tests use hard-coded IP addresses --> 
         <exclude name="AvoidUsingHardCodedIP"/>
+
+        <exclude name="GuardLogStatement"/>
 
         <exclude name="JUnitAssertionsShouldIncludeMessage"/>
 

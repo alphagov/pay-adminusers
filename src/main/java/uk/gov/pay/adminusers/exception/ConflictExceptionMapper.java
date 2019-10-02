@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.exception;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
-
 import java.util.List;
 import java.util.Map;
 

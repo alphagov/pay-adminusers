@@ -1,7 +1,11 @@
 package uk.gov.pay.adminusers.service;
 
-import uk.gov.pay.adminusers.model.*;
+import uk.gov.pay.adminusers.model.ForgottenPassword;
+import uk.gov.pay.adminusers.model.Invite;
+import uk.gov.pay.adminusers.model.Link;
 import uk.gov.pay.adminusers.model.Link.Rel;
+import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.User;
 
 import java.net.URI;
 import java.util.List;

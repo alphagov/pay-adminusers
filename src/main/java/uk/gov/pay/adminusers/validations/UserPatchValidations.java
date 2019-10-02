@@ -11,7 +11,10 @@ import java.util.function.Function;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.tuple.Pair.of;
-import static uk.gov.pay.adminusers.model.PatchRequest.*;
+import static uk.gov.pay.adminusers.model.PatchRequest.PATH_DISABLED;
+import static uk.gov.pay.adminusers.model.PatchRequest.PATH_FEATURES;
+import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
+import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TELEPHONE_NUMBER;
 import static uk.gov.pay.adminusers.validations.RequestValidations.isNotBoolean;
 import static uk.gov.pay.adminusers.validations.RequestValidations.isNotNumeric;
 import static uk.gov.pay.adminusers.validations.RequestValidations.isNotValidTelephoneNumber;

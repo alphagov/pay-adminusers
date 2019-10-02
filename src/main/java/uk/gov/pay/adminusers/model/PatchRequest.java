@@ -26,6 +26,10 @@ public class PatchRequest {
         return new PatchRequest(node.get("op").asText(), node.get("path").asText(), node.get("value").asText());
     }
 
+    public String getOp() {
+        return op;
+    }
+    
     public String getPath() {
         return path;
     }
