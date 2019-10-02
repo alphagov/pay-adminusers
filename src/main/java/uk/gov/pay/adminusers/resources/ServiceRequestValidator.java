@@ -35,16 +35,19 @@ public class ServiceRequestValidator {
 
     /* default */ Optional<Errors> validateUpdateAttributeRequest(JsonNode payload) {
         List<String> errors = new ArrayList<>();
-        if (!payload.isArray()) {
-            errors = serviceUpdateOperationValidator.validate(payload);
-        } else {
+
+        if (payload.isArray()) {
             for (JsonNode updateOperation : payload) {
                 errors.addAll(serviceUpdateOperationValidator.validate(updateOperation));
             }
+        } else {
+            errors = serviceUpdateOperationValidator.validate(payload);
         }
+
         if (!errors.isEmpty()) {
             return Optional.of(Errors.from(errors));
         }
+
         return Optional.empty();
     }
 

@@ -48,19 +48,25 @@ public class UserCreator {
                 .map(roleEntity -> {
                     UserEntity userEntity = UserEntity.from(userRequest);
                     userEntity.setPassword(passwordHasher.hash(userRequest.getPassword()));
-                    if ((userRequest.getServiceExternalIds() != null) &&
-                            (!userRequest.getServiceExternalIds().isEmpty())) {
+                    if (hasServiceIds(userRequest)) {
                         addServiceRoleToUser(userEntity, roleEntity, userRequest.getServiceExternalIds());
                     }
-                    //Deprecated, leaving for backward compatibility
-                    else if ((userRequest.getGatewayAccountIds() != null) &&
-                            (!userRequest.getGatewayAccountIds().isEmpty())) {
+                    // Deprecated, leaving for backward compatibility
+                    else if (hasGatewayAccountIds(userRequest)) {
                         addServiceFromGatewayAccountsToUser(userEntity, roleEntity, userRequest.getGatewayAccountIds());
                     }
                     userDao.persist(userEntity);
                     return linksBuilder.decorate(userEntity.toUser());
                 })
                 .orElseThrow(() -> undefinedRoleException(roleName));
+    }
+
+    private static boolean hasServiceIds(CreateUserRequest userRequest) {
+        return userRequest.getServiceExternalIds() != null && !userRequest.getServiceExternalIds().isEmpty();
+    }
+
+    private static boolean hasGatewayAccountIds(CreateUserRequest userRequest) {
+        return userRequest.getGatewayAccountIds() != null && !userRequest.getGatewayAccountIds().isEmpty();
     }
 
     private void addServiceRoleToUser(UserEntity user, RoleEntity role, List<String> serviceExternalIds) {
