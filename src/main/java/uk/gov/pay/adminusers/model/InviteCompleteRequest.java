@@ -13,9 +13,6 @@ public class InviteCompleteRequest {
 
     private List<String> gatewayAccountIds = new ArrayList<>();
 
-    public InviteCompleteRequest() {
-    }
-
     public void setGatewayAccountIds(List<String> gatewayAccountIds) {
         this.gatewayAccountIds = gatewayAccountIds;
     }
