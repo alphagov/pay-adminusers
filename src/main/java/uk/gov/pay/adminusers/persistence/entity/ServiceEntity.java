@@ -11,7 +11,6 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -28,6 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
+import static javax.persistence.EnumType.STRING;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 @Entity
@@ -65,7 +65,7 @@ public class ServiceEntity {
     private Set<ServiceNameEntity> serviceNames = new HashSet<>();
     
     @Column(name = "current_go_live_stage")
-    @Enumerated(value = EnumType.STRING)
+    @Enumerated(STRING)
     private GoLiveStage currentGoLiveStage = GoLiveStage.NOT_STARTED;
 
     public ServiceEntity() {
