@@ -96,4 +96,28 @@
         </properties>
     </rule>
 
+    <rule ref="category/java/errorprone.xml">
+        <exclude name="AvoidDuplicateLiterals"/>
+
+        <exclude name="AvoidFieldNameMatchingMethodName"/>
+
+        <exclude name="AvoidFieldNameMatchingTypeName"/>
+
+        <!-- Would flag fields that store injected dependencies etc. -->
+        <exclude name="BeanMembersShouldSerialize"/>
+
+        <exclude name="DataflowAnomalyAnalysis"/>
+
+        <!-- We never use Java serialisation -->
+        <exclude name="MissingSerialVersionUID"/>
+
+        <exclude name="NullAssignment"/>
+
+        <!-- Would flag some Pact tests -->
+        <exclude name="TestClassWithoutTestCases"/>
+
+        <!-- Deprecated rules -->
+        <exclude name="LoggerIsNotStaticFinal"/>
+    </rule>
+
 </ruleset>
