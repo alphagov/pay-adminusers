@@ -2,7 +2,7 @@ package uk.gov.pay.adminusers.exception;
 
 import uk.gov.pay.adminusers.utils.Errors;
 
-public class ValidationException extends Throwable {
+public class ValidationException extends Exception {
 
     private Errors errors;
 
