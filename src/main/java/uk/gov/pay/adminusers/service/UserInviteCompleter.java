@@ -20,6 +20,7 @@ public class UserInviteCompleter extends InviteCompleter {
 
     @Inject
     public UserInviteCompleter(InviteDao inviteDao, UserDao userDao) {
+        super();
         this.inviteDao = inviteDao;
         this.userDao = userDao;
     }

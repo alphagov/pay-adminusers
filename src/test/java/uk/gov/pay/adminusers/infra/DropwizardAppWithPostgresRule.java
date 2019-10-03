@@ -31,7 +31,7 @@ import static io.dropwizard.testing.ConfigOverride.config;
 import static io.dropwizard.testing.ResourceHelpers.resourceFilePath;
 
 public class DropwizardAppWithPostgresRule implements TestRule {
-    private static final Logger logger = LoggerFactory.getLogger(DropwizardAppWithPostgresRule.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DropwizardAppWithPostgresRule.class);
     private static final String JPA_UNIT = "AdminUsersUnit";
 
     private final String configFilePath;
@@ -70,7 +70,7 @@ public class DropwizardAppWithPostgresRule implements TestRule {
         return rules.apply(new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                logger.info("Clearing database.");
+                LOGGER.info("Clearing database.");
                 app.getApplication().run("db", "drop-all", "--confirm-delete-everything", configFilePath);
                 app.getApplication().run("migrateToInitialDbState", configFilePath);
                 doSecondaryDatabaseMigration();

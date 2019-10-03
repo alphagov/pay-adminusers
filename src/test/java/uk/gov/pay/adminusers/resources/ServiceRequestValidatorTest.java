@@ -26,8 +26,8 @@ import static org.mockito.BDDMockito.given;
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceRequestValidatorTest {
 
-    private static String DEFAULT_MERCHANT_DETAILS_NAME = "Merchant name";
-    private static String DEFAULT_MERCHANT_DETAILS_EMAIL = "merchant-user@example.com";
+    private static final String DEFAULT_MERCHANT_DETAILS_NAME = "Merchant name";
+    private static final String DEFAULT_MERCHANT_DETAILS_EMAIL = "merchant-user@example.com";
 
     @Mock
     private ServiceUpdateOperationValidator mockServiceUpdateOperationValidator;

@@ -30,10 +30,10 @@ public class CustomBrandingConverter implements AttributeConverter<Map<String, O
     @Override
     public Map<String, Object> convertToEntityAttribute(PGobject dbCustomBranding) {
         try {
-            if (dbCustomBranding != null && !isEmpty(dbCustomBranding.toString())) {
-                return new ObjectMapper().readValue(dbCustomBranding.toString(), new TypeReference<Map<String, Object>>() {});
-            } else {
+            if (dbCustomBranding == null || isEmpty(dbCustomBranding.toString())) {
                 return null;
+            } else {
+                return new ObjectMapper().readValue(dbCustomBranding.toString(), new TypeReference<>() {});
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

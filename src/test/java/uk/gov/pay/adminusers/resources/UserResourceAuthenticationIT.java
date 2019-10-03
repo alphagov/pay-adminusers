@@ -21,7 +21,7 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
 
     @Test
     public void shouldAuthenticateUser_onAValidUsernamePasswordCombination() throws Exception {
-        String[] gatewayAccountIds = new String[]{"1", "2"};
+        String[] gatewayAccountIds = {"1", "2"};
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccountIds).insertService();
 
         String username = createAValidUser(service);
@@ -57,7 +57,7 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
         String username = randomUuid() + "@example.com";
         String email = username;
         String password = "password-" + username;
-        String encryptedPassword = (new PasswordHasher()).hash(password);
+        String encryptedPassword = new PasswordHasher().hash(password);
 
         UserDbFixture.userDbFixture(databaseHelper)
                 .withUsername(username)
@@ -83,7 +83,7 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
 
     @Test
     public void shouldAuthenticateFail_onAInvalidUsernamePasswordCombination() throws Exception {
-        String[] gatewayAccountIds = new String[]{"3", "4"};
+        String[] gatewayAccountIds = {"3", "4"};
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccountIds).insertService();
 
         String username = createAValidUser(service);

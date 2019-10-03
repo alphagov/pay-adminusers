@@ -45,7 +45,7 @@ public class UserCreatorTest {
     @Mock
     private PasswordHasher mockPasswordHasher;
     private LinksBuilder linksBuilder = new LinksBuilder("http://localhost");
-    ArgumentCaptor<UserEntity> expectedUser = ArgumentCaptor.forClass(UserEntity.class);
+    private ArgumentCaptor<UserEntity> expectedUser = ArgumentCaptor.forClass(UserEntity.class);
 
     private UserCreator userCreator;
 

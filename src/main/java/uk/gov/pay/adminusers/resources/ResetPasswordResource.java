@@ -22,10 +22,10 @@ import static uk.gov.pay.adminusers.utils.Errors.from;
 @Path("/")
 public class ResetPasswordResource {
 
-    private static final Logger logger = LoggerFactory.getLogger(ResetPasswordResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResetPasswordResource.class);
     private static final String RESET_PASSWORD_RESOURCE = "/v1/api/reset-password";
-    static final String FIELD_CODE = "forgotten_password_code";
-    static final String FIELD_PASSWORD = "new_password";
+    /* default */ static final String FIELD_CODE = "forgotten_password_code";
+    /* default */ static final String FIELD_PASSWORD = "new_password";
 
     private final ResetPasswordValidator resetPasswordValidator;
     private final ResetPasswordService resetPasswordService;
@@ -48,7 +48,7 @@ public class ResetPasswordResource {
                         .entity(errors).build())
                 .orElseGet(() -> resetPasswordService.updatePassword(payload.get(FIELD_CODE).asText(), payload.get(FIELD_PASSWORD).asText())
                         .map(userId -> {
-                            logger.info("user ID {} updated password successfully", userId);
+                            LOGGER.info("user ID {} updated password successfully", userId);
                             return Response.status(NO_CONTENT).build();
                         })
                         .orElseGet(() -> Response.status(NOT_FOUND)

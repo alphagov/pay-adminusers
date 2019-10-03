@@ -11,10 +11,6 @@ import java.io.Serializable;
 @MappedSuperclass
 public abstract class AbstractEntity implements Serializable {
 
-    public AbstractEntity() {
-        //for jpa
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -22,6 +18,13 @@ public abstract class AbstractEntity implements Serializable {
     @Version
     @Column(name = "version")
     private Long version;
+
+    /**
+     * For JPA
+     */
+    public AbstractEntity() {
+  
+    }
 
     public Long getVersion() {
         return version;

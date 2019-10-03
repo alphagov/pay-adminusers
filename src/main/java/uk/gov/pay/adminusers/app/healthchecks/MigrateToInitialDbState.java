@@ -32,11 +32,11 @@ public class MigrateToInitialDbState extends ConfiguredCommand<AdminUsersConfig>
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 boolean usersExists = resultSet.getBoolean(1);
-                if (!usersExists) {
+                if (usersExists) {
+                    logger.info("Users table found in current environment. Not required for the initial database migration");
+                } else {
                     logger.info("Users table not found. Preparing for the initial database migration..");
                     performInitialMigration(connection);
-                } else {
-                    logger.info("Users table found in current environment. Not required for the initial database migration");
                 }
             }
             resultSet.close();

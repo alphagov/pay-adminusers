@@ -7,9 +7,6 @@ import au.com.dius.pact.provider.junit.target.TestTarget;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
-import uk.gov.pay.adminusers.fixtures.RoleDbFixture;
-import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
 import uk.gov.pay.adminusers.infra.DropwizardAppWithPostgresRule;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.GoLiveStage;
@@ -37,7 +34,7 @@ public abstract class ContractTest {
     @TestTarget
     public static Target target;
 
-    private static final PasswordHasher passwordHasher = new PasswordHasher();
+    private static final PasswordHasher PASSWORD_HASHER = new PasswordHasher();
     private static DatabaseTestHelper dbHelper;
 
     @BeforeClass
@@ -56,8 +53,8 @@ public abstract class ContractTest {
     @State("a valid forgotten password entry and a related user exists")
     public void aUserExistsWithAForgottenPasswordRequest() {
         String code = "avalidforgottenpasswordtoken";
-        String userExternalId = RandomIdGenerator.randomUuid();
-        createUserWithinAService(userExternalId, RandomIdGenerator.randomUuid(), "password", "cp5wa");
+        String userExternalId = randomUuid();
+        createUserWithinAService(userExternalId, randomUuid(), "password", "cp5wa");
         List<Map<String, Object>> userByExternalId = dbHelper.findUserByExternalId(userExternalId);
         dbHelper.add(ForgottenPassword.forgottenPassword(code, userExternalId), (Integer) userByExternalId.get(0).get("id"));
     }
@@ -65,7 +62,7 @@ public abstract class ContractTest {
     @State("a user exists with max login attempts")
     public void aUserExistsWithMaxLoginAttempts() {
         String username = "user-login-attempts-max";
-        createUserWithinAService(RandomIdGenerator.randomUuid(), username, "password", "cp5wa");
+        createUserWithinAService(randomUuid(), username, "password", "cp5wa");
         dbHelper.updateLoginCount(username, 10);
     }
 
@@ -85,8 +82,8 @@ public abstract class ContractTest {
         String existingUserRemoverExternalId = "pact-delete-remover-id";
         String existingServiceExternalId = "pact-delete-service-id";
 
-        Service service = ServiceDbFixture.serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
-        Role role = RoleDbFixture.roleDbFixture(dbHelper).insertAdmin();
+        Service service = serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
+        Role role = roleDbFixture(dbHelper).insertAdmin();
 
         String username1 = randomUuid();
         String email1 = username1 + "@example.com";
@@ -102,8 +99,8 @@ public abstract class ContractTest {
         String existingUserExternalId = "pact-user-no-remover-test";
         String existingServiceExternalId = "pact-service-no-remover-test";
 
-        Service service = ServiceDbFixture.serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
-        Role role = RoleDbFixture.roleDbFixture(dbHelper).insertAdmin();
+        Service service = serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
+        Role role = roleDbFixture(dbHelper).insertAdmin();
 
         String username = randomUuid();
         String email = username + "@example.com";
@@ -208,7 +205,7 @@ public abstract class ContractTest {
         userDbFixture(dbHelper)
                 .withExternalId(externalId)
                 .withUsername(username)
-                .withPassword(passwordHasher.hash(password))
+                .withPassword(PASSWORD_HASHER.hash(password))
                 .withEmail("user-" + username + "@example.com")
                 .withTelephoneNumber("45334534634")
                 .withOtpKey("34f34")

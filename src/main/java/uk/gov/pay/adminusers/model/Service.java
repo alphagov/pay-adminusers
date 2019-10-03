@@ -19,7 +19,7 @@ import static uk.gov.pay.adminusers.model.GoLiveStage.NOT_STARTED;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class Service {
 
-    public static String DEFAULT_NAME_VALUE = "System Generated";
+    public static final String DEFAULT_NAME_VALUE = "System Generated";
 
     private Integer id;
     private String externalId;

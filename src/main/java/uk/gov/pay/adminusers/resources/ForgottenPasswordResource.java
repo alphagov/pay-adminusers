@@ -27,7 +27,7 @@ public class ForgottenPasswordResource {
 
     public static final String FORGOTTEN_PASSWORDS_RESOURCE = "/v1/api/forgotten-passwords";
     private static final String FORGOTTEN_PASSWORD_RESOURCE = FORGOTTEN_PASSWORDS_RESOURCE + "/{code}";
-    private static final Logger logger = LoggerFactory.getLogger(ForgottenPasswordResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ForgottenPasswordResource.class);
 
     private static final int MAX_LENGTH = 255;
     private final ForgottenPasswordServices forgottenPasswordServices;
@@ -44,14 +44,14 @@ public class ForgottenPasswordResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response sendForgottenPassword(JsonNode payload) {
-        logger.info("ForgottenPassword CREATE request - [ {} ]", payload);
+        LOGGER.info("ForgottenPassword CREATE request - [ {} ]", payload);
         Optional<Errors> errorsOptional = validator.validateCreateRequest(payload);
         return errorsOptional
                 .map(errors ->
                         Response.status(BAD_REQUEST).type(APPLICATION_JSON).entity(errors).build())
                 .orElseGet(() -> {
                     forgottenPasswordServices.create(payload.get("username").asText());
-                    return Response.status(Response.Status.OK).build();
+                    return Response.status(OK).build();
                 });
     }
 
@@ -59,7 +59,7 @@ public class ForgottenPasswordResource {
     @GET
     @Produces(APPLICATION_JSON)
     public Response findNonExpiredForgottenPassword(@PathParam("code") String code) {
-        logger.info("ForgottenPassword GET request - [ {} ]", code);
+        LOGGER.info("ForgottenPassword GET request - [ {} ]", code);
 
         if (isNotBlank(code) && code.length() > MAX_LENGTH) {
             return Response.status(NOT_FOUND).build();

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class ServiceRole {
 
-    private Service Service;
+    private Service service;
     private Role role;
 
     public static ServiceRole from(Service service, Role role) {
@@ -15,12 +15,12 @@ public class ServiceRole {
     }
 
     private ServiceRole(@JsonProperty("service") Service service, @JsonProperty("role") Role role) {
-        Service = service;
+        this.service = service;
         this.role = role;
     }
 
     public Service getService() {
-        return Service;
+        return service;
     }
 
     public Role getRole() {
@@ -30,7 +30,7 @@ public class ServiceRole {
     @Override
     public String toString() {
         return "ServiceRole{" +
-                "Service=" + Service +
+                "Service=" + service +
                 ", role=" + role +
                 '}';
     }

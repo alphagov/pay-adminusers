@@ -9,10 +9,10 @@ import java.util.Optional;
 @Transactional
 public abstract class JpaDao<T> {
 
-    final Provider<EntityManager> entityManager;
+    /* default */ final Provider<EntityManager> entityManager;
     private final Class<T> persistenceClass;
 
-    JpaDao(Provider<EntityManager> entityManager, Class<T> persistenceClass) {
+    /* default */ JpaDao(Provider<EntityManager> entityManager, Class<T> persistenceClass) {
         this.entityManager = entityManager;
         this.persistenceClass = persistenceClass;
     }
@@ -22,11 +22,11 @@ public abstract class JpaDao<T> {
     }
 
     public void remove(T object) {
-        if (!entityManager.get().contains(object)) {
+        if (entityManager.get().contains(object)) {
+            entityManager.get().remove(object);
+        } else {
             T mergedObject = entityManager.get().merge(object);
             entityManager.get().remove(mergedObject);
-        } else {
-            entityManager.get().remove(object);
         }
     }
 

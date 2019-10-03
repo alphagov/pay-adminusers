@@ -55,11 +55,11 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     private static SendLiveAccountCreatedEmailService sendLiveAccountCreatedEmailService = mock(SendLiveAccountCreatedEmailService.class);
 
     @ClassRule
-    public static final ResourceTestRule resources = ResourceTestRule.builder()
+    public static final ResourceTestRule RESOURCES = ResourceTestRule.builder()
             .addResource(new ServiceResource(
                     mockedUserDao,
                     mockedServiceDao,
-                    linksBuilder,
+                    LINKS_BUILDER,
                     requestValidator,
                     mockedServicesFactory,
                     stripeAgreementService,
@@ -83,7 +83,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 
@@ -106,7 +106,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 
@@ -129,7 +129,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 
@@ -155,7 +155,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 
@@ -182,7 +182,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 
@@ -209,7 +209,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 
@@ -229,7 +229,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         String externalId = "externalId";
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.empty());
 
-        Response response = resources.target(format(API_PATH, externalId))
+        Response response = RESOURCES.target(format(API_PATH, externalId))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 
@@ -246,7 +246,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 
@@ -269,7 +269,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 
@@ -292,7 +292,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 
@@ -317,7 +317,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
         when(mockedServiceDao.checkIfGatewayAccountsUsed(Collections.singletonList("1014748185"))).thenReturn(false);
 
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 
@@ -344,7 +344,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
         when(mockedServiceDao.checkIfGatewayAccountsUsed(Collections.singletonList("1014748185"))).thenReturn(false);
 
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 
@@ -365,7 +365,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
         when(mockedServiceDao.checkIfGatewayAccountsUsed(Collections.singletonList("1014748185"))).thenReturn(true);
 
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 
@@ -391,7 +391,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 
@@ -416,7 +416,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 
@@ -441,7 +441,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 
@@ -466,7 +466,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
-        Response response = resources.target(format(API_PATH, thisServiceEntity.getExternalId()))
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
                 .request()
                 .method("PATCH", Entity.json(jsonPayload));
 

@@ -30,6 +30,7 @@ public class ServiceInviteCompleter extends InviteCompleter {
 
     @Inject
     public ServiceInviteCompleter(InviteDao inviteDao, UserDao userDao, ServiceDao serviceDao, LinksBuilder linksBuilder) {
+        super();
         this.inviteDao = inviteDao;
         this.userDao = userDao;
         this.serviceDao = serviceDao;

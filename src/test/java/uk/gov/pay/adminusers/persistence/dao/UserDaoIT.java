@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.persistence.dao;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
@@ -59,7 +58,7 @@ public class UserDaoIT extends DaoTestBase {
         String username = valueOf(nextInt());
 
         UserEntity userEntity = new UserEntity();
-        userEntity.setExternalId(RandomIdGenerator.randomUuid());
+        userEntity.setExternalId(randomUuid());
         userEntity.setUsername(username);
         userEntity.setPassword("password-" + username);
         userEntity.setDisabled(false);

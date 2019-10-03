@@ -12,27 +12,27 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 
 abstract class ServiceResourceBaseTest {
-    static final String GATEWAY_ACCOUNT_ID = "some-gateway-account-id";
-    static final String CY_SERVICE_NAME = "some-welsh-service-name";
-    static final String EN_SERVICE_NAME = "some-test-service-name";
+    /* default */ static final String GATEWAY_ACCOUNT_ID = "some-gateway-account-id";
+    /* default */ static final String CY_SERVICE_NAME = "some-welsh-service-name";
+    /* default */ static final String EN_SERVICE_NAME = "some-test-service-name";
 
-    static ServiceDao mockedServiceDao = mock(ServiceDao.class);
+    /* default */ static ServiceDao mockedServiceDao = mock(ServiceDao.class);
     private static final String HTTPS_BASE_URL = "https://base-url";
-    static final LinksBuilder linksBuilder = new LinksBuilder(HTTPS_BASE_URL);
+    /* default */ static final LinksBuilder LINKS_BUILDER = new LinksBuilder(HTTPS_BASE_URL);
 
-    static void assertLinks(String serviceExternalId, JsonPath json) {
+    /* default */ static void assertLinks(String serviceExternalId, JsonPath json) {
         assertThat(json.getList("_links"), hasSize(1));
         assertThat(json.get("_links[0].href"), is(HTTPS_BASE_URL + "/v1/api/services/" + serviceExternalId));
         assertThat(json.get("_links[0].method"), is("GET"));
         assertThat(json.get("_links[0].rel"), is("self"));
     }
 
-    static void assertEnServiceNameJson(String name, JsonPath json) {
+    /* default */ static void assertEnServiceNameJson(String name, JsonPath json) {
         assertThat(json.getMap("service_name"), hasKey(SupportedLanguage.ENGLISH.toString()));
         assertThat(json.get("service_name.en"), is(name));
     }
 
-    static void assertCyServiceNameJson(String cyName, JsonPath json) {
+    /* default */ static void assertCyServiceNameJson(String cyName, JsonPath json) {
         assertThat(json.getMap("service_name"), hasKey(SupportedLanguage.WELSH.toString()));
         assertThat(json.get("service_name.cy"), is(cyName));
     }

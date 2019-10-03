@@ -43,12 +43,15 @@ public class ForgottenPasswordEntity extends AbstractEntity {
     @Convert(converter = UTCDateTimeConverter.class)
     private ZonedDateTime updatedAt;
 
-
+    /**
+     * For JPA
+     */
     public ForgottenPasswordEntity() {
-        //for jpa
+        super();
     }
 
     public ForgottenPasswordEntity(String code, ZonedDateTime date, UserEntity user) {
+        super();
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
         this.date = date == null ? now : date;
         this.code = code;

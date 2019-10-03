@@ -23,12 +23,12 @@ import static uk.gov.pay.adminusers.model.InviteType.USER;
 public class InviteRouterTest {
 
     @Mock
-    InviteDao inviteDao;
+    private InviteDao inviteDao;
 
     @Mock
-    InviteServiceFactory inviteServiceFactory;
+    private InviteServiceFactory inviteServiceFactory;
 
-    InviteRouter inviteRouter;
+    private InviteRouter inviteRouter;
 
     @Before
     public void before() {

@@ -30,11 +30,12 @@ import java.util.Properties;
 
 public class AdminUsersModule extends AbstractModule {
 
-    final AdminUsersConfig configuration;
-    final SecondFactorAuthConfiguration secondFactorAuthConfig;
-    final Environment environment;
+    private final AdminUsersConfig configuration;
+    private final SecondFactorAuthConfiguration secondFactorAuthConfig;
+    private final Environment environment;
 
     public AdminUsersModule(final AdminUsersConfig configuration, final Environment environment) {
+        super();
         this.configuration = configuration;
         this.secondFactorAuthConfig = configuration.getSecondFactorAuthConfiguration();
         this.environment = environment;

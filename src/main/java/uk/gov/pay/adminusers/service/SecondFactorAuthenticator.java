@@ -15,7 +15,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class SecondFactorAuthenticator {
 
-    private static final Logger logger = LoggerFactory.getLogger(SecondFactorAuthenticator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecondFactorAuthenticator.class);
 
     private static final Pattern BASE32_ALPHABET = Pattern.compile("[A-Z2-7]+");
 
@@ -54,7 +54,7 @@ public class SecondFactorAuthenticator {
     private void checkNull(String secret) {
         if (isBlank(secret)) {
             String error = "supplied a null/empty otpKey for second factor";
-            logger.error(error);
+            LOGGER.error(error);
             throw new RuntimeException(error);
         }
     }

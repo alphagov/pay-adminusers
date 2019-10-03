@@ -10,7 +10,7 @@ public class NotifyClientProvider {
 
     private NotifyConfiguration configuration;
 
-    NotifyClientProvider(NotifyConfiguration configuration) {
+    /* default */ NotifyClientProvider(NotifyConfiguration configuration) {
         this.configuration = configuration;
     }
 

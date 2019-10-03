@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public abstract class InviteCompleter {
 
-    InviteCompleteRequest data = null;
+    /* default */ InviteCompleteRequest data = null;
 
     public abstract Optional<InviteCompleteResponse> complete(String inviteCode);
 

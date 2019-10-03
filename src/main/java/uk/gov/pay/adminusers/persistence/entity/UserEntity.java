@@ -86,8 +86,11 @@ public class UserEntity extends AbstractEntity {
     @Convert(converter = UTCDateTimeConverter.class)
     private ZonedDateTime lastLoggedInAt;
 
+    /**
+     * For JPA
+     */
     public UserEntity() {
-        //for jpa
+        super();
     }
 
     public String getExternalId() {

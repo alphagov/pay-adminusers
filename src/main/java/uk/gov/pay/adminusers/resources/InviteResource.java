@@ -118,13 +118,14 @@ public class InviteResource {
 
         return inviteServiceFactory.inviteOtpRouter().routeOtpDispatch(inviteCode)
                 .map(inviteOtpDispatcherValidate -> {
-                    InviteOtpDispatcher otpDispatcher = inviteOtpDispatcherValidate.getLeft();
                     if(inviteOtpDispatcherValidate.getRight()){
                         Optional<Errors> errors = inviteValidator.validateGenerateOtpRequest(payload);
                         if(errors.isPresent()){
                             return Response.status(BAD_REQUEST).entity(errors).build();
                         }
                     }
+
+                    InviteOtpDispatcher otpDispatcher = inviteOtpDispatcherValidate.getLeft();
                     if(otpDispatcher.withData(InviteOtpRequest.from(payload)).dispatchOtp(inviteCode)){
                         return Response.status(OK).build();
                     } else {
@@ -221,7 +222,7 @@ public class InviteResource {
         LOGGER.info("Invite POST request for validating otp for service create");
 
         return inviteValidator.validateOtpValidationRequest(payload)
-                .map(errors -> Response.status((BAD_REQUEST)).entity(errors).build())
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> inviteService.validateOtp(InviteValidateOtpRequest.from(payload))
                         .map(this::handleValidateOtpAndCreateUserException)
                         .orElseGet(() -> Response.status(OK).build()));

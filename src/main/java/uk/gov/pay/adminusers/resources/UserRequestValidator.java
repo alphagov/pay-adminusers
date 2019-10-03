@@ -103,12 +103,12 @@ public class UserRequestValidator {
         }
 
         String path = payload.get("path").asText();
-        String op = payload.get("op").asText();
 
         if (!isPathAllowed(path)) {
             return Optional.of(Errors.from(List.of(format("Patching path [%s] not allowed", path))));
         }
 
+        String op = payload.get("op").asText();
         if (!isAllowedOpForPath(path, op)) {
             return Optional.of(Errors.from(List.of(format("Operation [%s] not allowed for path [%s]", op, path))));
         }

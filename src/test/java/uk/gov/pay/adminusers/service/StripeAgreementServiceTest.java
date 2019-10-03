@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.service;
 
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,13 +35,13 @@ import static org.mockito.Mockito.when;
 public class StripeAgreementServiceTest {
     
     @Mock
-    StripeAgreementDao mockedStripeAgreementDao;
+    private StripeAgreementDao mockedStripeAgreementDao;
     
     @Mock
-    ServiceDao mockedServiceDao;
+    private ServiceDao mockedServiceDao;
 
     @Captor
-    ArgumentCaptor<StripeAgreementEntity> stripeAgreementEntityArgumentCaptor;
+    private ArgumentCaptor<StripeAgreementEntity> stripeAgreementEntityArgumentCaptor;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

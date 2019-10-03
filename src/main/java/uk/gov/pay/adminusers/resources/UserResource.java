@@ -40,7 +40,7 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerE
 @Path("/")
 public class UserResource {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserResource.class);
 
     public static final String API_VERSION_PATH = "/v1";
     public static final String USERS_RESOURCE = API_VERSION_PATH + "/api/users";
@@ -75,7 +75,7 @@ public class UserResource {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     public Response findUser(JsonNode payload) {
-        logger.info("User FIND request");
+        LOGGER.info("User FIND request");
         return validator.validateFindRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> userServices.findUserByUsername(payload.get(FIELD_USERNAME).asText())
@@ -88,7 +88,7 @@ public class UserResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response getUser(@PathParam("externalId") String externalId) {
-        logger.info("User GET request - [ {} ]", externalId);
+        LOGGER.info("User GET request - [ {} ]", externalId);
         return userServices.findUserByExternalId(externalId)
                 .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
@@ -99,7 +99,7 @@ public class UserResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response getUsers(@QueryParam("ids") String externalIds) {
-        logger.info("Users GET request - [ {} ]", externalIds);
+        LOGGER.info("Users GET request - [ {} ]", externalIds);
         List<String> externalIdsList = COMMA_SEPARATOR.splitToList(externalIds);
 
         List<User> users = userServices.findUsersByExternalIds(externalIdsList);
@@ -112,7 +112,7 @@ public class UserResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response createUser(JsonNode node) {
-        logger.info("Attempting user create request");
+        LOGGER.info("Attempting user create request");
         return validator.validateCreateRequest(node)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
@@ -120,7 +120,7 @@ public class UserResource {
                     String userName = node.get(CreateUserRequest.FIELD_USERNAME).asText();
                     try {
                         User newUser = userServicesFactory.userCreator().doCreate(CreateUserRequest.from(node), roleName);
-                        logger.info("User created successfully [{}]", newUser.getExternalId());
+                        LOGGER.info("User created successfully [{}]", newUser.getExternalId());
                         return Response.status(CREATED).type(APPLICATION_JSON)
                                 .entity(newUser).build();
                     } catch (Exception e) {
@@ -134,7 +134,7 @@ public class UserResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response authenticate(JsonNode node) {
-        logger.info("User authenticate request");
+        LOGGER.info("User authenticate request");
         return validator.validateAuthenticateRequest(node)
                 .map(errors -> Response.status(400).entity(errors).build())
                 .orElseGet(() -> {
@@ -156,7 +156,7 @@ public class UserResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response newSecondFactorPasscode(@PathParam("externalId") String externalId, JsonNode payload) {
-        logger.info("User 2FA new passcode request");
+        LOGGER.info("User 2FA new passcode request");
         return validator.validateNewSecondFactorPasscodeRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
@@ -173,7 +173,7 @@ public class UserResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response authenticateSecondFactor(@PathParam("externalId") String externalId, JsonNode payload) {
-        logger.info("User 2FA authenticate passcode request");
+        LOGGER.info("User 2FA authenticate passcode request");
         return validator.validate2FAAuthRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> userServices.authenticateSecondFactor(externalId, payload.get("code").asInt())
@@ -186,7 +186,7 @@ public class UserResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response newSecondFactorOtpKey(@PathParam("externalId") String externalId) {
-        logger.info("User 2FA provision new OTP key request");
+        LOGGER.info("User 2FA provision new OTP key request");
         return userServices.provisionNewOtpKey(externalId)
                 .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
@@ -197,7 +197,7 @@ public class UserResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response activateSecondFactorOtpKey(@PathParam("externalId") String externalId, JsonNode payload) {
-        logger.info("User 2FA activate new OTP key request");
+        LOGGER.info("User 2FA activate new OTP key request");
         return validator.validate2faActivateRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
@@ -214,7 +214,7 @@ public class UserResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response updateUserAttribute(@PathParam("externalId") String externalId, JsonNode node) {
-        logger.info("User update attribute attempt request");
+        LOGGER.info("User update attribute attempt request");
         return validator.validatePatchRequest(node)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> userServices.patchUser(externalId, PatchRequest.from(node))
@@ -227,7 +227,7 @@ public class UserResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response updateServiceRole(@PathParam("externalId") String userExternalId, @PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
-        logger.info("User update service role request");
+        LOGGER.info("User update service role request");
         return validator.validateServiceRole(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
@@ -243,7 +243,7 @@ public class UserResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response createServiceRole(@PathParam("externalId") String userExternalId, JsonNode payload) {
-        logger.info("Assign service role to a user {} request", userExternalId);
+        LOGGER.info("Assign service role to a user {} request", userExternalId);
         return validator.validateAssignServiceRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
@@ -262,7 +262,7 @@ public class UserResource {
         } else if (e instanceof WebApplicationException) {
             throw (WebApplicationException) e;
         } else {
-            logger.error("unknown database error during user creation for user [{}]", userName, e);
+            LOGGER.error("unknown database error during user creation for user [{}]", userName, e);
             throw internalServerError("unable to create user at this moment");
         }
     }

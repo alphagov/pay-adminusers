@@ -84,9 +84,12 @@ public class InviteRequestValidator {
         }
 
         String email = payload.get(InviteServiceRequest.FIELD_EMAIL).asText();
+
         if (!isValid(email)) {
             return Optional.of(Errors.from(format("Field [%s] must be a valid email address", InviteServiceRequest.FIELD_EMAIL)));
-        } else if (!isPublicSectorEmail(email)) {
+        }
+
+        if (!isPublicSectorEmail(email)) {
             throw AdminUsersExceptions.invalidPublicSectorEmail(email);
         }
 

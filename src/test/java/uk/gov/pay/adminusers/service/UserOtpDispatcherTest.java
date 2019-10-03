@@ -26,15 +26,15 @@ import static org.mockito.Mockito.when;
 public class UserOtpDispatcherTest {
 
     @Mock
-    InviteDao inviteDao;
+    private InviteDao inviteDao;
     @Mock
-    SecondFactorAuthenticator secondFactorAuthenticator;
+    private SecondFactorAuthenticator secondFactorAuthenticator;
     @Mock
-    NotificationService notificationService;
+    private NotificationService notificationService;
 
-    ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
+    private ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
 
-    InviteOtpDispatcher userOtpDispatcher;
+    private InviteOtpDispatcher userOtpDispatcher;
 
     @Before
     public void before() {

@@ -14,12 +14,12 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class ServiceRequestValidator {
 
-    static final String FIELD_MERCHANT_DETAILS_NAME = "name";
-    static final String FIELD_MERCHANT_DETAILS_ADDRESS_LINE1 = "address_line1";
-    static final String FIELD_MERCHANT_DETAILS_ADDRESS_CITY = "address_city";
-    static final String FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE = "address_postcode";
-    static final String FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY = "address_country";
-    static final String FIELD_MERCHANT_DETAILS_EMAIL = "email";
+    /* default */ static final String FIELD_MERCHANT_DETAILS_NAME = "name";
+    /* default */ static final String FIELD_MERCHANT_DETAILS_ADDRESS_LINE1 = "address_line1";
+    /* default */ static final String FIELD_MERCHANT_DETAILS_ADDRESS_CITY = "address_city";
+    /* default */ static final String FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE = "address_postcode";
+    /* default */ static final String FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY = "address_country";
+    /* default */ static final String FIELD_MERCHANT_DETAILS_EMAIL = "email";
 
     private static final int FIELD_MERCHANT_DETAILS_NAME_MAX_LENGTH = 255;
     private static final int FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH = 255;
@@ -33,22 +33,25 @@ public class ServiceRequestValidator {
         this.serviceUpdateOperationValidator = serviceUpdateOperationValidator;
     }
 
-    Optional<Errors> validateUpdateAttributeRequest(JsonNode payload) {
+    /* default */ Optional<Errors> validateUpdateAttributeRequest(JsonNode payload) {
         List<String> errors = new ArrayList<>();
-        if (!payload.isArray()) {
-            errors = serviceUpdateOperationValidator.validate(payload);
-        } else {
+
+        if (payload.isArray()) {
             for (JsonNode updateOperation : payload) {
                 errors.addAll(serviceUpdateOperationValidator.validate(updateOperation));
             }
+        } else {
+            errors = serviceUpdateOperationValidator.validate(payload);
         }
+
         if (!errors.isEmpty()) {
             return Optional.of(Errors.from(errors));
         }
+
         return Optional.empty();
     }
 
-    void validateUpdateMerchantDetailsRequest(JsonNode payload) throws ValidationException {
+    /* default */ void validateUpdateMerchantDetailsRequest(JsonNode payload) throws ValidationException {
         Optional<List<String>> missingMandatoryFieldErrors = requestValidations.checkExistsAndNotEmpty(payload,
                 FIELD_MERCHANT_DETAILS_NAME, FIELD_MERCHANT_DETAILS_ADDRESS_LINE1,
                 FIELD_MERCHANT_DETAILS_ADDRESS_CITY, FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE,
@@ -81,7 +84,7 @@ public class ServiceRequestValidator {
         }
     }
 
-    Optional<Errors> validateFindRequest(String gatewayAccountId) {
+    /* default */ Optional<Errors> validateFindRequest(String gatewayAccountId) {
         if (isBlank(gatewayAccountId)) {
             return Optional.of(Errors.from("Find services currently support only by gatewayAccountId"));
         }

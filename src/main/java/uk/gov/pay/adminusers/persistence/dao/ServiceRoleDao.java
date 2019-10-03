@@ -11,7 +11,7 @@ import javax.persistence.EntityManager;
 public class ServiceRoleDao extends JpaDao<ServiceRoleEntity> {
 
     @Inject
-    ServiceRoleDao(Provider<EntityManager> entityManager) {
+    /* default */ ServiceRoleDao(Provider<EntityManager> entityManager) {
         super(entityManager, ServiceRoleEntity.class);
     }
 }

@@ -90,7 +90,7 @@ public class UserInviteCreatorTest {
     @Test
     public void create_shouldSendNotificationOnSuccessfulInvite() {
 
-        mockInviteSuccess_ForNonExistingUser_nonExistingInvite();
+        mockInviteSuccessForNonExistingUserNonExistingInvite();
 
         when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
                 .thenReturn("random-notify-id");
@@ -118,7 +118,7 @@ public class UserInviteCreatorTest {
     @Test
     public void create_shouldStillCreateTheInviteFailingOnSendingEmail() {
 
-        mockInviteSuccess_ForNonExistingUser_nonExistingInvite();
+        mockInviteSuccessForNonExistingUserNonExistingInvite();
 
         when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
                 .thenThrow(AdminUsersExceptions.userNotificationError(new RuntimeException("some error from notify")));
@@ -190,7 +190,7 @@ public class UserInviteCreatorTest {
 
         //Given
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
-        InviteEntity anInvite = mockInviteSuccess_existingInvite();
+        InviteEntity anInvite = mockInviteSuccessExistingInvite();
         when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
                 .thenReturn("random-notify-id");
 
@@ -207,7 +207,7 @@ public class UserInviteCreatorTest {
 
     @Test
     public void create_shouldErrorForbidden_ifSenderCannotInviteUsersToTheSpecifiedService() {
-        InviteEntity inviteEntity = mockInviteSuccess_ForNonExistingUser_nonExistingInvite();
+        InviteEntity inviteEntity = mockInviteSuccessForNonExistingUserNonExistingInvite();
         inviteEntity.getSender().getServicesRoles().clear();
 
         InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
@@ -221,7 +221,7 @@ public class UserInviteCreatorTest {
 
         //Given
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
-        InviteEntity anInvite = mockInviteSuccess_existingInvite();
+        InviteEntity anInvite = mockInviteSuccessExistingInvite();
         when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
                 eq(anInvite.getService().getServiceNames().get(SupportedLanguage.ENGLISH).getName()))).thenReturn("random-notify-id");
 
@@ -238,7 +238,7 @@ public class UserInviteCreatorTest {
 
         //Given
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
-        InviteEntity anInvite = mockInviteSuccess_existingInvite();
+        InviteEntity anInvite = mockInviteSuccessExistingInvite();
         when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
                 eq(anInvite.getService().getServiceNames().get(SupportedLanguage.ENGLISH).getName())))
                 .thenThrow(AdminUsersExceptions.userNotificationError(new RuntimeException("some error from notify")));
@@ -254,7 +254,7 @@ public class UserInviteCreatorTest {
     @Test
     public void create_shouldOnlyConsider_nonExpiredNonDisabledSameService_whenCheckingForExistingInvite() {
 
-        InviteEntity validInvite = mockInviteSuccess_existingInvite();
+        InviteEntity validInvite = mockInviteSuccessExistingInvite();
         InviteEntity expiredInvite = new InviteEntity();
         expiredInvite.setExpiryDate(ZonedDateTime.now().minusDays(2));
         expiredInvite.setService(validInvite.getService());
@@ -286,7 +286,7 @@ public class UserInviteCreatorTest {
         assertThat(invite.get().getEmail(), is(validInvite.getEmail()));
     }
 
-    private InviteEntity mockInviteSuccess_existingInvite() {
+    private InviteEntity mockInviteSuccessExistingInvite() {
         ServiceEntity service = new ServiceEntity();
         service.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, Service.DEFAULT_NAME_VALUE));
         service.setId(serviceId);
@@ -307,7 +307,7 @@ public class UserInviteCreatorTest {
         return anInvite;
     }
 
-    private InviteEntity mockInviteSuccess_ForNonExistingUser_nonExistingInvite() {
+    private InviteEntity mockInviteSuccessForNonExistingUserNonExistingInvite() {
 
         ServiceEntity service = new ServiceEntity();
         service.setId(serviceId);

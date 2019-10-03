@@ -17,7 +17,6 @@ import javax.ws.rs.WebApplicationException;
 import java.util.Locale;
 import java.util.Optional;
 
-import static java.lang.String.format;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.invalidOtpAuthCodeInviteException;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.notFoundInviteException;
@@ -69,7 +68,7 @@ public class InviteService {
                 String notificationId = notificationService.sendSecondFactorPasscodeSms(inviteOtpRequest.getTelephoneNumber(), passcode);
                 LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]", inviteOtpRequest.getCode(), notificationId);
             } catch (Exception e) {
-                LOGGER.error(format("error sending 2FA token for invite code [%s]", inviteOtpRequest.getCode()), e);
+                LOGGER.error(String.format("error sending 2FA token for invite code [%s]", inviteOtpRequest.getCode()), e);
             }
         } else {
             throw notFoundInviteException(inviteOtpRequest.getCode());
@@ -99,7 +98,7 @@ public class InviteService {
                 .orElseGet(() -> Optional.of(notFoundInviteException(inviteOtpRequest.getCode())));
     }
 
-    Optional<WebApplicationException> validateOtp(InviteEntity inviteEntity, int otpCode) {
+    /* default */ Optional<WebApplicationException> validateOtp(InviteEntity inviteEntity, int otpCode) {
         if (inviteEntity.isDisabled()) {
             return Optional.of(inviteLockedException(inviteEntity.getCode()));
         }

@@ -25,7 +25,7 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.undefinedRoleEx
 
 public class UserCreator {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserCreator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserCreator.class);
 
     private final UserDao userDao;
     private final RoleDao roleDao;
@@ -48,19 +48,25 @@ public class UserCreator {
                 .map(roleEntity -> {
                     UserEntity userEntity = UserEntity.from(userRequest);
                     userEntity.setPassword(passwordHasher.hash(userRequest.getPassword()));
-                    if ((userRequest.getServiceExternalIds() != null) &&
-                            (!userRequest.getServiceExternalIds().isEmpty())) {
+                    if (hasServiceIds(userRequest)) {
                         addServiceRoleToUser(userEntity, roleEntity, userRequest.getServiceExternalIds());
                     }
-                    //Deprecated, leaving for backward compatibility
-                    else if ((userRequest.getGatewayAccountIds() != null) &&
-                            (!userRequest.getGatewayAccountIds().isEmpty())) {
+                    // Deprecated, leaving for backward compatibility
+                    else if (hasGatewayAccountIds(userRequest)) {
                         addServiceFromGatewayAccountsToUser(userEntity, roleEntity, userRequest.getGatewayAccountIds());
                     }
                     userDao.persist(userEntity);
                     return linksBuilder.decorate(userEntity.toUser());
                 })
                 .orElseThrow(() -> undefinedRoleException(roleName));
+    }
+
+    private static boolean hasServiceIds(CreateUserRequest userRequest) {
+        return userRequest.getServiceExternalIds() != null && !userRequest.getServiceExternalIds().isEmpty();
+    }
+
+    private static boolean hasGatewayAccountIds(CreateUserRequest userRequest) {
+        return userRequest.getGatewayAccountIds() != null && !userRequest.getGatewayAccountIds().isEmpty();
     }
 
     private void addServiceRoleToUser(UserEntity user, RoleEntity role, List<String> serviceExternalIds) {
@@ -72,7 +78,7 @@ public class UserCreator {
                     return null;
                 })
                 .orElseGet(() -> {
-                    logger.error("Unable to assign service with external id {} to user, as it does not exist", serviceExternalId);
+                    LOGGER.error("Unable to assign service with external id {} to user, as it does not exist", serviceExternalId);
                     return null;
                 }));
     }

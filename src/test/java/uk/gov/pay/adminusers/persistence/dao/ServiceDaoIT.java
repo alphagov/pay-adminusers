@@ -6,7 +6,6 @@ import org.apache.commons.lang3.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.postgresql.util.PGobject;
-import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.Permission;
@@ -23,16 +22,13 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntityBuilder;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static java.util.stream.IntStream.range;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -117,7 +113,7 @@ public class ServiceDaoIT extends DaoTestBase {
         assertNull(storedBranding);
 
         List<Map<String, Object>> savedServiceName = databaseHelper.findServiceNameByServiceId(thisServiceEntity.getId());
-        savedServiceName.sort(Comparator.comparing(item -> String.valueOf(item.get("language"))));
+        savedServiceName.sort(comparing(item -> String.valueOf(item.get("language"))));
         assertThat(savedServiceName.size(), is(2));
         assertThat(savedServiceName.get(0).get("service_id"), is(Long.valueOf(thisServiceEntity.getId())));
         assertThat(savedServiceName.get(0).get("language"), is("cy"));
@@ -187,7 +183,7 @@ public class ServiceDaoIT extends DaoTestBase {
 
     @Test
     public void shouldFindServiceWithMultipleLanguage_byServiceExternalId() {
-        Set<ServiceNameEntity> serviceNames = new HashSet<>(Arrays.asList(
+        Set<ServiceNameEntity> serviceNames = new HashSet<>(List.of(
                 createServiceName(SupportedLanguage.ENGLISH, EN_NAME),
                 createServiceName(SupportedLanguage.WELSH, CY_NAME)
         ));
@@ -214,7 +210,7 @@ public class ServiceDaoIT extends DaoTestBase {
     @Test
     public void shouldFindByGatewayAccountId() {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
-        String gatewayAccountId = RandomIdGenerator.randomUuid();
+        String gatewayAccountId = randomUuid();
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withGatewayAccounts(Collections.singletonList(gatewayAccountIdEntity)).build();
@@ -243,7 +239,7 @@ public class ServiceDaoIT extends DaoTestBase {
     @Test
     public void shouldMergeGoLiveStage() {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
-        String gatewayAccountId = RandomIdGenerator.randomUuid();
+        String gatewayAccountId = randomUuid();
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
         ServiceEntity thisServiceEntity = ServiceEntityBuilder
                 .aServiceEntity()
@@ -273,7 +269,7 @@ public class ServiceDaoIT extends DaoTestBase {
         databaseHelper.add(perm1).add(perm2);
 
         Role role = role(roleId, "role-" + roleId, "role-desc-" + roleId);
-        role.setPermissions(asList(perm1, perm2));
+        role.setPermissions(List.of(perm1, perm2));
         databaseHelper.add(role);
 
         String gatewayAccountId1 = randomInt().toString();

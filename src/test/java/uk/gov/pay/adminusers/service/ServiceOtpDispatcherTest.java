@@ -19,13 +19,13 @@ import static org.mockito.Mockito.when;
 public class ServiceOtpDispatcherTest {
 
     @Mock
-    InviteDao inviteDao;
+    private InviteDao inviteDao;
     @Mock
-    SecondFactorAuthenticator secondFactorAuthenticator;
+    private SecondFactorAuthenticator secondFactorAuthenticator;
     @Mock
-    NotificationService notificationService;
+    private NotificationService notificationService;
 
-    InviteOtpDispatcher serviceOtpDispatcher;
+    private InviteOtpDispatcher serviceOtpDispatcher;
 
     @Before
     public void before() {

@@ -54,10 +54,10 @@ public class ServiceInviteCreator {
         Optional<UserEntity> anExistingUser = userDao.findByEmail(requestEmail);
         if (anExistingUser.isPresent()) {
             UserEntity user = anExistingUser.get();
-            if (!user.isDisabled()) {
-                sendUserExistsNotification(requestEmail, user.getExternalId());
-            } else {
+            if (user.isDisabled()) {
                 sendUserDisabledNotification(requestEmail, user.getExternalId());
+            } else {
+                sendUserExistsNotification(requestEmail, user.getExternalId());
             }
             throw conflictingEmail(requestEmail);
         }
