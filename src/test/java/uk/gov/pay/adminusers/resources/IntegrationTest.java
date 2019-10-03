@@ -71,7 +71,7 @@ public class IntegrationTest {
     }
 
     @Before
-    public void setUp() {
+    public void initialise() {
         databaseHelper = APP.getDatabaseTestHelper();
         mapper = new ObjectMapper();
     }

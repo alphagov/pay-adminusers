@@ -28,7 +28,7 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
     private String email = randomUuid() + "@example.org";
 
     @Before
-    public void setup() {
+    public void setUp() {
         service = serviceDbFixture(databaseHelper).insertService();
         user = userDbFixture(databaseHelper)
                 .withServiceRole(service, 1)

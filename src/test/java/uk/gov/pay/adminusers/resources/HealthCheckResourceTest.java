@@ -33,7 +33,7 @@ public class HealthCheckResourceTest {
     private HealthCheckResource resource;
 
     @Before
-    public void setup() {
+    public void setUp() {
         when(environment.healthChecks()).thenReturn(healthCheckRegistry);
         resource = new HealthCheckResource(environment);
     }
