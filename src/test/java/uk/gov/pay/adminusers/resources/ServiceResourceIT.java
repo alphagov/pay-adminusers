@@ -28,7 +28,7 @@ public class ServiceResourceIT extends IntegrationTest {
     private User user1WithRoleViewInService1;
 
     @Before
-    public void setup() {
+    public void setUp() {
         Role roleAdmin = roleDbFixture(databaseHelper).insertAdmin();
         Role roleView = roleDbFixture(databaseHelper)
                 .withName("roleView")

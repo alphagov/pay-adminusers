@@ -15,7 +15,7 @@ public class InviteExpiryTest {
     private InviteEntity inviteEntity;
 
     @Before
-    public void setup() {
+    public void setUp() {
         inviteEntity = anInvite();
     }
 

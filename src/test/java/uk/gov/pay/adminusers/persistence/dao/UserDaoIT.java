@@ -15,6 +15,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -217,7 +218,7 @@ public class UserDaoIT extends DaoTestBase {
 
         String otpKey = user.getOtpKey();
 
-        Optional<UserEntity> userEntityMaybe = userDao.findByUsername(username.toUpperCase());
+        Optional<UserEntity> userEntityMaybe = userDao.findByUsername(username.toUpperCase(Locale.ENGLISH));
         assertTrue(userEntityMaybe.isPresent());
 
         UserEntity foundUser = userEntityMaybe.get();

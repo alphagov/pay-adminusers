@@ -18,7 +18,7 @@ public class ServiceResourceUpdateNameIT extends IntegrationTest {
     private String serviceExternalId;
 
     @Before
-    public void setup() {
+    public void setUp() {
         Service service = serviceDbFixture(databaseHelper).insertService();
         serviceExternalId = service.getExternalId();
     }

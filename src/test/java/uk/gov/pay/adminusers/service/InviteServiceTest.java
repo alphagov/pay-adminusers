@@ -61,7 +61,7 @@ public class InviteServiceTest {
     private String senderExternalId = "12345";
 
     @Before
-    public void setup() {
+    public void setUp() {
         inviteService = new InviteService(
                 mockUserDao,
                 mockInviteDao,

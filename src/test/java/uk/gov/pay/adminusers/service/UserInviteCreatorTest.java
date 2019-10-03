@@ -80,7 +80,7 @@ public class UserInviteCreatorTest {
     private String roleName = "view-only";
 
     @Before
-    public void setup() {
+    public void setUp() {
         LinksConfig mockLinks = mock(LinksConfig.class);
         when(mockLinks.getSelfserviceUrl()).thenReturn(SELFSERVICE_URL);
         when(mockConfig.getLinks()).thenReturn(mockLinks);

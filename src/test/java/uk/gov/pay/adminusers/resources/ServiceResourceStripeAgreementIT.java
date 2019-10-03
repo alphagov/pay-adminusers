@@ -25,7 +25,7 @@ public class ServiceResourceStripeAgreementIT extends IntegrationTest {
     private Service service;
 
     @Before
-    public void setup() {
+    public void setUp() {
         service = serviceDbFixture(databaseHelper).insertService();
     }
 

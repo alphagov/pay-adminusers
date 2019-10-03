@@ -17,10 +17,10 @@ public class TelephoneNumberUtility {
                 PhoneNumber phoneNumber = PHONE_NUMBER_UTIL.parseAndKeepRawInput(telephoneNumber, DEFAULT_COUNTRY);
                 return PHONE_NUMBER_UTIL.isValidNumber(phoneNumber);
             }
+            return false;
         } catch (NumberParseException e) {
-            // do nothing
+            return false;
         }
-        return false;
     }
 
     public static String formatToE164(String telephoneNumber) {

@@ -7,6 +7,7 @@ import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.model.User;
 
+import java.util.Locale;
 import java.util.Map;
 
 import static java.lang.String.format;
@@ -73,7 +74,7 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
                 .post(INVITE_USER_RESOURCE_URL)
                 .then()
                 .statusCode(CREATED.getStatusCode())
-                .body("email", is(email.toLowerCase()))
+                .body("email", is(email.toLowerCase(Locale.ENGLISH)))
                 .body("telephone_number", is(nullValue()))
                 .body("_links", hasSize(1))
                 .body("_links[0].href", matchesPattern("^https://selfservice.pymnt.localdomain/invites/[0-9a-z]{32}$"))

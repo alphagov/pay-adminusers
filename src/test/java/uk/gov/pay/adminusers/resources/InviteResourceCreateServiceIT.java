@@ -5,6 +5,7 @@ import io.restassured.http.ContentType;
 import org.junit.Test;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 
+import java.util.Locale;
 import java.util.Map;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -34,7 +35,7 @@ public class InviteResourceCreateServiceIT extends IntegrationTest {
                 .post(SERVICE_INVITES_CREATE_URL)
                 .then()
                 .statusCode(CREATED.getStatusCode())
-                .body("email", is(email.toLowerCase()))
+                .body("email", is(email.toLowerCase(Locale.ENGLISH)))
                 .body("telephone_number", is("+441134960000"))
                 .body("_links", hasSize(2))
                 .body("_links[0].href", matchesPattern("^https://selfservice.pymnt.localdomain/invites/[0-9a-z]{32}$"))

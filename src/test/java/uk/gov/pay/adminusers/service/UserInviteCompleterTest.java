@@ -59,7 +59,7 @@ public class UserInviteCompleterTest {
     private String senderExternalId = "12345";
 
     @Before
-    public void setup() {
+    public void setUp() {
         userInviteCompleter = new UserInviteCompleter(
                 mockInviteDao,
                 mockUserDao

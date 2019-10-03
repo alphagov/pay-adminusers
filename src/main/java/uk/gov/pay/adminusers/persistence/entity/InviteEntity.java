@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Locale;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 import static uk.gov.pay.adminusers.model.InviteType.USER;
@@ -82,7 +83,7 @@ public class InviteEntity extends AbstractEntity {
         initializeExpiry();
         this.code = code;
         this.otpKey = otpKey;
-        this.email = email.toLowerCase();
+        this.email = email.toLowerCase(Locale.ENGLISH);
         this.role = role;
     }
 

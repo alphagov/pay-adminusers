@@ -66,7 +66,7 @@ public class ServiceInviteCompleterTest {
     private String baseUrl = "http://localhost";
 
     @Before
-    public void setup() {
+    public void setUp() {
         serviceInviteCompleter = new ServiceInviteCompleter(
                 mockInviteDao,
                 mockUserDao,

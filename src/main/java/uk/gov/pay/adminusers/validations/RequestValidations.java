@@ -9,6 +9,7 @@ import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -118,7 +119,7 @@ public class RequestValidations {
     }
 
     /* default */ static Function<JsonNode, Boolean> isNotBoolean() {
-        return jsonNode -> !List.of("true", "false").contains(jsonNode.asText().toLowerCase());
+        return jsonNode -> !List.of("true", "false").contains(jsonNode.asText().toLowerCase(Locale.ENGLISH));
     }
 
     /* default */ static Function<JsonNode, Boolean> isNotStrictBoolean() {
