@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.utils.email;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -87,7 +88,7 @@ public class EmailValidator {
      * @return <b>boolean</b> whether or not it is from a public sector domain
      */
     public static boolean isPublicSectorEmail(String email) {
-        String lowerCaseEmail = email.toLowerCase();
+        String lowerCaseEmail = email.toLowerCase(Locale.ENGLISH);
         String[] emailParts = lowerCaseEmail.split("@");
         if (emailParts.length != 2 || emailParts[0].isEmpty() || emailParts[1].isEmpty()) {
             return false;

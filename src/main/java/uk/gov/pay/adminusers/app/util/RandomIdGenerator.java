@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.app.util;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
@@ -30,6 +31,6 @@ public class RandomIdGenerator {
     }
 
     public static String randomUuid() {
-        return UUID.randomUUID().toString().replace("-", "").toLowerCase();
+        return UUID.randomUUID().toString().replace("-", "").toLowerCase(Locale.ENGLISH);
     }
 }
