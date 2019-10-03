@@ -19,7 +19,7 @@ import java.sql.SQLException;
 
 public class MigrateToInitialDbState extends ConfiguredCommand<AdminUsersConfig> {
 
-    private static Logger logger = LoggerFactory.getLogger(MigrateToInitialDbState.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MigrateToInitialDbState.class);
 
     public MigrateToInitialDbState() {
         super("migrateToInitialDbState", "Migrate to initial (selfservice) database state, if necessary");
@@ -27,22 +27,20 @@ public class MigrateToInitialDbState extends ConfiguredCommand<AdminUsersConfig>
 
     @Override
     protected void run(Bootstrap<AdminUsersConfig> bootstrap, Namespace namespace, AdminUsersConfig configuration) {
-        try (Connection connection = getDatabaseConnection(configuration)) {
+        try (Connection connection = getDatabaseConnection(configuration);
             PreparedStatement statement = connection.prepareStatement("select exists (select * from pg_tables where tablename='users')");
-            ResultSet resultSet = statement.executeQuery();
+            ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next()) {
                 boolean usersExists = resultSet.getBoolean(1);
                 if (usersExists) {
-                    logger.info("Users table found in current environment. Not required for the initial database migration");
+                    LOGGER.info("Users table found in current environment. Not required for the initial database migration");
                 } else {
-                    logger.info("Users table not found. Preparing for the initial database migration..");
+                    LOGGER.info("Users table not found. Preparing for the initial database migration..");
                     performInitialMigration(connection);
                 }
             }
-            resultSet.close();
-            statement.close();
         } catch (SQLException e) {
-            logger.error("Error during initial DB setup", e);
+            LOGGER.error("Error during initial DB setup", e);
             throw new RuntimeException(e);
         }
     }
@@ -52,7 +50,7 @@ public class MigrateToInitialDbState extends ConfiguredCommand<AdminUsersConfig>
             Liquibase migrator = new Liquibase("config/initial-db-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator.update("");
         } catch (LiquibaseException e) {
-            logger.error("Error performing liquibase initial database migration", e);
+            LOGGER.error("Error performing liquibase initial database migration", e);
             throw new RuntimeException(e);
         }
     }
