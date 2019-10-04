@@ -23,9 +23,9 @@ EXPOSE 8081
 
 WORKDIR /app
 
-ADD docker-startup.sh /app/docker-startup.sh
-ADD target/*.yaml /app/
-ADD target/pay-*-allinone.jar /app/
+COPY docker-startup.sh /app/docker-startup.sh
+COPY target/*.yaml /app/
+COPY target/pay-*-allinone.jar /app/
 
 ENTRYPOINT ["tini", "-e", "143", "--"]
 
