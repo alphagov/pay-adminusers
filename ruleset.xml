@@ -120,4 +120,6 @@
         <exclude name="LoggerIsNotStaticFinal"/>
     </rule>
 
+    <rule ref="category/xml/errorprone.xml"/>
+
 </ruleset>
