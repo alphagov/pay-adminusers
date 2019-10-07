@@ -74,7 +74,7 @@ public class Invite {
     }
     
     public void setInviteLink(String targetUrl) {
-        Link inviteLink = Link.from(Link.Rel.invite, "GET", targetUrl);
+        Link inviteLink = Link.from(Link.Rel.INVITE, "GET", targetUrl);
         this.links.add(inviteLink);
     }
 

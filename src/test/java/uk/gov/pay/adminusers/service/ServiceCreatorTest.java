@@ -165,7 +165,7 @@ public class ServiceCreatorTest {
     private void assertSelfLink(Service service) {
         assertThat(service.getLinks(), hasSize(1));
         Link selfLink = service.getLinks().get(0);
-        assertThat(selfLink.getRel(), is(Link.Rel.self));
+        assertThat(selfLink.getRel(), is(Link.Rel.SELF));
         assertThat(selfLink.getMethod(), is(HttpMethod.GET));
         assertThat(selfLink.getHref(), is(BASE_URL + "/v1/api/services/" + service.getExternalId()));
     }

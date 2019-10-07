@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import java.util.Map;
+import java.util.Locale;
 import java.util.Objects;
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
@@ -13,28 +13,28 @@ import java.util.Objects;
 public class Link {
 
     public enum Rel {
-        self,
-        invite,
-        user
+        SELF,
+        INVITE,
+        USER
     }
 
-    private Rel rel;
-    private String method;
-    private String href;
-    private String title;
-    private String type;
-    private Map<String, Object> params;
+    private final Rel rel;
+    private final String method;
+    private final String href;
 
     public static Link from(Rel rel, String method, String href) {
         return new Link(rel, method, href);
     }
 
-    private Link(@JsonProperty("rel") Rel rel,
-                 @JsonProperty("method") String method,
-                 @JsonProperty("href") String href) {
+    private Link(Rel rel, String method, String href) {
         this.rel = rel;
         this.method = method;
         this.href = href;
+    }
+
+    @JsonProperty("rel")
+    public String getRelAsLowerCase() {
+        return rel.name().toLowerCase(Locale.ENGLISH);
     }
 
     public Rel getRel() {
@@ -47,30 +47,6 @@ public class Link {
 
     public String getHref() {
         return href;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public Map<String, Object> getParams() {
-        return params;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setParams(Map<String, Object> params) {
-        this.params = params;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     @Override
@@ -87,20 +63,17 @@ public class Link {
 
         return Objects.equals(rel, link.rel)
                 && Objects.equals(method, link.method)
-                && Objects.equals(href, link.href)
-                && Objects.equals(title, link.title)
-                && Objects.equals(type, link.type)
-                && Objects.equals(params, link.params);
+                && Objects.equals(href, link.href);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(rel, method, href, title, type, params);
+        return Objects.hash(rel, method, href);
     }
 
     @Override
     public String toString() {
-        return String.format("Link{rel=%s, method='%s', href='%s', title='%s', type='%s', params=%s}",
-                rel, method, href, title, type, params);
+        return String.format("Link{rel=%s, method='%s', href='%s'}",
+                getRelAsLowerCase(), method, href);
     }
 }
