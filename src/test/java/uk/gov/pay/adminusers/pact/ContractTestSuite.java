@@ -7,7 +7,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 import uk.gov.pay.commons.testing.pact.provider.CreateTestSuite;
 
-import java.util.Map;
 
 @RunWith(AllTests.class)
 public class ContractTestSuite {

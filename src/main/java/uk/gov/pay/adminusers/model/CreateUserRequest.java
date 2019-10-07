@@ -7,7 +7,9 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
@@ -42,30 +44,36 @@ public class CreateUserRequest {
     }
 
     public static CreateUserRequest from(JsonNode node) {
-        final List<String> gatewayAccountIds = new ArrayList<>();
-        final List<String> serviceExternalIds = new ArrayList<>();
-        try {
-            if (node.get(FIELD_GATEWAY_ACCOUNT_IDS) != null) {
-                node.get(FIELD_GATEWAY_ACCOUNT_IDS)
-                        .iterator()
-                        .forEachRemaining((gatewayAccountId) -> gatewayAccountIds.add(gatewayAccountId.asText()));
-                gatewayAccountIds.sort(numericallyThenLexicographically());
-            }
-            if (node.get(FIELD_SERVICE_EXTERNAL_IDS) != null) {
-                node.get(FIELD_SERVICE_EXTERNAL_IDS)
-                        .iterator()
-                        .forEachRemaining((serviceExternalIdNode) -> serviceExternalIds.add(serviceExternalIdNode.asText()));
-            }
-            String username = node.get(FIELD_USERNAME).asText();
-            String password = getOrElseRandom(node.get(FIELD_PASSWORD), randomUuid());
-            String email = node.get(FIELD_EMAIL).asText();
-            String telephoneNumber = node.get(FIELD_TELEPHONE_NUMBER).asText();
-            String otpKey = getOrElseRandom(node.get(FIELD_OTP_KEY), newId());
-            String features = getOrElseRandom(node.get(FIELD_FEATURES), null);
-            return from(username, password, email, gatewayAccountIds, serviceExternalIds, otpKey, telephoneNumber, features);
-        } catch (NullPointerException e) {
-            throw new RuntimeException("Error retrieving required fields for creating a user", e);
+        final List<String> gatewayAccountIds = safelyGetList(node, FIELD_GATEWAY_ACCOUNT_IDS);
+        gatewayAccountIds.sort(numericallyThenLexicographically());
+
+        final List<String> serviceExternalIds = safelyGetList(node, FIELD_SERVICE_EXTERNAL_IDS);
+
+        String username = getNodeAsTextOrFail(node, FIELD_USERNAME);
+        String password = getOrElseRandom(node.get(FIELD_PASSWORD), randomUuid());
+        String email = getNodeAsTextOrFail(node, FIELD_EMAIL);
+        String telephoneNumber = getNodeAsTextOrFail(node, FIELD_TELEPHONE_NUMBER);
+        String otpKey = getOrElseRandom(node.get(FIELD_OTP_KEY), newId());
+        String features = getOrElseRandom(node.get(FIELD_FEATURES), null);
+        return from(username, password, email, gatewayAccountIds, serviceExternalIds, otpKey, telephoneNumber, features);
+    }
+
+    private static List<String> safelyGetList(JsonNode node, String fieldName) {
+        if (node == null || node.get(fieldName) == null) {
+            return Collections.emptyList();
         }
+
+        var results = new ArrayList<String>();
+        node.get(fieldName)
+                .iterator()
+                .forEachRemaining(nodeValue -> Optional.ofNullable(nodeValue).map(JsonNode::asText).ifPresent(results::add));
+        return results;
+    }
+
+    private static String getNodeAsTextOrFail(JsonNode node, String fieldName) {
+        return Optional.ofNullable(node.get(fieldName))
+                .map(JsonNode::asText)
+                .orElseThrow(() -> new RuntimeException(String.format("Error retrieving field {} for creating a user", fieldName)));
     }
 
     private static String getOrElseRandom(JsonNode elementNode, String randomValue) {
