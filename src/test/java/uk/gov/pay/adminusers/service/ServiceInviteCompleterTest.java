@@ -11,6 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.InviteCompleteRequest;
 import uk.gov.pay.adminusers.model.InviteCompleteResponse;
 import uk.gov.pay.adminusers.model.InviteType;
+import uk.gov.pay.adminusers.model.Link;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -103,7 +104,7 @@ public class ServiceInviteCompleterTest {
 
         assertThat(inviteResponse.getInvite().isDisabled(), is(true));
         assertThat(inviteResponse.getInvite().getLinks().size(), is(1));
-        assertThat(inviteResponse.getInvite().getLinks().get(0).getRel().toString(), is("user"));
+        assertThat(inviteResponse.getInvite().getLinks().get(0).getRel(), is(Link.Rel.USER));
         assertThat(inviteResponse.getInvite().getLinks().get(0).getHref(), matchesPattern("^" + baseUrl + "/v1/api/users/[0-9a-z]{32}$"));
     }
 
@@ -134,7 +135,7 @@ public class ServiceInviteCompleterTest {
 
         assertThat(inviteResponse.getInvite().isDisabled(), is(true));
         assertThat(inviteResponse.getInvite().getLinks().size(), is(1));
-        assertThat(inviteResponse.getInvite().getLinks().get(0).getRel().toString(), is("user"));
+        assertThat(inviteResponse.getInvite().getLinks().get(0).getRel(), is(Link.Rel.USER));
         assertThat(inviteResponse.getInvite().getLinks().get(0).getHref(), matchesPattern("^" + baseUrl + "/v1/api/users/[0-9a-z]{32}$"));
     }
 

@@ -27,7 +27,7 @@ public class LinksBuilder {
     public User decorate(User user) {
         URI uri = fromUri(baseUrl).path(USERS_RESOURCE).path(user.getExternalId())
                 .build();
-        Link selfLink = Link.from(Rel.self, "GET", uri.toString());
+        Link selfLink = Link.from(Rel.SELF, "GET", uri.toString());
         user.setLinks(List.of(selfLink));
         return user;
     }
@@ -35,7 +35,7 @@ public class LinksBuilder {
     public Service decorate(Service service) {
         URI uri = fromUri(baseUrl).path(SERVICES_RESOURCE).path(String.valueOf(service.getExternalId()))
                 .build();
-        Link selfLink = Link.from(Rel.self, "GET", uri.toString());
+        Link selfLink = Link.from(Rel.SELF, "GET", uri.toString());
         service.setLinks(List.of(selfLink));
         return service;
     }
@@ -43,7 +43,7 @@ public class LinksBuilder {
     public ForgottenPassword decorate(ForgottenPassword forgottenPassword) {
         URI uri = fromUri(baseUrl).path(FORGOTTEN_PASSWORDS_RESOURCE).path(forgottenPassword.getCode())
                 .build();
-        Link selfLink = Link.from(Rel.self, "GET", uri.toString());
+        Link selfLink = Link.from(Rel.SELF, "GET", uri.toString());
         forgottenPassword.setLinks(List.of(selfLink));
         return forgottenPassword;
     }
@@ -51,7 +51,7 @@ public class LinksBuilder {
     public Invite decorate(Invite invite) {
         URI uri = fromUri(baseUrl).path(INVITES_RESOURCE).path(invite.getCode())
                 .build();
-        Link selfLink = Link.from(Rel.self, "GET", uri.toString());
+        Link selfLink = Link.from(Rel.SELF, "GET", uri.toString());
         invite.getLinks().add(selfLink);
         return invite;
     }
@@ -59,7 +59,7 @@ public class LinksBuilder {
     public Invite addUserLink(User user, Invite invite) {
         URI uri = fromUri(baseUrl).path(USERS_RESOURCE).path(user.getExternalId())
                 .build();
-        Link userLink = Link.from(Rel.user, "GET", uri.toString());
+        Link userLink = Link.from(Rel.USER, "GET", uri.toString());
         invite.getLinks().add(userLink);
         return invite;
     }
