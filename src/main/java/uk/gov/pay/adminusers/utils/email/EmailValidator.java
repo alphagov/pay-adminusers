@@ -23,6 +23,7 @@ public class EmailValidator {
             "gov\\.scot",
             "gov\\.uk",
             "gov\\.wales",
+            "hial\\.co\\.uk",
             "hmcts\\.net",
             "judiciary\\.uk",
             "llyw\\.cymru",
