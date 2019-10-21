@@ -198,6 +198,11 @@
             <artifactId>utils</artifactId>
             <version>${pay-java-commons.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.dhatim</groupId>
+            <artifactId>dropwizard-sentry</artifactId>
+            <version>1.3.9-1</version>
+        </dependency>
 
         <!-- testing -->
         <dependency>
