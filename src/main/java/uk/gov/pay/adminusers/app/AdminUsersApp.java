@@ -33,6 +33,7 @@ import uk.gov.pay.commons.utils.healthchecks.DatabaseHealthCheck;
 import uk.gov.pay.commons.utils.logging.LoggingFilter;
 import uk.gov.pay.commons.utils.metrics.DatabaseMetricsService;
 import uk.gov.pay.commons.utils.xray.Xray;
+import uk.gov.pay.logging.GovUkPayDropwizardRequestJsonLogLayoutFactory;
 import uk.gov.pay.logging.LogstashConsoleAppenderFactory;
 
 import java.util.concurrent.TimeUnit;
@@ -65,6 +66,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         bootstrap.addCommand(new DependentResourceWaitCommand());
         bootstrap.addCommand(new MigrateToInitialDbState());
         bootstrap.getObjectMapper().getSubtypeResolver().registerSubtypes(LogstashConsoleAppenderFactory.class);
+        bootstrap.getObjectMapper().getSubtypeResolver().registerSubtypes(GovUkPayDropwizardRequestJsonLogLayoutFactory.class);
     }
 
     @Override
