@@ -5,6 +5,13 @@ server:
   adminConnectors:
     - type: http
       port: ${ADMIN_PORT:-8081}
+  requestLog:
+    appenders:
+      - type: console
+        layout:
+          type: govuk-pay-access-json
+          additionalFields:
+            container: "adminusers"
 
 logging:
   level: INFO
