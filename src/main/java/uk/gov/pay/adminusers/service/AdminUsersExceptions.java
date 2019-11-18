@@ -99,8 +99,8 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 
-    public static RuntimeException userNotificationError(Exception e) {
-        return new RuntimeException("error sending user notification", e);
+    public static WebApplicationException userNotificationError() {
+        return buildWebApplicationException("error sending user notification", INTERNAL_SERVER_ERROR.getStatusCode());
     }
 
     private static WebApplicationException buildWebApplicationException(String error, int status) {

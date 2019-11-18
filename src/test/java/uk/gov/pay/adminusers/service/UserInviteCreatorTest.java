@@ -121,7 +121,7 @@ public class UserInviteCreatorTest {
         mockInviteSuccessForNonExistingUserNonExistingInvite();
 
         when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
-                .thenThrow(AdminUsersExceptions.userNotificationError(new RuntimeException("some error from notify")));
+                .thenThrow(AdminUsersExceptions.userNotificationError());
 
         userInviteCreator.doInvite(inviteRequestFrom(senderExternalId, email, roleName));
 
@@ -241,7 +241,7 @@ public class UserInviteCreatorTest {
         InviteEntity anInvite = mockInviteSuccessExistingInvite();
         when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
                 eq(anInvite.getService().getServiceNames().get(SupportedLanguage.ENGLISH).getName())))
-                .thenThrow(AdminUsersExceptions.userNotificationError(new RuntimeException("some error from notify")));
+                .thenThrow(AdminUsersExceptions.userNotificationError());
 
         InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
         Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);

@@ -94,7 +94,7 @@ public class ForgottenPasswordServicesTest {
         when(mockUser.getEmail()).thenReturn(email);
         when(userDao.findByUsername(username)).thenReturn(Optional.of(mockUser));
         when(mockNotificationService.sendForgottenPasswordEmail(eq(email), matches("^http://selfservice/reset-password/[0-9a-z]{32}$")))
-                .thenThrow(AdminUsersExceptions.userNotificationError(new RuntimeException("some error from notify")));
+                .thenThrow(AdminUsersExceptions.userNotificationError());
         doNothing().when(forgottenPasswordDao).persist(any(ForgottenPasswordEntity.class));
 
         forgottenPasswordServices.create(username);

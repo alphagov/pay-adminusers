@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.String.format;
 import static uk.gov.pay.adminusers.model.PaymentType.CARD;
 import static uk.gov.pay.adminusers.model.Service.DEFAULT_NAME_VALUE;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.userNotificationError;
 
 public class NotificationService {
 
@@ -54,7 +55,7 @@ public class NotificationService {
             return response.getNotificationId().toString();
         } catch (Exception e) {
             metricRegistry.counter("notify-operations.sms.failures").inc();
-            throw AdminUsersExceptions.userNotificationError(e);
+            throw userNotificationError();
         } finally {
             responseTimeStopwatch.stop();
             metricRegistry.histogram("notify-operations.sms.response_time").update(responseTimeStopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -127,7 +128,7 @@ public class NotificationService {
             return response.getNotificationId().toString();
         } catch (Exception e) {
             metricRegistry.counter("notify-operations.email.failures").inc();
-            throw AdminUsersExceptions.userNotificationError(e);
+            throw userNotificationError();
         } finally {
             responseTimeStopwatch.stop();
             metricRegistry.histogram("notify-operations.email.response_time").update(responseTimeStopwatch.elapsed(TimeUnit.MILLISECONDS));

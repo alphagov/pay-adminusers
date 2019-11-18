@@ -83,7 +83,7 @@ public class ServiceInviteCreatorTest {
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(emptyList());
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
-        when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenThrow(AdminUsersExceptions.userNotificationError(new RuntimeException("failed")));
+        when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenThrow(AdminUsersExceptions.userNotificationError());
         when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         Invite invite = serviceInviteCreator.doInvite(request);

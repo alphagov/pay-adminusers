@@ -373,7 +373,7 @@ public class UserServicesTest {
         when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(123456);
 
         when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456")))
-                .thenThrow(AdminUsersExceptions.userNotificationError(new Exception("some error from notify")));
+                .thenThrow(AdminUsersExceptions.userNotificationError());
 
         Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), false);
 
