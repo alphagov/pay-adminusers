@@ -221,7 +221,7 @@ public class InviteServiceTest {
         when(mockSecondFactorAuthenticator.newPassCode(otpKey)).thenReturn(passCode);
         when(mockInviteDao.merge(any(InviteEntity.class))).thenReturn(inviteEntity);
         when(mockNotificationService.sendSecondFactorPasscodeSms(eq(telephoneNumber), eq(valueOf(passCode))))
-                .thenThrow(AdminUsersExceptions.userNotificationError(new RuntimeException("some error from notify")));
+                .thenThrow(AdminUsersExceptions.userNotificationError());
 
         inviteService.reGenerateOtp(inviteOtpRequestFrom(inviteCode, telephoneNumber, plainPassword));
 
