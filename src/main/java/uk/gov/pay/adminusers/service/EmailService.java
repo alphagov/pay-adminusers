@@ -72,10 +72,10 @@ public class EmailService {
         MerchantDetailsEntity merchantDetails = service.getMerchantDetailsEntity();
 
         if (merchantDetails == null) {
-            LOGGER.error("Merchant details are empty: can't send email for account {}", gatewayAccountId);
+            LOGGER.info("Merchant details are empty: can't send email for account {}", gatewayAccountId);
             throw new InvalidMerchantDetailsException("Merchant details are empty: can't send email for account " + gatewayAccountId);
         } else if (isMissingMandatoryFields(merchantDetails)) {
-            LOGGER.error("Merchant details are missing mandatory fields: can't send email for account {}", gatewayAccountId);
+            LOGGER.info("Merchant details are missing mandatory fields: can't send email for account {}", gatewayAccountId);
             throw new InvalidMerchantDetailsException("Merchant details are missing mandatory fields: can't send email for account " + gatewayAccountId);
         }
 
