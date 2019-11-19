@@ -46,7 +46,7 @@ public class UserOtpDispatcher extends InviteOtpDispatcher {
                         String notificationId = notificationService.sendSecondFactorPasscodeSms(inviteOtpRequest.getTelephoneNumber(), passcode);
                         LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]", inviteCode, notificationId);
                     } catch (Exception e) {
-                        LOGGER.error(format("error sending 2FA token for invite code [%s]", inviteCode), e);
+                        LOGGER.info(format("error sending 2FA token for invite code [%s]", inviteCode), e);
                     }
                     
                     return true;
