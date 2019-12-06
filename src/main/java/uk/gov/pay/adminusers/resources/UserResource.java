@@ -46,7 +46,7 @@ public class UserResource {
     public static final String USERS_RESOURCE = API_VERSION_PATH + "/api/users";
     public static final String FIND_RESOURCE = USERS_RESOURCE + "/find";
     private static final String AUTHENTICATE_RESOURCE = USERS_RESOURCE + "/authenticate";
-    private static final String USER_RESOURCE = USERS_RESOURCE + "/{externalId}";
+    private static final String USER_RESOURCE = USERS_RESOURCE + "/{userExternalId}";
     private static final String SECOND_FACTOR_RESOURCE = USER_RESOURCE + "/second-factor";
     private static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/authenticate";
     private static final String SECOND_FACTOR_PROVISION_RESOURCE = SECOND_FACTOR_RESOURCE + "/provision";
@@ -87,7 +87,7 @@ public class UserResource {
     @GET
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response getUser(@PathParam("externalId") String externalId) {
+    public Response getUser(@PathParam("userExternalId") String externalId) {
         LOGGER.info("User GET request - [ {} ]", externalId);
         return userServices.findUserByExternalId(externalId)
                 .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
@@ -155,7 +155,7 @@ public class UserResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response newSecondFactorPasscode(@PathParam("externalId") String externalId, JsonNode payload) {
+    public Response newSecondFactorPasscode(@PathParam("userExternalId") String externalId, JsonNode payload) {
         LOGGER.info("User 2FA new passcode request");
         return validator.validateNewSecondFactorPasscodeRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -172,7 +172,7 @@ public class UserResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response authenticateSecondFactor(@PathParam("externalId") String externalId, JsonNode payload) {
+    public Response authenticateSecondFactor(@PathParam("userExternalId") String externalId, JsonNode payload) {
         LOGGER.info("User 2FA authenticate passcode request");
         return validator.validate2FAAuthRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -185,7 +185,7 @@ public class UserResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response newSecondFactorOtpKey(@PathParam("externalId") String externalId) {
+    public Response newSecondFactorOtpKey(@PathParam("userExternalId") String externalId) {
         LOGGER.info("User 2FA provision new OTP key request");
         return userServices.provisionNewOtpKey(externalId)
                 .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
@@ -196,7 +196,7 @@ public class UserResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response activateSecondFactorOtpKey(@PathParam("externalId") String externalId, JsonNode payload) {
+    public Response activateSecondFactorOtpKey(@PathParam("userExternalId") String externalId, JsonNode payload) {
         LOGGER.info("User 2FA activate new OTP key request");
         return validator.validate2faActivateRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -213,7 +213,7 @@ public class UserResource {
     @Path(USER_RESOURCE)
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response updateUserAttribute(@PathParam("externalId") String externalId, JsonNode node) {
+    public Response updateUserAttribute(@PathParam("userExternalId") String externalId, JsonNode node) {
         LOGGER.info("User update attribute attempt request");
         return validator.validatePatchRequest(node)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -226,7 +226,7 @@ public class UserResource {
     @Path(USER_SERVICE_RESOURCE)
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response updateServiceRole(@PathParam("externalId") String userExternalId, @PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
+    public Response updateServiceRole(@PathParam("userExternalId") String userExternalId, @PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
         LOGGER.info("User update service role request");
         return validator.validateServiceRole(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -242,7 +242,7 @@ public class UserResource {
     @Path(USER_SERVICES_RESOURCE)
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response createServiceRole(@PathParam("externalId") String userExternalId, JsonNode payload) {
+    public Response createServiceRole(@PathParam("userExternalId") String userExternalId, JsonNode payload) {
         LOGGER.info("Assign service role to a user {} request", userExternalId);
         return validator.validateAssignServiceRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
