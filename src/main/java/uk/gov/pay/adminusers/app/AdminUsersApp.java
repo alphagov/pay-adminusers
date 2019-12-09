@@ -20,6 +20,8 @@ import uk.gov.pay.adminusers.app.healthchecks.MigrateToInitialDbState;
 import uk.gov.pay.adminusers.exception.ConflictExceptionMapper;
 import uk.gov.pay.adminusers.exception.NotFoundExceptionMapper;
 import uk.gov.pay.adminusers.exception.ValidationExceptionMapper;
+import uk.gov.pay.adminusers.filters.LoggingMDCRequestFilter;
+import uk.gov.pay.adminusers.filters.LoggingMDCResponseFilter;
 import uk.gov.pay.adminusers.resources.EmailResource;
 import uk.gov.pay.adminusers.resources.ForgottenPasswordResource;
 import uk.gov.pay.adminusers.resources.HealthCheckResource;
@@ -76,6 +78,8 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
 
         initialiseMetrics(configuration, environment);
 
+        environment.jersey().register(injector.getInstance(LoggingMDCRequestFilter.class));
+        environment.jersey().register(injector.getInstance(LoggingMDCResponseFilter.class));
         environment.servlets().addFilter("LoggingFilter", new LoggingFilter())
                 .addMappingForUrlPatterns(of(REQUEST), true, API_VERSION_PATH + "/*");
 
