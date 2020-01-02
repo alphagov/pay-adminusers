@@ -197,6 +197,15 @@ public class UserResource {
                             .orElseGet(() -> Response.status(UNAUTHORIZED).build());
                 });
     }
+    
+    @Path("/{userExternalId}/reset-second-factor")
+    @POST
+    @Produces(APPLICATION_JSON)
+    public Response resetSecondFactor(@PathParam("userExternalId") String externalId) {
+        return userServices.resetSecondFactor(externalId)
+                .map(user -> Response.status(OK).entity(user).build())
+                .orElseGet(() -> Response.status(NOT_FOUND).build());
+    }
 
     @PATCH
     @Path("/{userExternalId}")

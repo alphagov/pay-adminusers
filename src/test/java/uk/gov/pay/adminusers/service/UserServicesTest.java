@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.model.PatchRequest;
@@ -66,6 +67,8 @@ public class UserServicesTest {
     private NotificationService notificationService;
     @Mock
     private SecondFactorAuthenticator secondFactorAuthenticator;
+    @Captor
+    private ArgumentCaptor<UserEntity> userEntityArgumentCaptor;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -157,8 +160,7 @@ public class UserServicesTest {
 
         when(passwordHasher.isEqual("random-password", "hashed-password")).thenReturn(true);
         when(userDao.findByUsername(USER_USERNAME)).thenReturn(Optional.of(userEntity));
-        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
-        when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
+        when(userDao.merge(userEntityArgumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
         Optional<User> userOptional = userServices.authenticate(USER_USERNAME, "random-password");
         assertTrue(userOptional.isPresent());
@@ -166,7 +168,7 @@ public class UserServicesTest {
         User authenticatedUser = userOptional.get();
         assertThat(authenticatedUser.getUsername(), is(USER_USERNAME));
         assertThat(authenticatedUser.getLinks().size(), is(1));
-        assertThat(argumentCaptor.getValue().getLoginCounter(), is(0));
+        assertThat(userEntityArgumentCaptor.getValue().getLoginCounter(), is(0));
     }
 
     @Test
@@ -199,13 +201,12 @@ public class UserServicesTest {
         userEntity.setPassword("hashed-password");
 
         when(userDao.findByUsername(USER_USERNAME)).thenReturn(Optional.of(UserEntity.from(user)));
-        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
-        when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
+        when(userDao.merge(userEntityArgumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
         Optional<User> userOptional = userServices.authenticate(USER_USERNAME, "random-password");
         assertFalse(userOptional.isPresent());
 
-        UserEntity savedUser = argumentCaptor.getValue();
+        UserEntity savedUser = userEntityArgumentCaptor.getValue();
         assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
         assertThat(savedUser.getLoginCounter(), is(2));
         assertThat(savedUser.isDisabled(), is(false));
@@ -219,11 +220,10 @@ public class UserServicesTest {
         userEntity.setPassword("hashed-password");
 
         when(userDao.findByUsername(USER_USERNAME)).thenReturn(Optional.of(UserEntity.from(user)));
-        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
-        when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
+        when(userDao.merge(userEntityArgumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
         userServices.authenticate(USER_USERNAME, "random-password");
-        UserEntity savedUser = argumentCaptor.getValue();
+        UserEntity savedUser = userEntityArgumentCaptor.getValue();
         assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
         assertThat(savedUser.getLoginCounter(), is(3));
         assertThat(savedUser.isDisabled(), is(true));
@@ -296,15 +296,14 @@ public class UserServicesTest {
         String newTelephoneNumber = "+441134960000";
         JsonNode node = new ObjectMapper().valueToTree(Map.of("path", "telephone_number", "op", "replace", "value", newTelephoneNumber));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
-        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
 
         when(userDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(userEntityOptional);
 
         Optional<User> userOptional = userServices.patchUser(USER_EXTERNAL_ID, PatchRequest.from(node));
 
-        verify(userDao, times(1)).merge(argumentCaptor.capture());
+        verify(userDao, times(1)).merge(userEntityArgumentCaptor.capture());
 
-        UserEntity persistedUser = argumentCaptor.getValue();
+        UserEntity persistedUser = userEntityArgumentCaptor.getValue();
         assertThat(persistedUser.getTelephoneNumber(), is(newTelephoneNumber));
         assertTrue(userOptional.isPresent());
 
@@ -320,15 +319,14 @@ public class UserServicesTest {
         String newFeature = "1,2,3";
         JsonNode node = new ObjectMapper().valueToTree(Map.of("path", "features", "op", "replace", "value", newFeature));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
-        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
 
         when(userDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(userEntityOptional);
 
         Optional<User> userOptional = userServices.patchUser(USER_EXTERNAL_ID, PatchRequest.from(node));
 
-        verify(userDao, times(1)).merge(argumentCaptor.capture());
+        verify(userDao, times(1)).merge(userEntityArgumentCaptor.capture());
 
-        UserEntity persistedUser = argumentCaptor.getValue();
+        UserEntity persistedUser = userEntityArgumentCaptor.getValue();
         assertThat(persistedUser.getFeatures(), is(newFeature));
         assertTrue(userOptional.isPresent());
 
@@ -447,14 +445,13 @@ public class UserServicesTest {
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.authorize(user.getOtpKey(), 123456)).thenReturn(false);
-        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
-        when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
+        when(userDao.merge(userEntityArgumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
         Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getExternalId(), 123456);
 
         assertFalse(tokenOptional.isPresent());
 
-        UserEntity savedUser = argumentCaptor.getValue();
+        UserEntity savedUser = userEntityArgumentCaptor.getValue();
         assertThat(savedUser.getLoginCounter(), is(1));
         assertThat(savedUser.isDisabled(), is(false));
         assertThat(savedUser.getLastLoggedInAt(), is(nullValue()));
@@ -468,14 +465,13 @@ public class UserServicesTest {
         userEntity.setLastLoggedInAt(lastLoggedInDateTime);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.authorize(user.getOtpKey(), 123456)).thenReturn(false);
-        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
-        when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
+        when(userDao.merge(userEntityArgumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
         Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getExternalId(), 123456);
 
         assertFalse(tokenOptional.isPresent());
 
-        UserEntity savedUser = argumentCaptor.getValue();
+        UserEntity savedUser = userEntityArgumentCaptor.getValue();
         assertThat(savedUser.getLoginCounter(), is(1));
         assertThat(savedUser.isDisabled(), is(false));
         assertThat(savedUser.getLastLoggedInAt().equals(lastLoggedInDateTime), is(true));
@@ -488,14 +484,13 @@ public class UserServicesTest {
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.authorize(user.getOtpKey(), 123456)).thenReturn(false);
-        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
-        when(userDao.merge(argumentCaptor.capture())).thenReturn(mock(UserEntity.class));
+        when(userDao.merge(userEntityArgumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
         Optional<User> tokenOptional = userServices.authenticateSecondFactor(user.getExternalId(), 123456);
 
         assertFalse(tokenOptional.isPresent());
 
-        UserEntity savedUser = argumentCaptor.getValue();
+        UserEntity savedUser = userEntityArgumentCaptor.getValue();
         assertThat(savedUser.getLoginCounter(), is(4));
         assertThat(savedUser.isDisabled(), is(true));
     }
@@ -524,10 +519,9 @@ public class UserServicesTest {
         assertThat(result.get().getOtpKey(), is("Original OTP key"));
         assertThat(result.get().getProvisionalOtpKey(), is("Provisional OTP key"));
         assertTrue(within(3, SECONDS, result.get().getProvisionalOtpKeyCreatedAt()).matches(ZonedDateTime.now(ZoneOffset.UTC)));
-
-        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
-        verify(userDao).merge(argumentCaptor.capture());
-        UserEntity savedUser = argumentCaptor.getValue();
+        
+        verify(userDao).merge(userEntityArgumentCaptor.capture());
+        UserEntity savedUser = userEntityArgumentCaptor.getValue();
         assertThat(savedUser.getOtpKey(), is("Original OTP key"));
         assertThat(savedUser.getProvisionalOtpKey(), is("Provisional OTP key"));
         assertTrue(within(3, SECONDS, savedUser.getProvisionalOtpKeyCreatedAt()).matches(ZonedDateTime.now(ZoneOffset.UTC)));
@@ -582,10 +576,9 @@ public class UserServicesTest {
         assertThat(result.get().getOtpKey(), is("New OTP key"));
         assertThat(result.get().getProvisionalOtpKey(), is(nullValue()));
         assertThat(result.get().getProvisionalOtpKeyCreatedAt(), is(nullValue()));
-
-        ArgumentCaptor<UserEntity> argumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
-        verify(userDao).merge(argumentCaptor.capture());
-        UserEntity savedUser = argumentCaptor.getValue();
+        
+        verify(userDao).merge(userEntityArgumentCaptor.capture());
+        UserEntity savedUser = userEntityArgumentCaptor.getValue();
         assertThat(savedUser.getOtpKey(), is("New OTP key"));
         assertThat(savedUser.getProvisionalOtpKey(), is(nullValue()));
         assertThat(savedUser.getProvisionalOtpKey(), is(nullValue()));
@@ -706,6 +699,52 @@ public class UserServicesTest {
         assertThat(userEntity.getSecondFactor(), is(SecondFactorMethod.SMS));
 
         verify(userDao, never()).merge(any(UserEntity.class));
+    }
+
+    @Test
+    public void resetSecondFactor_shouldUpdateOtpMethodAndSetNewOtpKey_ifSecondFactorMethodIsApp() {
+        User user = aUser();
+        user.setSecondFactor(SecondFactorMethod.APP);
+        UserEntity userEntity = UserEntity.from(user);
+
+        String newOtpKey = "newOtpKey";
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+        when(secondFactorAuthenticator.generateNewBase32EncodedSecret()).thenReturn(newOtpKey);
+
+        Optional<User> result = userServices.resetSecondFactor(user.getExternalId());
+
+        verify(userDao, times(1)).merge(userEntityArgumentCaptor.capture());
+
+        UserEntity persistedUser = userEntityArgumentCaptor.getValue();
+        
+        assertThat(result.isPresent(), is(true));
+        assertThat(persistedUser.getOtpKey(), is(newOtpKey));
+        assertThat(persistedUser.getSecondFactor(), is(SecondFactorMethod.SMS));
+    }
+
+    @Test
+    public void resetSecondFactor_shouldNotUpdateUser_ifSecondFactorMethodIsSms() {
+        User user = aUser();
+        user.setSecondFactor(SecondFactorMethod.SMS);
+        UserEntity userEntity = UserEntity.from(user);
+
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+
+        Optional<User> result = userServices.resetSecondFactor(user.getExternalId());
+        
+        verify(userDao, never()).merge(any(UserEntity.class));
+        assertThat(result.isPresent(), is(true));
+    }
+
+    @Test
+    public void resetSecondFactor_shouldReturnEmptyOptional_ifUserNotFound() {
+        String externalId = "not-found";
+        when(userDao.findByExternalId(externalId)).thenReturn(Optional.empty());
+
+        Optional<User> result = userServices.resetSecondFactor(externalId);
+
+        verify(userDao, never()).merge(any(UserEntity.class));
+        assertThat(result.isPresent(), is(false));
     }
 
     private User aUser() {
