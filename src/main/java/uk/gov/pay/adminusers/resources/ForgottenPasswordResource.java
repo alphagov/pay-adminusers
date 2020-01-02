@@ -22,11 +22,10 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-@Path("/")
+@Path(ForgottenPasswordResource.FORGOTTEN_PASSWORDS_RESOURCE)
 public class ForgottenPasswordResource {
 
     public static final String FORGOTTEN_PASSWORDS_RESOURCE = "/v1/api/forgotten-passwords";
-    private static final String FORGOTTEN_PASSWORD_RESOURCE = FORGOTTEN_PASSWORDS_RESOURCE + "/{code}";
     private static final Logger LOGGER = LoggerFactory.getLogger(ForgottenPasswordResource.class);
 
     private static final int MAX_LENGTH = 255;
@@ -38,8 +37,7 @@ public class ForgottenPasswordResource {
         this.forgottenPasswordServices = forgottenPasswordServices;
         validator = new ForgottenPasswordValidator();
     }
-
-    @Path(FORGOTTEN_PASSWORDS_RESOURCE)
+    
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
@@ -55,7 +53,7 @@ public class ForgottenPasswordResource {
                 });
     }
 
-    @Path(FORGOTTEN_PASSWORD_RESOURCE)
+    @Path("/{code}")
     @GET
     @Produces(APPLICATION_JSON)
     public Response findNonExpiredForgottenPassword(@PathParam("code") String code) {

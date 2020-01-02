@@ -37,22 +37,13 @@ import static uk.gov.pay.adminusers.model.User.FIELD_USERNAME;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingUsername;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 
-@Path("/")
+@Path(UserResource.USERS_RESOURCE)
 public class UserResource {
+    
+    public static final String USERS_RESOURCE = "/v1/api/users";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserResource.class);
 
-    public static final String API_VERSION_PATH = "/v1";
-    public static final String USERS_RESOURCE = API_VERSION_PATH + "/api/users";
-    public static final String FIND_RESOURCE = USERS_RESOURCE + "/find";
-    private static final String AUTHENTICATE_RESOURCE = USERS_RESOURCE + "/authenticate";
-    private static final String USER_RESOURCE = USERS_RESOURCE + "/{userExternalId}";
-    private static final String SECOND_FACTOR_RESOURCE = USER_RESOURCE + "/second-factor";
-    private static final String SECOND_FACTOR_AUTHENTICATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/authenticate";
-    private static final String SECOND_FACTOR_PROVISION_RESOURCE = SECOND_FACTOR_RESOURCE + "/provision";
-    private static final String SECOND_FACTOR_ACTIVATE_RESOURCE = SECOND_FACTOR_RESOURCE + "/activate";
-    private static final String USER_SERVICES_RESOURCE = USER_RESOURCE + "/services";
-    private static final String USER_SERVICE_RESOURCE = USER_SERVICES_RESOURCE + "/{serviceExternalId}";
     private static final Splitter COMMA_SEPARATOR = Splitter.on(',').trimResults();
 
     public static final String CONSTRAINT_VIOLATION_MESSAGE = "ERROR: duplicate key value violates unique constraint";
@@ -70,7 +61,7 @@ public class UserResource {
     }
 
 
-    @Path(FIND_RESOURCE)
+    @Path("/find")
     @POST
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
@@ -83,7 +74,7 @@ public class UserResource {
                         .orElseGet(() -> Response.status(NOT_FOUND).build()));
     }
 
-    @Path(USER_RESOURCE)
+    @Path("/{userExternalId}")
     @GET
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
@@ -93,8 +84,7 @@ public class UserResource {
                 .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
-
-    @Path(USERS_RESOURCE)
+    
     @GET
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
@@ -106,8 +96,7 @@ public class UserResource {
 
         return Response.status(OK).type(APPLICATION_JSON).entity(users).build();
     }
-
-    @Path(USERS_RESOURCE)
+    
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
@@ -129,7 +118,7 @@ public class UserResource {
                 });
     }
 
-    @Path(AUTHENTICATE_RESOURCE)
+    @Path("/authenticate")
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
@@ -151,7 +140,7 @@ public class UserResource {
                 });
     }
 
-    @Path(SECOND_FACTOR_RESOURCE)
+    @Path("/{userExternalId}/second-factor")
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
@@ -168,7 +157,7 @@ public class UserResource {
     }
 
 
-    @Path(SECOND_FACTOR_AUTHENTICATE_RESOURCE)
+    @Path("/{userExternalId}/second-factor/authenticate")
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
@@ -181,7 +170,7 @@ public class UserResource {
                         .orElseGet(() -> Response.status(UNAUTHORIZED).build()));
     }
 
-    @Path(SECOND_FACTOR_PROVISION_RESOURCE)
+    @Path("/{userExternalId}/second-factor/provision")
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
@@ -192,7 +181,7 @@ public class UserResource {
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
-    @Path(SECOND_FACTOR_ACTIVATE_RESOURCE)
+    @Path("/{userExternalId}/second-factor/activate")
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
@@ -210,7 +199,7 @@ public class UserResource {
     }
 
     @PATCH
-    @Path(USER_RESOURCE)
+    @Path("/{userExternalId}")
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response updateUserAttribute(@PathParam("userExternalId") String externalId, JsonNode node) {
@@ -223,7 +212,7 @@ public class UserResource {
     }
 
     @PUT
-    @Path(USER_SERVICE_RESOURCE)
+    @Path("/{userExternalId}/services/{serviceExternalId}")
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response updateServiceRole(@PathParam("userExternalId") String userExternalId, @PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
@@ -239,7 +228,7 @@ public class UserResource {
     }
 
     @POST
-    @Path(USER_SERVICES_RESOURCE)
+    @Path("/{userExternalId}/services")
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response createServiceRole(@PathParam("userExternalId") String userExternalId, JsonNode payload) {

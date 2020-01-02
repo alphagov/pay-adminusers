@@ -42,7 +42,6 @@ import java.util.concurrent.TimeUnit;
 
 import static java.util.EnumSet.of;
 import static javax.servlet.DispatcherType.REQUEST;
-import static uk.gov.pay.adminusers.resources.UserResource.API_VERSION_PATH;
 
 public class AdminUsersApp extends Application<AdminUsersConfig> {
 
@@ -81,7 +80,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(injector.getInstance(LoggingMDCRequestFilter.class));
         environment.jersey().register(injector.getInstance(LoggingMDCResponseFilter.class));
         environment.servlets().addFilter("LoggingFilter", new LoggingFilter())
-                .addMappingForUrlPatterns(of(REQUEST), true, API_VERSION_PATH + "/*");
+                .addMappingForUrlPatterns(of(REQUEST), true, "/v1/*");
 
         environment.healthChecks().register("database", new DatabaseHealthCheck(configuration.getDataSourceFactory()));
         environment.jersey().register(injector.getInstance(UserResource.class));
@@ -99,7 +98,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(new InvalidMerchantDetailsExceptionMapper());
         environment.jersey().register(new ConflictExceptionMapper());
 
-        Xray.init(environment, "pay-adminusers", java.util.Optional.empty(), API_VERSION_PATH + "/*");
+        Xray.init(environment, "pay-adminusers", java.util.Optional.empty(), "/v1/*");
     }
 
     private void initialiseMetrics(AdminUsersConfig configuration, Environment environment) {
