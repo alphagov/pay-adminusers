@@ -27,6 +27,7 @@ import static uk.gov.pay.adminusers.model.PatchRequest.PATH_DISABLED;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_FEATURES;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TELEPHONE_NUMBER;
+import static uk.gov.pay.adminusers.model.SecondFactorMethod.SMS;
 
 public class UserServices {
 
@@ -137,14 +138,14 @@ public class UserServices {
                         int newPassCode = secondFactorAuthenticator.newPassCode(otpKey);
                         SecondFactorToken token = SecondFactorToken.from(externalId, newPassCode);
                         final String userExternalId = userEntity.getExternalId();
-                        
+
                         try {
                             String notificationId = notificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), token.getPasscode());
                             logger.info("sent 2FA token successfully to user [{}], notification id [{}]", userExternalId, notificationId);
                         } catch (Exception e) {
                             logger.error("error sending 2FA token to user [{}]", userExternalId, e);
                         }
-                        
+
                         if (useProvisionalOtpKey) {
                             logger.info("New 2FA token generated for User [{}] from provisional OTP key", userExternalId);
                         } else {
@@ -265,6 +266,24 @@ public class UserServices {
                     logger.error("Attempt to activate a new OTP key for a non-existent user {}", externalId);
                     return Optional.empty();
                 });
+    }
+
+    @Transactional
+    public Optional<User> resetSecondFactor(String externalId) {
+        return userDao.findByExternalId(externalId).map(userEntity -> {
+            if (userEntity.getSecondFactor().equals(SMS)) {
+                logger.info("Second factor method is already SMS, doing nothing");
+                return linksBuilder.decorate(userEntity.toUser());
+            }
+            
+            logger.info("Resetting OTP method to SMS for user {}", userEntity.getExternalId());
+            userEntity.setOtpKey(secondFactorAuthenticator.generateNewBase32EncodedSecret());
+            userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+            userEntity.setSecondFactor(SMS);
+            userDao.merge(userEntity);
+            
+            return linksBuilder.decorate(userEntity.toUser());
+        });
     }
 
     @Transactional
