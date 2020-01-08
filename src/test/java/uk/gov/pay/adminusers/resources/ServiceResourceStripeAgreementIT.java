@@ -110,7 +110,7 @@ public class ServiceResourceStripeAgreementIT extends IntegrationTest {
                 .then()
                 .statusCode(422)
                 .body("errors", hasSize(1))
-                .body("errors[0]", is("ipAddress may not be null"));
+                .body("errors[0]", is("ipAddress must not be null"));
     }
 
     @Test

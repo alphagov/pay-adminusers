@@ -4,10 +4,10 @@ import com.google.inject.persist.jpa.JpaPersistModule;
 import liquibase.Liquibase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
+import org.jdbi.v3.core.Jdbi;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.skife.jdbi.v2.DBI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.infra.GuicedTestEnvironment;
@@ -43,7 +43,7 @@ public class DaoTestBase {
 
         JpaPersistModule jpaModule = new JpaPersistModule("AdminUsersUnit").properties(properties);
 
-        databaseHelper = new DatabaseTestHelper(new DBI(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword()));
+        databaseHelper = new DatabaseTestHelper(Jdbi.create(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword()));
 
         try (Connection connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword())) {
 
