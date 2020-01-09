@@ -25,18 +25,29 @@ public class NotificationService {
     private final NotifyDirectDebitConfiguration notifyDirectDebitConfiguration;
 
     private final String secondFactorSmsTemplateId;
+    private final String signInOtpSmsTemplateId;
+    private final String changeSignIn2faToSmsOtpSmsTemplateId;
+    private final String selfInitiatedCreateUserAndServiceOtpSmsTemplateId;
+    private final String createUserInResponseToInvitationToServiceOtpSmsTemplateId;
+
     private final String inviteEmailTemplateId;
     private final String forgottenPasswordEmailTemplateId;
     private final String inviteExistingUserEmailTemplateId;
 
-    public NotificationService(NotifyConfiguration notifyConfiguration,
+    public NotificationService(NotifyClientProvider notifyClientProvider,
+                               NotifyConfiguration notifyConfiguration,
                                NotifyDirectDebitConfiguration notifyDirectDebitConfiguration,
                                MetricRegistry metricRegistry) {
+        this.notifyClientProvider = notifyClientProvider;
         this.notifyConfiguration = notifyConfiguration;
         this.notifyDirectDebitConfiguration = notifyDirectDebitConfiguration;
 
-        this.notifyClientProvider = new NotifyClientProvider(notifyConfiguration);
         this.secondFactorSmsTemplateId = notifyConfiguration.getSecondFactorSmsTemplateId();
+        this.signInOtpSmsTemplateId = notifyConfiguration.getSignInOtpSmsTemplateId();
+        this.changeSignIn2faToSmsOtpSmsTemplateId = notifyConfiguration.getChangeSignIn2faToSmsOtpSmsTemplateId();
+        this.selfInitiatedCreateUserAndServiceOtpSmsTemplateId = notifyConfiguration.getSelfInitiatedCreateUserAndServiceOtpSmsTemplateId();
+        this.createUserInResponseToInvitationToServiceOtpSmsTemplateId = notifyConfiguration.getCreateUserInResponseToInvitationToServiceOtpSmsTemplateId();
+
         this.inviteEmailTemplateId = notifyConfiguration.getInviteUserEmailTemplateId();
         this.inviteExistingUserEmailTemplateId = notifyConfiguration.getInviteUserExistingEmailTemplateId();
         this.forgottenPasswordEmailTemplateId = notifyConfiguration.getForgottenPasswordEmailTemplateId();
@@ -48,10 +59,11 @@ public class NotificationService {
         return notifyDirectDebitConfiguration;
     }
 
-    public String sendSecondFactorPasscodeSms(String phoneNumber, String passcode) {
+    public String sendSecondFactorPasscodeSms(String phoneNumber, String passcode, OtpNotifySmsTemplateId otpNotifySmsTemplateId) {
         Stopwatch responseTimeStopwatch = Stopwatch.createStarted();
         try {
-            SendSmsResponse response = notifyClientProvider.get(CARD).sendSms(secondFactorSmsTemplateId, TelephoneNumberUtility.formatToE164(phoneNumber), Map.of("code", passcode), null);
+            SendSmsResponse response = notifyClientProvider.get(CARD).sendSms(resolveOtpNotifySmsTemplateId(otpNotifySmsTemplateId),
+                    TelephoneNumberUtility.formatToE164(phoneNumber), Map.of("code", passcode), null);
             return response.getNotificationId().toString();
         } catch (Exception e) {
             metricRegistry.counter("notify-operations.sms.failures").inc();
@@ -134,4 +146,24 @@ public class NotificationService {
             metricRegistry.histogram("notify-operations.email.response_time").update(responseTimeStopwatch.elapsed(TimeUnit.MILLISECONDS));
         }
     }
+
+    private String resolveOtpNotifySmsTemplateId(OtpNotifySmsTemplateId otpNotifySmsTemplateId) {
+        switch (otpNotifySmsTemplateId) {
+            case SIGN_IN:
+                return signInOtpSmsTemplateId;
+            case CHANGE_SIGN_IN_2FA_TO_SMS:
+                return changeSignIn2faToSmsOtpSmsTemplateId;
+            case SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE:
+                return selfInitiatedCreateUserAndServiceOtpSmsTemplateId;
+            case CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE:
+                return createUserInResponseToInvitationToServiceOtpSmsTemplateId;
+            default:
+                return secondFactorSmsTemplateId;
+        }
+    }
+
+    public enum OtpNotifySmsTemplateId {
+        LEGACY, SIGN_IN, CHANGE_SIGN_IN_2FA_TO_SMS, SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE, CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE;
+    }
+
 }

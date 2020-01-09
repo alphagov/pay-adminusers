@@ -36,6 +36,7 @@ import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_PASSWORD;
 import static uk.gov.pay.adminusers.model.InviteOtpRequest.FIELD_TELEPHONE_NUMBER;
 import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
+import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.LEGACY;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InviteServiceTest {
@@ -220,7 +221,7 @@ public class InviteServiceTest {
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
         when(mockSecondFactorAuthenticator.newPassCode(otpKey)).thenReturn(passCode);
         when(mockInviteDao.merge(any(InviteEntity.class))).thenReturn(inviteEntity);
-        when(mockNotificationService.sendSecondFactorPasscodeSms(eq(telephoneNumber), eq(valueOf(passCode))))
+        when(mockNotificationService.sendSecondFactorPasscodeSms(eq(telephoneNumber), eq(valueOf(passCode)), eq(LEGACY)))
                 .thenThrow(AdminUsersExceptions.userNotificationError());
 
         inviteService.reGenerateOtp(inviteOtpRequestFrom(inviteCode, telephoneNumber, plainPassword));
@@ -241,7 +242,7 @@ public class InviteServiceTest {
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
         when(mockSecondFactorAuthenticator.newPassCode(otpKey)).thenReturn(passCode);
         when(mockInviteDao.merge(any(InviteEntity.class))).thenReturn(inviteEntity);
-        when(mockNotificationService.sendSecondFactorPasscodeSms(eq(telephoneNumber), eq(valueOf(passCode))))
+        when(mockNotificationService.sendSecondFactorPasscodeSms(eq(telephoneNumber), eq(valueOf(passCode)), eq(LEGACY)))
                 .thenReturn("random-notify-id");
 
         inviteService.reGenerateOtp(inviteOtpRequestFrom(inviteCode, telephoneNumber, plainPassword));

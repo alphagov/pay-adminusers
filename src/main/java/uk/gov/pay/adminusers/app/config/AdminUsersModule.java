@@ -16,6 +16,7 @@ import uk.gov.pay.adminusers.service.ForgottenPasswordServices;
 import uk.gov.pay.adminusers.service.InviteServiceFactory;
 import uk.gov.pay.adminusers.service.LinksBuilder;
 import uk.gov.pay.adminusers.service.NotificationService;
+import uk.gov.pay.adminusers.service.NotifyClientProvider;
 import uk.gov.pay.adminusers.service.PasswordHasher;
 import uk.gov.pay.adminusers.service.ResetPasswordService;
 import uk.gov.pay.adminusers.service.SecondFactorAuthenticator;
@@ -99,6 +100,7 @@ public class AdminUsersModule extends AbstractModule {
     @Provides
     public NotificationService provideUserNotificationService() {
         return new NotificationService(
+                new NotifyClientProvider(configuration.getNotifyConfiguration()),
                 configuration.getNotifyConfiguration(),
                 configuration.getNotifyDirectDebitConfiguration(),
                 environment.metrics());

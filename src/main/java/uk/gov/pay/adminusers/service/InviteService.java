@@ -20,6 +20,7 @@ import java.util.Optional;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.invalidOtpAuthCodeInviteException;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.notFoundInviteException;
+import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.LEGACY;
 
 public class InviteService {
 
@@ -65,7 +66,7 @@ public class InviteService {
             LOGGER.info("New 2FA token generated for invite code [{}]", inviteOtpRequest.getCode());
             
             try {
-                String notificationId = notificationService.sendSecondFactorPasscodeSms(inviteOtpRequest.getTelephoneNumber(), passcode);
+                String notificationId = notificationService.sendSecondFactorPasscodeSms(inviteOtpRequest.getTelephoneNumber(), passcode, LEGACY);
                 LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]", inviteOtpRequest.getCode(), notificationId);
             } catch (Exception e) {
                 LOGGER.error(String.format("error sending 2FA token for invite code [%s]", inviteOtpRequest.getCode()), e);
