@@ -10,6 +10,7 @@ import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.service.ExistingUserOtpDispatcher;
 import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.pay.adminusers.service.UserServicesFactory;
 
@@ -51,13 +52,17 @@ public class UserResource {
     private final UserServices userServices;
     private final UserServicesFactory userServicesFactory;
 
+    private final ExistingUserOtpDispatcher existingUserOtpDispatcher;
+
     private final UserRequestValidator validator;
 
     @Inject
-    public UserResource(UserServices userServices, UserRequestValidator validator, UserServicesFactory userServicesFactory) {
+    public UserResource(UserServices userServices, UserRequestValidator validator, UserServicesFactory userServicesFactory,
+                        ExistingUserOtpDispatcher existingUserOtpDispatcher) {
         this.userServices = userServices;
         this.validator = validator;
         this.userServicesFactory = userServicesFactory;
+        this.existingUserOtpDispatcher = existingUserOtpDispatcher;
     }
 
 
@@ -150,7 +155,7 @@ public class UserResource {
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
                     boolean provisional = payload != null && payload.get("provisional") != null && payload.get("provisional").asBoolean();
-                    return userServices.newSecondFactorPasscode(externalId, provisional)
+                    return existingUserOtpDispatcher.newSecondFactorPasscode(externalId, provisional)
                             .map(twoFAToken -> Response.status(OK).type(APPLICATION_JSON).build())
                             .orElseGet(() -> Response.status(NOT_FOUND).build());
                 });

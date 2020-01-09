@@ -15,7 +15,6 @@ import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
-import uk.gov.pay.adminusers.model.SecondFactorToken;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
@@ -44,18 +43,15 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.Permission.permission;
 import static uk.gov.pay.adminusers.model.Role.role;
-import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.LEGACY;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserServicesTest {
@@ -332,93 +328,6 @@ public class UserServicesTest {
         assertTrue(userOptional.isPresent());
 
         assertThat(userOptional.get().getFeatures(), is(newFeature));
-    }
-
-    @Test
-    public void shouldReturn2FAToken_whenCreate2FA_ifUserFound() {
-        User user = aUser();
-        UserEntity userEntity = UserEntity.from(user);
-        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
-        when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(123456);
-        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456"), eq(LEGACY)))
-                .thenReturn("random-notify-id");
-
-        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), false);
-
-        assertTrue(tokenOptional.isPresent());
-        assertThat(tokenOptional.get().getPasscode(), is("123456"));
-    }
-
-    @Test
-    public void shouldZeroPad2FATokenTo6Digits_whenCreate2FA() {
-        User user = aUser();
-        UserEntity userEntity = UserEntity.from(user);
-        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
-        when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(12345);
-        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("012345"), eq(LEGACY)))
-                .thenReturn("random-notify-id");
-
-        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), false);
-
-        assertTrue(tokenOptional.isPresent());
-        assertThat(tokenOptional.get().getPasscode(), is("012345"));
-    }
-
-    @Test
-    public void shouldReturn2FAToken_whenCreate2FA_evenIfNotifyThrowsAnError() {
-        User user = aUser();
-        UserEntity userEntity = UserEntity.from(user);
-        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
-        when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(123456);
-
-        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456"), eq(LEGACY)))
-                .thenThrow(AdminUsersExceptions.userNotificationError());
-
-        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), false);
-
-        assertTrue(tokenOptional.isPresent());
-        assertThat(tokenOptional.get().getPasscode(), is("123456"));
-    }
-
-    @Test
-    public void shouldReturnEmpty_whenCreate2FA_ifUserNotFound() {
-        String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-        when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
-
-        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(nonExistentExternalId, false);
-
-        assertFalse(tokenOptional.isPresent());
-    }
-
-    @Test
-    public void shouldReturn2FAToken_whenCreate2FA_withProvisionalOtpKey_ifUserFound() {
-        User user = aUser();
-        user.setProvisionalOtpKey("provisional OTP key");
-        UserEntity userEntity = UserEntity.from(user);
-        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
-        when(secondFactorAuthenticator.newPassCode(user.getProvisionalOtpKey())).thenReturn(654321);
-        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("654321"), eq(LEGACY)))
-                .thenReturn("random-notify-id");
-
-        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), true);
-
-        assertTrue(tokenOptional.isPresent());
-        assertThat(tokenOptional.get().getPasscode(), is("654321"));
-
-        verify(notificationService, never()).sendSecondFactorPasscodeSms(any(String.class), eq(user.getOtpKey()), eq(LEGACY));
-    }
-
-    @Test
-    public void shouldReturn2FAToken_whenCreate2FA_withProvisionalOtpKey_ifProvisionalOtpKeyNotSet() {
-        User user = aUser();
-        UserEntity userEntity = UserEntity.from(user);
-        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
-
-        Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), true);
-
-        assertFalse(tokenOptional.isPresent());
-
-        verifyZeroInteractions(secondFactorAuthenticator);
     }
 
     @Test
