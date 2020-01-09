@@ -28,6 +28,7 @@ import static uk.gov.pay.adminusers.model.PatchRequest.PATH_FEATURES;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TELEPHONE_NUMBER;
 import static uk.gov.pay.adminusers.model.SecondFactorMethod.SMS;
+import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.LEGACY;
 
 public class UserServices {
 
@@ -140,7 +141,8 @@ public class UserServices {
                         final String userExternalId = userEntity.getExternalId();
 
                         try {
-                            String notificationId = notificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), token.getPasscode());
+                            String notificationId = notificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), token.getPasscode(),
+                                    LEGACY);
                             logger.info("sent 2FA token successfully to user [{}], notification id [{}]", userExternalId, notificationId);
                         } catch (Exception e) {
                             logger.error("error sending 2FA token to user [{}]", userExternalId, e);

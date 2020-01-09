@@ -55,6 +55,7 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.Permission.permission;
 import static uk.gov.pay.adminusers.model.Role.role;
+import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.LEGACY;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserServicesTest {
@@ -339,7 +340,7 @@ public class UserServicesTest {
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(123456);
-        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456")))
+        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456"), eq(LEGACY)))
                 .thenReturn("random-notify-id");
 
         Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), false);
@@ -354,7 +355,7 @@ public class UserServicesTest {
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(12345);
-        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("012345")))
+        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("012345"), eq(LEGACY)))
                 .thenReturn("random-notify-id");
 
         Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), false);
@@ -370,7 +371,7 @@ public class UserServicesTest {
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(123456);
 
-        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456")))
+        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456"), eq(LEGACY)))
                 .thenThrow(AdminUsersExceptions.userNotificationError());
 
         Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), false);
@@ -396,7 +397,7 @@ public class UserServicesTest {
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getProvisionalOtpKey())).thenReturn(654321);
-        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("654321")))
+        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("654321"), eq(LEGACY)))
                 .thenReturn("random-notify-id");
 
         Optional<SecondFactorToken> tokenOptional = userServices.newSecondFactorPasscode(user.getExternalId(), true);
@@ -404,7 +405,7 @@ public class UserServicesTest {
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is("654321"));
 
-        verify(notificationService, never()).sendSecondFactorPasscodeSms(any(String.class), eq(user.getOtpKey()));
+        verify(notificationService, never()).sendSecondFactorPasscodeSms(any(String.class), eq(user.getOtpKey()), eq(LEGACY));
     }
 
     @Test
