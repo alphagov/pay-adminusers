@@ -13,6 +13,7 @@ import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
@@ -27,7 +28,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
-import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.LEGACY;
+import static uk.gov.pay.adminusers.persistence.entity.UTCDateTimeConverter.UTC;
+import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.CHANGE_SIGN_IN_2FA_TO_SMS;
+import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.SIGN_IN;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExistingUserOtpDispatcherTest {
@@ -37,8 +40,6 @@ public class ExistingUserOtpDispatcherTest {
 
     @Mock
     private UserDao userDao;
-    @Mock
-    private PasswordHasher passwordHasher;
     @Mock
     private NotificationService notificationService;
     @Mock
@@ -55,96 +56,141 @@ public class ExistingUserOtpDispatcherTest {
     }
 
     @Test
-    public void shouldReturn2FAToken_whenCreate2FA_ifUserFound() {
+    public void shouldSendSignInOtpIfUserFound() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(123456);
-        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456"), eq(LEGACY)))
-                .thenReturn("random-notify-id");
+        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456"), eq(SIGN_IN))).thenReturn("random-notify-id");
 
-        Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.newSecondFactorPasscode(user.getExternalId(), false);
+        Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.sendSignInOtp(user.getExternalId());
 
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is("123456"));
     }
 
     @Test
-    public void shouldZeroPad2FATokenTo6Digits_whenCreate2FA() {
+    public void shouldPadSignInOtpToSixDigits() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(12345);
-        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("012345"), eq(LEGACY)))
-                .thenReturn("random-notify-id");
+        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("012345"), eq(SIGN_IN))).thenReturn("random-notify-id");
 
-        Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.newSecondFactorPasscode(user.getExternalId(), false);
+        Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.sendSignInOtp(user.getExternalId());
 
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is("012345"));
     }
 
     @Test
-    public void shouldReturn2FAToken_whenCreate2FA_evenIfNotifyThrowsAnError() {
+    public void shouldGracefullyHandleNotifyErrorSendingSignInOtp() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
-        when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(123456);
+        when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(654321);
 
-        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("123456"), eq(LEGACY)))
+        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("654321"), eq(SIGN_IN)))
                 .thenThrow(AdminUsersExceptions.userNotificationError());
 
-        Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.newSecondFactorPasscode(user.getExternalId(), false);
+        Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.sendSignInOtp(user.getExternalId());
 
         assertTrue(tokenOptional.isPresent());
-        assertThat(tokenOptional.get().getPasscode(), is("123456"));
+        assertThat(tokenOptional.get().getPasscode(), is("654321"));
     }
 
     @Test
-    public void shouldReturnEmpty_whenCreate2FA_ifUserNotFound() {
+    public void shouldNotSendSignInOtpIfUserDoesNotExist() {
         String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
 
-        Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.newSecondFactorPasscode(nonExistentExternalId, false);
+        Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.sendSignInOtp(nonExistentExternalId);
 
         assertFalse(tokenOptional.isPresent());
     }
 
     @Test
-    public void shouldReturn2FAToken_whenCreate2FA_withProvisionalOtpKey_ifUserFound() {
-        User user = aUser();
-        user.setProvisionalOtpKey("provisional OTP key");
+    public void shouldSendChangeSignInMethodOtpIfUserFound() {
+        User user = aUserWithProvisionalOtpKey();
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getProvisionalOtpKey())).thenReturn(654321);
-        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("654321"), eq(LEGACY)))
+        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("654321"), eq(CHANGE_SIGN_IN_2FA_TO_SMS)))
                 .thenReturn("random-notify-id");
 
-        Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.newSecondFactorPasscode(user.getExternalId(), true);
+        Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.sendChangeSignMethodToSmsOtp(user.getExternalId());
 
         assertTrue(tokenOptional.isPresent());
         assertThat(tokenOptional.get().getPasscode(), is("654321"));
 
-        verify(notificationService, never()).sendSecondFactorPasscodeSms(any(String.class), eq(user.getOtpKey()), eq(LEGACY));
+        verify(notificationService, never()).sendSecondFactorPasscodeSms(any(String.class), eq(user.getOtpKey()),
+                any(NotificationService.OtpNotifySmsTemplateId.class));
     }
 
     @Test
-    public void shouldReturn2FAToken_whenCreate2FA_withProvisionalOtpKey_ifProvisionalOtpKeyNotSet() {
+    public void shouldPadChangeSignInMethodOtpToSixDigits() {
+        User user = aUserWithProvisionalOtpKey();
+        UserEntity userEntity = UserEntity.from(user);
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+        when(secondFactorAuthenticator.newPassCode(user.getProvisionalOtpKey())).thenReturn(12345);
+        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("012345"), eq(CHANGE_SIGN_IN_2FA_TO_SMS)))
+                .thenReturn("random-notify-id");
+
+        Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.sendChangeSignMethodToSmsOtp(user.getExternalId());
+
+        assertTrue(tokenOptional.isPresent());
+        assertThat(tokenOptional.get().getPasscode(), is("012345"));
+    }
+
+    @Test
+    public void shouldNotSendChangeSignInOtpIfProvisionalOtpKeyNotSet() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
 
-        Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.newSecondFactorPasscode(user.getExternalId(), true);
+        Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.sendChangeSignMethodToSmsOtp(user.getExternalId());
 
         assertFalse(tokenOptional.isPresent());
 
         verifyNoInteractions(secondFactorAuthenticator);
     }
 
+    @Test
+    public void shouldGracefullyHandleNotifyErrorSendingChangeSignInOtp() {
+        User user = aUserWithProvisionalOtpKey();
+        UserEntity userEntity = UserEntity.from(user);
+        when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+        when(secondFactorAuthenticator.newPassCode(user.getProvisionalOtpKey())).thenReturn(654321);
+
+        when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("654321"), eq(CHANGE_SIGN_IN_2FA_TO_SMS)))
+                .thenThrow(AdminUsersExceptions.userNotificationError());
+
+        Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.sendChangeSignMethodToSmsOtp(user.getExternalId());
+
+        assertTrue(tokenOptional.isPresent());
+        assertThat(tokenOptional.get().getPasscode(), is("654321"));
+    }
+
+    @Test
+    public void shouldNotSendChangeSignInOtpIfUserDoesNotExist() {
+        String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+        when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
+
+        Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.sendChangeSignMethodToSmsOtp(nonExistentExternalId);
+
+        assertFalse(tokenOptional.isPresent());
+    }
+
     private User aUser() {
         return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password",
-                "email@example.com","784rh", "8948924", emptyList(),
+                "user@test.test","784rh", "07700900000", emptyList(),
                 null, SecondFactorMethod.SMS,null, null, null);
+    }
+
+    private User aUserWithProvisionalOtpKey() {
+        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password",
+                "user@test.test","784rh", "07700900001", emptyList(),
+                null, SecondFactorMethod.APP,"provisional OTP key", ZonedDateTime.now(UTC), null);
     }
 
 }
