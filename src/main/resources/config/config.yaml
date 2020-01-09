@@ -73,6 +73,10 @@ notify:
   directDebitApiKey: ${NOTIFY_DIRECT_DEBIT_API_KEY:-api_key-pay-notify-service-id-pay-notify-secret-needs-to-be-32-chars-fsghdngfhmhfkrgsfs}
   notificationBaseURL: ${NOTIFY_BASE_URL:-https://stubs.pymnt.localdomain/notify}
   secondFactorSmsTemplateId: ${NOTIFY_2FA_TEMPLATE_ID:-pay-notify-two-factor-template-id}
+  signInOtpSmsTemplateId: ${NOTIFY_SIGN_IN_OTP_SMS_TEMPLATE_ID:-pay-notify-sign-in-otp-sms-template-id}
+  changeSignIn2faToSmsOtpSmsTemplateId: ${NOTIFY_CHANGE_SIGN_IN_2FA_TO_SMS_OTP_SMS_TEMPLATE_ID:-pay-notify-change-sign-in-2fa-to-sms-otp-sms-template-id}
+  selfInitiatedCreateUserAndServiceOtpSmsTemplateId: ${NOTIFY_SELF_INITIATED_CREATE_USER_AND_SERVICE_OTP_SMS_TEMPLATE_ID:-pay-notify-self-initiated-create-user-and-service-otp-sms-template-id}
+  createUserInResponseToInvitationToServiceOtpSmsTemplateId: ${NOTIFY_CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE_OTP_SMS_TEMPLATE_ID:-pay-notify-create-user-in-response-to-invitation-to-service-otp-sms-template-id}
   inviteUserEmailTemplateId: ${NOTIFY_INVITE_USER_EMAIL_TEMPLATE_ID:-pay-notify-invite-user-email-template-id}
   inviteUserExistingEmailTemplateId: ${NOTIFY_INVITE_USER_EXISTING_EMAIL_TEMPLATE_ID:-pay-notify-invite-user-existing-email-template-id}
   forgottenPasswordEmailTemplateId: ${NOTIFY_FORGOTTEN_PASSWORD_EMAIL_TEMPLATE_ID:-pay-notify-forgotten-password-email-template-id}

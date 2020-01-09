@@ -25,6 +25,22 @@ public class NotifyConfiguration extends Configuration {
 
     @Valid
     @NotNull
+    private String signInOtpSmsTemplateId;
+
+    @Valid
+    @NotNull
+    private String changeSignIn2faToSmsOtpSmsTemplateId;
+
+    @Valid
+    @NotNull
+    private String selfInitiatedCreateUserAndServiceOtpSmsTemplateId;
+
+    @Valid
+    @NotNull
+    private String createUserInResponseToInvitationToServiceOtpSmsTemplateId;
+
+    @Valid
+    @NotNull
     private String inviteUserEmailTemplateId;
 
     @Valid
@@ -65,6 +81,22 @@ public class NotifyConfiguration extends Configuration {
 
     public String getSecondFactorSmsTemplateId() {
         return secondFactorSmsTemplateId;
+    }
+
+    public String getSignInOtpSmsTemplateId() {
+        return signInOtpSmsTemplateId;
+    }
+
+    public String getChangeSignIn2faToSmsOtpSmsTemplateId() {
+        return changeSignIn2faToSmsOtpSmsTemplateId;
+    }
+
+    public String getSelfInitiatedCreateUserAndServiceOtpSmsTemplateId() {
+        return selfInitiatedCreateUserAndServiceOtpSmsTemplateId;
+    }
+
+    public String getCreateUserInResponseToInvitationToServiceOtpSmsTemplateId() {
+        return createUserInResponseToInvitationToServiceOtpSmsTemplateId;
     }
 
     public String getInviteUserEmailTemplateId() {
