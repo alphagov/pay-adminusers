@@ -9,11 +9,11 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import org.apache.commons.lang3.ArrayUtils;
+import org.jdbi.v3.core.Jdbi;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.skife.jdbi.v2.DBI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.app.AdminUsersApp;
@@ -77,7 +77,7 @@ public class DropwizardAppWithPostgresRule implements TestRule {
                 restoreDropwizardsLogging();
 
                 DataSourceFactory dataSourceFactory = app.getConfiguration().getDataSourceFactory();
-                databaseTestHelper = new DatabaseTestHelper(new DBI(dataSourceFactory.getUrl(), dataSourceFactory.getUser(), dataSourceFactory.getPassword()));
+                databaseTestHelper = new DatabaseTestHelper(Jdbi.create(dataSourceFactory.getUrl(), dataSourceFactory.getUser(), dataSourceFactory.getPassword()));
 
                 base.evaluate();
             }

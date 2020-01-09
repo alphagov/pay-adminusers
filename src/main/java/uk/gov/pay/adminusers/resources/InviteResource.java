@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.Invite;
@@ -168,7 +169,7 @@ public class InviteResource {
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> inviteServiceFactory.userInvite().doInvite(InviteUserRequest.from(payload))
                         .map(invite -> Response.status(CREATED).entity(invite).build())
-                        .orElseGet(() -> Response.status(NOT_FOUND).build())
+                        .orElseGet(() -> Response.status(NOT_FOUND).entity(StringUtils.EMPTY).build())
                 );
     }
 

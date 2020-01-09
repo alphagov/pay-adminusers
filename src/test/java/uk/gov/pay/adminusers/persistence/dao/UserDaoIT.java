@@ -23,6 +23,7 @@ import static java.lang.String.valueOf;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
@@ -85,7 +86,7 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(userEntity.getId(), is(notNullValue()));
         List<Map<String, Object>> savedUserData = databaseHelper.findUser(userEntity.getId());
         assertThat(savedUserData.size(), is(1));
-        assertThat((String) savedUserData.get(0).get("external_id"), not(isEmptyOrNullString()));
+        assertThat((String) savedUserData.get(0).get("external_id"), not(emptyOrNullString()));
         assertThat(((String) savedUserData.get(0).get("external_id")).length(), equalTo(32));
         assertThat(savedUserData.get(0).get("username"), is(userEntity.getUsername()));
         assertThat(savedUserData.get(0).get("password"), is(userEntity.getPassword()));
@@ -94,8 +95,8 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(savedUserData.get(0).get("telephone_number"), is(userEntity.getTelephoneNumber()));
         assertThat(savedUserData.get(0).get("disabled"), is(Boolean.FALSE));
         assertThat(savedUserData.get(0).get("session_version"), is(0));
-        assertThat(savedUserData.get(0).get("createdAt"), is(java.sql.Timestamp.from(timeNow.toInstant())));
-        assertThat(savedUserData.get(0).get("updatedAt"), is(java.sql.Timestamp.from(timeNow.toInstant())));
+        assertThat(savedUserData.get(0).get("createdat"), is(java.sql.Timestamp.from(timeNow.toInstant())));
+        assertThat(savedUserData.get(0).get("updatedat"), is(java.sql.Timestamp.from(timeNow.toInstant())));
 
         List<Map<String, Object>> serviceRolesForUser = databaseHelper.findServiceRoleForUser(userEntity.getId());
         assertThat(serviceRolesForUser.size(), is(1));
