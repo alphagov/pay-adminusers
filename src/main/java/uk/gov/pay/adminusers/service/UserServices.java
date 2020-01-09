@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
-import uk.gov.pay.adminusers.model.SecondFactorToken;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
@@ -28,7 +27,6 @@ import static uk.gov.pay.adminusers.model.PatchRequest.PATH_FEATURES;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TELEPHONE_NUMBER;
 import static uk.gov.pay.adminusers.model.SecondFactorMethod.SMS;
-import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.LEGACY;
 
 public class UserServices {
 
@@ -38,7 +36,6 @@ public class UserServices {
     private final PasswordHasher passwordHasher;
     private final LinksBuilder linksBuilder;
     private final Integer loginAttemptCap;
-    private final NotificationService notificationService;
     private final SecondFactorAuthenticator secondFactorAuthenticator;
 
     @Inject
@@ -51,7 +48,6 @@ public class UserServices {
         this.passwordHasher = passwordHasher;
         this.linksBuilder = linksBuilder;
         this.loginAttemptCap = loginAttemptCap;
-        this.notificationService = userNotificationService.get();
         this.secondFactorAuthenticator = secondFactorAuthenticator;
     }
 
@@ -131,45 +127,7 @@ public class UserServices {
         return userEntityOptional.map(userEntity -> linksBuilder.decorate(userEntity.toUser()));
     }
 
-    public Optional<SecondFactorToken> newSecondFactorPasscode(String externalId, boolean useProvisionalOtpKey) {
-        return userDao.findByExternalId(externalId)
-                .map(userEntity -> {
-                    String otpKeyOrProvisionalOtpKey = useProvisionalOtpKey ? userEntity.getProvisionalOtpKey() : userEntity.getOtpKey();
-                    return Optional.ofNullable(otpKeyOrProvisionalOtpKey).map(otpKey -> {
-                        int newPassCode = secondFactorAuthenticator.newPassCode(otpKey);
-                        SecondFactorToken token = SecondFactorToken.from(externalId, newPassCode);
-                        final String userExternalId = userEntity.getExternalId();
 
-                        try {
-                            String notificationId = notificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), token.getPasscode(),
-                                    LEGACY);
-                            logger.info("sent 2FA token successfully to user [{}], notification id [{}]", userExternalId, notificationId);
-                        } catch (Exception e) {
-                            logger.error("error sending 2FA token to user [{}]", userExternalId, e);
-                        }
-
-                        if (useProvisionalOtpKey) {
-                            logger.info("New 2FA token generated for User [{}] from provisional OTP key", userExternalId);
-                        } else {
-                            logger.info("New 2FA token generated for User [{}]", userExternalId);
-                        }
-                        return Optional.of(token);
-                    }).orElseGet(() -> {
-                        if (useProvisionalOtpKey) {
-                            logger.error("New provisional 2FA token attempted for user without a provisional OTP key [{}]", externalId);
-                        } else {
-                            // Realistically, this will never happen
-                            logger.error("New 2FA token attempted for user without an OTP key [{}]", externalId);
-                        }
-                        return Optional.empty();
-                    });
-                })
-                .orElseGet(() -> {
-                    //this cannot happen unless a bug in selfservice
-                    logger.error("New 2FA token attempted for non-existent User [{}]", externalId);
-                    return Optional.empty();
-                });
-    }
 
     @Transactional
     public Optional<User> authenticateSecondFactor(String externalId, int code) {

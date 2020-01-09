@@ -12,6 +12,7 @@ import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.setup.Environment;
 import uk.gov.pay.adminusers.resources.ResetPasswordValidator;
 import uk.gov.pay.adminusers.resources.UserRequestValidator;
+import uk.gov.pay.adminusers.service.ExistingUserOtpDispatcher;
 import uk.gov.pay.adminusers.service.ForgottenPasswordServices;
 import uk.gov.pay.adminusers.service.InviteServiceFactory;
 import uk.gov.pay.adminusers.service.LinksBuilder;
@@ -62,6 +63,7 @@ public class AdminUsersModule extends AbstractModule {
         bind(Integer.class).annotatedWith(Names.named("LOGIN_ATTEMPT_CAP")).toInstance(configuration.getLoginAttemptCap());
         bind(SecondFactorAuthenticator.class).in(Singleton.class);
         bind(UserServices.class).in(Singleton.class);
+        bind(ExistingUserOtpDispatcher.class).in(Singleton.class);
         bind(ForgottenPasswordServices.class).in(Singleton.class);
         bind(ResetPasswordService.class).in(Singleton.class);
 
