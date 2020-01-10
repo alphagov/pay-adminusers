@@ -21,10 +21,6 @@ public class NotifyConfiguration extends Configuration {
 
     @Valid
     @NotNull
-    private String secondFactorSmsTemplateId;
-
-    @Valid
-    @NotNull
     private String signInOtpSmsTemplateId;
 
     @Valid
@@ -77,10 +73,6 @@ public class NotifyConfiguration extends Configuration {
 
     public String getNotificationBaseURL() {
         return notificationBaseURL;
-    }
-
-    public String getSecondFactorSmsTemplateId() {
-        return secondFactorSmsTemplateId;
     }
 
     public String getSignInOtpSmsTemplateId() {

@@ -56,7 +56,6 @@ public class NotificationServiceTest {
 
     @Before
     public void setUp() throws NotificationClientException {
-        given(mockNotifyConfiguration.getSecondFactorSmsTemplateId()).willReturn(SECOND_FACTOR_SMS_TEMPLATE_ID);
         given(mockNotifyConfiguration.getSignInOtpSmsTemplateId()).willReturn(SIGN_IN_OTP_SMS_TEMPLATE_ID);
         given(mockNotifyConfiguration.getChangeSignIn2faToSmsOtpSmsTemplateId()).willReturn(CHANGE_SIGN_IN_2FA_TO_SMS_OTP_SMS_TEMPLATE_ID);
         given(mockNotifyConfiguration.getSelfInitiatedCreateUserAndServiceOtpSmsTemplateId())
@@ -107,13 +106,6 @@ public class NotificationServiceTest {
 
         verify(mockNotificationClient).sendSms(CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE_OTP_SMS_TEMPLATE_ID, PHONE_NUMBER_E164, Map.of("code", OTP),
                 null);    
-    }
-
-    @Test
-    public void sendSecondFactorPasscodeSmsWithLegacyTemplate() throws NotificationClientException {
-        notificationService.sendSecondFactorPasscodeSms(PHONE_NUMBER, OTP, OtpNotifySmsTemplateId.LEGACY);
-
-        verify(mockNotificationClient).sendSms(SECOND_FACTOR_SMS_TEMPLATE_ID, PHONE_NUMBER_E164, Map.of("code", OTP), null);
     }
 
 }
