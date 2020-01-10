@@ -149,18 +149,24 @@ public class UserResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response newSecondFactorPasscode(@PathParam("userExternalId") String externalId, JsonNode payload) {
+    public Response sendOtpSms(@PathParam("userExternalId") String externalId, JsonNode payload) {
         LOGGER.info("User 2FA new passcode request");
         return validator.validateNewSecondFactorPasscodeRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
-                    boolean provisional = payload != null && payload.get("provisional") != null && payload.get("provisional").asBoolean();
-                    return existingUserOtpDispatcher.newSecondFactorPasscode(externalId, provisional)
+                    boolean changingSignInMethod = payload != null && payload.get("provisional") != null && payload.get("provisional").asBoolean();
+
+                    if (changingSignInMethod) {
+                        return existingUserOtpDispatcher.sendChangeSignMethodToSmsOtp(externalId)
+                                .map(twoFAToken -> Response.status(OK).type(APPLICATION_JSON).build())
+                                .orElseGet(() -> Response.status(NOT_FOUND).build());
+                    }
+
+                    return existingUserOtpDispatcher.sendSignInOtp(externalId)
                             .map(twoFAToken -> Response.status(OK).type(APPLICATION_JSON).build())
                             .orElseGet(() -> Response.status(NOT_FOUND).build());
                 });
     }
-
 
     @Path("/{userExternalId}/second-factor/authenticate")
     @POST
