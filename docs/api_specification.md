@@ -529,11 +529,45 @@ Content-Type: application/json
 }
 ```
 
+## POST /v1/api/users/`{externalId}`/second-factor
+
+This endpoint sends an OTP to a user’s phone number via SMS.
+
+If the `provisional` field is `false` or not present, the message explains to the user that the code is for signing in.
+
+If the `provisional` field is `true`, the user’s provisional OTP key (see [```/v1/api/users/{externalId}/second-factor/provision```](#post-v1apiusersexternalidsecond-factorprovision)) is used and the message explains to the user that the code is for changing their sign-in method.
+
+### Notes
+
+Will return `404` if the external ID does not match a user or if `"provisional": true` is used but the user does not have a provisional OTP key.
+
+### Request example
+
+```
+POST /v1/api/users/7d19aff33f8948deb97ed16b2912dcd3/second-factor
+
+{
+    "provisional": true
+}
+```
+
+#### Request body description
+
+| Field         | Required | Description                                                                                   | Supported Values  |
+| --------------|:--------:| ----------------------------------------------------------------------------------------------|-------------------|
+| `provisional` |          | `true` if the user is changing their sign-in method; `false` (default) if they are signing in | `true` or `false` |
+
+### Response example
+
+```
+200 OK
+```
+
 ## POST /v1/api/users/`{externalId}`/second-factor/provision
 
 This endpoint provisions a new second-factor OTP key (secret used to generate OTP codes) for a user.
 
-Provisioning a new key does not change immediately change the user’s current key. Use the [```/v1/api/users/second-factor/activate```](#post-v1apiusersexternalidsecondfactoractivate) endpoint to replace the user’s current key with the newly-provisioned one.
+Provisioning a new key does not change immediately change the user’s current key. Use the [```/v1/api/users/{externalId}/second-factor/activate```](#post-v1apiusersexternalidsecond-factoractivate) endpoint to replace the user’s current key with the newly-provisioned one.
 
 ### Request example
 
@@ -556,7 +590,7 @@ See [The user object](#the-user-object)
 
 This endpoint activates the provisional OTP key for a user and configures their second-factor authentication method.
 
-The user should have already a provisional OTP key created by the [```/v1/api/users/second-factor/provision```](#post-v1apiusersexternalidsecondfactorprovision) endpoint before this endpoint is called.
+The user should have already a provisional OTP key created by the [```/v1/api/users/{externalId}/second-factor/provision```](#post-v1apiusersexternalidsecond-factorprovision) endpoint before this endpoint is called.
 
 ### Request example
 
