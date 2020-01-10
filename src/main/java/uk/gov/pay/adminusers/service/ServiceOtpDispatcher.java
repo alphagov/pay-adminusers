@@ -8,7 +8,7 @@ import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import java.util.Locale;
 
 import static java.lang.String.format;
-import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.LEGACY;
+import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE;
 
 public class ServiceOtpDispatcher extends InviteOtpDispatcher {
 
@@ -36,7 +36,8 @@ public class ServiceOtpDispatcher extends InviteOtpDispatcher {
                     LOGGER.info("New 2FA token generated for invite code [{}]", inviteEntity.getCode());
                     
                     try {
-                        String notificationId = notificationService.sendSecondFactorPasscodeSms(inviteEntity.getTelephoneNumber(), passcode, LEGACY);
+                        String notificationId = notificationService.sendSecondFactorPasscodeSms(inviteEntity.getTelephoneNumber(), passcode,
+                                SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE);
                         LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]", inviteEntity.getCode(), notificationId);
                     } catch (Exception e) {
                         LOGGER.error(format("error sending 2FA token for invite code [%s]", inviteEntity.getCode()), e);

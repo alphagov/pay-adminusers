@@ -10,11 +10,11 @@ import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 import java.util.Locale;
 
 import static java.lang.String.format;
-import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.LEGACY;
+import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE;
 
 public class UserOtpDispatcher extends InviteOtpDispatcher {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceOtpDispatcher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserOtpDispatcher.class);
     private final InviteDao inviteDao;
     private final SecondFactorAuthenticator secondFactorAuthenticator;
     private final PasswordHasher passwordHasher;
@@ -44,7 +44,8 @@ public class UserOtpDispatcher extends InviteOtpDispatcher {
                     LOGGER.info("New 2FA token generated for invite code [{}]", inviteCode);
                     
                     try {
-                        String notificationId = notificationService.sendSecondFactorPasscodeSms(inviteOtpRequest.getTelephoneNumber(), passcode, LEGACY);
+                        String notificationId = notificationService.sendSecondFactorPasscodeSms(inviteOtpRequest.getTelephoneNumber(), passcode,
+                                CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE);
                         LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]", inviteCode, notificationId);
                     } catch (Exception e) {
                         LOGGER.info(format("error sending 2FA token for invite code [%s]", inviteCode), e);
