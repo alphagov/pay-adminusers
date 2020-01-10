@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
-import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 
@@ -23,7 +22,7 @@ public class InviteRouter {
     public Optional<Pair<InviteCompleter, Boolean>> routeComplete(String inviteCode) {
         return routeIfExist(inviteCode,
                 inviteEntity -> {
-                    boolean isServiceType = InviteType.SERVICE.getType().equals(inviteEntity.getType());
+                    boolean isServiceType = inviteEntity.isServiceType();
                     InviteCompleter inviteCompleter = isServiceType ? inviteServiceFactory.completeServiceInvite() : inviteServiceFactory.completeUserInvite();
                     return Optional.of(Pair.of(inviteCompleter, isServiceType));
                 });
@@ -32,7 +31,7 @@ public class InviteRouter {
     public Optional<Pair<InviteOtpDispatcher, Boolean>> routeOtpDispatch(String inviteCode) {
         return routeIfExist(inviteCode,
                 inviteEntity -> {
-                    boolean isUserType = InviteType.USER.getType().equals(inviteEntity.getType());
+                    boolean isUserType = inviteEntity.isUserType();
                     InviteOtpDispatcher inviteOtpDispatcher = isUserType ? inviteServiceFactory.dispatchUserOtp() : inviteServiceFactory.dispatchServiceOtp();
                     return Optional.of(Pair.of(inviteOtpDispatcher, isUserType));
                 });

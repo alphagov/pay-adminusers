@@ -68,7 +68,8 @@ public class InviteEntity extends AbstractEntity {
     private Integer loginCounter = 0;
 
     @Column(name = "type")
-    private String type = USER.getType();
+    @Convert(converter = InviteTypeConverter.class)
+    private InviteType type = USER;
 
     /**
      * For JPA
@@ -201,20 +202,20 @@ public class InviteEntity extends AbstractEntity {
         this.loginCounter = loginCount;
     }
 
-    public String getType() {
+    public InviteType getType() {
         return type;
     }
 
     public void setType(InviteType type) {
-        this.type = type.getType();
+        this.type = type;
     }
 
     public boolean isServiceType() {
-        return InviteType.SERVICE.equals(InviteType.from(type));
+        return InviteType.SERVICE.equals(type);
     }
 
     public boolean isUserType() {
-        return InviteType.USER.equals(InviteType.from(type));
+        return InviteType.USER.equals(type);
     }
 
     @Deprecated //use toInvite() instead
@@ -225,7 +226,7 @@ public class InviteEntity extends AbstractEntity {
     }
 
     public Invite toInvite() {
-        return new Invite(code, email, telephoneNumber, disabled, loginCounter, type, role.getName(), isExpired());
+        return new Invite(code, email, telephoneNumber, disabled, loginCounter, type.getType(), role.getName(), isExpired());
     }
 
     public boolean isExpired() {

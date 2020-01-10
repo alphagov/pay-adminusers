@@ -65,7 +65,7 @@ public class ServiceInviteCreator {
         List<InviteEntity> exitingInvites = inviteDao.findByEmail(requestEmail);
         List<InviteEntity> existingValidServiceInvitesForSameEmail =  exitingInvites.stream()
                 .filter(inviteEntity -> !inviteEntity.isDisabled() && !inviteEntity.isExpired())
-                .filter(inviteEntity -> SERVICE.getType().equals(inviteEntity.getType())).collect(Collectors.toList());
+                .filter(InviteEntity::isServiceType).collect(Collectors.toList());
 
         if(!existingValidServiceInvitesForSameEmail.isEmpty()) {
             InviteEntity foundInvite = existingValidServiceInvitesForSameEmail.get(0);
