@@ -24,7 +24,6 @@ public class NotificationService {
     private final NotifyConfiguration notifyConfiguration;
     private final NotifyDirectDebitConfiguration notifyDirectDebitConfiguration;
 
-    private final String secondFactorSmsTemplateId;
     private final String signInOtpSmsTemplateId;
     private final String changeSignIn2faToSmsOtpSmsTemplateId;
     private final String selfInitiatedCreateUserAndServiceOtpSmsTemplateId;
@@ -42,7 +41,6 @@ public class NotificationService {
         this.notifyConfiguration = notifyConfiguration;
         this.notifyDirectDebitConfiguration = notifyDirectDebitConfiguration;
 
-        this.secondFactorSmsTemplateId = notifyConfiguration.getSecondFactorSmsTemplateId();
         this.signInOtpSmsTemplateId = notifyConfiguration.getSignInOtpSmsTemplateId();
         this.changeSignIn2faToSmsOtpSmsTemplateId = notifyConfiguration.getChangeSignIn2faToSmsOtpSmsTemplateId();
         this.selfInitiatedCreateUserAndServiceOtpSmsTemplateId = notifyConfiguration.getSelfInitiatedCreateUserAndServiceOtpSmsTemplateId();
@@ -158,12 +156,12 @@ public class NotificationService {
             case CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE:
                 return createUserInResponseToInvitationToServiceOtpSmsTemplateId;
             default:
-                return secondFactorSmsTemplateId;
+                throw new IllegalArgumentException("Unrecognised OtpNotifySmsTemplateId: " + otpNotifySmsTemplateId.name());
         }
     }
 
     public enum OtpNotifySmsTemplateId {
-        LEGACY, SIGN_IN, CHANGE_SIGN_IN_2FA_TO_SMS, SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE, CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE;
+        SIGN_IN, CHANGE_SIGN_IN_2FA_TO_SMS, SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE, CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE;
     }
 
 }
