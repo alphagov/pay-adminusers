@@ -21,7 +21,6 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 | `LOGIN_ATTEMPT_CAP`                                                           | The number of consecutive failed logins a user can have before their account is disabled. Defaults to `10`. |
 | `METRICS_HOST`                                                                | The hostname to send graphite metrics to. Defaults to `localhost`. |
 | `METRICS_PORT`                                                                | The port number to send graphite metrics to. Defaults to `8092`. |
-| `NOTIFY_2FA_TEMPLATE_ID`                                                      | The GOV.UK Notify template ID to use for sending MFA codes via SMS. Defaults to `pay-notify-two-factor-template-id`. |
 | `NOTIFY_SIGN_IN_OTP_SMS_TEMPLATE_ID`                                          | The GOV.UK Notify template ID to use for sending OTP codes via SMS for signing in. Defaults to `pay-notify-sign-in-otp-sms-template-id`. |
 | `NOTIFY_CHANGE_SIGN_IN_2FA_TO_SMS_OTP_SMS_TEMPLATE_ID`                        | The GOV.UK Notify template ID to use for sending OTP codes via SMS for changing the sign-in method to text messages. Defaults to `pay-notify-switch-sign-in-2fa-to-sms-otp-sms-template-id`. |
 | `NOTIFY_SELF_INITIATED_CREATE_USER_AND_SERVICE_OTP_SMS_TEMPLATE_ID`           | The GOV.UK Notify template ID to use for sending OTP codes via SMS for self-initiated user and service creation. Defaults to `pay-notify-self-initiated-create-user-and-service-otp-sms-template-id`. |
@@ -60,6 +59,7 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 | [```/v1/api/users/{externalId}```](/docs/api_specification.md#patch-v1apiusersexternalid)              | PATCH    |  amend a specific user attribute            |
 | [```/v1/api/users/{externalId}/services/{serviceId}```](/docs/api_specification.md#put-v1apiusersexternalidservicesserviceid)  | PUT    |  update user's role for a service            |
 | [```/v1/api/users/{externalId}/services```](/docs/api_specification.md#post-v1apiusersexternalidservicesserviceid)  | POST    |  assign a new service along with role to a user        |
+| [```/v1/api/users/{externalId}/second-factor```](/docs/api_specification.md#post-v1apiusersexternalidsecondfactor)  | POST    | Send OTP via SMS for an existing user |
 | [```/v1/api/users/{externalId}/second-factor/provision```](/docs/api_specification.md#post-v1apiusersexternalidsecondfactorprovision)  | POST    | Create a new provisional OTP key for a user |
 | [```/v1/api/users/{externalId}/second-factor/activate```](/docs/api_specification.md#post-v1apiusersexternalidsecondfactoractivate)  | POST    | Activate a new OTP key and method for a user |
 | [```/v1/api/users/authenticate```](/docs/api_specification.md#post-v1apiusersauthenticate)              | POST    |  Authenticate a given username/password            |
