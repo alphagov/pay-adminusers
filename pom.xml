@@ -196,7 +196,7 @@
         <dependency>
             <groupId>com.googlecode.libphonenumber</groupId>
             <artifactId>libphonenumber</artifactId>
-            <version>8.11.1</version>
+            <version>8.11.2</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.pay</groupId>
