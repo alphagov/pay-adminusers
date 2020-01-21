@@ -2,10 +2,13 @@ package uk.gov.pay.adminusers.service;
 
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Stopwatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.app.config.NotifyConfiguration;
 import uk.gov.pay.adminusers.app.config.NotifyDirectDebitConfiguration;
 import uk.gov.pay.adminusers.model.PaymentType;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
+import uk.gov.service.notify.NotificationClientException;
 import uk.gov.service.notify.SendEmailResponse;
 import uk.gov.service.notify.SendSmsResponse;
 
@@ -18,6 +21,8 @@ import static uk.gov.pay.adminusers.model.Service.DEFAULT_NAME_VALUE;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.userNotificationError;
 
 public class NotificationService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NotificationService.class);
 
     private final NotifyClientProvider notifyClientProvider;
     private final MetricRegistry metricRegistry;
@@ -63,8 +68,9 @@ public class NotificationService {
             SendSmsResponse response = notifyClientProvider.get(CARD).sendSms(resolveOtpNotifySmsTemplateId(otpNotifySmsTemplateId),
                     TelephoneNumberUtility.formatToE164(phoneNumber), Map.of("code", passcode), null);
             return response.getNotificationId().toString();
-        } catch (Exception e) {
+        } catch (NotificationClientException e) {
             metricRegistry.counter("notify-operations.sms.failures").inc();
+            LOGGER.info("Error sending Sms: " + e.getMessage());
             throw userNotificationError();
         } finally {
             responseTimeStopwatch.stop();
