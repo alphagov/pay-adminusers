@@ -30,6 +30,7 @@ public class EmailValidator {
             "mil\\.uk",
             "mod\\.uk",
             "naturalengland\\.org\\.uk",
+            "nature\\.scot",
             "nhm\\.ac\\.uk",
             "nhs\\.net",
             "nhs\\.uk",
