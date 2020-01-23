@@ -1,0 +1,47 @@
+---
+applications:
+  - name: adminusers
+    buildpacks:
+      - java_buildpack
+    path: target/pay-adminusers-0.1-SNAPSHOT-allinone.jar
+    health-check-type: http
+    health-check-http-endpoint: '/healthcheck'
+    health-check-invocation-timeout: 5
+    memory: ((memory))
+    disk_quota: ((disk_quota))
+    env:
+      ADMIN_PORT: '9301'
+      BASE_URL: ((adminusers_url))
+      ENVIRONMENT: ((space))
+      FORGOTTEN_PASSWORD_EXPIRY_MINUTES: '90'
+      JAVA_OPTS: -Xms512m -Xmx1G
+      JBP_CONFIG_JAVA_MAIN: '{ arguments: "server /home/vcap/app/config/config.yaml" }'
+      JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 11.+ } }'
+      JPA_LOG_LEVEL: 'INFO'
+      JPA_SQL_LOG_LEVEL: 'INFO'
+      LOGIN_ATTEMPT_CAP: '10'
+      RUN_APP: 'true'
+      RUN_MIGRATION: ((run_migration))
+      SELFSERVICE_URL: ((selfservice_url))
+      SUPPORT_URL: ((support_url))
+
+      # Provided via metrics service
+      METRICS_HOST: ((metrics_host))
+      METRICS_PORT: ((metrics_port))
+
+      # Provide via connector-db service
+      DB_HOST: postgres-((space)).apps.internal
+      DB_NAME: ((db_name))
+      DB_PASSWORD: ((db_password))
+      DB_USER: ((db_user))
+      DB_SSL_OPTION: ((db_ssl_option))
+
+      # Provide via notify service
+      NOTIFY_API_KEY: ((notify_api_key))
+      NOTIFY_BASE_URL: ((notify_base_url))
+
+      # Provide via notify-direct-debit service
+      NOTIFY_DIRECT_DEBIT_API_KEY: ((notify_api_key))
+
+    routes:
+      - route: ((adminusers_route))

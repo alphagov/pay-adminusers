@@ -1,0 +1,19 @@
+memory: 500M
+disk_quota: 500M
+disable_internal_https: 'true'
+run_migration: 'true'
+support_url: https://example.com
+
+# Stub services
+db_password: mysecretpassword
+db_user: connector
+db_name: connector
+db_ssl_option: ssl=none
+
+metrics_host: localhost
+metrics_port: '8092'
+
+notify_api_key: api_key-pay-notify-service-id-pay-notify-secret-needs-to-be-32-chars-fsghdngfhmhfkrgsfs
+notify_base_url: https://example.com/notify
+notify_receipt_email_template_id: email-template-id
+notify_refund_email_template_id: email-refund-issued-template-id
