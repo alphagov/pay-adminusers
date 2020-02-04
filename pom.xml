@@ -9,7 +9,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dropwizard.version>2.0.1</dropwizard.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <eclipselink.version>2.7.5</eclipselink.version>
+        <eclipselink.version>2.7.6</eclipselink.version>
         <guice.version>4.2.2</guice.version>
         <guava.version>28.2-jre</guava.version>
         <jackson.version>2.10.2</jackson.version>
