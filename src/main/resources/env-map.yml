@@ -1,0 +1,8 @@
+env_vars:
+  BASE_URL: '."user-provided"[0].credentials.adminusers_url'
+  SELFSERVICE_URL: '."user-provided"[0].credentials.selfservice_url'
+  DB_HOST: ".postgres[0].credentials.host"
+  DB_NAME:  ".postgres[0].credentials.name"
+  DB_PASSWORD: ".postgres[0].credentials.password"
+  DB_USER: ".postgres[0].credentials.username"
+
