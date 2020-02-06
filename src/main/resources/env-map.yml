@@ -1,6 +1,6 @@
 env_vars:
-  BASE_URL:        '."user-provided"[0].credentials.adminusers_url'
-  SELFSERVICE_URL: '."user-provided"[0].credentials.selfservice_url'
+  BASE_URL:        '.[][] | select(.name == "app-catalog")   | .credentials.adminusers_url          '
+  SELFSERVICE_URL: '.[][] | select(.name == "app-catalog")   | .credentials.selfservice_url         '
   DB_HOST:         '.[][] | select(.name == "adminusers-db") | .credentials.host                    '
   DB_NAME:         '.[][] | select(.name == "adminusers-db") | .credentials.name                    '
   DB_PASSWORD:     '.[][] | select(.name == "adminusers-db") | .credentials.password                '
