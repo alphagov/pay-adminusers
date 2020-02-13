@@ -13,6 +13,7 @@ applications:
     services:
       - app-catalog
       - adminusers-db
+      - adminusers-secret-service
     env:
       ENV_MAP_BP_USE_APP_PROFILE_DIR: true
       ADMIN_PORT: '9301'
@@ -25,20 +26,20 @@ applications:
       JPA_SQL_LOG_LEVEL: 'INFO'
       LOGIN_ATTEMPT_CAP: '10'
       RUN_APP: 'true'
-      RUN_MIGRATION: ((run_migration))
-
-      SUPPORT_URL: ((support_url))
 
       METRICS_HOST: ((metrics_host))
       METRICS_PORT: ((metrics_port))
-
-      NOTIFY_API_KEY: ((notify_api_key))
       NOTIFY_BASE_URL: ((notify_base_url))
-      NOTIFY_DIRECT_DEBIT_API_KEY: ((notify_api_key))
+
+      # Provided via adminusers-secret-service
+      NOTIFY_API_KEY: ""
+      NOTIFY_DIRECT_DEBIT_API_KEY: ""
+      SENTRY_DSN: ""
 
       # Provided via app-catalog bound service, see env-map.yml
       BASE_URL: ""
       SELFSERVICE_URL: ""
+      SUPPORT_URL: ""
 
       # Provide via adminusers-db service, see env-map.yml
       DB_HOST: ""
