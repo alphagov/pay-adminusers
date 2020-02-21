@@ -30,6 +30,7 @@ public class ServiceUpdater {
     public static final String FIELD_CUSTOM_BRANDING = "custom_branding";
     public static final String FIELD_SERVICE_NAME_PREFIX = "service_name";
     public static final String FIELD_REDIRECT_NAME = "redirect_to_service_immediately_on_terminal_state";
+    public static final String FIELD_EXPERIMENTAL_FEATURES_ENABLED = "experimental_features_enabled";
     public static final String FIELD_COLLECT_BILLING_ADDRESS = "collect_billing_address";
     public static final String FIELD_CURRENT_GO_LIVE_STAGE = "current_go_live_stage";
     public static final String FIELD_MERCHANT_DETAILS_NAME = "merchant_details/name";
@@ -49,6 +50,7 @@ public class ServiceUpdater {
                 entry(FIELD_GATEWAY_ACCOUNT_IDS, assignGatewayAccounts()),
                 entry(FIELD_CUSTOM_BRANDING, updateCustomBranding()),
                 entry(FIELD_REDIRECT_NAME, updateRedirectImmediately()),
+                entry(FIELD_EXPERIMENTAL_FEATURES_ENABLED, updateExperimentalFeaturesEnabled()),
                 entry(FIELD_COLLECT_BILLING_ADDRESS, updateCollectBillingAddress()),
                 entry(FIELD_CURRENT_GO_LIVE_STAGE, updateCurrentGoLiveStage()),
                 entry(FIELD_MERCHANT_DETAILS_NAME, updateMerchantDetailsName()),
@@ -124,6 +126,10 @@ public class ServiceUpdater {
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateRedirectImmediately() {
         return (serviceUpdateRequest, serviceEntity) ->
                 serviceEntity.setRedirectToServiceImmediatelyOnTerminalState(serviceUpdateRequest.valueAsBoolean());
+    }
+    
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateExperimentalFeaturesEnabled() {
+        return ((serviceUpdateRequest, serviceEntity) -> serviceEntity.setExperimentalFeaturesEnabled(serviceUpdateRequest.valueAsBoolean()));
     }
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateCollectBillingAddress() {

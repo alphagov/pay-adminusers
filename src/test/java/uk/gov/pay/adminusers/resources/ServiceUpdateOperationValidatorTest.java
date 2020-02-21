@@ -115,6 +115,16 @@ public class ServiceUpdateOperationValidatorTest {
     }
 
     @Test
+    public void shouldSucceed_whenUpdateExperimentalFeaturesEnabled() {
+        replaceShouldSucceed("experimental_features_enabled", true);
+    }
+
+    @Test
+    public void shouldFail_whenUpdateExperimentalFeaturesEnabled_whenOpIsNotReplace() {
+        shouldFailForAddOperation("experimental_features_enabled", true);
+    }
+
+    @Test
     public void shouldFail_whenUpdateRedirectToService_whenOpIsNotReplace() {
         shouldFailForAddOperation("redirect_to_service_immediately_on_terminal_state", true);
     }

@@ -34,6 +34,7 @@ import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAIL
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_REDIRECT_NAME;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_SERVICE_NAME_PREFIX;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_EXPERIMENTAL_FEATURES_ENABLED;
 
 public class ServiceUpdateOperationValidator {
 
@@ -63,6 +64,7 @@ public class ServiceUpdateOperationValidator {
                 entry(FIELD_GATEWAY_ACCOUNT_IDS, singletonList(ADD)),
                 entry(FIELD_CUSTOM_BRANDING, singletonList(REPLACE)),
                 entry(FIELD_REDIRECT_NAME, singletonList(REPLACE)),
+                entry(FIELD_EXPERIMENTAL_FEATURES_ENABLED, singletonList(REPLACE)),
                 entry(FIELD_COLLECT_BILLING_ADDRESS, singletonList(REPLACE)),
                 entry(FIELD_CURRENT_GO_LIVE_STAGE, singletonList(REPLACE)),
                 entry(FIELD_MERCHANT_DETAILS_NAME, singletonList(REPLACE)),
@@ -112,6 +114,8 @@ public class ServiceUpdateOperationValidator {
         } else if (path.startsWith(FIELD_SERVICE_NAME_PREFIX)) {
             return validateServiceNameValue(operation, path);
         } else if (FIELD_REDIRECT_NAME.equals(path)) {
+            return validateMandatoryBooleanValue(operation);
+        } else if (FIELD_EXPERIMENTAL_FEATURES_ENABLED.equals(path)) {
             return validateMandatoryBooleanValue(operation);
         } else if (FIELD_COLLECT_BILLING_ADDRESS.equals(path)) {
             return validateMandatoryBooleanValue(operation);
