@@ -70,8 +70,12 @@ public class ServiceResourceIT extends IntegrationTest {
                 .withName("role-" + randomUuid())
                 .insertRole();
 
-        Service service1 = serviceDbFixture(databaseHelper).insertService();
-        Service service2 = serviceDbFixture(databaseHelper).insertService();
+        Service service1 = serviceDbFixture(databaseHelper)
+                .withExperimentalFeaturesEnabled(true)
+                .insertService();
+        Service service2 = serviceDbFixture(databaseHelper)
+                .withExperimentalFeaturesEnabled(false)
+                .insertService();
 
         String username1 = "zoe-" + randomUuid();
         String email1 = username1 + "@example.com";
@@ -121,6 +125,21 @@ public class ServiceResourceIT extends IntegrationTest {
                 .body("[2]._links[0].href", is("http://localhost:8080/v1/api/users/" + user1.getExternalId()))
                 .body("[2]._links[0].method", is("GET"))
                 .body("[2]._links[0].rel", is("self"));
+    }
+
+    @Test
+    public void shouldReturnAGivenService_identifiedByExternalid() {
+        Service service1 = serviceDbFixture(databaseHelper)
+                .withExperimentalFeaturesEnabled(true)
+                .insertService();
+        
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .get(format("/v1/api/services/%s/", service1.getExternalId()))
+                .then()
+                .statusCode(200)
+                .body("experimental_features_enabled", is(true));
     }
 
     @Test

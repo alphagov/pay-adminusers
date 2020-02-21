@@ -26,6 +26,7 @@ public class ServiceDbFixture {
             "postcode", "country", null
     );
     private boolean collectBillingAddress = true;
+    private boolean experimentalFeaturesEnabled = false;
     private GoLiveStage goLiveStage = GoLiveStage.NOT_STARTED;
     private Map<String, Object> customBranding;
 
@@ -65,6 +66,11 @@ public class ServiceDbFixture {
         return this;
     }
 
+    public ServiceDbFixture withExperimentalFeaturesEnabled(boolean experimentalFeaturesEnabled) {
+        this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
+        return this;
+    }
+
     public Service insertService() {
         int serviceId = id == null ? nextInt() : id;
         String extId = externalId == null ? randomUuid() : externalId;
@@ -74,6 +80,7 @@ public class ServiceDbFixture {
         service.setCollectBillingAddress(collectBillingAddress);
         service.setGoLiveStage(goLiveStage);
         service.setCustomBranding(customBranding);
+        service.setExperimentalFeaturesEnabled(experimentalFeaturesEnabled);
         databaseHelper.addService(service, gatewayAccountIds.toArray(new String[0]));
 
         return service;

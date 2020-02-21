@@ -55,7 +55,9 @@ public class ServiceDaoIT extends DaoTestBase {
 
     @Test
     public void shouldSaveAService_withCustomisations() throws Exception {
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
+        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+                .withExperimentalFeaturesEnabled(true)
+                .build();
         serviceDao.persist(thisServiceEntity);
 
         List<Map<String, Object>> savedService = databaseHelper.findServiceByExternalId(thisServiceEntity.getExternalId());
@@ -68,6 +70,7 @@ public class ServiceDaoIT extends DaoTestBase {
         assertThat(storedBranding.keySet().size(), is(2));
         assertThat(storedBranding.keySet(), hasItems("image_url", "css_url"));
         assertThat(storedBranding.values(), hasItems("image url", "css url"));
+        assertThat(savedService.get(0).get("experimental_features_enabled"), is(true));
     }
 
     @Test
@@ -150,6 +153,7 @@ public class ServiceDaoIT extends DaoTestBase {
     public void shouldFindByServiceExternalId() {
 
         ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+                .withExperimentalFeaturesEnabled(true)
                 .build();
 
         databaseHelper.insertServiceEntity(thisServiceEntity);
@@ -158,6 +162,7 @@ public class ServiceDaoIT extends DaoTestBase {
 
         assertTrue(maybeServiceEntity.isPresent());
         ServiceEntity thatServiceEntity = maybeServiceEntity.get();
+        assertThat(thatServiceEntity.isExperimentalFeaturesEnabled(), is(true));
         assertServiceEntity(thisServiceEntity, thatServiceEntity);
 
         assertMerchantDetails(thatServiceEntity.getMerchantDetailsEntity(), thisServiceEntity.getMerchantDetailsEntity());
