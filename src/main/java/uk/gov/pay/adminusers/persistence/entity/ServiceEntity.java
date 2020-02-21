@@ -68,6 +68,9 @@ public class ServiceEntity {
     @Enumerated(STRING)
     private GoLiveStage currentGoLiveStage = GoLiveStage.NOT_STARTED;
 
+    @Column(name = "experimental_features_enabled")
+    private boolean experimentalFeaturesEnabled = false;
+
     public ServiceEntity() {
     }
 
@@ -145,7 +148,7 @@ public class ServiceEntity {
 
     public Service toService() {
         Service service = Service.from(id, externalId, ServiceName.from(getServiceNames().values()),
-                this.redirectToServiceImmediatelyOnTerminalState, this.collectBillingAddress, this.currentGoLiveStage);
+                this.redirectToServiceImmediatelyOnTerminalState, this.collectBillingAddress, this.currentGoLiveStage, this.experimentalFeaturesEnabled);
         service.setGatewayAccountIds(gatewayAccountIds.stream()
                 .map(GatewayAccountIdEntity::getGatewayAccountId)
                 .collect(Collectors.toList()));
@@ -209,5 +212,13 @@ public class ServiceEntity {
         for (String gatewayAccountId : gatewayAccountIds) {
             this.gatewayAccountIds.add(new GatewayAccountIdEntity(gatewayAccountId, this));
         }
+    }
+
+    public boolean isExperimentalFeaturesEnabled() {
+        return experimentalFeaturesEnabled;
+    }
+
+    public void setExperimentalFeaturesEnabled(boolean experimentalFeaturesEnabled) {
+        this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
     }
 }

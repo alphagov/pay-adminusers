@@ -30,6 +30,7 @@ public class Service {
     private boolean redirectToServiceImmediatelyOnTerminalState;
     private boolean collectBillingAddress;
     private GoLiveStage goLiveStage;
+    private boolean experimentalFeaturesEnabled;
 
     @JsonIgnore
     private ServiceName serviceName;
@@ -43,7 +44,7 @@ public class Service {
     }
 
     public static Service from(Integer id, String externalId, ServiceName serviceName) {
-        return from(id, externalId, serviceName, false, true, NOT_STARTED);
+        return from(id, externalId, serviceName, false, true, NOT_STARTED, false);
     }
 
     public static Service from(Integer id,
@@ -51,8 +52,9 @@ public class Service {
                                ServiceName serviceName,
                                boolean redirectToServiceImmediatelyOnTerminalState,
                                boolean collectBillingAddress,
-                               GoLiveStage goLiveStage) {
-        return new Service(id, externalId, serviceName, redirectToServiceImmediatelyOnTerminalState, collectBillingAddress, goLiveStage);
+                               GoLiveStage goLiveStage,
+                               boolean experimentalFeaturesEnabled) {
+        return new Service(id, externalId, serviceName, redirectToServiceImmediatelyOnTerminalState, collectBillingAddress, goLiveStage, experimentalFeaturesEnabled);
     }
 
     private Service(@JsonProperty("id") Integer id,
@@ -60,13 +62,15 @@ public class Service {
                     ServiceName serviceName,
                     boolean redirectToServiceImmediatelyOnTerminalState,
                     boolean collectBillingAddress,
-                    GoLiveStage goLiveStage) {
+                    GoLiveStage goLiveStage,
+                    boolean experimentalFeaturesEnabled) {
         this.id = id;
         this.externalId = externalId;
         this.redirectToServiceImmediatelyOnTerminalState = redirectToServiceImmediatelyOnTerminalState;
         this.collectBillingAddress = collectBillingAddress;
         this.serviceName = serviceName;
         this.goLiveStage = goLiveStage;
+        this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
     }
 
     public String getExternalId() {
@@ -163,5 +167,10 @@ public class Service {
 
     public void setGoLiveStage(GoLiveStage goLiveStage) {
         this.goLiveStage = goLiveStage;
+    }
+
+    @JsonProperty("experimental_features_enabled")
+    public boolean isExperimentalFeaturesEnabled() {
+        return experimentalFeaturesEnabled;
     }
 }

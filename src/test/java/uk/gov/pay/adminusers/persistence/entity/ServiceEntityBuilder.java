@@ -24,6 +24,7 @@ public final class ServiceEntityBuilder {
     private boolean redirectToServiceImmediatelyOnTerminalState = false;
     private boolean collectBillingAddress = true;
     private GoLiveStage goLiveStage = GoLiveStage.NOT_STARTED;
+    private boolean experimentalFeaturesEnabled = false;
 
     private ServiceEntityBuilder() {
     }
@@ -85,6 +86,11 @@ public final class ServiceEntityBuilder {
         return this;
     }
 
+    public ServiceEntityBuilder withExperimentalFeaturesEnabled(boolean experimentalFeaturesEnabled) {
+        this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
+        return this;
+    }
+
     public ServiceEntity build() {
         ServiceEntity serviceEntity = new ServiceEntity();
         serviceEntity.setId(id);
@@ -97,6 +103,7 @@ public final class ServiceEntityBuilder {
         serviceEntity.setRedirectToServiceImmediatelyOnTerminalState(redirectToServiceImmediatelyOnTerminalState);
         serviceEntity.setCollectBillingAddress(collectBillingAddress);
         serviceEntity.setCurrentGoLiveStage(goLiveStage);
+        serviceEntity.setExperimentalFeaturesEnabled(experimentalFeaturesEnabled);
         return serviceEntity;
     }
 }
