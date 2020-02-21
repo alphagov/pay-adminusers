@@ -173,4 +173,8 @@ public class Service {
     public boolean isExperimentalFeaturesEnabled() {
         return experimentalFeaturesEnabled;
     }
+
+    public void setExperimentalFeaturesEnabled(boolean experimentalFeaturesEnabled) {
+        this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
+    }
 }
