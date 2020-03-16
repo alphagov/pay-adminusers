@@ -10,3 +10,5 @@ env_vars:
   NOTIFY_API_KEY:              '.[][] | select(.name == "adminusers-secret-service") | .credentials.notify_api_key'
   NOTIFY_DIRECT_DEBIT_API_KEY: '.[][] | select(.name == "adminusers-secret-service") | .credentials.notify_direct_debit_api_key'
   SENTRY_DSN:                  '.[][] | select(.name == "adminusers-secret-service") | .credentials.sentry_dsn'
+  METRICS_HOST:                '.[][] | select(.name == "app-catalog")               | .credentials.carbon_relay_route'
+  METRICS_PORT:                '.[][] | select(.name == "app-catalog")               | .credentials.carbon_relay_port'
