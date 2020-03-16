@@ -40,6 +40,8 @@ applications:
       BASE_URL: ""
       SELFSERVICE_URL: ""
       SUPPORT_URL: ""
+      METRICS_HOST: ""
+      METRICS_PORT: ""
 
       # Provide via adminusers-db service, see env-map.yml
       DB_HOST: ""
