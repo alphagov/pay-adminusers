@@ -43,6 +43,7 @@ public class EmailValidator {
             "scotent\\.co\\.uk",
             "slc\\.co\\.uk",
             "socialworkengland\\.org\\.uk",
+            "sssc\\.uk\\.com",
             "ucds\\.email",
             "wmca\\.org\\.uk",
             "york\\.ac\\.uk"

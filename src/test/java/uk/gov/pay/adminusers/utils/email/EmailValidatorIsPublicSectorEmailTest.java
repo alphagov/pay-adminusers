@@ -87,6 +87,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@scotent.co.uk", true},
                 {"valid@slc.co.uk", true},
                 {"valid@socialworkengland.org.uk", true},
+                {"valid@sssc.uk.com", true},
                 {"valid@ucds.email", true},
                 {"valid@wmca.org.uk", true},
                 {"valid@york.ac.uk", true},
@@ -121,6 +122,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@subdomain.slc.co.uk", true},
                 {"valid@subdomain.socialworkengland.org.uk", true},
                 {"valid@subdomain.ucds.email", true},
+                {"valid@subdomain.sssc.uk.com", true},
                 {"valid@subdomain.wmca.org.uk", true},
                 {"valid@subdomain.york.ac.uk", true},
 
