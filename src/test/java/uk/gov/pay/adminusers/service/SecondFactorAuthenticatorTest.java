@@ -132,8 +132,8 @@ public class SecondFactorAuthenticatorTest {
 
     @Test
     public void shouldGenerateNewBase32EncodedSecret() {
-        String sixteenCharacterBase32Regex = "[A-Z2-7]{16}";
-        assertThat(secondFactorAuthenticator.generateNewBase32EncodedSecret(), matchesPattern(sixteenCharacterBase32Regex));
+        String thirtyTwoCharacterBase32Regex = "[A-Z2-7]{32}";
+        assertThat(secondFactorAuthenticator.generateNewBase32EncodedSecret(), matchesPattern(thirtyTwoCharacterBase32Regex));
     }
 
 }
