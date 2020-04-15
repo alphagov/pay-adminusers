@@ -13,7 +13,7 @@
         <guice.version>4.2.3</guice.version>
         <guava.version>29.0-jre</guava.version>
         <jackson.version>2.10.3</jackson.version>
-        <pay-java-commons.version>1.0.20200406085844</pay-java-commons.version>
+        <pay-java-commons.version>1.0.20200414102615</pay-java-commons.version>
     </properties>
     <repositories>
         <repository>
