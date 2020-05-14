@@ -41,6 +41,7 @@ public class EmailValidator {
             "police\\.uk",
             "prrt\\.org",
             "scotent\\.co\\.uk",
+            "serc\\.ac\\.uk", 
             "slc\\.co\\.uk",
             "socialworkengland\\.org\\.uk",
             "sssc\\.uk\\.com",
