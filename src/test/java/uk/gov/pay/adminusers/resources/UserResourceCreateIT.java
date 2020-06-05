@@ -109,7 +109,7 @@ public class UserResourceCreateIT extends IntegrationTest {
                 .body("disabled", is(false))
                 .body("service_roles[0].role.name", is("admin"))
                 .body("service_roles[0].role.description", is("Administrator"))
-                .body("service_roles[0].role.permissions", hasSize(45));
+                .body("service_roles[0].role.permissions", hasSize(46));
 
         response
                 .body("_links", hasSize(1))
