@@ -1,5 +1,5 @@
 # pay-adminusers
-concourse
+concourse II
 The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 
 ## Environment Variables
