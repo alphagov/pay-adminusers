@@ -16,6 +16,7 @@ public class EmailValidator {
             "acas\\.org\\.uk",
             "accessplanit\\.com",
             "assembly\\.wales",
+            "bl\\.uk",
             "caa\\.co\\.uk",
             "careinspectorate\\.com",
             "cynulliad\\.cymru",

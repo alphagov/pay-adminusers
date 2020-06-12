@@ -7,8 +7,8 @@ import org.junit.runners.Parameterized;
 import java.util.Collection;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 @RunWith(Parameterized.class)
 public class EmailValidatorIsPublicSectorEmailTest {
@@ -61,6 +61,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@acas.org.uk", true},
                 {"valid@accessplanit.com", true},
                 {"valid@assembly.wales", true},
+                {"valid@bl.uk", true},
                 {"valid@caa.co.uk", true},
                 {"valid@careinspectorate.com", true},
                 {"valid@cynulliad.cymru", true},
@@ -98,6 +99,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@subdomain.acas.org.uk", true},
                 {"valid@subdomain.accessplanit.com", true},
                 {"valid@subdomain.assembly.wales", true},
+                {"valid@subdomain.bl.uk", true},
                 {"valid@subdomain.careinspectorate.com", true},
                 {"valid@subdomain.cynulliad.cymru", true},
                 {"valid@subdomain.derrystrabane.com", true},
