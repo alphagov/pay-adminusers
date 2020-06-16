@@ -8,8 +8,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.apache.commons.collections.CollectionUtils.isEqualCollection;
-
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class Role {
 
@@ -73,7 +71,7 @@ public class Role {
             return false;
         }
 
-        return isEqualCollection(permissions, role.permissions);
+        return permissions == null && role.permissions == null || permissions.equals(role.permissions);
     }
 
     @Override
