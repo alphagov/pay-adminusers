@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
@@ -10,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Collections.emptyMap;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -571,7 +571,7 @@ public class ServiceUpdateOperationValidatorTest {
         ObjectNode payload = mapper.createObjectNode();
         payload.put("path", path);
         payload.put("op", "replace");
-        payload.put("value", RandomStringUtils.randomAlphanumeric(expectedMaxLength + 1));
+        payload.put("value", randomAlphanumeric(expectedMaxLength + 1));
         List<String> errors = serviceUpdateOperationValidator.validate(payload);
         assertThat(errors.size(), is(1));
         assertThat(errors, hasItem(String.format("Field [value] must have a maximum length of %s characters", expectedMaxLength)));
