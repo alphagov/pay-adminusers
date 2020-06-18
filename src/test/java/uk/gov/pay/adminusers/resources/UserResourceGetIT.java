@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.resources;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
@@ -9,6 +8,7 @@ import uk.gov.pay.adminusers.model.User;
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
@@ -74,7 +74,7 @@ public class UserResourceGetIT extends IntegrationTest {
         givenSetup()
                 .when()
                 .accept(JSON)
-                .get(format(USER_RESOURCE_URL, RandomStringUtils.randomAlphanumeric(256)))
+                .get(format(USER_RESOURCE_URL, randomAlphanumeric(256)))
                 .then()
                 .statusCode(404);
     }

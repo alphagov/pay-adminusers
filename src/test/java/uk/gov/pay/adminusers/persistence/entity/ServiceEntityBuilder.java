@@ -1,12 +1,12 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
-import org.apache.commons.lang.math.RandomUtils;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
+import static org.apache.commons.lang3.RandomUtils.nextInt;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 public final class ServiceEntityBuilder {
-    private Integer id = RandomUtils.nextInt();
+    private Integer id = nextInt();
     private String externalId = RandomIdGenerator.randomUuid();
     private String name = Service.DEFAULT_NAME_VALUE;
     private MerchantDetailsEntity merchantDetailsEntity = MerchantDetailsEntityBuilder.aMerchantDetailsEntity().build();

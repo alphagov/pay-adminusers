@@ -3,7 +3,6 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -166,7 +166,7 @@ public class ServiceRequestValidatorTest {
 
     @Test(expected = ValidationException.class)
     public void shouldFail_updatingMerchantDetails_whenEmailOver255() throws ValidationException {
-        String longEmail = RandomStringUtils.randomAlphanumeric(256);
+        String longEmail = randomAlphanumeric(256);
         ObjectNode payload = createMerchantDetailsJsonPayload(DEFAULT_MERCHANT_DETAILS_NAME, longEmail);
 
         try {
@@ -179,7 +179,7 @@ public class ServiceRequestValidatorTest {
 
     @Test(expected = ValidationException.class)
     public void shouldFail_updatingMerchantDetails_whenNameOver255() throws ValidationException {
-        String longName = RandomStringUtils.randomAlphanumeric(256);
+        String longName = randomAlphanumeric(256);
         ObjectNode payload = createMerchantDetailsJsonPayload(longName, DEFAULT_MERCHANT_DETAILS_EMAIL);
 
         try {
