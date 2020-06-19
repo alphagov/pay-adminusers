@@ -274,7 +274,7 @@ public class ServiceDaoIT extends DaoTestBase {
         databaseHelper.add(perm1).add(perm2);
 
         Role role = role(roleId, "role-" + roleId, "role-desc-" + roleId);
-        role.setPermissions(List.of(perm1, perm2));
+        role.setPermissions(Set.of(perm1, perm2));
         databaseHelper.add(role);
 
         String gatewayAccountId1 = randomInt().toString();

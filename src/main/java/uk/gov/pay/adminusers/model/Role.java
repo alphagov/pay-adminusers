@@ -5,10 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.apache.commons.collections.CollectionUtils.isEqualCollection;
+import java.util.HashSet;
+import java.util.Set;
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class Role {
@@ -17,7 +15,7 @@ public class Role {
     private Integer id;
     private String name;
     private String description;
-    private List<Permission> permissions = new ArrayList<>();
+    private Set<Permission> permissions = new HashSet<>();
 
     public static Role role(Integer roleId, String name, String description) {
         return new Role(roleId, name, description);
@@ -41,11 +39,11 @@ public class Role {
         return description;
     }
 
-    public void setPermissions(List<Permission> permissions) {
+    public void setPermissions(Set<Permission> permissions) {
         this.permissions = permissions;
     }
 
-    public List<Permission> getPermissions() {
+    public Set<Permission> getPermissions() {
         return permissions;
     }
 
@@ -73,7 +71,7 @@ public class Role {
             return false;
         }
 
-        return isEqualCollection(permissions, role.permissions);
+        return permissions.equals(role.permissions);
     }
 
     @Override

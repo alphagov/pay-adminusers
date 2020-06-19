@@ -29,10 +29,10 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Collections.emptyList;
@@ -685,7 +685,7 @@ public class UserServicesTest {
         serviceEntity.setId(randomInt());
 
         Role role = aRole();
-        role.setPermissions(Collections.singletonList(aPermission()));
+        role.setPermissions(Set.of(aPermission()));
 
         ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity, new RoleEntity(role));
         userEntity.addServiceRole(serviceRoleEntity);

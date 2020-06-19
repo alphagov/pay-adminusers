@@ -9,6 +9,7 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -50,7 +51,7 @@ public class UserEntityTest {
         String gatewayAccountId = "1";
         ServiceEntity service = new ServiceEntity(List.of(gatewayAccountId));
         Role role = role(1, "role", "hey");
-        role.setPermissions(List.of(permission(1, "perm1", "perm1 desc"), permission(2, "perm2", "perm2 desc")));
+        role.setPermissions(Set.of(permission(1, "perm1", "perm1 desc"), permission(2, "perm2", "perm2 desc")));
         RoleEntity roleEntity = new RoleEntity(role);
         ServiceRoleEntity serviceRole = new ServiceRoleEntity(service, roleEntity);
 
