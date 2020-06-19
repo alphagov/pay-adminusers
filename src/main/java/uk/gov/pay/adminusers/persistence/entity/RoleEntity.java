@@ -11,10 +11,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Set;
 
+import static java.util.stream.Collectors.toUnmodifiableSet;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
 /**
@@ -43,7 +43,7 @@ public class RoleEntity {
     @ManyToMany(fetch = FetchType.EAGER, targetEntity = PermissionEntity.class)
     @JoinTable(name = "role_permission", joinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "permission_id", referencedColumnName = "id"))
-    private List<PermissionEntity> permissions = new ArrayList<>();
+    private Set<PermissionEntity> permissions = new HashSet<>();
 
     public RoleEntity() {
         //for jpa
@@ -53,8 +53,7 @@ public class RoleEntity {
         this.id = role.getId();
         this.name = role.getName();
         this.description = role.getDescription();
-        this.permissions = role.getPermissions().stream()
-                .map(PermissionEntity::new).collect(Collectors.toList());
+        this.permissions = role.getPermissions().stream().map(PermissionEntity::new).collect(toUnmodifiableSet());
     }
 
     public Integer getId() {
@@ -81,17 +80,17 @@ public class RoleEntity {
         this.description = description;
     }
 
-    public List<PermissionEntity> getPermissions() {
+    public Set<PermissionEntity> getPermissions() {
         return permissions;
     }
 
-    public void setPermissions(List<PermissionEntity> permissions) {
+    public void setPermissions(Set<PermissionEntity> permissions) {
         this.permissions = permissions;
     }
 
     public Role toRole() {
         Role role = Role.role(id, name, description);
-        role.setPermissions(permissions.stream().map(PermissionEntity::toPermission).collect(Collectors.toList()));
+        role.setPermissions(permissions.stream().map(PermissionEntity::toPermission).collect(toUnmodifiableSet()));
         return role;
     }
 
