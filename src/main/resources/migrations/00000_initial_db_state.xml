@@ -155,7 +155,7 @@
         <preConditions onFail="MARK_RAN">
            <sqlCheck expectedResult="0">select count(*) from roles</sqlCheck>
         </preConditions>
-        <loadData tableName="roles" file="config/initdata/roles.csv">
+        <loadData tableName="roles" file="migrations/initdata/roles.csv">
             <column header="id" name="id"/>
             <column header="name" name="name"/>
             <column header="description" name="description"/>
@@ -166,7 +166,7 @@
         <preConditions onFail="MARK_RAN">
            <sqlCheck expectedResult="0">select count(*) from permissions</sqlCheck>
         </preConditions>
-        <loadData tableName="permissions" file="config/initdata/permissions.csv">
+        <loadData tableName="permissions" file="migrations/initdata/permissions.csv">
             <column header="id" name="id"/>
             <column header="name" name="name"/>
             <column header="description" name="description"/>
@@ -177,7 +177,7 @@
         <preConditions onFail="MARK_RAN">
            <sqlCheck expectedResult="0">select count(*) from role_permission</sqlCheck>
         </preConditions>
-        <loadData tableName="role_permission" file="config/initdata/role-permissions.csv">
+        <loadData tableName="role_permission" file="migrations/initdata/role-permissions.csv">
             <column header="role_id" name="role_id"/>
             <column header="permission_id" name="permission_id"/>
         </loadData>

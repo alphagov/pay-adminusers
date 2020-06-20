@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.persistence.dao;
 import com.google.inject.persist.jpa.JpaPersistModule;
 import liquibase.Liquibase;
 import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.AfterClass;
@@ -16,11 +17,12 @@ import uk.gov.pay.commons.testing.db.PostgresDockerRule;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Properties;
 
 public class DaoTestBase {
 
-    private static Logger logger = LoggerFactory.getLogger(DaoTestBase.class);
+    private static final Logger logger = LoggerFactory.getLogger(DaoTestBase.class);
 
     @ClassRule
     public static PostgresDockerRule postgres = new PostgresDockerRule();
@@ -40,12 +42,8 @@ public class DaoTestBase {
 
         databaseHelper = new DatabaseTestHelper(Jdbi.create(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword()));
 
-        try (Connection connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword())) {
-
-            Liquibase migrator = new Liquibase("config/initial-db-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
-            Liquibase migrator2 = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
-            migrator.update("");
-            migrator2.update("");
+        try (Connection connection = getConnection()) {
+            getLiquibase(connection).update("");
         }
 
         env = GuicedTestEnvironment.from(jpaModule).start();
@@ -53,17 +51,19 @@ public class DaoTestBase {
 
     @AfterClass
     public static void cleanUp() {
-        try (Connection connection = DriverManager.getConnection(
-                postgres.getConnectionUrl(),
-                postgres.getUsername(),
-                postgres.getPassword())) {
-            Liquibase migrator = new Liquibase("config/initial-db-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
-            Liquibase migrator2 = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
-            migrator2.dropAll();
-            migrator.dropAll();
+        try (Connection connection = getConnection()) {
+            getLiquibase(connection).dropAll();
         } catch (Exception e) {
             logger.error("Error stopping docker", e);
         }
         env.stop();
+    }
+
+    private static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword());
+    }
+
+    private static Liquibase getLiquibase(Connection conn) throws LiquibaseException {
+        return new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(conn));
     }
 }

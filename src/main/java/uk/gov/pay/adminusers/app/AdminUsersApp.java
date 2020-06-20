@@ -16,7 +16,6 @@ import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.AdminUsersModule;
 import uk.gov.pay.adminusers.app.config.PersistenceServiceInitialiser;
 import uk.gov.pay.adminusers.app.healthchecks.DependentResourceWaitCommand;
-import uk.gov.pay.adminusers.app.healthchecks.MigrateToInitialDbState;
 import uk.gov.pay.adminusers.exception.ConflictExceptionMapper;
 import uk.gov.pay.adminusers.exception.NotFoundExceptionMapper;
 import uk.gov.pay.adminusers.exception.ValidationExceptionMapper;
@@ -65,7 +64,6 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         });
 
         bootstrap.addCommand(new DependentResourceWaitCommand());
-        bootstrap.addCommand(new MigrateToInitialDbState());
         bootstrap.getObjectMapper().getSubtypeResolver().registerSubtypes(LogstashConsoleAppenderFactory.class);
         bootstrap.getObjectMapper().getSubtypeResolver().registerSubtypes(GovUkPayDropwizardRequestJsonLogLayoutFactory.class);
     }

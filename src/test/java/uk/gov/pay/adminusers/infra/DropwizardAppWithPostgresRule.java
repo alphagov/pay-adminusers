@@ -72,7 +72,6 @@ public class DropwizardAppWithPostgresRule implements TestRule {
             public void evaluate() throws Throwable {
                 LOGGER.info("Clearing database.");
                 app.getApplication().run("db", "drop-all", "--confirm-delete-everything", configFilePath);
-                app.getApplication().run("migrateToInitialDbState", configFilePath);
                 doSecondaryDatabaseMigration();
                 restoreDropwizardsLogging();
 

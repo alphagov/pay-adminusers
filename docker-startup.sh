@@ -10,8 +10,6 @@ java $JAVA_OPTS -jar ./*-allinone.jar waitOnDependencies ./*.yaml
 
 if [ "$RUN_MIGRATION" == "true" ]; then
   # shellcheck disable=SC2086
-  java $JAVA_OPTS -jar ./*-allinone.jar migrateToInitialDbState ./*.yaml
-  # shellcheck disable=SC2086
   java $JAVA_OPTS -jar ./*-allinone.jar db migrate ./*.yaml
 fi
 
