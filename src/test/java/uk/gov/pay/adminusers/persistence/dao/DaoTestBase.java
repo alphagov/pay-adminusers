@@ -10,17 +10,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.infra.GuicedTestEnvironment;
-import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 import uk.gov.pay.commons.testing.db.PostgresDockerExtension;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
-
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.model.Permission.permission;
 
 public class DaoTestBase {
 
@@ -68,9 +63,5 @@ public class DaoTestBase {
             logger.error("Error stopping docker", e);
         }
         env.stop();
-    }
-
-    protected Permission aPermission() {
-        return permission(randomInt(), "permission-name-" + randomUuid(), "permission-description" + randomUuid());
     }
 }
