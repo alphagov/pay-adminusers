@@ -4,10 +4,6 @@ import com.google.inject.persist.jpa.JpaPersistModule;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
-import liquibase.Liquibase;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.LiquibaseException;
-import liquibase.resource.ClassLoaderResourceAccessor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.rules.RuleChain;
@@ -21,9 +17,6 @@ import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 import uk.gov.pay.commons.testing.db.PostgresDockerRule;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
@@ -60,7 +53,7 @@ public class DropwizardAppWithPostgresRule implements TestRule {
                 configFilePath,
                 ArrayUtils.addAll(postgresOverrides, configOverrides)
         );
-        createJpaModule(postgres);
+        getJpaModule();
         rules = RuleChain.outerRule(postgres).around(app);
         registerShutdownHook();
     }
@@ -71,9 +64,8 @@ public class DropwizardAppWithPostgresRule implements TestRule {
             @Override
             public void evaluate() throws Throwable {
                 LOGGER.info("Clearing database.");
-                app.getApplication().run("db", "drop-all", "--confirm-delete-everything", configFilePath);
-                doSecondaryDatabaseMigration();
-                restoreDropwizardsLogging();
+                runDropwizardCommand("db", "drop-all", "--confirm-delete-everything", configFilePath);
+                runDropwizardCommand("db", "migrate", configFilePath);
 
                 DataSourceFactory dataSourceFactory = app.getConfiguration().getDataSourceFactory();
                 databaseTestHelper = new DatabaseTestHelper(Jdbi.create(dataSourceFactory.getUrl(), dataSourceFactory.getUser(), dataSourceFactory.getPassword()));
@@ -81,13 +73,6 @@ public class DropwizardAppWithPostgresRule implements TestRule {
                 base.evaluate();
             }
         }, description);
-    }
-
-    private void doSecondaryDatabaseMigration() throws SQLException, LiquibaseException {
-        try (Connection connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword())) {
-            Liquibase migrator = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
-            migrator.update("");
-        }
     }
 
     public int getLocalPort() {
@@ -102,7 +87,7 @@ public class DropwizardAppWithPostgresRule implements TestRule {
         Runtime.getRuntime().addShutdownHook(new Thread(postgres::stop));
     }
 
-    private JpaPersistModule createJpaModule(final PostgresDockerRule postgres) {
+    public JpaPersistModule getJpaModule() {
         final Properties properties = new Properties();
         properties.put("javax.persistence.jdbc.driver", postgres.getDriverClass());
         properties.put("javax.persistence.jdbc.url", postgres.getConnectionUrl());
@@ -115,8 +100,11 @@ public class DropwizardAppWithPostgresRule implements TestRule {
         return jpaModule;
     }
 
-    private void restoreDropwizardsLogging() {
-        app.getConfiguration().getLoggingFactory().configure(app.getEnvironment().metrics(),
-                app.getApplication().getName());
+    private void runDropwizardCommand(String... args) throws Exception {
+        app.getApplication().run(args);
+        // Commands have an unhelpful habit of disabling logging. Re-enable logging.
+        app.getConfiguration()
+                .getLoggingFactory()
+                .configure(app.getEnvironment().metrics(), app.getApplication().getName());
     }
 }
