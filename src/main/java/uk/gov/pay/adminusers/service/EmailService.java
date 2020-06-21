@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
-import liquibase.exception.ServiceNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +67,8 @@ public class EmailService {
     }
 
     private Map<EmailTemplate, StaticEmailContent> getTemplateMappingsFor(String gatewayAccountId) throws InvalidMerchantDetailsException {
-        ServiceEntity service = getServiceFor(gatewayAccountId);
+        ServiceEntity service = serviceDao.findByGatewayAccountId(gatewayAccountId)
+                .orElseThrow(() -> new InvalidMerchantDetailsException("Service not found"));
         MerchantDetailsEntity merchantDetails = service.getMerchantDetailsEntity();
 
         if (merchantDetails == null) {
@@ -109,11 +109,6 @@ public class EmailService {
                 EmailTemplate.ONE_OFF_MANDATE_CREATED, new StaticEmailContent(
                         notificationService.getNotifyDirectDebitConfiguration().getOneOffMandateAndPaymentCreatedEmailTemplateId(),
                         personalisation));
-    }
-
-    private ServiceEntity getServiceFor(String gatewayAccountId) {
-        return serviceDao.findByGatewayAccountId(gatewayAccountId)
-                .orElseThrow(() -> new ServiceNotFoundException("Service not found"));
     }
 
     public String sendEmail(String email, String gatewayAccountId, EmailTemplate template, Map<String, String> dynamicContent) throws InvalidMerchantDetailsException {
