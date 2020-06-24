@@ -13,8 +13,6 @@ import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class MigrateToInitialDbState extends ConfiguredCommand<AdminUsersConfig> {
@@ -27,38 +25,15 @@ public class MigrateToInitialDbState extends ConfiguredCommand<AdminUsersConfig>
 
     @Override
     protected void run(Bootstrap<AdminUsersConfig> bootstrap, Namespace namespace, AdminUsersConfig configuration) {
-        try (Connection connection = getDatabaseConnection(configuration);
-            PreparedStatement statement = connection.prepareStatement("select exists (select * from pg_tables where tablename='users')");
-            ResultSet resultSet = statement.executeQuery()) {
-            if (resultSet.next()) {
-                boolean usersExists = resultSet.getBoolean(1);
-                if (usersExists) {
-                    LOGGER.info("Users table found in current environment. Not required for the initial database migration");
-                } else {
-                    LOGGER.info("Users table not found. Preparing for the initial database migration..");
-                    performInitialMigration(connection);
-                }
-            }
-        } catch (SQLException e) {
-            LOGGER.error("Error during initial DB setup", e);
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void performInitialMigration(Connection connection) {
-        try {
+        try (Connection connection = DriverManager.getConnection(
+                configuration.getDataSourceFactory().getUrl(),
+                configuration.getDataSourceFactory().getUser(),
+                configuration.getDataSourceFactory().getPassword())) {
             Liquibase migrator = new Liquibase("config/initial-db-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator.update("");
-        } catch (LiquibaseException e) {
+        } catch (LiquibaseException|SQLException e) {
             LOGGER.error("Error performing liquibase initial database migration", e);
             throw new RuntimeException(e);
         }
-    }
-
-    private Connection getDatabaseConnection(AdminUsersConfig configuration) throws SQLException {
-        return DriverManager.getConnection(
-                configuration.getDataSourceFactory().getUrl(),
-                configuration.getDataSourceFactory().getUser(),
-                configuration.getDataSourceFactory().getPassword());
     }
 }
