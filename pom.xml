@@ -12,7 +12,7 @@
         <eclipselink.version>2.7.7</eclipselink.version>
         <guice.version>4.2.3</guice.version>
         <guava.version>29.0-jre</guava.version>
-        <jackson.version>2.11.0</jackson.version>
+        <jackson.version>2.11.1</jackson.version>
         <pay-java-commons.version>1.0.20200601131959</pay-java-commons.version>
     </properties>
     <repositories>
