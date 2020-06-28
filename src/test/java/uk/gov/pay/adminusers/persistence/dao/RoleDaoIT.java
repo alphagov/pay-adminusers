@@ -3,14 +3,11 @@ package uk.gov.pay.adminusers.persistence.dao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Role;
-import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 
-import java.util.Optional;
-
-import static junit.framework.TestCase.assertTrue;
+import static java.lang.String.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
+import static org.junit.Assert.assertTrue;
 
 public class RoleDaoIT extends DaoTestBase {
 
@@ -22,18 +19,25 @@ public class RoleDaoIT extends DaoTestBase {
     }
 
     @Test
-    public void shouldFindARoleByRoleName() {
+    public void shouldFindSuperAdmin() {
+        findAndCheckRole("super-admin", "Super Admin");
+    }
 
-        Role role1 = roleDbFixture(databaseHelper).insertRole();
-        Role role2 = roleDbFixture(databaseHelper).insertRole();
+    @Test
+    public void shouldFindViewAndRefund() {
+        findAndCheckRole("view-and-refund", "View and Refund");
+    }
 
-        Optional<RoleEntity> optionalRole1 = roleDao.findByRoleName(role1.getName());
-        assertTrue(optionalRole1.isPresent());
+    @Test
+    public void shouldReturnEmptyOptionalForNonexistentRole() {
+        assertTrue(roleDao.findByRoleName("does-not-exist").isEmpty());
+    }
 
-        RoleEntity roleEntity = optionalRole1.get();
-        assertThat(roleEntity.toRole(), is(role1));
+    private void findAndCheckRole(String name, String description) {
+        Role role = roleDao.findByRoleName(name)
+                .orElseThrow(() -> new RuntimeException(format("Role '%s' not found", name)))
+                .toRole();
 
-        Optional<RoleEntity> optionalRole2 = roleDao.findByRoleName(role2.getName());
-        assertThat(optionalRole2.get().toRole(), is(role2));
+        assertThat(description, is(role.getDescription()));
     }
 }
