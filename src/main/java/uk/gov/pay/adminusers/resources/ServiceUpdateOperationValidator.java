@@ -142,8 +142,9 @@ public class ServiceUpdateOperationValidator {
         return Collections.emptyList();
     }
 
-    private List<String> validateCustomBrandingValue(JsonNode operation) {
-        return checkIfValidJson(operation.get(FIELD_VALUE), FIELD_CUSTOM_BRANDING);
+    private List<String> validateCustomBrandingValue(JsonNode operation) { ;
+        return requestValidations.checkExists(operation, FIELD_VALUE)
+                .orElseGet(() -> checkIfValidJson(operation.get(FIELD_VALUE), FIELD_CUSTOM_BRANDING));
     }
 
     private List<String> validateServiceNameValue(JsonNode operation, String path) {
