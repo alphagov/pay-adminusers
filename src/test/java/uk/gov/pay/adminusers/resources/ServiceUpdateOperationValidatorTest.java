@@ -55,6 +55,10 @@ public class ServiceUpdateOperationValidatorTest {
                 new Object[]{"add", "collect_billing_address", true},
                 new Object[]{"add", "current_go_live_stage", "CHOSEN_PSP_STRIPE"},
                 new Object[]{"add", "experimental_features_enabled", false},
+                new Object[]{"add", "sector", "any value"},
+                new Object[]{"add", "internal", false},
+                new Object[]{"add", "archived", false},
+                new Object[]{"add", "went_live_date", "2020-01-01T01:01:00Z"},
                 new Object[]{"add", "merchant_details/name", "any value"},
                 new Object[]{"add", "merchant_details/address_line1", "any value"},
                 new Object[]{"add", "merchant_details/address_line2", "any value"},
@@ -76,6 +80,7 @@ public class ServiceUpdateOperationValidatorTest {
     private Object[] replaceShouldFailWhenValueInvalidValueParameters() {
         return new Object[]{
                 new Object[]{"service_name/en", 42, "Field [value] must be a string"},
+                new Object[]{"sector", 42, "Field [value] must be a string"},
                 new Object[]{"current_go_live_stage", 42, GO_LIVE_STAGE_INVALID_ERROR_MESSAGE},
                 new Object[]{"current_go_live_stage", "CAKE_ORDERED", GO_LIVE_STAGE_INVALID_ERROR_MESSAGE},
                 new Object[]{"merchant_details/name", 42, "Field [value] must be a string"},
@@ -89,7 +94,11 @@ public class ServiceUpdateOperationValidatorTest {
                 new Object[]{"collect_billing_address", "a string", "Field [value] must be a boolean"},
                 new Object[]{"redirect_to_service_immediately_on_terminal_state", "a string", "Field [value] must be a boolean"},
                 new Object[]{"experimental_features_enabled", "a string", "Field [value] must be a boolean"},
-                new Object[]{"custom_branding", "a string", "Value for path [custom_branding] must be a JSON"}
+                new Object[]{"internal", "a string", "Field [value] must be a boolean"},
+                new Object[]{"archived", "a string", "Field [value] must be a boolean"},
+                new Object[]{"custom_branding", "a string", "Value for path [custom_branding] must be a JSON"},
+                new Object[]{"went_live_date", 42, "Field [value] must be a valid date time with timezone"},
+                new Object[]{"went_live_date", "a string", "Field [value] must be a valid date time with timezone"},
         };
     }
 
@@ -113,7 +122,11 @@ public class ServiceUpdateOperationValidatorTest {
             "merchant_details/address_postcode",
             "merchant_details/email",
             "merchant_details/telephone_number",
-            "custom_branding"
+            "custom_branding",
+            "sector",
+            "internal",
+            "archived",
+            "went_live_date"
     })
     public void replaceShouldFailWhenValueMissing(String path) {
         ObjectNode payload = mapper.createObjectNode();
@@ -138,7 +151,11 @@ public class ServiceUpdateOperationValidatorTest {
             "merchant_details/address_postcode",
             "merchant_details/email",
             "merchant_details/telephone_number",
-            "custom_branding"
+            "custom_branding",
+            "sector",
+            "internal",
+            "archived",
+            "went_live_date"
     })
     public void replaceShouldFailWhenValueIsNull(String path) {
         ObjectNode payload = mapper.createObjectNode();
@@ -174,7 +191,8 @@ public class ServiceUpdateOperationValidatorTest {
                 new Object[]{"merchant_details/address_country", 10},
                 new Object[]{"merchant_details/address_postcode", 25},
                 new Object[]{"merchant_details/email", 255},
-                new Object[]{"merchant_details/telephone_number", 255}
+                new Object[]{"merchant_details/telephone_number", 255},
+                new Object[]{"sector", 50}
         };
     }
 
@@ -204,7 +222,11 @@ public class ServiceUpdateOperationValidatorTest {
                 new Object[]{"replace", "custom_branding", Map.of("image_url", "image url", "css_url", "css url")},
                 new Object[]{"replace", "custom_branding", emptyMap()},
                 new Object[]{"replace", "service_name/en", "example-name"},
-                new Object[]{"replace", "service_name/cy", " "}
+                new Object[]{"replace", "sector", "local government"},
+                new Object[]{"replace", "internal", true},
+                new Object[]{"replace", "archived", true},
+                new Object[]{"replace", "went_live_date", "2020-01-01T01:01:00Z"}
+                
         };
     }
 

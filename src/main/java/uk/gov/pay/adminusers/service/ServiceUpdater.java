@@ -33,6 +33,10 @@ public class ServiceUpdater {
     public static final String FIELD_EXPERIMENTAL_FEATURES_ENABLED = "experimental_features_enabled";
     public static final String FIELD_COLLECT_BILLING_ADDRESS = "collect_billing_address";
     public static final String FIELD_CURRENT_GO_LIVE_STAGE = "current_go_live_stage";
+    public static final String FIELD_SECTOR = "sector";
+    public static final String FIELD_INTERNAL = "internal";
+    public static final String FIELD_ARCHIVED = "archived";
+    public static final String FIELD_WENT_LIVE_DATE = "went_live_date";
     public static final String FIELD_MERCHANT_DETAILS_NAME = "merchant_details/name";
     public static final String FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1 = "merchant_details/address_line1";
     public static final String FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2 = "merchant_details/address_line2";
@@ -53,6 +57,10 @@ public class ServiceUpdater {
                 entry(FIELD_EXPERIMENTAL_FEATURES_ENABLED, updateExperimentalFeaturesEnabled()),
                 entry(FIELD_COLLECT_BILLING_ADDRESS, updateCollectBillingAddress()),
                 entry(FIELD_CURRENT_GO_LIVE_STAGE, updateCurrentGoLiveStage()),
+                entry(FIELD_SECTOR, updateSector()),
+                entry(FIELD_INTERNAL, updateInternal()),
+                entry(FIELD_ARCHIVED, updateArchived()),
+                entry(FIELD_WENT_LIVE_DATE, updateWentLiveDate()),
                 entry(FIELD_MERCHANT_DETAILS_NAME, updateMerchantDetailsName()),
                 entry(FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1, updateMerchantDetailsAddressLine1()),
                 entry(FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2, updateMerchantDetailsAddressLine2()),
@@ -140,6 +148,26 @@ public class ServiceUpdater {
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateCurrentGoLiveStage() {
         return (serviceUpdateRequest, serviceEntity) ->
                 serviceEntity.setCurrentGoLiveStage(GoLiveStage.valueOf(serviceUpdateRequest.valueAsString()));
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateSector() {
+        return (serviceUpdateRequest, serviceEntity) ->
+                serviceEntity.setSector(serviceUpdateRequest.valueAsString());
+    }
+    
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateInternal() {
+        return ((serviceUpdateRequest, serviceEntity) -> 
+                serviceEntity.setInternal(serviceUpdateRequest.valueAsBoolean()));
+    }
+    
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateArchived() {
+        return ((serviceUpdateRequest, serviceEntity) ->
+                serviceEntity.setArchived(serviceUpdateRequest.valueAsBoolean()));
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateWentLiveDate() {
+        return ((serviceUpdateRequest, serviceEntity) ->
+                serviceEntity.setWentLiveDate(serviceUpdateRequest.valueAsDateTime()));
     }
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateMerchantDetailsName() {
