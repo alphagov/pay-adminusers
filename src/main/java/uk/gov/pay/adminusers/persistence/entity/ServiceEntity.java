@@ -19,6 +19,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -70,6 +71,23 @@ public class ServiceEntity {
 
     @Column(name = "experimental_features_enabled")
     private boolean experimentalFeaturesEnabled = false;
+    
+    @Column(name = "sector")
+    private String sector;
+    
+    @Column(name = "internal")
+    private boolean internal;
+    
+    @Column(name = "archived")
+    private boolean archived;
+    
+    @Column(name = "created_date")
+    @Convert(converter = UTCDateTimeConverter.class)
+    private ZonedDateTime createdDate;
+    
+    @Column(name = "went_live_date")
+    @Convert(converter = UTCDateTimeConverter.class)
+    private ZonedDateTime wentLiveDate;
 
     public ServiceEntity() {
     }
@@ -146,9 +164,75 @@ public class ServiceEntity {
         this.customBranding = customBranding;
     }
 
+    public GoLiveStage getCurrentGoLiveStage() {
+        return currentGoLiveStage;
+    }
+
+    public void setCurrentGoLiveStage(GoLiveStage currentGoLiveStage) {
+        this.currentGoLiveStage = currentGoLiveStage;
+    }
+
+    public boolean isExperimentalFeaturesEnabled() {
+        return experimentalFeaturesEnabled;
+    }
+
+    public void setExperimentalFeaturesEnabled(boolean experimentalFeaturesEnabled) {
+        this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
+    }
+
+    public String getSector() {
+        return sector;
+    }
+
+    public void setSector(String sector) {
+        this.sector = sector;
+    }
+
+    public boolean isInternal() {
+        return internal;
+    }
+
+    public void setInternal(boolean internal) {
+        this.internal = internal;
+    }
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
+
+    public ZonedDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(ZonedDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public ZonedDateTime getWentLiveDate() {
+        return wentLiveDate;
+    }
+
+    public void setWentLiveDate(ZonedDateTime wentLiveDate) {
+        this.wentLiveDate = wentLiveDate;
+    }
+
     public Service toService() {
-        Service service = Service.from(id, externalId, ServiceName.from(getServiceNames().values()),
-                this.redirectToServiceImmediatelyOnTerminalState, this.collectBillingAddress, this.currentGoLiveStage, this.experimentalFeaturesEnabled);
+        Service service = Service.from(id,
+                externalId, 
+                ServiceName.from(getServiceNames().values()),
+                this.redirectToServiceImmediatelyOnTerminalState,
+                this.collectBillingAddress,
+                this.currentGoLiveStage,
+                this.experimentalFeaturesEnabled,
+                this.sector,
+                this.internal,
+                this.archived,
+                this.createdDate,
+                this.wentLiveDate);
         service.setGatewayAccountIds(gatewayAccountIds.stream()
                 .map(GatewayAccountIdEntity::getGatewayAccountId)
                 .collect(Collectors.toList()));
@@ -200,25 +284,9 @@ public class ServiceEntity {
                 .collect(Collectors.toMap(ServiceNameEntity::getLanguage, serviceName -> serviceName));
     }
 
-    public GoLiveStage getCurrentGoLiveStage() {
-        return currentGoLiveStage;
-    }
-
-    public void setCurrentGoLiveStage(GoLiveStage currentGoLiveStage) {
-        this.currentGoLiveStage = currentGoLiveStage;
-    }
-
     private void populateGatewayAccountIds(List<String> gatewayAccountIds) {
         for (String gatewayAccountId : gatewayAccountIds) {
             this.gatewayAccountIds.add(new GatewayAccountIdEntity(gatewayAccountId, this));
         }
-    }
-
-    public boolean isExperimentalFeaturesEnabled() {
-        return experimentalFeaturesEnabled;
-    }
-
-    public void setExperimentalFeaturesEnabled(boolean experimentalFeaturesEnabled) {
-        this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
     }
 }

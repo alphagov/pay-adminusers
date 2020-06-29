@@ -1,9 +1,6 @@
 package uk.gov.pay.adminusers.service;
 
-import com.fasterxml.jackson.databind.node.BooleanNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -19,11 +16,13 @@ import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
 import javax.ws.rs.WebApplicationException;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static java.lang.String.valueOf;
+import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
 import static java.util.Optional.of;
 import static org.hamcrest.core.Is.is;
@@ -45,6 +44,7 @@ public class ServiceUpdaterTest {
     public static final String SERVICE_ID = randomUuid();
     private ServiceDao serviceDao = mock(ServiceDao.class);
     private ServiceUpdater updater;
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Before
     public void before() {
@@ -194,10 +194,7 @@ public class ServiceUpdaterTest {
 
     @Test
     public void shouldUpdateRedirectImmediatelySuccessfully() {
-        ServiceUpdateRequest request = ServiceUpdateRequest.from(new ObjectNode(JsonNodeFactory.instance, Map.of(
-                "path", new TextNode("redirect_to_service_immediately_on_terminal_state"),
-                "value", BooleanNode.valueOf(true),
-                "op", new TextNode("replace"))));
+        ServiceUpdateRequest request = serviceUpdateRequest("replace", "redirect_to_service_immediately_on_terminal_state", true);
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
 
         when(serviceDao.findByExternalId(SERVICE_ID)).thenReturn(of(serviceEntity));
@@ -212,10 +209,7 @@ public class ServiceUpdaterTest {
 
     @Test
     public void shouldUpdateCollectBillingAddressSuccessfully() {
-        ServiceUpdateRequest request = ServiceUpdateRequest.from(new ObjectNode(JsonNodeFactory.instance, Map.of(
-                "path", new TextNode("collect_billing_address"),
-                "value", BooleanNode.valueOf(false),
-                "op", new TextNode("replace"))));
+        ServiceUpdateRequest request = serviceUpdateRequest("replace", "collect_billing_address", false);
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
 
         when(serviceDao.findByExternalId(SERVICE_ID)).thenReturn(of(serviceEntity));
@@ -242,6 +236,70 @@ public class ServiceUpdaterTest {
         assertThat(maybeService.isPresent(), is(true));
         verify(serviceEntity).setCurrentGoLiveStage(GoLiveStage.CHOSEN_PSP_STRIPE);
         verify(serviceDao).merge(serviceEntity);
+    }
+
+    @Test
+    public void shouldUpdateSectorSuccessfully() {
+        ServiceUpdateRequest request = serviceUpdateRequest("replace", "sector", "local government");
+        ServiceEntity serviceEntity = mock(ServiceEntity.class);
+
+        when(serviceDao.findByExternalId(SERVICE_ID)).thenReturn(of(serviceEntity));
+        when(serviceEntity.toService()).thenReturn(Service.from());
+
+        Optional<Service> maybeService = updater.doUpdate(SERVICE_ID, request);
+
+        assertThat(maybeService.isPresent(), is(true));
+        InOrder inOrder = inOrder(serviceEntity, serviceDao);
+        inOrder.verify(serviceEntity).setSector("local government");
+        inOrder.verify(serviceDao).merge(serviceEntity);
+    }
+
+    @Test
+    public void shouldUpdateInternalSuccessfully() {
+        ServiceUpdateRequest request = serviceUpdateRequest("replace", "internal", true);
+        ServiceEntity serviceEntity = mock(ServiceEntity.class);
+
+        when(serviceDao.findByExternalId(SERVICE_ID)).thenReturn(of(serviceEntity));
+        when(serviceEntity.toService()).thenReturn(Service.from());
+
+        Optional<Service> maybeService = updater.doUpdate(SERVICE_ID, request);
+
+        assertThat(maybeService.isPresent(), is(true));
+        InOrder inOrder = inOrder(serviceEntity, serviceDao);
+        inOrder.verify(serviceEntity).setInternal(true);
+        inOrder.verify(serviceDao).merge(serviceEntity);
+    }
+
+    @Test
+    public void shouldUpdateArchivedSuccessfully() {
+        ServiceUpdateRequest request = serviceUpdateRequest("replace", "archived", true);
+        ServiceEntity serviceEntity = mock(ServiceEntity.class);
+
+        when(serviceDao.findByExternalId(SERVICE_ID)).thenReturn(of(serviceEntity));
+        when(serviceEntity.toService()).thenReturn(Service.from());
+
+        Optional<Service> maybeService = updater.doUpdate(SERVICE_ID, request);
+
+        assertThat(maybeService.isPresent(), is(true));
+        InOrder inOrder = inOrder(serviceEntity, serviceDao);
+        inOrder.verify(serviceEntity).setArchived(true);
+        inOrder.verify(serviceDao).merge(serviceEntity);
+    }
+
+    @Test
+    public void shouldUpdateWentLiveDateSuccessfully() {
+        ServiceUpdateRequest request = serviceUpdateRequest("replace", "went_live_date", "2020-02-28T01:02:03Z");
+        ServiceEntity serviceEntity = mock(ServiceEntity.class);
+
+        when(serviceDao.findByExternalId(SERVICE_ID)).thenReturn(of(serviceEntity));
+        when(serviceEntity.toService()).thenReturn(Service.from());
+
+        Optional<Service> maybeService = updater.doUpdate(SERVICE_ID, request);
+
+        assertThat(maybeService.isPresent(), is(true));
+        InOrder inOrder = inOrder(serviceEntity, serviceDao);
+        inOrder.verify(serviceEntity).setWentLiveDate(ZonedDateTime.of(2020, 2, 28, 1, 2, 3, 0, UTC));
+        inOrder.verify(serviceDao).merge(serviceEntity);
     }
 
     @Test
@@ -323,11 +381,11 @@ public class ServiceUpdaterTest {
         assertThat(maybeService.get().getMerchantDetails().getAddressLine1(), is(updatedAddressLine1));
     }
 
-    private static ServiceUpdateRequest serviceUpdateRequest(String op, String path, String value) {
-        return ServiceUpdateRequest.from(
-                new ObjectNode(JsonNodeFactory.instance, Map.of(
-                        "op", new TextNode(op),
-                        "path", new TextNode(path),
-                        "value", new TextNode(value))));
+    private ServiceUpdateRequest serviceUpdateRequest(String op, String path, Object value) {
+        return ServiceUpdateRequest.from(mapper.valueToTree(Map.of(
+                "op", op,
+                "path", path,
+                "value", value
+        )));
     }
 }

@@ -20,10 +20,12 @@ import static java.util.Map.entry;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_OP;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_PATH;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_VALUE;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_ARCHIVED;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_COLLECT_BILLING_ADDRESS;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CURRENT_GO_LIVE_STAGE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CUSTOM_BRANDING;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT_IDS;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_INTERNAL;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_ADDRESS_CITY;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_ADDRESS_COUNRTY;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1;
@@ -33,8 +35,10 @@ import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAIL
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_NAME;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_REDIRECT_NAME;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_SECTOR;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_SERVICE_NAME_PREFIX;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_EXPERIMENTAL_FEATURES_ENABLED;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_WENT_LIVE_DATE;
 
 public class ServiceUpdateOperationValidator {
 
@@ -51,6 +55,7 @@ public class ServiceUpdateOperationValidator {
     private static final int FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE_MAX_LENGTH = 25;
     private static final int FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH = 255;
     private static final int FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER_MAX_LENGTH = 255;
+    private static final int FIELD_SECTOR_MAX_LENGTH = 50;
 
     private final Map<String, List<String>> validAttributeUpdateOperations;
 
@@ -67,6 +72,10 @@ public class ServiceUpdateOperationValidator {
                 entry(FIELD_EXPERIMENTAL_FEATURES_ENABLED, singletonList(REPLACE)),
                 entry(FIELD_COLLECT_BILLING_ADDRESS, singletonList(REPLACE)),
                 entry(FIELD_CURRENT_GO_LIVE_STAGE, singletonList(REPLACE)),
+                entry(FIELD_SECTOR, singletonList(REPLACE)),
+                entry(FIELD_INTERNAL, singletonList(REPLACE)),
+                entry(FIELD_ARCHIVED, singletonList(REPLACE)),
+                entry(FIELD_WENT_LIVE_DATE, singletonList(REPLACE)),
                 entry(FIELD_MERCHANT_DETAILS_NAME, singletonList(REPLACE)),
                 entry(FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1, singletonList(REPLACE)),
                 entry(FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2, singletonList(REPLACE)),
@@ -121,6 +130,14 @@ public class ServiceUpdateOperationValidator {
             return validateMandatoryBooleanValue(operation);
         } else if (FIELD_CURRENT_GO_LIVE_STAGE.equals(path)) {
             return validateCurrentGoLiveStageValue(operation);
+        } else if (FIELD_SECTOR.equals(path)) {
+            return validateNotNullStringValueWithMaxLength(operation, false, FIELD_SECTOR_MAX_LENGTH);
+        } else if (FIELD_INTERNAL.equals(path)) {
+            return validateMandatoryBooleanValue(operation);
+        } else if (FIELD_ARCHIVED.equals(path)) {
+            return validateMandatoryBooleanValue(operation);
+        } else if (FIELD_WENT_LIVE_DATE.equals(path)) {
+            return validateZonedDateTimeValue(operation);
         } else if (FIELD_MERCHANT_DETAILS_NAME.equals(path)) {
             return validateNotNullStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_NAME_MAX_LENGTH);
         } else if (FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1.equals(path)) {
@@ -214,5 +231,14 @@ public class ServiceUpdateOperationValidator {
             return singletonList(format("Value for path [%s] must be a JSON", fieldName));
         }
         return Collections.emptyList();
+    }
+
+    private List<String> validateZonedDateTimeValue(JsonNode operation) {
+        List<String> errors = new ArrayList<>();
+        requestValidations.checkExists(operation, FIELD_VALUE).ifPresent(errors::addAll);
+        if (errors.isEmpty()) {
+            requestValidations.checkIsZonedDateTime(operation, FIELD_VALUE).ifPresent(errors::addAll);
+        }
+        return errors;
     }
 }

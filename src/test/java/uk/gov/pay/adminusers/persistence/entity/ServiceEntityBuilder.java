@@ -7,6 +7,8 @@ import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
 import static org.apache.commons.lang3.RandomUtils.nextInt;
+
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +27,7 @@ public final class ServiceEntityBuilder {
     private boolean collectBillingAddress = true;
     private GoLiveStage goLiveStage = GoLiveStage.NOT_STARTED;
     private boolean experimentalFeaturesEnabled = false;
+    private ZonedDateTime createdDate = ZonedDateTime.parse("2020-06-29T01:16:00Z");
 
     private ServiceEntityBuilder() {
     }
@@ -90,6 +93,11 @@ public final class ServiceEntityBuilder {
         this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
         return this;
     }
+    
+    public ServiceEntityBuilder withCreatedDate(ZonedDateTime createdDate) {
+        this.createdDate = createdDate;
+        return this;
+    }
 
     public ServiceEntity build() {
         ServiceEntity serviceEntity = new ServiceEntity();
@@ -104,6 +112,7 @@ public final class ServiceEntityBuilder {
         serviceEntity.setCollectBillingAddress(collectBillingAddress);
         serviceEntity.setCurrentGoLiveStage(goLiveStage);
         serviceEntity.setExperimentalFeaturesEnabled(experimentalFeaturesEnabled);
+        serviceEntity.setCreatedDate(createdDate);
         return serviceEntity;
     }
 }

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import uk.gov.pay.adminusers.utils.email.EmailValidator;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -54,6 +56,10 @@ public class RequestValidations {
 
     public Optional<List<String>> checkIsValidTelephoneNumber(JsonNode payload, String... fieldNames) {
         return applyCheck(payload, isNotValidTelephoneNumber(), fieldNames, "Field [%s] must be a valid telephone number");
+    }
+    
+    public Optional<List<String>> checkIsZonedDateTime(JsonNode payload, String... fieldNames) {
+        return applyCheck(payload, isNotZonedDateTime(), fieldNames, "Field [%s] must be a valid date time with timezone");
     }
 
     private Function<JsonNode, Boolean> exceedsMaxLength(int maxLength) {
@@ -114,24 +120,42 @@ public class RequestValidations {
         );
     }
 
-    /* default */ static Function<JsonNode, Boolean> isNotNumeric() {
+    /* default */
+    static Function<JsonNode, Boolean> isNotNumeric() {
         return jsonNode -> !isDigits(jsonNode.asText());
     }
 
-    /* default */ static Function<JsonNode, Boolean> isNotBoolean() {
+    /* default */
+    static Function<JsonNode, Boolean> isNotBoolean() {
         return jsonNode -> !List.of("true", "false").contains(jsonNode.asText().toLowerCase(Locale.ENGLISH));
     }
 
-    /* default */ static Function<JsonNode, Boolean> isNotStrictBoolean() {
+    /* default */
+    static Function<JsonNode, Boolean> isNotStrictBoolean() {
         return jsonNode -> !jsonNode.isBoolean();
     }
 
-    /* default */ static Function<JsonNode, Boolean> isNotString() {
+    /* default */
+    static Function<JsonNode, Boolean> isNotString() {
         return jsonNode -> !jsonNode.isTextual();
     }
 
-    /* default */ static Function<JsonNode, Boolean> isNotValidTelephoneNumber() {
+    /* default */
+    static Function<JsonNode, Boolean> isNotValidTelephoneNumber() {
         return jsonNode -> !TelephoneNumberUtility.isValidPhoneNumber(jsonNode.asText());
+    }
+
+    private static Function<JsonNode, Boolean> isNotZonedDateTime() {
+        return jsonNode -> !jsonNode.isTextual() || !isZonedDateTime(jsonNode.textValue());
+    }
+
+    private static boolean isZonedDateTime(String value) {
+        try {
+            ZonedDateTime.parse(value);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
     }
 
     public Optional<List<String>> isValidEmail(JsonNode payload, String... fieldNames) {
