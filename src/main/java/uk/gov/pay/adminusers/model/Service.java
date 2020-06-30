@@ -5,7 +5,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import uk.gov.pay.commons.api.json.ApiResponseDateTimeSerializer;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +34,15 @@ public class Service {
     private boolean collectBillingAddress;
     private GoLiveStage goLiveStage;
     private boolean experimentalFeaturesEnabled;
+    private String sector;
+    private boolean internal;
+    private boolean archived;
+
+    @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
+    private ZonedDateTime createdDate;
+
+    @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
+    private ZonedDateTime wentLiveDate;
 
     @JsonIgnore
     private ServiceName serviceName;
@@ -44,7 +56,18 @@ public class Service {
     }
 
     public static Service from(Integer id, String externalId, ServiceName serviceName) {
-        return from(id, externalId, serviceName, false, true, NOT_STARTED, false);
+        return from(id,
+                externalId,
+                serviceName,
+                false,
+                true,
+                NOT_STARTED,
+                false,
+                null,
+                false,
+                false,
+                null,
+                null);
     }
 
     public static Service from(Integer id,
@@ -53,8 +76,24 @@ public class Service {
                                boolean redirectToServiceImmediatelyOnTerminalState,
                                boolean collectBillingAddress,
                                GoLiveStage goLiveStage,
-                               boolean experimentalFeaturesEnabled) {
-        return new Service(id, externalId, serviceName, redirectToServiceImmediatelyOnTerminalState, collectBillingAddress, goLiveStage, experimentalFeaturesEnabled);
+                               boolean experimentalFeaturesEnabled,
+                               String sector,
+                               boolean internal,
+                               boolean archived,
+                               ZonedDateTime createdDate,
+                               ZonedDateTime wentLiveDate) {
+        return new Service(id,
+                externalId,
+                serviceName,
+                redirectToServiceImmediatelyOnTerminalState,
+                collectBillingAddress,
+                goLiveStage,
+                experimentalFeaturesEnabled,
+                sector,
+                internal,
+                archived,
+                createdDate,
+                wentLiveDate);
     }
 
     private Service(@JsonProperty("id") Integer id,
@@ -63,7 +102,12 @@ public class Service {
                     boolean redirectToServiceImmediatelyOnTerminalState,
                     boolean collectBillingAddress,
                     GoLiveStage goLiveStage,
-                    boolean experimentalFeaturesEnabled) {
+                    boolean experimentalFeaturesEnabled,
+                    String sector,
+                    boolean internal,
+                    boolean archived,
+                    ZonedDateTime createdDate,
+                    ZonedDateTime wentLiveDate) {
         this.id = id;
         this.externalId = externalId;
         this.redirectToServiceImmediatelyOnTerminalState = redirectToServiceImmediatelyOnTerminalState;
@@ -71,6 +115,11 @@ public class Service {
         this.serviceName = serviceName;
         this.goLiveStage = goLiveStage;
         this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
+        this.sector = sector;
+        this.internal = internal;
+        this.archived = archived;
+        this.createdDate = createdDate;
+        this.wentLiveDate = wentLiveDate;
     }
 
     public String getExternalId() {
@@ -176,5 +225,25 @@ public class Service {
 
     public void setExperimentalFeaturesEnabled(boolean experimentalFeaturesEnabled) {
         this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
+    }
+
+    public String getSector() {
+        return sector;
+    }
+
+    public boolean isInternal() {
+        return internal;
+    }
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public ZonedDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public ZonedDateTime getWentLiveDate() {
+        return wentLiveDate;
     }
 }
