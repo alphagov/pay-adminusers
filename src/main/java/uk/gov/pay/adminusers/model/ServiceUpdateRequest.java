@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -61,6 +62,13 @@ public class ServiceUpdateRequest {
 
     public boolean valueAsBoolean() {
         return value != null && Boolean.parseBoolean(value.asText());
+    }
+    
+    public ZonedDateTime valueAsDateTime() {
+        if (value != null) {
+            return ZonedDateTime.parse(value.asText());
+        }
+        return null;
     }
 
 
