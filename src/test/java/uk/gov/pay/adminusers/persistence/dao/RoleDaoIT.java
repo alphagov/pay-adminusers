@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.persistence.dao;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 
@@ -16,7 +16,7 @@ public class RoleDaoIT extends DaoTestBase {
 
     private RoleDao roleDao;
 
-    @Before
+    @BeforeEach
     public void before() {
         roleDao = env.getInstance(RoleDao.class);
     }

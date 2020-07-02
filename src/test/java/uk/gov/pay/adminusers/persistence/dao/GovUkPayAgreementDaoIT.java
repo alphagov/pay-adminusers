@@ -1,9 +1,7 @@
 package uk.gov.pay.adminusers.persistence.dao;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.GovUkPayAgreementEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -15,25 +13,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.fixtures.GovUkPayAgreementDbFixture.govUkPayAgreementDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
-public class GovUkPayAgreementDaoIT extends DaoTestBase{
-    
+public class GovUkPayAgreementDaoIT extends DaoTestBase {
+
     private GovUkPayAgreementDao agreementDao;
     private ServiceDao serviceDao;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    @Before
+    @BeforeEach
     public void setUp() {
         agreementDao = env.getInstance(GovUkPayAgreementDao.class);
         serviceDao = env.getInstance(ServiceDao.class);
     }
-    
+
     @Test
     public void shouldPersistEntity() {
         Service service = serviceDbFixture(databaseHelper)
@@ -43,7 +41,7 @@ public class GovUkPayAgreementDaoIT extends DaoTestBase{
         GovUkPayAgreementEntity newEntity = new GovUkPayAgreementEntity("someone@example.org", dateTime);
         Optional<ServiceEntity> serviceEntity = serviceDao.findByExternalId(service.getExternalId());
         newEntity.setService(serviceEntity.get());
-        
+
         agreementDao.persist(newEntity);
         List<Map<String, Object>> searchResults = databaseHelper.findGovUkPayAgreementEntity(serviceEntity.get().getId());
         assertThat(searchResults.size(), is(1));
@@ -66,9 +64,11 @@ public class GovUkPayAgreementDaoIT extends DaoTestBase{
 
         GovUkPayAgreementEntity anotherEntity = new GovUkPayAgreementEntity("someone.else@example.org", ZonedDateTime.now());
         anotherEntity.setService(serviceEntity.get());
-        expectedException.expect(RollbackException.class);
-        expectedException.expectMessage("Key (service_id)=(" + serviceEntity.get().getId() + ") already exists.");
-        agreementDao.persist(anotherEntity);
+
+        RollbackException rollbackException = assertThrows(RollbackException.class,
+                () -> agreementDao.persist(anotherEntity));
+
+        assertThat(rollbackException.getMessage(), containsString("Key (service_id)=(" + serviceEntity.get().getId() + ") already exists."));
     }
 
     @Test

@@ -1,16 +1,17 @@
 package uk.gov.pay.adminusers.resources;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.ForgottenPasswordDbFixture.forgottenPasswordDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
@@ -22,7 +23,7 @@ public class ResetPasswordResourceIT extends IntegrationTest {
 
     private int userId;
 
-    @Before
+    @BeforeEach
     public void before() {
         String username = randomUuid();
         String email = username + "@example.com";

@@ -2,8 +2,8 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Service;
 
 import java.util.Map;
@@ -17,7 +17,7 @@ public class ServiceResourceUpdateNameIT extends IntegrationTest {
     
     private String serviceExternalId;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Service service = serviceDbFixture(databaseHelper).insertService();
         serviceExternalId = service.getExternalId();

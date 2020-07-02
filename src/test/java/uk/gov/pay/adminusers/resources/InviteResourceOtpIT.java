@@ -2,8 +2,8 @@ package uk.gov.pay.adminusers.resources;
 
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import io.restassured.response.ValidatableResponse;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.fixtures.InviteDbFixture;
 
 import java.util.List;
@@ -19,10 +19,10 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static org.apache.commons.lang3.RandomStringUtils.random;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 
 public class InviteResourceOtpIT extends IntegrationTest {
@@ -35,7 +35,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
     private static final String TELEPHONE_NUMBER = "+447999999999";
     private static final String PASSWORD = "a-secure-password";
 
-    @Before
+    @BeforeEach
     public void givenAnExistingInvite() {
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
                 .withEmail(EMAIL)

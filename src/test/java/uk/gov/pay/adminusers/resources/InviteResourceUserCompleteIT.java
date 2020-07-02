@@ -1,6 +1,6 @@
 package uk.gov.pay.adminusers.resources;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
