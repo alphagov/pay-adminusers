@@ -1,19 +1,12 @@
 package uk.gov.pay.adminusers.utils.telephonenumber;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class TelephoneNumberUtilityFormatToE164InvalidDataTest {
 
-    private String telephoneNumber;
-
-    public TelephoneNumberUtilityFormatToE164InvalidDataTest(String telephoneNumber) {
-        this.telephoneNumber = telephoneNumber;
-    }
-
-    @Parameterized.Parameters
     public static Object[] data() {
         return new Object[]{
                 null,
@@ -24,9 +17,10 @@ public class TelephoneNumberUtilityFormatToE164InvalidDataTest {
         };
     }
 
-    @Test(expected = RuntimeException.class)
-    public void formatToE164_shouldThrowNumberParseExceptionOnInvalidTelephoneNumber() {
-        TelephoneNumberUtility.formatToE164(telephoneNumber);
+    @ParameterizedTest
+    @MethodSource("data")
+    public void formatToE164_shouldThrowNumberParseExceptionOnInvalidTelephoneNumber(String telephoneNumber) {
+        assertThrows(RuntimeException.class, 
+                () -> TelephoneNumberUtility.formatToE164(telephoneNumber));
     }
-
 }
