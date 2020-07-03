@@ -2,10 +2,10 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.util.List;
@@ -17,7 +17,6 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-@RunWith(JUnitParamsRunner.class)
 public class ServiceUpdateOperationValidatorTest {
 
     private static final String GO_LIVE_STAGE_INVALID_ERROR_MESSAGE = "Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_NAME, ENTERED_ORGANISATION_ADDRESS, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, TERMS_AGREED_STRIPE, TERMS_AGREED_WORLDPAY, TERMS_AGREED_SMARTPAY, TERMS_AGREED_EPDQ, DENIED, LIVE]";
@@ -46,7 +45,7 @@ public class ServiceUpdateOperationValidatorTest {
         shouldFail("service_name/xx", "replace", "example name", "Path [service_name/xx] is invalid");
     }
 
-    private Object[] shouldFailForOperationParams() {
+    private static Object[] shouldFailForOperationParams() {
         return new Object[]{
                 new Object[]{"replace", "gateway_account_ids", List.of(1, 2)},
                 new Object[]{"add", "collect_billing_address", false},
@@ -70,14 +69,14 @@ public class ServiceUpdateOperationValidatorTest {
         };
     }
 
-    @Test
-    @Parameters(method = "shouldFailForOperationParams")
+    @ParameterizedTest
+    @MethodSource("shouldFailForOperationParams")
     public void shouldFailForOperation(String operation, String path, Object value) {
         String expectedErrorMessage = String.format("Operation [%s] is invalid for path [%s]", operation, path);
         shouldFail(path, operation, value, expectedErrorMessage);
     }
 
-    private Object[] replaceShouldFailWhenValueInvalidValueParameters() {
+    private static Object[] replaceShouldFailWhenValueInvalidValueParameters() {
         return new Object[]{
                 new Object[]{"service_name/en", 42, "Field [value] must be a string"},
                 new Object[]{"sector", 42, "Field [value] must be a string"},
@@ -102,14 +101,14 @@ public class ServiceUpdateOperationValidatorTest {
         };
     }
 
-    @Test
-    @Parameters(method = "replaceShouldFailWhenValueInvalidValueParameters")
+    @ParameterizedTest
+    @MethodSource("replaceShouldFailWhenValueInvalidValueParameters")
     public void replaceShouldFailWhenInvalidValue(String path, Object value, String expectedErrorMessage) {
         shouldFail(path, "replace", value, expectedErrorMessage);
     }
 
-    @Test
-    @Parameters({
+    @ParameterizedTest
+    @ValueSource(strings = {
             "redirect_to_service_immediately_on_terminal_state",
             "collect_billing_address",
             "current_go_live_stage",
@@ -137,8 +136,8 @@ public class ServiceUpdateOperationValidatorTest {
         assertThat(errors, hasItem("Field [value] is required"));
     }
 
-    @Test
-    @Parameters({
+    @ParameterizedTest
+    @ValueSource(strings = {
             "redirect_to_service_immediately_on_terminal_state",
             "collect_billing_address",
             "current_go_live_stage",
@@ -167,8 +166,8 @@ public class ServiceUpdateOperationValidatorTest {
         assertThat(errors, hasItem("Field [value] is required"));
     }
 
-    @Test
-    @Parameters({
+    @ParameterizedTest
+    @ValueSource(strings = {
             "service_name/en",
             "current_go_live_stage",
             "merchant_details/name",
@@ -181,7 +180,7 @@ public class ServiceUpdateOperationValidatorTest {
         shouldFail(path, "replace", "", "Field [value] is required");
     }
 
-    private Object[] shouldFailWhenStringValueIsTooLongParameters() {
+    private static Object[] shouldFailWhenStringValueIsTooLongParameters() {
         return new Object[]{
                 new Object[]{"service_name/en", 50},
                 new Object[]{"merchant_details/name", 255},
@@ -196,13 +195,13 @@ public class ServiceUpdateOperationValidatorTest {
         };
     }
 
-    @Test
-    @Parameters(method = "shouldFailWhenStringValueIsTooLongParameters")
+    @ParameterizedTest
+    @MethodSource("shouldFailWhenStringValueIsTooLongParameters")
     public void replaceShouldFailWhenStringValueIsTooLong(String path, int expectedMaxLength) {
         shouldFail(path, "replace", randomAlphanumeric(expectedMaxLength + 1), String.format("Field [value] must have a maximum length of %s characters", expectedMaxLength));
     }
 
-    private Object[] shouldSucceedParams() {
+    private static Object[] shouldSucceedParams() {
         return new Object[]{
                 new Object[]{"add", "gateway_account_ids", List.of(1, 2)},
                 new Object[]{"replace", "redirect_to_service_immediately_on_terminal_state", true},
@@ -226,12 +225,12 @@ public class ServiceUpdateOperationValidatorTest {
                 new Object[]{"replace", "internal", true},
                 new Object[]{"replace", "archived", true},
                 new Object[]{"replace", "went_live_date", "2020-01-01T01:01:00Z"}
-                
+
         };
     }
 
-    @Test
-    @Parameters(method = "shouldSucceedParams")
+    @ParameterizedTest
+    @MethodSource("shouldSucceedParams")
     public void shouldSucceed(String operation, String path, Object value) {
         Map<String, Object> payload = Map.of(
                 "path", path,

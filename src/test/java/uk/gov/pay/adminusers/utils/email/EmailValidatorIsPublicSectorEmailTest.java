@@ -1,8 +1,7 @@
 package uk.gov.pay.adminusers.utils.email;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Collection;
 import java.util.List;
@@ -10,19 +9,8 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-@RunWith(Parameterized.class)
 public class EmailValidatorIsPublicSectorEmailTest {
 
-    private String email;
-
-    private boolean testResult;
-
-    public EmailValidatorIsPublicSectorEmailTest(String email, boolean testResult) {
-        this.email = email;
-        this.testResult = testResult;
-    }
-
-    @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return List.of(new Object[][] {
                 // main validations
@@ -135,8 +123,10 @@ public class EmailValidatorIsPublicSectorEmailTest {
         });
     }
 
-    @Test
-    public void isPublicSectorEmail_shouldEvaluateWhetherOrNotItIsPublicSectorEmail() {
+    @ParameterizedTest
+    @MethodSource("data")
+    public void isPublicSectorEmail_shouldEvaluateWhetherOrNotItIsPublicSectorEmail(
+            String email, boolean testResult) {
         boolean result = EmailValidator.isPublicSectorEmail(email);
         assertThat("Expected " + email + " to be " + (testResult ? "valid" : "invalid"), result, is(testResult));
     }

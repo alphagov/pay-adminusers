@@ -1,24 +1,15 @@
 package uk.gov.pay.adminusers.utils.telephonenumber;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
-@RunWith(Parameterized.class)
 public class TelephoneNumberUtilityFormatToE164ValidUnitedKingdomDataTest {
 
     private static final String TEST_RESULT = "+441134960000";
 
-    private String telephoneNumber;
-
-    public TelephoneNumberUtilityFormatToE164ValidUnitedKingdomDataTest(String telephoneNumber) {
-        this.telephoneNumber = telephoneNumber;
-    }
-
-    @Parameterized.Parameters
     public static Object[] data() {
         return new Object[]{
                 // local format
@@ -47,10 +38,10 @@ public class TelephoneNumberUtilityFormatToE164ValidUnitedKingdomDataTest {
         };
     }
 
-    @Test
-    public void formatToE164_shouldEvaluateToE164FormattedTelephoneNumber() {
+    @ParameterizedTest
+    @MethodSource("data")
+    public void formatToE164_shouldEvaluateToE164FormattedTelephoneNumber(String telephoneNumber) {
         String result = TelephoneNumberUtility.formatToE164(telephoneNumber);
         assertThat(result, is(TEST_RESULT));
     }
-
 }

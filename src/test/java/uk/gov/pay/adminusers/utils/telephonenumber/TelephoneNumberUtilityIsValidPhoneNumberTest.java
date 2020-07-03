@@ -1,28 +1,16 @@
 package uk.gov.pay.adminusers.utils.telephonenumber;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
-@RunWith(Parameterized.class)
 public class TelephoneNumberUtilityIsValidPhoneNumberTest {
 
-    private String telephoneNumber;
-
-    private boolean testResult;
-
-    public TelephoneNumberUtilityIsValidPhoneNumberTest(String telephoneNumber, boolean testResult) {
-        this.telephoneNumber = telephoneNumber;
-        this.testResult = testResult;
-    }
-
-    @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
                 // valid phone numbers: local format
@@ -85,10 +73,11 @@ public class TelephoneNumberUtilityIsValidPhoneNumberTest {
         });
     }
 
-    @Test
-    public void isValidPhoneNumber_shouldEvaluateWhetherOrNotItIsValidPhoneNumber() {
+    @ParameterizedTest
+    @MethodSource("data")
+    public void isValidPhoneNumber_shouldEvaluateWhetherOrNotItIsValidPhoneNumber(
+            String telephoneNumber, boolean testResult) {
         boolean result = TelephoneNumberUtility.isValidPhoneNumber(telephoneNumber);
         assertThat("Expected " + telephoneNumber + " to be " + (testResult ? "valid" : "invalid"), result, is(testResult));
     }
-
 }
