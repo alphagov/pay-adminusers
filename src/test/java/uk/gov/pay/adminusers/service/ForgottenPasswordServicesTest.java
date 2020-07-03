@@ -1,9 +1,8 @@
 package uk.gov.pay.adminusers.service;
 
+import org.hamcrest.MatcherAssert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -26,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.eq;
@@ -38,9 +38,6 @@ import static org.mockito.Mockito.when;
 public class ForgottenPasswordServicesTest {
 
     private static final String SELFSERVICE_URL = "http://selfservice";
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Mock
     private ForgottenPasswordDao forgottenPasswordDao;
@@ -111,10 +108,9 @@ public class ForgottenPasswordServicesTest {
         String nonExistentUser = "non-existent-user";
         when(userDao.findByUsername(nonExistentUser)).thenReturn(Optional.empty());
 
-        expectedException.expect(WebApplicationException.class);
-        expectedException.expectMessage(is("HTTP 404 Not Found"));
-
-        forgottenPasswordServices.create(nonExistentUser);
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> forgottenPasswordServices.create(nonExistentUser));
+        assertThat(exception.getMessage(), is("HTTP 404 Not Found"));
     }
 
     @Test

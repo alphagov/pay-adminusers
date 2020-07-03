@@ -1,9 +1,8 @@
 package uk.gov.pay.adminusers.service;
 
+import org.hamcrest.MatcherAssert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -34,7 +33,8 @@ import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,9 +49,6 @@ public class ServiceInviteCompleterTest {
     private UserDao mockUserDao;
     @Mock
     private InviteDao mockInviteDao;
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private InviteCompleter serviceInviteCompleter;
     private ArgumentCaptor<UserEntity> expectedInvitedUser = ArgumentCaptor.forClass(UserEntity.class);
@@ -150,9 +147,9 @@ public class ServiceInviteCompleterTest {
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
         when(mockUserDao.findByEmail(anInvite.getEmail())).thenReturn(Optional.of(mock(UserEntity.class)));
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 409 Conflict");
-        serviceInviteCompleter.complete(anInvite.getCode());
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> serviceInviteCompleter.complete(anInvite.getCode()));
+        assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
     }
 
     @Test
@@ -166,9 +163,9 @@ public class ServiceInviteCompleterTest {
 
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 410 Gone");
-        serviceInviteCompleter.complete(anInvite.getCode());
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> serviceInviteCompleter.complete(anInvite.getCode()));
+        assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
     @Test
@@ -182,9 +179,9 @@ public class ServiceInviteCompleterTest {
 
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 410 Gone");
-        serviceInviteCompleter.complete(anInvite.getCode());
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> serviceInviteCompleter.complete(anInvite.getCode()));
+        assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
     @Test
@@ -198,9 +195,9 @@ public class ServiceInviteCompleterTest {
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 500 Internal Server Error");
-        serviceInviteCompleter.complete(anInvite.getCode());
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> serviceInviteCompleter.complete(anInvite.getCode()));
+        assertThat(exception.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 
     private InviteEntity createInvite() {

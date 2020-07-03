@@ -1,9 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -44,9 +42,6 @@ public class ExistingUserOtpDispatcherTest {
     private NotificationService notificationService;
     @Mock
     private SecondFactorAuthenticator secondFactorAuthenticator;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     private ExistingUserOtpDispatcher existingUserOtpDispatcher;
 

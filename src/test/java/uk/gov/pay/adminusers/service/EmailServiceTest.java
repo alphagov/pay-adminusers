@@ -1,9 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -22,7 +20,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -55,9 +54,6 @@ public class EmailServiceTest {
 
     @Mock
     private CountryConverter mockCountryConverter;
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private final static String EMAIL_ADDRESS = "aaa@bbb.test";
     private final static String GATEWAY_ACCOUNT_ID = "DIRECT_DEBIT:sfksdjweg45w";
@@ -286,11 +282,11 @@ public class EmailServiceTest {
         );
 
         given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
-        thrown.expect(InvalidMerchantDetailsException.class);
-        thrown.expectMessage("Merchant details are missing mandatory fields: can't send email for account " + GATEWAY_ACCOUNT_ID);
-        thrown.reportMissingExceptionWithMessage("InvalidMerchantDetailsException expected");
 
-        emailService.sendEmail(EMAIL_ADDRESS, GATEWAY_ACCOUNT_ID, template, personalisation);
+        InvalidMerchantDetailsException exception = assertThrows(InvalidMerchantDetailsException.class,
+                () -> emailService.sendEmail(EMAIL_ADDRESS, GATEWAY_ACCOUNT_ID, template, personalisation));
+
+        assertThat(exception.getMessage(), is("Merchant details are missing mandatory fields: can't send email for account " + GATEWAY_ACCOUNT_ID));
     }
 
     @Test

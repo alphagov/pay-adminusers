@@ -1,9 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -24,6 +22,7 @@ import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -31,7 +30,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-
 public class StripeAgreementServiceTest {
     
     @Mock
@@ -42,9 +40,6 @@ public class StripeAgreementServiceTest {
 
     @Captor
     private ArgumentCaptor<StripeAgreementEntity> stripeAgreementEntityArgumentCaptor;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     private StripeAgreementService stripeAgreementService;
 
@@ -93,28 +88,28 @@ public class StripeAgreementServiceTest {
     }
 
     @Test
-    public void shouldThrowException_whenServiceDoesNotExist() throws UnknownHostException {
+    public void shouldThrowException_whenServiceDoesNotExist() {
         String serviceExternalId = "abc123";
         when(mockedServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.empty());
-        
-        expectedException.expect(ServiceNotFoundException.class);
-        
-        stripeAgreementService.doCreate(serviceExternalId, InetAddress.getByName("192.0.2.0"));
+
+        assertThrows(ServiceNotFoundException.class,
+                () -> stripeAgreementService.doCreate(serviceExternalId, InetAddress.getByName("192.0.2.0")));
     }
-    
+
     @Test
     public void shouldThrowException_whenStripeAgreementAlreadyExists() throws UnknownHostException {
         String serviceExternalId = "abc123";
 
         ServiceEntity mockServiceEntity = mock(ServiceEntity.class);
         when(mockedServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.of(mockServiceEntity));
-        
+
         StripeAgreementEntity mockStripeAgreementEntity = mock(StripeAgreementEntity.class);
         when(mockedStripeAgreementDao.findByServiceExternalId(serviceExternalId)).thenReturn(Optional.of(mockStripeAgreementEntity));
 
-        expectedException.expect(StripeAgreementExistsException.class);
-        expectedException.expectMessage("Stripe agreement information is already stored for this service");
+        StripeAgreementExistsException exception = assertThrows(StripeAgreementExistsException.class,
+                () -> stripeAgreementService.doCreate(serviceExternalId, InetAddress.getByName("192.0.2.0")));
 
-        stripeAgreementService.doCreate(serviceExternalId, InetAddress.getByName("192.0.2.0"));
+        assertThat(exception.getMessage(),
+                is("Stripe agreement information is already stored for this service"));
     }
 }

@@ -3,9 +3,7 @@ package uk.gov.pay.adminusers.service;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
@@ -35,10 +33,11 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.matches;
@@ -66,9 +65,6 @@ public class UserInviteCreatorTest {
     private AdminUsersConfig mockConfig = mock(AdminUsersConfig.class);
     private NotificationService mockNotificationService = mock(NotificationService.class);
     private LinksConfig linksConfig = mock(LinksConfig.class);
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private UserInviteCreator userInviteCreator;
     private ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
@@ -156,10 +152,10 @@ public class UserInviteCreatorTest {
 
         when(mockInviteDao.findByEmail(email)).thenReturn(List.of(anInvite));
         InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 409 Conflict");
 
-        userInviteCreator.doInvite(inviteUserRequest);
+        WebApplicationException webApplicationException = assertThrows(WebApplicationException.class, ()
+                -> userInviteCreator.doInvite(inviteUserRequest));
+        assertThat(webApplicationException.getMessage(), is("HTTP 409 Conflict"));
     }
 
     @Test
@@ -179,10 +175,9 @@ public class UserInviteCreatorTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(existingUser));
 
         InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 412 Precondition Failed");
-
-        userInviteCreator.doInvite(inviteUserRequest);
+        WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
+                () -> userInviteCreator.doInvite(inviteUserRequest));
+        assertThat(webApplicationException.getMessage(), is("HTTP 412 Precondition Failed"));
     }
 
     @Test
@@ -211,9 +206,9 @@ public class UserInviteCreatorTest {
         inviteEntity.getSender().getServicesRoles().clear();
 
         InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 403 Forbidden");
-        userInviteCreator.doInvite(inviteUserRequest);
+        WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
+                () -> userInviteCreator.doInvite(inviteUserRequest));
+        assertThat(webApplicationException.getMessage(), is("HTTP 403 Forbidden"));
     }
 
     @Test
@@ -353,7 +348,7 @@ public class UserInviteCreatorTest {
 
     private User aUser(String email) {
         Service service = Service.from(serviceId, serviceExternalId, new ServiceName(Service.DEFAULT_NAME_VALUE));
-        ServiceRole serviceRole = ServiceRole.from(service, role(ADMIN.getId(),"Admin", "Administrator"));
+        ServiceRole serviceRole = ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"));
         return User.from(randomInt(), randomUuid(), "a-username", "random-password", email,
                 "784rh", "8948924", Collections.singletonList(serviceRole), null,
                 SecondFactorMethod.SMS, null, null, null);

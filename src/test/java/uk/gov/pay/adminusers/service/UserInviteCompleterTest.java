@@ -1,9 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -28,8 +26,9 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Optional;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
@@ -44,9 +43,6 @@ public class UserInviteCompleterTest {
     private UserDao mockUserDao;
     @Mock
     private InviteDao mockInviteDao;
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private InviteCompleter userInviteCompleter;
 
@@ -90,7 +86,6 @@ public class UserInviteCompleterTest {
         assertThat(persistedUser.getValue().getServicesRole(service.getExternalId()).isPresent(), is(true));
     }
 
-
     @Test
     public void shouldError_whenSubscribingAServiceToAnExistingUser_ifServiceIsNull() {
 
@@ -106,9 +101,9 @@ public class UserInviteCompleterTest {
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(user));
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 500 Internal Server Error");
-        userInviteCompleter.complete(inviteCode);
+        WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
+                () -> userInviteCompleter.complete(inviteCode));
+        assertThat(webApplicationException.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 
     @Test
@@ -126,10 +121,9 @@ public class UserInviteCompleterTest {
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(user));
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 500 Internal Server Error");
-        userInviteCompleter.complete(inviteCode);
-
+        WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
+                () -> userInviteCompleter.complete(inviteCode));
+        assertThat(webApplicationException.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 
 
@@ -141,9 +135,9 @@ public class UserInviteCompleterTest {
 
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 410 Gone");
-        userInviteCompleter.complete(anInvite.getCode());
+        WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
+                () -> userInviteCompleter.complete(inviteCode));
+        assertThat(webApplicationException.getMessage(), is("HTTP 410 Gone"));
     }
 
     @Test
@@ -154,9 +148,9 @@ public class UserInviteCompleterTest {
 
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 410 Gone");
-        userInviteCompleter.complete(anInvite.getCode());
+        WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
+                () -> userInviteCompleter.complete(inviteCode));
+        assertThat(webApplicationException.getMessage(), is("HTTP 410 Gone"));
     }
 
     @Test
@@ -167,9 +161,9 @@ public class UserInviteCompleterTest {
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 500 Internal Server Error");
-        userInviteCompleter.complete(anInvite.getCode());
+        WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
+                () -> userInviteCompleter.complete(inviteCode));
+        assertThat(webApplicationException.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 
     private InviteEntity createInvite() {

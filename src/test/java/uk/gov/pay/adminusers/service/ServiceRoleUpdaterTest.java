@@ -1,9 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -30,6 +28,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
@@ -45,9 +44,6 @@ public class ServiceRoleUpdaterTest {
     private RoleDao roleDao;
     @Mock
     private ServiceDao serviceDao;
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private ServiceRoleUpdater serviceRoleUpdater;
 
@@ -73,9 +69,9 @@ public class ServiceRoleUpdaterTest {
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID))));
         when(roleDao.findByRoleName(randomRole)).thenReturn(Optional.empty());
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 400 Bad Request");
-        serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, randomUuid(), randomRole);
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, randomUuid(), randomRole));
+        assertThat(exception.getMessage(), is("HTTP 400 Bad Request"));
     }
 
     @Test
@@ -84,9 +80,9 @@ public class ServiceRoleUpdaterTest {
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID))));
         when(roleDao.findByRoleName(role)).thenReturn(Optional.of(new RoleEntity(aRole(1, role))));
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 409 Conflict");
-        serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, randomUuid(), role);
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, randomUuid(), role));
+        assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
     }
 
     @Test
@@ -108,9 +104,9 @@ public class ServiceRoleUpdaterTest {
         when(roleDao.findByRoleName(role)).thenReturn(Optional.of(targetRoleEntity));
         when(serviceDao.countOfUsersWithRoleForService(serviceExternalId, ADMIN.getId())).thenReturn(1L);
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 412 Precondition Failed");
-        serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, serviceExternalId, role);
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> serviceRoleUpdater.doUpdate(EXISTING_USER_EXTERNAL_ID, serviceExternalId, role));
+        assertThat(exception.getMessage(), is("HTTP 412 Precondition Failed"));
     }
 
     @Test

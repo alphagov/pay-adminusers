@@ -1,9 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
@@ -26,6 +24,7 @@ import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.matches;
@@ -35,8 +34,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 public class ServiceInviteCreatorTest {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     private NotificationService notificationService = mock(NotificationService.class);
     private LinksConfig linksConfig = mock(LinksConfig.class);
     private InviteDao inviteDao = mock(InviteDao.class);
@@ -166,11 +163,9 @@ public class ServiceInviteCreatorTest {
         when(notificationService.sendServiceInviteUserExistsEmail(eq(email), anyString(), anyString(), anyString()))
                 .thenReturn("done");
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 409 Conflict");
-
-        serviceInviteCreator.doInvite(request);
-
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> serviceInviteCreator.doInvite(request));
+        assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
     }
 
     @Test
@@ -184,11 +179,9 @@ public class ServiceInviteCreatorTest {
         when(notificationService.sendServiceInviteUserDisabledEmail(eq(email), anyString()))
                 .thenReturn("done");
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 409 Conflict");
-
-        serviceInviteCreator.doInvite(request);
-
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> serviceInviteCreator.doInvite(request));
+        assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
     }
 
     @Test
@@ -199,9 +192,8 @@ public class ServiceInviteCreatorTest {
         when(inviteDao.findByEmail(email)).thenReturn(emptyList());
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.empty());
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 500 Internal Server Error");
-
-        serviceInviteCreator.doInvite(request);
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> serviceInviteCreator.doInvite(request));
+        assertThat(exception.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 }

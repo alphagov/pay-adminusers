@@ -2,20 +2,17 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
 
 public class EmailRequestParserTest {
 
     private ObjectMapper objectMapper = new ObjectMapper();
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private EmailRequestParser parser;
 
@@ -55,9 +52,8 @@ public class EmailRequestParserTest {
                         "field 2", "theValueOfField2"
                 )
         );
-        thrown.expect(InvalidEmailRequestException.class);
-        thrown.expectMessage("Error while parsing email request body");
-        thrown.reportMissingExceptionWithMessage("InvalidEmailRequestException expected");
-        parser.parse(objectMapper.valueToTree(body));
+        InvalidEmailRequestException exception = assertThrows(InvalidEmailRequestException.class,
+                () -> parser.parse(objectMapper.valueToTree(body)));
+        assertThat(exception.getMessage(), is("Error while parsing email request body"));
     }
 }

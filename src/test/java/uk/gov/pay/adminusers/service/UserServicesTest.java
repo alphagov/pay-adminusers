@@ -3,9 +3,7 @@ package uk.gov.pay.adminusers.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -66,9 +64,6 @@ public class UserServicesTest {
     private SecondFactorAuthenticator secondFactorAuthenticator;
     @Captor
     private ArgumentCaptor<UserEntity> userEntityArgumentCaptor;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     private UserServices userServices;
 

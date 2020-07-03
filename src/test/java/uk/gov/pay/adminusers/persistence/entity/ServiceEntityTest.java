@@ -7,7 +7,7 @@ import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ServiceEntityTest {
 
