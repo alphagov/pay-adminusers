@@ -5,6 +5,7 @@ import uk.gov.pay.adminusers.model.InviteType;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThrows;
 
 public class InviteTypeConverterTest {
 
@@ -26,7 +27,7 @@ public class InviteTypeConverterTest {
     public void userStringConvertToEntityAttributeReturnsUserEnumConstant() {
         InviteType entityAttribute = inviteTypeConverter.convertToEntityAttribute("user");
         assertThat(entityAttribute, is(InviteType.USER));
-    }   
+    }
 
     @Test
     public void serviceStringConvertToEntityAttributeReturnsServiceEnumConstant() {
@@ -34,8 +35,9 @@ public class InviteTypeConverterTest {
         assertThat(entityAttribute, is(InviteType.SERVICE));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void unhandledStringConvertToEntityAttributeThrowsException() {
-        inviteTypeConverter.convertToEntityAttribute("Someone went wild in the DB!");
+        assertThrows(RuntimeException.class, () ->
+                inviteTypeConverter.convertToEntityAttribute("Someone went wild in the DB!"));
     }
 }

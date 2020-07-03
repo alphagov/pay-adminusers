@@ -10,16 +10,17 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThrows;
 
 public class ServiceNameTest {
 
     private static final String ENGLISH_SERVICE_NAME = "Apply for your licence";
     private static final String WELSH_SERVICE_NAME = "Gwneud cais am eich trwydded";
-    
+
     @Test
     public void shouldCreateWithJustEnglishServiceName() {
         ServiceName serviceName = new ServiceName(ENGLISH_SERVICE_NAME);
-        
+
         assertThat(serviceName.getEnglish(), is(ENGLISH_SERVICE_NAME));
         assertThat(serviceName.getEnglishAndTranslations().size(), is(1));
         assertThat(serviceName.getEnglishAndTranslations().get(SupportedLanguage.ENGLISH), is(ENGLISH_SERVICE_NAME));
@@ -55,14 +56,15 @@ public class ServiceNameTest {
         assertThat(serviceName.getEnglishAndTranslations().get(SupportedLanguage.WELSH), is(nullValue()));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldThrowIfNullEnglishServiceName() {
-        new ServiceName(null);
+        assertThrows(NullPointerException.class, () -> new ServiceName(null));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowIfEnglishServiceNameIncludedInMap() {
-        new ServiceName(ENGLISH_SERVICE_NAME, Map.of(SupportedLanguage.WELSH, WELSH_SERVICE_NAME, SupportedLanguage.ENGLISH, ENGLISH_SERVICE_NAME));
+        assertThrows(IllegalArgumentException.class, () ->
+                new ServiceName(ENGLISH_SERVICE_NAME, Map.of(SupportedLanguage.WELSH, WELSH_SERVICE_NAME, SupportedLanguage.ENGLISH, ENGLISH_SERVICE_NAME)));
     }
 
     @Test
@@ -107,16 +109,18 @@ public class ServiceNameTest {
         assertThat(serviceName.getEnglishAndTranslations().get(SupportedLanguage.WELSH), is(nullValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowIfWhenConvertingFromServiceNameEntitiesIfNoEnglishServiceName() {
-        ServiceName.from(List.of(ServiceNameEntity.from(SupportedLanguage.WELSH, "  ")));
+        assertThrows(IllegalArgumentException.class, () ->
+                ServiceName.from(List.of(ServiceNameEntity.from(SupportedLanguage.WELSH, "  "))));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void shouldReturnUnmodifiableMap() {
         ServiceName serviceName = new ServiceName(ENGLISH_SERVICE_NAME, Map.of(SupportedLanguage.WELSH, WELSH_SERVICE_NAME));
 
-        serviceName.getEnglishAndTranslations().put(SupportedLanguage.WELSH, "Sneakily try to add something");
+        assertThrows(UnsupportedOperationException.class, () ->
+                serviceName.getEnglishAndTranslations().put(SupportedLanguage.WELSH, "Sneakily try to add something"));
     }
-    
+
 }

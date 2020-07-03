@@ -29,6 +29,7 @@ import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.hasValue;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -150,11 +151,12 @@ public class ServiceCreatorTest {
         assertSelfLink(service);
     }
 
-    @Test(expected = WebApplicationException.class)
+    @Test
     public void shouldFail_whenProvidedAConflictingGatewayID() {
         List<String> gatewayAccountsIds = List.of("3");
         when(mockedServiceDao.checkIfGatewayAccountsUsed(gatewayAccountsIds)).thenReturn(true);
-        serviceCreator.doCreate(gatewayAccountsIds, Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
+        assertThrows(WebApplicationException.class, () ->
+                serviceCreator.doCreate(gatewayAccountsIds, Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)));
     }
 
     private void assertEnServiceNameMap(Service service, String serviceName) {
