@@ -16,6 +16,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThrows;
 
 public class InviteUserRequestValidatorTest {
 
@@ -308,11 +309,11 @@ public class InviteUserRequestValidatorTest {
         assertThat(errors.get().getErrors().size(),is(1));
     }
 
-    @Test(expected = WebApplicationException.class)
+    @Test
     public void shouldFail_ifEmailAddressNotPublicSector() {
         Map<String, String> payload = Map.of( "email", "example@example.com","telephone_number", "01134960000", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
-        validator.validateCreateServiceRequest(payloadNode);
+        assertThrows(WebApplicationException.class, () -> validator.validateCreateServiceRequest(payloadNode));
     }
 
     @Test

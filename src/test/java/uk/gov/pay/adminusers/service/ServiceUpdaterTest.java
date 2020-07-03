@@ -28,6 +28,7 @@ import static java.util.Optional.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.ignoreStubs;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -79,7 +80,7 @@ public class ServiceUpdaterTest {
         verify(serviceDao).merge(serviceEntity);
     }
 
-    @Test(expected = ServiceNotFoundException.class)
+    @Test
     public void shouldError_updateMerchantDetails_whenServiceNotFound() throws ServiceNotFoundException {
         String name = "name";
         String telephoneNumber = "03069990000";
@@ -98,7 +99,8 @@ public class ServiceUpdaterTest {
         when(serviceDao.findByExternalId(NON_EXISTENT_SERVICE_EXTERNAL_ID)).thenReturn(Optional.empty());
         when(serviceEntity.toService()).thenReturn(Service.from());
 
-        updater.doUpdateMerchantDetails(NON_EXISTENT_SERVICE_EXTERNAL_ID, request);
+        assertThrows(ServiceNotFoundException.class, () ->
+                updater.doUpdateMerchantDetails(NON_EXISTENT_SERVICE_EXTERNAL_ID, request));
     }
 
     @Test
@@ -155,7 +157,7 @@ public class ServiceUpdaterTest {
         verify(serviceDao).merge(serviceEntity);
     }
 
-    @Test(expected = WebApplicationException.class)
+    @Test
     public void shouldError_IfAGatewayAccountAlreadyAssignedToAService() {
         ServiceUpdateRequest request = mock(ServiceUpdateRequest.class);
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
@@ -166,9 +168,8 @@ public class ServiceUpdaterTest {
         when(serviceDao.findByExternalId(SERVICE_ID)).thenReturn(of(serviceEntity));
         when(serviceDao.checkIfGatewayAccountsUsed(gatewayAccountIdsToUpdate)).thenReturn(true);
 
-        Optional<Service> maybeService = updater.doUpdate(SERVICE_ID, request);
+        assertThrows(WebApplicationException.class, () -> updater.doUpdate(SERVICE_ID, request));
 
-        assertThat(maybeService.isPresent(), is(false));
         verify(serviceEntity, times(0)).addGatewayAccountIds(gatewayAccountIdsToUpdate.toArray(new String[0]));
         verify(serviceDao, times(0)).merge(serviceEntity);
     }
