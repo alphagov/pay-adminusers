@@ -1,9 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -26,6 +24,7 @@ import java.util.Optional;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,8 +33,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class UserCreatorTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
     @Mock
     private UserDao mockUserDao;
     @Mock
@@ -135,8 +132,8 @@ public class UserCreatorTest {
         when(mockRoleDao.findByRoleName(validRole)).thenReturn(Optional.empty());
         CreateUserRequest request = CreateUserRequest.from("email@example.com", "password", "email@example.com", null, null, "otpKey", "3745838475", null);
 
-        expectedException.expect(WebApplicationException.class);
-        expectedException.expectMessage("HTTP 400 Bad Request");
-        userCreator.doCreate(request, validRole);
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> userCreator.doCreate(request, validRole));
+        assertThat(exception.getMessage(), is("HTTP 400 Bad Request"));
     }
 }

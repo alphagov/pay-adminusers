@@ -5,7 +5,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(Parameterized.class)
 public class TelephoneNumberUtilityFormatToE164ValidUnitedKingdomDataTest {

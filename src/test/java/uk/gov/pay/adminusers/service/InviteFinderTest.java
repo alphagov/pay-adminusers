@@ -1,9 +1,8 @@
 package uk.gov.pay.adminusers.service;
 
+import org.hamcrest.MatcherAssert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -20,7 +19,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -34,9 +34,6 @@ public class InviteFinderTest {
     private InviteDao mockInviteDao;
 
     private InviteFinder inviteFinder;
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void before() {
@@ -80,10 +77,9 @@ public class InviteFinderTest {
         Optional<InviteEntity> inviteEntityOptional = Optional.of(inviteEntity);
         when(mockInviteDao.findByCode(code)).thenReturn(inviteEntityOptional);
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 410 Gone");
-        inviteFinder.find(code);
-
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> inviteFinder.find(code));
+        assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
     @Test
@@ -95,10 +91,9 @@ public class InviteFinderTest {
         Optional<InviteEntity> inviteEntityOptional = Optional.of(inviteEntity);
         when(mockInviteDao.findByCode(code)).thenReturn(inviteEntityOptional);
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 410 Gone");
-        inviteFinder.find(code);
-
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> inviteFinder.find(code));
+        assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
     @Test

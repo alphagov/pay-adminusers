@@ -38,5 +38,4 @@ public class InviteTypeConverterTest {
     public void unhandledStringConvertToEntityAttributeThrowsException() {
         inviteTypeConverter.convertToEntityAttribute("Someone went wild in the DB!");
     }
-
 }

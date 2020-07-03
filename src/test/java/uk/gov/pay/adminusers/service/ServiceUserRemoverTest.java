@@ -1,9 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -18,10 +16,11 @@ import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
 
 import static org.apache.commons.lang3.RandomStringUtils.random;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
@@ -29,8 +28,6 @@ import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 public class ServiceUserRemoverTest {
 
     private ServiceUserRemover service;
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
     @Mock
     private UserDao mockUserDao;
 
@@ -69,13 +66,11 @@ public class ServiceUserRemoverTest {
 
         when(mockUserDao.findByExternalId(userExternalId)).thenReturn(Optional.empty());
 
-        expectedException.expect(WebApplicationException.class);
-        expectedException.expectMessage(is("HTTP 404 Not Found"));
-
-        service.remove(userExternalId, "any-remover-ext-id", serviceExternalId);
-
-        verifyZeroInteractions(mockServiceRoleDao);
-        verifyNoMoreInteractions(mockUserDao);
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> service.remove(userExternalId, "any-remover-ext-id", serviceExternalId));
+        assertThat(exception.getMessage(), is("HTTP 404 Not Found"));
+        verifyNoInteractions(mockServiceRoleDao);
+        verify(mockUserDao).findByExternalId(userExternalId);
     }
 
     @Test
@@ -90,13 +85,12 @@ public class ServiceUserRemoverTest {
 
         when(mockUserDao.findByExternalId(userExternalId)).thenReturn(Optional.of(userToRemoveBelongsToOtherService));
 
-        expectedException.expect(WebApplicationException.class);
-        expectedException.expectMessage(is("HTTP 404 Not Found"));
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> service.remove(userExternalId, aRemoverExternalId, serviceExternalId));
+        assertThat(exception.getMessage(), is("HTTP 404 Not Found"));
 
-        service.remove(userExternalId, aRemoverExternalId, serviceExternalId);
-
-        verifyZeroInteractions(mockServiceRoleDao);
-        verifyNoMoreInteractions(mockUserDao);
+        verifyNoInteractions(mockServiceRoleDao);
+        verify(mockUserDao).findByExternalId(userExternalId);
     }
 
     @Test
@@ -111,12 +105,11 @@ public class ServiceUserRemoverTest {
         when(mockUserDao.findByExternalId(userExternalId)).thenReturn(Optional.of(userToBeRemoved));
         when(mockUserDao.findByExternalId(removerExternalId)).thenReturn(Optional.empty());
 
-        expectedException.expect(WebApplicationException.class);
-        expectedException.expectMessage(is("HTTP 403 Forbidden"));
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> service.remove(userExternalId, removerExternalId, serviceExternalId));
+        assertThat(exception.getMessage(), is("HTTP 403 Forbidden"));
 
-        service.remove(userExternalId, removerExternalId, serviceExternalId);
-
-        verifyZeroInteractions(mockServiceRoleDao);
+        verifyNoInteractions(mockServiceRoleDao);
     }
 
     @Test
@@ -133,12 +126,11 @@ public class ServiceUserRemoverTest {
         when(mockUserDao.findByExternalId(userExternalId)).thenReturn(Optional.of(userToBeRemoved));
         when(mockUserDao.findByExternalId(removerExternalId)).thenReturn(Optional.of(removerAsAdminOfOtherService));
 
-        expectedException.expect(WebApplicationException.class);
-        expectedException.expectMessage(is("HTTP 403 Forbidden"));
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> service.remove(userExternalId, removerExternalId, serviceExternalId));
+        assertThat(exception.getMessage(), is("HTTP 403 Forbidden"));
 
-        service.remove(userExternalId, removerExternalId, serviceExternalId);
-
-        verifyZeroInteractions(mockServiceRoleDao);
+        verifyNoInteractions(mockServiceRoleDao);
     }
 
     @Test
@@ -154,12 +146,11 @@ public class ServiceUserRemoverTest {
         when(mockUserDao.findByExternalId(userExternalId)).thenReturn(Optional.of(userToBeRemoved));
         when(mockUserDao.findByExternalId(removerExternalId)).thenReturn(Optional.of(removerAsNoAdminOfService));
 
-        expectedException.expect(WebApplicationException.class);
-        expectedException.expectMessage(is("HTTP 403 Forbidden"));
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> service.remove(userExternalId, removerExternalId, serviceExternalId));
+        assertThat(exception.getMessage(), is("HTTP 403 Forbidden"));
 
-        service.remove(userExternalId, removerExternalId, serviceExternalId);
-
-        verifyZeroInteractions(mockServiceRoleDao);
+        verifyNoInteractions(mockServiceRoleDao);
     }
 
     private UserEntity createUser(String externalId, ServiceRoleEntity serviceRole) {

@@ -1,9 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -27,6 +25,7 @@ import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
@@ -39,9 +38,6 @@ public class ServiceRoleCreatorTest {
     private RoleDao roleDao;
     @Mock
     private ServiceDao serviceDao;
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private ServiceRoleCreator serviceRoleCreator;
 
@@ -84,10 +80,9 @@ public class ServiceRoleCreatorTest {
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID))));
         when(serviceDao.findByExternalId(EXISTING_SERVICE_EXTERNAL_ID)).thenReturn(Optional.empty());
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 400 Bad Request");
-        serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, EXISTING_ROLE_NAME);
-
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, EXISTING_ROLE_NAME));
+        assertThat(exception.getMessage(), is("HTTP 400 Bad Request"));
     }
 
     @Test
@@ -102,10 +97,9 @@ public class ServiceRoleCreatorTest {
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(userEntity));
         when(roleDao.findByRoleName(EXISTING_ROLE_NAME)).thenReturn(Optional.of(roleEntity));
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 409 Conflict");
-        serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, EXISTING_ROLE_NAME);
-
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, EXISTING_ROLE_NAME));
+        assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
     }
 
     @Test
@@ -114,10 +108,9 @@ public class ServiceRoleCreatorTest {
         when(serviceDao.findByExternalId(EXISTING_SERVICE_EXTERNAL_ID)).thenReturn(Optional.of(ServiceEntity.from(aService(EXISTING_SERVICE_EXTERNAL_ID))));
         when(roleDao.findByRoleName(EXISTING_ROLE_NAME)).thenReturn(Optional.empty());
 
-        thrown.expect(WebApplicationException.class);
-        thrown.expectMessage("HTTP 400 Bad Request");
-        serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, EXISTING_ROLE_NAME);
-
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, EXISTING_ROLE_NAME));
+        assertThat(exception.getMessage(), is("HTTP 400 Bad Request"));
     }
 
     private Service aService(String serviceExternalId) {

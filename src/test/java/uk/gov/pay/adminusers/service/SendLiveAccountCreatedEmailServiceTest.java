@@ -1,9 +1,8 @@
 package uk.gov.pay.adminusers.service;
 
+import org.hamcrest.MatcherAssert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -18,15 +17,13 @@ import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SendLiveAccountCreatedEmailServiceTest {
-    
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
     
     @Mock
     private GovUkPayAgreementDao mockGovUkPayAgreementDao;
@@ -71,9 +68,8 @@ public class SendLiveAccountCreatedEmailServiceTest {
         
         when(mockGovUkPayAgreementDao.findByExternalServiceId(serviceExternalId)).thenReturn(Optional.empty());
 
-        expectedException.expect(GovUkPayAgreementNotSignedException.class);
-        expectedException.expectMessage(is("Nobody from this service is on record as having agreed to the legal terms"));
-        
-        sendLiveAccountCreatedEmailService.sendEmail(serviceExternalId);
+        GovUkPayAgreementNotSignedException exception = assertThrows(GovUkPayAgreementNotSignedException.class,
+                () -> sendLiveAccountCreatedEmailService.sendEmail(serviceExternalId));
+        assertThat(exception.getMessage(), is("Nobody from this service is on record as having agreed to the legal terms"));
     }
 }

@@ -1,10 +1,9 @@
 package uk.gov.pay.adminusers.service;
 
 import com.warrenstrange.googleauth.GoogleAuthenticatorConfig;
+import org.hamcrest.MatcherAssert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -14,17 +13,16 @@ import java.time.Duration;
 import java.time.Instant;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecondFactorAuthenticatorTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private static final String SECRET = "mysecret";
     private static final String BASE32_ENCODED_SECRET = "KPWXGUTNWOE7PMVK";
@@ -124,10 +122,9 @@ public class SecondFactorAuthenticatorTest {
 
     @Test
     public void shouldError_IfPasscodeIsNull_WhenCreate() {
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("supplied a null/empty otpKey for second factor");
-
-        secondFactorAuthenticator.newPassCode(null);
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> secondFactorAuthenticator.newPassCode(null));
+        assertThat(exception.getMessage(), is("supplied a null/empty otpKey for second factor"));
     }
 
     @Test

@@ -14,7 +14,7 @@ import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.hamcrest.core.IsIterableContaining.hasItem;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
