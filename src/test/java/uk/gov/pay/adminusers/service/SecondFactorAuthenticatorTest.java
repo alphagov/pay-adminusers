@@ -1,12 +1,11 @@
 package uk.gov.pay.adminusers.service;
 
 import com.warrenstrange.googleauth.GoogleAuthenticatorConfig;
-import org.hamcrest.MatcherAssert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -16,12 +15,13 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SecondFactorAuthenticatorTest {
 
     private static final String SECRET = "mysecret";
@@ -44,10 +44,10 @@ public class SecondFactorAuthenticatorTest {
 
     private SecondFactorAuthenticator secondFactorAuthenticator;
 
-    @Before
+    @BeforeEach
     public void before() {
         initialTime = Instant.now();
-        when(clock.millis()).thenReturn(initialTime.toEpochMilli());
+        lenient().when(clock.millis()).thenReturn(initialTime.toEpochMilli());
         secondFactorAuthenticator = new SecondFactorAuthenticator(AUTH_CONFIG, clock);
     }
 

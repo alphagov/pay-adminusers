@@ -1,8 +1,8 @@
 package uk.gov.pay.adminusers.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -12,7 +12,7 @@ public class CountryConverterTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private CountryConverter countryConverter;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         this.countryConverter = new CountryConverter(
                 objectMapper);

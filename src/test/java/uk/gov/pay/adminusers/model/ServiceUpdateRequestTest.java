@@ -3,8 +3,8 @@ package uk.gov.pay.adminusers.model;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -19,7 +19,7 @@ public class ServiceUpdateRequestTest {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    @Before
+    @BeforeEach
     public void before() {
         objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
     }

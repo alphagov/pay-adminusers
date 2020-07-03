@@ -2,8 +2,8 @@ package uk.gov.pay.adminusers.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +18,7 @@ public class ErrorsTest {
 
     private ObjectMapper mapper;
 
-    @Before
+    @BeforeEach
     public void before() {
         mapper = new ObjectMapper();
     }

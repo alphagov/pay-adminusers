@@ -1,6 +1,6 @@
 package uk.gov.pay.adminusers.model;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
@@ -10,7 +10,7 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ServiceNameTest {
 

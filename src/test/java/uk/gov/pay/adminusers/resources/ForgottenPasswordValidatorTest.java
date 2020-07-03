@@ -1,8 +1,8 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.utils.Errors;
 
 import java.util.Optional;
@@ -18,7 +18,7 @@ public class ForgottenPasswordValidatorTest {
 
     private ForgottenPasswordValidator validator;
 
-    @Before
+    @BeforeEach
     public void before() {
         validator = new ForgottenPasswordValidator();
     }

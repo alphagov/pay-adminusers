@@ -1,11 +1,11 @@
 package uk.gov.pay.adminusers.service;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
@@ -24,13 +24,13 @@ import java.util.Optional;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserCreatorTest {
 
     @Mock
@@ -46,7 +46,7 @@ public class UserCreatorTest {
 
     private UserCreator userCreator;
 
-    @Before
+    @BeforeEach
     public void before() {
         userCreator = new UserCreator(mockUserDao, mockRoleDao, mockServiceDao, mockPasswordHasher, linksBuilder);
     }

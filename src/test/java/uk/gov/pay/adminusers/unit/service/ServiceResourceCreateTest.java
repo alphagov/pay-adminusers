@@ -1,16 +1,16 @@
 package uk.gov.pay.adminusers.unit.service;
 
-import io.dropwizard.testing.junit.ResourceTestRule;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import io.dropwizard.testing.junit5.ResourceExtension;
 import io.restassured.path.json.JsonPath;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -51,7 +51,8 @@ import static uk.gov.pay.adminusers.resources.ServiceResource.FIELD_NAME;
 import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT_IDS;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(DropwizardExtensionsSupport.class)
+@ExtendWith(MockitoExtension.class)
 public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
 
     private static final Map<String, Object> PAYLOAD_MAP = new HashMap<>();
@@ -69,8 +70,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
     private static GovUkPayAgreementService agreementService = mock(GovUkPayAgreementService.class);
     private static SendLiveAccountCreatedEmailService sendLiveAccountCreatedEmailService = mock(SendLiveAccountCreatedEmailService.class);
 
-    @ClassRule
-    public static final ResourceTestRule RESOURCES = ResourceTestRule.builder()
+    public static final ResourceExtension RESOURCES = ResourceExtension.builder()
             .addResource(new ServiceResource(
                     mockedUserDao,
                     mockedServiceDao,
@@ -86,12 +86,12 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
     @Captor
     private ArgumentCaptor<ServiceEntity> serviceEntityArgumentCaptor;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         given(mockedServicesFactory.serviceCreator()).willReturn(mockedServiceCreator);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         Mockito.reset(mockedServiceDao);
         Mockito.reset(mockedServiceCreator);

@@ -1,12 +1,11 @@
 package uk.gov.pay.adminusers.service;
 
-import org.hamcrest.MatcherAssert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
@@ -25,7 +24,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.eq;
@@ -34,7 +33,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ForgottenPasswordServicesTest {
 
     private static final String SELFSERVICE_URL = "http://selfservice";
@@ -50,7 +49,7 @@ public class ForgottenPasswordServicesTest {
 
     private ForgottenPasswordServices forgottenPasswordServices;
 
-    @Before
+    @BeforeEach
     public void before() {
         LinksConfig mockLinks = mock(LinksConfig.class);
         when(mockLinks.getSelfserviceUrl()).thenReturn(SELFSERVICE_URL);

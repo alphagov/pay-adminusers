@@ -2,8 +2,8 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
@@ -18,7 +18,7 @@ public class GovUkPayAgreementRequestValidatorTest {
     
     private GovUkPayAgreementRequestValidator validator;
     
-    @Before
+    @BeforeEach
     public void setUp() {
         validator = new GovUkPayAgreementRequestValidator(new RequestValidations());
     }

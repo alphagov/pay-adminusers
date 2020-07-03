@@ -1,10 +1,10 @@
 package uk.gov.pay.adminusers.service;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
@@ -16,7 +16,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ServiceOtpDispatcherTest {
 
     @Mock
@@ -28,7 +28,7 @@ public class ServiceOtpDispatcherTest {
 
     private InviteOtpDispatcher serviceOtpDispatcher;
 
-    @Before
+    @BeforeEach
     public void before() {
         serviceOtpDispatcher = new ServiceOtpDispatcher(inviteDao, secondFactorAuthenticator, notificationService);
     }

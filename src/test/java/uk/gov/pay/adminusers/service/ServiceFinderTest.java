@@ -1,11 +1,10 @@
 package uk.gov.pay.adminusers.service;
 
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -18,7 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ServiceFinderTest {
 
     @Mock
@@ -26,7 +25,7 @@ public class ServiceFinderTest {
 
     private ServiceFinder serviceFinder;
 
-    @Before
+    @BeforeEach
     public void before() {
         serviceFinder = new ServiceFinder(serviceDao, new LinksBuilder("http://localhost"));
     }

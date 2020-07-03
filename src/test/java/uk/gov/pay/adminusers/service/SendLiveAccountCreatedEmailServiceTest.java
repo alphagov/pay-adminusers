@@ -1,12 +1,11 @@
 package uk.gov.pay.adminusers.service;
 
-import org.hamcrest.MatcherAssert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.exception.GovUkPayAgreementNotSignedException;
@@ -17,12 +16,12 @@ import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SendLiveAccountCreatedEmailServiceTest {
     
     @Mock
@@ -36,7 +35,7 @@ public class SendLiveAccountCreatedEmailServiceTest {
     
     private SendLiveAccountCreatedEmailService sendLiveAccountCreatedEmailService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         LinksConfig mockLinks = mock(LinksConfig.class);
         when(mockLinks.getSelfserviceServicesUrl()).thenReturn(SELFSERVICE_SERVICES_URL);
