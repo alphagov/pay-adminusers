@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.persistence.dao;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
@@ -29,7 +29,7 @@ public class StripeAgreementDaoIT extends DaoTestBase {
     private StripeAgreementDao stripeAgreementDao;
     private ServiceDao serviceDao;
 
-    @Before
+    @BeforeEach
     public void before() {
         stripeAgreementDao = env.getInstance(StripeAgreementDao.class);
         serviceDao = env.getInstance(ServiceDao.class);

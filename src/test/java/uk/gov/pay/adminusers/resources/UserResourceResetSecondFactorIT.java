@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.User;
 
@@ -13,7 +13,7 @@ public class UserResourceResetSecondFactorIT extends IntegrationTest {
     private static final String OTP_KEY = "34f34";
     private String externalId;
 
-    @Before
+    @BeforeEach
     public void createValidUser() {
         User user = userDbFixture(databaseHelper)
                 .withSecondFactorMethod(SecondFactorMethod.APP)

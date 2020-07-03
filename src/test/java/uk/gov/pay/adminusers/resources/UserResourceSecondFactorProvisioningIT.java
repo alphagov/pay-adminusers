@@ -2,8 +2,8 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.User;
 
 import java.util.Map;
@@ -26,7 +26,7 @@ public class UserResourceSecondFactorProvisioningIT extends IntegrationTest {
     private String externalId;
     private String username;
 
-    @Before
+    @BeforeEach
     public void createValidUser() {
         String username = randomUuid();
         String email = username + "@example.com";

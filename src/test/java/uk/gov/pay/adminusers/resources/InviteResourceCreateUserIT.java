@@ -1,8 +1,8 @@
 package uk.gov.pay.adminusers.resources;
 
 import io.restassured.http.ContentType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.model.User;
@@ -18,11 +18,11 @@ import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.text.IsEmptyString.isEmptyString;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -37,7 +37,7 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
     private String roleAdminName;
     private String senderExternalId;
 
-    @Before
+    @BeforeEach
     public void givenAnExistingServiceAndARole() {
 
         service = serviceDbFixture(databaseHelper)
@@ -167,7 +167,7 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
                 .post(INVITE_USER_RESOURCE_URL)
                 .then()
                 .statusCode(NOT_FOUND.getStatusCode())
-                .body(isEmptyString());
+                .body(emptyString());
     }
 
     @Test

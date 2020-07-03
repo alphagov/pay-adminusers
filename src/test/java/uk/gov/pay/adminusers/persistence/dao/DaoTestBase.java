@@ -5,15 +5,14 @@ import liquibase.Liquibase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import org.jdbi.v3.core.Jdbi;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.infra.GuicedTestEnvironment;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
-import uk.gov.pay.commons.testing.db.PostgresDockerRule;
+import uk.gov.pay.commons.testing.db.PostgresDockerExtension;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -27,13 +26,12 @@ public class DaoTestBase {
 
     private static Logger logger = LoggerFactory.getLogger(DaoTestBase.class);
 
-    @ClassRule
-    public static PostgresDockerRule postgres = new PostgresDockerRule();
+    public static PostgresDockerExtension postgres = new PostgresDockerExtension();
 
     protected static DatabaseTestHelper databaseHelper;
     protected static GuicedTestEnvironment env;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws Exception {
         final Properties properties = new Properties();
         properties.put("javax.persistence.jdbc.driver", postgres.getDriverClass());
@@ -56,7 +54,7 @@ public class DaoTestBase {
         env = GuicedTestEnvironment.from(jpaModule).start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void cleanUp() {
         try (Connection connection = DriverManager.getConnection(
                 postgres.getConnectionUrl(),

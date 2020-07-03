@@ -2,8 +2,8 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.fixtures.GovUkPayAgreementDbFixture;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
@@ -25,17 +25,18 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
 
     private Service service;
     private User user;
-    private String email = randomUuid() + "@example.org";
+    private String email;
 
-    @Before
+    @BeforeEach
     public void setUp() {
+        email = randomUuid() + "@example.org";
         service = serviceDbFixture(databaseHelper).insertService();
         user = userDbFixture(databaseHelper)
                 .withServiceRole(service, 1)
                 .withEmail(email)
                 .insertUser();
     }
-    
+
     @Test
     public void shouldCreateGovUkPayAgreement() {
         JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", user.getExternalId()));
@@ -73,7 +74,7 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
                 .statusCode(400)
                 .body("errors[0]", is("Field [user_external_id] must be a valid user ID"));
     }
-    
+
     @Test
     public void shouldReturn_400_whenUserExternalIdIsNotAString() {
         JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", 100));
@@ -115,7 +116,7 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
                 .body("errors", hasSize(1))
                 .body("errors[0]", is("Field [user_external_id] is required"));
     }
-    
+
     @Test
     public void shouldReturn_409_whenAgreementAlreadyExists() {
         GovUkPayAgreementDbFixture.govUkPayAgreementDbFixture(databaseHelper)
@@ -133,7 +134,7 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
                 .body("errors", hasSize(1))
                 .body("errors[0]", is("GOV.UK Pay agreement information is already stored for this service"));
     }
-    
+
     @Test
     public void shouldReturn_400_whenUserDoesNotBelongToService() {
         user = userDbFixture(databaseHelper)
@@ -147,9 +148,9 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
                 .then()
                 .statusCode(400)
                 .body("errors[0]", is("User does not belong to the given service"));
-        
+
     }
-    
+
     @Test
     public void shouldReturnAgreement_whenExists() {
         ZonedDateTime agreementTime = ZonedDateTime.now(ZoneOffset.UTC);
@@ -169,7 +170,7 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
                 .body("email", is(user.getEmail()))
                 .body("agreement_time", is(expectedAgreementDate));
     }
-    
+
     @Test
     public void shouldReturn404_whenAgreementNotExists() {
         givenSetup()

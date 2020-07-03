@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.persistence.dao;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.fixtures.RoleDbFixture;
 import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
@@ -21,7 +21,7 @@ public class ServiceRoleDaoIT extends DaoTestBase {
 
     private ServiceRoleDao serviceRoleDao;
 
-    @Before
+    @BeforeEach
     public void before() {
         serviceRoleDao = env.getInstance(ServiceRoleDao.class);
     }

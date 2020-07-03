@@ -3,8 +3,8 @@ package uk.gov.pay.adminusers.persistence.dao;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.postgresql.util.PGobject;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.model.GoLiveStage;
@@ -48,7 +48,7 @@ public class ServiceDaoIT extends DaoTestBase {
     private static final String EN_NAME = "en-test-name";
     private static final String CY_NAME = "gwasanaeth prawf";
 
-    @Before
+    @BeforeEach
     public void before() {
         serviceDao = env.getInstance(ServiceDao.class);
     }

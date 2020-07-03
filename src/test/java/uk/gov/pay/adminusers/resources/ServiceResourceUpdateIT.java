@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 
 import java.util.List;

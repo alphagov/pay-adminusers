@@ -2,7 +2,7 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;

@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.User;
 
 import java.util.Map;
@@ -15,7 +15,7 @@ public class UserResourceFindIT extends IntegrationTest {
 
     private String username;
 
-    @Before
+    @BeforeEach
     public void createAUser() {
         String username = randomUuid();
         String email = username + "@example.com";

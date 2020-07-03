@@ -2,8 +2,8 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.User;
 
 import java.util.Map;
@@ -19,7 +19,7 @@ public class UserResourcePatchIT extends IntegrationTest {
 
     private String externalId;
 
-    @Before
+    @BeforeEach
     public void createAUser() {
         String username = randomUuid();
         String email = username + "@example.com";
@@ -74,7 +74,6 @@ public class UserResourcePatchIT extends IntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("features", is(newFeatures));
-
     }
 
     @Test

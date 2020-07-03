@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
 import io.restassured.response.ValidatableResponse;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Service;
 
 import java.util.List;
@@ -12,11 +12,11 @@ import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.util.Collections.emptyMap;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;

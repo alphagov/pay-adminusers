@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
 import uk.gov.pay.adminusers.model.MerchantDetails;
 

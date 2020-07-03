@@ -2,8 +2,8 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.fixtures.StripeAgreementDbFixture;
 import uk.gov.pay.adminusers.model.Service;
 
@@ -24,7 +24,7 @@ public class ServiceResourceStripeAgreementIT extends IntegrationTest {
 
     private Service service;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         service = serviceDbFixture(databaseHelper).insertService();
     }

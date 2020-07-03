@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
 import io.restassured.http.ContentType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.fixtures.InviteDbFixture;
 
 import java.util.Map;

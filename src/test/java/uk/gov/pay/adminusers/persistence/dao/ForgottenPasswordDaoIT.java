@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.persistence.dao;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.ForgottenPasswordEntity;
@@ -32,7 +32,7 @@ public class ForgottenPasswordDaoIT extends DaoTestBase {
     private UserDao userDao;
     private ForgottenPasswordDao forgottenPasswordDao;
 
-    @Before
+    @BeforeEach
     public void before() {
         userDao = env.getInstance(UserDao.class);
         forgottenPasswordDao = env.getInstance(ForgottenPasswordDao.class);
