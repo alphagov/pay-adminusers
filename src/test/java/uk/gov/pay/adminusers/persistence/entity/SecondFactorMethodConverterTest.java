@@ -1,10 +1,10 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class SecondFactorMethodConverterTest {
 

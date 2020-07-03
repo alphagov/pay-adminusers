@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.StripeAgreementRequest;
 
 import javax.validation.ConstraintViolation;
@@ -17,7 +17,7 @@ public class StripeAgreementRequestTest {
     
     private Validator validator;
     
-    @Before
+    @BeforeEach
     public void setUp() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();

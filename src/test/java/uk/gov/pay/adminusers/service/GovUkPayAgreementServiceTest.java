@@ -1,12 +1,13 @@
 package uk.gov.pay.adminusers.service;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.model.GovUkPayAgreement;
 import uk.gov.pay.adminusers.persistence.dao.GovUkPayAgreementDao;
 import uk.gov.pay.adminusers.persistence.entity.GovUkPayAgreementEntity;
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class GovUkPayAgreementServiceTest {
 
     @Mock
@@ -32,7 +33,7 @@ public class GovUkPayAgreementServiceTest {
     private ArgumentCaptor<GovUkPayAgreementEntity> argumentCaptor;
     
     private GovUkPayAgreementService agreementService;
-    @Before
+    @BeforeEach
     public void setUp() {
         agreementService = new GovUkPayAgreementService(mockedAgreementDao);
     }

@@ -1,11 +1,11 @@
 package uk.gov.pay.adminusers.service;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ForgottenPasswordEntity;
@@ -14,13 +14,13 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ResetPasswordServiceTest {
 
     @Mock
@@ -32,7 +32,7 @@ public class ResetPasswordServiceTest {
 
     private ResetPasswordService resetPasswordService;
 
-    @Before
+    @BeforeEach
     public void before() {
         mockUserDao = mock(UserDao.class);
         mockForgottenPasswordDao = mock(ForgottenPasswordDao.class);

@@ -2,11 +2,11 @@ package uk.gov.pay.adminusers.service;
 
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.MetricRegistry;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.app.config.NotifyConfiguration;
 import uk.gov.pay.adminusers.app.config.NotifyDirectDebitConfiguration;
 import uk.gov.service.notify.NotificationClient;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.pay.adminusers.model.PaymentType.CARD;
 import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NotificationServiceTest {
     
     private static final String OTP = "123456";
@@ -54,7 +54,7 @@ public class NotificationServiceTest {
 
     private NotificationService notificationService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws NotificationClientException {
         given(mockNotifyConfiguration.getSignInOtpSmsTemplateId()).willReturn(SIGN_IN_OTP_SMS_TEMPLATE_ID);
         given(mockNotifyConfiguration.getChangeSignIn2faToSmsOtpSmsTemplateId()).willReturn(CHANGE_SIGN_IN_2FA_TO_SMS_OTP_SMS_TEMPLATE_ID);

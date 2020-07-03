@@ -2,8 +2,8 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
@@ -23,7 +23,7 @@ public class ResetPasswordValidatorTest {
     private ResetPasswordValidator resetPasswordValidator;
     private ForgottenPasswordDao forgottenPasswordDao;
 
-    @Before
+    @BeforeEach
     public void before() {
         forgottenPasswordDao = mock(ForgottenPasswordDao.class);
         resetPasswordValidator = new ResetPasswordValidator(new RequestValidations());

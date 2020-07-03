@@ -1,12 +1,12 @@
 package uk.gov.pay.adminusers.unit.service;
 
-import io.dropwizard.testing.junit.ResourceTestRule;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import io.dropwizard.testing.junit5.ResourceExtension;
 import io.restassured.path.json.JsonPath;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
@@ -39,7 +39,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class ServiceResourceFindTest extends ServiceResourceBaseTest {
 
     private static ServiceDao mockedServiceDao = mock(ServiceDao.class);
@@ -54,8 +55,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
     private static GovUkPayAgreementService agreementService = mock(GovUkPayAgreementService.class);
     private static SendLiveAccountCreatedEmailService sendLiveAccountCreatedEmailService = mock(SendLiveAccountCreatedEmailService.class);
 
-    @ClassRule
-    public static final ResourceTestRule RESOURCES = ResourceTestRule.builder()
+    public static final ResourceExtension RESOURCES = ResourceExtension.builder()
             .addResource(new ServiceResource(
                     mockedUserDao,
                     mockedServiceDao,
@@ -68,7 +68,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
                     sendLiveAccountCreatedEmailService))
             .build();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         given(mockedServicesFactory.serviceFinder()).willReturn(serviceFinder);
     }

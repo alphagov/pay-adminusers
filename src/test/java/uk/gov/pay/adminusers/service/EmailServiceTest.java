@@ -1,11 +1,12 @@
 package uk.gov.pay.adminusers.service;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.app.config.NotifyDirectDebitConfiguration;
 import uk.gov.pay.adminusers.model.PaymentType;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -21,14 +22,14 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static uk.gov.pay.commons.model.SupportedLanguage.ENGLISH;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class EmailServiceTest {
 
     private static final String MERCHANT_NAME = "merchant name";
@@ -58,7 +59,7 @@ public class EmailServiceTest {
     private final static String EMAIL_ADDRESS = "aaa@bbb.test";
     private final static String GATEWAY_ACCOUNT_ID = "DIRECT_DEBIT:sfksdjweg45w";
 
-    @Before
+    @BeforeEach
     public void setUp() {
         given(mockNotificationService.getNotifyDirectDebitConfiguration()).willReturn(mockNotifyDirectDebitConfiguration);
         given(mockNotifyDirectDebitConfiguration.getMandateCancelledEmailTemplateId()).willReturn("NOTIFY_MANDATE_CANCELLED_EMAIL_TEMPLATE_ID_VALUE");
@@ -71,6 +72,7 @@ public class EmailServiceTest {
         given(mockServiceEntity.getServiceNames()).willReturn(Map.of(ENGLISH, ServiceNameEntity.from(ENGLISH, "a service")));
         given(mockCountryConverter.getCountryNameFrom(ADDRESS_COUNTRY_CODE)).willReturn(Optional.of("Cake Land"));
         emailService = new EmailService(mockNotificationService, mockCountryConverter, mockServiceDao);
+
     }
 
     @Test
@@ -264,7 +266,9 @@ public class EmailServiceTest {
     }
 
     @Test
-    public void shouldThrowAnExceptionIfMerchantDetailsAreMissing() throws InvalidMerchantDetailsException {
+    public void shouldThrowAnExceptionIfMerchantDetailsAreMissing() {
+        // reset mocks as these are not used here and Mockito can continue enforcing strict stubs
+        Mockito.reset(mockNotificationService, mockNotifyDirectDebitConfiguration, mockServiceEntity, mockCountryConverter);
         EmailTemplate template = EmailTemplate.MANDATE_FAILED;
         Map<String, String> personalisation = Map.of(
                 "field 1", "theValueOfField1",

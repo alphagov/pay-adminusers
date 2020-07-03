@@ -1,20 +1,20 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 public class InviteExpiryTest {
 
     private InviteEntity inviteEntity;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         inviteEntity = anInvite();
     }

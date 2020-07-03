@@ -1,10 +1,11 @@
 package uk.gov.pay.adminusers.unit.service;
 
-import io.dropwizard.testing.junit.ResourceTestRule;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import io.dropwizard.testing.junit5.ResourceExtension;
 import io.restassured.path.json.JsonPath;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -40,6 +41,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
+@ExtendWith(DropwizardExtensionsSupport.class)
 public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
 
     private static final String API_PATH = "/v1/api/services/%s";
@@ -54,8 +56,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     private static GovUkPayAgreementService agreementService = mock(GovUkPayAgreementService.class);
     private static SendLiveAccountCreatedEmailService sendLiveAccountCreatedEmailService = mock(SendLiveAccountCreatedEmailService.class);
 
-    @ClassRule
-    public static final ResourceTestRule RESOURCES = ResourceTestRule.builder()
+    public static final ResourceExtension RESOURCES = ResourceExtension.builder()
             .addResource(new ServiceResource(
                     mockedUserDao,
                     mockedServiceDao,
@@ -68,7 +69,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
                     sendLiveAccountCreatedEmailService))
             .build();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(mockedServicesFactory.serviceUpdater()).thenReturn(serviceUpdater);
     }

@@ -1,14 +1,14 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class EmailRequestParserTest {
 
@@ -16,7 +16,7 @@ public class EmailRequestParserTest {
 
     private EmailRequestParser parser;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         parser = new EmailRequestParser(objectMapper);
     }
@@ -44,7 +44,7 @@ public class EmailRequestParserTest {
     }
 
     @Test
-    public void shouldThrowAnExceptionForAnInvalidPayload() throws InvalidEmailRequestException {
+    public void shouldThrowAnExceptionForAnInvalidPayload() {
         Map<String, Object> body = Map.of(
                 "template", "MANDATE_CANCELLED",
                 "personalisation", Map.of(
