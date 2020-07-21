@@ -102,14 +102,6 @@ pipeline {
         tagPact("adminusers", gitCommit(), "test")
       }
     }
-    stage('Smoke Tests') {
-      when {
-        branch 'master'
-      }
-      steps {
-        runDirectDebitSmokeTest()
-      }
-    }
     stage('Complete') {
       failFast true
       parallel {
