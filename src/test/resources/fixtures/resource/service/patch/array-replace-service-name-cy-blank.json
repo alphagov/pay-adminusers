@@ -2,6 +2,6 @@
   {
     "op": "replace",
     "path": "service_name/cy",
-    "value": " "
+    "value": "  "
   }
 ]
