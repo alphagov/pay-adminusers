@@ -49,7 +49,8 @@ public class EmailValidator {
             "sssc\\.uk\\.com",
             "ucds\\.email",
             "wmca\\.org\\.uk",
-            "york\\.ac\\.uk"
+            "york\\.ac\\.uk",
+            "digitalaccessibilitycentre\\.org"
     );
 
     private static final Pattern PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERN;
