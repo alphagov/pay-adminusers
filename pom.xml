@@ -84,7 +84,7 @@
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
-            <version>3.10.1</version>
+            <version>3.10.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.servlet</groupId>
@@ -396,10 +396,8 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>uk.gov.pay.adminusers.app.AdminUsersApp</mainClass>
                                 </transformer>
                             </transformers>
