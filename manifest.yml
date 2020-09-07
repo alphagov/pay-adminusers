@@ -12,7 +12,6 @@ applications:
     disk_quota: ((disk_quota))
     services:
       - app-catalog
-      - adminusers-db
       - adminusers-secret-service
     env:
       ENV_MAP_BP_USE_APP_PROFILE_DIR: true
@@ -46,6 +45,11 @@ applications:
       NOTIFY_SELF_INITIATED_CREATE_USER_AND_SERVICE_OTP_SMS_TEMPLATE_ID: ""
       NOTIFY_CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE_OTP_SMS_TEMPLATE_ID: ""
       SENTRY_DSN: ""
+      DB_HOST: ""
+      DB_NAME: ""
+      DB_PASSWORD: ""
+      DB_USER: ""
+      DB_SSL_OPTION: ""
 
       # Provided via app-catalog bound service, see env-map.yml
       BASE_URL: ""
@@ -53,10 +57,3 @@ applications:
       SUPPORT_URL: ""
       METRICS_HOST: ""
       METRICS_PORT: ""
-
-      # Provide via adminusers-db service, see env-map.yml
-      DB_HOST: ""
-      DB_NAME: ""
-      DB_PASSWORD: ""
-      DB_USER: ""
-      DB_SSL_OPTION: ""
