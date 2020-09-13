@@ -95,7 +95,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.16</version>
+            <version>42.2.16.jre7</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
