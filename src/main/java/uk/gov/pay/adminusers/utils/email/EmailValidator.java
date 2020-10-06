@@ -39,6 +39,7 @@ public class EmailValidator {
             "nmandd\\.org",
             "nmni\\.com",
             "ogauthority\\.co.uk",
+            "os\\.uk",
             "parliament\\.scot",
             "parliament\\.uk",
             "police\\.uk",
