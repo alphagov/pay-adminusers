@@ -5,6 +5,8 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.util.stream.Collectors.joining;
+
 public class EmailValidator {
 
     /**
@@ -13,51 +15,54 @@ public class EmailValidator {
      * - <a href="https://github.com/alphagov/notifications-admin/blob/9391181b2c7d077ea8fe0a72c718ab8f7fdbcd0c/app/config.py#L67">alphagov/notifications-admin</a><br>
      */
     private static final List<String> PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER = List.of(
-            "acas\\.org\\.uk",
-            "accessplanit\\.com",
-            "assembly\\.wales",
-            "bl\\.uk",
-            "caa\\.co\\.uk",
-            "careinspectorate\\.com",
-            "cynulliad\\.cymru",
-            "derrystrabane\\.com",
-            "eani\\.org\\.uk",
-            "gov\\.scot",
-            "gov\\.uk",
-            "gov\\.wales",
-            "hial\\.co\\.uk",
-            "hmcts\\.net",
-            "judiciary\\.uk",
-            "llyw\\.cymru",
-            "mil\\.uk",
-            "mod\\.uk",
-            "naturalengland\\.org\\.uk",
-            "nature\\.scot",
-            "nhm\\.ac\\.uk",
-            "nhs\\.net",
-            "nhs\\.uk",
-            "nmandd\\.org",
-            "nmni\\.com",
-            "ogauthority\\.co.uk",
-            "os\\.uk",
-            "parliament\\.scot",
-            "parliament\\.uk",
-            "police\\.uk",
-            "prrt\\.org",
-            "scotent\\.co\\.uk",
-            "serc\\.ac\\.uk", 
-            "slc\\.co\\.uk",
-            "socialworkengland\\.org\\.uk",
-            "sssc\\.uk\\.com",
-            "ucds\\.email",
-            "wmca\\.org\\.uk",
-            "york\\.ac\\.uk",
-            "digitalaccessibilitycentre\\.org"
+            "acas.org.uk",
+            "accessplanit.com",
+            "assembly.wales",
+            "bl.uk",
+            "caa.co.uk",
+            "careinspectorate.com",
+            "cynulliad.cymru",
+            "derrystrabane.com",
+            "eani.org.uk",
+            "gov.scot",
+            "gov.uk",
+            "gov.wales",
+            "hial.co.uk",
+            "hmcts.net",
+            "judiciary.uk",
+            "llyw.cymru",
+            "mil.uk",
+            "mod.uk",
+            "naturalengland.org.uk",
+            "nature.scot",
+            "nhm.ac.uk",
+            "nhs.net",
+            "nhs.uk",
+            "nmandd.org",
+            "nmni.com",
+            "ogauthority.co.uk",
+            "os.uk",
+            "parliament.scot",
+            "parliament.uk",
+            "police.uk",
+            "prrt.org",
+            "scotent.co.uk",
+            "serc.ac.uk", 
+            "slc.co.uk",
+            "socialworkengland.org.uk",
+            "sssc.uk.com",
+            "ucds.email",
+            "wmca.org.uk",
+            "york.ac.uk",
+            "digitalaccessibilitycentre.org"
     );
 
     private static final Pattern PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERN;
     static {
-        String domainRegExPatternString = String.join("|", PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER);
+        String domainRegExPatternString = PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER
+                .stream()
+                .map(Pattern::quote)
+                .collect(joining("|"));
 
         // We are splitting the logic into two parts for whitelisted domains and subdomains
         String regExDomainsOnlyPart = "(" + domainRegExPatternString + ")";
