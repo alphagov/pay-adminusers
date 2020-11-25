@@ -37,6 +37,7 @@ public class EmailValidator {
             "nature.scot",
             "nhm.ac.uk",
             "nhs.net",
+            "nhs.scot",
             "nhs.uk",
             "nmandd.org",
             "nmni.com",
