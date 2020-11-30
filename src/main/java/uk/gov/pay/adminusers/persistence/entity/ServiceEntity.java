@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
 import static javax.persistence.EnumType.STRING;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -83,7 +84,7 @@ public class ServiceEntity {
     
     @Column(name = "created_date")
     @Convert(converter = UTCDateTimeConverter.class)
-    private ZonedDateTime createdDate;
+    private ZonedDateTime createdDate = ZonedDateTime.now(UTC);
     
     @Column(name = "went_live_date")
     @Convert(converter = UTCDateTimeConverter.class)
