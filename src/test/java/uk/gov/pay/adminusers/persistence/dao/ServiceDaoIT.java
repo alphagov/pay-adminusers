@@ -22,6 +22,7 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntityBuilder;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -29,8 +30,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.time.ZoneOffset.UTC;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Comparator.comparing;
 import static java.util.stream.IntStream.range;
+import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasKey;
@@ -55,18 +59,18 @@ public class ServiceDaoIT extends DaoTestBase {
 
     @Test
     public void shouldSaveAService_withCustomisations() throws Exception {
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withExperimentalFeaturesEnabled(true)
                 .build();
-        serviceDao.persist(thisServiceEntity);
+        serviceDao.persist(insertedServiceEntity);
 
-        List<Map<String, Object>> savedService = databaseHelper.findServiceByExternalId(thisServiceEntity.getExternalId());
+        List<Map<String, Object>> savedService = databaseHelper.findServiceByExternalId(insertedServiceEntity.getExternalId());
 
         assertThat(savedService.size(), is(1));
-        assertThat(savedService.get(0).get("external_id"), is(thisServiceEntity.getExternalId()));
+        assertThat(savedService.get(0).get("external_id"), is(insertedServiceEntity.getExternalId()));
         Map<String, Object> storedBranding = objectMapper.readValue(savedService.get(0).get("custom_branding").toString(), new TypeReference<Map<String, Object>>() {
         });
-        assertThat(storedBranding, is(thisServiceEntity.getCustomBranding()));
+        assertThat(storedBranding, is(insertedServiceEntity.getCustomBranding()));
         assertThat(storedBranding.keySet().size(), is(2));
         assertThat(storedBranding.keySet(), hasItems("image_url", "css_url"));
         assertThat(storedBranding.values(), hasItems("image url", "css url"));
@@ -75,53 +79,53 @@ public class ServiceDaoIT extends DaoTestBase {
 
     @Test
     public void shouldSaveAService_withMultipleServiceNames() {
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withCustomBranding(null)
                 .withServiceNameEntity(SupportedLanguage.WELSH, CY_NAME)
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, EN_NAME)
                 .build();
-        serviceDao.persist(thisServiceEntity);
+        serviceDao.persist(insertedServiceEntity);
 
-        List<Map<String, Object>> savedService = databaseHelper.findServiceByExternalId(thisServiceEntity.getExternalId());
+        List<Map<String, Object>> savedService = databaseHelper.findServiceByExternalId(insertedServiceEntity.getExternalId());
 
         assertThat(savedService.size(), is(1));
-        assertThat(savedService.get(0).get("external_id"), is(thisServiceEntity.getExternalId()));
+        assertThat(savedService.get(0).get("external_id"), is(insertedServiceEntity.getExternalId()));
 
-        List<Map<String, Object>> savedServiceName = databaseHelper.findServiceNameByServiceId(thisServiceEntity.getId());
+        List<Map<String, Object>> savedServiceName = databaseHelper.findServiceNameByServiceId(insertedServiceEntity.getId());
 
         assertThat(savedServiceName.size(), is(2));
         savedServiceName.sort(comparing(item -> String.valueOf(item.get("language"))));
-        assertThat(savedServiceName.get(0).get("service_id"), is(Long.valueOf(thisServiceEntity.getId())));
+        assertThat(savedServiceName.get(0).get("service_id"), is(Long.valueOf(insertedServiceEntity.getId())));
         assertThat(savedServiceName.get(0).get("language"), is("cy"));
         assertThat(savedServiceName.get(0).get("name"), is(CY_NAME));
-        assertThat(savedServiceName.get(1).get("service_id"), is(Long.valueOf(thisServiceEntity.getId())));
+        assertThat(savedServiceName.get(1).get("service_id"), is(Long.valueOf(insertedServiceEntity.getId())));
         assertThat(savedServiceName.get(1).get("language"), is("en"));
         assertThat(savedServiceName.get(1).get("name"), is(EN_NAME));
     }
 
     @Test
     public void shouldSaveAService_withoutCustomisations_andServiceName() {
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withCustomBranding(null)
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, EN_NAME)
                 .withServiceNameEntity(SupportedLanguage.WELSH, CY_NAME)
                 .build();
-        serviceDao.persist(thisServiceEntity);
+        serviceDao.persist(insertedServiceEntity);
 
-        List<Map<String, Object>> savedService = databaseHelper.findServiceByExternalId(thisServiceEntity.getExternalId());
+        List<Map<String, Object>> savedService = databaseHelper.findServiceByExternalId(insertedServiceEntity.getExternalId());
 
         assertThat(savedService.size(), is(1));
-        assertThat(savedService.get(0).get("external_id"), is(thisServiceEntity.getExternalId()));
+        assertThat(savedService.get(0).get("external_id"), is(insertedServiceEntity.getExternalId()));
         Map<String, Object> storedBranding = new CustomBrandingConverter().convertToEntityAttribute((PGobject) savedService.get(0).get("custom_branding"));
         assertNull(storedBranding);
 
-        List<Map<String, Object>> savedServiceName = databaseHelper.findServiceNameByServiceId(thisServiceEntity.getId());
+        List<Map<String, Object>> savedServiceName = databaseHelper.findServiceNameByServiceId(insertedServiceEntity.getId());
         savedServiceName.sort(comparing(item -> String.valueOf(item.get("language"))));
         assertThat(savedServiceName.size(), is(2));
-        assertThat(savedServiceName.get(0).get("service_id"), is(Long.valueOf(thisServiceEntity.getId())));
+        assertThat(savedServiceName.get(0).get("service_id"), is(Long.valueOf(insertedServiceEntity.getId())));
         assertThat(savedServiceName.get(0).get("language"), is("cy"));
         assertThat(savedServiceName.get(0).get("name"), is(CY_NAME));
-        assertThat(savedServiceName.get(1).get("service_id"), is(Long.valueOf(thisServiceEntity.getId())));
+        assertThat(savedServiceName.get(1).get("service_id"), is(Long.valueOf(insertedServiceEntity.getId())));
         assertThat(savedServiceName.get(1).get("language"), is("en"));
         assertThat(savedServiceName.get(1).get("name"), is(EN_NAME));
     }
@@ -129,16 +133,16 @@ public class ServiceDaoIT extends DaoTestBase {
     @Test
     public void shouldSaveAService_withMerchantDetails() {
         MerchantDetailsEntity merchantDetails = MerchantDetailsEntityBuilder.aMerchantDetailsEntity().build();
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withMerchantDetailsEntity(merchantDetails)
                 .build();
 
-        serviceDao.persist(thisServiceEntity);
+        serviceDao.persist(insertedServiceEntity);
 
-        List<Map<String, Object>> savedService = databaseHelper.findServiceByExternalId(thisServiceEntity.getExternalId());
+        List<Map<String, Object>> savedService = databaseHelper.findServiceByExternalId(insertedServiceEntity.getExternalId());
 
         assertThat(savedService.size(), is(1));
-        assertThat(savedService.get(0).get("external_id"), is(thisServiceEntity.getExternalId()));
+        assertThat(savedService.get(0).get("external_id"), is(insertedServiceEntity.getExternalId()));
         assertThat(savedService.get(0).get("merchant_name"), is(merchantDetails.getName()));
         assertThat(savedService.get(0).get("merchant_telephone_number"), is(merchantDetails.getTelephoneNumber()));
         assertThat(savedService.get(0).get("merchant_address_line1"), is(merchantDetails.getAddressLine1()));
@@ -151,39 +155,41 @@ public class ServiceDaoIT extends DaoTestBase {
 
     @Test
     public void shouldFindByServiceExternalId() {
-
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ZonedDateTime now = ZonedDateTime.now(UTC);
+        ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withExperimentalFeaturesEnabled(true)
                 .build();
 
-        databaseHelper.insertServiceEntity(thisServiceEntity);
+        databaseHelper.insertServiceEntity(insertedServiceEntity);
 
-        Optional<ServiceEntity> maybeServiceEntity = serviceDao.findByExternalId(thisServiceEntity.getExternalId());
+        Optional<ServiceEntity> maybeServiceEntity = serviceDao.findByExternalId(insertedServiceEntity.getExternalId());
 
         assertTrue(maybeServiceEntity.isPresent());
-        ServiceEntity thatServiceEntity = maybeServiceEntity.get();
-        assertThat(thatServiceEntity.isExperimentalFeaturesEnabled(), is(true));
-        assertServiceEntity(thisServiceEntity, thatServiceEntity);
+        ServiceEntity foundServiceEntity = maybeServiceEntity.get();
+        assertThat(foundServiceEntity.isExperimentalFeaturesEnabled(), is(true));
+        assertThat(foundServiceEntity.getCreatedDate(), within(5, SECONDS, now));
 
-        assertMerchantDetails(thatServiceEntity.getMerchantDetailsEntity(), thisServiceEntity.getMerchantDetailsEntity());
+        assertServiceEntity(insertedServiceEntity, foundServiceEntity);
 
-        assertCustomBranding(thatServiceEntity);
+        assertMerchantDetails(foundServiceEntity.getMerchantDetailsEntity(), insertedServiceEntity.getMerchantDetailsEntity());
+
+        assertCustomBranding(foundServiceEntity);
     }
 
     @Test
-    public void shouldFindByServiceExternalIdAndRedirectTrue() {
-
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+    public void shouldReturnServiceValuesFromDatabase() {
+        ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withRedirectToServiceImmediatelyOnTerminalState(true)
+                .withCreatedDate(ZonedDateTime.parse("2020-11-01T00:00:00Z"))
                 .build();
 
-        databaseHelper.insertServiceEntity(thisServiceEntity);
+        databaseHelper.insertServiceEntity(insertedServiceEntity);
 
-        Optional<ServiceEntity> maybeServiceEntity = serviceDao.findByExternalId(thisServiceEntity.getExternalId());
+        Optional<ServiceEntity> maybeServiceEntity = serviceDao.findByExternalId(insertedServiceEntity.getExternalId());
 
         assertTrue(maybeServiceEntity.isPresent());
-        ServiceEntity thatServiceEntity = maybeServiceEntity.get();
-        assertServiceEntity(thisServiceEntity, thatServiceEntity);
+        ServiceEntity foundServiceEntity = maybeServiceEntity.get();
+        assertServiceEntity(insertedServiceEntity, foundServiceEntity);
     }
 
     @Test
@@ -192,24 +198,24 @@ public class ServiceDaoIT extends DaoTestBase {
                 createServiceName(SupportedLanguage.ENGLISH, EN_NAME),
                 createServiceName(SupportedLanguage.WELSH, CY_NAME)
         ));
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withServiceName(serviceNames)
                 .build();
 
-        databaseHelper.insertServiceEntity(thisServiceEntity);
+        databaseHelper.insertServiceEntity(insertedServiceEntity);
 
-        Optional<ServiceEntity> serviceEntity = serviceDao.findByExternalId(thisServiceEntity.getExternalId());
+        Optional<ServiceEntity> serviceEntity = serviceDao.findByExternalId(insertedServiceEntity.getExternalId());
         assertTrue(serviceEntity.isPresent());
-        ServiceEntity thatServiceEntity = serviceEntity.get();
-        assertServiceEntity(thisServiceEntity, thatServiceEntity);
+        ServiceEntity foundServiceEntity = serviceEntity.get();
+        assertServiceEntity(insertedServiceEntity, foundServiceEntity);
 
-        assertMerchantDetails(thisServiceEntity.getMerchantDetailsEntity(), thatServiceEntity.getMerchantDetailsEntity());
+        assertMerchantDetails(insertedServiceEntity.getMerchantDetailsEntity(), foundServiceEntity.getMerchantDetailsEntity());
 
-        assertCustomBranding(thatServiceEntity);
+        assertCustomBranding(foundServiceEntity);
 
-        assertThat(thatServiceEntity.getServiceNames().size(), is(2));
-        assertThat(thatServiceEntity.getServiceNames(), hasKey(SupportedLanguage.ENGLISH));
-        assertThat(thatServiceEntity.getServiceNames(), hasKey(SupportedLanguage.WELSH));
+        assertThat(foundServiceEntity.getServiceNames().size(), is(2));
+        assertThat(foundServiceEntity.getServiceNames(), hasKey(SupportedLanguage.ENGLISH));
+        assertThat(foundServiceEntity.getServiceNames(), hasKey(SupportedLanguage.WELSH));
     }
 
     @Test
@@ -217,17 +223,17 @@ public class ServiceDaoIT extends DaoTestBase {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
         String gatewayAccountId = randomUuid();
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withGatewayAccounts(Collections.singletonList(gatewayAccountIdEntity)).build();
 
-        gatewayAccountIdEntity.setService(thisServiceEntity);
+        gatewayAccountIdEntity.setService(insertedServiceEntity);
 
-        databaseHelper.insertServiceEntity(thisServiceEntity);
-        Optional<ServiceEntity> optionalService = serviceDao.findByGatewayAccountId(thisServiceEntity.getGatewayAccountId().getGatewayAccountId());
+        databaseHelper.insertServiceEntity(insertedServiceEntity);
+        Optional<ServiceEntity> optionalService = serviceDao.findByGatewayAccountId(insertedServiceEntity.getGatewayAccountId().getGatewayAccountId());
 
         assertThat(optionalService.isPresent(), is(true));
-        ServiceEntity thatServiceEntity = optionalService.get();
-        assertServiceEntity(thisServiceEntity, thatServiceEntity);
+        ServiceEntity foundServiceEntity = optionalService.get();
+        assertServiceEntity(insertedServiceEntity, foundServiceEntity);
     }
 
     @Test
@@ -246,15 +252,15 @@ public class ServiceDaoIT extends DaoTestBase {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
         String gatewayAccountId = randomUuid();
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder
+        ServiceEntity insertedServiceEntity = ServiceEntityBuilder
                 .aServiceEntity()
                 .withGatewayAccounts(Collections.singletonList(gatewayAccountIdEntity))
                 .build();
 
-        gatewayAccountIdEntity.setService(thisServiceEntity);
+        gatewayAccountIdEntity.setService(insertedServiceEntity);
 
-        databaseHelper.insertServiceEntity(thisServiceEntity);
-        Optional<ServiceEntity> optionalService = serviceDao.findByGatewayAccountId(thisServiceEntity.getGatewayAccountId().getGatewayAccountId());
+        databaseHelper.insertServiceEntity(insertedServiceEntity);
+        Optional<ServiceEntity> optionalService = serviceDao.findByGatewayAccountId(insertedServiceEntity.getGatewayAccountId().getGatewayAccountId());
         
         assertThat(optionalService.isPresent(), is(true));
         assertThat(optionalService.get().getCurrentGoLiveStage(), is(GoLiveStage.NOT_STARTED));
@@ -262,7 +268,7 @@ public class ServiceDaoIT extends DaoTestBase {
         optionalService.get().setCurrentGoLiveStage(GoLiveStage.CHOSEN_PSP_STRIPE);
         serviceDao.merge(optionalService.get());
 
-        optionalService = serviceDao.findByGatewayAccountId(thisServiceEntity.getGatewayAccountId().getGatewayAccountId());
+        optionalService = serviceDao.findByGatewayAccountId(insertedServiceEntity.getGatewayAccountId().getGatewayAccountId());
 
         assertThat(optionalService.isPresent(), is(true));
         assertThat(optionalService.get().getCurrentGoLiveStage(), is(GoLiveStage.CHOSEN_PSP_STRIPE));
@@ -328,10 +334,10 @@ public class ServiceDaoIT extends DaoTestBase {
         assertThat(thisEntity.isCollectBillingAddress(), is(thatEntity.isCollectBillingAddress()));
     }
 
-    private void assertCustomBranding(ServiceEntity thisServiceEntity) {
-        assertThat(thisServiceEntity.getCustomBranding().keySet().size(), is(2));
-        assertThat(thisServiceEntity.getCustomBranding().keySet(), hasItems("image_url", "css_url"));
-        assertThat(thisServiceEntity.getCustomBranding().values(), hasItems("image url", "css url"));
+    private void assertCustomBranding(ServiceEntity insertedServiceEntity) {
+        assertThat(insertedServiceEntity.getCustomBranding().keySet().size(), is(2));
+        assertThat(insertedServiceEntity.getCustomBranding().keySet(), hasItems("image_url", "css_url"));
+        assertThat(insertedServiceEntity.getCustomBranding().values(), hasItems("image url", "css url"));
     }
 
 }
