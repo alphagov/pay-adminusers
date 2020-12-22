@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.fixtures.GovUkPayAgreementDbFixture;
@@ -21,14 +20,14 @@ import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 import static uk.gov.pay.commons.model.ApiResponseDateTimeFormatter.ISO_INSTANT_MILLISECOND_PRECISION;
 
-public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest {
+class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest {
 
     private Service service;
     private User user;
     private String email;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         email = randomUuid() + "@example.org";
         service = serviceDbFixture(databaseHelper).insertService();
         user = userDbFixture(databaseHelper)
@@ -38,8 +37,8 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
     }
 
     @Test
-    public void shouldCreateGovUkPayAgreement() {
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", user.getExternalId()));
+    void shouldCreateGovUkPayAgreement() {
+        JsonNode payload = mapper.valueToTree(Map.of("user_external_id", user.getExternalId()));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -51,8 +50,8 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
     }
 
     @Test
-    public void shouldReturn_404_whenServiceNotFound() {
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", user.getExternalId()));
+    void shouldReturn_404_whenServiceNotFound() {
+        JsonNode payload = mapper.valueToTree(Map.of("user_external_id", user.getExternalId()));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -63,8 +62,8 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
     }
 
     @Test
-    public void shouldReturn_400_whenUserNotFound() {
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", "abcde1234"));
+    void shouldReturn_400_whenUserNotFound() {
+        JsonNode payload = mapper.valueToTree(Map.of("user_external_id", "abcde1234"));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -76,8 +75,8 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
     }
 
     @Test
-    public void shouldReturn_400_whenUserExternalIdIsNotAString() {
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", 100));
+    void shouldReturn_400_whenUserExternalIdIsNotAString() {
+        JsonNode payload = mapper.valueToTree(Map.of("user_external_id", 100));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -90,8 +89,8 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
     }
 
     @Test
-    public void shouldReturn_400_whenUserExternalIdIsEmpty() {
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", ""));
+    void shouldReturn_400_whenUserExternalIdIsEmpty() {
+        JsonNode payload = mapper.valueToTree(Map.of("user_external_id", ""));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -104,8 +103,8 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
     }
 
     @Test
-    public void shouldReturn_400_whenUserExternalIdIsMissing() {
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_id", user.getExternalId()));
+    void shouldReturn_400_whenUserExternalIdIsMissing() {
+        JsonNode payload = mapper.valueToTree(Map.of("user_id", user.getExternalId()));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -118,12 +117,12 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
     }
 
     @Test
-    public void shouldReturn_409_whenAgreementAlreadyExists() {
+    void shouldReturn_409_whenAgreementAlreadyExists() {
         GovUkPayAgreementDbFixture.govUkPayAgreementDbFixture(databaseHelper)
                 .withServiceId(service.getId())
                 .insert();
 
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", user.getExternalId()));
+        JsonNode payload = mapper.valueToTree(Map.of("user_external_id", user.getExternalId()));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -136,10 +135,10 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
     }
 
     @Test
-    public void shouldReturn_400_whenUserDoesNotBelongToService() {
+    void shouldReturn_400_whenUserDoesNotBelongToService() {
         user = userDbFixture(databaseHelper)
                 .insertUser();
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", user.getExternalId()));
+        JsonNode payload = mapper.valueToTree(Map.of("user_external_id", user.getExternalId()));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -152,7 +151,7 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
     }
 
     @Test
-    public void shouldReturnAgreement_whenExists() {
+    void shouldReturnAgreement_whenExists() {
         ZonedDateTime agreementTime = ZonedDateTime.now(ZoneOffset.UTC);
         GovUkPayAgreementDbFixture.govUkPayAgreementDbFixture(databaseHelper)
                 .withServiceId(service.getId())
@@ -172,7 +171,7 @@ public class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest 
     }
 
     @Test
-    public void shouldReturn404_whenAgreementNotExists() {
+    void shouldReturn404_whenAgreementNotExists() {
         givenSetup()
                 .when()
                 .accept(JSON)

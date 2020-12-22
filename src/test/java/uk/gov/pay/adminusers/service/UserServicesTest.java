@@ -52,7 +52,7 @@ import static uk.gov.pay.adminusers.model.Permission.permission;
 import static uk.gov.pay.adminusers.model.Role.role;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServicesTest {
+class UserServicesTest {
 
     @Mock
     private UserDao userDao;
@@ -72,15 +72,17 @@ public class UserServicesTest {
     private static final String ANOTHER_USER_EXTERNAL_ID = "7d19aff33f8948deb97ed16b2912dcd4";
     private static final String ANOTHER_USER_USERNAME = "another-random-name";
 
+    private static ObjectMapper objectMapper = new ObjectMapper();
+
     @BeforeEach
-    public void before() {
+    void before() {
         userServices = new UserServices(userDao, passwordHasher,
                 new LinksBuilder("http://localhost"), 3,
                 () -> notificationService, secondFactorAuthenticator);
     }
 
     @Test
-    public void shouldFindAUserByExternalId() {
+    void shouldFindAUserByExternalId() {
         User user = aUser();
 
         UserEntity userEntity = aUserEntityWithTrimmings(user);
@@ -95,7 +97,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldFindAUsersByExternalIds() {
+    void shouldFindAUsersByExternalIds() {
         User user1 = aUser();
         User user2 = anotherUser();
 
@@ -112,7 +114,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnEmpty_WhenFindByExternalId_ifNotFound() {
+    void shouldReturnEmpty_WhenFindByExternalId_ifNotFound() {
         when(userDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(Optional.empty());
 
         Optional<User> userOptional = userServices.findUserByExternalId(USER_EXTERNAL_ID);
@@ -120,7 +122,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldFindAUserByUserName() {
+    void shouldFindAUserByUserName() {
         User user = aUser();
 
         UserEntity userEntity = aUserEntityWithTrimmings(user);
@@ -135,7 +137,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnEmpty_WhenFindByUserName_ifNotFound() {
+    void shouldReturnEmpty_WhenFindByUserName_ifNotFound() {
         when(userDao.findByUsername(USER_USERNAME)).thenReturn(Optional.empty());
 
         Optional<User> userOptional = userServices.findUserByUsername(USER_USERNAME);
@@ -143,7 +145,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUserAndResetLoginCount_ifAuthenticationSuccessfulAndUserNotDisabled() {
+    void shouldReturnUserAndResetLoginCount_ifAuthenticationSuccessfulAndUserNotDisabled() {
         User user = aUser();
         user.setLoginCounter(2);
 
@@ -164,7 +166,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUserAndNotResetLoginCount_ifAuthenticationSuccessfulButUserDisabled() {
+    void shouldReturnUserAndNotResetLoginCount_ifAuthenticationSuccessfulButUserDisabled() {
         User user = aUser();
         user.setLoginCounter(2);
         user.setDisabled(true);
@@ -186,7 +188,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnEmptyAndIncrementLoginCount_ifAuthenticationFail() {
+    void shouldReturnEmptyAndIncrementLoginCount_ifAuthenticationFail() {
         User user = aUser();
         user.setLoginCounter(1);
         UserEntity userEntity = aUserEntityWithTrimmings(user);
@@ -205,7 +207,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldLockUser_onTooManyAuthFailures() {
+    void shouldLockUser_onTooManyAuthFailures() {
         User user = aUser();
         user.setLoginCounter(2);
         UserEntity userEntity = aUserEntityWithTrimmings(user);
@@ -222,10 +224,10 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUser_whenIncrementingSessionVersion_ifUserFound() {
+    void shouldReturnUser_whenIncrementingSessionVersion_ifUserFound() {
         User user = aUser();
 
-        JsonNode node = new ObjectMapper().valueToTree(Map.of("path", "sessionVersion", "op", "append", "value", "2"));
+        JsonNode node = objectMapper.valueToTree(Map.of("path", "sessionVersion", "op", "append", "value", "2"));
         UserEntity userEntity = aUserEntityWithTrimmings(user);
 
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
@@ -239,10 +241,10 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUser_withDisabled_ifUserFoundDuringPatch() {
+    void shouldReturnUser_withDisabled_ifUserFoundDuringPatch() {
         User user = aUser();
 
-        JsonNode node = new ObjectMapper().valueToTree(Map.of("path", "disabled", "op", "replace", "value", "true"));
+        JsonNode node = objectMapper.valueToTree(Map.of("path", "disabled", "op", "replace", "value", "true"));
 
         UserEntity userEntity = aUserEntityWithTrimmings(user);
 
@@ -259,12 +261,12 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldResetLoginCounter_whenTheUserIsEnabled() {
+    void shouldResetLoginCounter_whenTheUserIsEnabled() {
         User user = aUser();
         user.setDisabled(Boolean.TRUE);
         user.setLoginCounter(11);
 
-        JsonNode node = new ObjectMapper().valueToTree(Map.of("path", "disabled", "op", "replace", "value", "false"));
+        JsonNode node = objectMapper.valueToTree(Map.of("path", "disabled", "op", "replace", "value", "false"));
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(userDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(userEntityOptional);
@@ -280,13 +282,13 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldUpdateTelephoneNumber_whenReplacingTelephoneNumber_ifUserFound() {
+    void shouldUpdateTelephoneNumber_whenReplacingTelephoneNumber_ifUserFound() {
         User user = aUser();
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         userEntity.setTelephoneNumber("+447700900000");
 
         String newTelephoneNumber = "+441134960000";
-        JsonNode node = new ObjectMapper().valueToTree(Map.of("path", "telephone_number", "op", "replace", "value", newTelephoneNumber));
+        JsonNode node = objectMapper.valueToTree(Map.of("path", "telephone_number", "op", "replace", "value", newTelephoneNumber));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
 
         when(userDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(userEntityOptional);
@@ -303,13 +305,13 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldUpdateFeatures_whenPathIsFeatures_ifUserFound() {
+    void shouldUpdateFeatures_whenPathIsFeatures_ifUserFound() {
         User user = aUser();
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         userEntity.setFeatures("1");
 
         String newFeature = "1,2,3";
-        JsonNode node = new ObjectMapper().valueToTree(Map.of("path", "features", "op", "replace", "value", newFeature));
+        JsonNode node = objectMapper.valueToTree(Map.of("path", "features", "op", "replace", "value", newFeature));
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
 
         when(userDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(userEntityOptional);
@@ -326,7 +328,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUser_whenAuthenticate2FA_ifSuccessful() {
+    void shouldReturnUser_whenAuthenticate2FA_ifSuccessful() {
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
         User aUser = aUser();
         int newPassCode = 123456;
@@ -345,7 +347,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnEmpty_whenAuthenticate2FA_ifUnsuccessful_whenTheUserNeverLoggedIn() {
+    void shouldReturnEmpty_whenAuthenticate2FA_ifUnsuccessful_whenTheUserNeverLoggedIn() {
         User user = aUser();
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
@@ -363,7 +365,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnEmpty_whenAuthenticate2FA_ifUnsuccessful_whenTheUserLoggedInAtLeastOnce() {
+    void shouldReturnEmpty_whenAuthenticate2FA_ifUnsuccessful_whenTheUserLoggedInAtLeastOnce() {
         ZonedDateTime lastLoggedInDateTime = ZonedDateTime.now(ZoneId.of("UTC")).minusDays(7);
         User user = aUser();
         UserEntity userEntity = aUserEntityWithTrimmings(user);
@@ -383,7 +385,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnEmptyAndDisable_whenAuthenticate2FA_ifUnsuccessfulMaxRetry() {
+    void shouldReturnEmptyAndDisable_whenAuthenticate2FA_ifUnsuccessfulMaxRetry() {
         User user = aUser();
         user.setLoginCounter(3);
         UserEntity userEntity = aUserEntityWithTrimmings(user);
@@ -401,7 +403,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnEmpty_whenAuthenticate2FA_ifUserNotFound() {
+    void shouldReturnEmpty_whenAuthenticate2FA_ifUserNotFound() {
         String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
 
@@ -411,7 +413,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUser_whenProvisionNewOtpKey_ifUserFound() {
+    void shouldReturnUser_whenProvisionNewOtpKey_ifUserFound() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         userEntity.setOtpKey("Original OTP key");
@@ -433,7 +435,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnEmpty_whenProvisionNewOtpKey_ifUserNotFound() {
+    void shouldReturnEmpty_whenProvisionNewOtpKey_ifUserNotFound() {
         String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
 
@@ -445,7 +447,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnEmpty_whenProvisionNewOtpKey_ifUserDisabled() {
+    void shouldReturnEmpty_whenProvisionNewOtpKey_ifUserDisabled() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         userEntity.setOtpKey("Original OTP key");
@@ -465,7 +467,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUser_whenActivateNewOtpKey_ifUserFound() {
+    void shouldReturnUser_whenActivateNewOtpKey_ifUserFound() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         userEntity.setSecondFactor(SecondFactorMethod.SMS);
@@ -490,7 +492,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUser_whenActivateNewOtpKey_ifCodeIncorrect() {
+    void shouldReturnUser_whenActivateNewOtpKey_ifCodeIncorrect() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         userEntity.setSecondFactor(SecondFactorMethod.SMS);
@@ -512,7 +514,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUser_whenActivateNewOtpKey_ifNoProvisionalOtpCode() {
+    void shouldReturnUser_whenActivateNewOtpKey_ifNoProvisionalOtpCode() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         userEntity.setSecondFactor(SecondFactorMethod.SMS);
@@ -532,7 +534,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUser_whenActivateNewOtpKey_ifNoProvisionalOtpCodeCreatedAt() {
+    void shouldReturnUser_whenActivateNewOtpKey_ifNoProvisionalOtpCodeCreatedAt() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         userEntity.setSecondFactor(SecondFactorMethod.SMS);
@@ -552,7 +554,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUser_whenActivateNewOtpKey_ifProvisionalOtpCodeCreatedAtTooLongAgo() {
+    void shouldReturnUser_whenActivateNewOtpKey_ifProvisionalOtpCodeCreatedAtTooLongAgo() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         userEntity.setSecondFactor(SecondFactorMethod.SMS);
@@ -573,7 +575,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnEmpty_whenActivateNewOtpKey_ifUserNotFound() {
+    void shouldReturnEmpty_whenActivateNewOtpKey_ifUserNotFound() {
         String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
 
@@ -585,7 +587,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void shouldReturnUser_whenActivateNewOtpKey_ifUserDisabled() {
+    void shouldReturnUser_whenActivateNewOtpKey_ifUserDisabled() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         userEntity.setSecondFactor(SecondFactorMethod.SMS);
@@ -607,7 +609,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void resetSecondFactor_shouldUpdateOtpMethodAndSetNewOtpKey_ifSecondFactorMethodIsApp() {
+    void resetSecondFactor_shouldUpdateOtpMethodAndSetNewOtpKey_ifSecondFactorMethodIsApp() {
         User user = aUser();
         user.setSecondFactor(SecondFactorMethod.APP);
         UserEntity userEntity = UserEntity.from(user);
@@ -628,7 +630,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void resetSecondFactor_shouldNotUpdateUser_ifSecondFactorMethodIsSms() {
+    void resetSecondFactor_shouldNotUpdateUser_ifSecondFactorMethodIsSms() {
         User user = aUser();
         user.setSecondFactor(SecondFactorMethod.SMS);
         UserEntity userEntity = UserEntity.from(user);
@@ -642,7 +644,7 @@ public class UserServicesTest {
     }
 
     @Test
-    public void resetSecondFactor_shouldReturnEmptyOptional_ifUserNotFound() {
+    void resetSecondFactor_shouldReturnEmptyOptional_ifUserNotFound() {
         String externalId = "not-found";
         when(userDao.findByExternalId(externalId)).thenReturn(Optional.empty());
 

@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -14,22 +13,17 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 
-public class ErrorsTest {
+class ErrorsTest {
 
-    private ObjectMapper mapper;
-
-    @BeforeEach
-    public void before() {
-        mapper = new ObjectMapper();
-    }
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void shouldMarshalMultipleErrorsCorrectly() throws Exception {
+    void shouldMarshalMultipleErrorsCorrectly() throws Exception {
         List<String> errorList = List.of("Error 1", "Error 2", "Error 3");
         Errors errors = Errors.from(errorList);
 
-        String errorsJson = mapper.writeValueAsString(errors);
-        Map<String, List<String>> response = mapper.readValue(errorsJson, new TypeReference<Map<String, List<String>>>() {
+        String errorsJson = objectMapper.writeValueAsString(errors);
+        Map<String, List<String>> response = objectMapper.readValue(errorsJson, new TypeReference<>() {
         });
 
         assertThat(response.get("errors"), is(notNullValue()));
@@ -38,11 +32,11 @@ public class ErrorsTest {
     }
 
     @Test
-    public void shouldMarshalSingleErrorsCorrectly() throws Exception {
+    void shouldMarshalSingleErrorsCorrectly() throws Exception {
         Errors errors = Errors.from("an error");
 
-        String errorsJson = mapper.writeValueAsString(errors);
-        Map<String, List<String>> response = mapper.readValue(errorsJson, new TypeReference<Map<String, List<String>>>() {
+        String errorsJson = objectMapper.writeValueAsString(errors);
+        Map<String, List<String>> response = objectMapper.readValue(errorsJson, new TypeReference<>() {
         });
 
         assertThat(response.get("errors"), is(notNullValue()));

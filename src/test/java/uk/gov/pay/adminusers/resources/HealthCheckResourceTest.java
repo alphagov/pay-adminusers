@@ -23,7 +23,10 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class HealthCheckResourceTest {
+class HealthCheckResourceTest {
+
+    private static ObjectMapper objectMapper = new ObjectMapper();
+    
     @Mock
     private Environment environment;
 
@@ -33,20 +36,20 @@ public class HealthCheckResourceTest {
     private HealthCheckResource resource;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         when(environment.healthChecks()).thenReturn(healthCheckRegistry);
         resource = new HealthCheckResource(environment);
     }
 
     @Test
-    public void checkHealthCheck_isUnHealthy() throws JsonProcessingException {
+    void checkHealthCheck_isUnHealthy() throws JsonProcessingException {
         SortedMap<String,HealthCheck.Result> map = new TreeMap<>();
         map.put("ping", HealthCheck.Result.unhealthy("application is unavailable"));
         map.put("deadlocks", HealthCheck.Result.unhealthy("no new threads available"));
         when(healthCheckRegistry.runHealthChecks()).thenReturn(map);
         Response response = resource.healthCheck();
         assertThat(response.getStatus(), is(503));
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
         String body = ow.writeValueAsString(response.getEntity());
 
         JsonAssert.with(body)
@@ -56,14 +59,14 @@ public class HealthCheckResourceTest {
     }
 
     @Test
-    public void checkHealthCheck_isHealthy() throws JsonProcessingException {
+    void checkHealthCheck_isHealthy() throws JsonProcessingException {
         SortedMap<String,HealthCheck.Result> map = new TreeMap<>();
         map.put("ping", HealthCheck.Result.healthy());
         map.put("deadlocks", HealthCheck.Result.healthy());
         when(healthCheckRegistry.runHealthChecks()).thenReturn(map);
         Response response = resource.healthCheck();
         assertThat(response.getStatus(), is(200));
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
         String body = ow.writeValueAsString(response.getEntity());
 
         JsonAssert.with(body)
@@ -73,14 +76,14 @@ public class HealthCheckResourceTest {
     }
 
     @Test
-    public void checkHealthCheck_pingIsHealthy_deadlocksIsUnhealthy() throws JsonProcessingException {
+    void checkHealthCheck_pingIsHealthy_deadlocksIsUnhealthy() throws JsonProcessingException {
         SortedMap<String,HealthCheck.Result> map = new TreeMap<>();
         map.put("ping", HealthCheck.Result.healthy());
         map.put("deadlocks", HealthCheck.Result.unhealthy("no new threads available"));
         when(healthCheckRegistry.runHealthChecks()).thenReturn(map);
         Response response = resource.healthCheck();
         assertThat(response.getStatus(), is(503));
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
         String body = ow.writeValueAsString(response.getEntity());
 
         JsonAssert.with(body)

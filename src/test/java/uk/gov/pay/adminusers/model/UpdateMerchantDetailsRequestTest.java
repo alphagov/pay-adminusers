@@ -10,7 +10,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 
-public class UpdateMerchantDetailsRequestTest {
+class UpdateMerchantDetailsRequestTest {
+
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     private final String name = "name";
     private final String telephoneNumber = "03069990000";
@@ -22,14 +24,14 @@ public class UpdateMerchantDetailsRequestTest {
     private final String email = "dd-merchant@example.com";
 
     @Test
-    public void shouldConstructMerchantDetails_fromMinimalValidJson() {
+    void shouldConstructMerchantDetails_fromMinimalValidJson() {
         Map<String, Object> payload = Map.of(
                 "name", name,
                 "address_line1", addressLine1,
                 "address_city", addressCity,
                 "address_country", addressCountry,
                 "address_postcode", addressPostcode);
-        JsonNode jsonNode = new ObjectMapper().valueToTree(payload);
+        JsonNode jsonNode = objectMapper.valueToTree(payload);
         UpdateMerchantDetailsRequest updateMerchantDetailsRequest = UpdateMerchantDetailsRequest.from(jsonNode);
         assertThat(updateMerchantDetailsRequest.getName(), is(name));
         assertThat(updateMerchantDetailsRequest.getAddressLine1(), is(addressLine1));
@@ -40,7 +42,7 @@ public class UpdateMerchantDetailsRequestTest {
     }
 
     @Test
-    public void shouldConstructMerchantDetails_fromCompleteValidJson() {
+    void shouldConstructMerchantDetails_fromCompleteValidJson() {
         Map<String, Object> payload = Map.of(
                 "name", name,
                 "telephone_number", telephoneNumber,
@@ -50,7 +52,7 @@ public class UpdateMerchantDetailsRequestTest {
                 "address_country", addressCountry,
                 "address_postcode", addressPostcode,
                 "email", email);
-        JsonNode jsonNode = new ObjectMapper().valueToTree(payload);
+        JsonNode jsonNode = objectMapper.valueToTree(payload);
         UpdateMerchantDetailsRequest updateMerchantDetailsRequest = UpdateMerchantDetailsRequest.from(jsonNode);
         assertThat(updateMerchantDetailsRequest.getName(), is(name));
         assertThat(updateMerchantDetailsRequest.getTelephoneNumber(), is(telephoneNumber));

@@ -14,25 +14,26 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 
-public class GovUkPayAgreementRequestValidatorTest {
-    
+class GovUkPayAgreementRequestValidatorTest {
+
+    private static ObjectMapper objectMapper = new ObjectMapper();
     private GovUkPayAgreementRequestValidator validator;
     
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         validator = new GovUkPayAgreementRequestValidator(new RequestValidations());
     }
     
     @Test
-    public void shouldPassValidation() {
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", "abcde1234"));
+    void shouldPassValidation() {
+        JsonNode payload = objectMapper.valueToTree(Map.of("user_external_id", "abcde1234"));
         Optional<Errors> optionalErrors = validator.validateCreateRequest(payload);
         assertThat(optionalErrors.isPresent(), is(false));
     }
     
     @Test
-    public void shouldFailValidation_whenUserExternalIdIsEmpty() {
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", ""));
+    void shouldFailValidation_whenUserExternalIdIsEmpty() {
+        JsonNode payload = objectMapper.valueToTree(Map.of("user_external_id", ""));
         Optional<Errors> optionalErrors = validator.validateCreateRequest(payload);
         assertThat(optionalErrors.isPresent(), is(true));
         assertThat(optionalErrors.get().getErrors().size(), is(1));
@@ -40,8 +41,8 @@ public class GovUkPayAgreementRequestValidatorTest {
     }
     
     @Test
-    public void shouldFailValidation_whenUserExternalIdIsNotString() {
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("user_external_id", true));
+    void shouldFailValidation_whenUserExternalIdIsNotString() {
+        JsonNode payload = objectMapper.valueToTree(Map.of("user_external_id", true));
         Optional<Errors> optionalErrors = validator.validateCreateRequest(payload);
         assertThat(optionalErrors.isPresent(), is(true));
         assertThat(optionalErrors.get().getErrors().size(), is(1));
@@ -49,8 +50,8 @@ public class GovUkPayAgreementRequestValidatorTest {
     }
     
     @Test
-    public void shouldFailValidation_whenUserExternalIdIsMissing() {
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("luser_external_id", "abcde1234"));
+    void shouldFailValidation_whenUserExternalIdIsMissing() {
+        JsonNode payload = objectMapper.valueToTree(Map.of("luser_external_id", "abcde1234"));
         Optional<Errors> optionalErrors = validator.validateCreateRequest(payload);
         assertThat(optionalErrors.isPresent(), is(true));
         assertThat(optionalErrors.get().getErrors().size(), is(1));
