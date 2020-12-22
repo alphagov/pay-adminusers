@@ -3,14 +3,16 @@ package uk.gov.pay.adminusers.model;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import uk.gov.pay.commons.api.json.ApiResponseDateTimeSerializer;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class User {
 
     public static final String FIELD_USERNAME = "username";
@@ -33,7 +35,9 @@ public class User {
     private List<ServiceRole> serviceRoles;
     private SecondFactorMethod secondFactor;
     private String provisionalOtpKey;
+    @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
     private ZonedDateTime provisionalOtpKeyCreatedAt;
+    @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
     private ZonedDateTime lastLoggedInAt;
     private List<Link> links = new ArrayList<>();
     private Integer sessionVersion = 0;

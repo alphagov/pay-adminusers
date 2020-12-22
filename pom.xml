@@ -12,7 +12,7 @@
         <eclipselink.version>2.7.7</eclipselink.version>
         <guice.version>4.2.3</guice.version>
         <guava.version>29.0-jre</guava.version>
-        <jackson.version>2.11.3</jackson.version>
+        <jackson.version>2.12.0</jackson.version>
         <pay-java-commons.version>1.0.20200702150539</pay-java-commons.version>
         <junit5.version>5.6.2</junit5.version>
     </properties>
@@ -96,6 +96,11 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.2.18</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
