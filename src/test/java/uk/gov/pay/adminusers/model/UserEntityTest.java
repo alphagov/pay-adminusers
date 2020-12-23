@@ -18,10 +18,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.pay.adminusers.model.Permission.permission;
 import static uk.gov.pay.adminusers.model.Role.role;
 
-public class UserEntityTest {
+class UserEntityTest {
+
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void shouldConstructAUser_fromMinimalValidUserJson() throws Exception {
+    void shouldConstructAUser_fromMinimalValidUserJson() throws Exception {
         String minimumUserJson = "{" +
                 "\"username\": \"a-username\"," +
                 "\"telephone_number\": \"+441134960000\"," +
@@ -29,7 +31,7 @@ public class UserEntityTest {
                 "\"email\": \"email@example.com\"" +
                 "}";
 
-        JsonNode jsonNode = new ObjectMapper().readTree(minimumUserJson);
+        JsonNode jsonNode = objectMapper.readTree(minimumUserJson);
         CreateUserRequest createUserRequest = CreateUserRequest.from(jsonNode);
 
         UserEntity userEntity = UserEntity.from(createUserRequest);
@@ -46,7 +48,7 @@ public class UserEntityTest {
     }
 
     @Test
-    public void creatingAUser_shouldSetGatewayAccountAndRole_whenServiceRoleIsSet() {
+    void creatingAUser_shouldSetGatewayAccountAndRole_whenServiceRoleIsSet() {
         UserEntity userEntity = new UserEntity();
         String gatewayAccountId = "1";
         ServiceEntity service = new ServiceEntity(List.of(gatewayAccountId));

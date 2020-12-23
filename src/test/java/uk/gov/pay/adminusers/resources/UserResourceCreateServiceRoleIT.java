@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Role;
@@ -19,17 +18,17 @@ import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
-public class UserResourceCreateServiceRoleIT extends IntegrationTest {
+class UserResourceCreateServiceRoleIT extends IntegrationTest {
 
     @Test
-    public void shouldSuccess_whenAddServiceRoleForUser() {
+    void shouldSuccess_whenAddServiceRoleForUser() {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
         Service service = serviceDbFixture(databaseHelper).insertService();
         String username = randomUuid();
         String email = username + "@example.com";
         User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
 
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("service_external_id", service.getExternalId(), "role_name", role.getName()));
+        JsonNode payload = mapper.valueToTree(Map.of("service_external_id", service.getExternalId(), "role_name", role.getName()));
 
         givenSetup()
                 .when()
@@ -45,14 +44,14 @@ public class UserResourceCreateServiceRoleIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldError_whenAddServiceRoleForUser_ifMandatoryParamsMissing() {
+    void shouldError_whenAddServiceRoleForUser_ifMandatoryParamsMissing() {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
         serviceDbFixture(databaseHelper).insertService();
         String username = randomUuid();
         String email = username + "@example.com";
         User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
 
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("role_name", role.getName()));
+        JsonNode payload = mapper.valueToTree(Map.of("role_name", role.getName()));
 
         givenSetup()
                 .when()
@@ -66,7 +65,7 @@ public class UserResourceCreateServiceRoleIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldError_whenAddServiceRoleForUser_ifUserAlreadyHasService() {
+    void shouldError_whenAddServiceRoleForUser_ifUserAlreadyHasService() {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
         String roleName = "view-and-refund";
         roleDbFixture(databaseHelper).withName(roleName).insertAdmin();
@@ -75,7 +74,7 @@ public class UserResourceCreateServiceRoleIT extends IntegrationTest {
         String email = username + "@example.com";
         User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withUsername(username).withEmail(email).insertUser();
 
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("service_external_id", service.getExternalId(), "role_name", roleName));
+        JsonNode payload = mapper.valueToTree(Map.of("service_external_id", service.getExternalId(), "role_name", roleName));
 
         givenSetup()
                 .when()

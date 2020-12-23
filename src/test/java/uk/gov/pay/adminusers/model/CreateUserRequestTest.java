@@ -8,10 +8,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 
-public class CreateUserRequestTest {
+class CreateUserRequestTest {
+
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void shouldConstructAUser_fromMinimalValidUserJson() throws Exception {
+    void shouldConstructAUser_fromMinimalValidUserJson() throws Exception {
         String minimumUserJson = "{" +
                 "\"username\": \"a-username\"," +
                 "\"telephone_number\": \"2123524\"," +
@@ -19,7 +21,7 @@ public class CreateUserRequestTest {
                 "\"email\": \"email@example.com\"" +
                 "}";
 
-        JsonNode jsonNode = new ObjectMapper().readTree(minimumUserJson);
+        JsonNode jsonNode = objectMapper.readTree(minimumUserJson);
         CreateUserRequest createUserRequest = CreateUserRequest.from(jsonNode);
 
         assertThat(createUserRequest.getUsername(), is("a-username"));
@@ -33,7 +35,7 @@ public class CreateUserRequestTest {
     }
 
     @Test
-    public void shouldConstructAUser_fromCompleteValidUserJson() throws Exception {
+    void shouldConstructAUser_fromCompleteValidUserJson() throws Exception {
         String minimunUserJson = "{" +
                 "\"username\": \"a-username\"," +
                 "\"password\": \"a-password\"," +
@@ -43,7 +45,7 @@ public class CreateUserRequestTest {
                 "\"email\": \"email@example.com\"" +
                 "}";
 
-        JsonNode jsonNode = new ObjectMapper().readTree(minimunUserJson);
+        JsonNode jsonNode = objectMapper.readTree(minimunUserJson);
         CreateUserRequest createUserRequest = CreateUserRequest.from(jsonNode);
 
         assertThat(createUserRequest.getUsername(), is("a-username"));

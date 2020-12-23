@@ -18,20 +18,19 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class InviteUserRequestValidatorTest {
+class InviteUserRequestValidatorTest {
 
     private InviteRequestValidator validator;
 
-    private ObjectMapper objectMapper;
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
-    public void before() {
+    void before() {
         validator = new InviteRequestValidator(new RequestValidations());
-        objectMapper = new ObjectMapper();
     }
 
     @Test
-    public void validateCreateRequest_shouldError_ifAllMandatoryFieldsAreMissing() throws Exception {
+    void validateCreateRequest_shouldError_ifAllMandatoryFieldsAreMissing() throws Exception {
 
         String invalidPayload = "{}";
         JsonNode jsonNode = objectMapper.readTree(invalidPayload);
@@ -48,7 +47,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void validateCreateRequest_shouldError_ifRoleNameFieldIsMissing() throws Exception {
+    void validateCreateRequest_shouldError_ifRoleNameFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
                 "\"sender\": \"12345abc\"," +
@@ -67,7 +66,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void validateCreateRequest_shouldError_ifEmailFieldIsMissing() throws Exception {
+    void validateCreateRequest_shouldError_ifEmailFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
                 "\"sender\": \"12345abc\"," +
@@ -86,7 +85,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void validateCreateRequest_shouldError_ifSenderFieldIsMissing() throws Exception {
+    void validateCreateRequest_shouldError_ifSenderFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
                 "\"email\": \"email@example.com\"," +
@@ -105,7 +104,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void validateGenerateOtpRequest_shouldError_ifAllMandatoryFieldsAreMissing() throws Exception {
+    void validateGenerateOtpRequest_shouldError_ifAllMandatoryFieldsAreMissing() throws Exception {
 
         String invalidPayload = "{}";
         JsonNode jsonNode = objectMapper.readTree(invalidPayload);
@@ -121,7 +120,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void validateGenerateOtpRequest_shouldError_ifCodeFieldIsMissing() throws Exception {
+    void validateGenerateOtpRequest_shouldError_ifCodeFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
                 "\"password\": \"a-password\"" +
@@ -139,7 +138,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void validateGenerateOtpRequest_shouldError_ifTelephoneNumberFieldIsMissing() throws Exception {
+    void validateGenerateOtpRequest_shouldError_ifTelephoneNumberFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
                 "\"code\": \"a-code\"," +
@@ -158,7 +157,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void validateGenerateOtpRequest_shouldError_ifPasswordFieldIsMissing() throws Exception {
+    void validateGenerateOtpRequest_shouldError_ifPasswordFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
                 "\"code\": \"a-code\"," +
@@ -177,7 +176,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void validateResendOtpRequest_shouldError_ifAllMandatoryFieldsAreMissing() throws Exception {
+    void validateResendOtpRequest_shouldError_ifAllMandatoryFieldsAreMissing() throws Exception {
 
         String invalidPayload = "{}";
         JsonNode jsonNode = objectMapper.readTree(invalidPayload);
@@ -193,7 +192,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void validateResendOtpRequest_shouldError_ifCodeFieldIsMissing() throws Exception {
+    void validateResendOtpRequest_shouldError_ifCodeFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
                 "\"telephone_number\": \"a-telephone_number\"" +
@@ -211,7 +210,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void validateResendOtpRequest_shouldError_ifTelephoneNumberFieldIsMissing() throws Exception {
+    void validateResendOtpRequest_shouldError_ifTelephoneNumberFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
                 "\"code\": \"a-code\"" +
@@ -229,7 +228,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void validateOtpValidationRequest_shouldError_ifAllMandatoryFieldsAreMissing() throws Exception {
+    void validateOtpValidationRequest_shouldError_ifAllMandatoryFieldsAreMissing() throws Exception {
 
         String invalidPayload = "{}";
         JsonNode jsonNode = objectMapper.readTree(invalidPayload);
@@ -245,7 +244,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void validateOtpValidationRequest_shouldError_ifCodeFieldIsMissing() throws Exception {
+    void validateOtpValidationRequest_shouldError_ifCodeFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
                 "\"otp\": \"an-otp-code\"" +
@@ -262,7 +261,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void validateOtpValidationRequest_shouldError_ifOtpFieldIsMissing() throws Exception {
+    void validateOtpValidationRequest_shouldError_ifOtpFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
                 "\"code\": \"a-code\"" +
@@ -279,7 +278,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void shouldSuccess_ifAllFieldsArePresentAndValidEmailDomain() {
+    void shouldSuccess_ifAllFieldsArePresentAndValidEmailDomain() {
         Map<String, String> payload = Map.of("email", "example@example.gov.uk", "telephone_number", "01134960000", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
@@ -288,7 +287,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void shouldFail_ifMissingRequiredField() {
+    void shouldFail_ifMissingRequiredField() {
         Map<String, String> payload = Map.of( "telephone_number", "01134960000", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
@@ -299,7 +298,7 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void shouldFail_ifInvalidEmailFormat() {
+    void shouldFail_ifInvalidEmailFormat() {
         Map<String, String> payload = Map.of( "email", "exampleatexample.com", "telephone_number", "01134960000", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
@@ -310,14 +309,14 @@ public class InviteUserRequestValidatorTest {
     }
 
     @Test
-    public void shouldFail_ifEmailAddressNotPublicSector() {
+    void shouldFail_ifEmailAddressNotPublicSector() {
         Map<String, String> payload = Map.of( "email", "example@example.com","telephone_number", "01134960000", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         assertThrows(WebApplicationException.class, () -> validator.validateCreateServiceRequest(payloadNode));
     }
 
     @Test
-    public void shouldFail_ifTelephoneNumberIsInvalid() {
+    void shouldFail_ifTelephoneNumberIsInvalid() {
         Map<String, String> payload = Map.of( "email", "example@example.gov.uk","telephone_number", "0770090000A", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);

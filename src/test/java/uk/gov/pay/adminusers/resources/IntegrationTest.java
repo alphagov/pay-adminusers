@@ -54,7 +54,7 @@ public class IntegrationTest {
     public static final DropwizardAppWithPostgresExtension APP;
 
     protected DatabaseTestHelper databaseHelper;
-    protected ObjectMapper mapper;
+    protected static ObjectMapper mapper = new ObjectMapper();
 
     @Path("/v2/notifications")
     public static class NotifyResource {
@@ -85,7 +85,6 @@ public class IntegrationTest {
     @BeforeEach
     public void initialise() {
         databaseHelper = APP.getDatabaseTestHelper();
-        mapper = new ObjectMapper();
     }
 
     protected RequestSpecification givenSetup() {

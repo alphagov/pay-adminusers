@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.fixtures.StripeAgreementDbFixture;
@@ -20,18 +19,18 @@ import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.model.StripeAgreement.FIELD_IP_ADDRESS;
 import static uk.gov.pay.commons.model.ApiResponseDateTimeFormatter.ISO_INSTANT_MILLISECOND_PRECISION;
 
-public class ServiceResourceStripeAgreementIT extends IntegrationTest {
+class ServiceResourceStripeAgreementIT extends IntegrationTest {
 
     private Service service;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         service = serviceDbFixture(databaseHelper).insertService();
     }
 
     @Test
-    public void shouldCreateStripeAgreement() {
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of(FIELD_IP_ADDRESS, "0.0.0.0"));
+    void shouldCreateStripeAgreement() {
+        JsonNode payload = mapper.valueToTree(Map.of(FIELD_IP_ADDRESS, "0.0.0.0"));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -42,8 +41,8 @@ public class ServiceResourceStripeAgreementIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn_NOT_FOUND_whenServiceNotFound() {
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of(FIELD_IP_ADDRESS, "0.0.0.0"));
+    void shouldReturn_NOT_FOUND_whenServiceNotFound() {
+        JsonNode payload = mapper.valueToTree(Map.of(FIELD_IP_ADDRESS, "0.0.0.0"));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -54,12 +53,12 @@ public class ServiceResourceStripeAgreementIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn_409_whenStripeAgreementAlreadyExists() {
+    void shouldReturn_409_whenStripeAgreementAlreadyExists() {
         StripeAgreementDbFixture.stripeAgreementDbFixture(databaseHelper)
                 .withServiceId(service.getId())
                 .insert();
 
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of(FIELD_IP_ADDRESS, "0.0.0.0"));
+        JsonNode payload = mapper.valueToTree(Map.of(FIELD_IP_ADDRESS, "0.0.0.0"));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -72,8 +71,8 @@ public class ServiceResourceStripeAgreementIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn_422_whenProvidedInvalidIPAddress() {
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of(FIELD_IP_ADDRESS, "257.0.0.0"));
+    void shouldReturn_422_whenProvidedInvalidIPAddress() {
+        JsonNode payload = mapper.valueToTree(Map.of(FIELD_IP_ADDRESS, "257.0.0.0"));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -86,8 +85,8 @@ public class ServiceResourceStripeAgreementIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn_422_whenIpAddressIsNotAString() {
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of(FIELD_IP_ADDRESS, 100));
+    void shouldReturn_422_whenIpAddressIsNotAString() {
+        JsonNode payload = mapper.valueToTree(Map.of(FIELD_IP_ADDRESS, 100));
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -100,8 +99,8 @@ public class ServiceResourceStripeAgreementIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn_422_whenIpAddressNotProvided() {
-        JsonNode payload = new ObjectMapper().valueToTree(emptyMap());
+    void shouldReturn_422_whenIpAddressNotProvided() {
+        JsonNode payload = mapper.valueToTree(emptyMap());
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -114,7 +113,7 @@ public class ServiceResourceStripeAgreementIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldGetStripeAgreementDetails() {
+    void shouldGetStripeAgreementDetails() {
         ZonedDateTime agreementTime = ZonedDateTime.now(ZoneId.of("UTC"));
         String ipAddress = "192.0.2.0";
 
@@ -134,7 +133,7 @@ public class ServiceResourceStripeAgreementIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn_NOT_FOUND_whenStripeAgreementDoesNotExist() {
+    void shouldReturn_NOT_FOUND_whenStripeAgreementDoesNotExist() {
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -144,7 +143,7 @@ public class ServiceResourceStripeAgreementIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn_NOT_FOUND_whenServiceDoesNotExist() {
+    void shouldReturn_NOT_FOUND_whenServiceDoesNotExist() {
         givenSetup()
                 .when()
                 .accept(JSON)

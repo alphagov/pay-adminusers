@@ -19,6 +19,8 @@ public class ServiceUpdateRequest {
     public static final String FIELD_PATH = "path";
     public static final String FIELD_VALUE = "value";
 
+    private static ObjectMapper objectMapper = new ObjectMapper();
+    
     private String op;
     private String path;
     private JsonNode value;
@@ -51,7 +53,7 @@ public class ServiceUpdateRequest {
         if (value != null) {
             if ((value.isTextual() && !isEmpty(value.asText())) || value.isObject()) {
                 try {
-                    return new ObjectMapper().readValue(value.traverse(), new TypeReference<Map<String, Object>>() {});
+                    return objectMapper.readValue(value.traverse(), new TypeReference<Map<String, Object>>() {});
                 } catch (IOException e) {
                     throw new RuntimeException("Malformed JSON object in ServiceUpdateRequest.value", e);
                 }

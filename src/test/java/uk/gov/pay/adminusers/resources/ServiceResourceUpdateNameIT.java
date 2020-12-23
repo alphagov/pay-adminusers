@@ -13,18 +13,18 @@ import static java.lang.String.format;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
-public class ServiceResourceUpdateNameIT extends IntegrationTest {
-    
+class ServiceResourceUpdateNameIT extends IntegrationTest {
+
     private String serviceExternalId;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         Service service = serviceDbFixture(databaseHelper).insertService();
         serviceExternalId = service.getExternalId();
     }
     @Test
-    public void shouldUpdateBothNameAndEnglishServiceName_whenUpdatingEnglishName() {
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "replace", "path", "service_name/en", "value", "New Service Name"));
+    void shouldUpdateBothNameAndEnglishServiceName_whenUpdatingEnglishName() {
+        JsonNode payload = mapper.valueToTree(Map.of("op", "replace", "path", "service_name/en", "value", "New Service Name"));
         givenSetup()
                 .when()
                 .accept(JSON)

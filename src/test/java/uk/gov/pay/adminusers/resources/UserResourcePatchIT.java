@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.User;
@@ -15,12 +14,12 @@ import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
-public class UserResourcePatchIT extends IntegrationTest {
+class UserResourcePatchIT extends IntegrationTest {
 
     private String externalId;
 
     @BeforeEach
-    public void createAUser() {
+    void createAUser() {
         String username = randomUuid();
         String email = username + "@example.com";
         User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
@@ -29,9 +28,9 @@ public class UserResourcePatchIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldIncreaseSessionVersion_whenPatchAttempt() {
+    void shouldIncreaseSessionVersion_whenPatchAttempt() {
 
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "append", "path", "sessionVersion", "value", 2));
+        JsonNode payload = mapper.valueToTree(Map.of("op", "append", "path", "sessionVersion", "value", 2));
 
         givenSetup()
                 .when()
@@ -44,10 +43,10 @@ public class UserResourcePatchIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldUpdateTelephoneNumber_whenPatchAttempt() {
+    void shouldUpdateTelephoneNumber_whenPatchAttempt() {
 
         String newTelephoneNumber = "+441134960000";
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "replace", "path", "telephone_number", "value", newTelephoneNumber));
+        JsonNode payload = mapper.valueToTree(Map.of("op", "replace", "path", "telephone_number", "value", newTelephoneNumber));
 
         givenSetup()
                 .when()
@@ -61,10 +60,10 @@ public class UserResourcePatchIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldUpdateFeatures_whenPatchAttempt() {
+    void shouldUpdateFeatures_whenPatchAttempt() {
 
         String newFeatures = "SUPER_FEATURE_1, SECRET_SQUIRREL_FEATURE";
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "replace", "path", "features", "value", newFeatures));
+        JsonNode payload = mapper.valueToTree(Map.of("op", "replace", "path", "features", "value", newFeatures));
 
         givenSetup()
                 .when()
@@ -77,9 +76,9 @@ public class UserResourcePatchIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldDisableUser_whenPatchAttempt() {
+    void shouldDisableUser_whenPatchAttempt() {
 
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "replace", "path", "disabled", "value", "true"));
+        JsonNode payload = mapper.valueToTree(Map.of("op", "replace", "path", "disabled", "value", "true"));
 
         givenSetup()
                 .when()
@@ -92,9 +91,9 @@ public class UserResourcePatchIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn404_whenUnknownExternalIdIsSupplied() {
+    void shouldReturn404_whenUnknownExternalIdIsSupplied() {
 
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("op", "append", "path", "sessionVersion", "value", 1));
+        JsonNode payload = mapper.valueToTree(Map.of("op", "append", "path", "sessionVersion", "value", 1));
 
         givenSetup()
                 .when()
@@ -106,9 +105,9 @@ public class UserResourcePatchIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldError_whenPatchRequiredFieldsAreMissing() {
+    void shouldError_whenPatchRequiredFieldsAreMissing() {
 
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("blah", "sessionVersion", "value", 1));
+        JsonNode payload = mapper.valueToTree(Map.of("blah", "sessionVersion", "value", 1));
 
         givenSetup()
                 .when()

@@ -45,7 +45,7 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.Role.role;
 
-public class ServiceDaoIT extends DaoTestBase {
+class ServiceDaoIT extends DaoTestBase {
 
     private ServiceDao serviceDao;
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -53,12 +53,12 @@ public class ServiceDaoIT extends DaoTestBase {
     private static final String CY_NAME = "gwasanaeth prawf";
 
     @BeforeEach
-    public void before() {
+    void before() {
         serviceDao = env.getInstance(ServiceDao.class);
     }
 
     @Test
-    public void shouldSaveAService_withCustomisations() throws Exception {
+    void shouldSaveAService_withCustomisations() throws Exception {
         ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withExperimentalFeaturesEnabled(true)
                 .build();
@@ -78,7 +78,7 @@ public class ServiceDaoIT extends DaoTestBase {
     }
 
     @Test
-    public void shouldSaveAService_withMultipleServiceNames() {
+    void shouldSaveAService_withMultipleServiceNames() {
         ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withCustomBranding(null)
                 .withServiceNameEntity(SupportedLanguage.WELSH, CY_NAME)
@@ -104,7 +104,7 @@ public class ServiceDaoIT extends DaoTestBase {
     }
 
     @Test
-    public void shouldSaveAService_withoutCustomisations_andServiceName() {
+    void shouldSaveAService_withoutCustomisations_andServiceName() {
         ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withCustomBranding(null)
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, EN_NAME)
@@ -131,7 +131,7 @@ public class ServiceDaoIT extends DaoTestBase {
     }
 
     @Test
-    public void shouldSaveAService_withMerchantDetails() {
+    void shouldSaveAService_withMerchantDetails() {
         MerchantDetailsEntity merchantDetails = MerchantDetailsEntityBuilder.aMerchantDetailsEntity().build();
         ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withMerchantDetailsEntity(merchantDetails)
@@ -154,7 +154,7 @@ public class ServiceDaoIT extends DaoTestBase {
     }
 
     @Test
-    public void shouldFindByServiceExternalId() {
+    void shouldFindByServiceExternalId() {
         ZonedDateTime now = ZonedDateTime.now(UTC);
         ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withExperimentalFeaturesEnabled(true)
@@ -177,7 +177,7 @@ public class ServiceDaoIT extends DaoTestBase {
     }
 
     @Test
-    public void shouldReturnServiceValuesFromDatabase() {
+    void shouldReturnServiceValuesFromDatabase() {
         ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withRedirectToServiceImmediatelyOnTerminalState(true)
                 .withCreatedDate(ZonedDateTime.parse("2020-11-01T00:00:00Z"))
@@ -193,7 +193,7 @@ public class ServiceDaoIT extends DaoTestBase {
     }
 
     @Test
-    public void shouldFindServiceWithMultipleLanguage_byServiceExternalId() {
+    void shouldFindServiceWithMultipleLanguage_byServiceExternalId() {
         Set<ServiceNameEntity> serviceNames = new HashSet<>(List.of(
                 createServiceName(SupportedLanguage.ENGLISH, EN_NAME),
                 createServiceName(SupportedLanguage.WELSH, CY_NAME)
@@ -219,7 +219,7 @@ public class ServiceDaoIT extends DaoTestBase {
     }
 
     @Test
-    public void shouldFindByGatewayAccountId() {
+    void shouldFindByGatewayAccountId() {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
         String gatewayAccountId = randomUuid();
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
@@ -237,7 +237,7 @@ public class ServiceDaoIT extends DaoTestBase {
     }
 
     @Test
-    public void shouldGetRoleCountForAService() {
+    void shouldGetRoleCountForAService() {
         String serviceExternalId = randomUuid();
         Integer roleId = randomInt();
         setupUsersForServiceAndRole(serviceExternalId, roleId, 3);
@@ -248,7 +248,7 @@ public class ServiceDaoIT extends DaoTestBase {
     }
     
     @Test
-    public void shouldMergeGoLiveStage() {
+    void shouldMergeGoLiveStage() {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
         String gatewayAccountId = randomUuid();
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);

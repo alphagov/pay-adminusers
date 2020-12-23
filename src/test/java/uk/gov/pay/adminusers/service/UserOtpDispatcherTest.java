@@ -24,8 +24,10 @@ import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE;
 
 @ExtendWith(MockitoExtension.class)
-public class UserOtpDispatcherTest {
+class UserOtpDispatcherTest {
 
+    private static ObjectMapper objectMapper = new ObjectMapper();
+    
     @Mock
     private InviteDao inviteDao;
     @Mock
@@ -38,12 +40,12 @@ public class UserOtpDispatcherTest {
     private InviteOtpDispatcher userOtpDispatcher;
 
     @BeforeEach
-    public void before() {
+    void before() {
         userOtpDispatcher = new UserOtpDispatcher(inviteDao, secondFactorAuthenticator, new PasswordHasher(), notificationService);
     }
 
     @Test
-    public void shouldSuccess_whenDispatchUserOtp_ifInviteEntityExist() {
+    void shouldSuccess_whenDispatchUserOtp_ifInviteEntityExist() {
         String inviteCode = "valid-invite-code";
         String telephone = "+441134960000";
         InviteEntity inviteEntity = new InviteEntity();
@@ -51,7 +53,7 @@ public class UserOtpDispatcherTest {
         inviteEntity.setType(InviteType.USER);
         inviteEntity.setOtpKey("otp-key");
 
-        JsonNode payload = new ObjectMapper().valueToTree(Map.of("telephone_number", telephone, "password", "random"));
+        JsonNode payload = objectMapper.valueToTree(Map.of("telephone_number", telephone, "password", "random"));
         userOtpDispatcher = userOtpDispatcher.withData(InviteOtpRequest.from(payload));
 
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
@@ -67,7 +69,7 @@ public class UserOtpDispatcherTest {
     }
 
     @Test
-    public void shouldFail_whenDispatchServiceOtp_ifInviteEntityNotFound() {
+    void shouldFail_whenDispatchServiceOtp_ifInviteEntityNotFound() {
         String inviteCode = "non-existent-code";
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.empty());
 
