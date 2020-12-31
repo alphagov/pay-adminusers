@@ -1,24 +1,24 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,9 +27,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static jakarta.persistence.EnumType.STRING;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
-import static javax.persistence.EnumType.STRING;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 @Entity

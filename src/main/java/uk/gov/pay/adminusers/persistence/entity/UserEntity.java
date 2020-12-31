@@ -1,5 +1,12 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
@@ -7,13 +14,6 @@ import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;

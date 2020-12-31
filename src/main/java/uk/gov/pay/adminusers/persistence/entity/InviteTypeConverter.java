@@ -1,9 +1,8 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 import uk.gov.pay.adminusers.model.InviteType;
-
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 
 @Converter
 public class InviteTypeConverter implements AttributeConverter<InviteType, String> {

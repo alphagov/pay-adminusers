@@ -2,11 +2,11 @@ package uk.gov.pay.adminusers.persistence.dao;
 
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
+import jakarta.persistence.EntityManager;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 

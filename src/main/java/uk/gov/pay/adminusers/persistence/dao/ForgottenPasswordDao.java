@@ -4,9 +4,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
+import jakarta.persistence.EntityManager;
 import uk.gov.pay.adminusers.persistence.entity.ForgottenPasswordEntity;
 
-import javax.persistence.EntityManager;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;

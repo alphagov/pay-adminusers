@@ -1,9 +1,8 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
-
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 
 @Converter
 public class SecondFactorMethodConverter implements AttributeConverter<SecondFactorMethod, String> {

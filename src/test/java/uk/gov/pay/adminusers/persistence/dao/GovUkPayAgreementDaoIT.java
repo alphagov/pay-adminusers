@@ -1,12 +1,12 @@
 package uk.gov.pay.adminusers.persistence.dao;
 
+import jakarta.persistence.RollbackException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.GovUkPayAgreementEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
-import javax.persistence.RollbackException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;

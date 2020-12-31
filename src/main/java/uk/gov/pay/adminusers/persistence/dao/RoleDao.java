@@ -3,9 +3,9 @@ package uk.gov.pay.adminusers.persistence.dao;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import jakarta.persistence.EntityManager;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 
-import javax.persistence.EntityManager;
 import java.util.Optional;
 
 /**
