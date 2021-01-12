@@ -24,6 +24,7 @@ public class EmailValidator {
             "cynulliad.cymru",
             "derrystrabane.com",
             "eani.org.uk",
+            "fermanaghomagh.com",
             "gov.scot",
             "gov.uk",
             "gov.wales",
