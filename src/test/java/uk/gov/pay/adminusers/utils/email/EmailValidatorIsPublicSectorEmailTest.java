@@ -9,9 +9,9 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-public class EmailValidatorIsPublicSectorEmailTest {
+class EmailValidatorIsPublicSectorEmailTest {
 
-    public static Collection<Object[]> data() {
+    static Collection<Object[]> data() {
         return List.of(new Object[][] {
                 // main validations
                 {"", false},
@@ -55,6 +55,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@cynulliad.cymru", true},
                 {"valid@derrystrabane.com", true},
                 {"valid@eani.org.uk", true},
+                {"valid@fermanaghomagh.com", true},
                 {"valid@gov.scot", true},
                 {"valid@gov.uk", true},
                 {"valid@gov.wales", true},
@@ -97,6 +98,7 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@subdomain.cynulliad.cymru", true},
                 {"valid@subdomain.derrystrabane.com", true},
                 {"valid@subdomain.eani.org.uk", true},
+                {"valid@subdomain.fermanaghomagh.com", true},
                 {"valid@subdomain.gov.scot", true},
                 {"valid@subdomain.gov.uk", true},
                 {"valid@subdomain.gov.wales", true},
@@ -128,14 +130,14 @@ public class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@subdomain.sssc.uk.com", true},
                 {"valid@subdomain.wmca.org.uk", true},
                 {"valid@subdomain.york.ac.uk", true},
-                {"valid@subdomain.digitalaccessibilitycentre.org", true},
+                {"valid@subdomain.digitalaccessibilitycentre.org", true}
 
         });
     }
 
     @ParameterizedTest
     @MethodSource("data")
-    public void isPublicSectorEmail_shouldEvaluateWhetherOrNotItIsPublicSectorEmail(
+    void isPublicSectorEmail_shouldEvaluateWhetherOrNotItIsPublicSectorEmail(
             String email, boolean testResult) {
         boolean result = EmailValidator.isPublicSectorEmail(email);
         assertThat("Expected " + email + " to be " + (testResult ? "valid" : "invalid"), result, is(testResult));
