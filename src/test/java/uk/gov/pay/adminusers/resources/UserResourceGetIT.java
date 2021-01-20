@@ -10,6 +10,7 @@ import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -18,10 +19,52 @@ import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
-public class UserResourceGetIT extends IntegrationTest {
+class UserResourceGetIT extends IntegrationTest {
 
     @Test
-    public void shouldReturnUser_whenGetUserWithExternalId() {
+    void should_return_empty_map_when_getting_admin_emails_for_gateway_accounts() {
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .accept(JSON)
+                .queryParam("gatewayAccountId", "gatewayAccount")
+                .get("/v1/api/users/admin-emails-for-gateway-accounts")
+                .then()
+                .statusCode(200)
+                .body("gatewayAccount", hasSize(0));
+    }
+    
+    @Test
+    void should_return_admin_emails_for_gateway_accounts() {
+        String gatewayAccount1 = valueOf(nextInt());
+        String gatewayAccount2 = valueOf(nextInt());
+        Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2)
+                .insertService();
+        
+        Role adminRole = roleDbFixture(databaseHelper).insertAdmin();
+        var adminUser1 = userDbFixture(databaseHelper).withServiceRole(service.getId(), adminRole.getId()).insertUser();
+        var adminUser2 = userDbFixture(databaseHelper).withServiceRole(service.getId(), adminRole.getId()).insertUser();
+        
+        Role viewOnlyRole = roleDbFixture(databaseHelper).withName("view-only").insertRole();
+        userDbFixture(databaseHelper).withServiceRole(service.getId(), viewOnlyRole.getId()).insertUser();
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .accept(JSON)
+                .queryParam("gatewayAccountId", gatewayAccount1)
+                .queryParam("gatewayAccountId", gatewayAccount2)
+                .get("/v1/api/users/admin-emails-for-gateway-accounts")
+                .then()
+                .statusCode(200)
+                .body(gatewayAccount1, hasSize(2))
+                .body(gatewayAccount1, hasItems(adminUser1.getEmail(), adminUser2.getEmail()))
+                .body(gatewayAccount2, hasSize(2))
+                .body(gatewayAccount2, hasItems(adminUser1.getEmail(), adminUser2.getEmail()));
+    }
+    
+    @Test
+    void shouldReturnUser_whenGetUserWithExternalId() {
         String gatewayAccount1 = valueOf(nextInt());
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
@@ -60,7 +103,7 @@ public class UserResourceGetIT extends IntegrationTest {
 
 
     @Test
-    public void shouldReturn404_whenGetUser_withNonExistentExternalId() {
+    void shouldReturn404_whenGetUser_withNonExistentExternalId() {
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -70,7 +113,7 @@ public class UserResourceGetIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn404_whenGetUser_withInvalidMaxLengthExternalId() {
+    void shouldReturn404_whenGetUser_withInvalidMaxLengthExternalId() {
         givenSetup()
                 .when()
                 .accept(JSON)

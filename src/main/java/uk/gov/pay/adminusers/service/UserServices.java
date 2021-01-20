@@ -16,6 +16,7 @@ import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -37,18 +38,22 @@ public class UserServices {
     private final LinksBuilder linksBuilder;
     private final Integer loginAttemptCap;
     private final SecondFactorAuthenticator secondFactorAuthenticator;
+    private final ServiceFinder serviceFinder;
 
     @Inject
     public UserServices(UserDao userDao,
                         PasswordHasher passwordHasher,
                         LinksBuilder linksBuilder,
                         @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap,
-                        Provider<NotificationService> userNotificationService, SecondFactorAuthenticator secondFactorAuthenticator) {
+                        Provider<NotificationService> userNotificationService, 
+                        SecondFactorAuthenticator secondFactorAuthenticator, 
+                        ServiceFinder serviceFinder) {
         this.userDao = userDao;
         this.passwordHasher = passwordHasher;
         this.linksBuilder = linksBuilder;
         this.loginAttemptCap = loginAttemptCap;
         this.secondFactorAuthenticator = secondFactorAuthenticator;
+        this.serviceFinder = serviceFinder;
     }
 
     /**
@@ -126,8 +131,21 @@ public class UserServices {
         Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
         return userEntityOptional.map(userEntity -> linksBuilder.decorate(userEntity.toUser()));
     }
-
-
+    
+    public Map<String, List<String>> getAdminUserEmailsForGatewayAccountIds(List<String> gatewayAccountIds) {
+        return gatewayAccountIds.stream().collect(Collectors.toMap(
+                gatewayAccountId -> gatewayAccountId,
+                gatewayAccountId -> {
+                    Optional<List<String>> adminUserEmails = serviceFinder.byGatewayAccountId(gatewayAccountId)
+                            .map(service -> userDao.findByServiceId(service.getId())
+                                    .stream()
+                                    .filter(userEntity -> userEntity.getServicesRoles().stream()
+                                            .anyMatch(serviceRoleEntity -> serviceRoleEntity.getRole().getName().equals("admin")))
+                                    .map(UserEntity::getEmail)
+                                    .collect(Collectors.toList()));
+                    return adminUserEmails.orElse(List.of());
+                }));
+    }
 
     @Transactional
     public Optional<User> authenticateSecondFactor(String externalId, int code) {

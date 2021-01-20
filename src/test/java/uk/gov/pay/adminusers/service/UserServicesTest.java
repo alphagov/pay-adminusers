@@ -78,7 +78,7 @@ class UserServicesTest {
     void before() {
         userServices = new UserServices(userDao, passwordHasher,
                 new LinksBuilder("http://localhost"), 3,
-                () -> notificationService, secondFactorAuthenticator);
+                () -> notificationService, secondFactorAuthenticator, mock(ServiceFinder.class));
     }
 
     @Test

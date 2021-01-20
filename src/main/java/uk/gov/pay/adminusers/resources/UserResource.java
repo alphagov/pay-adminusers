@@ -91,6 +91,15 @@ public class UserResource {
     }
     
     @GET
+    @Path("/admin-emails-for-gateway-accounts")
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Map<String, List<String>> getAdminUserEmailsForGatewayAccountIds(
+            @QueryParam("gatewayAccountId") List<String> gatewayAccountIds) {
+        return userServices.getAdminUserEmailsForGatewayAccountIds(gatewayAccountIds);
+    }
+    
+    @GET
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     public Response getUsers(@QueryParam("ids") String externalIds) {

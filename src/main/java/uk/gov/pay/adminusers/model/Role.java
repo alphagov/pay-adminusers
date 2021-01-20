@@ -13,8 +13,8 @@ public class Role {
 
     @JsonIgnore
     private Integer id;
-    private String name;
-    private String description;
+    private String name; // TODO Enum this to admin, view-only, view-and-refund, super-admin
+    private String description; // TODO Enum this to "Super Admin", "Administrator", "View and Refund", "View only" 
     private Set<Permission> permissions = new HashSet<>();
 
     public static Role role(Integer roleId, String name, String description) {
