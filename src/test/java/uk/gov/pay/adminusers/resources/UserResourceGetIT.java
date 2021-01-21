@@ -5,6 +5,9 @@ import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 
+import java.util.List;
+import java.util.Map;
+
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
@@ -22,20 +25,20 @@ import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 class UserResourceGetIT extends IntegrationTest {
 
     @Test
-    void should_return_empty_map_when_getting_admin_emails_for_gateway_accounts() {
+    void should_return_empty_map_when_getting_admin_emails_for_gateway_accounts() throws Exception {
         givenSetup()
                 .when()
                 .contentType(JSON)
                 .accept(JSON)
-                .queryParam("gatewayAccountId", "gatewayAccount")
-                .get("/v1/api/users/admin-emails-for-gateway-accounts")
+                .body(mapper.writeValueAsString(Map.of("gatewayAccountIds", List.of("gatewayAccount1"))))
+                .post("/v1/api/users/admin-emails-for-gateway-accounts")
                 .then()
                 .statusCode(200)
-                .body("gatewayAccount", hasSize(0));
+                .body("gatewayAccount1", hasSize(0));
     }
     
     @Test
-    void should_return_admin_emails_for_gateway_accounts() {
+    void should_return_admin_emails_for_gateway_accounts() throws Exception {
         String gatewayAccount1 = valueOf(nextInt());
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2)
@@ -48,13 +51,14 @@ class UserResourceGetIT extends IntegrationTest {
         Role viewOnlyRole = roleDbFixture(databaseHelper).withName("view-only").insertRole();
         userDbFixture(databaseHelper).withServiceRole(service.getId(), viewOnlyRole.getId()).insertUser();
 
+        var gatewayAccountIds = Map.of("gatewayAccountIds", List.of(gatewayAccount1, gatewayAccount2));
+        
         givenSetup()
                 .when()
                 .contentType(JSON)
                 .accept(JSON)
-                .queryParam("gatewayAccountId", gatewayAccount1)
-                .queryParam("gatewayAccountId", gatewayAccount2)
-                .get("/v1/api/users/admin-emails-for-gateway-accounts")
+                .body(mapper.writeValueAsString(gatewayAccountIds))
+                .post("/v1/api/users/admin-emails-for-gateway-accounts")
                 .then()
                 .statusCode(200)
                 .body(gatewayAccount1, hasSize(2))
