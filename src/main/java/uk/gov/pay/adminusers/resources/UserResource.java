@@ -14,6 +14,7 @@ import uk.gov.pay.adminusers.service.ExistingUserOtpDispatcher;
 import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.pay.adminusers.service.UserServicesFactory;
 
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -88,6 +89,14 @@ public class UserResource {
         return userServices.findUserByExternalId(externalId)
                 .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
+    }
+    
+    @POST
+    @Path("/admin-emails-for-gateway-accounts")
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    public Map<String, List<String>> getAdminUserEmailsForGatewayAccountIds(@Valid Map<String, List<String>> gatewayAccountIds) {
+        return userServices.getAdminUserEmailsForGatewayAccountIds(gatewayAccountIds.get("gatewayAccountIds"));
     }
     
     @GET
