@@ -18,6 +18,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.Boolean.parseBoolean;
@@ -133,18 +134,12 @@ public class UserServices {
     }
     
     public Map<String, List<String>> getAdminUserEmailsForGatewayAccountIds(List<String> gatewayAccountIds) {
-        return gatewayAccountIds.stream().collect(Collectors.toMap(
-                gatewayAccountId -> gatewayAccountId,
-                gatewayAccountId -> {
-                    Optional<List<String>> adminUserEmails = serviceFinder.byGatewayAccountId(gatewayAccountId)
-                            .map(service -> userDao.findByServiceId(service.getId())
-                                    .stream()
-                                    .filter(userEntity -> userEntity.getServicesRoles().stream()
-                                            .anyMatch(serviceRoleEntity -> serviceRoleEntity.getRole().getName().equals("admin")))
-                                    .map(UserEntity::getEmail)
-                                    .collect(Collectors.toList()));
-                    return adminUserEmails.orElse(List.of());
-                }));
+        Map<String, List<String>> result = userDao.getAdminUserEmailsForGatewayAccountIds(gatewayAccountIds);
+        Set<String> presentGatewayAccountIds = result.keySet();
+        gatewayAccountIds.stream()
+                .filter(gatewayAccountId -> !presentGatewayAccountIds.contains(gatewayAccountId))
+                .forEach(gatewayAccountId -> result.put(gatewayAccountId, List.of()));
+        return result;
     }
 
     @Transactional
