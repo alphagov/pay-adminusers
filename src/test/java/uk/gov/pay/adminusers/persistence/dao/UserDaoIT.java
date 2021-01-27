@@ -48,6 +48,12 @@ public class UserDaoIT extends DaoTestBase {
         serviceDao = env.getInstance(ServiceDao.class);
         roleDao = env.getInstance(RoleDao.class);
     }
+    
+    @Test
+    void getAdminUserEmailsForGatewayAccountIds_should_return_empty_map() {
+        Map<String, List<String>> map = userDao.getAdminUserEmailsForGatewayAccountIds(List.of());
+        assertThat(map.isEmpty(), is(true));
+    }
 
     @Test
     public void shouldCreateAUserSuccessfully() {
