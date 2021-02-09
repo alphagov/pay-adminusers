@@ -72,6 +72,9 @@ public class ServiceEntity {
 
     @Column(name = "experimental_features_enabled")
     private boolean experimentalFeaturesEnabled = false;
+
+    @Column(name = "agent_initiated_moto_enabled")
+    private boolean agentInitiatedMotoEnabled;
     
     @Column(name = "sector")
     private String sector;
@@ -181,6 +184,14 @@ public class ServiceEntity {
         this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
     }
 
+    public boolean isAgentInitiatedMotoEnabled() {
+        return agentInitiatedMotoEnabled;
+    }
+
+    public void setAgentInitiatedMotoEnabled(boolean agentInitiatedMotoEnabled) {
+        this.agentInitiatedMotoEnabled = agentInitiatedMotoEnabled;
+    }
+
     public String getSector() {
         return sector;
     }
@@ -229,6 +240,7 @@ public class ServiceEntity {
                 this.collectBillingAddress,
                 this.currentGoLiveStage,
                 this.experimentalFeaturesEnabled,
+                this.agentInitiatedMotoEnabled,
                 this.sector,
                 this.internal,
                 this.archived,

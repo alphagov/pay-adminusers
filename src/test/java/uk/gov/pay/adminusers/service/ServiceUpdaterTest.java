@@ -288,6 +288,22 @@ public class ServiceUpdaterTest {
     }
 
     @Test
+    public void shouldUpdateAgentInitiatedMotoEnabledSuccessfully() {
+        ServiceUpdateRequest request = serviceUpdateRequest("replace", "agent_initiated_moto_enabled", true);
+        ServiceEntity serviceEntity = mock(ServiceEntity.class);
+
+        when(serviceDao.findByExternalId(SERVICE_ID)).thenReturn(of(serviceEntity));
+        when(serviceEntity.toService()).thenReturn(Service.from());
+
+        Optional<Service> maybeService = updater.doUpdate(SERVICE_ID, request);
+
+        assertThat(maybeService.isPresent(), is(true));
+        InOrder inOrder = inOrder(serviceEntity, serviceDao);
+        inOrder.verify(serviceEntity).setAgentInitiatedMotoEnabled(true);
+        inOrder.verify(serviceDao).merge(serviceEntity);
+    }
+
+    @Test
     public void shouldUpdateWentLiveDateSuccessfully() {
         ServiceUpdateRequest request = serviceUpdateRequest("replace", "went_live_date", "2020-02-28T01:02:03Z");
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
