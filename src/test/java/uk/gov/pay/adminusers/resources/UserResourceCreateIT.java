@@ -13,6 +13,7 @@ import static java.lang.String.valueOf;
 import static java.util.Collections.emptyMap;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
@@ -109,7 +110,7 @@ public class UserResourceCreateIT extends IntegrationTest {
                 .body("disabled", is(false))
                 .body("service_roles[0].role.name", is("admin"))
                 .body("service_roles[0].role.description", is("Administrator"))
-                .body("service_roles[0].role.permissions", hasSize(49));
+                .body("service_roles[0].role.permissions.size()", is(greaterThan(1)));
 
         response
                 .body("_links", hasSize(1))
