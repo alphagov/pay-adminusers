@@ -31,6 +31,7 @@ public class ServiceUpdater {
     public static final String FIELD_SERVICE_NAME_PREFIX = "service_name";
     public static final String FIELD_REDIRECT_NAME = "redirect_to_service_immediately_on_terminal_state";
     public static final String FIELD_EXPERIMENTAL_FEATURES_ENABLED = "experimental_features_enabled";
+    public static final String FIELD_AGENT_INITIATED_MOTO_ENABLED = "agent_initiated_moto_enabled";
     public static final String FIELD_COLLECT_BILLING_ADDRESS = "collect_billing_address";
     public static final String FIELD_CURRENT_GO_LIVE_STAGE = "current_go_live_stage";
     public static final String FIELD_SECTOR = "sector";
@@ -55,6 +56,7 @@ public class ServiceUpdater {
                 entry(FIELD_CUSTOM_BRANDING, updateCustomBranding()),
                 entry(FIELD_REDIRECT_NAME, updateRedirectImmediately()),
                 entry(FIELD_EXPERIMENTAL_FEATURES_ENABLED, updateExperimentalFeaturesEnabled()),
+                entry(FIELD_AGENT_INITIATED_MOTO_ENABLED, updateAgentInitiatedMotoEnabled()),
                 entry(FIELD_COLLECT_BILLING_ADDRESS, updateCollectBillingAddress()),
                 entry(FIELD_CURRENT_GO_LIVE_STAGE, updateCurrentGoLiveStage()),
                 entry(FIELD_SECTOR, updateSector()),
@@ -138,6 +140,10 @@ public class ServiceUpdater {
     
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateExperimentalFeaturesEnabled() {
         return ((serviceUpdateRequest, serviceEntity) -> serviceEntity.setExperimentalFeaturesEnabled(serviceUpdateRequest.valueAsBoolean()));
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateAgentInitiatedMotoEnabled() {
+        return ((serviceUpdateRequest, serviceEntity) -> serviceEntity.setAgentInitiatedMotoEnabled(serviceUpdateRequest.valueAsBoolean()));
     }
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateCollectBillingAddress() {

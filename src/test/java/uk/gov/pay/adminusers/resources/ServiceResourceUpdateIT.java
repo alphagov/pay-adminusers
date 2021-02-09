@@ -24,6 +24,7 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
                         patchRequest("replace", "current_go_live_stage", "CHOSEN_PSP_STRIPE"),
                         patchRequest("replace", "redirect_to_service_immediately_on_terminal_state", true),
                         patchRequest("replace", "experimental_features_enabled", true),
+                        patchRequest("replace", "agent_initiated_moto_enabled", true),
                         patchRequest("replace", "collect_billing_address", true),
                         patchRequest("replace", "sector", "local government"),
                         patchRequest("replace", "internal", true),
@@ -41,6 +42,7 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
                 .body("current_go_live_stage", is(valueOf(GoLiveStage.CHOSEN_PSP_STRIPE)))
                 .body("redirect_to_service_immediately_on_terminal_state", is(true))
                 .body("experimental_features_enabled", is(true))
+                .body("agent_initiated_moto_enabled", is(true))
                 .body("collect_billing_address", is(true))
                 .body("sector", is("local government"))
                 .body("internal", is(true))

@@ -37,6 +37,7 @@ public class Service {
     private String sector;
     private boolean internal;
     private boolean archived;
+    private boolean agentInitiatedMotoEnabled;
 
     @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
     private ZonedDateTime createdDate;
@@ -63,6 +64,7 @@ public class Service {
                 true,
                 NOT_STARTED,
                 false,
+                false,
                 null,
                 false,
                 false,
@@ -77,11 +79,12 @@ public class Service {
                                boolean collectBillingAddress,
                                GoLiveStage goLiveStage,
                                boolean experimentalFeaturesEnabled,
+                               boolean agentInitiatedMotoEnabled,
                                String sector,
                                boolean internal,
                                boolean archived,
                                ZonedDateTime createdDate,
-                               ZonedDateTime wentLiveDate) {
+                               ZonedDateTime wentLiveDate ) {
         return new Service(id,
                 externalId,
                 serviceName,
@@ -89,6 +92,7 @@ public class Service {
                 collectBillingAddress,
                 goLiveStage,
                 experimentalFeaturesEnabled,
+                agentInitiatedMotoEnabled,
                 sector,
                 internal,
                 archived,
@@ -103,6 +107,7 @@ public class Service {
                     boolean collectBillingAddress,
                     GoLiveStage goLiveStage,
                     boolean experimentalFeaturesEnabled,
+                    boolean agentInitiatedMotoEnabled,
                     String sector,
                     boolean internal,
                     boolean archived,
@@ -115,6 +120,7 @@ public class Service {
         this.serviceName = serviceName;
         this.goLiveStage = goLiveStage;
         this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
+        this.agentInitiatedMotoEnabled = agentInitiatedMotoEnabled;
         this.sector = sector;
         this.internal = internal;
         this.archived = archived;
@@ -225,6 +231,15 @@ public class Service {
 
     public void setExperimentalFeaturesEnabled(boolean experimentalFeaturesEnabled) {
         this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
+    }
+
+    @JsonProperty("agent_initiated_moto_enabled")
+    public boolean isAgentInitiatedMotoEnabled() {
+        return agentInitiatedMotoEnabled;
+    }
+
+    public void setAgentInitiatedMotoEnabled(boolean agentInitiatedMotoEnabled) {
+        this.agentInitiatedMotoEnabled = agentInitiatedMotoEnabled;
     }
 
     public String getSector() {

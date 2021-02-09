@@ -20,10 +20,12 @@ import static java.util.Map.entry;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_OP;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_PATH;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_VALUE;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_AGENT_INITIATED_MOTO_ENABLED;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_ARCHIVED;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_COLLECT_BILLING_ADDRESS;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CURRENT_GO_LIVE_STAGE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CUSTOM_BRANDING;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_EXPERIMENTAL_FEATURES_ENABLED;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT_IDS;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_INTERNAL;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_ADDRESS_CITY;
@@ -37,7 +39,6 @@ import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAIL
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_REDIRECT_NAME;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_SECTOR;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_SERVICE_NAME_PREFIX;
-import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_EXPERIMENTAL_FEATURES_ENABLED;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_WENT_LIVE_DATE;
 
 public class ServiceUpdateOperationValidator {
@@ -70,6 +71,7 @@ public class ServiceUpdateOperationValidator {
                 entry(FIELD_CUSTOM_BRANDING, singletonList(REPLACE)),
                 entry(FIELD_REDIRECT_NAME, singletonList(REPLACE)),
                 entry(FIELD_EXPERIMENTAL_FEATURES_ENABLED, singletonList(REPLACE)),
+                entry(FIELD_AGENT_INITIATED_MOTO_ENABLED, singletonList(REPLACE)),
                 entry(FIELD_COLLECT_BILLING_ADDRESS, singletonList(REPLACE)),
                 entry(FIELD_CURRENT_GO_LIVE_STAGE, singletonList(REPLACE)),
                 entry(FIELD_SECTOR, singletonList(REPLACE)),
@@ -125,6 +127,8 @@ public class ServiceUpdateOperationValidator {
         } else if (FIELD_REDIRECT_NAME.equals(path)) {
             return validateMandatoryBooleanValue(operation);
         } else if (FIELD_EXPERIMENTAL_FEATURES_ENABLED.equals(path)) {
+            return validateMandatoryBooleanValue(operation);
+        } else if (FIELD_AGENT_INITIATED_MOTO_ENABLED.equals(path)) {
             return validateMandatoryBooleanValue(operation);
         } else if (FIELD_COLLECT_BILLING_ADDRESS.equals(path)) {
             return validateMandatoryBooleanValue(operation);
