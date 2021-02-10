@@ -7,6 +7,11 @@
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
     <changeSet id="build initial table structures to match selfservice db state" author="">
+        <preConditions onFail="MARK_RAN">
+           <not>
+               <tableExists tableName="users"/>
+           </not>
+        </preConditions>
         <createTable tableName="users">
             <column name="id" type="serial" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -147,6 +152,9 @@
     </changeSet>
 
     <changeSet id="populate role table" author="">
+        <preConditions onFail="MARK_RAN">
+           <sqlCheck expectedResult="0">select count(*) from roles</sqlCheck>
+        </preConditions>
         <loadData tableName="roles" file="config/initdata/roles.csv">
             <column header="id" name="id"/>
             <column header="name" name="name"/>
@@ -155,6 +163,9 @@
     </changeSet>
 
     <changeSet id="populate permissions table" author="">
+        <preConditions onFail="MARK_RAN">
+           <sqlCheck expectedResult="0">select count(*) from permissions</sqlCheck>
+        </preConditions>
         <loadData tableName="permissions" file="config/initdata/permissions.csv">
             <column header="id" name="id"/>
             <column header="name" name="name"/>
@@ -163,6 +174,9 @@
     </changeSet>
 
     <changeSet id="populate role_permission table" author="">
+        <preConditions onFail="MARK_RAN">
+           <sqlCheck expectedResult="0">select count(*) from role_permission</sqlCheck>
+        </preConditions>
         <loadData tableName="role_permission" file="config/initdata/role-permissions.csv">
             <column header="role_id" name="role_id"/>
             <column header="permission_id" name="permission_id"/>
