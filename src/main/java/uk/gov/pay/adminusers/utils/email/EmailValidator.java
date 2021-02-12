@@ -55,6 +55,7 @@ public class EmailValidator {
             "socialworkengland.org.uk",
             "sssc.uk.com",
             "ucds.email",
+            "uksbs.co.uk",
             "wmca.org.uk",
             "york.ac.uk",
             "digitalaccessibilitycentre.org"
