@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.postgresql.util.PGobject;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.model.GoLiveStage;
+import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
@@ -272,6 +273,33 @@ class ServiceDaoIT extends DaoTestBase {
 
         assertThat(optionalService.isPresent(), is(true));
         assertThat(optionalService.get().getCurrentGoLiveStage(), is(GoLiveStage.CHOSEN_PSP_STRIPE));
+    }
+
+    @Test
+    void shouldMergePSPTestAccountStage() {
+        GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
+        String gatewayAccountId = randomUuid();
+        gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
+        ServiceEntity insertedServiceEntity = ServiceEntityBuilder
+                .aServiceEntity()
+                .withGatewayAccounts(Collections.singletonList(gatewayAccountIdEntity))
+                .build();
+
+        gatewayAccountIdEntity.setService(insertedServiceEntity);
+
+        databaseHelper.insertServiceEntity(insertedServiceEntity);
+        Optional<ServiceEntity> optionalService = serviceDao.findByGatewayAccountId(insertedServiceEntity.getGatewayAccountId().getGatewayAccountId());
+
+        assertThat(optionalService.isPresent(), is(true));
+        assertThat(optionalService.get().getCurrentPspTestAccountStage(), is(PspTestAccountStage.NOT_STARTED));
+
+        optionalService.get().setCurrentPspTestAccountStage(PspTestAccountStage.REQUEST_SUBMITTED);
+        serviceDao.merge(optionalService.get());
+
+        optionalService = serviceDao.findByGatewayAccountId(insertedServiceEntity.getGatewayAccountId().getGatewayAccountId());
+
+        assertThat(optionalService.isPresent(), is(true));
+        assertThat(optionalService.get().getCurrentPspTestAccountStage(), is(PspTestAccountStage.REQUEST_SUBMITTED));
     }
 
     private void setupUsersForServiceAndRole(String externalId, int roleId, int noOfUsers) {

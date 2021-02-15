@@ -20,6 +20,7 @@ import static org.hamcrest.core.Is.is;
 public class ServiceUpdateOperationValidatorTest {
 
     private static final String GO_LIVE_STAGE_INVALID_ERROR_MESSAGE = "Field [value] must be one of [NOT_STARTED, ENTERED_ORGANISATION_NAME, ENTERED_ORGANISATION_ADDRESS, CHOSEN_PSP_STRIPE, CHOSEN_PSP_WORLDPAY, CHOSEN_PSP_SMARTPAY, CHOSEN_PSP_EPDQ, CHOSEN_PSP_GOV_BANKING_WORLDPAY, TERMS_AGREED_STRIPE, TERMS_AGREED_WORLDPAY, TERMS_AGREED_SMARTPAY, TERMS_AGREED_EPDQ, TERMS_AGREED_GOV_BANKING_WORLDPAY, DENIED, LIVE]";
+    private static final String PSP_TEST_ACCOUNT_STAGE_INVALID_ERROR_MESSAGE = "Field [value] must be one of [NOT_STARTED, REQUEST_SUBMITTED, CREATED]";
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final ServiceUpdateOperationValidator serviceUpdateOperationValidator = new ServiceUpdateOperationValidator(new RequestValidations());
@@ -53,6 +54,7 @@ public class ServiceUpdateOperationValidatorTest {
                 new Object[]{"add", "redirect_to_service_immediately_on_terminal_state", true},
                 new Object[]{"add", "collect_billing_address", true},
                 new Object[]{"add", "current_go_live_stage", "CHOSEN_PSP_STRIPE"},
+                new Object[]{"add", "current_psp_test_account_stage", "REQUEST_SUBMITTED"},
                 new Object[]{"add", "experimental_features_enabled", false},
                 new Object[]{"add", "agent_initiated_moto_enabled", false},
                 new Object[]{"add", "sector", "any value"},
@@ -83,6 +85,7 @@ public class ServiceUpdateOperationValidatorTest {
                 new Object[]{"sector", 42, "Field [value] must be a string"},
                 new Object[]{"current_go_live_stage", 42, GO_LIVE_STAGE_INVALID_ERROR_MESSAGE},
                 new Object[]{"current_go_live_stage", "CAKE_ORDERED", GO_LIVE_STAGE_INVALID_ERROR_MESSAGE},
+                new Object[]{"current_psp_test_account_stage", "42", PSP_TEST_ACCOUNT_STAGE_INVALID_ERROR_MESSAGE},
                 new Object[]{"merchant_details/name", 42, "Field [value] must be a string"},
                 new Object[]{"merchant_details/address_line1", 42, "Field [value] must be a string"},
                 new Object[]{"merchant_details/address_line2", 42, "Field [value] must be a string"},
@@ -114,6 +117,7 @@ public class ServiceUpdateOperationValidatorTest {
             "redirect_to_service_immediately_on_terminal_state",
             "collect_billing_address",
             "current_go_live_stage",
+            "current_psp_test_account_stage",
             "experimental_features_enabled",
             "agent_initiated_moto_enabled",
             "merchant_details/name",
@@ -144,6 +148,7 @@ public class ServiceUpdateOperationValidatorTest {
             "redirect_to_service_immediately_on_terminal_state",
             "collect_billing_address",
             "current_go_live_stage",
+            "current_psp_test_account_stage",
             "experimental_features_enabled",
             "agent_initiated_moto_enabled",
             "merchant_details/name",
@@ -174,6 +179,7 @@ public class ServiceUpdateOperationValidatorTest {
     @ValueSource(strings = {
             "service_name/en",
             "current_go_live_stage",
+            "current_psp_test_account_stage",
             "merchant_details/name",
             "merchant_details/address_line1",
             "merchant_details/address_city",
@@ -213,6 +219,7 @@ public class ServiceUpdateOperationValidatorTest {
                 new Object[]{"replace", "agent_initiated_moto_enabled", true},
                 new Object[]{"replace", "collect_billing_address", true},
                 new Object[]{"replace", "current_go_live_stage", "CHOSEN_PSP_STRIPE"},
+                new Object[]{"replace", "current_psp_test_account_stage", "REQUEST_SUBMITTED"},
                 new Object[]{"replace", "merchant_details/name", "Bob's Building Business"},
                 new Object[]{"replace", "merchant_details/address_line1", "1 Builders Avenue"},
                 new Object[]{"replace", "merchant_details/address_line2", ""},

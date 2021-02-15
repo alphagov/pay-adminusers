@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
 import uk.gov.pay.adminusers.model.GoLiveStage;
+import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
@@ -92,6 +93,10 @@ public class ServiceEntity {
     @Column(name = "went_live_date")
     @Convert(converter = UTCDateTimeConverter.class)
     private ZonedDateTime wentLiveDate;
+
+    @Column(name = "current_psp_test_account_stage")
+    @Enumerated(STRING)
+    private PspTestAccountStage currentPspTestAccountStage = PspTestAccountStage.NOT_STARTED;
 
     public ServiceEntity() {
     }
@@ -232,6 +237,15 @@ public class ServiceEntity {
         this.wentLiveDate = wentLiveDate;
     }
 
+    public PspTestAccountStage getCurrentPspTestAccountStage() {
+        return currentPspTestAccountStage;
+    }
+
+    public ServiceEntity setCurrentPspTestAccountStage(PspTestAccountStage currentPspTestAccountStage) {
+        this.currentPspTestAccountStage = currentPspTestAccountStage;
+        return this;
+    }
+
     public Service toService() {
         Service service = Service.from(id,
                 externalId, 
@@ -245,7 +259,8 @@ public class ServiceEntity {
                 this.internal,
                 this.archived,
                 this.createdDate,
-                this.wentLiveDate);
+                this.wentLiveDate,
+                this.currentPspTestAccountStage);
         service.setGatewayAccountIds(gatewayAccountIds.stream()
                 .map(GatewayAccountIdEntity::getGatewayAccountId)
                 .collect(Collectors.toList()));

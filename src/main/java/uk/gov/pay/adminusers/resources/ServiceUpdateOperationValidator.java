@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import uk.gov.pay.adminusers.model.GoLiveStage;
+import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 import uk.gov.pay.commons.model.SupportedLanguage;
 
@@ -24,6 +25,7 @@ import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_AGENT_INITIATED
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_ARCHIVED;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_COLLECT_BILLING_ADDRESS;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CURRENT_GO_LIVE_STAGE;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CURRENT_PSP_TEST_ACCOUNT_STAGE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CUSTOM_BRANDING;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_EXPERIMENTAL_FEATURES_ENABLED;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT_IDS;
@@ -63,6 +65,7 @@ public class ServiceUpdateOperationValidator {
     private final RequestValidations requestValidations;
 
     private static final EnumSet<GoLiveStage> GO_LIVE_STAGES = EnumSet.allOf(GoLiveStage.class);
+    private static final EnumSet<PspTestAccountStage> PSP_TEST_ACCOUNT_STAGES = EnumSet.allOf(PspTestAccountStage.class);
 
     @Inject
     public ServiceUpdateOperationValidator(RequestValidations requestValidations) {
@@ -74,6 +77,7 @@ public class ServiceUpdateOperationValidator {
                 entry(FIELD_AGENT_INITIATED_MOTO_ENABLED, singletonList(REPLACE)),
                 entry(FIELD_COLLECT_BILLING_ADDRESS, singletonList(REPLACE)),
                 entry(FIELD_CURRENT_GO_LIVE_STAGE, singletonList(REPLACE)),
+                entry(FIELD_CURRENT_PSP_TEST_ACCOUNT_STAGE, singletonList(REPLACE)),
                 entry(FIELD_SECTOR, singletonList(REPLACE)),
                 entry(FIELD_INTERNAL, singletonList(REPLACE)),
                 entry(FIELD_ARCHIVED, singletonList(REPLACE)),
@@ -134,6 +138,8 @@ public class ServiceUpdateOperationValidator {
             return validateMandatoryBooleanValue(operation);
         } else if (FIELD_CURRENT_GO_LIVE_STAGE.equals(path)) {
             return validateCurrentGoLiveStageValue(operation);
+        } else if (FIELD_CURRENT_PSP_TEST_ACCOUNT_STAGE.equals(path)){
+            return validateCurrentPspTestAccountStageValue(operation);
         } else if (FIELD_SECTOR.equals(path)) {
             return validateNotNullStringValueWithMaxLength(operation, false, FIELD_SECTOR_MAX_LENGTH);
         } else if (FIELD_INTERNAL.equals(path)) {
@@ -193,6 +199,21 @@ public class ServiceUpdateOperationValidator {
         }
         if (errors.isEmpty()) {
             requestValidations.isValidEnumValue(operation, GO_LIVE_STAGES, FIELD_VALUE).ifPresent(errors::addAll);
+        }
+        return errors;
+    }
+
+    private List<String> validateCurrentPspTestAccountStageValue(JsonNode operation) {
+        List<String> errors = new ArrayList<>();
+        requestValidations.checkExistsAndNotEmpty(operation, FIELD_VALUE).ifPresent(errors::addAll);
+        if (errors.isEmpty()) {
+            requestValidations.checkIsString(
+                    format("Field [%s] must be one of %s", FIELD_VALUE, PSP_TEST_ACCOUNT_STAGES),
+                    operation,
+                    FIELD_VALUE).ifPresent(errors::addAll);
+        }
+        if (errors.isEmpty()) {
+            requestValidations.isValidEnumValue(operation, PSP_TEST_ACCOUNT_STAGES, FIELD_VALUE).ifPresent(errors::addAll);
         }
         return errors;
     }

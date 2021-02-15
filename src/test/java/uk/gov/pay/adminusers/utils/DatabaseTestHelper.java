@@ -383,9 +383,11 @@ public class DatabaseTestHelper {
             return handle.createUpdate("INSERT INTO services(" +
                     "id, custom_branding, " +
                     "merchant_name, merchant_telephone_number, merchant_address_line1, merchant_address_line2, merchant_address_city, " +
-                    "merchant_address_postcode, merchant_address_country, merchant_email, external_id, redirect_to_service_immediately_on_terminal_state, current_go_live_stage, experimental_features_enabled) " +
+                    "merchant_address_postcode, merchant_address_country, merchant_email, external_id, redirect_to_service_immediately_on_terminal_state, " +
+                    "current_go_live_stage, experimental_features_enabled, current_psp_test_account_stage) " +
                     "VALUES (:id, :customBranding, :merchantName, :merchantTelephoneNumber, :merchantAddressLine1, :merchantAddressLine2, " +
-                    ":merchantAddressCity, :merchantAddressPostcode, :merchantAddressCountry, :merchantEmail, :externalId, :redirectToServiceImmediatelyOnTerminalState, :currentGoLiveStage, :experimentalFeaturesEnabled)")
+                    ":merchantAddressCity, :merchantAddressPostcode, :merchantAddressCountry, :merchantEmail, :externalId, :redirectToServiceImmediatelyOnTerminalState, " +
+                    ":currentGoLiveStage, :experimentalFeaturesEnabled, :pspTestAccountStage)")
                     .bind("id", serviceEntity.getId())
                     .bindBySqlType("customBranding", customBranding, OTHER)
                     .bind("merchantName", merchantDetails.getName())
@@ -400,6 +402,7 @@ public class DatabaseTestHelper {
                     .bind("redirectToServiceImmediatelyOnTerminalState", serviceEntity.isRedirectToServiceImmediatelyOnTerminalState())
                     .bind("currentGoLiveStage", serviceEntity.getCurrentGoLiveStage())
                     .bind("experimentalFeaturesEnabled", serviceEntity.isExperimentalFeaturesEnabled())
+                    .bind("pspTestAccountStage", serviceEntity.getCurrentPspTestAccountStage())
                     .execute();
         });
         serviceEntity.getGatewayAccountIds().forEach(gatewayAccount ->
