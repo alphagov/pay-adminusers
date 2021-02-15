@@ -7,13 +7,13 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dropwizard.version>2.0.10</dropwizard.version>
+        <dropwizard.version>2.0.19</dropwizard.version>
         <hamcrest.version>2.2</hamcrest.version>
         <eclipselink.version>2.7.7</eclipselink.version>
         <guice.version>4.2.3</guice.version>
         <guava.version>29.0-jre</guava.version>
         <jackson.version>2.12.1</jackson.version>
-        <pay-java-commons.version>1.0.20200702150539</pay-java-commons.version>
+        <pay-java-commons.version>1.0.20210208142550</pay-java-commons.version>
         <junit5.version>5.7.1</junit5.version>
     </properties>
     <repositories>
