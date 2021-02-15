@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
 import uk.gov.pay.adminusers.model.GoLiveStage;
+import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
@@ -34,6 +35,7 @@ public class ServiceUpdater {
     public static final String FIELD_AGENT_INITIATED_MOTO_ENABLED = "agent_initiated_moto_enabled";
     public static final String FIELD_COLLECT_BILLING_ADDRESS = "collect_billing_address";
     public static final String FIELD_CURRENT_GO_LIVE_STAGE = "current_go_live_stage";
+    public static final String FIELD_CURRENT_PSP_TEST_ACCOUNT_STAGE = "current_psp_test_account_stage";
     public static final String FIELD_SECTOR = "sector";
     public static final String FIELD_INTERNAL = "internal";
     public static final String FIELD_ARCHIVED = "archived";
@@ -59,6 +61,7 @@ public class ServiceUpdater {
                 entry(FIELD_AGENT_INITIATED_MOTO_ENABLED, updateAgentInitiatedMotoEnabled()),
                 entry(FIELD_COLLECT_BILLING_ADDRESS, updateCollectBillingAddress()),
                 entry(FIELD_CURRENT_GO_LIVE_STAGE, updateCurrentGoLiveStage()),
+                entry(FIELD_CURRENT_PSP_TEST_ACCOUNT_STAGE, updateCurrentPspTestAccountStage()),
                 entry(FIELD_SECTOR, updateSector()),
                 entry(FIELD_INTERNAL, updateInternal()),
                 entry(FIELD_ARCHIVED, updateArchived()),
@@ -154,6 +157,11 @@ public class ServiceUpdater {
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateCurrentGoLiveStage() {
         return (serviceUpdateRequest, serviceEntity) ->
                 serviceEntity.setCurrentGoLiveStage(GoLiveStage.valueOf(serviceUpdateRequest.valueAsString()));
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateCurrentPspTestAccountStage() {
+        return (serviceUpdateRequest, serviceEntity) ->
+                serviceEntity.setCurrentPspTestAccountStage(PspTestAccountStage.valueOf(serviceUpdateRequest.valueAsString()));
     }
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateSector() {

@@ -29,7 +29,8 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
                         patchRequest("replace", "sector", "local government"),
                         patchRequest("replace", "internal", true),
                         patchRequest("replace", "archived", true),
-                        patchRequest("replace", "went_live_date", "2020-01-01T01:01:00Z")
+                        patchRequest("replace", "went_live_date", "2020-01-01T01:01:00Z"),
+                        patchRequest("replace", "current_psp_test_account_stage", "REQUEST_SUBMITTED")
                 ));
         
         givenSetup()
@@ -47,7 +48,8 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
                 .body("sector", is("local government"))
                 .body("internal", is(true))
                 .body("archived", is(true))
-                .body("went_live_date", is("2020-01-01T01:01:00.000Z"));
+                .body("went_live_date", is("2020-01-01T01:01:00.000Z"))
+                .body("current_psp_test_account_stage", is("REQUEST_SUBMITTED"));
                 
     }
 

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
 import uk.gov.pay.adminusers.model.GoLiveStage;
+import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
@@ -225,7 +226,7 @@ public class ServiceUpdaterTest {
     }
 
     @Test
-    public void shouldUpdateCurrentGoLIveStageSuccessfully() {
+    public void shouldUpdateCurrentGoLiveStageSuccessfully() {
         ServiceUpdateRequest request = serviceUpdateRequest("replace", "current_go_live_stage", valueOf(GoLiveStage.CHOSEN_PSP_STRIPE));
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
 
@@ -236,6 +237,21 @@ public class ServiceUpdaterTest {
 
         assertThat(maybeService.isPresent(), is(true));
         verify(serviceEntity).setCurrentGoLiveStage(GoLiveStage.CHOSEN_PSP_STRIPE);
+        verify(serviceDao).merge(serviceEntity);
+    }
+
+    @Test
+    public void shouldUpdateCurrentPspTestAccountStageSuccessfully() {
+        ServiceUpdateRequest request = serviceUpdateRequest("replace", "current_psp_test_account_stage", valueOf(PspTestAccountStage.REQUEST_SUBMITTED));
+        ServiceEntity serviceEntity = mock(ServiceEntity.class);
+
+        when(serviceDao.findByExternalId(SERVICE_ID)).thenReturn(of(serviceEntity));
+        when(serviceEntity.toService()).thenReturn(Service.from());
+
+        Optional<Service> maybeService = updater.doUpdate(SERVICE_ID, request);
+
+        assertThat(maybeService.isPresent(), is(true));
+        verify(serviceEntity).setCurrentPspTestAccountStage(PspTestAccountStage.REQUEST_SUBMITTED);
         verify(serviceDao).merge(serviceEntity);
     }
 

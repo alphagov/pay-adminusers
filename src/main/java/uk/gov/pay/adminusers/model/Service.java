@@ -38,6 +38,7 @@ public class Service {
     private boolean internal;
     private boolean archived;
     private boolean agentInitiatedMotoEnabled;
+    private PspTestAccountStage currentPspTestAccountStage;
 
     @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
     private ZonedDateTime createdDate;
@@ -69,6 +70,7 @@ public class Service {
                 false,
                 false,
                 null,
+                null,
                 null);
     }
 
@@ -84,7 +86,8 @@ public class Service {
                                boolean internal,
                                boolean archived,
                                ZonedDateTime createdDate,
-                               ZonedDateTime wentLiveDate ) {
+                               ZonedDateTime wentLiveDate,
+                               PspTestAccountStage pspTestAccountStage) {
         return new Service(id,
                 externalId,
                 serviceName,
@@ -97,7 +100,8 @@ public class Service {
                 internal,
                 archived,
                 createdDate,
-                wentLiveDate);
+                wentLiveDate,
+                pspTestAccountStage);
     }
 
     private Service(@JsonProperty("id") Integer id,
@@ -112,7 +116,8 @@ public class Service {
                     boolean internal,
                     boolean archived,
                     ZonedDateTime createdDate,
-                    ZonedDateTime wentLiveDate) {
+                    ZonedDateTime wentLiveDate,
+                    PspTestAccountStage currentPspTestAccountStage) {
         this.id = id;
         this.externalId = externalId;
         this.redirectToServiceImmediatelyOnTerminalState = redirectToServiceImmediatelyOnTerminalState;
@@ -126,6 +131,7 @@ public class Service {
         this.archived = archived;
         this.createdDate = createdDate;
         this.wentLiveDate = wentLiveDate;
+        this.currentPspTestAccountStage = currentPspTestAccountStage;
     }
 
     public String getExternalId() {
@@ -222,6 +228,15 @@ public class Service {
 
     public void setGoLiveStage(GoLiveStage goLiveStage) {
         this.goLiveStage = goLiveStage;
+    }
+
+    @JsonProperty("current_psp_test_account_stage")
+    public PspTestAccountStage getCurrentPspTestAccountStage() {
+        return currentPspTestAccountStage;
+    }
+
+    public void setCurrentPspTestAccountStage(PspTestAccountStage currentPspTestAccountStage) {
+        this.currentPspTestAccountStage = currentPspTestAccountStage;
     }
 
     @JsonProperty("experimental_features_enabled")

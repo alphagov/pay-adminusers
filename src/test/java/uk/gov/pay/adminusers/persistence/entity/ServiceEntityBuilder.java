@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.persistence.entity;
 
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.GoLiveStage;
+import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.pay.commons.model.SupportedLanguage;
@@ -30,6 +31,7 @@ public final class ServiceEntityBuilder {
     private ZonedDateTime createdDate = ZonedDateTime.parse("2020-06-29T01:16:00Z");
     private ZonedDateTime wentLiveDate;
     private String sector;
+    private PspTestAccountStage pspTestAccountStage = PspTestAccountStage.NOT_STARTED;
 
     private ServiceEntityBuilder() {
     }
@@ -111,6 +113,11 @@ public final class ServiceEntityBuilder {
         return this;
     }
 
+    public ServiceEntityBuilder withPspTestAccountStage(PspTestAccountStage pspTestAccountStage) {
+        this.pspTestAccountStage = pspTestAccountStage;
+        return this;
+    }
+
     public ServiceEntity build() {
         ServiceEntity serviceEntity = new ServiceEntity();
         serviceEntity.setId(id);
@@ -127,6 +134,7 @@ public final class ServiceEntityBuilder {
         serviceEntity.setCreatedDate(createdDate);
         serviceEntity.setWentLiveDate(wentLiveDate);
         serviceEntity.setSector(sector);
+        serviceEntity.setCurrentPspTestAccountStage(pspTestAccountStage);
         return serviceEntity;
     }
 }
