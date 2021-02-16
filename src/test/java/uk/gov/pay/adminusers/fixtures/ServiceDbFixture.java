@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.fixtures;
 
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.MerchantDetails;
+import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
@@ -29,6 +30,7 @@ public class ServiceDbFixture {
     private boolean experimentalFeaturesEnabled = false;
     private GoLiveStage goLiveStage = GoLiveStage.NOT_STARTED;
     private Map<String, Object> customBranding;
+    private PspTestAccountStage currentPspTestAccountStage = PspTestAccountStage.NOT_STARTED;
 
     private ServiceDbFixture(DatabaseTestHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
@@ -71,6 +73,11 @@ public class ServiceDbFixture {
         return this;
     }
 
+    public ServiceDbFixture withCurrentPspTestAccountStage(PspTestAccountStage currentPspTestAccountStage) {
+        this.currentPspTestAccountStage = currentPspTestAccountStage;
+        return this;
+    }
+
     public Service insertService() {
         int serviceId = id == null ? nextInt() : id;
         String extId = externalId == null ? randomUuid() : externalId;
@@ -81,6 +88,7 @@ public class ServiceDbFixture {
         service.setGoLiveStage(goLiveStage);
         service.setCustomBranding(customBranding);
         service.setExperimentalFeaturesEnabled(experimentalFeaturesEnabled);
+        service.setCurrentPspTestAccountStage(currentPspTestAccountStage);
         databaseHelper.addService(service, gatewayAccountIds.toArray(new String[0]));
 
         return service;
