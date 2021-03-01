@@ -10,7 +10,7 @@
         <dropwizard.version>2.0.19</dropwizard.version>
         <hamcrest.version>2.2</hamcrest.version>
         <eclipselink.version>2.7.7</eclipselink.version>
-        <guice.version>4.2.3</guice.version>
+        <guice.version>5.0.1</guice.version>
         <guava.version>29.0-jre</guava.version>
         <jackson.version>2.12.1</jackson.version>
         <pay-java-commons.version>1.0.20210208142550</pay-java-commons.version>
