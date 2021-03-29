@@ -31,12 +31,12 @@ import uk.gov.pay.adminusers.resources.InviteResource;
 import uk.gov.pay.adminusers.resources.ResetPasswordResource;
 import uk.gov.pay.adminusers.resources.ServiceResource;
 import uk.gov.pay.adminusers.resources.UserResource;
-import uk.gov.pay.commons.utils.healthchecks.DatabaseHealthCheck;
-import uk.gov.pay.commons.utils.metrics.DatabaseMetricsService;
-import uk.gov.pay.commons.utils.xray.Xray;
-import uk.gov.pay.logging.GovUkPayDropwizardRequestJsonLogLayoutFactory;
-import uk.gov.pay.logging.LoggingFilter;
-import uk.gov.pay.logging.LogstashConsoleAppenderFactory;
+import uk.gov.service.payments.commons.utils.healthchecks.DatabaseHealthCheck;
+import uk.gov.service.payments.commons.utils.metrics.DatabaseMetricsService;
+import uk.gov.service.payments.commons.utils.xray.Xray;
+import uk.gov.service.payments.logging.GovUkPayDropwizardRequestJsonLogLayoutFactory;
+import uk.gov.service.payments.logging.LoggingFilter;
+import uk.gov.service.payments.logging.LogstashConsoleAppenderFactory;
 
 import java.util.concurrent.TimeUnit;
 

@@ -5,8 +5,8 @@ import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
-import uk.gov.pay.commons.utils.startup.ApplicationStartupDependentResourceChecker;
-import uk.gov.pay.commons.utils.startup.DatabaseStartupResource;
+import uk.gov.service.payments.commons.utils.startup.ApplicationStartupDependentResourceChecker;
+import uk.gov.service.payments.commons.utils.startup.DatabaseStartupResource;
 
 public class DependentResourceWaitCommand extends ConfiguredCommand<AdminUsersConfig> {
     public DependentResourceWaitCommand() {

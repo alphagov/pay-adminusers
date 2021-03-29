@@ -12,7 +12,7 @@ import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
-import uk.gov.pay.commons.model.SupportedLanguage;
+import uk.gov.service.payments.commons.model.SupportedLanguage;
 
 import java.util.Arrays;
 import java.util.Collections;

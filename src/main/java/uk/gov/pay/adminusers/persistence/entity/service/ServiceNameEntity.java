@@ -1,8 +1,8 @@
 package uk.gov.pay.adminusers.persistence.entity.service;
 
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
-import uk.gov.pay.commons.model.SupportedLanguage;
-import uk.gov.pay.commons.model.SupportedLanguageJpaConverter;
+import uk.gov.service.payments.commons.model.SupportedLanguage;
+import uk.gov.service.payments.commons.model.SupportedLanguageJpaConverter;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;

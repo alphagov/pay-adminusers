@@ -15,7 +15,7 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
-import uk.gov.pay.commons.model.SupportedLanguage;
+import uk.gov.service.payments.commons.model.SupportedLanguage;
 
 import java.util.List;
 import java.util.Optional;

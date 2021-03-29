@@ -5,7 +5,7 @@ import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
-import uk.gov.pay.commons.model.SupportedLanguage;
+import uk.gov.service.payments.commons.model.SupportedLanguage;
 
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 

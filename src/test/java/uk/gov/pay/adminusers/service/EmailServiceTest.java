@@ -27,7 +27,7 @@ import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static uk.gov.pay.commons.model.SupportedLanguage.ENGLISH;
+import static uk.gov.service.payments.commons.model.SupportedLanguage.ENGLISH;
 
 @ExtendWith(MockitoExtension.class)
 public class EmailServiceTest {

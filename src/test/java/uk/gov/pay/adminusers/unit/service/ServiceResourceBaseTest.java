@@ -3,7 +3,7 @@ package uk.gov.pay.adminusers.unit.service;
 import io.restassured.path.json.JsonPath;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.service.LinksBuilder;
-import uk.gov.pay.commons.model.SupportedLanguage;
+import uk.gov.service.payments.commons.model.SupportedLanguage;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasKey;

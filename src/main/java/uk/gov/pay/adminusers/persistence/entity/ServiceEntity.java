@@ -5,7 +5,7 @@ import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
-import uk.gov.pay.commons.model.SupportedLanguage;
+import uk.gov.service.payments.commons.model.SupportedLanguage;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
