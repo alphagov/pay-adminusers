@@ -22,7 +22,7 @@ import uk.gov.pay.adminusers.service.ServiceFinder;
 import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 import uk.gov.pay.adminusers.service.StripeAgreementService;
 import uk.gov.pay.adminusers.validations.RequestValidations;
-import uk.gov.pay.commons.model.SupportedLanguage;
+import uk.gov.service.payments.commons.model.SupportedLanguage;
 
 import javax.ws.rs.core.Response;
 import java.time.ZonedDateTime;

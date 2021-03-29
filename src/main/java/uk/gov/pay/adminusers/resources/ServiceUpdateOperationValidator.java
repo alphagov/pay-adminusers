@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.validations.RequestValidations;
-import uk.gov.pay.commons.model.SupportedLanguage;
+import uk.gov.service.payments.commons.model.SupportedLanguage;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

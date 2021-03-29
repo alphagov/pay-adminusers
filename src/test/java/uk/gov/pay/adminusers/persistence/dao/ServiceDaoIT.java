@@ -21,7 +21,7 @@ import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntityBuilder;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntityBuilder;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
-import uk.gov.pay.commons.model.SupportedLanguage;
+import uk.gov.service.payments.commons.model.SupportedLanguage;
 
 import java.time.ZonedDateTime;
 import java.util.Collections;

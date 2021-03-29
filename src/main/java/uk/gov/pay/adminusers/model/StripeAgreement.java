@@ -2,7 +2,7 @@ package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import uk.gov.pay.commons.api.json.ApiResponseDateTimeSerializer;
+import uk.gov.service.payments.commons.api.json.ApiResponseDateTimeSerializer;
 
 import java.net.InetAddress;
 import java.time.ZonedDateTime;

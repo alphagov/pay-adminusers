@@ -11,7 +11,7 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.resources.EmailTemplate;
 import uk.gov.pay.adminusers.resources.InvalidMerchantDetailsException;
 import uk.gov.pay.adminusers.utils.CountryConverter;
-import uk.gov.pay.commons.model.SupportedLanguage;
+import uk.gov.service.payments.commons.model.SupportedLanguage;
 
 import java.util.HashMap;
 import java.util.Map;

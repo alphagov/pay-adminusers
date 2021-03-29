@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.infra.GuicedTestEnvironment;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
-import uk.gov.pay.commons.testing.db.PostgresDockerExtension;
+import uk.gov.service.payments.commons.testing.db.PostgresDockerExtension;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

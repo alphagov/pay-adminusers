@@ -2,7 +2,7 @@
 <persistence version="2.1" xmlns="http://java.sun.com/xml/ns/persistence">
     <persistence-unit name="AdminUsersUnit" transaction-type="RESOURCE_LOCAL">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-        <class>uk.gov.pay.commons.model.SupportedLanguageJpaConverter</class>
+        <class>uk.gov.service.payments.commons.model.SupportedLanguageJpaConverter</class>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
     </persistence-unit>
 </persistence>
