@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasItems;
@@ -117,7 +117,11 @@ public class ServiceCreatorTest {
 
         assertThat(service.getName(), is("System Generated"));
 
-        List<String> persistedGatewayIds = persistedServiceEntity.getValue().getGatewayAccountIds().stream().map(GatewayAccountIdEntity::getGatewayAccountId).collect(toList());
+        List<String> persistedGatewayIds = persistedServiceEntity.getValue().getGatewayAccountIds()
+                .stream()
+                .map(GatewayAccountIdEntity::getGatewayAccountId)
+                .collect(toUnmodifiableList());
+
         assertThat(persistedGatewayIds.size(), is(2));
         assertThat(persistedGatewayIds, hasItems(gatewayAccountId1, gatewayAccountId2));
 
@@ -141,7 +145,12 @@ public class ServiceCreatorTest {
         verify(mockedServiceDao, times(1)).persist(persistedServiceEntity.capture());
 
         assertThat(service.getName(), is(EN_SERVICE_NAME));
-        List<String> persistedGatewayIds = persistedServiceEntity.getValue().getGatewayAccountIds().stream().map(GatewayAccountIdEntity::getGatewayAccountId).collect(toList());
+
+        List<String> persistedGatewayIds = persistedServiceEntity.getValue().getGatewayAccountIds()
+                .stream()
+                .map(GatewayAccountIdEntity::getGatewayAccountId)
+                .collect(toUnmodifiableList());
+ 
         assertThat(persistedGatewayIds.size(), is(2));
         assertThat(persistedGatewayIds, hasItems(gatewayAccountId1, gatewayAccountId1));
         assertThat(service.getGatewayAccountIds(), hasItems(gatewayAccountId1, gatewayAccountId2));

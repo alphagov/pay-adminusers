@@ -12,8 +12,8 @@ import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
@@ -40,7 +40,10 @@ public class UserDbFixture {
     }
 
     public User insertUser() {
-        List<ServiceRole> serviceRoles = serviceRolePairs.stream().map(servicePair -> ServiceRole.from(servicePair.getLeft(), servicePair.getRight())).collect(Collectors.toList());
+        List<ServiceRole> serviceRoles = serviceRolePairs.stream()
+                .map(servicePair -> ServiceRole.from(servicePair.getLeft(), servicePair.getRight()))
+                .collect(toUnmodifiableList());
+
         User user = User.from(randomInt(), externalId, username, password, email, otpKey, telephoneNumber,
                 serviceRoles, features, secondFactorMethod, provisionalOtpKey, null, null);
 

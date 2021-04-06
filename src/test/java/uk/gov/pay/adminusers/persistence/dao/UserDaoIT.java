@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static java.lang.String.valueOf;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyOrNullString;
@@ -301,8 +301,10 @@ public class UserDaoIT extends DaoTestBase {
         UserEntity changedUser = userDao.findByUsername(username).get();
         List<ServiceRoleEntity> servicesRoles = changedUser.getServicesRoles();
         assertThat(servicesRoles.size(), is(2));
-        assertThat(servicesRoles.stream().map(sr -> sr.getService().getExternalId()).collect(toList()), hasItems(service1.getExternalId(), serviceEntity2.getExternalId()));
-        assertThat(servicesRoles.stream().map(sr -> sr.getRole().getName()).collect(toList()), hasItems(role1.getName(), role2.getName()));
+        assertThat(servicesRoles.stream().map(sr -> sr.getService().getExternalId()).collect(toUnmodifiableList()),
+                hasItems(service1.getExternalId(), serviceEntity2.getExternalId()));
+        assertThat(servicesRoles.stream().map(sr -> sr.getRole().getName()).collect(toUnmodifiableList()),
+                hasItems(role1.getName(), role2.getName()));
     }
 
     @Test
