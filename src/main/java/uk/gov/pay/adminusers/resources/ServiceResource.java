@@ -51,6 +51,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -109,13 +110,11 @@ public class ServiceResource {
     @Produces(APPLICATION_JSON)
     public Response getServices() {
         LOGGER.info("Get Services request");
+        List<Service> services = serviceDao.listAll().stream().map(ServiceEntity::toService).map(linksBuilder::decorate).collect(toUnmodifiableList());
         return Response
                 .status(OK)
-                .entity(
-                        serviceDao.listAll().stream().map(
-                                serviceEntity -> linksBuilder.decorate(serviceEntity.toService())
-                        ).collect(Collectors.toList())
-                ).build();
+                .entity(services)
+                .build();
     }
 
     @GET
@@ -201,14 +200,16 @@ public class ServiceResource {
     @Consumes(APPLICATION_JSON)
     public Response findUsersByServiceId(@PathParam("serviceExternalId") String serviceExternalId) {
         LOGGER.info("Service users GET request - [ {} ]", serviceExternalId);
-        Optional<ServiceEntity> serviceEntityOptional;
-        serviceEntityOptional = serviceDao.findByExternalId(serviceExternalId);
-
-        return serviceEntityOptional.map(serviceEntity ->
-                Response.status(200).entity(userDao.findByServiceId(serviceEntity.getId()).stream()
-                        .map(userEntity -> linksBuilder.decorate(userEntity.toUser()))
-                        .collect(Collectors.toList())).build())
-                .orElseGet(() -> Response.status(NOT_FOUND).build());
+        return serviceDao.findByExternalId(serviceExternalId)
+                .map(serviceEntity -> 
+                        Response.status(200).entity(
+                                userDao.findByServiceId(serviceEntity.getId())
+                                        .stream()
+                                        .map(UserEntity::toUser)
+                                        .map(linksBuilder::decorate)
+                                        .collect(toUnmodifiableList())
+                                ).build()
+                ).orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
     // To consider for all the operations add @HeaderParam("GovUkPay-User-Context") and creating a filter
