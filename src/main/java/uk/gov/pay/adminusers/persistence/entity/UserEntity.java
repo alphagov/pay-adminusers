@@ -22,7 +22,7 @@ import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 @Entity
 @Table(name = "users")
@@ -282,12 +282,7 @@ public class UserEntity extends AbstractEntity {
     }
 
     public User toUser() {
-
-        List<ServiceRole> serviceRoles = new ArrayList<>();
-
-        if (!this.servicesRoles.isEmpty()) {
-            serviceRoles = this.servicesRoles.stream().map(ServiceRoleEntity::toServiceRole).collect(toList());
-        }
+        List<ServiceRole> serviceRoles = this.servicesRoles.stream().map(ServiceRoleEntity::toServiceRole).collect(toUnmodifiableList());
 
         User user = User.from(getId(), externalId, username, password, email, otpKey, telephoneNumber, serviceRoles,
                 features, secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt);
