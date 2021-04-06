@@ -7,8 +7,8 @@ import uk.gov.pay.adminusers.persistence.dao.UserDao;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
 
 public class InviteFinder {
@@ -50,6 +50,6 @@ public class InviteFinder {
                         return invite;
                     }).orElse(invite);
                 })
-                .collect(Collectors.toList());
+                .collect(toUnmodifiableList());
     }
 }
