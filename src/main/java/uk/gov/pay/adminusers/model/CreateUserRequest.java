@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -73,7 +74,7 @@ public class CreateUserRequest {
     private static String getNodeAsTextOrFail(JsonNode node, String fieldName) {
         return Optional.ofNullable(node.get(fieldName))
                 .map(JsonNode::asText)
-                .orElseThrow(() -> new RuntimeException(String.format("Error retrieving field {} for creating a user", fieldName)));
+                .orElseThrow(() -> new RuntimeException(format("Error retrieving field %s for creating a user", fieldName)));
     }
 
     private static String getOrElseRandom(JsonNode elementNode, String randomValue) {
