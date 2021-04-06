@@ -15,15 +15,15 @@ import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_DISABLED;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_FEATURES;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
@@ -118,8 +118,9 @@ public class UserServices {
     public List<User> findUsersByExternalIds(List<String> externalIds) {
         return userDao.findByExternalIds(externalIds)
                 .stream()
-                .map(userEntity -> linksBuilder.decorate(userEntity.toUser()))
-                .collect(Collectors.toList());
+                .map(UserEntity::toUser)
+                .map(linksBuilder::decorate)
+                .collect(toUnmodifiableList());
     }
 
     /**
@@ -134,12 +135,9 @@ public class UserServices {
     }
     
     public Map<String, List<String>> getAdminUserEmailsForGatewayAccountIds(List<String> gatewayAccountIds) {
-        Map<String, List<String>> result = userDao.getAdminUserEmailsForGatewayAccountIds(gatewayAccountIds);
-        Set<String> presentGatewayAccountIds = result.keySet();
-        gatewayAccountIds.stream()
-                .filter(gatewayAccountId -> !presentGatewayAccountIds.contains(gatewayAccountId))
-                .forEach(gatewayAccountId -> result.put(gatewayAccountId, List.of()));
-        return result;
+        Map<String, List<String>> gatewayAccountIdsToAdminEmails = new HashMap<>(userDao.getAdminUserEmailsForGatewayAccountIds(gatewayAccountIds));
+        gatewayAccountIds.forEach(gatewayAccountId -> gatewayAccountIdsToAdminEmails.putIfAbsent(gatewayAccountId, List.of()));
+        return Map.copyOf(gatewayAccountIdsToAdminEmails);
     }
 
     @Transactional

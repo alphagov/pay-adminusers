@@ -104,9 +104,9 @@ class UserServicesTest {
         UserEntity userEntity1 = aUserEntityWithTrimmings(user1);
         UserEntity userEntity2 = aUserEntityWithTrimmings(user2);
 
-        when(userDao.findByExternalIds(Arrays.asList(user1.getExternalId(), user2.getExternalId()))).thenReturn(Arrays.asList(userEntity1, userEntity2));
+        when(userDao.findByExternalIds(List.of(user1.getExternalId(), user2.getExternalId()))).thenReturn(Arrays.asList(userEntity1, userEntity2));
 
-        List<User> users = userServices.findUsersByExternalIds(Arrays.asList(user1.getExternalId(), user2.getExternalId()));
+        List<User> users = userServices.findUsersByExternalIds(List.of(user1.getExternalId(), user2.getExternalId()));
         assertThat(users.size(), is(2));
 
         assertThat(users.get(0).getExternalId(), is(user1.getExternalId()));
@@ -652,6 +652,25 @@ class UserServicesTest {
 
         verify(userDao, never()).merge(any(UserEntity.class));
         assertThat(result.isPresent(), is(false));
+    }
+
+    @Test
+    void getAdminUserEmailsForGatewayAccountIdsReturnsEachInputGatewayAccountIdMappedToPossiblyEmptyListOfAdminEmails() {
+        when(userDao.getAdminUserEmailsForGatewayAccountIds(List.of("1", "2", "3", "4", "5"))).thenReturn(
+                Map.of(
+                        "1", List.of("john@beatles.test", "paul@beatles.test"),
+                        "3", List.of("george@beatles.test"),
+                        "5", List.of("ringo@beatles.test")
+                ));
+
+        Map<String, List<String>> result = userServices.getAdminUserEmailsForGatewayAccountIds(List.of("1", "2", "3", "4", "5"));
+
+        assertThat(result.size(), is(5));
+        assertThat(result.get("1"), is(List.of("john@beatles.test", "paul@beatles.test")));
+        assertThat(result.get("2"), is(List.of()));
+        assertThat(result.get("3"), is(List.of("george@beatles.test")));
+        assertThat(result.get("4"), is(List.of()));
+        assertThat(result.get("5"), is(List.of("ringo@beatles.test")));
     }
 
     private User aUser() {
