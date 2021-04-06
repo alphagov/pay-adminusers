@@ -21,8 +21,6 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedExc
 
 public class ServiceInviteCompleter extends InviteCompleter {
 
-
-    @Inject
     private final InviteDao inviteDao;
     private final UserDao userDao;
     private final ServiceDao serviceDao;
