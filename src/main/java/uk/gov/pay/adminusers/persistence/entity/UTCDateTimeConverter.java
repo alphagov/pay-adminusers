@@ -4,12 +4,13 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import java.sql.Timestamp;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 @Converter
 public class UTCDateTimeConverter implements AttributeConverter<ZonedDateTime, Timestamp> {
 
-    public static final ZoneId UTC = ZoneId.of("UTC");
+    public static final ZoneId UTC = ZoneOffset.UTC;
 
     @Override
     public Timestamp convertToDatabaseColumn(ZonedDateTime dateTime) {
