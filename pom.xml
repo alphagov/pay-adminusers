@@ -23,7 +23,7 @@
             </snapshots>
             <id>bintray-gov-uk-notify-maven</id>
             <name>bintray</name>
-            <url>http://dl.bintray.com/gov-uk-notify/maven</url>
+            <url>https://dl.bintray.com/gov-uk-notify/maven</url>
         </repository>
     </repositories>
     <dependencies>
