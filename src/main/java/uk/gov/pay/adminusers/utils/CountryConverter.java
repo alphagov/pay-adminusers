@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toUnmodifiableMap;
 
 public class CountryConverter {
 
@@ -27,14 +27,15 @@ public class CountryConverter {
     }
 
     private Map<String, String> createMap(String countries) throws IOException {
-        List<List<String>> allCountries = objectMapper.readValue(countries, new TypeReference<List<List<String>>>() {});
+        List<List<String>> allCountries = objectMapper.readValue(countries, new TypeReference<>() {});
         return allCountries.stream()
                 .filter(country -> country.get(1).startsWith("country:"))
-                .collect(toMap(
+                .collect(toUnmodifiableMap(
                         country -> getIsoCode(country.get(1)),
-                        country -> country.get(0)));
+                        country -> country.get(0)
+                ));
     }
-    
+
     private static String getIsoCode(String typeAndIsoCode) {
         return typeAndIsoCode.substring(typeAndIsoCode.indexOf(':') + 1);
     }
