@@ -26,11 +26,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static java.util.stream.Collectors.toUnmodifiableMap;
 import static javax.persistence.EnumType.STRING;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
@@ -309,8 +310,7 @@ public class ServiceEntity {
     }
 
     public Map<SupportedLanguage, ServiceNameEntity> getServiceNames() {
-        return serviceNames.stream()
-                .collect(Collectors.toMap(ServiceNameEntity::getLanguage, serviceName -> serviceName));
+        return serviceNames.stream().collect(toUnmodifiableMap(ServiceNameEntity::getLanguage, Function.identity()));
     }
 
     private void populateGatewayAccountIds(List<String> gatewayAccountIds) {
