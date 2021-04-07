@@ -9,6 +9,7 @@ import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
 import javax.persistence.RollbackException;
 import java.sql.Timestamp;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -82,7 +83,7 @@ public class StripeAgreementDaoIT extends DaoTestBase {
         Service service = serviceDbFixture(databaseHelper)
                 .insertService();
 
-        ZonedDateTime agreementTime = ZonedDateTime.now(ZoneId.of("UTC"));
+        ZonedDateTime agreementTime = ZonedDateTime.now(ZoneOffset.UTC);
         String ipAddress = "192.0.2.0";
         
         stripeAgreementDbFixture(databaseHelper)

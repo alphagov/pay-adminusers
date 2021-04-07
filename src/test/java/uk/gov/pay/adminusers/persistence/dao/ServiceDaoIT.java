@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.postgresql.util.PGobject;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.model.GoLiveStage;
-import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.model.Permission;
+import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
@@ -32,10 +32,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import static java.time.ZoneOffset.UTC;
-import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Comparator.comparing;
 import static java.util.stream.IntStream.range;
-import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasKey;
@@ -168,7 +166,7 @@ class ServiceDaoIT extends DaoTestBase {
         assertTrue(maybeServiceEntity.isPresent());
         ServiceEntity foundServiceEntity = maybeServiceEntity.get();
         assertThat(foundServiceEntity.isExperimentalFeaturesEnabled(), is(true));
-        assertThat(foundServiceEntity.getCreatedDate(), within(5, SECONDS, now));
+        assertThat(foundServiceEntity.getCreatedDate(), is(insertedServiceEntity.getCreatedDate()));
 
         assertServiceEntity(insertedServiceEntity, foundServiceEntity);
 
