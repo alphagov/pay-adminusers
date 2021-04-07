@@ -37,18 +37,9 @@ public class ServiceRoleUpdater {
         this.linksBuilder = linksBuilder;
     }
 
-    /**
-     * updates user's service role.
-     *
-     * @param userExternalId
-     * @param serviceId
-     * @param roleName
-     * @return Updated User if successful or Optional.empty() if user not found
-     */
     @Transactional
     public Optional<User> doUpdate(String userExternalId, String serviceId, String roleName) {
         String serviceExternalId = serviceId;
-        //Deprecated : Until selfservice is moved to use the service externalId.
         if (StringUtils.isNumeric(serviceId)) {
             serviceExternalId = serviceDao.findById(Integer.valueOf(serviceId))
                     .map(ServiceEntity::getExternalId)

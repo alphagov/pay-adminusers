@@ -28,8 +28,6 @@ public class TelephoneNumberUtility {
             PhoneNumber phoneNumber = PHONE_NUMBER_UTIL.parseAndKeepRawInput(telephoneNumber, DEFAULT_COUNTRY);
             return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164);
         } catch (NumberParseException e) {
-            // we wrap the checked NumberParseException exception
-            // because we use the method in lambdas
             throw new RuntimeException(e);
         }
     }
