@@ -16,7 +16,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
+import static java.util.stream.Collectors.toUnmodifiableMap;
 
 @Transactional
 public class UserDao extends JpaDao<UserEntity> {
@@ -39,7 +40,7 @@ public class UserDao extends JpaDao<UserEntity> {
     public List<UserEntity> findByExternalIds(List<String> externalIds) {
         String query = "SELECT u FROM UserEntity u WHERE LOWER(u.externalId) in :externalIds";
 
-        List<String> lowerCaseExternalIds = externalIds.stream().map(String::toLowerCase).collect(toList());
+        List<String> lowerCaseExternalIds = externalIds.stream().map(String::toLowerCase).collect(toUnmodifiableList());
 
         return entityManager.get()
                 .createQuery(query, UserEntity.class)
@@ -72,14 +73,14 @@ public class UserDao extends JpaDao<UserEntity> {
                     .collect(groupingBy(SimpleEntry::getKey))
                     .entrySet()
                     .stream()
-                    .collect(Collectors.toMap(
+                    .collect(toUnmodifiableMap(
                             Map.Entry::getKey,
-                            abstractMap -> abstractMap.getValue().stream().map(SimpleEntry::getValue).collect(toList())));
+                            abstractMap -> abstractMap.getValue().stream().map(SimpleEntry::getValue).collect(toUnmodifiableList())));
         } else {
             return Map.of();
         }
     }
-    
+
     public Optional<UserEntity> findByUsername(String username) {
         String query = "SELECT u FROM UserEntity u " +
                 "WHERE LOWER(u.username) = LOWER(:username)";
@@ -110,6 +111,6 @@ public class UserDao extends JpaDao<UserEntity> {
                 .setParameter("serviceId", serviceId)
                 .getResultList().stream()
                 .map(ServiceRoleEntity::getUser)
-                .collect(toList());
+                .collect(toUnmodifiableList());
     }
 }

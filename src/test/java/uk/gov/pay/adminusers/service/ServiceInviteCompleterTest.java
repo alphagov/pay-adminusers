@@ -28,7 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
@@ -93,7 +93,7 @@ public class ServiceInviteCompleterTest {
         ServiceEntity serviceEntity = expectedService.getValue();
         assertThat(serviceEntity.getGatewayAccountIds().stream()
                 .map(GatewayAccountIdEntity::getGatewayAccountId)
-                .collect(toList()), hasItems("2", "1"));
+                .collect(toUnmodifiableList()), hasItems("2", "1"));
         assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
         assertThat(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
         assertThat(serviceEntity.isCollectBillingAddress(), is(true));

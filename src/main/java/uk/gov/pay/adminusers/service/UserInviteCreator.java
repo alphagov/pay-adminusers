@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.InviteType.USER;
@@ -68,7 +68,7 @@ public class UserInviteCreator {
         List<InviteEntity> validInvitesToTheSameService = existingInvites.stream()
                 .filter(inviteEntity -> !inviteEntity.isDisabled() && !inviteEntity.isExpired())
                 .filter(inviteEntity -> inviteEntity.getService() != null && inviteUserRequest.getServiceExternalId().equals(inviteEntity.getService().getExternalId()))
-                .collect(toList());
+                .collect(toUnmodifiableList());
 
         if (!validInvitesToTheSameService.isEmpty()) {
             InviteEntity existingInvite = validInvitesToTheSameService.get(0);

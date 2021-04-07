@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static javax.persistence.EnumType.STRING;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
@@ -263,7 +264,7 @@ public class ServiceEntity {
                 this.currentPspTestAccountStage);
         service.setGatewayAccountIds(gatewayAccountIds.stream()
                 .map(GatewayAccountIdEntity::getGatewayAccountId)
-                .collect(Collectors.toList()));
+                .collect(toUnmodifiableList()));
         service.setCustomBranding(this.customBranding);
         if (this.merchantDetailsEntity != null) {
             service.setMerchantDetails(this.merchantDetailsEntity.toMerchantDetails());

@@ -17,9 +17,9 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.InviteType.SERVICE;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmail;
@@ -65,7 +65,7 @@ public class ServiceInviteCreator {
         List<InviteEntity> exitingInvites = inviteDao.findByEmail(requestEmail);
         List<InviteEntity> existingValidServiceInvitesForSameEmail =  exitingInvites.stream()
                 .filter(inviteEntity -> !inviteEntity.isDisabled() && !inviteEntity.isExpired())
-                .filter(InviteEntity::isServiceType).collect(Collectors.toList());
+                .filter(InviteEntity::isServiceType).collect(toUnmodifiableList());
 
         if(!existingValidServiceInvitesForSameEmail.isEmpty()) {
             InviteEntity foundInvite = existingValidServiceInvitesForSameEmail.get(0);
