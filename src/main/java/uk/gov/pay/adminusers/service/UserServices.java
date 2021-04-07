@@ -39,7 +39,6 @@ public class UserServices {
     private final LinksBuilder linksBuilder;
     private final Integer loginAttemptCap;
     private final SecondFactorAuthenticator secondFactorAuthenticator;
-    private final ServiceFinder serviceFinder;
 
     @Inject
     public UserServices(UserDao userDao,
@@ -54,25 +53,13 @@ public class UserServices {
         this.linksBuilder = linksBuilder;
         this.loginAttemptCap = loginAttemptCap;
         this.secondFactorAuthenticator = secondFactorAuthenticator;
-        this.serviceFinder = serviceFinder;
     }
 
-    /**
-     * validates given username and password against persisted users
-     * <p> on successful authentication, user's login count is reset to <b>0</b></p>
-     * <p> on authentication failure, user's login count is increment by <b>1</b></p>
-     *
-     * @param username
-     * @param password
-     * @return {@link User} wrapped in an Optional if a matching user found. Otherwise an Optional.empty()
-     * @throws javax.ws.rs.WebApplicationException if user account is disabled
-     * @throws javax.ws.rs.WebApplicationException with status 423 (Locked) if login attempts >  ALLOWED_FAILED_LOGIN_ATTEMPTS
-     */
     @Transactional
     public Optional<User> authenticate(String username, String password) {
         Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
         logger.debug("Login attempt - username={}", username);
-        if (userEntityOptional.isPresent()) { //interestingly java cannot map/orElseGet this block properly, without getting the compiler confused. :)
+        if (userEntityOptional.isPresent()) {
             UserEntity userEntity = userEntityOptional.get();
             if (passwordHasher.isEqual(password, userEntity.getPassword())) {
                 if (!userEntity.isDisabled()) {
@@ -100,21 +87,11 @@ public class UserServices {
         }
     }
 
-    /**
-     * finds a user by externalId
-     *
-     * @param externalId
-     * @return {@link User} as an {@link Optional} if found. Otherwise Optional.empty() will be returned.
-     */
     public Optional<User> findUserByExternalId(String externalId) {
         Optional<UserEntity> userEntityOptional = userDao.findByExternalId(externalId);
         return userEntityOptional.map(userEntity -> linksBuilder.decorate(userEntity.toUser()));
     }
 
-    /**
-     * @param externalIds
-     * @return A {@link List} of {@link User} or an empty {@link List} otherwise
-     */
     public List<User> findUsersByExternalIds(List<String> externalIds) {
         return userDao.findByExternalIds(externalIds)
                 .stream()
@@ -123,12 +100,6 @@ public class UserServices {
                 .collect(toUnmodifiableList());
     }
 
-    /**
-     * finds a user by username
-     *
-     * @param username
-     * @return {@link User} as an {@link Optional} if found. Otherwise Optional.empty() will be returned.
-     */
     public Optional<User> findUserByUsername(String username) {
         Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
         return userEntityOptional.map(userEntity -> linksBuilder.decorate(userEntity.toUser()));
@@ -262,7 +233,7 @@ public class UserServices {
 
         Optional<UserEntity> userOptional = userDao.findByExternalId(externalId);
 
-        if (!userOptional.isPresent()) {
+        if (userOptional.isEmpty()) {
             return Optional.empty();
         }
 

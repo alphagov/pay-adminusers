@@ -25,7 +25,6 @@ public class ServiceOtpDispatcher extends InviteOtpDispatcher {
         this.notificationService = notificationService;
     }
 
-    //This doesn't really need to be transactional. as it read-only from database
     @Override
     public boolean dispatchOtp(String inviteCode) {
         return inviteDao.findByCode(inviteCode)

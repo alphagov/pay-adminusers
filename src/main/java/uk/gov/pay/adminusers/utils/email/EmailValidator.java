@@ -78,35 +78,10 @@ public class EmailValidator {
     private static final org.apache.commons.validator.routines.EmailValidator COMMONS_EMAIL_VALIDATOR =
             org.apache.commons.validator.routines.EmailValidator.getInstance();
 
-    /**
-     * <p>Checks if a field has a valid e-mail address.</p>
-     *
-     * @param email The value validation is being performed on.  A <code>null</code>
-     *              value is considered invalid.
-     * @return true if the email address is valid.
-     */
     public static boolean isValid(String email) {
         return COMMONS_EMAIL_VALIDATOR.isValid(email);
     }
 
-    /**
-     * This method checks that an email belongs to a public sector domain name
-     * <p>
-     * The logic is split into two parts:
-     * <ol>
-     *   <li>checks the subdomains and that they:</li>
-     *   <ul>
-     *     <li>don't start with "-" </li>
-     *     <li>only have any alphanumeric characters or "-"</li>
-     *     <li>don't end with "-"</li>
-     *   </ul>
-     *   <li>checks the whitelisted domains</li>
-     * </ol>
-     * </p>
-     *
-     * @param email the email to check
-     * @return <b>boolean</b> whether or not it is from a public sector domain
-     */
     public static boolean isPublicSectorEmail(String email) {
         String lowerCaseEmail = email.toLowerCase(Locale.ENGLISH);
         String[] emailParts = lowerCaseEmail.split("@");
