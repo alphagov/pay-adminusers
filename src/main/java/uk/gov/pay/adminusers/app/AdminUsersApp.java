@@ -33,7 +33,6 @@ import uk.gov.pay.adminusers.resources.ServiceResource;
 import uk.gov.pay.adminusers.resources.UserResource;
 import uk.gov.service.payments.commons.utils.healthchecks.DatabaseHealthCheck;
 import uk.gov.service.payments.commons.utils.metrics.DatabaseMetricsService;
-import uk.gov.service.payments.commons.utils.xray.Xray;
 import uk.gov.service.payments.logging.GovUkPayDropwizardRequestJsonLogLayoutFactory;
 import uk.gov.service.payments.logging.LoggingFilter;
 import uk.gov.service.payments.logging.LogstashConsoleAppenderFactory;
@@ -57,7 +56,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
                 )
         );
 
-        bootstrap.addBundle(new MigrationsBundle<AdminUsersConfig>() {
+        bootstrap.addBundle(new MigrationsBundle<>() {
             @Override
             public DataSourceFactory getDataSourceFactory(AdminUsersConfig configuration) {
                 return configuration.getDataSourceFactory();
@@ -97,8 +96,6 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(new InvalidEmailRequestExceptionMapper());
         environment.jersey().register(new InvalidMerchantDetailsExceptionMapper());
         environment.jersey().register(new ConflictExceptionMapper());
-
-        Xray.init(environment, "pay-adminusers", java.util.Optional.empty(), "/v1/*");
     }
 
     private void initialiseMetrics(AdminUsersConfig configuration, Environment environment) {
