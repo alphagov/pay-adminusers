@@ -42,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
+import static uk.gov.pay.adminusers.model.Permission.permission;
 import static uk.gov.pay.adminusers.model.Role.role;
 
 class ServiceDaoIT extends DaoTestBase {
@@ -366,4 +367,7 @@ class ServiceDaoIT extends DaoTestBase {
         assertThat(insertedServiceEntity.getCustomBranding().values(), hasItems("image url", "css url"));
     }
 
+    private Permission aPermission() {
+        return permission(randomInt(), "permission-name-" + randomUuid(), "permission-description" + randomUuid());
+    }
 }
