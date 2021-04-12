@@ -16,16 +16,6 @@
         <pay-java-commons.version>1.0.20210407144112</pay-java-commons.version>
         <junit5.version>5.7.1</junit5.version>
     </properties>
-    <repositories>
-        <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray-gov-uk-notify-maven</id>
-            <name>bintray</name>
-            <url>https://dl.bintray.com/gov-uk-notify/maven</url>
-        </repository>
-    </repositories>
     <dependencies>
         <dependency>
             <groupId>uk.gov.service.payments</groupId>
