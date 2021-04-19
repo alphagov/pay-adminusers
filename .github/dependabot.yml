@@ -1,0 +1,29 @@
+version: 2
+updates:
+- package-ecosystem: maven
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "03:00"
+  open-pull-requests-limit: 10
+  labels:
+  - govuk-pay
+  - java
+  ignore:
+  - dependency-name: org.liquibase:liquibase-core
+    versions:
+    - "> 3.8.0"
+    - "< 3.9"
+  - dependency-name: org.liquibase:liquibase-core
+    versions:
+    - ">= 4.3.a"
+    - "< 4.4"
+- package-ecosystem: docker
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "03:00"
+  open-pull-requests-limit: 10
+  labels:
+  - govuk-pay
+  - java
