@@ -14,7 +14,7 @@
         <guava.version>30.1.1-jre</guava.version>
         <jackson.version>2.12.3</jackson.version>
         <pay-java-commons.version>1.0.20210504085926</pay-java-commons.version>
-        <junit5.version>5.7.1</junit5.version>
+        <junit5.version>5.7.2</junit5.version>
     </properties>
     <dependencies>
         <dependency>
