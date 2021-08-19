@@ -31,4 +31,3 @@ bin
 
 .DS_Store
 /pacts/
-.pre-commit-config.yaml
