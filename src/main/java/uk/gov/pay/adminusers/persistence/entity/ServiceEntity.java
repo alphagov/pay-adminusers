@@ -39,6 +39,8 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 @Table(name = "services")
 @SequenceGenerator(name = "services_seq_gen", sequenceName = "services_id_seq", allocationSize = 1)
 public class ServiceEntity {
+    
+    public static final String DEFAULT_BILLING_ADDRESS_COUNTRY = "GB";
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "services_seq_gen")
@@ -52,6 +54,9 @@ public class ServiceEntity {
 
     @Column(name = "collect_billing_address")
     private boolean collectBillingAddress = true;
+    
+    @Column(name = "default_billing_address_country")
+    private String defaultBillingAddressCountry = DEFAULT_BILLING_ADDRESS_COUNTRY;
 
     @Embedded
     private MerchantDetailsEntity merchantDetailsEntity;
@@ -141,6 +146,14 @@ public class ServiceEntity {
 
     public void setCollectBillingAddress(boolean collectBillingAddress) {
         this.collectBillingAddress = collectBillingAddress;
+    }
+
+    public String getDefaultBillingAddressCountry() {
+        return defaultBillingAddressCountry;
+    }
+
+    public void setDefaultBillingAddressCountry(String defaultBillingAddressCountry) {
+        this.defaultBillingAddressCountry = defaultBillingAddressCountry;
     }
 
     public MerchantDetailsEntity getMerchantDetailsEntity() {
@@ -254,6 +267,7 @@ public class ServiceEntity {
                 ServiceName.from(getServiceNames().values()),
                 this.redirectToServiceImmediatelyOnTerminalState,
                 this.collectBillingAddress,
+                this.defaultBillingAddressCountry,
                 this.currentGoLiveStage,
                 this.experimentalFeaturesEnabled,
                 this.agentInitiatedMotoEnabled,
