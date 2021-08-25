@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.GoLiveStage.NOT_STARTED;
+import static uk.gov.pay.adminusers.persistence.entity.ServiceEntity.DEFAULT_BILLING_ADDRESS_COUNTRY;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
@@ -32,6 +33,7 @@ public class Service {
     private MerchantDetails merchantDetails;
     private boolean redirectToServiceImmediatelyOnTerminalState;
     private boolean collectBillingAddress;
+    private String defaultBillingAddressCountry;
     private GoLiveStage goLiveStage;
     private boolean experimentalFeaturesEnabled;
     private String sector;
@@ -63,6 +65,7 @@ public class Service {
                 serviceName,
                 false,
                 true,
+                DEFAULT_BILLING_ADDRESS_COUNTRY,
                 NOT_STARTED,
                 false,
                 false,
@@ -79,6 +82,7 @@ public class Service {
                                ServiceName serviceName,
                                boolean redirectToServiceImmediatelyOnTerminalState,
                                boolean collectBillingAddress,
+                               String defaultBillingAddressCountry,
                                GoLiveStage goLiveStage,
                                boolean experimentalFeaturesEnabled,
                                boolean agentInitiatedMotoEnabled,
@@ -93,6 +97,7 @@ public class Service {
                 serviceName,
                 redirectToServiceImmediatelyOnTerminalState,
                 collectBillingAddress,
+                defaultBillingAddressCountry,
                 goLiveStage,
                 experimentalFeaturesEnabled,
                 agentInitiatedMotoEnabled,
@@ -109,6 +114,7 @@ public class Service {
                     ServiceName serviceName,
                     boolean redirectToServiceImmediatelyOnTerminalState,
                     boolean collectBillingAddress,
+                    String defaultBillingAddressCountry,
                     GoLiveStage goLiveStage,
                     boolean experimentalFeaturesEnabled,
                     boolean agentInitiatedMotoEnabled,
@@ -122,6 +128,7 @@ public class Service {
         this.externalId = externalId;
         this.redirectToServiceImmediatelyOnTerminalState = redirectToServiceImmediatelyOnTerminalState;
         this.collectBillingAddress = collectBillingAddress;
+        this.defaultBillingAddressCountry = defaultBillingAddressCountry;
         this.serviceName = serviceName;
         this.goLiveStage = goLiveStage;
         this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
@@ -219,6 +226,15 @@ public class Service {
 
     public void setCollectBillingAddress(boolean collectBillingAddress) {
         this.collectBillingAddress = collectBillingAddress;
+    }
+
+    @JsonProperty("default_billing_address_country")
+    public String getDefaultBillingAddressCountry() {
+        return defaultBillingAddressCountry;
+    }
+
+    public void setDefaultBillingAddressCountry(String defaultBillingAddressCountry) {
+        this.defaultBillingAddressCountry = defaultBillingAddressCountry;
     }
 
     @JsonProperty("current_go_live_stage")

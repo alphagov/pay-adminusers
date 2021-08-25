@@ -67,6 +67,7 @@ public class ServiceCreatorTest {
         assertThat(service.getName(), is("System Generated"));
         assertThat(service.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
         assertThat(service.isCollectBillingAddress(), is(true));
+        assertThat(service.getDefaultBillingAddressCountry(), is("GB"));
         List<GatewayAccountIdEntity> persistedGatewayIds = persistedServiceEntity.getValue().getGatewayAccountIds();
         assertThat(persistedGatewayIds.size(), is(0));
         assertEnServiceNameMap(service, "System Generated");

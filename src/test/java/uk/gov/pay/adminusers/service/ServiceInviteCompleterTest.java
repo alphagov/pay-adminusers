@@ -97,6 +97,7 @@ public class ServiceInviteCompleterTest {
         assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
         assertThat(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
         assertThat(serviceEntity.isCollectBillingAddress(), is(true));
+        assertThat(serviceEntity.getDefaultBillingAddressCountry(), is("GB"));
 
         assertThat(inviteResponse.getInvite().isDisabled(), is(true));
         assertThat(inviteResponse.getInvite().getLinks().size(), is(1));
@@ -128,6 +129,7 @@ public class ServiceInviteCompleterTest {
         assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
         assertThat(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
         assertThat(serviceEntity.isCollectBillingAddress(), is(true));
+        assertThat(serviceEntity.getDefaultBillingAddressCountry(), is("GB"));
 
         assertThat(inviteResponse.getInvite().isDisabled(), is(true));
         assertThat(inviteResponse.getInvite().getLinks().size(), is(1));

@@ -92,6 +92,7 @@ public class UserCreatorTest {
         assertThat(service.getGatewayAccountIds(), is(asList("1", "2")));
         assertThat(service.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
         assertThat(service.isCollectBillingAddress(), is(true));
+        assertThat(service.getDefaultBillingAddressCountry(), is("GB"));
     }
 
     @Test

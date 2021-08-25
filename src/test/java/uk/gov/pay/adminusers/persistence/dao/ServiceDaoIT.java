@@ -358,6 +358,7 @@ class ServiceDaoIT extends DaoTestBase {
                 is(thatEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName()));
         assertThat(thisEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(thatEntity.isRedirectToServiceImmediatelyOnTerminalState()));
         assertThat(thisEntity.isCollectBillingAddress(), is(thatEntity.isCollectBillingAddress()));
+        assertThat(thisEntity.getDefaultBillingAddressCountry(), is(thatEntity.getDefaultBillingAddressCountry()));
     }
 
     private void assertCustomBranding(ServiceEntity insertedServiceEntity) {
