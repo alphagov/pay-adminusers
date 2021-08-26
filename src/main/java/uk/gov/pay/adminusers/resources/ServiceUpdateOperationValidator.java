@@ -27,6 +27,7 @@ import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_COLLECT_BILLING
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CURRENT_GO_LIVE_STAGE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CURRENT_PSP_TEST_ACCOUNT_STAGE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CUSTOM_BRANDING;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_DEFAULT_BILLING_ADDRESS_COUNTRY;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_EXPERIMENTAL_FEATURES_ENABLED;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT_IDS;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_INTERNAL;
@@ -76,6 +77,7 @@ public class ServiceUpdateOperationValidator {
                 entry(FIELD_EXPERIMENTAL_FEATURES_ENABLED, singletonList(REPLACE)),
                 entry(FIELD_AGENT_INITIATED_MOTO_ENABLED, singletonList(REPLACE)),
                 entry(FIELD_COLLECT_BILLING_ADDRESS, singletonList(REPLACE)),
+                entry(FIELD_DEFAULT_BILLING_ADDRESS_COUNTRY, singletonList(REPLACE)),
                 entry(FIELD_CURRENT_GO_LIVE_STAGE, singletonList(REPLACE)),
                 entry(FIELD_CURRENT_PSP_TEST_ACCOUNT_STAGE, singletonList(REPLACE)),
                 entry(FIELD_SECTOR, singletonList(REPLACE)),
@@ -136,12 +138,14 @@ public class ServiceUpdateOperationValidator {
             return validateMandatoryBooleanValue(operation);
         } else if (FIELD_COLLECT_BILLING_ADDRESS.equals(path)) {
             return validateMandatoryBooleanValue(operation);
+        } else if (FIELD_DEFAULT_BILLING_ADDRESS_COUNTRY.equals(path)) {
+            return validateCountryCode(operation);
         } else if (FIELD_CURRENT_GO_LIVE_STAGE.equals(path)) {
             return validateCurrentGoLiveStageValue(operation);
         } else if (FIELD_CURRENT_PSP_TEST_ACCOUNT_STAGE.equals(path)){
             return validateCurrentPspTestAccountStageValue(operation);
         } else if (FIELD_SECTOR.equals(path)) {
-            return validateNotNullStringValueWithMaxLength(operation, false, FIELD_SECTOR_MAX_LENGTH);
+            return validateStringValueWithMaxLength(operation, false, FIELD_SECTOR_MAX_LENGTH);
         } else if (FIELD_INTERNAL.equals(path)) {
             return validateMandatoryBooleanValue(operation);
         } else if (FIELD_ARCHIVED.equals(path)) {
@@ -149,21 +153,21 @@ public class ServiceUpdateOperationValidator {
         } else if (FIELD_WENT_LIVE_DATE.equals(path)) {
             return validateZonedDateTimeValue(operation);
         } else if (FIELD_MERCHANT_DETAILS_NAME.equals(path)) {
-            return validateNotNullStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_NAME_MAX_LENGTH);
+            return validateStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_NAME_MAX_LENGTH);
         } else if (FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1.equals(path)) {
-            return validateNotNullStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1_MAX_LENGTH);
+            return validateStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1_MAX_LENGTH);
         } else if (FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2.equals(path)) {
-            return validateNotNullStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2_MAX_LENGTH);
+            return validateStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2_MAX_LENGTH);
         } else if (FIELD_MERCHANT_DETAILS_ADDRESS_CITY.equals(path)) {
-            return validateNotNullStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_CITY_MAX_LENGTH);
+            return validateStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_CITY_MAX_LENGTH);
         } else if (FIELD_MERCHANT_DETAILS_ADDRESS_COUNRTY.equals(path)) {
-            return validateNotNullStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY_CODE_MAX_LENGTH);
+            return validateStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY_CODE_MAX_LENGTH);
         } else if (FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE.equals(path)) {
-            return validateNotNullStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE_MAX_LENGTH);
+            return validateStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE_MAX_LENGTH);
         } else if (FIELD_MERCHANT_DETAILS_EMAIL.equals(path)) {
-            return validateNotNullStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH);
+            return validateStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH);
         } else if (FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER.equals(path)) {
-            return validateNotNullStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER_MAX_LENGTH);
+            return validateStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER_MAX_LENGTH);
         }
 
         return Collections.emptyList();
@@ -176,7 +180,7 @@ public class ServiceUpdateOperationValidator {
 
     private List<String> validateServiceNameValue(JsonNode operation, String path) {
         boolean allowEmpty = !path.endsWith('/' + SupportedLanguage.ENGLISH.toString());
-        return validateNotNullStringValueWithMaxLength(operation, allowEmpty, SERVICE_NAME_MAX_LENGTH);
+        return validateStringValueWithMaxLength(operation, allowEmpty, SERVICE_NAME_MAX_LENGTH);
     }
 
     private List<String> validateMandatoryBooleanValue(JsonNode operation) {
@@ -218,7 +222,7 @@ public class ServiceUpdateOperationValidator {
         return errors;
     }
 
-    private List<String> validateNotNullStringValueWithMaxLength(JsonNode operation, boolean allowEmpty, int maxLength) {
+    private List<String> validateStringValueWithMaxLength(JsonNode operation, boolean allowEmpty, int maxLength) {
         List<String> errors = new ArrayList<>();
         if (allowEmpty) {
             requestValidations.checkExists(operation, FIELD_VALUE).ifPresent(errors::addAll);
@@ -263,6 +267,18 @@ public class ServiceUpdateOperationValidator {
         requestValidations.checkExists(operation, FIELD_VALUE).ifPresent(errors::addAll);
         if (errors.isEmpty()) {
             requestValidations.checkIsZonedDateTime(operation, FIELD_VALUE).ifPresent(errors::addAll);
+        }
+        return errors;
+    }
+    
+    private List<String> validateCountryCode(JsonNode operation) {
+        List<String> errors = new ArrayList<>();
+        if (operation.get(FIELD_VALUE).isNull()) {
+            return errors;
+        }
+        requestValidations.checkIsString(operation, FIELD_VALUE).ifPresent(errors::addAll);
+        if (errors.isEmpty()) {
+            requestValidations.checkMaxLength(operation, 2, FIELD_VALUE).ifPresent(errors::addAll);
         }
         return errors;
     }

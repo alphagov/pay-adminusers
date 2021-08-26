@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
@@ -30,7 +32,8 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
                         patchRequest("replace", "internal", true),
                         patchRequest("replace", "archived", true),
                         patchRequest("replace", "went_live_date", "2020-01-01T01:01:00Z"),
-                        patchRequest("replace", "current_psp_test_account_stage", "REQUEST_SUBMITTED")
+                        patchRequest("replace", "current_psp_test_account_stage", "REQUEST_SUBMITTED"),
+                        patchRequest("replace", "default_billing_address_country", "IE")
                 ));
         
         givenSetup()
@@ -49,15 +52,34 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
                 .body("internal", is(true))
                 .body("archived", is(true))
                 .body("went_live_date", is("2020-01-01T01:01:00.000Z"))
-                .body("current_psp_test_account_stage", is("REQUEST_SUBMITTED"));
-                
+                .body("current_psp_test_account_stage", is("REQUEST_SUBMITTED"))
+                .body("default_billing_address_country", is("IE"));
+    }
+
+    @Test
+    public void shouldUpdateDefaultBillingAddressCountryToNull() {
+        String serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
+
+        JsonNode payload = mapper
+                .valueToTree(List.of(
+                        patchRequest("replace", "default_billing_address_country", null)
+                ));
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .body(payload)
+                .patch(format(SERVICE_RESOURCE, serviceExternalId))
+                .then()
+                .statusCode(200)
+                .body("default_billing_address_country", is(nullValue()));
     }
 
     private Map<String, Object> patchRequest(String op, String path, Object value) {
-        return Map.of(
-                "op", op,
-                "path", path,
-                "value", value
-        );
+        Map<String, Object> request = new HashMap<>();
+        request.put("path", path);
+        request.put("op", op);
+        request.put("value", value);
+        return request;
     }
 }

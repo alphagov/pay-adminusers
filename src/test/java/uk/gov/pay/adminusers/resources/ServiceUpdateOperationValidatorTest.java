@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +69,8 @@ public class ServiceUpdateOperationValidatorTest {
                 new Object[]{"add", "merchant_details/address_country", "any value"},
                 new Object[]{"add", "merchant_details/address_postcode", "any value"},
                 new Object[]{"add", "merchant_details/email", "any value"},
-                new Object[]{"add", "merchant_details/telephone_number", "any value"}
+                new Object[]{"add", "merchant_details/telephone_number", "any value"},
+                new Object[]{"add", "default_billing_address_country", "GB"}
         };
     }
 
@@ -103,6 +105,8 @@ public class ServiceUpdateOperationValidatorTest {
                 new Object[]{"custom_branding", "a string", "Value for path [custom_branding] must be a JSON"},
                 new Object[]{"went_live_date", 42, "Field [value] must be a valid date time with timezone"},
                 new Object[]{"went_live_date", "a string", "Field [value] must be a valid date time with timezone"},
+                new Object[]{"default_billing_address_country", 42, "Field [value] must be a string"},
+                new Object[]{"default_billing_address_country", "too long", "Field [value] must have a maximum length of 2 characters"}
         };
     }
 
@@ -236,18 +240,19 @@ public class ServiceUpdateOperationValidatorTest {
                 new Object[]{"replace", "sector", "local government"},
                 new Object[]{"replace", "internal", true},
                 new Object[]{"replace", "archived", true},
-                new Object[]{"replace", "went_live_date", "2020-01-01T01:01:00Z"}
-
+                new Object[]{"replace", "went_live_date", "2020-01-01T01:01:00Z"},
+                new Object[]{"replace", "default_billing_address_country", null},
+                new Object[]{"replace", "default_billing_address_country", "GB"}
         };
     }
 
     @ParameterizedTest
     @MethodSource("shouldSucceedParams")
     public void shouldSucceed(String operation, String path, Object value) {
-        Map<String, Object> payload = Map.of(
-                "path", path,
-                "op", operation,
-                "value", value);
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("path", path);
+        payload.put("op", operation);
+        payload.put("value", value);
 
         List<String> errors = serviceUpdateOperationValidator.validate(mapper.valueToTree(payload));
         assertThat(errors.size(), is(0));

@@ -18,6 +18,7 @@ import uk.gov.service.payments.commons.model.SupportedLanguage;
 
 import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -336,6 +337,22 @@ public class ServiceUpdaterTest {
     }
 
     @Test
+    public void shouldUpdateDefaultBillingAddressCountrySuccessfully() {
+        ServiceUpdateRequest request = serviceUpdateRequest("replace", "default_billing_address_country", "IE");
+        ServiceEntity serviceEntity = mock(ServiceEntity.class);
+
+        when(serviceDao.findByExternalId(SERVICE_ID)).thenReturn(of(serviceEntity));
+        when(serviceEntity.toService()).thenReturn(Service.from());
+
+        Optional<Service> maybeService = updater.doUpdate(SERVICE_ID, request);
+
+        assertThat(maybeService.isPresent(), is(true));
+        InOrder inOrder = inOrder(serviceEntity, serviceDao);
+        inOrder.verify(serviceEntity).setDefaultBillingAddressCountry("IE");
+        inOrder.verify(serviceDao).merge(serviceEntity);
+    }
+
+    @Test
     public void shouldUpdateMerchantDetailsNameSuccessfully_WhenNoExistingMerchantDetails() {
         String name = "Cake service";
         ServiceUpdateRequest serviceRequest =
@@ -415,6 +432,10 @@ public class ServiceUpdaterTest {
     }
 
     private ServiceUpdateRequest serviceUpdateRequest(String op, String path, Object value) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("path", path);
+        payload.put("op", op);
+        payload.put("value", value);
         return ServiceUpdateRequest.from(mapper.valueToTree(Map.of(
                 "op", op,
                 "path", path,

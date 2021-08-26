@@ -34,6 +34,7 @@ public class ServiceUpdater {
     public static final String FIELD_EXPERIMENTAL_FEATURES_ENABLED = "experimental_features_enabled";
     public static final String FIELD_AGENT_INITIATED_MOTO_ENABLED = "agent_initiated_moto_enabled";
     public static final String FIELD_COLLECT_BILLING_ADDRESS = "collect_billing_address";
+    public static final String FIELD_DEFAULT_BILLING_ADDRESS_COUNTRY = "default_billing_address_country";
     public static final String FIELD_CURRENT_GO_LIVE_STAGE = "current_go_live_stage";
     public static final String FIELD_CURRENT_PSP_TEST_ACCOUNT_STAGE = "current_psp_test_account_stage";
     public static final String FIELD_SECTOR = "sector";
@@ -60,6 +61,7 @@ public class ServiceUpdater {
                 entry(FIELD_EXPERIMENTAL_FEATURES_ENABLED, updateExperimentalFeaturesEnabled()),
                 entry(FIELD_AGENT_INITIATED_MOTO_ENABLED, updateAgentInitiatedMotoEnabled()),
                 entry(FIELD_COLLECT_BILLING_ADDRESS, updateCollectBillingAddress()),
+                entry(FIELD_DEFAULT_BILLING_ADDRESS_COUNTRY, updateDefaultBillingAddressCountry()),
                 entry(FIELD_CURRENT_GO_LIVE_STAGE, updateCurrentGoLiveStage()),
                 entry(FIELD_CURRENT_PSP_TEST_ACCOUNT_STAGE, updateCurrentPspTestAccountStage()),
                 entry(FIELD_SECTOR, updateSector()),
@@ -152,6 +154,11 @@ public class ServiceUpdater {
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateCollectBillingAddress() {
         return (serviceUpdateRequest, serviceEntity) ->
                 serviceEntity.setCollectBillingAddress(serviceUpdateRequest.valueAsBoolean());
+    }
+    
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateDefaultBillingAddressCountry() {
+        return (serviceUpdateRequest, serviceEntity) ->
+                serviceEntity.setDefaultBillingAddressCountry(serviceUpdateRequest.valueAsString());        
     }
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateCurrentGoLiveStage() {
