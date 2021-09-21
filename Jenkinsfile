@@ -84,13 +84,12 @@ pipeline {
         }
       }
     }
-    stage('Deploy') {
+    stage('Check pact compatability') {
       when {
         branch 'master'
       }
       steps {
         checkPactCompatibility("adminusers", gitCommit(), "test")
-        deployEcs("adminusers")
       }
     }
     stage('Pact Tag') {
