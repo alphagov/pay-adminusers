@@ -11,7 +11,7 @@
         <hamcrest.version>2.2</hamcrest.version>
         <eclipselink.version>2.7.7</eclipselink.version>
         <guice.version>5.0.1</guice.version>
-        <guava.version>30.1.1-jre</guava.version>
+        <guava.version>31.0-jre</guava.version>
         <jackson.version>2.12.5</jackson.version>
         <pay-java-commons.version>1.0.20210914101116</pay-java-commons.version>
         <junit5.version>5.8.1</junit5.version>
