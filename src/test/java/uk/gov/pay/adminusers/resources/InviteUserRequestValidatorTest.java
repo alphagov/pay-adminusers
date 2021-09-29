@@ -11,12 +11,12 @@ import javax.ws.rs.WebApplicationException;
 import java.util.Map;
 import java.util.Optional;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InviteUserRequestValidatorTest {
 
@@ -30,32 +30,54 @@ class InviteUserRequestValidatorTest {
     }
 
     @Test
-    void validateCreateRequest_shouldError_ifAllMandatoryFieldsAreMissing() throws Exception {
+    void validateCreateUserRequest_shouldError_ifAllMandatoryFieldsAreMissing() throws Exception {
 
         String invalidPayload = "{}";
         JsonNode jsonNode = objectMapper.readTree(invalidPayload);
-        Optional<Errors> optionalErrors = validator.validateCreateRequest(jsonNode);
+        Optional<Errors> optionalErrors = validator.validateCreateUserRequest(jsonNode);
 
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
 
-        assertThat(errors.getErrors().size(), is(3));
+        assertThat(errors.getErrors().size(), is(4));
         assertThat(errors.getErrors(), hasItems(
+                "Field [service_external_id] is required",
                 "Field [sender] is required",
                 "Field [email] is required",
                 "Field [role_name] is required"));
     }
 
     @Test
-    void validateCreateRequest_shouldError_ifRoleNameFieldIsMissing() throws Exception {
+    void validateCreateUserRequest_shouldError_ifServiceExternalIdFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
+                "\"sender\": \"12345abc\"," +
+                "\"email\": \"email@example.com\"," +
+                "\"role_name\": \"admin\"" +
+                "}";
+        JsonNode jsonNode = objectMapper.readTree(invalidPayload);
+
+        Optional<Errors> optionalErrors = validator.validateCreateUserRequest(jsonNode);
+
+        assertTrue(optionalErrors.isPresent());
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems(
+                "Field [service_external_id] is required"));
+    }
+
+    @Test
+    void validateCreateUserRequest_shouldError_ifRoleNameFieldIsMissing() throws Exception {
+
+        String invalidPayload = "{" +
+                "\"service_external_id\": \"service123\"," +
                 "\"sender\": \"12345abc\"," +
                 "\"email\": \"email@example.com\"" +
                 "}";
         JsonNode jsonNode = objectMapper.readTree(invalidPayload);
 
-        Optional<Errors> optionalErrors = validator.validateCreateRequest(jsonNode);
+        Optional<Errors> optionalErrors = validator.validateCreateUserRequest(jsonNode);
 
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
@@ -66,15 +88,16 @@ class InviteUserRequestValidatorTest {
     }
 
     @Test
-    void validateCreateRequest_shouldError_ifEmailFieldIsMissing() throws Exception {
+    void validateCreateUserRequest_shouldError_ifEmailFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
+                "\"service_external_id\": \"service123\"," +
                 "\"sender\": \"12345abc\"," +
                 "\"role_name\": \"admin\"" +
                 "}";
         JsonNode jsonNode = objectMapper.readTree(invalidPayload);
 
-        Optional<Errors> optionalErrors = validator.validateCreateRequest(jsonNode);
+        Optional<Errors> optionalErrors = validator.validateCreateUserRequest(jsonNode);
 
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
@@ -85,15 +108,16 @@ class InviteUserRequestValidatorTest {
     }
 
     @Test
-    void validateCreateRequest_shouldError_ifSenderFieldIsMissing() throws Exception {
+    void validateCreateUserRequest_shouldError_ifSenderFieldIsMissing() throws Exception {
 
         String invalidPayload = "{" +
+                "\"service_external_id\": \"service123\"," +
                 "\"email\": \"email@example.com\"," +
                 "\"role_name\": \"admin\"" +
                 "}";
         JsonNode jsonNode = objectMapper.readTree(invalidPayload);
 
-        Optional<Errors> optionalErrors = validator.validateCreateRequest(jsonNode);
+        Optional<Errors> optionalErrors = validator.validateCreateUserRequest(jsonNode);
 
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
