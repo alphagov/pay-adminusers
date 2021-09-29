@@ -302,7 +302,7 @@ class InviteUserRequestValidatorTest {
     }
 
     @Test
-    void shouldSuccess_ifAllFieldsArePresentAndValidEmailDomain() {
+    void validateCreateServiceRequest_shouldSuccess_ifAllFieldsArePresentAndValidEmailDomain() {
         Map<String, String> payload = Map.of("email", "example@example.gov.uk", "telephone_number", "01134960000", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
@@ -311,7 +311,16 @@ class InviteUserRequestValidatorTest {
     }
 
     @Test
-    void shouldFail_ifMissingRequiredField() {
+    void validateCreateServiceRequest_shouldSuccess_ifOnlyEmailFieldIsPresentAndValidEmailDomain() {
+        Map<String, String> payload = Map.of("email", "example@example.gov.uk");
+        JsonNode payloadNode = objectMapper.valueToTree(payload);
+        Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
+
+        assertFalse(errors.isPresent());
+    }
+
+    @Test
+    void validateCreateServiceRequest_shouldFail_ifMissingRequiredField() {
         Map<String, String> payload = Map.of( "telephone_number", "01134960000", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
@@ -322,7 +331,7 @@ class InviteUserRequestValidatorTest {
     }
 
     @Test
-    void shouldFail_ifInvalidEmailFormat() {
+    void validateCreateServiceRequest_shouldFail_ifInvalidEmailFormat() {
         Map<String, String> payload = Map.of( "email", "exampleatexample.com", "telephone_number", "01134960000", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
@@ -333,14 +342,14 @@ class InviteUserRequestValidatorTest {
     }
 
     @Test
-    void shouldFail_ifEmailAddressNotPublicSector() {
+    void validateCreateServiceRequest_shouldFail_ifEmailAddressNotPublicSector() {
         Map<String, String> payload = Map.of( "email", "example@example.com","telephone_number", "01134960000", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         assertThrows(WebApplicationException.class, () -> validator.validateCreateServiceRequest(payloadNode));
     }
 
     @Test
-    void shouldFail_ifTelephoneNumberIsInvalid() {
+    void validateCreateServiceRequest_shouldFail_ifTelephoneNumberIsInvalid() {
         Map<String, String> payload = Map.of( "email", "example@example.gov.uk","telephone_number", "0770090000A", "password", "super-secure-password");
         JsonNode payloadNode = objectMapper.valueToTree(payload);
         Optional<Errors> errors = validator.validateCreateServiceRequest(payloadNode);
