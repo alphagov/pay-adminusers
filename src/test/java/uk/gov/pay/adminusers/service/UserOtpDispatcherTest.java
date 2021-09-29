@@ -33,30 +33,34 @@ class UserOtpDispatcherTest {
     @Mock
     private SecondFactorAuthenticator secondFactorAuthenticator;
     @Mock
+    private PasswordHasher passwordHasher;
+    @Mock
     private NotificationService notificationService;
 
-    private ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
+    private final ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
 
     private InviteOtpDispatcher userOtpDispatcher;
 
     @BeforeEach
     void before() {
-        userOtpDispatcher = new UserOtpDispatcher(inviteDao, secondFactorAuthenticator, new PasswordHasher(), notificationService);
+        userOtpDispatcher = new UserOtpDispatcher(inviteDao, secondFactorAuthenticator, passwordHasher, notificationService);
     }
 
     @Test
     void shouldSuccess_whenDispatchUserOtp_ifInviteEntityExist() {
         String inviteCode = "valid-invite-code";
-        String telephone = "+441134960000";
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setCode(inviteCode);
         inviteEntity.setType(InviteType.USER);
         inviteEntity.setOtpKey("otp-key");
 
-        JsonNode payload = objectMapper.valueToTree(Map.of("telephone_number", telephone, "password", "random"));
+        String telephone = "+441134960000";
+        String password = "random"; // pragma: allowlist secret
+        JsonNode payload = objectMapper.valueToTree(Map.of("telephone_number", telephone, "password", password));
         userOtpDispatcher = userOtpDispatcher.withData(InviteOtpRequest.from(payload));
 
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+        when(passwordHasher.hash(password)).thenReturn("hashed-password");
         when(secondFactorAuthenticator.newPassCode("otp-key")).thenReturn(123456);
         when(notificationService.sendSecondFactorPasscodeSms(telephone, "123456", CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE))
                 .thenReturn("success code from notify");

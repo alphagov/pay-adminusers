@@ -69,12 +69,41 @@ public class InviteResourceGenerateOtpIT extends IntegrationTest {
                 .statusCode(BAD_REQUEST.getStatusCode());
     }
 
-
     @Test
     public void generateOtp_shouldSucceed_forServiceInvite_evenWhenTokenIsExpired_sinceItShouldBeValidatedOnGetInvite() {
         givenAnExistingServiceInvite();
         givenSetup()
                 .when()
+                .contentType(ContentType.JSON)
+                .post(format(INVITES_GENERATE_OTP_RESOURCE_URL, code))
+                .then()
+                .statusCode(OK.getStatusCode());
+    }
+
+    @Test
+    public void generateOtp_shouldSucceed_forServiceInvite_whenNoFieldsPresent() throws Exception {
+        givenAnExistingServiceInvite();
+        Map<Object, Object> invitationRequest = emptyMap();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(invitationRequest))
+                .contentType(ContentType.JSON)
+                .post(format(INVITES_GENERATE_OTP_RESOURCE_URL, code))
+                .then()
+                .statusCode(OK.getStatusCode());
+    }
+
+    @Test
+    public void generateOtp_shouldSucceed_forServiceInvite_whenPasswordAndPhoneNumberPresent() throws Exception {
+        givenAnExistingServiceInvite();
+        Map<Object, Object> invitationRequest = Map.of(
+                "telephone_number", TELEPHONE_NUMBER,
+                "password", PASSWORD);
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(invitationRequest))
                 .contentType(ContentType.JSON)
                 .post(format(INVITES_GENERATE_OTP_RESOURCE_URL, code))
                 .then()
@@ -93,6 +122,7 @@ public class InviteResourceGenerateOtpIT extends IntegrationTest {
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
                 .withEmail(EMAIL)
                 .withOtpKey(OTP_KEY)
+                .expired()
                 .insertServiceInvite();
     }
 }
