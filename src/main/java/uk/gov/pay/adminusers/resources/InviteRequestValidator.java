@@ -72,7 +72,7 @@ public class InviteRequestValidator {
     }
 
     public Optional<Errors> validateCreateServiceRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkExistsAndNotEmpty(payload, InviteServiceRequest.FIELD_EMAIL, InviteServiceRequest.FIELD_TELEPHONE_NUMBER, InviteServiceRequest.FIELD_PASSWORD);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkExistsAndNotEmpty(payload, InviteServiceRequest.FIELD_EMAIL);
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
@@ -87,8 +87,8 @@ public class InviteRequestValidator {
             throw AdminUsersExceptions.invalidPublicSectorEmail(email);
         }
 
-        String telephoneNumber = payload.get(InviteServiceRequest.FIELD_TELEPHONE_NUMBER).asText();
-        if (!TelephoneNumberUtility.isValidPhoneNumber(telephoneNumber)) {
+        JsonNode telephoneNumberJsonNode = payload.get(InviteServiceRequest.FIELD_TELEPHONE_NUMBER);
+        if (telephoneNumberJsonNode != null && !TelephoneNumberUtility.isValidPhoneNumber(telephoneNumberJsonNode.asText())) {
             return Optional.of(Errors.from(format("Field [%s] must be a valid telephone number", InviteServiceRequest.FIELD_TELEPHONE_NUMBER)));
         }
 

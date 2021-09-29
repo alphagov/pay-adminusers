@@ -90,8 +90,8 @@ public class ServiceInviteCreator {
 
     private Invite constructInviteAndSendEmail(InviteServiceRequest inviteServiceRequest, InviteEntity inviteEntity, Function<InviteEntity, Void> saveOrUpdate) {
         String inviteUrl = format("%s/%s", linksConfig.getSelfserviceInvitesUrl(), inviteEntity.getCode());
-        inviteEntity.setTelephoneNumber(TelephoneNumberUtility.formatToE164(inviteServiceRequest.getTelephoneNumber()));
-        inviteEntity.setPassword(passwordHasher.hash(inviteServiceRequest.getPassword()));
+        Optional.ofNullable(inviteServiceRequest.getTelephoneNumber()).map(TelephoneNumberUtility::formatToE164).ifPresent(inviteEntity::setTelephoneNumber);
+        Optional.ofNullable(inviteServiceRequest.getPassword()).map(passwordHasher::hash).ifPresent(inviteEntity::setPassword);
         saveOrUpdate.apply(inviteEntity);
         sendServiceInviteNotification(inviteEntity, inviteUrl);
         Invite invite = inviteEntity.toInvite();

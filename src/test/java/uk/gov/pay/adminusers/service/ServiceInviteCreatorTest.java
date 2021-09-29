@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -70,6 +71,30 @@ public class ServiceInviteCreatorTest {
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
 
         assertThat(persistedInviteEntity.getValue().getPassword(), is("encrypted-password"));
+    }
+
+    @Test
+    public void shouldSuccess_serviceInvite_IfTelephoneNumberAndPasswordNotPresent() {
+        String email = "email@example.gov.uk";
+        InviteServiceRequest request = new InviteServiceRequest(email);
+        RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
+        when(userDao.findByEmail(email)).thenReturn(Optional.empty());
+        when(inviteDao.findByEmail(email)).thenReturn(emptyList());
+        when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
+        when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn("done");
+        when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
+        when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
+
+        Invite invite = serviceInviteCreator.doInvite(request);
+
+        verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
+        assertThat(invite.getEmail(), is(request.getEmail()));
+        assertThat(invite.getTelephoneNumber(), is(nullValue()));
+        assertThat(invite.getType(), is("service"));
+        assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
+
+        assertThat(persistedInviteEntity.getValue().getTelephoneNumber(), is(nullValue()));
+        assertThat(persistedInviteEntity.getValue().getPassword(), is(nullValue()));
     }
 
     @Test

@@ -2,6 +2,8 @@ package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.util.Optional;
+
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class InviteServiceRequest extends InviteRequest {
@@ -29,6 +31,10 @@ public class InviteServiceRequest extends InviteRequest {
         this(DEFAULT_ROLE_NAME, password, email, telephoneNumber, randomUuid());
     }
 
+    public InviteServiceRequest(String email) {
+        this(DEFAULT_ROLE_NAME, null, email, null, randomUuid());
+    }
+
     public String getPassword() {
         return password;
     }
@@ -49,9 +55,9 @@ public class InviteServiceRequest extends InviteRequest {
     public static InviteServiceRequest from(JsonNode payload) {
         return new InviteServiceRequest(
                 DEFAULT_ROLE_NAME,
-                payload.get(FIELD_PASSWORD).asText(),
+                Optional.ofNullable(payload.get(FIELD_PASSWORD)).map(JsonNode::asText).orElse(null),
                 payload.get(FIELD_EMAIL).asText(),
-                payload.get(FIELD_TELEPHONE_NUMBER).asText(),
+                Optional.ofNullable(payload.get(FIELD_TELEPHONE_NUMBER)).map(JsonNode::asText).orElse(null),
                 getOrElseRandom(payload.get(FIELD_OTP_KEY))
         );
     }
