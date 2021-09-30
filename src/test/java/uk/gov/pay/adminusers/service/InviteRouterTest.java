@@ -79,7 +79,7 @@ public class InviteRouterTest {
         String inviteCode = "a-code";
         InviteEntity inviteEntity = anInvite(inviteCode, SERVICE);
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
-        when(inviteServiceFactory.dispatchServiceOtp()).thenReturn(new ServiceOtpDispatcher(null, null, null));
+        when(inviteServiceFactory.dispatchServiceOtp()).thenReturn(new ServiceOtpDispatcher(null, null, null, null));
         Optional<Pair<InviteOtpDispatcher, Boolean>> result = inviteRouter.routeOtpDispatch(inviteCode);
 
         assertThat(result.isPresent(), is(true));
