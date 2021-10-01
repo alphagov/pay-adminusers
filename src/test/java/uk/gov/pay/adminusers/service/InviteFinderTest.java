@@ -13,6 +13,7 @@ import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.ws.rs.WebApplicationException;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -27,10 +28,16 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 @ExtendWith(MockitoExtension.class)
 public class InviteFinderTest {
 
+    private static final String EMAIL = "test@test.gov.uk";
+    private static final String CODE = "invite-code";
+    private static final String OTP_KEY = "otp-key";
+
     @Mock
     private UserDao mockUserDao;
     @Mock
     private InviteDao mockInviteDao;
+    @Mock
+    private RoleEntity mockRoleEntity;
 
     private InviteFinder inviteFinder;
 
@@ -41,57 +48,67 @@ public class InviteFinderTest {
 
     @Test
     public void shouldFindInvite_withNonExistingUser() {
-        String code = randomUuid();
-        String email = "user@mail.com";
-        InviteEntity inviteEntity = new InviteEntity(email, code, "otp-key", mock(RoleEntity.class));
-        Optional<InviteEntity> inviteEntityOptional = Optional.of(inviteEntity);
-        when(mockInviteDao.findByCode(code)).thenReturn(inviteEntityOptional);
-        when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
+        InviteEntity inviteEntity = new InviteEntity(EMAIL, CODE, OTP_KEY, mockRoleEntity);
+        when(mockInviteDao.findByCode(CODE)).thenReturn(Optional.of(inviteEntity));
+        when(mockUserDao.findByEmail(EMAIL)).thenReturn(Optional.empty());
 
-        Optional<Invite> inviteOptional = inviteFinder.find(code);
+        Optional<Invite> inviteOptional = inviteFinder.find(CODE);
         assertThat(inviteOptional.isPresent(), is(true));
         assertThat(inviteOptional.get().isUserExist(),is(false));
     }
 
     @Test
     public void shouldFindInvite_withExistingUser() {
-        String code = randomUuid();
-        String email = "user@mail.com";
-        InviteEntity inviteEntity = new InviteEntity(email, code, "otp-key", mock(RoleEntity.class));
-        Optional<InviteEntity> inviteEntityOptional = Optional.of(inviteEntity);
-        when(mockInviteDao.findByCode(code)).thenReturn(inviteEntityOptional);
-        when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(mock(UserEntity.class)));
+        InviteEntity inviteEntity = new InviteEntity(EMAIL, CODE, OTP_KEY, mockRoleEntity);
+        when(mockInviteDao.findByCode(CODE)).thenReturn(Optional.of(inviteEntity));
+        when(mockUserDao.findByEmail(EMAIL)).thenReturn(Optional.of(mock(UserEntity.class)));
 
-        Optional<Invite> inviteOptional = inviteFinder.find(code);
+        Optional<Invite> inviteOptional = inviteFinder.find(CODE);
         assertThat(inviteOptional.isPresent(), is(true));
         assertThat(inviteOptional.get().isUserExist(),is(true));
     }
 
     @Test
+    public void shouldHaveFlagToSayPasswordNotSet() {
+        InviteEntity inviteEntity = new InviteEntity(EMAIL, CODE, OTP_KEY, mockRoleEntity);
+        when(mockInviteDao.findByCode(CODE)).thenReturn(Optional.of(inviteEntity));
+
+        Optional<Invite> inviteOptional = inviteFinder.find(CODE);
+        assertThat(inviteOptional.isPresent(), is(true));
+        assertThat(inviteOptional.get().isPasswordSet(), is(false));
+    }
+
+    @Test
+    public void shouldHaveFlagToSayPasswordIsSet() {
+        InviteEntity inviteEntity = new InviteEntity(EMAIL, CODE, OTP_KEY, mockRoleEntity);
+        inviteEntity.setPassword("password123");
+        when(mockInviteDao.findByCode(CODE)).thenReturn(Optional.of(inviteEntity));
+
+        Optional<Invite> inviteOptional = inviteFinder.find(CODE);
+        assertThat(inviteOptional.isPresent(), is(true));
+        assertThat(inviteOptional.get().isPasswordSet(), is(true));
+    }
+
+    @Test
     public void shouldErrorLocked_ifInviteIsExpired() {
-        String code = randomUuid();
-        String email = "user@mail.com";
-        InviteEntity inviteEntity = new InviteEntity(email, code, "otp-key", mock(RoleEntity.class));
-        inviteEntity.setExpiryDate(ZonedDateTime.now().minusDays(1));
-        Optional<InviteEntity> inviteEntityOptional = Optional.of(inviteEntity);
-        when(mockInviteDao.findByCode(code)).thenReturn(inviteEntityOptional);
+        InviteEntity inviteEntity = new InviteEntity(EMAIL, CODE, OTP_KEY, mockRoleEntity);
+        inviteEntity.setExpiryDate(ZonedDateTime.now(ZoneOffset.UTC).minusDays(1));
+        when(mockInviteDao.findByCode(CODE)).thenReturn(Optional.of(inviteEntity));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> inviteFinder.find(code));
+                () -> inviteFinder.find(CODE));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
     @Test
     public void shouldErrorLocked_ifInviteIsDisabled() {
-        String code = randomUuid();
-        String email = "user@mail.com";
-        InviteEntity inviteEntity = new InviteEntity(email, code, "otp-key", mock(RoleEntity.class));
+        InviteEntity inviteEntity = new InviteEntity(EMAIL, CODE, OTP_KEY, mockRoleEntity);
         inviteEntity.setDisabled(true);
         Optional<InviteEntity> inviteEntityOptional = Optional.of(inviteEntity);
-        when(mockInviteDao.findByCode(code)).thenReturn(inviteEntityOptional);
+        when(mockInviteDao.findByCode(CODE)).thenReturn(inviteEntityOptional);
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> inviteFinder.find(code));
+                () -> inviteFinder.find(CODE));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -110,8 +127,8 @@ public class InviteFinderTest {
         String externalServiceId = "sdfuhsdyftgdfa";
         String firstEmail = "user1@mail.test";
         String secondEmail = "user2@mail.test";
-        InviteEntity firstInviteEntity = new InviteEntity(firstEmail, randomUuid(), "otp-key", mock(RoleEntity.class));
-        InviteEntity secondInviteEntity = new InviteEntity(secondEmail, randomUuid(), "otp-key", mock(RoleEntity.class));
+        InviteEntity firstInviteEntity = new InviteEntity(firstEmail, randomUuid(), OTP_KEY, mock(RoleEntity.class));
+        InviteEntity secondInviteEntity = new InviteEntity(secondEmail, randomUuid(), OTP_KEY, mock(RoleEntity.class));
         InviteEntity disabledInviteEntity = new InviteEntity("email@email.test", randomUuid(), "otp-key", mock(RoleEntity.class));
         disabledInviteEntity.setDisabled(true);
         InviteEntity expiredInviteEntity = new InviteEntity("email@email.test", randomUuid(), "otp-key", mock(RoleEntity.class));
@@ -128,4 +145,5 @@ public class InviteFinderTest {
         Invite secondInvite = invites.get(1);
         assertThat(secondInvite.getEmail(), is(secondEmail));
     }
+
 }
