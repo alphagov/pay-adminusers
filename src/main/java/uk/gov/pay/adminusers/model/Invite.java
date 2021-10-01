@@ -25,9 +25,10 @@ public class Invite {
     private String type;
     private boolean userExist = false;
     private boolean expired;
+    private boolean passwordSet;
 
     public Invite(String code, String email, String telephoneNumber,
-                  Boolean disabled, Integer attemptCounter, String type, String role, Boolean expired) {
+                  Boolean disabled, Integer attemptCounter, String type, String role, Boolean expired, boolean passwordSet) {
         this.code = code;
         this.email = email;
         this.telephoneNumber = telephoneNumber;
@@ -36,6 +37,7 @@ public class Invite {
         this.type = type;
         this.role = role;
         this.expired = expired;
+        this.passwordSet = passwordSet;
     }
 
     @JsonProperty("email")
@@ -72,7 +74,12 @@ public class Invite {
     public Boolean isExpired() {
         return expired;
     }
-    
+
+    @JsonProperty("password_set")
+    public boolean isPasswordSet() {
+        return passwordSet;
+    }
+
     public void setInviteLink(String targetUrl) {
         Link inviteLink = Link.from(Link.Rel.INVITE, "GET", targetUrl);
         this.links.add(inviteLink);

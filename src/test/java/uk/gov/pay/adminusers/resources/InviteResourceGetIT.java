@@ -30,7 +30,8 @@ public class InviteResourceGetIT extends IntegrationTest {
                 .body("telephone_number", is(nullValue()))
                 .body("disabled", is(false))
                 .body("user_exist", is(false))
-                .body("attempt_counter", is(0));
+                .body("attempt_counter", is(0))
+                .body("password_set", is(false));
     }
 
     @Test
@@ -116,6 +117,8 @@ public class InviteResourceGetIT extends IntegrationTest {
                 .body("[0].disabled", is(false))
                 .body("[0].expired", is(false))
                 .body("[0].user_exist", is(false))
-                .body("[0].attempt_counter", is(0));
+                .body("[0].attempt_counter", is(0))
+                .body("[0].password_set", is(false));
     }
+
 }

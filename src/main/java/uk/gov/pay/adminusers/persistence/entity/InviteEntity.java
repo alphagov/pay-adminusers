@@ -218,19 +218,16 @@ public class InviteEntity extends AbstractEntity {
         return InviteType.USER.equals(type);
     }
 
-    @Deprecated //use toInvite() instead
-    public Invite toInvite(String inviteUrl) {
-        Invite invite = toInvite();
-        invite.setInviteLink(inviteUrl);
-        return invite;
-    }
-
     public Invite toInvite() {
-        return new Invite(code, email, telephoneNumber, disabled, loginCounter, type.getType(), role.getName(), isExpired());
+        return new Invite(code, email, telephoneNumber, disabled, loginCounter, type.getType(), role.getName(), isExpired(), hasPassword());
     }
 
     public boolean isExpired() {
         return ZonedDateTime.now(UTC).isAfter(expiryDate);
+    }
+
+    private boolean hasPassword() {
+        return password != null;
     }
 
     public UserEntity mapToUserEntity() {
