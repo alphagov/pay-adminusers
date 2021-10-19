@@ -4,8 +4,6 @@ import uk.gov.pay.adminusers.app.config.NotifyConfiguration;
 import uk.gov.pay.adminusers.model.PaymentType;
 import uk.gov.service.notify.NotificationClient;
 
-import static uk.gov.pay.adminusers.model.PaymentType.DIRECT_DEBIT;
-
 public class NotifyClientProvider {
 
     private NotifyConfiguration configuration;
@@ -14,10 +12,8 @@ public class NotifyClientProvider {
         this.configuration = configuration;
     }
 
-    public NotificationClient get(PaymentType paymentType) {
-        String apiKey = paymentType == DIRECT_DEBIT
-                ? configuration.getDirectDebitApiKey()
-                : configuration.getCardApiKey();
+    public NotificationClient get() {
+        String apiKey = configuration.getCardApiKey();
 
         return new NotificationClient(apiKey, configuration.getNotificationBaseURL(), null);
     }

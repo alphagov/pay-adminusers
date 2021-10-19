@@ -18,8 +18,6 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
 
-import static uk.gov.pay.adminusers.model.PaymentType.DIRECT_DEBIT;
-
 public class EmailService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
@@ -121,6 +119,6 @@ public class EmailService {
         Map<String, String> staticContent = new HashMap<>(staticEmailContent.getPersonalisation());
         staticContent.putAll(dynamicContent);
         LOGGER.info("Sending direct debit email for " + template.toString());
-        return notificationService.sendEmail(DIRECT_DEBIT, staticEmailContent.getTemplateId(), email, staticContent);
+        return notificationService.sendEmail(staticEmailContent.getTemplateId(), email, staticContent);
     }
 }

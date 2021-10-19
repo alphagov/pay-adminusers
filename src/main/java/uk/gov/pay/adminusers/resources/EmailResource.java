@@ -14,6 +14,7 @@ import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
+//TODO remove this resource as it's only applicable for sending direct debit emails
 @Path("/")
 public class EmailResource {
 

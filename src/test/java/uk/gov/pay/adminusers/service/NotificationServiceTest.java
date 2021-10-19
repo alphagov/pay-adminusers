@@ -22,7 +22,6 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static uk.gov.pay.adminusers.model.PaymentType.CARD;
 import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId;
 
 @ExtendWith(MockitoExtension.class)
@@ -67,7 +66,7 @@ public class NotificationServiceTest {
         given(mockNotifyConfiguration.getInviteUserExistingEmailTemplateId()).willReturn(INVITE_USER_EXISTING_EMAIL_TEMPLATE_ID);
         given(mockNotifyConfiguration.getForgottenPasswordEmailTemplateId()).willReturn(FORGOTTEN_PASSWORD_EMAIL_TEMPLATE_ID);
         
-        given(mockNotifyClientProvider.get(CARD)).willReturn(mockNotificationClient);
+        given(mockNotifyClientProvider.get()).willReturn(mockNotificationClient);
 
         given(mockMetricRegistry.histogram("notify-operations.sms.response_time")).willReturn(mock(Histogram.class));
 

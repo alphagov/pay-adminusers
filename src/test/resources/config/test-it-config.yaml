@@ -58,7 +58,6 @@ jpa:
   cacheSharedDefault: false
 
 notify:
-  directDebitApiKey: ${NOTIFY_DIRECT_DEBIT_API_KEY:-api_key-pay-notify-service-id-pay-notify-secret-needs-to-be-32-chars-fsghdngfhmhfkrgsfs}
   cardApiKey: ${NOTIFY_API_KEY:-api_key-pay-notify-service-id-pay-notify-secret-needs-to-be-32-chars-fsghdngfhmhfkrgsfs}
   notificationBaseURL: ${NOTIFY_BASE_URL:-https://stubs.pymnt.localdomain/notify}
   signInOtpSmsTemplateId: ${NOTIFY_SIGN_IN_OTP_SMS_TEMPLATE_ID:-pay-notify-sign-in-otp-sms-template-id}
