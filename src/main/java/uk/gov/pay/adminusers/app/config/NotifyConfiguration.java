@@ -13,10 +13,6 @@ public class NotifyConfiguration extends Configuration {
 
     @Valid
     @NotNull
-    private String directDebitApiKey;
-
-    @Valid
-    @NotNull
     private String notificationBaseURL;
 
     @Valid
@@ -66,11 +62,7 @@ public class NotifyConfiguration extends Configuration {
     public String getCardApiKey() {
         return cardApiKey;
     }
-
-    public String getDirectDebitApiKey() {
-        return directDebitApiKey;
-    }
-
+    
     public String getNotificationBaseURL() {
         return notificationBaseURL;
     }

@@ -65,7 +65,7 @@ public class NotificationService {
     public String sendSecondFactorPasscodeSms(String phoneNumber, String passcode, OtpNotifySmsTemplateId otpNotifySmsTemplateId) {
         Stopwatch responseTimeStopwatch = Stopwatch.createStarted();
         try {
-            SendSmsResponse response = notifyClientProvider.get(CARD).sendSms(resolveOtpNotifySmsTemplateId(otpNotifySmsTemplateId),
+            SendSmsResponse response = notifyClientProvider.get().sendSms(resolveOtpNotifySmsTemplateId(otpNotifySmsTemplateId),
                     TelephoneNumberUtility.formatToE164(phoneNumber), Map.of("code", passcode), null);
             return response.getNotificationId().toString();
         } catch (NotificationClientException e) {
@@ -82,19 +82,19 @@ public class NotificationService {
         Map<String, String> personalisation = Map.of(
                 "username", sender,
                 "link", inviteUrl);
-        return sendEmail(CARD, inviteEmailTemplateId, email, personalisation);
+        return sendEmail(inviteEmailTemplateId, email, personalisation);
     }
 
     public String sendServiceInviteEmail(String email, String inviteUrl) {
         Map<String, String> personalisation = Map.of(
                 "name", email,
                 "link", inviteUrl);
-        return sendEmail(CARD, notifyConfiguration.getInviteServiceEmailTemplateId(), email, personalisation);
+        return sendEmail(notifyConfiguration.getInviteServiceEmailTemplateId(), email, personalisation);
     }
 
     public String sendForgottenPasswordEmail(String email, String forgottenPasswordUrl) {
         Map<String, String> personalisation = Map.of("code", forgottenPasswordUrl);
-        return sendEmail(CARD, forgottenPasswordEmailTemplateId, email, personalisation);
+        return sendEmail(forgottenPasswordEmailTemplateId, email, personalisation);
     }
 
     public String sendServiceInviteUserExistsEmail(String email, String signInLink, String forgottenPasswordLink, String feedbackLink) {
@@ -102,12 +102,12 @@ public class NotificationService {
                 "signin_link", signInLink,
                 "forgotten_password_link", forgottenPasswordLink,
                 "feedback_link", feedbackLink);
-        return sendEmail(CARD, notifyConfiguration.getInviteServiceUserExistsEmailTemplateId(), email, personalisation);
+        return sendEmail(notifyConfiguration.getInviteServiceUserExistsEmailTemplateId(), email, personalisation);
     }
 
     public String sendServiceInviteUserDisabledEmail(String email, String supportUrl) {
         Map<String, String> personalisation = Map.of("feedback_link", supportUrl);
-        return sendEmail(CARD, notifyConfiguration.getInviteServiceUserDisabledEmailTemplateId(), email, personalisation);
+        return sendEmail(notifyConfiguration.getInviteServiceUserDisabledEmailTemplateId(), email, personalisation);
     }
 
     public String sendInviteExistingUserEmail(String sender, String email, String inviteUrl, String serviceName) {
@@ -129,18 +129,18 @@ public class NotificationService {
                 "joinServiceNamePart", joinServiceNamePart
         );
 
-        return sendEmail(CARD, inviteExistingUserEmailTemplateId, email, personalisation);
+        return sendEmail(inviteExistingUserEmailTemplateId, email, personalisation);
     }
 
     public String sendLiveAccountCreatedEmail(String email, String serviceLiveAccountLink) {
         Map<String, String> personalisation = Map.of("service_live_account_link", serviceLiveAccountLink);
-        return sendEmail(CARD, notifyConfiguration.getLiveAccountCreatedEmailTemplateId(), email, personalisation);
+        return sendEmail(notifyConfiguration.getLiveAccountCreatedEmailTemplateId(), email, personalisation);
     }
 
-    public String sendEmail(PaymentType paymentType, final String templateId, final String email, final Map<String, String> personalisation) {
+    public String sendEmail(final String templateId, final String email, final Map<String, String> personalisation) {
         Stopwatch responseTimeStopwatch = Stopwatch.createStarted();
         try {
-            SendEmailResponse response = notifyClientProvider.get(paymentType).sendEmail(templateId, email, personalisation, null);
+            SendEmailResponse response = notifyClientProvider.get().sendEmail(templateId, email, personalisation, null);
             return response.getNotificationId().toString();
         } catch (Exception e) {
             metricRegistry.counter("notify-operations.email.failures").inc();
