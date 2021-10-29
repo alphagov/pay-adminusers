@@ -34,6 +34,9 @@ public class MerchantDetailsEntity {
     @Column(name = "merchant_email")
     private String email;
 
+    @Column(name = "merchant_url")
+    private String url;
+
     // JPA requires default constructor
     public MerchantDetailsEntity() {
     }
@@ -45,7 +48,8 @@ public class MerchantDetailsEntity {
                                  String addressCity,
                                  String addressPostcode,
                                  String addressCountry,
-                                 String email) {
+                                 String email,
+                                 String url) {
         this.name = name;
         this.telephoneNumber = telephoneNumber;
         this.addressLine1 = addressLine1;
@@ -54,6 +58,7 @@ public class MerchantDetailsEntity {
         this.addressPostcode = addressPostcode;
         this.addressCountryCode = addressCountry;
         this.email = email;
+        this.url = url;
     }
 
     public String getName() {
@@ -120,6 +125,14 @@ public class MerchantDetailsEntity {
         this.email = email;
     }
 
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
     public MerchantDetails toMerchantDetails() {
         return new MerchantDetails(
                 this.name,
@@ -129,7 +142,8 @@ public class MerchantDetailsEntity {
                 this.addressCity,
                 this.addressPostcode,
                 this.addressCountryCode,
-                this.email
+                this.email,
+                this.url
         );
     }
 
@@ -142,7 +156,8 @@ public class MerchantDetailsEntity {
                 updateMerchantDetailsRequest.getAddressCity(),
                 updateMerchantDetailsRequest.getAddressPostcode(),
                 updateMerchantDetailsRequest.getAddressCountry(),
-                updateMerchantDetailsRequest.getEmail());
+                updateMerchantDetailsRequest.getEmail(),
+                updateMerchantDetailsRequest.getUrl());
     }
 
     @Override
@@ -164,7 +179,8 @@ public class MerchantDetailsEntity {
                 && Objects.equals(addressCity, that.addressCity)
                 && Objects.equals(addressPostcode, that.addressPostcode)
                 && Objects.equals(email, that.email)
-                && Objects.equals(addressCountryCode, that.addressCountryCode);
+                && Objects.equals(addressCountryCode, that.addressCountryCode)
+                && Objects.equals(url, that.url);
     }
 
     @Override

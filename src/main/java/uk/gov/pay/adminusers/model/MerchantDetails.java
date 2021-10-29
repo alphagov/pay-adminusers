@@ -27,6 +27,8 @@ public class MerchantDetails {
     
     private String email;
 
+    private String url;
+
     public MerchantDetails() {
     }
 
@@ -37,7 +39,8 @@ public class MerchantDetails {
                            @JsonProperty("address_city") String addressCity,
                            @JsonProperty("address_postcode") String addressPostcode,
                            @JsonProperty("address_country") String addressCountry,
-                           @JsonProperty("email") String email) {
+                           @JsonProperty("email") String email,
+                           @JsonProperty("url") String url) {
         this.name = name;
         this.telephoneNumber = telephoneNumber;
         this.addressLine1 = addressLine1;
@@ -46,6 +49,7 @@ public class MerchantDetails {
         this.addressPostcode = addressPostcode;
         this.addressCountry = addressCountry;
         this.email = email;
+        this.url = url;
     }
 
     public String getName() {
@@ -77,6 +81,10 @@ public class MerchantDetails {
     }
     
     public String getEmail() { return this.email; }
+
+    public String getUrl() {
+        return url;
+    }
 
     @Override
     public boolean equals(Object o) {

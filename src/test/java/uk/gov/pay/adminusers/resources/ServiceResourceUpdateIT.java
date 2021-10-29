@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.GoLiveStage;
+import uk.gov.pay.adminusers.model.MerchantDetails;
 
 import java.util.HashMap;
 import java.util.List;
@@ -73,6 +74,28 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("default_billing_address_country", is(nullValue()));
+    }
+
+    @Test
+    public void shouldUpdateMerchantUrlField() {
+        String serviceExternalId = serviceDbFixture(databaseHelper)
+                .withMerchantDetails(new MerchantDetails(
+                        "name", null, "line1", null, "city",
+                        "postcode", "country", null, "https://www.example.com"))
+                .insertService().getExternalId();
+
+        JsonNode payload = mapper
+                .valueToTree(List.of(
+                        patchRequest("replace", "merchant_details/url", "https://merchant.example.com")));
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .body(payload)
+                .patch(format(SERVICE_RESOURCE, serviceExternalId))
+                .then()
+                .statusCode(200)
+                .body("merchant_details.url", is("https://merchant.example.com"));
     }
 
     private Map<String, Object> patchRequest(String op, String path, Object value) {

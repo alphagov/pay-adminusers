@@ -24,7 +24,7 @@ public class ServiceDbFixture {
     private String name = Service.DEFAULT_NAME_VALUE;
     private MerchantDetails merchantDetails = new MerchantDetails(
             "name", null, "line1", null, "city",
-            "postcode", "country", null
+            "postcode", "country", null, null
     );
     private boolean collectBillingAddress = true;
     private boolean experimentalFeaturesEnabled = false;

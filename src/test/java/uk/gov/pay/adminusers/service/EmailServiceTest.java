@@ -90,7 +90,8 @@ public class EmailServiceTest {
                 CITY,
                 POSTCODE,
                 ADDRESS_COUNTRY_CODE,
-                MERCHANT_EMAIL
+                MERCHANT_EMAIL,
+                null
         );
         given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
         ArgumentCaptor<Map<String, String>> personalisationCaptor = forClass(Map.class);
@@ -122,7 +123,8 @@ public class EmailServiceTest {
                 CITY,
                 POSTCODE,
                 ADDRESS_COUNTRY_CODE,
-                MERCHANT_EMAIL
+                MERCHANT_EMAIL,
+                null
         );
         given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
         ArgumentCaptor<Map<String, String>> personalisationCaptor = forClass(Map.class);
@@ -154,7 +156,8 @@ public class EmailServiceTest {
                 CITY,
                 POSTCODE,
                 ADDRESS_COUNTRY_CODE,
-                MERCHANT_EMAIL
+                MERCHANT_EMAIL,
+                null
         );
         given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
         ArgumentCaptor<Map<String, String>> personalisationCaptor = forClass(Map.class);
@@ -184,7 +187,8 @@ public class EmailServiceTest {
                 CITY,
                 POSTCODE,
                 ADDRESS_COUNTRY_CODE,
-                MERCHANT_EMAIL
+                MERCHANT_EMAIL,
+                null
         );
 
         given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
@@ -216,7 +220,8 @@ public class EmailServiceTest {
                 CITY,
                 POSTCODE,
                 ADDRESS_COUNTRY_CODE,
-                MERCHANT_EMAIL
+                MERCHANT_EMAIL,
+                null
         );
 
         given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
@@ -248,7 +253,8 @@ public class EmailServiceTest {
                 CITY,
                 POSTCODE,
                 ADDRESS_COUNTRY_CODE,
-                MERCHANT_EMAIL
+                MERCHANT_EMAIL,
+                null
         );
 
         given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
@@ -282,7 +288,8 @@ public class EmailServiceTest {
                 CITY,
                 POSTCODE,
                 ADDRESS_COUNTRY_CODE,
-                MERCHANT_EMAIL
+                MERCHANT_EMAIL,
+                null
         );
 
         given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
@@ -308,7 +315,8 @@ public class EmailServiceTest {
                 CITY,
                 POSTCODE,
                 ADDRESS_COUNTRY_CODE,
-                MERCHANT_EMAIL
+                MERCHANT_EMAIL,
+                null
         );
         given(mockServiceEntity.getMerchantDetailsEntity()).willReturn(merchantDetails);
         given(mockCountryConverter.getCountryNameFrom(ADDRESS_COUNTRY_CODE)).willReturn(Optional.empty());

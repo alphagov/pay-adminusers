@@ -9,6 +9,7 @@ public final class MerchantDetailsEntityBuilder {
     private String addressPostcode = "test-postcode";
     private String addressCountryCode = "GB";
     private String email = "merchant@example.com";
+    private String url = "https://merchant.example.com";
 
     private MerchantDetailsEntityBuilder() {
     }
@@ -57,6 +58,11 @@ public final class MerchantDetailsEntityBuilder {
         return this;
     }
 
+    public MerchantDetailsEntityBuilder withUrl(String url) {
+        this.url = url;
+        return this;
+    }
+
     public MerchantDetailsEntity build() {
         MerchantDetailsEntity merchantDetailsEntity = new MerchantDetailsEntity();
         merchantDetailsEntity.setName(name);
@@ -67,6 +73,7 @@ public final class MerchantDetailsEntityBuilder {
         merchantDetailsEntity.setAddressPostcode(addressPostcode);
         merchantDetailsEntity.setAddressCountryCode(addressCountryCode);
         merchantDetailsEntity.setEmail(email);
+        merchantDetailsEntity.setUrl(url);
         return merchantDetailsEntity;
     }
 }

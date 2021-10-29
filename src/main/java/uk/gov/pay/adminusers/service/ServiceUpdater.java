@@ -49,6 +49,7 @@ public class ServiceUpdater {
     public static final String FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE = "merchant_details/address_postcode";
     public static final String FIELD_MERCHANT_DETAILS_EMAIL = "merchant_details/email";
     public static final String FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER = "merchant_details/telephone_number";
+    public static final String FIELD_MERCHANT_DETAILS_URL = "merchant_details/url";
     private final ServiceDao serviceDao;
     private final Map<String, BiConsumer<ServiceUpdateRequest, ServiceEntity>> attributeUpdaters;
 
@@ -75,7 +76,8 @@ public class ServiceUpdater {
                 entry(FIELD_MERCHANT_DETAILS_ADDRESS_COUNRTY, updateMerchantDetailsAddressCountry()),
                 entry(FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, updateMerchantDetailsAddressPostcode()),
                 entry(FIELD_MERCHANT_DETAILS_EMAIL, updateMerchantDetailsEmail()),
-                entry(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, updateMerchantDetailsPhone())
+                entry(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, updateMerchantDetailsPhone()),
+                entry(FIELD_MERCHANT_DETAILS_URL, updateMerchantDetailsUrl())
         ));
 
         Arrays.stream(SupportedLanguage.values())
@@ -229,6 +231,11 @@ public class ServiceUpdater {
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateMerchantDetailsPhone() {
         return (serviceUpdateRequest, serviceEntity) ->
                 getOrCreateMerchantDetails(serviceEntity).setTelephoneNumber(serviceUpdateRequest.valueAsString());
+    }
+
+    private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateMerchantDetailsUrl() {
+        return (serviceUpdateRequest, serviceEntity) ->
+                getOrCreateMerchantDetails(serviceEntity).setUrl(serviceUpdateRequest.valueAsString());
     }
 
     private MerchantDetailsEntity getOrCreateMerchantDetails(ServiceEntity serviceEntity) {

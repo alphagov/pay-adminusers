@@ -34,7 +34,8 @@ public class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
                 "address_city", "city",
                 "address_country", "country",
                 "address_postcode", "postcode",
-                "email", "dd-merchant@example.com");
+                "email", "dd-merchant@example.com",
+                "url", "https://merchant.example.com");
 
         givenSetup()
                 .when()
@@ -51,7 +52,8 @@ public class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
                 .body("merchant_details.address_city", is("city"))
                 .body("merchant_details.address_country", is("country"))
                 .body("merchant_details.address_postcode", is("postcode"))
-                .body("merchant_details.email", is("dd-merchant@example.com"));
+                .body("merchant_details.email", is("dd-merchant@example.com"))
+                .body("merchant_details.url", is("https://merchant.example.com"));
     }
 
     @Test
@@ -81,7 +83,8 @@ public class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
                 .body("merchant_details.address_postcode", is("postcode"))
                 .body("merchant_details", not(hasKey("telephone_number")))
                 .body("merchant_details", not(hasKey("address_line2")))
-                .body("merchant_details", not(hasKey("email")));
+                .body("merchant_details", not(hasKey("email")))
+                .body("merchant_details", not(hasKey("url")));
     }
 
     @Test

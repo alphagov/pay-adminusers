@@ -27,7 +27,8 @@ public class EmailResourceIT extends IntegrationTest {
                 .withGatewayAccountIds(GATEWAY_ACCOUNT_ID)
                 .withMerchantDetails(new MerchantDetails(
                         "name", "number", "line1", null, "city",
-                        "postcode", "country", "dd-merchant@example.com"
+                        "postcode", "country", "dd-merchant@example.com",
+                        "https://merchant.example.org"
                 ))
                 .insertService();
         String body = mapper.valueToTree(validEmailRequest).toString();
