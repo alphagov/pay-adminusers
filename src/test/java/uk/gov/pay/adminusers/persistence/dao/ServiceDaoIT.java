@@ -150,6 +150,7 @@ class ServiceDaoIT extends DaoTestBase {
         assertThat(savedService.get(0).get("merchant_address_postcode"), is(merchantDetails.getAddressPostcode()));
         assertThat(savedService.get(0).get("merchant_address_country"), is(merchantDetails.getAddressCountryCode()));
         assertThat(savedService.get(0).get("merchant_email"), is(merchantDetails.getEmail()));
+        assertThat(savedService.get(0).get("merchant_url"), is(merchantDetails.getUrl()));
     }
 
     @Test
@@ -349,6 +350,7 @@ class ServiceDaoIT extends DaoTestBase {
         assertThat(thisEntity.getAddressPostcode(), is(thatEntity.getAddressPostcode()));
         assertThat(thisEntity.getAddressCountryCode(), is(thatEntity.getAddressCountryCode()));
         assertThat(thisEntity.getEmail(), is(thatEntity.getEmail()));
+        assertThat(thisEntity.getUrl(), is(thatEntity.getUrl()));
     }
 
     private void assertServiceEntity(ServiceEntity thisEntity, ServiceEntity thatEntity) {

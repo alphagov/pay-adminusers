@@ -18,6 +18,7 @@ public class UpdateMerchantDetailsRequest {
     private static final String FIELD_ADDRESS_POSTCODE = "address_postcode";
     private static final String FIELD_ADDRESS_COUNTRY = "address_country";
     private static final String FIELD_EMAIL = "email";
+    private static final String FIELD_URL = "url";
 
     private String name;
     private String telephoneNumber;
@@ -27,6 +28,7 @@ public class UpdateMerchantDetailsRequest {
     private String addressPostcode;
     private String addressCountry;
     private String email;
+    private String url;
 
     public static UpdateMerchantDetailsRequest from(JsonNode node) {
         String name = node.get(FIELD_NAME).asText();
@@ -41,9 +43,11 @@ public class UpdateMerchantDetailsRequest {
                 .map(JsonNode::asText)
                 .orElse(null);
         String email = Optional.ofNullable(node.get(FIELD_EMAIL)).map(JsonNode::asText).orElse(null);
+        String url = Optional.ofNullable(node.get(FIELD_URL)).map(JsonNode::asText).orElse(null);
 
         return new UpdateMerchantDetailsRequest(
-                name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry, email
+                name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode,
+                addressCountry, email, url
         );
     }
 
@@ -54,7 +58,8 @@ public class UpdateMerchantDetailsRequest {
                                         @JsonProperty("address_city") String addressCity,
                                         @JsonProperty("address_postcode") String addressPostcode,
                                         @JsonProperty("address_country") String addressCountry,
-                                        @JsonProperty("email") String email) {
+                                        @JsonProperty("email") String email,
+                                        @JsonProperty("url") String url) {
         this.name = name;
         this.telephoneNumber = telephoneNumber;
         this.addressLine1 = addressLine1;
@@ -63,6 +68,7 @@ public class UpdateMerchantDetailsRequest {
         this.addressPostcode = addressPostcode;
         this.addressCountry = addressCountry;
         this.email = email;
+        this.url = url;
     }
 
     public String getName() {
@@ -95,5 +101,9 @@ public class UpdateMerchantDetailsRequest {
 
     public String getEmail() {
         return this.email;
+    }
+
+    public String getUrl() {
+        return this.url;
     }
 }

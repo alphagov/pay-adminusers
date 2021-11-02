@@ -39,6 +39,7 @@ import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAIL
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_EMAIL;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_NAME;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_URL;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_REDIRECT_NAME;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_SECTOR;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_SERVICE_NAME_PREFIX;
@@ -91,7 +92,8 @@ public class ServiceUpdateOperationValidator {
                 entry(FIELD_MERCHANT_DETAILS_ADDRESS_COUNRTY, singletonList(REPLACE)),
                 entry(FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, singletonList(REPLACE)),
                 entry(FIELD_MERCHANT_DETAILS_EMAIL, singletonList(REPLACE)),
-                entry(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, singletonList(REPLACE))
+                entry(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, singletonList(REPLACE)),
+                entry(FIELD_MERCHANT_DETAILS_URL, singletonList(REPLACE))
         ));
         Arrays.stream(SupportedLanguage.values()).forEach(lang ->
                 validAttributeUpdateOperations.put(FIELD_SERVICE_NAME_PREFIX + '/' + lang.toString(), singletonList(REPLACE)));

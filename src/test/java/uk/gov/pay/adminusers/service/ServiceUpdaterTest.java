@@ -64,12 +64,13 @@ public class ServiceUpdaterTest {
         String addressPostcode = "something";
         String addressCountry = "something";
         String email = "dd-merchant@example.com";
+        String url = "https://merchant.example.com";
 
         MerchantDetailsEntity toUpdate = new MerchantDetailsEntity(
-                name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry, email
+                name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry, email, url
         );
         UpdateMerchantDetailsRequest request = new UpdateMerchantDetailsRequest(
-                name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry, email
+                name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry, email, url
         );
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
         when(serviceDao.findByExternalId(SERVICE_ID)).thenReturn(of(serviceEntity));
@@ -92,10 +93,10 @@ public class ServiceUpdaterTest {
         String addressPostcode = "something";
         String addressCountry = "something";
         String email = "merchant@example.com";
+        String url = "https://merchant.example.com";
 
-        UpdateMerchantDetailsRequest request = new UpdateMerchantDetailsRequest(
-                name, telephoneNumber, addressLine1, addressLine2, addressCity, addressPostcode, addressCountry, email
-        );
+        UpdateMerchantDetailsRequest request = new UpdateMerchantDetailsRequest(name, telephoneNumber, addressLine1,
+                addressLine2, addressCity, addressPostcode, addressCountry, email, url);
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
 
         when(serviceDao.findByExternalId(NON_EXISTENT_SERVICE_EXTERNAL_ID)).thenReturn(Optional.empty());
@@ -380,6 +381,7 @@ public class ServiceUpdaterTest {
         String addressPostcode = "W10 5LA";
         String email = "someone@example.com";
         String telephoneNumber = "000";
+        String url = "https://merchant.example.com";
 
         List<ServiceUpdateRequest> serviceUpdateRequests = List.of(
                 serviceUpdateRequest("replace", "merchant_details/name", name),
@@ -389,7 +391,8 @@ public class ServiceUpdaterTest {
                 serviceUpdateRequest("replace", "merchant_details/address_country", addressCountry),
                 serviceUpdateRequest("replace", "merchant_details/address_postcode", addressPostcode),
                 serviceUpdateRequest("replace", "merchant_details/email", email),
-                serviceUpdateRequest("replace", "merchant_details/telephone_number", telephoneNumber)
+                serviceUpdateRequest("replace", "merchant_details/telephone_number", telephoneNumber),
+                serviceUpdateRequest("replace", "merchant_details/url", url)
         );
         ServiceEntity serviceEntity = aServiceEntity()
                 .withMerchantDetailsEntity(null)
@@ -400,7 +403,7 @@ public class ServiceUpdaterTest {
         Optional<Service> maybeService = updater.doUpdate(SERVICE_ID, serviceUpdateRequests);
 
         assertThat(maybeService.isPresent(), is(true));
-        verify(serviceDao, times(8)).merge(serviceEntity);
+        verify(serviceDao, times(9)).merge(serviceEntity);
         assertThat(maybeService.get().getMerchantDetails().getName(), is(name));
         assertThat(maybeService.get().getMerchantDetails().getAddressLine1(), is(addressLine1));
         assertThat(maybeService.get().getMerchantDetails().getAddressLine2(), is(addressLine2));
@@ -409,8 +412,8 @@ public class ServiceUpdaterTest {
         assertThat(maybeService.get().getMerchantDetails().getAddressPostcode(), is(addressPostcode));
         assertThat(maybeService.get().getMerchantDetails().getEmail(), is(email));
         assertThat(maybeService.get().getMerchantDetails().getTelephoneNumber(), is(telephoneNumber));
+        assertThat(maybeService.get().getMerchantDetails().getUrl(), is(url));
     }
-
 
     @Test
     public void shouldUpdateMerchantDetailsAddressLine1Successfully_WhenExistingMerchantDetails() {
