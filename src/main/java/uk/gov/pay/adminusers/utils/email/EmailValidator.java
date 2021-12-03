@@ -18,11 +18,13 @@ public class EmailValidator {
             "acas.org.uk",
             "accessplanit.com",
             "assembly.wales",
+            "beechpc.com",
             "bl.uk",
             "caa.co.uk",
             "careinspectorate.com",
             "cynulliad.cymru",
             "derrystrabane.com",
+            "digitalaccessibilitycentre.org",
             "eani.org.uk",
             "fermanaghomagh.com",
             "gov.scot",
@@ -58,8 +60,7 @@ public class EmailValidator {
             "ucds.email",
             "uksbs.co.uk",
             "wmca.org.uk",
-            "york.ac.uk",
-            "digitalaccessibilitycentre.org"
+            "york.ac.uk"
     );
 
     private static final Pattern PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERN;
