@@ -49,11 +49,13 @@ class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@acas.org.uk", true},
                 {"valid@accessplanit.com", true},
                 {"valid@assembly.wales", true},
+                {"valid@beechpc.com", true},
                 {"valid@bl.uk", true},
                 {"valid@caa.co.uk", true},
                 {"valid@careinspectorate.com", true},
                 {"valid@cynulliad.cymru", true},
                 {"valid@derrystrabane.com", true},
+                {"valid@digitalaccessibilitycentre.org", true},
                 {"valid@eani.org.uk", true},
                 {"valid@fermanaghomagh.com", true},
                 {"valid@gov.scot", true},
@@ -89,16 +91,17 @@ class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@uksbs.co.uk", true},
                 {"valid@wmca.org.uk", true},
                 {"valid@york.ac.uk", true},
-                {"valid@digitalaccessibilitycentre.org", true},
 
                 // all valid emails with subdomains
                 {"valid@subdomain.acas.org.uk", true},
                 {"valid@subdomain.accessplanit.com", true},
                 {"valid@subdomain.assembly.wales", true},
+                {"valid@subdomain.beechpc.com", true},
                 {"valid@subdomain.bl.uk", true},
                 {"valid@subdomain.careinspectorate.com", true},
                 {"valid@subdomain.cynulliad.cymru", true},
                 {"valid@subdomain.derrystrabane.com", true},
+                {"valid@subdomain.digitalaccessibilitycentre.org", true},
                 {"valid@subdomain.eani.org.uk", true},
                 {"valid@subdomain.fermanaghomagh.com", true},
                 {"valid@subdomain.gov.scot", true},
@@ -134,8 +137,6 @@ class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@subdomain.sssc.uk.com", true},
                 {"valid@subdomain.wmca.org.uk", true},
                 {"valid@subdomain.york.ac.uk", true},
-                {"valid@subdomain.digitalaccessibilitycentre.org", true}
-
         });
     }
 
