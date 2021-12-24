@@ -84,23 +84,6 @@ pipeline {
         }
       }
     }
-    stage('Check pact compatability') {
-      when {
-        branch 'master'
-      }
-      steps {
-        checkPactCompatibility("adminusers", gitCommit(), "test")
-      }
-    }
-    stage('Pact Tag') {
-      when {
-        branch 'master'
-      }
-      steps {
-        echo 'Tagging provider pact with "test"'
-        tagPact("adminusers", gitCommit(), "test")
-      }
-    }
     stage('Complete') {
       failFast true
       parallel {
@@ -110,14 +93,6 @@ pipeline {
           }
           steps {
             tagDeployment("adminusers")
-          }
-        }
-        stage('Trigger Deploy Notification') {
-          when {
-            branch 'master'
-          }
-          steps {
-            triggerGraphiteDeployEvent("adminusers")
           }
         }
       }
