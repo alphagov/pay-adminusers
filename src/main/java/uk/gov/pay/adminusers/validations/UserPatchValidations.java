@@ -12,6 +12,7 @@ import java.util.function.Function;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.tuple.Pair.of;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_DISABLED;
+import static uk.gov.pay.adminusers.model.PatchRequest.PATH_EMAIL;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_FEATURES;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TELEPHONE_NUMBER;
@@ -21,11 +22,14 @@ import static uk.gov.pay.adminusers.validations.RequestValidations.isNotValidTel
 
 public class UserPatchValidations {
 
-    private static final List<String> PATCH_ALLOWED_PATHS = List.of(PATH_SESSION_VERSION, PATH_DISABLED, PATH_TELEPHONE_NUMBER, PATH_FEATURES);
+    private static final List<String> PATCH_ALLOWED_PATHS = 
+            List.of(PATH_SESSION_VERSION, PATH_DISABLED, PATH_TELEPHONE_NUMBER, PATH_FEATURES, PATH_EMAIL);
+    
     private static final Multimap<String, String> USER_PATCH_PATH_OPS = new ImmutableListMultimap.Builder<String, String>()
             .put(PATH_SESSION_VERSION, "append")
             .put(PATH_DISABLED, "replace")
             .put(PATH_TELEPHONE_NUMBER, "replace")
+            .put(PATH_EMAIL, "replace")
             .put(PATH_FEATURES, "replace")
             .build();
 
