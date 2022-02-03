@@ -25,6 +25,7 @@ import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_DISABLED;
+import static uk.gov.pay.adminusers.model.PatchRequest.PATH_EMAIL;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_FEATURES;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TELEPHONE_NUMBER;
@@ -238,21 +239,30 @@ public class UserServices {
         }
 
         UserEntity user = userOptional.get();
-
-        if (PATH_SESSION_VERSION.equals(patchRequest.getPath())) {
-            incrementSessionVersion(user, parseInt(patchRequest.getValue()));
-        } else if (PATH_DISABLED.equals(patchRequest.getPath())) {
-            changeUserDisabled(user, parseBoolean(patchRequest.getValue()));
-        } else if (PATH_TELEPHONE_NUMBER.equals(patchRequest.getPath())) {
-            changeUserTelephoneNumber(user, patchRequest.getValue());
-        } else if (PATH_FEATURES.equals(patchRequest.getPath())) {
-            changeUserFeatures(user, patchRequest.getValue());
-        } else {
-            String error = format("Invalid patch request with path [%s]", patchRequest.getPath());
-            logger.error(error);
-            throw new RuntimeException(error);
+        
+        switch (patchRequest.getPath()) {
+            case PATH_SESSION_VERSION:
+                incrementSessionVersion(user, parseInt(patchRequest.getValue()));
+                break;
+            case PATH_DISABLED:
+                changeUserDisabled(user, parseBoolean(patchRequest.getValue()));
+                break;
+            case PATH_TELEPHONE_NUMBER:
+                changeUserTelephoneNumber(user, patchRequest.getValue());
+                break;
+            case PATH_EMAIL:
+                changeUserEmail(user, patchRequest.getValue());
+                break;
+            case PATH_FEATURES:
+                changeUserFeatures(user, patchRequest.getValue());
+                break;
+            default:
+                String error = format("Invalid patch request with path [%s]", patchRequest.getPath());
+                logger.error(error);
+                throw new RuntimeException(error);
+                
         }
-
+        
         return Optional.of(linksBuilder.decorate(user.toUser()));
     }
 
@@ -264,6 +274,13 @@ public class UserServices {
 
     private void changeUserTelephoneNumber(UserEntity userEntity, String telephoneNumber) {
         userEntity.setTelephoneNumber(TelephoneNumberUtility.formatToE164(telephoneNumber));
+        userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+        userDao.merge(userEntity);
+    }
+    
+    private void changeUserEmail(UserEntity userEntity, String email) {
+        userEntity.setEmail(email);
+        userEntity.setUsername(email);
         userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
         userDao.merge(userEntity);
     }

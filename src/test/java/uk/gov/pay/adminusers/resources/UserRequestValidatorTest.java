@@ -177,6 +177,17 @@ class UserRequestValidatorTest {
         assertThat(errors.getErrors().size(), is(1));
         assertThat(errors.getErrors(), hasItems("path [telephone_number] must contain a valid telephone number"));
     }
+    
+    @Test
+    void shouldError_whenPatchingInvalidEmail() {
+        JsonNode payload = objectMapper.valueToTree(Map.of("op", "replace", "path", "email", "value", "(╯°□°）╯︵ ┻━┻"));
+        Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
+
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("path [email] must contain a valid email"));
+    }
 
     @Test
     void shouldSuccess_whenAddingServiceRole() {

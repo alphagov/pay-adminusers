@@ -140,6 +140,10 @@ public class RequestValidations {
         return jsonNode -> !TelephoneNumberUtility.isValidPhoneNumber(jsonNode.asText());
     }
 
+    static Function<JsonNode, Boolean> isNotValidEmail() {
+        return jsonNode -> !EmailValidator.isValid(jsonNode.asText());
+    }
+
     private static Function<JsonNode, Boolean> isNotZonedDateTime() {
         return jsonNode -> !jsonNode.isTextual() || !isZonedDateTime(jsonNode.textValue());
     }

@@ -41,6 +41,23 @@ class UserResourcePatchIT extends IntegrationTest {
                 .statusCode(200)
                 .body("session_version", is(2));
     }
+    
+    @Test
+    void shouldUpdateEmail_whenPatchAttempt() {
+        
+        String newEmail = "iLoveGovUkPay@example.com";
+        JsonNode payload = mapper.valueToTree(Map.of("op", "replace", "path", "email", "value", newEmail));
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .body(payload)
+                .patch(format(USER_RESOURCE_URL, externalId))
+                .then()
+                .statusCode(200)
+                .body("email", is(newEmail))
+                .body("username", is(newEmail));
+    }
 
     @Test
     void shouldUpdateTelephoneNumber_whenPatchAttempt() {
@@ -56,7 +73,6 @@ class UserResourcePatchIT extends IntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("telephone_number", is(newTelephoneNumber));
-
     }
 
     @Test
