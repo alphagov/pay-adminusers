@@ -55,7 +55,8 @@ class UserResourcePatchIT extends IntegrationTest {
                 .patch(format(USER_RESOURCE_URL, externalId))
                 .then()
                 .statusCode(200)
-                .body("email", is(newEmail));
+                .body("email", is(newEmail))
+                .body("username", is(newEmail));
     }
 
     @Test

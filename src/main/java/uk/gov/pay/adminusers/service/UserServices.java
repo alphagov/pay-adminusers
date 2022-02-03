@@ -280,6 +280,7 @@ public class UserServices {
     
     private void changeUserEmail(UserEntity userEntity, String email) {
         userEntity.setEmail(email);
+        userEntity.setUsername(email);
         userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
         userDao.merge(userEntity);
     }
