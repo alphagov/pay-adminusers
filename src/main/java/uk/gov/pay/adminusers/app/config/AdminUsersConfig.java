@@ -43,6 +43,13 @@ public class AdminUsersConfig extends Configuration {
 
     @NotNull
     private SecondFactorAuthConfiguration secondFactorAuthConfiguration;
+    
+    @Valid
+    @NotNull
+    private SqsConfig sqsConfig;
+    
+    @NotNull
+    private EventSubscriberQueueConfig eventSubscriberQueueConfig;
 
     @JsonProperty("secondFactorAuthentication")
     public SecondFactorAuthConfiguration getSecondFactorAuthConfiguration() {
@@ -91,5 +98,15 @@ public class AdminUsersConfig extends Configuration {
 
     public Integer getForgottenPasswordExpiryMinutes() {
         return forgottenPasswordExpiryMinutes;
+    }
+    
+    @JsonProperty("sqs")
+    public SqsConfig getSqsConfig() {
+        return sqsConfig;
+    }
+
+    @JsonProperty("eventSubscriberQueue")
+    public EventSubscriberQueueConfig getEventSubscriberQueueConfig() {
+        return eventSubscriberQueueConfig;
     }
 }

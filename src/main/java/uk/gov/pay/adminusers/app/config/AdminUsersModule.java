@@ -1,5 +1,10 @@
 package uk.gov.pay.adminusers.app.config;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -26,6 +31,7 @@ import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.pay.adminusers.service.UserServicesFactory;
 import uk.gov.pay.adminusers.utils.CountryConverter;
 import uk.gov.pay.adminusers.validations.RequestValidations;
+import uk.gov.service.payments.commons.queue.sqs.SqsQueueService;
 
 import java.time.Clock;
 import java.util.Properties;
@@ -111,6 +117,40 @@ public class AdminUsersModule extends AbstractModule {
     @Provides
     public ObjectMapper provideObjectMapper() {
         return environment.getObjectMapper();
+    }
+
+    @Provides
+    public AmazonSQS sqsClient(AdminUsersConfig adminUsersConfig) {
+        AmazonSQSClientBuilder clientBuilder = AmazonSQSClientBuilder
+                .standard();
+
+        if (adminUsersConfig.getSqsConfig().isNonStandardServiceEndpoint()) {
+
+            BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(
+                    adminUsersConfig.getSqsConfig().getAccessKey(),
+                    adminUsersConfig.getSqsConfig().getSecretKey());
+
+            clientBuilder
+                    .withCredentials(new AWSStaticCredentialsProvider(basicAWSCredentials))
+                    .withEndpointConfiguration(
+                            new AwsClientBuilder.EndpointConfiguration(
+                                    adminUsersConfig.getSqsConfig().getEndpoint(),
+                                    adminUsersConfig.getSqsConfig().getRegion())
+                    );
+        } else {
+            // uses AWS SDK's DefaultAWSCredentialsProviderChain to obtain credentials
+            clientBuilder.withRegion(adminUsersConfig.getSqsConfig().getRegion());
+        }
+
+        return clientBuilder.build();
+    }
+
+    @Provides
+    public SqsQueueService provideSqsQueueService(AmazonSQS amazonSQS, AdminUsersConfig adminUsersConfig) {
+        return new SqsQueueService(
+                amazonSQS,
+                adminUsersConfig.getSqsConfig().getMessageMaximumWaitTimeInSeconds(),
+                adminUsersConfig.getSqsConfig().getMessageMaximumBatchSize());
     }
 
 }

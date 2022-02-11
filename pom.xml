@@ -13,7 +13,7 @@
         <guice.version>5.1.0</guice.version>
         <guava.version>31.0.1-jre</guava.version>
         <jackson.version>2.13.1</jackson.version>
-        <pay-java-commons.version>1.0.20220216163841</pay-java-commons.version>
+        <pay-java-commons.version>1.0.20220217135842</pay-java-commons.version>
         <junit5.version>5.8.2</junit5.version>
     </properties>
     <dependencies>
@@ -25,6 +25,11 @@
         <dependency>
             <groupId>uk.gov.service.payments</groupId>
             <artifactId>model</artifactId>
+            <version>${pay-java-commons.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.service.payments</groupId>
+            <artifactId>queue</artifactId>
             <version>${pay-java-commons.version}</version>
         </dependency>
         <dependency>
@@ -189,6 +194,11 @@
             <groupId>org.dhatim</groupId>
             <artifactId>dropwizard-sentry</artifactId>
             <version>2.0.28-8</version>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-sqs</artifactId>
+            <version>1.12.160</version>
         </dependency>
 
         <!-- testing -->
