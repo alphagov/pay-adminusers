@@ -22,6 +22,7 @@ import uk.gov.pay.adminusers.exception.NotFoundExceptionMapper;
 import uk.gov.pay.adminusers.exception.ValidationExceptionMapper;
 import uk.gov.pay.adminusers.filters.LoggingMDCRequestFilter;
 import uk.gov.pay.adminusers.filters.LoggingMDCResponseFilter;
+import uk.gov.pay.adminusers.queue.managed.EventSubscriberQueueMessageReceiver;
 import uk.gov.pay.adminusers.resources.EmailResource;
 import uk.gov.pay.adminusers.resources.ForgottenPasswordResource;
 import uk.gov.pay.adminusers.resources.HealthCheckResource;
@@ -96,6 +97,8 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(new InvalidEmailRequestExceptionMapper());
         environment.jersey().register(new InvalidMerchantDetailsExceptionMapper());
         environment.jersey().register(new ConflictExceptionMapper());
+        
+        environment.lifecycle().manage(injector.getInstance(EventSubscriberQueueMessageReceiver.class));
     }
 
     private void initialiseMetrics(AdminUsersConfig configuration, Environment environment) {

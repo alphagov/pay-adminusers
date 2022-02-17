@@ -111,3 +111,20 @@ secondFactorAuthentication:
 # valid time windows should be the current window plus an even number of past and future windows which to validate against
   validTimeWindows: 9
   timeWindowInSeconds: 30
+
+sqs:
+  nonStandardServiceEndpoint: ${AWS_SQS_NON_STANDARD_SERVICE_ENDPOINT:-false}
+  endpoint: ${AWS_SQS_ENDPOINT:-}
+  region: ${AWS_SQS_REGION}
+  secretKey: ${AWS_SECRET_KEY}
+  accessKey: ${AWS_ACCESS_KEY}
+  eventSubscriberQueueUrl: ${AWS_SQS_EVENT_SUBSCRIBER_QUEUE_URL}
+  messageMaximumWaitTimeInSeconds: ${AWS_SQS_MESSAGE_MAXIMUM_WAIT_TIME_IN_SECONDS:-1}
+  messageMaximumBatchSize: ${AWS_SQS_MESSAGE_MAXIMUM_BATCH_SIZE:-10}
+
+eventSubscriberQueue:
+  eventSubscriberQueueEnabled: ${EVENT_SUBSCRIBER_QUEUE_ENABLED:-false}
+  failedMessageRetryDelayInSeconds: ${EVENT_SUBSCRIBER_QUEUE_MESSAGE_RETRY_FAILED_IN_SECONDS:-3600}
+  queueSchedulerNumberOfThreads: ${EVENT_SUBSCRIBER_QUEUE_SCHEDULER_NUMBER_OF_THREADS:-1}
+  queueSchedulerThreadDelayInSeconds: ${EVENT_SUBSCRIBER_QUEUE_SCHEDULER_THREAD_DELAY_IN_SECONDS:-60}
+  queueSchedulerShutdownTimeoutInSeconds: ${EVENT_SUBSCRIBER_QUEUE_SCHEDULER_SHUTDOWN_TIMEOUT_IN_SECONDS:-15}
