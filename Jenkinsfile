@@ -54,22 +54,6 @@ pipeline {
         }
       }
     }
-    stage('Tests') {
-      failFast true
-      parallel {
-        stage('End-to-End Tests') {
-            when {
-                anyOf {
-                  branch 'master'
-                  environment name: 'RUN_END_TO_END_ON_PR', value: 'true'
-                }
-            }
-            steps {
-                runAppE2E("adminusers", "card")
-            }
-        }
-      }
-    }
     stage('Docker Tag') {
       steps {
         script {
