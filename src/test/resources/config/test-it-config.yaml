@@ -71,6 +71,8 @@ notify:
   inviteServiceUserExistsEmailTemplateId: ${NOTIFY_INVITE_SERVICE_USER_EXITS_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-user-exists-email-template-id}
   inviteServiceUserDisabledEmailTemplateId: ${NOTIFY_INVITE_SERVICE_USER_DISABLED_EMAIL_TEMPLATE_ID:-pay-notify-invite-service-user-disabled-email-template-id}
   liveAccountCreatedEmailTemplateId: ${NOTIFY_LIVE_ACCOUNT_CREATED_EMAIL_TEMPLATE_ID:-pay-notify-live-account-created-email-template-id}
+  stripeDisputeCreatedEmailTemplateId: ${NOTIFY_STRIPE_DISPUTE_CREATED_EMAIL_TEMPLATE_ID:-pay-notify-stripe-dispute-created-email-template-id}
+  notifyEmailReplyToSupportId: ${NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID:-pay-notify-email-reply-to-support-id}
 
 notifyDirectDebit:
   mandateCancelledEmailTemplateId: ${NOTIFY_MANDATE_CANCELLED_EMAIL_TEMPLATE_ID:-pay-mandate-cancelled-email-template-id}

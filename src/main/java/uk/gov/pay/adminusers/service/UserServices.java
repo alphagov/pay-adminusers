@@ -8,8 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
+import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
@@ -19,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
@@ -264,6 +267,14 @@ public class UserServices {
         }
         
         return Optional.of(linksBuilder.decorate(user.toUser()));
+    }
+    
+    public List<UserEntity> getAdminUsersForService(Service service) {
+        List<UserEntity> serviceUsers = userDao.findByServiceId(service.getId());
+        return serviceUsers.stream().filter(userEntity -> {
+            var hasAdminRole = userEntity.getRoles().stream().filter(RoleEntity::isAdmin).count();
+            return hasAdminRole > 0;
+        }).collect(Collectors.toList());
     }
 
     private void changeUserFeatures(UserEntity userEntity, String features) {
