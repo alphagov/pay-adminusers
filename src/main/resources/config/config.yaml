@@ -128,3 +128,8 @@ eventSubscriberQueue:
   queueSchedulerNumberOfThreads: ${EVENT_SUBSCRIBER_QUEUE_SCHEDULER_NUMBER_OF_THREADS:-1}
   queueSchedulerThreadDelayInSeconds: ${EVENT_SUBSCRIBER_QUEUE_SCHEDULER_THREAD_DELAY_IN_SECONDS:-60}
   queueSchedulerShutdownTimeoutInSeconds: ${EVENT_SUBSCRIBER_QUEUE_SCHEDULER_SHUTDOWN_TIMEOUT_IN_SECONDS:-15}
+
+ledgerBaseURL: ${LEDGER_URL}
+
+restClientConfig:
+  disabledSecureConnection: ${DISABLE_INTERNAL_HTTPS:-false}
