@@ -15,6 +15,7 @@ import com.google.inject.persist.jpa.JpaPersistModule;
 import com.warrenstrange.googleauth.GoogleAuthenticatorConfig;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.setup.Environment;
+import uk.gov.pay.adminusers.app.RestClientFactory;
 import uk.gov.pay.adminusers.resources.ResetPasswordValidator;
 import uk.gov.pay.adminusers.resources.UserRequestValidator;
 import uk.gov.pay.adminusers.service.ExistingUserOtpDispatcher;
@@ -33,6 +34,7 @@ import uk.gov.pay.adminusers.utils.CountryConverter;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 import uk.gov.service.payments.commons.queue.sqs.SqsQueueService;
 
+import javax.ws.rs.client.Client;
 import java.time.Clock;
 import java.util.Properties;
 
@@ -151,6 +153,12 @@ public class AdminUsersModule extends AbstractModule {
                 amazonSQS,
                 adminUsersConfig.getSqsConfig().getMessageMaximumWaitTimeInSeconds(),
                 adminUsersConfig.getSqsConfig().getMessageMaximumBatchSize());
+    }
+
+    @Provides
+    @javax.inject.Singleton
+    public Client provideClient() {
+        return RestClientFactory.buildClient(configuration.getRestClientConfig());
     }
 
 }

@@ -27,7 +27,7 @@ public class AdminUsersConfig extends Configuration {
 
     @Valid
     @NotNull
-    private LinksConfig links = new LinksConfig();
+    private final LinksConfig links = new LinksConfig();
 
     @NotNull
     private Integer loginAttemptCap;
@@ -50,6 +50,14 @@ public class AdminUsersConfig extends Configuration {
     
     @NotNull
     private EventSubscriberQueueConfig eventSubscriberQueueConfig;
+
+    @NotNull
+    @JsonProperty("ledgerBaseURL")
+    private String ledgerBaseUrl;
+
+    @Valid
+    @NotNull
+    private RestClientConfig restClientConfig;
 
     @JsonProperty("secondFactorAuthentication")
     public SecondFactorAuthConfiguration getSecondFactorAuthConfiguration() {
@@ -108,5 +116,13 @@ public class AdminUsersConfig extends Configuration {
     @JsonProperty("eventSubscriberQueue")
     public EventSubscriberQueueConfig getEventSubscriberQueueConfig() {
         return eventSubscriberQueueConfig;
+    }
+
+    public String getLedgerBaseUrl() {
+        return ledgerBaseUrl;
+    }
+
+    public RestClientConfig getRestClientConfig() {
+        return restClientConfig;
     }
 }
