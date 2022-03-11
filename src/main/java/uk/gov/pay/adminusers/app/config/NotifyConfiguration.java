@@ -58,6 +58,14 @@ public class NotifyConfiguration extends Configuration {
     @Valid
     @NotNull
     private String liveAccountCreatedEmailTemplateId;
+    
+    @Valid
+    @NotNull
+    private String stripeDisputeCreatedEmailTemplateId;
+    
+    @Valid
+    @NotNull
+    private String notifyEmailReplyToSupportId;
 
     public String getCardApiKey() {
         return cardApiKey;
@@ -109,5 +117,13 @@ public class NotifyConfiguration extends Configuration {
 
     public String getLiveAccountCreatedEmailTemplateId() {
         return liveAccountCreatedEmailTemplateId;
+    }
+
+    public String getStripeDisputeCreatedEmailTemplateId() {
+        return stripeDisputeCreatedEmailTemplateId;
+    }
+
+    public String getNotifyEmailReplyToSupportId() {
+        return notifyEmailReplyToSupportId;
     }
 }

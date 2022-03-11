@@ -21,4 +21,9 @@ public class ServiceFinder {
         return serviceDao.findByGatewayAccountId(gatewayAccountId)
                 .map(serviceEntity -> linksBuilder.decorate(serviceEntity.toService()));
     }
+    
+    public Optional<Service> byExternalId(String externalId) {
+        return serviceDao.findByExternalId(externalId)
+                .map(serviceEntity -> linksBuilder.decorate(serviceEntity.toService()));
+    }
 }

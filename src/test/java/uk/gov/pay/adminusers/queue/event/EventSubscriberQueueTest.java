@@ -44,7 +44,6 @@ class EventSubscriberQueueTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-
     private EventSubscriberQueue eventSubscriberQueue;
 
     @BeforeEach

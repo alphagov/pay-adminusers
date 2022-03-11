@@ -16,6 +16,7 @@ import java.util.Optional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 @ExtendWith(MockitoExtension.class)
 public class ServiceFinderTest {
@@ -39,6 +40,22 @@ public class ServiceFinderTest {
         when(serviceDao.findByGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(serviceEntity));
 
         Optional<Service> serviceOptional = serviceFinder.byGatewayAccountId(gatewayAccountId);
+
+        assertThat(serviceOptional.isPresent(), is(true));
+        assertThat(serviceOptional.get().getGatewayAccountIds().get(0), is(gatewayAccountId));
+    }
+
+    @Test
+    public void shouldReturnService_ifFoundByExternalId() {
+        String gatewayAccountId = "1";
+        String externalId = randomUuid();
+        ServiceEntity serviceEntity = new ServiceEntity();
+        serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, Service.DEFAULT_NAME_VALUE));
+        serviceEntity.addGatewayAccountIds(gatewayAccountId);
+        serviceEntity.setExternalId(externalId);
+        when(serviceDao.findByExternalId(externalId)).thenReturn(Optional.of(serviceEntity));
+
+        Optional<Service> serviceOptional = serviceFinder.byExternalId(externalId);
 
         assertThat(serviceOptional.isPresent(), is(true));
         assertThat(serviceOptional.get().getGatewayAccountIds().get(0), is(gatewayAccountId));

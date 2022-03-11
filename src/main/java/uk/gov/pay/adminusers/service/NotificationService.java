@@ -13,6 +13,7 @@ import uk.gov.service.notify.SendEmailResponse;
 import uk.gov.service.notify.SendSmsResponse;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
@@ -38,10 +39,14 @@ public class NotificationService {
     private final String forgottenPasswordEmailTemplateId;
     private final String inviteExistingUserEmailTemplateId;
 
+    private final String stripeDisputeCreatedEmailTemplateId;
+    private final String notifyEmailReplyToSupportId;
+
     public NotificationService(NotifyClientProvider notifyClientProvider,
                                NotifyConfiguration notifyConfiguration,
                                NotifyDirectDebitConfiguration notifyDirectDebitConfiguration,
                                MetricRegistry metricRegistry) {
+        
         this.notifyClientProvider = notifyClientProvider;
         this.notifyConfiguration = notifyConfiguration;
         this.notifyDirectDebitConfiguration = notifyDirectDebitConfiguration;
@@ -54,6 +59,9 @@ public class NotificationService {
         this.inviteEmailTemplateId = notifyConfiguration.getInviteUserEmailTemplateId();
         this.inviteExistingUserEmailTemplateId = notifyConfiguration.getInviteUserExistingEmailTemplateId();
         this.forgottenPasswordEmailTemplateId = notifyConfiguration.getForgottenPasswordEmailTemplateId();
+        
+        this.stripeDisputeCreatedEmailTemplateId = notifyConfiguration.getStripeDisputeCreatedEmailTemplateId();
+        this.notifyEmailReplyToSupportId = notifyConfiguration.getNotifyEmailReplyToSupportId();
 
         this.metricRegistry = metricRegistry;
     }
@@ -136,11 +144,19 @@ public class NotificationService {
         Map<String, String> personalisation = Map.of("service_live_account_link", serviceLiveAccountLink);
         return sendEmail(notifyConfiguration.getLiveAccountCreatedEmailTemplateId(), email, personalisation);
     }
+    
+    public void sendStripeDisputeCreatedEmail(Set<String> emailAddresses, Map<String, String> personalisation) {
+        emailAddresses.forEach(email -> sendEmail(stripeDisputeCreatedEmailTemplateId, email, personalisation, notifyEmailReplyToSupportId));
+    }
 
     public String sendEmail(final String templateId, final String email, final Map<String, String> personalisation) {
+       return sendEmail(templateId, email, personalisation, null);
+    }
+    
+    public String sendEmail(final String templateId, final String email, final Map<String, String> personalisation, final String emailReplyToId) {
         Stopwatch responseTimeStopwatch = Stopwatch.createStarted();
         try {
-            SendEmailResponse response = notifyClientProvider.get().sendEmail(templateId, email, personalisation, null);
+            SendEmailResponse response = notifyClientProvider.get().sendEmail(templateId, email, personalisation, null, emailReplyToId);
             return response.getNotificationId().toString();
         } catch (Exception e) {
             metricRegistry.counter("notify-operations.email.failures").inc();
