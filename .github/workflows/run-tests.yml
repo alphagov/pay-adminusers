@@ -1,9 +1,7 @@
 name: Github Actions Tests
 
 on:
-  push:
-    branches:
-      - master
+  workflow_call:
   pull_request:
 
 permissions:
