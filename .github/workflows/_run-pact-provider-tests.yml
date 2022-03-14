@@ -1,0 +1,61 @@
+name: Adminusers As Provider Pact Tests
+
+on:
+  workflow_call:
+    inputs:
+      consumer:
+        description: Name of the consumer app, e.g. frontend
+        required: true
+        type: string
+      consumer_tag:
+        description: Consumer tag. This could be branch name ('master'), PR number ('1234') or deploy tag ('test-fargate')
+        required: true
+        type: string
+    secrets:
+      pact_broker_username:
+        required: true
+      pact_broker_password:
+        required: true
+
+permissions:
+  contents: read
+
+
+jobs:
+  run-adminusers-as-provider-tests:
+    name: Run Adminusers as Provider
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@a12a3943b4bdde767164f792f33f40b04645d846
+        with:
+          repository: alphagov/pay-adminusers
+      - name: Set up JDK 11
+        uses: actions/setup-java@f69f00b5e5324696b07f6b1c92f0470a6df00780
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - name: Cache Maven packages
+        uses: actions/cache@937d24475381cd9c75ae6db12cb4e79714b926ed
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Pull docker image dependencies
+        run: |
+          docker pull govukpay/postgres:11.1
+      - name: Run provider pact tests
+        run: |
+          consumer_tag="${{ inputs.consumer_tag }}"
+          provider_version="${{ github.sha }}"
+          export MAVEN_REPO="$HOME/.m2"
+          mvn test \
+          --batch-mode \
+          -DrunContractTests \
+          -DCONSUMER="$consumer" \
+          -DPACT_CONSUMER_TAG="$consumer_tag" \
+          -Dpact.provider.version="$provider_version" \
+          -Dpact.verifier.publishResults=true \
+          -DPACT_BROKER_HOST=pay-pact-broker.cloudapps.digital \
+          -DPACT_BROKER_USERNAME="${{ secrets.pact_broker_username }}" \
+          -DPACT_BROKER_PASSWORD="${{ secrets.pact_broker_password }}"
