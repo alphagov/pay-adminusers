@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   integration-tests:
-    name: Integration tests
+    name: Unit and Integration tests
     runs-on: ubuntu-18.04
 
     steps:
