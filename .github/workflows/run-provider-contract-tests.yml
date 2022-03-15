@@ -28,9 +28,9 @@ jobs:
       - name: Pull docker image dependencies
         run: |
           docker pull govukpay/postgres:11.1
-      - name: Run integration tests
+      - name: Run provider contract tests
         run: |
           mvn test -DrunContractTests -DPACT_CONSUMER_TAG=master \
           -DPACT_BROKER_USERNAME=${{ secrets.pact_broker_username }} \
-          -DPACT_BROKER_PASSWORD=${{ secrets.pact_broker_password }} -Dpact.provider.version=$GITHUB_SHA 
+          -DPACT_BROKER_PASSWORD=${{ secrets.pact_broker_password }}
 #          -Dpact.verifier.publishResults=true
