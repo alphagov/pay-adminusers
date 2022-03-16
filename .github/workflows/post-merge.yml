@@ -11,3 +11,9 @@ permissions:
 jobs:
   tests:
     uses: ./.github/workflows/run-tests.yml
+
+  provider-contract-tests:
+    uses: alphagov/pay-ci/.github/workflows/_run-provider-contract-tests.yml@master
+    secrets:
+      pact_broker_username: ${{ secrets.pact_broker_username }}
+      pact_broker_password: ${{ secrets.pact_broker_password }}
