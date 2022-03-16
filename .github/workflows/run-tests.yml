@@ -29,6 +29,4 @@ jobs:
         run: |
           docker pull govukpay/postgres:11.1
       - name: Run integration tests
-        run: |
-          echo "${{ github.sha }}"
-          mvn clean verify
+        run: mvn clean verify
