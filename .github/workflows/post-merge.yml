@@ -1,7 +1,7 @@
 name: Post Merge
 
 on:
-  pull_request: #to be delete
+  pull_request: #to be deleted
   push:
     branches:
       - master
