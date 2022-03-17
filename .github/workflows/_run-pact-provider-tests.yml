@@ -46,15 +46,13 @@ jobs:
           docker pull govukpay/postgres:11.1
       - name: Run provider pact tests
         run: |
-          consumer_tag="${{ inputs.consumer_tag }}"
-          provider_version="${{ github.sha }}"
           export MAVEN_REPO="$HOME/.m2"
           mvn test \
           --batch-mode \
           -DrunContractTests \
-          -DCONSUMER="$consumer" \
-          -DPACT_CONSUMER_TAG="$consumer_tag" \
-          -Dpact.provider.version="$provider_version" \
+          -DCONSUMER="${{ inputs.consumer }}" \
+          -DPACT_CONSUMER_TAG="${{ inputs.consumer_tag }}" \
+          -Dpact.provider.version="${{ github.sha }}" \
           -Dpact.verifier.publishResults=true \
           -DPACT_BROKER_HOST=pay-pact-broker.cloudapps.digital \
           -DPACT_BROKER_USERNAME="${{ secrets.pact_broker_username }}" \
