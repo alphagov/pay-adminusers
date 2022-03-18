@@ -235,7 +235,7 @@ public class InviteServiceTest {
         when(mockSecondFactorAuthenticator.newPassCode(otpKey)).thenReturn(passCode);
         when(mockInviteDao.merge(any(InviteEntity.class))).thenReturn(inviteEntity);
         when(mockNotificationService.sendSecondFactorPasscodeSms(eq(TELEPHONE_NUMBER), eq(valueOf(passCode)), eq(SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE)))
-                .thenThrow(AdminUsersExceptions.userNotificationError());
+                .thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
 
         inviteService.reGenerateOtp(inviteOtpRequestFrom(inviteCode, TELEPHONE_NUMBER, PLAIN_PASSWORD));
 
@@ -271,7 +271,7 @@ public class InviteServiceTest {
         when(mockSecondFactorAuthenticator.newPassCode(otpKey)).thenReturn(passCode);
         when(mockInviteDao.merge(any(InviteEntity.class))).thenReturn(inviteEntity);
         when(mockNotificationService.sendSecondFactorPasscodeSms(eq(TELEPHONE_NUMBER), eq(valueOf(passCode)),
-                eq(CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE))).thenThrow(AdminUsersExceptions.userNotificationError());
+                eq(CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE))).thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
 
         inviteService.reGenerateOtp(inviteOtpRequestFrom(inviteCode, TELEPHONE_NUMBER, PLAIN_PASSWORD));
 

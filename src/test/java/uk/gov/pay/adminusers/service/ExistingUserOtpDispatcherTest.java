@@ -86,7 +86,7 @@ public class ExistingUserOtpDispatcherTest {
         when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(654321);
 
         when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("654321"), eq(SIGN_IN)))
-                .thenThrow(AdminUsersExceptions.userNotificationError());
+                .thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
 
         Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.sendSignInOtp(user.getExternalId());
 
@@ -158,7 +158,7 @@ public class ExistingUserOtpDispatcherTest {
         when(secondFactorAuthenticator.newPassCode(user.getProvisionalOtpKey())).thenReturn(654321);
 
         when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("654321"), eq(CHANGE_SIGN_IN_2FA_TO_SMS)))
-                .thenThrow(AdminUsersExceptions.userNotificationError());
+                .thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
 
         Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.sendChangeSignMethodToSmsOtp(user.getExternalId());
 
