@@ -99,15 +99,19 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
 
-    public static WebApplicationException userNotificationError() {
-        return buildWebApplicationException("error sending user notification", INTERNAL_SERVER_ERROR.getStatusCode());
+    public static WebApplicationException userNotificationError(Exception cause) {
+        return buildWebApplicationException("error sending user notification", INTERNAL_SERVER_ERROR.getStatusCode(), cause);
     }
 
     private static WebApplicationException buildWebApplicationException(String error, int status) {
+        return buildWebApplicationException(error, status, null);
+    }
+    
+    private static WebApplicationException buildWebApplicationException(String error, int status, Exception cause) {
         Response response = Response.status(status)
                 .entity(Map.of("errors", List.of(error)))
                 .build();
-        return new WebApplicationException(response);
+        return new WebApplicationException(cause, response);
     }
 
     public static WebApplicationException invalidPublicSectorEmail(String email) {

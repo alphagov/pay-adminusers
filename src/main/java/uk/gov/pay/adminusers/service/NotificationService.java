@@ -79,7 +79,7 @@ public class NotificationService {
         } catch (NotificationClientException e) {
             metricRegistry.counter("notify-operations.sms.failures").inc();
             LOGGER.info("Error sending Sms: " + e.getMessage());
-            throw userNotificationError();
+            throw userNotificationError(e);
         } finally {
             responseTimeStopwatch.stop();
             metricRegistry.histogram("notify-operations.sms.response_time").update(responseTimeStopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -160,7 +160,8 @@ public class NotificationService {
             return response.getNotificationId().toString();
         } catch (Exception e) {
             metricRegistry.counter("notify-operations.email.failures").inc();
-            throw userNotificationError();
+            LOGGER.info("Error sending email: {}", e.getMessage());
+            throw userNotificationError(e);
         } finally {
             responseTimeStopwatch.stop();
             metricRegistry.histogram("notify-operations.email.response_time").update(responseTimeStopwatch.elapsed(TimeUnit.MILLISECONDS));
