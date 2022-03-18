@@ -112,6 +112,10 @@ public class EventMessageHandler {
                     serviceAdmins.stream().map(UserEntity::getEmail).collect(Collectors.toSet()),
                     personalisation
             );
+            logger.info("Processed notification email for disputed transaction",
+                    kv("transaction_id", disputeCreatedEvent.getParentResourceExternalId()),
+                    kv("service_id", service.getId())
+            );
         } else {
             throw new IllegalStateException(format("Service has no Admin users [id: %s]", service.getId()));
         }

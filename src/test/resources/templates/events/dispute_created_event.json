@@ -1,0 +1,17 @@
+{
+  "event_type": "DISPUTE_CREATED",
+  "service_id": "111111111",
+  "resource_type": "dispute",
+  "event_details": {
+    "amount": 125000,
+    "fee": 1500,
+    "net_amount": 126500,
+    "reason": "fraudulent",
+    "evidence_due_date": 1648745127,
+    "gateway_account_id": "123"
+  },
+  "live": false,
+  "timestamp": "2022-03-17T17:46:01.123456Z",
+  "resource_external_id": "du_abcd",
+  "parent_resource_external_id": "du_efgh"
+}

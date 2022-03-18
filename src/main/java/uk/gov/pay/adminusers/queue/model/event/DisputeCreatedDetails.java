@@ -14,7 +14,7 @@ public class DisputeCreatedDetails {
     private Long paymentAmount;
     @JsonProperty("fee")
     private Long disputeFee;
-    @JsonProperty("evidenceDueDate")
+    @JsonProperty("evidence_due_date")
     private Long disputeEvidenceDueDate;
     
     public DisputeCreatedDetails() {
