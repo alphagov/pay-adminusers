@@ -31,6 +31,7 @@ jobs:
         with:
           repository: alphagov/pay-adminusers
       - name: Get Provider SHA
+        id: get-provider-sha
         run: |
           echo ::set-output name=provider-sha::$(git rev-parse HEAD)
       - name: Set up JDK 11
@@ -55,7 +56,7 @@ jobs:
           -DrunContractTests \
           -DCONSUMER="${{ inputs.consumer }}" \
           -DPACT_CONSUMER_TAG="${{ inputs.consumer_tag }}" \
-          -Dpact.provider.version="${{ steps.get-sha.outputs.provider-sha }}" \
+          -Dpact.provider.version="${{ steps.get-provider-sha.outputs.provider-sha }}" \
           -Dpact.verifier.publishResults=true \
           -DPACT_BROKER_HOST=pay-pact-broker.cloudapps.digital \
           -DPACT_BROKER_USERNAME="${{ secrets.pact_broker_username }}" \
