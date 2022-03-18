@@ -30,7 +30,7 @@ public class EventSubscriberQueueMessageReceiver implements Managed {
     public EventSubscriberQueueMessageReceiver(EventMessageHandler eventMessageHandler, Environment environment,
                                                AdminUsersConfig adminUsersConfig) {
         this.eventMessageHandler = eventMessageHandler;
-        
+
         scheduledExecutorService = environment
                 .lifecycle()
                 .scheduledExecutorService(THREAD_NAME)
@@ -38,6 +38,7 @@ public class EventSubscriberQueueMessageReceiver implements Managed {
                 .build();
 
         EventSubscriberQueueConfig eventSubscriberQueueConfig = adminUsersConfig.getEventSubscriberQueueConfig();
+        queueEnabled = eventSubscriberQueueConfig.getEventSubscriberQueueEnabled();
         queueSchedulerThreadDelayInSeconds = eventSubscriberQueueConfig.getQueueSchedulerThreadDelayInSeconds();
         queueSchedulerShutdownTimeoutInSeconds = eventSubscriberQueueConfig.getQueueSchedulerShutdownTimeoutInSeconds();
     }
