@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.queue.model.Event;
 import uk.gov.pay.adminusers.queue.model.EventMessage;
+import uk.gov.pay.adminusers.queue.model.SNSMessage;
 import uk.gov.service.payments.commons.queue.exception.QueueException;
 import uk.gov.service.payments.commons.queue.model.QueueMessage;
 import uk.gov.service.payments.commons.queue.sqs.AbstractQueue;
@@ -41,7 +42,8 @@ public class EventSubscriberQueue extends AbstractQueue {
 
     private EventMessage deserializeMessage(QueueMessage queueMessage) {
         try {
-            Event event = objectMapper.readValue(queueMessage.getMessageBody(), Event.class);
+            SNSMessage snsMessage = objectMapper.readValue(queueMessage.getMessageBody(), SNSMessage.class);
+            Event event = objectMapper.readValue(snsMessage.getMessage(), Event.class);
 
             return EventMessage.of(event, queueMessage);
         } catch (IOException e) {

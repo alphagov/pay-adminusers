@@ -64,8 +64,8 @@ class EventSubscriberQueueTest {
         String parentResourceExternalId = "parent-id";
         String eventType = "PAYMENT_CREATED";
 
-        String validJsonMessage = new GsonBuilder().create()
-                .toJson(Map.of(
+        String messageBody = new GsonBuilder().create().toJson(
+                Map.of(
                         "service_id", serviceId,
                         "resource_external_id", resourceExternalId,
                         "parent_resource_external_id", parentResourceExternalId,
@@ -73,6 +73,8 @@ class EventSubscriberQueueTest {
                         "event_details", eventDetails,
                         "ignored_field", "to check we are ignoring fields we don't care about"
                 ));
+        String validJsonMessage = new GsonBuilder().create()
+                .toJson(Map.of("Message", messageBody));
 
         var sendMessageResult = mock(SendMessageResult.class);
         List<QueueMessage> messages = List.of(
