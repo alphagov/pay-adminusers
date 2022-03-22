@@ -48,6 +48,7 @@ class EmailValidatorIsPublicSectorEmailTest {
                 // all valid emails with domains
                 {"valid@acas.org.uk", true},
                 {"valid@accessplanit.com", true},
+                {"valid@achievingforchildren.org.uk", true},
                 {"valid@assembly.wales", true},
                 {"valid@beechpc.com", true},
                 {"valid@bl.uk", true},
@@ -96,6 +97,7 @@ class EmailValidatorIsPublicSectorEmailTest {
                 // all valid emails with subdomains
                 {"valid@subdomain.acas.org.uk", true},
                 {"valid@subdomain.accessplanit.com", true},
+                {"valid@subdomain.achievingforchildren.org.uk", true},
                 {"valid@subdomain.assembly.wales", true},
                 {"valid@subdomain.beechpc.com", true},
                 {"valid@subdomain.bl.uk", true},

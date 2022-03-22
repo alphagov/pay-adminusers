@@ -17,6 +17,7 @@ public class EmailValidator {
     private static final List<String> PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER = List.of(
             "acas.org.uk",
             "accessplanit.com",
+            "achievingforchildren.org.uk",
             "assembly.wales",
             "beechpc.com",
             "bl.uk",
