@@ -1,7 +1,12 @@
 package uk.gov.pay.adminusers.queue.event;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.GsonBuilder;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import org.hamcrest.core.Is;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
 import uk.gov.pay.adminusers.model.Service;
@@ -40,6 +46,7 @@ import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
@@ -75,6 +82,10 @@ class EventMessageHandlerTest {
 
     @Captor
     ArgumentCaptor<Map<String, String>> personalisationCaptor;
+    @Mock
+    private Appender<ILoggingEvent> mockLogAppender;
+    @Captor
+    ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
 
     @InjectMocks
     private EventMessageHandler underTest;
@@ -101,6 +112,10 @@ class EventMessageHandlerTest {
                 .withServiceId(serv.getExternalId())
                 .withParentResourceExternalId("456")
                 .build();
+
+        Logger logger = (Logger) LoggerFactory.getLogger(EventMessageHandler.class);
+        logger.setLevel(Level.INFO);
+        logger.addAppender(mockLogAppender);
     }
 
     @Test
@@ -120,6 +135,7 @@ class EventMessageHandlerTest {
 
         var mockQueueMessage = mock(QueueMessage.class);
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
+        when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(eventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
 
         when(mockServiceFinder.byExternalId(serv.getExternalId())).thenReturn(Optional.of(serv));
@@ -142,6 +158,12 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("disputeFee"), is("15.00"));
         assertThat(personalisation.get("disputeEvidenceDueDate"), is("07, March 2022"));
         assertThat(personalisation.get("sendEvidenceToPayDueDate"), is("04, March 2022"));
+
+        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+
+        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
     }
 
     @Test
