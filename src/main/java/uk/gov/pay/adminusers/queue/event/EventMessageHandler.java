@@ -81,7 +81,7 @@ public class EventMessageHandler {
     }
 
     private void handleDisputeCreatedMessage(Event disputeCreatedEvent) throws JsonProcessingException {
-        var disputeCreatedDetails = objectMapper.treeToValue(disputeCreatedEvent.getEventData(), DisputeCreatedDetails.class);
+        var disputeCreatedDetails = objectMapper.readValue(disputeCreatedEvent.getEventDetails(), DisputeCreatedDetails.class);
 
         Service service = serviceFinder.byExternalId(disputeCreatedEvent.getServiceId())
                 .orElseThrow(() -> new IllegalArgumentException(format("Service not found [id: %s]", disputeCreatedEvent.getServiceId())));
@@ -90,12 +90,12 @@ public class EventMessageHandler {
         
         List<UserEntity> serviceAdmins = userServices.getAdminUsersForService(service);
 
-        var epoch = disputeCreatedDetails.getDisputeEvidenceDueDate();
+        var epoch = disputeCreatedDetails.getEvidenceDueDate();
         String formattedDueDate = getZDTForEpoch(epoch).format(dateTimeFormatter);
         String formattedPayDueDate = getPayDueByDateForEpoch(epoch).format(dateTimeFormatter);
 
-        var paymentAmountInPounds = convertPenceToPounds.apply(disputeCreatedDetails.getPaymentAmount()).toString();
-        var disputeFeeInPounds = convertPenceToPounds.apply(disputeCreatedDetails.getDisputeFee()).toString();
+        var paymentAmountInPounds = convertPenceToPounds.apply(disputeCreatedDetails.getAmount()).toString();
+        var disputeFeeInPounds = convertPenceToPounds.apply(disputeCreatedDetails.getFee()).toString();
 
         Map<String, String> personalisation = Stream.of(new String[][]{
                 {"serviceName", service.getName()},

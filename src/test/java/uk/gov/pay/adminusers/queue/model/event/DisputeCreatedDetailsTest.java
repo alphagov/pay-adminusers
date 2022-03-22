@@ -1,7 +1,6 @@
 package uk.gov.pay.adminusers.queue.model.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.queue.model.Event;
@@ -21,11 +20,11 @@ class DisputeCreatedDetailsTest {
 
         var json = objectMapper.readTree(load(DISPUTE_CREATED_EVENT));
         var evt = objectMapper.treeToValue(json, Event.class);
-        var disputeCreatedDetails = objectMapper.treeToValue(evt.getEventData(), DisputeCreatedDetails.class);
+        var disputeCreatedDetails = objectMapper.readValue(evt.getEventDetails(), DisputeCreatedDetails.class);
         
         assertThat(evt.getEventType(), is(EventType.DISPUTE_CREATED.name()));
-        assertThat(disputeCreatedDetails.getDisputeFee(), is(1500L));
-        assertThat(disputeCreatedDetails.getPaymentAmount(), is(125000L));
-        assertThat(disputeCreatedDetails.getDisputeEvidenceDueDate(), is(1648745127L));
+        assertThat(disputeCreatedDetails.getFee(), is(1500L));
+        assertThat(disputeCreatedDetails.getAmount(), is(125000L));
+        assertThat(disputeCreatedDetails.getEvidenceDueDate(), is(1648745127L));
     }
 }

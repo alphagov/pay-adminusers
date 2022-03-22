@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.queue.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +19,6 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import uk.gov.pay.adminusers.queue.model.Event;
 import uk.gov.pay.adminusers.queue.model.EventMessage;
 import uk.gov.pay.adminusers.queue.model.EventType;
-import uk.gov.pay.adminusers.queue.model.event.DisputeCreatedDetails;
 import uk.gov.pay.adminusers.service.NotificationService;
 import uk.gov.pay.adminusers.service.ServiceFinder;
 import uk.gov.pay.adminusers.service.UserServices;
@@ -97,7 +97,7 @@ class EventMessageHandlerTest {
         );
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventData(objectMapper.valueToTree(new DisputeCreatedDetails(21000L, 1500L, 1646658000L)))
+                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", 1646658000L)))
                 .withServiceId(serv.getExternalId())
                 .withParentResourceExternalId("456")
                 .build();

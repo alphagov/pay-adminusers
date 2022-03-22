@@ -1,9 +1,7 @@
 package uk.gov.pay.adminusers.queue.event;
 
 import com.amazonaws.services.sqs.model.SendMessageResult;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +16,6 @@ import uk.gov.service.payments.commons.queue.model.QueueMessage;
 import uk.gov.service.payments.commons.queue.sqs.SqsQueueService;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -26,6 +23,8 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static uk.gov.pay.adminusers.TestTemplateResourceLoader.DISPUTE_CREATED_SNS_MESSAGE;
+import static uk.gov.pay.adminusers.TestTemplateResourceLoader.load;
 
 @ExtendWith(MockitoExtension.class)
 class EventSubscriberQueueTest {
@@ -58,40 +57,22 @@ class EventSubscriberQueueTest {
 
     @Test
     void shouldRetrieveEventsForCorrectlyFormattedJSON() throws Exception {
-        Map<String, String> eventDetails = Map.of("example_event_details_field", "and its value");
-        String serviceId = "a-service-id";
-        String resourceExternalId = "resource-id";
-        String parentResourceExternalId = "parent-id";
-        String eventType = "PAYMENT_CREATED";
-
-        String messageBody = new GsonBuilder().create().toJson(
-                Map.of(
-                        "service_id", serviceId,
-                        "resource_external_id", resourceExternalId,
-                        "parent_resource_external_id", parentResourceExternalId,
-                        "event_type", eventType,
-                        "event_details", eventDetails,
-                        "ignored_field", "to check we are ignoring fields we don't care about"
-                ));
-        String validJsonMessage = new GsonBuilder().create()
-                .toJson(Map.of("Message", messageBody));
+        String message = load(DISPUTE_CREATED_SNS_MESSAGE);
 
         var sendMessageResult = mock(SendMessageResult.class);
         List<QueueMessage> messages = List.of(
-                QueueMessage.of(sendMessageResult, validJsonMessage)
+                QueueMessage.of(sendMessageResult, message)
         );
         when(sqsQueueService.receiveMessages(anyString(), anyString())).thenReturn(messages);
 
         List<EventMessage> eventMessages = eventSubscriberQueue.retrieveEvents();
         assertThat(eventMessages, hasSize(1));
         Event event = eventMessages.get(0).getEvent();
-        assertThat(event.getServiceId(), is(serviceId));
-        assertThat(event.getResourceExternalId(), is(resourceExternalId));
-        assertThat(event.getParentResourceExternalId(), is(parentResourceExternalId));
-        assertThat(event.getEventType(), is(eventType));
-
-        String expectedEventDetailsString = new GsonBuilder().create().toJson(eventDetails);
-        JsonNode expectedEventDetails = objectMapper.readTree(expectedEventDetailsString);
-        assertThat(event.getEventData(), is(expectedEventDetails));
+        assertThat(event.getServiceId(), is("5e0207ee342048d4ac4d1d05dd9ek3js"));
+        assertThat(event.getResourceExternalId(), is("dp_1KfoljHj08j2jFuBkNEd89sd"));
+        assertThat(event.getParentResourceExternalId(), is("pk8vak8vfiii5hjvqpsa4dsd"));
+        assertThat(event.getEventType(), is("DISPUTE_CREATED"));
+        
+        assertThat(event.getEventDetails(), is("{\"fee\":1500,\"evidence_due_date\":1648684799,\"gateway_account_id\":\"528\",\"amount\":1000,\"net_amount\":2500,\"reason\":\"fraudulent\"}"));
     }
 }
