@@ -1,8 +1,6 @@
 package uk.gov.pay.adminusers.queue.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -16,8 +14,7 @@ public class Event {
     private String resourceExternalId;
     private String parentResourceExternalId;
     private String eventType;
-    @JsonProperty("event_details")
-    private JsonNode eventData;
+    private String eventDetails;
     
     public Event() {
         // for deserialization
@@ -27,12 +24,12 @@ public class Event {
                  String resourceExternalId,
                  String parentResourceExternalId,
                  String eventType,
-                 JsonNode eventData) {
+                 String eventDetails) {
         this.serviceId = serviceId;
         this.resourceExternalId = resourceExternalId;
         this.parentResourceExternalId = parentResourceExternalId;
         this.eventType = eventType;
-        this.eventData = eventData;
+        this.eventDetails = eventDetails;
     }
 
     public String getServiceId() {
@@ -51,8 +48,8 @@ public class Event {
         return eventType;
     }
 
-    public JsonNode getEventData() {
-        return eventData;
+    public String getEventDetails() {
+        return eventDetails;
     }
 
     @Override
@@ -62,7 +59,7 @@ public class Event {
                 ", resourceExternalId='" + resourceExternalId + '\'' +
                 ", parentResourceExternalId='" + parentResourceExternalId + '\'' +
                 ", eventType='" + eventType + '\'' +
-                ", eventData=" + eventData +
+                ", eventDetails=" + eventDetails +
                 '}';
     }
 
@@ -71,11 +68,11 @@ public class Event {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Event event = (Event) o;
-        return Objects.equals(serviceId, event.serviceId) && Objects.equals(resourceExternalId, event.resourceExternalId) && Objects.equals(parentResourceExternalId, event.parentResourceExternalId) && Objects.equals(eventType, event.eventType) && Objects.equals(eventData, event.eventData);
+        return Objects.equals(serviceId, event.serviceId) && Objects.equals(resourceExternalId, event.resourceExternalId) && Objects.equals(parentResourceExternalId, event.parentResourceExternalId) && Objects.equals(eventType, event.eventType) && Objects.equals(eventDetails, event.eventDetails);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(serviceId, resourceExternalId, parentResourceExternalId, eventType, eventData);
+        return Objects.hash(serviceId, resourceExternalId, parentResourceExternalId, eventType, eventDetails);
     }
 }

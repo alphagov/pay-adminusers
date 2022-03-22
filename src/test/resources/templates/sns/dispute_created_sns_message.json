@@ -1,0 +1,6 @@
+{
+  "Type" : "Notification",
+  "MessageId" : "6326cb99-e0ad-5ddb-9d2e-912b54b8b228",
+  "Message" : "{\"sqs_message_id\":\"6959d97f-ba36-4599-9751-3d811242202s4\",\"service_id\":\"5e0207ee342048d4ac4d1d05dd9ek3js\",\"live\":true,\"resource_type\":\"dispute\",\"resource_external_id\":\"dp_1KfoljHj08j2jFuBkNEd89sd\",\"parent_resource_external_id\":\"pk8vak8vfiii5hjvqpsa4dsd\",\"event_date\":\"2022-03-21T17:11:47.000000Z\",\"event_type\":\"DISPUTE_CREATED\",\"event_details\":\"{\\\"fee\\\":1500,\\\"evidence_due_date\\\":1648684799,\\\"gateway_account_id\\\":\\\"528\\\",\\\"amount\\\":1000,\\\"net_amount\\\":2500,\\\"reason\\\":\\\"fraudulent\\\"}\",\"reproject_domain_object\":false}",
+  "Timestamp" : "2022-03-21T17:11:49.763Z"
+}

@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.fixtures;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import uk.gov.pay.adminusers.queue.model.Event;
 
 public class EventFixture {
@@ -9,7 +8,7 @@ public class EventFixture {
     private String resourceExternalId = "a-resource-external-id";
     private String parentResourceExternalId;
     private String eventType = "AN_EVENT_TYPE";
-    private JsonNode eventData;
+    private String eventDetails;
 
     private EventFixture() {
     }
@@ -38,8 +37,8 @@ public class EventFixture {
         return this;
     }
     
-    public EventFixture withEventData(JsonNode eventData) {
-        this.eventData = eventData;
+    public EventFixture withEventDetails(String eventDetails) {
+        this.eventDetails = eventDetails;
         return this;
     }
     
@@ -49,6 +48,6 @@ public class EventFixture {
                 resourceExternalId,
                 parentResourceExternalId,
                 eventType,
-                eventData);
+                eventDetails);
     }
 }
