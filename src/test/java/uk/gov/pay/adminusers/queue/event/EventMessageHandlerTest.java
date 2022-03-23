@@ -156,8 +156,8 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("paymentAmount"), is("210.00"));
         assertThat(personalisation.get("disputeFee"), is("15.00"));
-        assertThat(personalisation.get("disputeEvidenceDueDate"), is("07, March 2022"));
-        assertThat(personalisation.get("sendEvidenceToPayDueDate"), is("04, March 2022"));
+        assertThat(personalisation.get("disputeEvidenceDueDate"), is("7 March 2022"));
+        assertThat(personalisation.get("sendEvidenceToPayDueDate"), is("4 March 2022"));
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
