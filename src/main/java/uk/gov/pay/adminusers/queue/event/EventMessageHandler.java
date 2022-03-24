@@ -37,6 +37,8 @@ import static uk.gov.service.payments.logging.LoggingKeys.SERVICE_EXTERNAL_ID;
 
 public class EventMessageHandler {
 
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy"); // 9 March 2022
+    
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final EventSubscriberQueue eventSubscriberQueue;
     private final LedgerService ledgerService;
@@ -44,7 +46,6 @@ public class EventMessageHandler {
     private final ServiceFinder serviceFinder;
     private final UserServices userServices;
     private final ObjectMapper objectMapper;
-    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd, LLLL yyyy"); // 09, March 2022
 
     @Inject
     public EventMessageHandler(EventSubscriberQueue eventSubscriberQueue, 
@@ -99,8 +100,8 @@ public class EventMessageHandler {
         List<UserEntity> serviceAdmins = userServices.getAdminUsersForService(service);
 
         var epoch = disputeCreatedDetails.getEvidenceDueDate();
-        String formattedDueDate = getZDTForEpoch(epoch).format(dateTimeFormatter);
-        String formattedPayDueDate = getPayDueByDateForEpoch(epoch).format(dateTimeFormatter);
+        String formattedDueDate = getZDTForEpoch(epoch).format(DATE_TIME_FORMATTER);
+        String formattedPayDueDate = getPayDueByDateForEpoch(epoch).format(DATE_TIME_FORMATTER);
 
         var paymentAmountInPounds = convertPenceToPounds.apply(disputeCreatedDetails.getAmount()).toString();
         var disputeFeeInPounds = convertPenceToPounds.apply(disputeCreatedDetails.getFee()).toString();
