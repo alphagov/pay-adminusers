@@ -12,6 +12,7 @@ public class DisputeCreatedDetails {
     private Long amount;
     private Long fee;
     private Long evidenceDueDate;
+    private String gatewayAccountId;
     
     public DisputeCreatedDetails() {
         // empty constructor
@@ -28,4 +29,6 @@ public class DisputeCreatedDetails {
     public long getEvidenceDueDate() {
         return evidenceDueDate;
     }
+    
+    public String getGatewayAccountId() { return gatewayAccountId; }
 }

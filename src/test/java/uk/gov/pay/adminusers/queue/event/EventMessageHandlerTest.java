@@ -12,9 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
@@ -60,7 +58,7 @@ import static uk.gov.pay.adminusers.service.UserServicesTest.aUserEntityWithRole
 class EventMessageHandlerTest {
 
     @Mock
-    private EventSubscriberQueue eventSubscriberQueue;
+    private EventSubscriberQueue mockEventSubscriberQueue;
 
     @Mock
     private NotificationService mockNotificationService;
@@ -74,9 +72,6 @@ class EventMessageHandlerTest {
     @Mock
     private LedgerService mockLedgerService;
 
-    @Spy
-    private ObjectMapper objectMapper;
-
     @Captor
     ArgumentCaptor<Set<String>> adminEmailsCaptor;
 
@@ -87,29 +82,30 @@ class EventMessageHandlerTest {
     @Captor
     ArgumentCaptor<ILoggingEvent> loggingEventArgumentCaptor;
 
-    @InjectMocks
-    private EventMessageHandler underTest;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final String gatewayAccountId = "123";
 
-    private Service serv;
-    private LedgerTransaction tx;
+    private EventMessageHandler eventMessageHandler;
+    private Service service;
+    private LedgerTransaction transaction;
     private List<UserEntity> users;
     private Event disputeEvent;
 
     @BeforeEach
     void setUp() {
-        serv = Service.from(randomInt(), randomUuid(), new ServiceName(DEFAULT_NAME_VALUE));
-        tx = aLedgerTransactionFixture()
+        eventMessageHandler = new EventMessageHandler(mockEventSubscriberQueue, mockLedgerService, mockNotificationService, mockServiceFinder, mockUserServices, objectMapper);
+        service = Service.from(randomInt(), randomUuid(), new ServiceName(DEFAULT_NAME_VALUE));
+        transaction = aLedgerTransactionFixture()
                 .withTransactionId("456")
                 .withReference("tx ref")
                 .build();
         users = Arrays.asList(
-                aUserEntityWithRoleForService(serv, true, "admin1"),
-                aUserEntityWithRoleForService(serv, true, "admin2")
+                aUserEntityWithRoleForService(service, true, "admin1"),
+                aUserEntityWithRoleForService(service, true, "admin2")
         );
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", 1646658000L)))
-                .withServiceId(serv.getExternalId())
+                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", 1646658000L, "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .build();
 
@@ -123,11 +119,11 @@ class EventMessageHandlerTest {
         Event event = anEventFixture().build();
         var mockQueueMessage = mock(QueueMessage.class);
         var eventMessage = EventMessage.of(event, mockQueueMessage);
-        when(eventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
 
-        underTest.processMessages();
+        eventMessageHandler.processMessages();
 
-        verify(eventSubscriberQueue).markMessageAsProcessed(mockQueueMessage);
+        verify(mockEventSubscriberQueue).markMessageAsProcessed(mockQueueMessage);
     }
 
     @Test
@@ -136,13 +132,13 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
-        when(eventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
 
-        when(mockServiceFinder.byExternalId(serv.getExternalId())).thenReturn(Optional.of(serv));
-        when(mockLedgerService.getTransaction(tx.getTransactionId())).thenReturn(Optional.of(tx));
-        when(mockUserServices.getAdminUsersForService(serv)).thenReturn(users);
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+        when(mockUserServices.getAdminUsersForService(service)).thenReturn(users);
 
-        underTest.processMessages();
+        eventMessageHandler.processMessages();
 
         verify(mockNotificationService, atMostOnce()).sendStripeDisputeCreatedEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
 
@@ -151,7 +147,7 @@ class EventMessageHandlerTest {
 
         assertThat(emails.size(), is(2));
         assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
-        assertThat(personalisation.get("serviceName"), is(serv.getName()));
+        assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("paymentExternalId"), is("456"));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("paymentAmount"), is("210.00"));
@@ -170,10 +166,10 @@ class EventMessageHandlerTest {
     void shouldNotCallNotificationServiceWhenServiceDoesNotExist() throws QueueException {
         var mockQueueMessage = mock(QueueMessage.class);
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(eventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-        when(mockServiceFinder.byExternalId(serv.getExternalId())).thenReturn(Optional.empty());
+        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.empty());
 
-        underTest.processMessages();
+        eventMessageHandler.processMessages();
 
         verify(mockNotificationService, never()).sendStripeDisputeCreatedEmail(anySet(), anyMap());
     }
@@ -183,11 +179,11 @@ class EventMessageHandlerTest {
 
         var mockQueueMessage = mock(QueueMessage.class);
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(eventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-        when(mockServiceFinder.byExternalId(serv.getExternalId())).thenReturn(Optional.of(serv));
-        when(mockLedgerService.getTransaction(tx.getTransactionId())).thenReturn(Optional.empty());
+        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.empty());
 
-        underTest.processMessages();
+        eventMessageHandler.processMessages();
 
         verify(mockNotificationService, never()).sendStripeDisputeCreatedEmail(anySet(), anyMap());
     }
@@ -196,13 +192,13 @@ class EventMessageHandlerTest {
     void shouldNotCallNotificationServiceWhenNoAdminUsersExist() throws QueueException {
         var mockQueueMessage = mock(QueueMessage.class);
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(eventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
 
-        when(mockServiceFinder.byExternalId(serv.getExternalId())).thenReturn(Optional.of(serv));
-        when(mockLedgerService.getTransaction(tx.getTransactionId())).thenReturn(Optional.of(tx));
-        when(mockUserServices.getAdminUsersForService(serv)).thenReturn(Collections.emptyList());
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+        when(mockUserServices.getAdminUsersForService(service)).thenReturn(Collections.emptyList());
 
-        underTest.processMessages();
+        eventMessageHandler.processMessages();
 
         verify(mockNotificationService, never()).sendStripeDisputeCreatedEmail(anySet(), anyMap());
     }

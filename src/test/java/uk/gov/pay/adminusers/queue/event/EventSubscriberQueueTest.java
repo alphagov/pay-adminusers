@@ -68,7 +68,6 @@ class EventSubscriberQueueTest {
         List<EventMessage> eventMessages = eventSubscriberQueue.retrieveEvents();
         assertThat(eventMessages, hasSize(1));
         Event event = eventMessages.get(0).getEvent();
-        assertThat(event.getServiceId(), is("5e0207ee342048d4ac4d1d05dd9ek3js"));
         assertThat(event.getResourceExternalId(), is("dp_1KfoljHj08j2jFuBkNEd89sd"));
         assertThat(event.getParentResourceExternalId(), is("pk8vak8vfiii5hjvqpsa4dsd"));
         assertThat(event.getEventType(), is("DISPUTE_CREATED"));

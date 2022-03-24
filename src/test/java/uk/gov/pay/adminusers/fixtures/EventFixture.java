@@ -4,7 +4,6 @@ import uk.gov.pay.adminusers.queue.model.Event;
 
 public class EventFixture {
     
-    private String serviceId = "a-service-id";
     private String resourceExternalId = "a-resource-external-id";
     private String parentResourceExternalId;
     private String eventType = "AN_EVENT_TYPE";
@@ -15,11 +14,6 @@ public class EventFixture {
     
     public static EventFixture anEventFixture() {
         return new EventFixture();
-    }
-    
-    public EventFixture withServiceId(String serviceId) {
-        this.serviceId = serviceId;
-        return this;
     }
     
     public EventFixture withResourceExternalId(String resourceExternalId) {
@@ -44,7 +38,6 @@ public class EventFixture {
     
     public Event build() {
         return new Event(
-                serviceId,
                 resourceExternalId,
                 parentResourceExternalId,
                 eventType,

@@ -31,6 +31,7 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 import static uk.gov.pay.adminusers.utils.currency.ConvertToCurrency.convertPenceToPounds;
 import static uk.gov.pay.adminusers.utils.date.DisputeEvidenceDueByDateUtil.getPayDueByDateForEpoch;
 import static uk.gov.pay.adminusers.utils.date.DisputeEvidenceDueByDateUtil.getZDTForEpoch;
+import static uk.gov.service.payments.logging.LoggingKeys.GATEWAY_ACCOUNT_ID;
 import static uk.gov.service.payments.logging.LoggingKeys.GATEWAY_DISPUTE_ID;
 import static uk.gov.service.payments.logging.LoggingKeys.PAYMENT_EXTERNAL_ID;
 import static uk.gov.service.payments.logging.LoggingKeys.SERVICE_EXTERNAL_ID;
@@ -88,12 +89,13 @@ public class EventMessageHandler {
     private void handleDisputeCreatedMessage(Event disputeCreatedEvent) throws JsonProcessingException {
         MDC.put(GATEWAY_DISPUTE_ID, disputeCreatedEvent.getResourceExternalId());
         MDC.put(PAYMENT_EXTERNAL_ID, disputeCreatedEvent.getParentResourceExternalId());
-        MDC.put(SERVICE_EXTERNAL_ID, disputeCreatedEvent.getServiceId());
 
         var disputeCreatedDetails = objectMapper.readValue(disputeCreatedEvent.getEventDetails(), DisputeCreatedDetails.class);
 
-        Service service = serviceFinder.byExternalId(disputeCreatedEvent.getServiceId())
-                .orElseThrow(() -> new IllegalArgumentException(format("Service not found [external_id: %s]", disputeCreatedEvent.getServiceId())));
+        MDC.put(GATEWAY_ACCOUNT_ID, disputeCreatedDetails.getGatewayAccountId());
+
+        Service service = serviceFinder.byGatewayAccountId(disputeCreatedDetails.getGatewayAccountId())
+                .orElseThrow(() -> new IllegalArgumentException(format("Service not found [gateway_account_id: %s]", disputeCreatedDetails.getGatewayAccountId())));
         LedgerTransaction transaction = ledgerService.getTransaction(disputeCreatedEvent.getParentResourceExternalId())
                 .orElseThrow(() -> new IllegalArgumentException(format("Transaction not found [payment_external_id: %s]", disputeCreatedEvent.getParentResourceExternalId())));
         
@@ -126,6 +128,6 @@ public class EventMessageHandler {
             throw new IllegalStateException(format("Service has no Admin users [external_id: %s]", service.getExternalId()));
         }
 
-        List.of(PAYMENT_EXTERNAL_ID, GATEWAY_DISPUTE_ID, SERVICE_EXTERNAL_ID).forEach(MDC::remove);
+        List.of(PAYMENT_EXTERNAL_ID, GATEWAY_DISPUTE_ID, GATEWAY_ACCOUNT_ID).forEach(MDC::remove);
     }
 }
