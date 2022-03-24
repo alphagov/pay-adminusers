@@ -10,7 +10,6 @@ import java.util.Objects;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Event {
     
-    private String serviceId;
     private String resourceExternalId;
     private String parentResourceExternalId;
     private String eventType;
@@ -20,20 +19,14 @@ public class Event {
         // for deserialization
     }
     
-    public Event(String serviceId,
-                 String resourceExternalId,
+    public Event(String resourceExternalId,
                  String parentResourceExternalId,
                  String eventType,
                  String eventDetails) {
-        this.serviceId = serviceId;
         this.resourceExternalId = resourceExternalId;
         this.parentResourceExternalId = parentResourceExternalId;
         this.eventType = eventType;
         this.eventDetails = eventDetails;
-    }
-
-    public String getServiceId() {
-        return serviceId;
     }
 
     public String getResourceExternalId() {
@@ -55,11 +48,10 @@ public class Event {
     @Override
     public String toString() {
         return "Event{" +
-                "serviceId='" + serviceId + '\'' +
-                ", resourceExternalId='" + resourceExternalId + '\'' +
+                "resourceExternalId='" + resourceExternalId + '\'' +
                 ", parentResourceExternalId='" + parentResourceExternalId + '\'' +
                 ", eventType='" + eventType + '\'' +
-                ", eventDetails=" + eventDetails +
+                ", eventDetails='" + eventDetails + '\'' +
                 '}';
     }
 
@@ -68,11 +60,11 @@ public class Event {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Event event = (Event) o;
-        return Objects.equals(serviceId, event.serviceId) && Objects.equals(resourceExternalId, event.resourceExternalId) && Objects.equals(parentResourceExternalId, event.parentResourceExternalId) && Objects.equals(eventType, event.eventType) && Objects.equals(eventDetails, event.eventDetails);
+        return Objects.equals(resourceExternalId, event.resourceExternalId) && Objects.equals(parentResourceExternalId, event.parentResourceExternalId) && Objects.equals(eventType, event.eventType) && Objects.equals(eventDetails, event.eventDetails);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(serviceId, resourceExternalId, parentResourceExternalId, eventType, eventDetails);
+        return Objects.hash(resourceExternalId, parentResourceExternalId, eventType, eventDetails);
     }
 }
