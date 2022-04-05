@@ -48,7 +48,8 @@ public class UserDbFixture {
                 serviceRoles, features, secondFactorMethod, provisionalOtpKey, null, null);
 
         databaseTestHelper.add(user);
-        serviceRoles.forEach(serviceRole -> databaseTestHelper.addUserServiceRole(user.getId(), serviceRole.getService().getId(), serviceRole.getRole().getId()));
+        serviceRoles.forEach(serviceRole -> 
+                databaseTestHelper.addUserServiceRole(user.getId(), serviceRole.getService().getId(), serviceRole.getRole().getId()));
 
         return user;
     }
