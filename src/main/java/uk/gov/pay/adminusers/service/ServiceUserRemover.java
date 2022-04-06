@@ -37,6 +37,15 @@ public class ServiceUserRemover {
 
         serviceRoleDao.remove(userServiceRoleToRemove);
     }
+    
+    public void remove(String userExternalId, String serviceExternalId) {
+
+        LOGGER.info("User remove from toolbox requested - serviceId={}, userId={}", serviceExternalId, userExternalId);
+
+        ServiceRoleEntity userServiceRoleToRemove = getServiceRoleEntityOf(userExternalId, serviceExternalId);
+
+        serviceRoleDao.remove(userServiceRoleToRemove);
+    }
 
     private Optional<ServiceRoleEntity> checkRemoverIsAdmin(String removerExternalId, String serviceExternalId) {
         return userDao.findByExternalId(removerExternalId)

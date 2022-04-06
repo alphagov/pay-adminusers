@@ -31,6 +31,7 @@ import uk.gov.pay.adminusers.resources.InvalidMerchantDetailsExceptionMapper;
 import uk.gov.pay.adminusers.resources.InviteResource;
 import uk.gov.pay.adminusers.resources.ResetPasswordResource;
 import uk.gov.pay.adminusers.resources.ServiceResource;
+import uk.gov.pay.adminusers.resources.ToolboxEndpointResource;
 import uk.gov.pay.adminusers.resources.UserResource;
 import uk.gov.service.payments.commons.utils.healthchecks.DatabaseHealthCheck;
 import uk.gov.service.payments.commons.utils.metrics.DatabaseMetricsService;
@@ -85,6 +86,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.healthChecks().register("database", new DatabaseHealthCheck(configuration.getDataSourceFactory()));
         environment.jersey().register(injector.getInstance(UserResource.class));
         environment.jersey().register(injector.getInstance(ServiceResource.class));
+        environment.jersey().register(injector.getInstance(ToolboxEndpointResource.class));
         environment.jersey().register(injector.getInstance(ForgottenPasswordResource.class));
         environment.jersey().register(injector.getInstance(InviteResource.class));
         environment.jersey().register(injector.getInstance(ResetPasswordResource.class));
