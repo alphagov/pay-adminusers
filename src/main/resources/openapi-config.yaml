@@ -1,0 +1,13 @@
+resourceClasses:
+  - uk.gov.pay.adminusers.resources.ForgottenPasswordResource
+  - uk.gov.pay.adminusers.resources.HealthCheckResource
+  - uk.gov.pay.adminusers.resources.ResetPasswordResource
+readAllResources: true
+sortOutput: true
+prettyPrint: true
+
+openAPI:
+  info:
+    description: 'Adminusers API'
+    title: 'Adminusers API'
+    version: 'v1.0.0'

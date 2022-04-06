@@ -2,6 +2,11 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.service.ResetPasswordService;
@@ -40,6 +45,20 @@ public class ResetPasswordResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
+    @Operation(
+            tags = {"Passwords"},
+            summary = "Reset password",
+            requestBody = @RequestBody(content = @Content(schema = @Schema(requiredProperties = {"forgotten_password_code", "new_password"},
+                    example = "{" +
+                            "    \"forgotten_password_code\": \"bc9039e00cba4e63b2c92ecd0e188aba\"," +
+                            "    \"new_password\": \"new-password\"" +
+                            "}"))),
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Updated password successfully"),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+                    @ApiResponse(responseCode = "404", description = "Expired or non-existent code")
+            }
+    )
     public Response resetForgottenPassword(JsonNode payload) {
 
         return resetPasswordValidator.validateResetRequest(payload)

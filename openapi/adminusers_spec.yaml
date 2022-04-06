@@ -1,0 +1,129 @@
+openapi: 3.0.1
+info:
+  description: Adminusers API
+  title: Adminusers API
+  version: v1.0.0
+paths:
+  /healthcheck:
+    get:
+      operationId: healthCheck
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: string
+                example:
+                  database:
+                    healthy: true
+                    message: Healthy
+                  deadlocks:
+                    healthy: true
+                    message: Healthy
+          description: OK
+        "503":
+          description: Service unavailable. If any healthchecks fail
+      summary: "Healthcheck endpoint for adminusers. Check database, and deadlocks"
+      tags:
+      - Other
+  /v1/api/forgotten-passwords:
+    post:
+      operationId: sendForgottenPassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              example:
+                username: a75f2719456c80eb29a10bbf1c92e7b7@example.com
+              required:
+              - username
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid payload
+        "404":
+          description: Not found
+      summary: Create a new forgotten password request (sends email to user)
+      tags:
+      - Passwords
+  /v1/api/forgotten-passwords/{code}:
+    get:
+      operationId: findNonExpiredForgottenPassword
+      parameters:
+      - example: bc9039e00cba4e63b2c92ecd0e188aba
+        in: path
+        name: code
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForgottenPassword'
+          description: OK
+        "404":
+          description: Not found
+      summary: Verify forgotten password code
+      tags:
+      - Passwords
+  /v1/api/reset-password:
+    post:
+      operationId: resetForgottenPassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              example:
+                forgotten_password_code: bc9039e00cba4e63b2c92ecd0e188aba
+                new_password: new-password
+              required:
+              - forgotten_password_code
+              - new_password
+      responses:
+        "204":
+          description: Updated password successfully
+        "400":
+          description: Invalid payload
+        "404":
+          description: Expired or non-existent code
+      summary: Reset password
+      tags:
+      - Passwords
+components:
+  schemas:
+    ForgottenPassword:
+      type: object
+      properties:
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        code:
+          type: string
+          example: bc9039e00cba4e63b2c92ecd0e188aba
+        date:
+          type: string
+          format: date-time
+          example: 2022-04-06T21:27:06.376Z
+        user_external_id:
+          type: string
+          example: 12e3eccfab284ae5bc1108e9c0456ba7
+    JsonNode:
+      type: object
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+          example: https://an.example.link
+        method:
+          type: string
+          example: GET
+        rel:
+          type: string
+          example: self
