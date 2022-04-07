@@ -70,6 +70,214 @@ paths:
       summary: Verify forgotten password code
       tags:
       - Passwords
+  /v1/api/invites:
+    get:
+      operationId: getInvites
+      parameters:
+      - example: ahq8745yq387
+        in: query
+        name: serviceId
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invite'
+          description: OK
+      summary: List invites for a service
+      tags:
+      - Invites
+  /v1/api/invites/otp/resend:
+    post:
+      operationId: resendOtp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InviteOtpRequest'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid payload
+      summary: Resend OTP
+      tags:
+      - Invites
+  /v1/api/invites/otp/validate:
+    post:
+      operationId: createUserUponOtpValidation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InviteValidateOtpRequest'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid payload
+      summary: Validates OTP for the invite and creates user
+      tags:
+      - Invites
+  /v1/api/invites/otp/validate/service:
+    post:
+      operationId: validateOtpKeyForService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InviteValidateOtpRequest'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid payload
+      summary: Validates OTP for the invite - part of creating service
+      tags:
+      - Invites
+  /v1/api/invites/service:
+    post:
+      operationId: createServiceInvite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              example:
+                telephone_number: +440787654534
+                email: example@example.gov.uk
+                password: plain-txt-passsword
+              required:
+              - email
+              - password
+              - telephone_number
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invite'
+          description: Created
+        "400":
+          description: Invalid payload
+      summary: Creates an invitation to allow self provisioning new service with Pay
+      tags:
+      - Invites
+  /v1/api/invites/user:
+    post:
+      operationId: createUserInvite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InviteUserRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invite'
+          description: Created
+        "400":
+          description: Invalid payload
+        "404":
+          description: Not found
+      summary: Creates an invitation to allow a new team member to join an existing
+        service.
+      tags:
+      - Invites
+  /v1/api/invites/{code}:
+    get:
+      operationId: getInvite
+      parameters:
+      - example: d02jddeib0lqpsir28fbskg9v0rv
+        in: path
+        name: code
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invite'
+          description: OK
+        "404":
+          description: Not found
+      summary: Find invite for invite code
+      tags:
+      - Invites
+  /v1/api/invites/{code}/complete:
+    post:
+      description: "In the case of a user invite, this resource will assign the new\
+        \ service to the existing user and disables the invite. <br>In the case of\
+        \ a service invite, this resource will create a new service, assign gateway\
+        \ account ids (if provided) and also creates a new user and assign to the\
+        \ service<br>The response contains the user and the service id's affected\
+        \ as part of the invite completion in addition to the invite"
+      operationId: completeInvite
+      parameters:
+      - example: d02jddeib0lqpsir28fbskg9v0rv
+        in: path
+        name: code
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/InviteCompleteRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InviteCompleteResponse'
+          description: OK
+        "404":
+          description: Not found
+      summary: Completes the invite by creating user/service and invalidating the
+        invite code
+      tags:
+      - Invites
+  /v1/api/invites/{code}/otp/generate:
+    post:
+      operationId: generateAndDispatchOtp
+      parameters:
+      - example: d02jddeib0lqpsir28fbskg9v0rv
+        in: path
+        name: code
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              example:
+                telephone_number: "07451234567"
+                password: a-password
+              required:
+              - password
+              - telephone_number
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid payload
+        "404":
+          description: Not found
+      summary: Generates and sends otp verification code to the phone number registered
+        in the invite.
+      tags:
+      - Invites
   /v1/api/reset-password:
     post:
       operationId: resetForgottenPassword
@@ -113,6 +321,114 @@ components:
         user_external_id:
           type: string
           example: 12e3eccfab284ae5bc1108e9c0456ba7
+    Invite:
+      type: object
+      properties:
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        attempt_counter:
+          type: integer
+          format: int32
+          example: 0
+        disabled:
+          type: boolean
+          example: false
+        email:
+          type: string
+          example: example@example.gov.uk
+        expired:
+          type: boolean
+          example: false
+        inviteLink:
+          type: string
+          writeOnly: true
+        password_set:
+          type: boolean
+          example: false
+        role:
+          type: string
+          example: view-only
+        telephone_number:
+          type: string
+          example: +440787654534
+        type:
+          type: string
+          example: service
+        user_exist:
+          type: boolean
+    InviteCompleteRequest:
+      type: object
+      properties:
+        gateway_account_ids:
+          type: array
+          items:
+            type: string
+    InviteCompleteResponse:
+      type: object
+      properties:
+        invite:
+          $ref: '#/components/schemas/Invite'
+        service_external_id:
+          type: string
+          example: 89wi6il2364328
+        user_external_id:
+          type: string
+          example: 287cg75v3737
+    InviteOtpRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          example: d02jddeib0lqpsir28fbskg9v0rv
+          maxLength: 255
+        password:
+          type: string
+          example: a-password
+        telephone_number:
+          type: string
+          example: "440787654534"
+      required:
+      - code
+      - telephone_number
+    InviteUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          example: example@example.gov.uk
+        otp_key:
+          type: string
+        role_name:
+          type: string
+          example: view-only
+        sender:
+          type: string
+          description: User external ID
+          example: d0wksn12nklsdf1nd02nd9n2ndk
+        service_external_id:
+          type: string
+          example: dj2jkejke32jfhh3
+      required:
+      - email
+      - role_name
+      - sender
+      - service_external_id
+    InviteValidateOtpRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          example: d02jddeib0lqpsir28fbskg9v0rv
+          maxLength: 255
+        otp_code:
+          type: integer
+          format: int32
+          example: 123456
+      required:
+      - code
+      - otp_code
     JsonNode:
       type: object
     Link:

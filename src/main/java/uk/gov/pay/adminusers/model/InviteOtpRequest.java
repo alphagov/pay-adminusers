@@ -1,9 +1,13 @@
 package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Optional;
 
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class InviteOtpRequest {
 
     public static final String FIELD_CODE = "code";
@@ -35,14 +39,17 @@ public class InviteOtpRequest {
     }
 
     @Deprecated
+    @Schema(example = "d02jddeib0lqpsir28fbskg9v0rv", maxLength = 255, required = true)
     public String getCode() {
         return code;
     }
 
+    @Schema(example = "440787654534", required = true)
     public String getTelephoneNumber() {
         return telephoneNumber;
     }
 
+    @Schema(example = "a-password")
     public String getPassword() {
         return password;
     }

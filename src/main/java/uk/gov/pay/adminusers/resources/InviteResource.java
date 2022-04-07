@@ -2,11 +2,20 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteCompleteRequest;
+import uk.gov.pay.adminusers.model.InviteCompleteResponse;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteServiceRequest;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
@@ -42,6 +51,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 
 @Path(InviteResource.INVITES_RESOURCE)
+@Tag(name = "Invites")
 public class InviteResource {
 
     public static final String INVITES_RESOURCE = "/v1/api/invites";
@@ -63,7 +73,15 @@ public class InviteResource {
     @GET
     @Path("/{code}")
     @Produces(APPLICATION_JSON)
-    public Response getInvite(@PathParam("code") String code) {
+    @Operation(
+            summary = "Find invite for invite code",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = Invite.class))),
+                    @ApiResponse(responseCode = "404", description = "Not found")
+            }
+    )
+    public Response getInvite(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String code) {
 
         LOGGER.info("Invite GET request for code - [ {} ]", code);
 
@@ -78,7 +96,20 @@ public class InviteResource {
     @POST
     @Path("/{code}/complete")
     @Produces(APPLICATION_JSON)
-    public Response completeInvite(@PathParam("code") String inviteCode, JsonNode payload) {
+    @Operation(
+            summary = "Completes the invite by creating user/service and invalidating the invite code",
+            description = "In the case of a user invite, this resource will assign the new service to the existing user and disables the invite. <br>" +
+                    "In the case of a service invite, this resource will create a new service, assign gateway account ids (if provided) and also creates a new user and assign to the service<br>" +
+                    "The response contains the user and the service id's affected as part of the invite completion in addition to the invite",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = InviteCompleteResponse.class))),
+                    @ApiResponse(responseCode = "404", description = "Not found")
+            }
+    )
+    public Response completeInvite(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode,
+                                   @Parameter(schema = @Schema(implementation = InviteCompleteRequest.class))
+                                           JsonNode payload) {
         LOGGER.info("Invite  complete POST request for code - [ {} ]", inviteCode);
 
         if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
@@ -111,7 +142,21 @@ public class InviteResource {
     @Path("{code}/otp/generate")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    public Response generateAndDispatchOtp(@PathParam("code") String inviteCode, JsonNode payload) {
+    @Operation(
+            summary = "Generates and sends otp verification code to the phone number registered in the invite.",
+            requestBody = @RequestBody(content = @Content(schema =
+            @Schema(example = "{" +
+                    " \"telephone_number\": \"07451234567\"," +
+                    " \"password\": \"a-password\"" +
+                    "}", requiredProperties = {"telephone_number", "password"}))),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+                    @ApiResponse(responseCode = "404", description = "Not found")
+            }
+    )
+    public Response generateAndDispatchOtp(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode,
+                                           JsonNode payload) {
         LOGGER.info("Invite POST request for generating otp");
         if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
             return Response.status(NOT_FOUND).build();
@@ -119,9 +164,9 @@ public class InviteResource {
 
         return inviteServiceFactory.inviteOtpRouter().routeOtpDispatch(inviteCode)
                 .map(inviteOtpDispatcherValidate -> {
-                    if(inviteOtpDispatcherValidate.getRight()){
+                    if (inviteOtpDispatcherValidate.getRight()) {
                         Optional<Errors> errors = inviteValidator.validateGenerateOtpRequest(payload);
-                        if(errors.isPresent()){
+                        if (errors.isPresent()) {
                             return Response.status(BAD_REQUEST).entity(errors).build();
                         }
                     }
@@ -136,19 +181,40 @@ public class InviteResource {
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
-
     @GET
     @Produces(APPLICATION_JSON)
-    public Response getInvites(@QueryParam("serviceId") String serviceId) {
+    @Operation(
+            summary = "List invites for a service",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = Invite.class))))
+            }
+    )
+    public Response getInvites(@Parameter(example = "ahq8745yq387") @QueryParam("serviceId") String serviceId) {
         LOGGER.info("List invites GET request for service - [ {} ]", serviceId);
         List<Invite> invites = inviteServiceFactory.inviteFinder().findAllActiveInvites(serviceId);
         return Response.status(OK).type(APPLICATION_JSON).entity(invites).build();
     }
-    
+
     @POST
     @Path("/service")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
+    @Operation(
+            summary = "Creates an invitation to allow self provisioning new service with Pay",
+            requestBody = @RequestBody(
+                    content = @Content(schema = @Schema(example = "{" +
+                            "\"telephone_number\":\"+440787654534\"," +
+                            "\"email\": \"example@example.gov.uk\"," +
+                            "\"password\" : \"plain-txt-passsword\"" +
+                            "}", requiredProperties = {"telephone_number", "email", "password"}))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Created",
+                            content = @Content(schema = @Schema(implementation = Invite.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload")
+            }
+    )
     public Response createServiceInvite(JsonNode payload) {
         LOGGER.info("Initiating create service invitation request");
         return inviteValidator.validateCreateServiceRequest(payload)
@@ -163,7 +229,18 @@ public class InviteResource {
     @Path("/user")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    public Response createUserInvite(JsonNode payload) {
+    @Operation(
+            summary = "Creates an invitation to allow a new team member to join an existing service.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Created",
+                            content = @Content(schema = @Schema(implementation = Invite.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+                    @ApiResponse(responseCode = "404", description = "Not found"),
+
+            }
+    )
+    public Response createUserInvite(@Parameter(schema = @Schema(implementation = InviteUserRequest.class))
+                                             JsonNode payload) {
         LOGGER.info("Initiating user invitation request");
         return inviteValidator.validateCreateUserRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -177,7 +254,15 @@ public class InviteResource {
     @Path("/otp/resend")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    public Response resendOtp(JsonNode payload) {
+    @Operation(
+            summary = "Resend OTP",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload")
+            }
+    )
+    public Response resendOtp(@Parameter(schema = @Schema(implementation = InviteOtpRequest.class))
+                                      JsonNode payload) {
 
         LOGGER.info("Invite POST request for resending otp");
 
@@ -193,7 +278,15 @@ public class InviteResource {
     @Path("/otp/validate")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    public Response createUserUponOtpValidation(JsonNode payload) {
+    @Operation(
+            summary = "Validates OTP for the invite and creates user",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload")
+            }
+    )
+    public Response createUserUponOtpValidation(@Parameter(schema = @Schema(implementation = InviteValidateOtpRequest.class))
+                                                        JsonNode payload) {
 
         LOGGER.info("Invite POST request for validating otp and creating user");
 
@@ -218,7 +311,15 @@ public class InviteResource {
     @Path("/otp/validate/service")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    public Response validateOtpKeyForService(JsonNode payload) {
+    @Operation(
+            summary = "Validates OTP for the invite - part of creating service",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload")
+            }
+    )
+    public Response validateOtpKeyForService(@Parameter(schema = @Schema(implementation = InviteValidateOtpRequest.class))
+                                                     JsonNode payload) {
 
         LOGGER.info("Invite POST request for validating otp for service create");
 

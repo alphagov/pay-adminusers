@@ -1,6 +1,7 @@
 resourceClasses:
   - uk.gov.pay.adminusers.resources.ForgottenPasswordResource
   - uk.gov.pay.adminusers.resources.HealthCheckResource
+  - uk.gov.pay.adminusers.resources.InviteResource
   - uk.gov.pay.adminusers.resources.ResetPasswordResource
 readAllResources: true
 sortOutput: true
