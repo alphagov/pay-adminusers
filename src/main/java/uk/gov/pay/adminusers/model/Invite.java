@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(Include.NON_NULL)
 public class Invite {
 
@@ -41,21 +42,25 @@ public class Invite {
     }
 
     @JsonProperty("email")
+    @Schema(example = "example@example.gov.uk")
     public String getEmail() {
         return email;
     }
 
     @JsonProperty("telephone_number")
+    @Schema(example = "+440787654534")
     public String getTelephoneNumber() {
         return telephoneNumber;
     }
 
     @JsonProperty("disabled")
+    @Schema(example = "false")
     public Boolean isDisabled() {
         return disabled;
     }
 
     @JsonProperty("attempt_counter")
+    @Schema(example = "0")
     public Integer getAttemptCounter() {
         return attemptCounter;
     }
@@ -66,16 +71,19 @@ public class Invite {
     }
 
     @JsonProperty("role")
+    @Schema(example = "view-only")
     public String getRole() {
         return role;
     }
-    
+
     @JsonProperty("expired")
+    @Schema(example = "false")
     public Boolean isExpired() {
         return expired;
     }
 
     @JsonProperty("password_set")
+    @Schema(example = "false")
     public boolean isPasswordSet() {
         return passwordSet;
     }
@@ -85,6 +93,7 @@ public class Invite {
         this.links.add(inviteLink);
     }
 
+    @Schema(example = "service")
     public String getType() {
         return type;
     }

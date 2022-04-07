@@ -1,14 +1,17 @@
 package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class InviteCompleteResponse {
 
     private Invite invite;
+    @Schema(example = "287cg75v3737")
     private String userExternalId;
+    @Schema(example = "89wi6il2364328")
     private String serviceExternalId;
 
     public InviteCompleteResponse(@JsonProperty("invite") Invite invite) {
