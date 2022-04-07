@@ -28,6 +28,7 @@ public class EmailValidator {
             "digitalaccessibilitycentre.org",
             "eani.org.uk",
             "fermanaghomagh.com",
+            "forestryengland.uk",
             "gov.scot",
             "gov.uk",
             "gov.wales",
