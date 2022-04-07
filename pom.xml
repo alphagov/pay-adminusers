@@ -15,6 +15,7 @@
         <jackson.version>2.13.2</jackson.version>
         <pay-java-commons.version>1.0.20220404091145</pay-java-commons.version>
         <junit5.version>5.8.2</junit5.version>
+        <swaggger-version>2.2.0</swaggger-version>
     </properties>
     <dependencies>
         <dependency>
@@ -301,6 +302,11 @@
             <version>${junit5.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>${swaggger-version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -429,6 +435,25 @@
                         <argument>src/main/resources/config/config.yaml</argument>
                     </arguments>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-maven-plugin</artifactId>
+                <version>${swaggger-version}</version>
+                <configuration>
+                    <outputPath>openapi</outputPath>
+                    <outputFileName>adminusers_spec</outputFileName>
+                    <outputFormat>YAML</outputFormat>
+                    <configurationFilePath>${basedir}/src/main/resources/openapi-config.yaml</configurationFilePath>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>resolve</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

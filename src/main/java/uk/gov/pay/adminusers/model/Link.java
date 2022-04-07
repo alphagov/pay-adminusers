@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -33,6 +34,7 @@ public class Link {
     }
 
     @JsonProperty("rel")
+    @Schema(example = "self")
     public String getRelAsLowerCase() {
         return rel.name().toLowerCase(Locale.ENGLISH);
     }
@@ -41,10 +43,12 @@ public class Link {
         return rel;
     }
 
+    @Schema(example = "GET")
     public String getMethod() {
         return method;
     }
 
+    @Schema(example = "https://an.example.link")
     public String getHref() {
         return href;
     }
