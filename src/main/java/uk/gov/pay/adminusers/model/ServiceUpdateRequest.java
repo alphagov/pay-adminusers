@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.model;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -20,13 +21,20 @@ public class ServiceUpdateRequest {
     public static final String FIELD_VALUE = "value";
 
     private static ObjectMapper objectMapper = new ObjectMapper();
-    
+
+    @Schema(example = "replace")
     private String op;
+    @Schema(example = "experimental_features_enabled")
     private String path;
+    @Schema(example = "false")
     private JsonNode value;
 
     public String getOp() {
         return op;
+    }
+
+    public String getValue() {
+        return value.asText();
     }
 
     public String getPath() {

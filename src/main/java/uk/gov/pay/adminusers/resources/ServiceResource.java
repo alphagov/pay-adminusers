@@ -3,6 +3,13 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import io.dropwizard.jersey.PATCH;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
@@ -13,6 +20,7 @@ import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.model.StripeAgreement;
 import uk.gov.pay.adminusers.model.StripeAgreementRequest;
 import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
+import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -82,7 +90,6 @@ public class ServiceResource {
     private final GovUkPayAgreementRequestValidator govUkPayAgreementRequestValidator;
     private final GovUkPayAgreementService govUkPayAgreementService;
     private final SendLiveAccountCreatedEmailService sendLiveAccountCreatedEmailService;
-    
 
     @Inject
     public ServiceResource(UserDao userDao,
@@ -108,6 +115,14 @@ public class ServiceResource {
     @GET
     @Path("/list")
     @Produces(APPLICATION_JSON)
+    @Operation(
+            summary = "Get all services",
+            tags = "Services",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = Service.class))))
+            }
+    )
     public Response getServices() {
         LOGGER.info("Get Services request");
         List<Service> services = serviceDao.listAll().stream().map(ServiceEntity::toService).map(linksBuilder::decorate).collect(toUnmodifiableList());
@@ -120,7 +135,17 @@ public class ServiceResource {
     @GET
     @Path("/{serviceExternalId}")
     @Produces(APPLICATION_JSON)
-    public Response findService(@PathParam("serviceExternalId") String serviceExternalId) {
+    @Operation(
+            tags = "Services",
+            summary = "Find service by external ID",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = Service.class))),
+                    @ApiResponse(responseCode = "404", description = "Not found")
+            }
+    )
+    public Response findService(@Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3") @PathParam("serviceExternalId")
+                                        String serviceExternalId) {
         LOGGER.info("Find Service request - [ {} ]", serviceExternalId);
         return serviceDao.findByExternalId(serviceExternalId)
                 .map(serviceEntity ->
@@ -131,7 +156,17 @@ public class ServiceResource {
 
     @GET
     @Produces(APPLICATION_JSON)
-    public Response findServices(@QueryParam("gatewayAccountId") String gatewayAccountId) {
+    @Operation(
+            tags = "Services",
+            summary = "Find service associated with gateway account ID",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = Service.class))),
+                    @ApiResponse(responseCode = "400", description = "Missing gateway account ID"),
+                    @ApiResponse(responseCode = "404", description = "Not found"),
+            }
+    )
+    public Response findServices(@Parameter(example = "1") @QueryParam("gatewayAccountId") String gatewayAccountId) {
         LOGGER.info("Find service by gateway account id request - [ {} ]", gatewayAccountId);
         return serviceRequestValidator.validateFindRequest(gatewayAccountId)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -143,6 +178,26 @@ public class ServiceResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
+    @Operation(
+            tags = "Services",
+            summary = "Create new service",
+            description = "This endpoint creates a new service. And assigns to gateway account ids (Optional). <br> `service_name` keys are supported ISO-639-1 language codes and values are translated service names | key must be `\"en\"` or `\"cy\"`",
+            requestBody = @RequestBody(
+                    content = @Content(schema = @Schema(example = "{" +
+                            "    \"gateway_account_ids\": [\"1\"]," +
+                            "    \"service_name\": {" +
+                            "      \"en\": \"Some service name\"," +
+                            "      \"cy\": \"Service name in welsh\"" +
+                            "    }" +
+                            "}"))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Created",
+                            content = @Content(schema = @Schema(implementation = Service.class))),
+                    @ApiResponse(responseCode = "409", description = "Gateway account IDs provided has already been assigned to another service"),
+                    @ApiResponse(responseCode = "500", description = "Invalid JSON payload")
+            }
+    )
     public Response createService(JsonNode payload) {
         LOGGER.info("Create Service POST request - [ {} ]", payload);
         List<String> gatewayAccountIds = extractGatewayAccountIds(payload);
@@ -166,7 +221,52 @@ public class ServiceResource {
     @PATCH
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response updateServiceAttribute(@PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
+    @Operation(
+            tags = "Services",
+            summary = "Patch service attributes",
+            description = "Allows patching below service attributes. Each attribute has its own validation depending on data type." +
+                    " Request can either be a single object or an array of objects. It’s similar to (but not 100% compliant with) [JSON Patch](http://jsonpatch.com/)." +
+                    "<br>\n " +
+                    " " +
+                    "| op |  field | example |\n" +
+                    "| --- |  --- | ----|\n" +
+                    "| add | gateway_account_ids  | [\"1\"] |\n" +
+                    "| replace | redirect_to_service_immediately_on_terminal_state | false |\n" +
+                    "| replace | experimental_features_enabled | false |\n" +
+                    "| replace | agent_initiated_moto_enabled | false |\n" +
+                    "| replace | collect_billing_address | true |\n" +
+                    "| replace | current_go_live_stage | NOT_STARTED |\n" +
+                    "| replace | current_psp_test_account_stage | NOT_STARTED |\n" +
+                    "| replace | merchant_details/name, organisatio | name |\n" +
+                    "| replace | merchant_details/address_line1, Address lin | 1 |\n" +
+                    "| replace | merchant_details/address_line2, Address lin | 2  |\n" +
+                    "| replace | merchant_details/address_city | London |\n" +
+                    "| replace | merchant_details/address_country | GB |\n" +
+                    "| replace | merchant_details/address_postcode | E6 8XX |\n" +
+                    "| replace | merchant_detail |/email,  |\n" +
+                    "| replace | merchant_details/email, email@exampl |.com |\n" +
+                    "| replace | merchant_detail |/url,  |\n" +
+                    "| replace | merchant_details/url, http://www.exampl |.org |\n" +
+                    "| replace | merchant_detail |/telephone_number,  |\n" +
+                    "| replace | merchant_details/telephone_number | 447700900000 |\n" +
+                    "| replace | custom_branding | { \"css_url\": \"css url\", \"image_url\": \"image url\"} |\n" +
+                    "| replace | custom_branding | {} |\n" +
+                    "| replace | service_name/en | Some service name |\n" +
+                    "| replace | sector | local government |\n" +
+                    "| replace | internal | true |\n" +
+                    "| replace | archived | true |\n" +
+                    "| replace | went_live_date | 2022-04-09T18:07:46Z |\n" +
+                    "| replace | default_billing_address_country | GB | ",
+            requestBody = @RequestBody(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ServiceUpdateRequest.class)))),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = Service.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload")
+            }
+    )
+    public Response updateServiceAttribute(@Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3")
+                                           @PathParam("serviceExternalId") String serviceExternalId,
+                                           JsonNode payload) {
         LOGGER.info("Service PATCH request - [ {} ]", serviceExternalId);
         return serviceRequestValidator.validateUpdateAttributeRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -185,7 +285,19 @@ public class ServiceResource {
     @PUT
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response updateServiceMerchantDetails(@PathParam("serviceExternalId") String serviceExternalId, JsonNode payload)
+    @Operation(
+            tags = "Services",
+            summary = "Update merchant details of a service",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = Service.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+            }
+    )
+    public Response updateServiceMerchantDetails(@Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3")
+                                                 @PathParam("serviceExternalId") String serviceExternalId,
+                                                 @Parameter(schema = @Schema(implementation = UpdateMerchantDetailsRequest.class))
+                                                         JsonNode payload)
             throws ValidationException, ServiceNotFoundException {
         LOGGER.info("Service PUT request to update merchant details - [ {} ]", serviceExternalId);
         serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
@@ -198,6 +310,15 @@ public class ServiceResource {
     @GET
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
+    @Operation(
+            tags = "Services",
+            summary = "Find users of a service",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = User.class)))),
+                    @ApiResponse(responseCode = "404", description = "Not found")
+            }
+    )
     public Response findUsersByServiceId(@PathParam("serviceExternalId") String serviceExternalId) {
         LOGGER.info("Service users GET request - [ {} ]", serviceExternalId);
         return serviceDao.findByExternalId(serviceExternalId)
@@ -218,8 +339,20 @@ public class ServiceResource {
     @DELETE
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response removeUserFromService(@PathParam("serviceExternalId") String serviceExternalId,
+    @Operation(
+            tags = "Services",
+            summary = "Delete user from a service",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "OK"),
+                    @ApiResponse(responseCode = "403", description = "Forbidden. `GovUkPay-User-Context` header is blank"),
+                    @ApiResponse(responseCode = "409", description = "Conflict. `GovUkPay-User-Context` is same as userExternalId or user with `userExternalId` is not admin of the service"),
+            }
+    )
+    public Response removeUserFromService(@Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3")
+                                          @PathParam("serviceExternalId") String serviceExternalId,
+                                          @Parameter(example = "0ddf69c1ba924deca07f0ee748ff1533", description = "Admin user external ID of the service")
                                           @PathParam("userExternalId") String userExternalId,
+                                          @Parameter(example = "d012mkldfdfnsdhqha7f0ee748ff1546", required = true, description = "User external ID to remove from service")
                                           @HeaderParam(HEADER_USER_CONTEXT) String userContext) {
         LOGGER.info("Service users DELETE request - serviceExternalId={}, userExternalId={}", serviceExternalId, userExternalId);
         if (isBlank(userContext)) {
@@ -238,7 +371,18 @@ public class ServiceResource {
     @POST
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    public Response createStripeAgreement(@PathParam("serviceExternalId") String serviceExternalId,
+    @Operation(
+            tags = "Services",
+            summary = "Record acceptance of Stripe terms",
+            description = "Records that a GOV.UK Pay agreement has been accepted for the service.",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Created"),
+                    @ApiResponse(responseCode = "409", description = "Conflict. Another stripe agreement already exists for the service"),
+                    @ApiResponse(responseCode = "422", description = "Invalid JSON payload or IP address")
+            }
+    )
+    public Response createStripeAgreement(@Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3")
+                                          @PathParam("serviceExternalId") String serviceExternalId,
                                           @NotNull @Valid StripeAgreementRequest stripeAgreementRequest) throws UnknownHostException {
         LOGGER.info("Create stripe agreement POST request - [ {} ]", stripeAgreementRequest.toString());
 
@@ -251,17 +395,46 @@ public class ServiceResource {
     @Path("/{serviceExternalId}/stripe-agreement")
     @GET
     @Produces(APPLICATION_JSON)
-    public StripeAgreement getStripeAgreement(@PathParam("serviceExternalId") String serviceExternalId) {
+    @Operation(
+            tags = "Services",
+            summary = "Get details about the acceptance of Stripe terms",
+            description = "Retrieves the IP address and timestamp that the Stripe terms were accepted on for the service.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = StripeAgreement.class))),
+                    @ApiResponse(responseCode = "404", description = "Not found")
+            }
+    )
+    public StripeAgreement getStripeAgreement(@Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3")
+                                              @PathParam("serviceExternalId") String serviceExternalId) {
 
         return stripeAgreementService.findStripeAgreementByServiceId(serviceExternalId)
                 .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
     }
-    
+
     @Path("/{serviceExternalId}/govuk-pay-agreement")
     @POST
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    public Response createGovUkPayAgreement(@PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
+    @Operation(
+            tags = "Services",
+            summary = "Record acceptance of GOV.UK Pay terms",
+            requestBody = @RequestBody(
+                    content = @Content(schema = @Schema(requiredProperties = "user_external_id",
+                            example = "{" +
+                                    "    \"user_external_id\": \"12e3eccfab284ae5bc1108e9c0456ba7\"" +
+                                    "}"))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Created",
+                            content = @Content(schema = @Schema(implementation = GovUkPayAgreement.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+                    @ApiResponse(responseCode = "404", description = "Service with serviceExternalId not found"),
+                    @ApiResponse(responseCode = "409", description = "Agreement already exists for the service.")
+            }
+    )
+    public Response createGovUkPayAgreement(@Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3")
+                                            @PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
         return govUkPayAgreementRequestValidator.validateCreateRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> createGovUkPayAgreementFromPayload(serviceExternalId, payload));
@@ -270,7 +443,18 @@ public class ServiceResource {
     @Path("/{serviceExternalId}/govuk-pay-agreement")
     @GET
     @Produces(APPLICATION_JSON)
-    public Response getGovUkPayAgreement(@PathParam("serviceExternalId") String serviceExternalId) {
+    @Operation(
+            tags = "Services",
+            summary = "Get details about the acceptance of GOV.UK Pay terms",
+            description = "Retrieves the user's email address and timestamp that the GOV.UK Pay terms were accepted on for the service.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = GovUkPayAgreement.class))),
+                    @ApiResponse(responseCode = "404", description = "Service with serviceExternalId not found"),
+            }
+    )
+    public Response getGovUkPayAgreement(@Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3")
+                                         @PathParam("serviceExternalId") String serviceExternalId) {
         return govUkPayAgreementService.findGovUkPayAgreementByServiceId(serviceExternalId)
                 .map(agreement -> Response.status(OK).entity(agreement).build())
                 .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
@@ -296,11 +480,22 @@ public class ServiceResource {
         
         return Response.status(CREATED).entity(govUkPayAgreement).build();
     }
-    
+
     @Path("/{serviceExternalId}/send-live-email")
     @POST
     @Produces(APPLICATION_JSON)
-    public Response sendLiveAccountCreatedEmail(@PathParam("serviceExternalId") String serviceExternalId) {
+    @Operation(
+            tags = "Services",
+            summary = "Sends an email to the user who signed the service agreement to inform them that their service is live",
+            description = "This endpoint will send an email to the user who signed the agreement with GOV.UK Pay for the service informing them that their service is now live." +
+                    "The email address used is the email address of the user provided to the [POST /v1/api/services/`{serviceExternalId}`/govuk-pay-agreement] endpoint.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "404", description = "Service with serviceExternalId not found"),
+            }
+    )
+    public Response sendLiveAccountCreatedEmail(@Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3")
+                                                @PathParam("serviceExternalId") String serviceExternalId) {
         serviceDao.findByExternalId(serviceExternalId)
                 .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
         sendLiveAccountCreatedEmailService.sendEmail(serviceExternalId);
