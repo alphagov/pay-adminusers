@@ -1,10 +1,11 @@
 package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class PatchRequest {
 
     public static final String PATH_SESSION_VERSION = "sessionVersion";
@@ -13,8 +14,11 @@ public class PatchRequest {
     public static final String PATH_EMAIL = "email";
     public static final String PATH_FEATURES = "features";
 
+    @Schema(example = "replace")
     private String op;
+    @Schema(example = "email")
     private String path;
+    @Schema(example = "user@somegovernmentdept.gov.uk")
     private String value;
 
     private PatchRequest(String op, String path, String value) {

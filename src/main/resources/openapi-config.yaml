@@ -4,6 +4,7 @@ resourceClasses:
   - uk.gov.pay.adminusers.resources.InviteResource
   - uk.gov.pay.adminusers.resources.ResetPasswordResource
   - uk.gov.pay.adminusers.resources.ServiceResource
+  - uk.gov.pay.adminusers.resources.UserResource
 readAllResources: true
 sortOutput: true
 prettyPrint: true

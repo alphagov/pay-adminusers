@@ -4,6 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Splitter;
 import com.google.inject.Inject;
 import io.dropwizard.jersey.PATCH;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
@@ -66,11 +73,25 @@ public class UserResource {
         this.existingUserOtpDispatcher = existingUserOtpDispatcher;
     }
 
-
     @Path("/find")
     @POST
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
+    @Operation(
+            tags = "Users",
+            summary = "Find user by username",
+            requestBody = @RequestBody(
+                    content = @Content(schema = @Schema(example = "{" +
+                            "    \"username\": \"user@somegovernmentdept.gov.uk\"" +
+                            "}"))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = User.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid search params"),
+                    @ApiResponse(responseCode = "404", description = "Not found")
+            }
+    )
     public Response findUser(JsonNode payload) {
         LOGGER.info("User FIND request");
         return validator.validateFindRequest(payload)
@@ -84,25 +105,65 @@ public class UserResource {
     @GET
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response getUser(@PathParam("userExternalId") String externalId) {
+    @Operation(
+            tags = "Users",
+            summary = "Find user by user external ID",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = User.class))),
+                    @ApiResponse(responseCode = "404", description = "Not found")
+            }
+    )
+    public Response getUser(@Parameter(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
+                            @PathParam("userExternalId") String externalId) {
         LOGGER.info("User GET request - [ {} ]", externalId);
         return userServices.findUserByExternalId(externalId)
                 .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
-    
+
     @POST
     @Path("/admin-emails-for-gateway-accounts")
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
+    @Operation(
+            tags = "Users",
+            summary = "Get admin user emails for given gateway account IDs",
+            requestBody = @RequestBody(
+                    content = @Content(schema = @Schema(example = "{" +
+                            "    \"gatewayAccountIds\": [\"1\",\"2\"]" +
+                            "}"))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(example = "{" +
+                                    "    \"1\": [" +
+                                    "        \"user@somegovernmentdept.gov.uk\"" +
+                                    "    ]," +
+                                    "    \"2\": [" +
+                                    "        \"user2@somegovernmentdept.gov.uk\"" +
+                                    "    ]" +
+                                    "}"))),
+                    @ApiResponse(responseCode = "422", description = "Invalid request")
+            }
+    )
     public Map<String, List<String>> getAdminUserEmailsForGatewayAccountIds(@Valid Map<String, List<String>> gatewayAccountIds) {
         return userServices.getAdminUserEmailsForGatewayAccountIds(gatewayAccountIds.get("gatewayAccountIds"));
     }
-    
+
     @GET
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response getUsers(@QueryParam("ids") String externalIds) {
+    @Operation(
+            tags = "Users",
+            summary = "Gets users with the associated external ids",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = User.class))))
+            }
+    )
+    public Response getUsers(@Parameter(schema = @Schema(example = "93ba1ec4ed6a4238a59f16ad97b4fa12,1234"))
+                             @QueryParam("ids") String externalIds) {
         LOGGER.info("Users GET request - [ {} ]", externalIds);
         List<String> externalIdsList = COMMA_SEPARATOR.splitToList(externalIds);
 
@@ -110,11 +171,23 @@ public class UserResource {
 
         return Response.status(OK).type(APPLICATION_JSON).entity(users).build();
     }
-    
+
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response createUser(JsonNode node) {
+    @Operation(
+            tags = "Users",
+            summary = "Create new user",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Created",
+                            content = @Content(schema = @Schema(implementation = User.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+                    @ApiResponse(responseCode = "409", description = "User with username already exists"),
+                    @ApiResponse(responseCode = "500", description = "Internal server error")
+            }
+    )
+    public Response createUser(@Parameter(schema = @Schema(implementation = CreateUserRequest.class))
+                                       JsonNode node) {
         LOGGER.info("Attempting user create request");
         return validator.validateCreateRequest(node)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -136,6 +209,20 @@ public class UserResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
+    @Operation(
+            tags = "Users",
+            summary = "Authenticate a given username/password",
+            requestBody = @RequestBody(
+                    content = @Content(schema = @Schema(example = "{ \"username\": \"user@somegovernmentdept.gov.uk\"," +
+                            "\"password\": \"a-password\"}"))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = User.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorised")
+            }
+    )
     public Response authenticate(JsonNode node) {
         LOGGER.info("User authenticate request");
         return validator.validateAuthenticateRequest(node)
@@ -158,7 +245,20 @@ public class UserResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response sendOtpSms(@PathParam("userExternalId") String externalId, JsonNode payload) {
+    @Operation(
+            tags = "Users",
+            summary = "Send OTP via SMS for an existing user",
+            requestBody = @RequestBody(
+                    content = @Content(schema = @Schema(example = "{ \"provisional\": false}"))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+                    @ApiResponse(responseCode = "404", description = "Not found")
+            }
+    )
+    public Response sendOtpSms(@Parameter(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
+                               @PathParam("userExternalId") String externalId, JsonNode payload) {
         LOGGER.info("User 2FA new passcode request");
         return validator.validateNewSecondFactorPasscodeRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -181,7 +281,21 @@ public class UserResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response authenticateSecondFactor(@PathParam("userExternalId") String externalId, JsonNode payload) {
+    @Operation(
+            tags = "Users",
+            summary = "Authenticate 2FA code",
+            requestBody = @RequestBody(
+                    content = @Content(schema = @Schema(requiredProperties = {"code"}, example = "{ \"code\": 123456}"))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = User.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorised")
+            }
+    )
+    public Response authenticateSecondFactor(@Parameter(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
+                                             @PathParam("userExternalId") String externalId, JsonNode payload) {
         LOGGER.info("User 2FA authenticate passcode request");
         return validator.validate2FAAuthRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -194,7 +308,17 @@ public class UserResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response newSecondFactorOtpKey(@PathParam("userExternalId") String externalId) {
+    @Operation(
+            tags = "Users",
+            summary = "Create a new provisional OTP key for a user",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = User.class))),
+                    @ApiResponse(responseCode = "404", description = "Not found"),
+            }
+    )
+    public Response newSecondFactorOtpKey(@Parameter(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
+                                          @PathParam("userExternalId") String externalId) {
         LOGGER.info("User 2FA provision new OTP key request");
         return userServices.provisionNewOtpKey(externalId)
                 .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
@@ -205,7 +329,24 @@ public class UserResource {
     @POST
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response activateSecondFactorOtpKey(@PathParam("userExternalId") String externalId, JsonNode payload) {
+    @Operation(
+            tags = "Users",
+            summary = "Activate a new OTP key and method for a user",
+            requestBody = @RequestBody(
+                    content = @Content(schema = @Schema(
+                            requiredProperties = {"second_factor", "code"},
+                            example = "{ \"code\": 123456, \"second_factor\": \"SMS\"}"
+                    ))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = User.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorised")
+            }
+    )
+    public Response activateSecondFactorOtpKey(@Parameter(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
+                                               @PathParam("userExternalId") String externalId, JsonNode payload) {
         LOGGER.info("User 2FA activate new OTP key request");
         return validator.validate2faActivateRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -217,11 +358,21 @@ public class UserResource {
                             .orElseGet(() -> Response.status(UNAUTHORIZED).build());
                 });
     }
-    
+
     @Path("/{userExternalId}/reset-second-factor")
     @POST
     @Produces(APPLICATION_JSON)
-    public Response resetSecondFactor(@PathParam("userExternalId") String externalId) {
+    @Operation(
+            tags = "Users",
+            summary = "Reset 2FA to SMS",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = User.class))),
+                    @ApiResponse(responseCode = "404", description = "User with userExternalId not found")
+            }
+    )
+    public Response resetSecondFactor(@Parameter(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
+                                      @PathParam("userExternalId") String externalId) {
         return userServices.resetSecondFactor(externalId)
                 .map(user -> Response.status(OK).entity(user).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
@@ -231,7 +382,22 @@ public class UserResource {
     @Path("/{userExternalId}")
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response updateUserAttribute(@PathParam("userExternalId") String externalId, JsonNode node) {
+    @Operation(
+            tags = "Users",
+            summary = "Update user attributes",
+            description = "Patch user attributes. <br>" +
+                    "Supports patching (replace op) fields `disabled, email, features, telephone_number` and `append` for attrbute `sessionVersion`.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = User.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+                    @ApiResponse(responseCode = "404", description = "User with userExternalId not found")
+            }
+    )
+    public Response updateUserAttribute(@Parameter(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
+                                        @PathParam("userExternalId") String externalId,
+                                        @Parameter(schema = @Schema(implementation = PatchRequest.class))
+                                                JsonNode node) {
         LOGGER.info("User update attribute attempt request");
         return validator.validatePatchRequest(node)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -244,7 +410,27 @@ public class UserResource {
     @Path("/{userExternalId}/services/{serviceExternalId}")
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response updateServiceRole(@PathParam("userExternalId") String userExternalId, @PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
+    @Operation(
+            tags = "Users",
+            summary = "Update user's role for a service",
+            requestBody = @RequestBody(
+                    content = @Content(schema = @Schema(
+                            requiredProperties = {"service_external_id", "role_name"},
+                            example = "{ \"role_name\":\"admin\"}"
+                    ))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = Void.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+                    @ApiResponse(responseCode = "404", description = "Not found"),
+                    @ApiResponse(responseCode = "409", description = "User doesnot belong to service")
+            }
+    )
+    public Response updateServiceRole(@Parameter(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
+                                      @PathParam("userExternalId") String userExternalId,
+                                      @Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3")
+                                      @PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
         LOGGER.info("User update service role request");
         return validator.validateServiceRole(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -260,7 +446,26 @@ public class UserResource {
     @Path("/{userExternalId}/services")
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
-    public Response createServiceRole(@PathParam("userExternalId") String userExternalId, JsonNode payload) {
+    @Operation(
+            tags = "Users",
+            summary = "Assign a new service along with role to a user",
+            requestBody = @RequestBody(
+                    content = @Content(schema = @Schema(
+                            requiredProperties = {"service_external_id", "role_name"},
+                            example = "{ \"service_external_id\":\"7d19aff33f8948deb97ed16b2912dcd3\"," +
+                                    "\"role_name\":\"admin\"}"
+                    ))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = User.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+                    @ApiResponse(responseCode = "404", description = "User with userExternalId not found"),
+                    @ApiResponse(responseCode = "409", description = "User already got access to service")
+            }
+    )
+    public Response createServiceRole(@Parameter(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
+                                      @PathParam("userExternalId") String userExternalId, JsonNode payload) {
         LOGGER.info("Assign service role to a user {} request", userExternalId);
         return validator.validateAssignServiceRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -271,7 +476,6 @@ public class UserResource {
                             .map(user -> Response.status(OK).entity(user).build())
                             .orElseGet(() -> Response.status(NOT_FOUND).build());
                 });
-
     }
 
     private Response handleCreateUserException(String userName, Exception e) {
