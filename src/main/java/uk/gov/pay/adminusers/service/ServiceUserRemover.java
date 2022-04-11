@@ -38,7 +38,7 @@ public class ServiceUserRemover {
         serviceRoleDao.remove(userServiceRoleToRemove);
     }
     
-    public void remove(String userExternalId, String serviceExternalId) {
+    public void removeWithoutAdminCheck(String userExternalId, String serviceExternalId) {
 
         LOGGER.info("User remove from toolbox requested - serviceId={}, userId={}", serviceExternalId, userExternalId);
 

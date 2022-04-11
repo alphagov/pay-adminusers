@@ -68,7 +68,7 @@ public class ServiceUserRemoverTest {
 
         when(mockUserDao.findByExternalId(userExternalId)).thenReturn(Optional.of(userToBeRemoved));
 
-        service.remove(userExternalId, serviceExternalId);
+        service.removeWithoutAdminCheck(userExternalId, serviceExternalId);
 
         verify(mockServiceRoleDao).remove(userServiceRole);
     }
