@@ -421,10 +421,10 @@ public class UserResource {
             ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK",
-                            content = @Content(schema = @Schema(implementation = Void.class))),
+                            content = @Content(schema = @Schema(implementation = User.class))),
                     @ApiResponse(responseCode = "400", description = "Invalid payload"),
                     @ApiResponse(responseCode = "404", description = "Not found"),
-                    @ApiResponse(responseCode = "409", description = "User doesnot belong to service")
+                    @ApiResponse(responseCode = "409", description = "User does not belong to service")
             }
     )
     public Response updateServiceRole(@Parameter(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
