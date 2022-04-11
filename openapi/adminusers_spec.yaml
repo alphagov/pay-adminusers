@@ -659,6 +659,30 @@ paths:
       summary: Delete user from a service
       tags:
       - Services
+  /v1/api/toolbox/services/{serviceExternalId}/users/{userExternalId}:
+    delete:
+      operationId: removeUserFromServiceUsingToolbox
+      parameters:
+      - example: 7d19aff33f8948deb97ed16b2912dcd3
+        in: path
+        name: serviceExternalId
+        required: true
+        schema:
+          type: string
+      - example: 93ba1ec4ed6a4238a59f16ad97b4fa12
+        in: path
+        name: userExternalId
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Delete user from service
+        "404":
+          description: User or Service not found
+      summary: Remove user from service (Toolbox use only)
+      tags:
+      - Toolbox
   /v1/api/users:
     get:
       operationId: getUsers
@@ -1039,14 +1063,16 @@ paths:
       responses:
         "200":
           content:
-            application/json: {}
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
           description: OK
         "400":
           description: Invalid payload
         "404":
           description: Not found
         "409":
-          description: User doesnot belong to service
+          description: User does not belong to service
       summary: Update user's role for a service
       tags:
       - Users
