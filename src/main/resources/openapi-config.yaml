@@ -5,6 +5,7 @@ resourceClasses:
   - uk.gov.pay.adminusers.resources.ResetPasswordResource
   - uk.gov.pay.adminusers.resources.ServiceResource
   - uk.gov.pay.adminusers.resources.UserResource
+  - uk.gov.pay.adminusers.resources.ToolboxEndpointResource
 readAllResources: true
 sortOutput: true
 prettyPrint: true
