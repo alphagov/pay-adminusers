@@ -59,6 +59,21 @@ public class ServiceUserRemoverTest {
     }
 
     @Test
+    public void should_remove_user_from_service_by_toolbox() {
+        String serviceExternalId = "service-external-id-1";
+        String userExternalId = "user-to-be-removed-from-service-1";
+
+        ServiceRoleEntity userServiceRole = aServiceRole(serviceExternalId, 666);
+        UserEntity userToBeRemoved = createUser(userExternalId, userServiceRole);
+
+        when(mockUserDao.findByExternalId(userExternalId)).thenReturn(Optional.of(userToBeRemoved));
+
+        service.removeWithoutAdminCheck(userExternalId, serviceExternalId);
+
+        verify(mockServiceRoleDao).remove(userServiceRole);
+    }
+    
+    @Test
     public void remove_shouldThrowNotFoundWebApplicationException_whenUserToBeRemovedDoesNotExist() {
 
         String serviceExternalId = "service-external-id-1";
