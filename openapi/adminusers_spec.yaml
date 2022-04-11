@@ -302,6 +302,363 @@ paths:
       summary: Reset password
       tags:
       - Passwords
+  /v1/api/services:
+    get:
+      operationId: findServices
+      parameters:
+      - example: 1
+        in: query
+        name: gatewayAccountId
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: OK
+        "400":
+          description: Missing gateway account ID
+        "404":
+          description: Not found
+      summary: Find service associated with gateway account ID
+      tags:
+      - Services
+    post:
+      description: This endpoint creates a new service. And assigns to gateway account
+        ids (Optional). <br> `service_name` keys are supported ISO-639-1 language
+        codes and values are translated service names | key must be `"en"` or `"cy"`
+      operationId: createService
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              example:
+                gateway_account_ids:
+                - "1"
+                service_name:
+                  en: Some service name
+                  cy: Service name in welsh
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Created
+        "409":
+          description: Gateway account IDs provided has already been assigned to another
+            service
+        "500":
+          description: Invalid JSON payload
+      summary: Create new service
+      tags:
+      - Services
+  /v1/api/services/list:
+    get:
+      operationId: getServices
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+          description: OK
+      summary: Get all services
+      tags:
+      - Services
+  /v1/api/services/{serviceExternalId}:
+    get:
+      operationId: findService
+      parameters:
+      - example: 7d19aff33f8948deb97ed16b2912dcd3
+        in: path
+        name: serviceExternalId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: OK
+        "404":
+          description: Not found
+      summary: Find service by external ID
+      tags:
+      - Services
+    patch:
+      description: "Allows patching below service attributes. Each attribute has its\
+        \ own validation depending on data type. Request can either be a single object\
+        \ or an array of objects. It’s similar to (but not 100% compliant with) [JSON\
+        \ Patch](http://jsonpatch.com/).<br>\n  | op |  field | example |\n| --- |\
+        \  --- | ----|\n| add | gateway_account_ids  | [\"1\"] |\n| replace | redirect_to_service_immediately_on_terminal_state\
+        \ | false |\n| replace | experimental_features_enabled | false |\n| replace\
+        \ | agent_initiated_moto_enabled | false |\n| replace | collect_billing_address\
+        \ | true |\n| replace | current_go_live_stage | NOT_STARTED |\n| replace |\
+        \ current_psp_test_account_stage | NOT_STARTED |\n| replace | merchant_details/name,\
+        \ organisatio | name |\n| replace | merchant_details/address_line1, Address\
+        \ lin | 1 |\n| replace | merchant_details/address_line2, Address lin | 2 \
+        \ |\n| replace | merchant_details/address_city | London |\n| replace | merchant_details/address_country\
+        \ | GB |\n| replace | merchant_details/address_postcode | E6 8XX |\n| replace\
+        \ | merchant_detail |/email,  |\n| replace | merchant_details/email, email@exampl\
+        \ |.com |\n| replace | merchant_detail |/url,  |\n| replace | merchant_details/url,\
+        \ http://www.exampl |.org |\n| replace | merchant_detail |/telephone_number,\
+        \  |\n| replace | merchant_details/telephone_number | 447700900000 |\n| replace\
+        \ | custom_branding | { \"css_url\": \"css url\", \"image_url\": \"image url\"\
+        } |\n| replace | custom_branding | {} |\n| replace | service_name/en | Some\
+        \ service name |\n| replace | sector | local government |\n| replace | internal\
+        \ | true |\n| replace | archived | true |\n| replace | went_live_date | 2022-04-09T18:07:46Z\
+        \ |\n| replace | default_billing_address_country | GB | "
+      operationId: updateServiceAttribute
+      parameters:
+      - example: 7d19aff33f8948deb97ed16b2912dcd3
+        in: path
+        name: serviceExternalId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceUpdateRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: OK
+        "400":
+          description: Invalid payload
+      summary: Patch service attributes
+      tags:
+      - Services
+  /v1/api/services/{serviceExternalId}/govuk-pay-agreement:
+    get:
+      description: Retrieves the user's email address and timestamp that the GOV.UK
+        Pay terms were accepted on for the service.
+      operationId: getGovUkPayAgreement
+      parameters:
+      - example: 7d19aff33f8948deb97ed16b2912dcd3
+        in: path
+        name: serviceExternalId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GovUkPayAgreement'
+          description: OK
+        "404":
+          description: Service with serviceExternalId not found
+      summary: Get details about the acceptance of GOV.UK Pay terms
+      tags:
+      - Services
+    post:
+      operationId: createGovUkPayAgreement
+      parameters:
+      - example: 7d19aff33f8948deb97ed16b2912dcd3
+        in: path
+        name: serviceExternalId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              example:
+                user_external_id: 12e3eccfab284ae5bc1108e9c0456ba7
+              required:
+              - user_external_id
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GovUkPayAgreement'
+          description: Created
+        "400":
+          description: Invalid payload
+        "404":
+          description: Service with serviceExternalId not found
+        "409":
+          description: Agreement already exists for the service.
+      summary: Record acceptance of GOV.UK Pay terms
+      tags:
+      - Services
+  /v1/api/services/{serviceExternalId}/merchant-details:
+    put:
+      operationId: updateServiceMerchantDetails
+      parameters:
+      - example: 7d19aff33f8948deb97ed16b2912dcd3
+        in: path
+        name: serviceExternalId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMerchantDetailsRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: OK
+        "400":
+          description: Invalid payload
+      summary: Update merchant details of a service
+      tags:
+      - Services
+  /v1/api/services/{serviceExternalId}/send-live-email:
+    post:
+      description: "This endpoint will send an email to the user who signed the agreement\
+        \ with GOV.UK Pay for the service informing them that their service is now\
+        \ live.The email address used is the email address of the user provided to\
+        \ the [POST /v1/api/services/`{serviceExternalId}`/govuk-pay-agreement] endpoint."
+      operationId: sendLiveAccountCreatedEmail
+      parameters:
+      - example: 7d19aff33f8948deb97ed16b2912dcd3
+        in: path
+        name: serviceExternalId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Service with serviceExternalId not found
+      summary: Sends an email to the user who signed the service agreement to inform
+        them that their service is live
+      tags:
+      - Services
+  /v1/api/services/{serviceExternalId}/stripe-agreement:
+    get:
+      description: Retrieves the IP address and timestamp that the Stripe terms were
+        accepted on for the service.
+      operationId: getStripeAgreement
+      parameters:
+      - example: 7d19aff33f8948deb97ed16b2912dcd3
+        in: path
+        name: serviceExternalId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StripeAgreement'
+          description: OK
+        "404":
+          description: Not found
+      summary: Get details about the acceptance of Stripe terms
+      tags:
+      - Services
+    post:
+      description: Records that a GOV.UK Pay agreement has been accepted for the service.
+      operationId: createStripeAgreement
+      parameters:
+      - example: 7d19aff33f8948deb97ed16b2912dcd3
+        in: path
+        name: serviceExternalId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StripeAgreementRequest'
+        required: true
+      responses:
+        "201":
+          description: Created
+        "409":
+          description: Conflict. Another stripe agreement already exists for the service
+        "422":
+          description: Invalid JSON payload or IP address
+      summary: Record acceptance of Stripe terms
+      tags:
+      - Services
+  /v1/api/services/{serviceExternalId}/users:
+    get:
+      operationId: findUsersByServiceId
+      parameters:
+      - in: path
+        name: serviceExternalId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: OK
+        "404":
+          description: Not found
+      summary: Find users of a service
+      tags:
+      - Services
+  /v1/api/services/{serviceExternalId}/users/{userExternalId}:
+    delete:
+      operationId: removeUserFromService
+      parameters:
+      - example: 7d19aff33f8948deb97ed16b2912dcd3
+        in: path
+        name: serviceExternalId
+        required: true
+        schema:
+          type: string
+      - description: Admin user external ID of the service
+        example: 0ddf69c1ba924deca07f0ee748ff1533
+        in: path
+        name: userExternalId
+        required: true
+        schema:
+          type: string
+      - description: User external ID to remove from service
+        example: d012mkldfdfnsdhqha7f0ee748ff1546
+        in: header
+        name: GovUkPay-User-Context
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: OK
+        "403":
+          description: Forbidden. `GovUkPay-User-Context` header is blank
+        "409":
+          description: Conflict. `GovUkPay-User-Context` is same as userExternalId
+            or user with `userExternalId` is not admin of the service
+      summary: Delete user from a service
+      tags:
+      - Services
 components:
   schemas:
     ForgottenPassword:
@@ -321,6 +678,16 @@ components:
         user_external_id:
           type: string
           example: 12e3eccfab284ae5bc1108e9c0456ba7
+    GovUkPayAgreement:
+      type: object
+      properties:
+        agreement_time:
+          type: string
+          format: date-time
+          example: 2022-04-10T16:23:35.684Z
+        email:
+          type: string
+          example: someone@somedepartment.gov.uk
     Invite:
       type: object
       properties:
@@ -443,3 +810,272 @@ components:
         rel:
           type: string
           example: self
+    MerchantDetails:
+      type: object
+      properties:
+        address_city:
+          type: string
+          example: London
+        address_country:
+          type: string
+          example: GB
+        address_line1:
+          type: string
+          example: Address line 1
+        address_line2:
+          type: string
+          example: Address line 2
+        address_postcode:
+          type: string
+          example: E1 8XX
+        email:
+          type: string
+          example: email@example.com
+        name:
+          type: string
+          example: organisation name
+        telephone_number:
+          type: string
+          example: "447700900000"
+        url:
+          type: string
+          example: http://www.example.org
+    Permission:
+      type: object
+      properties:
+        description:
+          type: string
+        name:
+          type: string
+    Role:
+      type: object
+      properties:
+        description:
+          type: string
+        name:
+          type: string
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+          uniqueItems: true
+    Service:
+      type: object
+      properties:
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        agent_initiated_moto_enabled:
+          type: boolean
+          example: false
+        archived:
+          type: boolean
+          example: false
+        collect_billing_address:
+          type: boolean
+          example: true
+        created_date:
+          type: string
+          format: date-time
+          example: 2022-04-01T12:07:46.568Z
+        current_go_live_stage:
+          type: string
+          enum:
+          - NOT_STARTED
+          - ENTERED_ORGANISATION_NAME
+          - ENTERED_ORGANISATION_ADDRESS
+          - CHOSEN_PSP_STRIPE
+          - CHOSEN_PSP_WORLDPAY
+          - CHOSEN_PSP_SMARTPAY
+          - CHOSEN_PSP_EPDQ
+          - CHOSEN_PSP_GOV_BANKING_WORLDPAY
+          - TERMS_AGREED_STRIPE
+          - TERMS_AGREED_WORLDPAY
+          - TERMS_AGREED_SMARTPAY
+          - TERMS_AGREED_EPDQ
+          - TERMS_AGREED_GOV_BANKING_WORLDPAY
+          - DENIED
+          - LIVE
+          example: NOT_STARTED
+        current_psp_test_account_stage:
+          type: string
+          enum:
+          - NOT_STARTED
+          - REQUEST_SUBMITTED
+          - CREATED
+          example: NOT_STARTED
+        custom_branding:
+          type: object
+          additionalProperties:
+            type: object
+            example:
+              css_url: css url
+              image_url: image url
+          example:
+            css_url: css url
+            image_url: image url
+        default_billing_address_country:
+          type: string
+          example: GB
+        experimental_features_enabled:
+          type: boolean
+          example: false
+        external_id:
+          type: string
+          example: 7d19aff33f8948deb97ed16b2912dcd3
+        gateway_account_ids:
+          type: array
+          items:
+            type: string
+            example: "1"
+        id:
+          type: integer
+          format: int32
+        internal:
+          type: boolean
+          example: false
+        merchant_details:
+          $ref: '#/components/schemas/MerchantDetails'
+        name:
+          type: string
+          example: Some service name
+        redirect_to_service_immediately_on_terminal_state:
+          type: boolean
+          example: false
+        sector:
+          type: string
+          example: local government
+        service_name:
+          type: object
+          additionalProperties:
+            type: string
+            example: "{\"en\":\"Some service name\",\"cy\":\"Service name in welsh\"\
+              }"
+          example:
+            cy: Service name in welsh
+            en: Some service name
+        went_live_date:
+          type: string
+          format: date-time
+          example: 2022-04-09T18:07:46.568Z
+    ServiceRole:
+      type: object
+      properties:
+        role:
+          $ref: '#/components/schemas/Role'
+        service:
+          $ref: '#/components/schemas/Service'
+    ServiceUpdateRequest:
+      type: object
+      properties:
+        op:
+          type: string
+          example: replace
+        path:
+          type: string
+          example: experimental_features_enabled
+        value:
+          type: string
+          example: "false"
+    StripeAgreement:
+      type: object
+      properties:
+        agreement_time:
+          type: string
+          format: date-time
+          example: 2022-04-09T16:01:56.82Z
+        ip_address:
+          type: string
+          example: 0.0.0.0
+    StripeAgreementRequest:
+      type: object
+      properties:
+        ip_address:
+          type: string
+          example: 0.0.0.0
+      required:
+      - ip_address
+    UpdateMerchantDetailsRequest:
+      type: object
+      properties:
+        address_city:
+          type: string
+          example: London
+        address_country:
+          type: string
+          example: GB
+        address_line1:
+          type: string
+          example: Address line 1
+        address_line2:
+          type: string
+          example: Address line 2
+        address_postcode:
+          type: string
+          example: E1 8XX
+        email:
+          type: string
+          example: email@example.com
+        name:
+          type: string
+          example: organisation name
+        telephone_number:
+          type: string
+          example: "447700900000"
+        url:
+          type: string
+          example: http://www.example.org
+      required:
+      - address_city
+      - address_country
+      - address_line1
+      - address_postcode
+      - name
+    User:
+      type: object
+      properties:
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        disabled:
+          type: boolean
+        email:
+          type: string
+        external_id:
+          type: string
+        features:
+          type: string
+        last_logged_in_at:
+          type: string
+          format: date-time
+        login_counter:
+          type: integer
+          format: int32
+        otp_key:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+        provisional_otp_key:
+          type: string
+        provisional_otp_key_created_at:
+          type: string
+          format: date-time
+        second_factor:
+          type: string
+          enum:
+          - sms
+          - app
+        service_roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceRole'
+        session_version:
+          type: integer
+          format: int32
+        telephone_number:
+          type: string
+        username:
+          type: string

@@ -3,9 +3,11 @@ package uk.gov.pay.adminusers.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import uk.gov.service.payments.commons.api.json.ApiResponseDateTimeSerializer;
 
 import java.time.ZonedDateTime;
@@ -20,32 +22,45 @@ import static uk.gov.pay.adminusers.model.GoLiveStage.NOT_STARTED;
 import static uk.gov.pay.adminusers.persistence.entity.ServiceEntity.DEFAULT_BILLING_ADDRESS_COUNTRY;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Service {
 
     public static final String DEFAULT_NAME_VALUE = "System Generated";
 
     private Integer id;
+    @Schema(example = "7d19aff33f8948deb97ed16b2912dcd3")
     private String externalId;
     private List<Link> links = new ArrayList<>();
+    @ArraySchema(schema = @Schema(example = "1"))
     private List<String> gatewayAccountIds = new ArrayList<>();
+    @Schema(example = "{" +
+            "\"image_url\": \"image url\"," +
+            "\"css_url\": \"css url\"" +
+            "}")
     private Map<String, Object> customBranding;
     private MerchantDetails merchantDetails;
     private boolean redirectToServiceImmediatelyOnTerminalState;
     private boolean collectBillingAddress;
     private String defaultBillingAddressCountry;
     private GoLiveStage goLiveStage;
+    @Schema(example = "false")
     private boolean experimentalFeaturesEnabled;
+    @Schema(example = "local government")
     private String sector;
+    @Schema(example = "false")
     private boolean internal;
+    @Schema(example = "false")
     private boolean archived;
+    @Schema(example = "false")
     private boolean agentInitiatedMotoEnabled;
     private PspTestAccountStage currentPspTestAccountStage;
 
     @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
+    @Schema(example = "2022-04-01T12:07:46.568Z")
     private ZonedDateTime createdDate;
 
     @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
+    @Schema(example = "2022-04-09T18:07:46.568Z")
     private ZonedDateTime wentLiveDate;
 
     @JsonIgnore
@@ -158,6 +173,7 @@ public class Service {
     }
 
     @JsonProperty("name")
+    @Schema(example = "Some service name")
     public String getName() {
         return serviceName.getEnglish();
     }
@@ -205,12 +221,17 @@ public class Service {
     }
 
     @JsonProperty("service_name")
+    @Schema(example = " {" +
+            "  \"en\": \"Some service name\"," +
+            "  \"cy\": \"Service name in welsh\"" +
+            "    }")
     public Map<String, String> getServiceNames() {
         return serviceName.getEnglishAndTranslations().entrySet().stream()
                 .collect(Collectors.toUnmodifiableMap(languageToName -> languageToName.getKey().toString(), Map.Entry::getValue));
     }
 
     @JsonProperty("redirect_to_service_immediately_on_terminal_state")
+    @Schema(example = "false")
     public boolean isRedirectToServiceImmediatelyOnTerminalState() {
         return redirectToServiceImmediatelyOnTerminalState;
     }
@@ -220,6 +241,7 @@ public class Service {
     }
 
     @JsonProperty("collect_billing_address")
+    @Schema(example = "true")
     public boolean isCollectBillingAddress() {
         return collectBillingAddress;
     }
@@ -229,6 +251,7 @@ public class Service {
     }
 
     @JsonProperty("default_billing_address_country")
+    @Schema(example = "GB")
     public String getDefaultBillingAddressCountry() {
         return defaultBillingAddressCountry;
     }
@@ -238,6 +261,7 @@ public class Service {
     }
 
     @JsonProperty("current_go_live_stage")
+    @Schema(example = "NOT_STARTED")
     public GoLiveStage getGoLiveStage() {
         return goLiveStage;
     }
@@ -247,6 +271,7 @@ public class Service {
     }
 
     @JsonProperty("current_psp_test_account_stage")
+    @Schema(example = "NOT_STARTED")
     public PspTestAccountStage getCurrentPspTestAccountStage() {
         return currentPspTestAccountStage;
     }

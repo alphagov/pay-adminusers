@@ -2,12 +2,13 @@ package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Optional;
 
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UpdateMerchantDetailsRequest {
 
     private static final String FIELD_NAME = "name";
@@ -20,14 +21,23 @@ public class UpdateMerchantDetailsRequest {
     private static final String FIELD_EMAIL = "email";
     private static final String FIELD_URL = "url";
 
+    @Schema(example = "organisation name", required = true)
     private String name;
+    @Schema(example = "447700900000")
     private String telephoneNumber;
+    @Schema(example = "Address line 1", required = true)
     private String addressLine1;
+    @Schema(example = "Address line 2")
     private String addressLine2;
+    @Schema(example = "London", required = true)
     private String addressCity;
+    @Schema(example = "E1 8XX", required = true)
     private String addressPostcode;
+    @Schema(example = "GB", required = true)
     private String addressCountry;
+    @Schema(example = "email@example.com")
     private String email;
+    @Schema(example = "http://www.example.org")
     private String url;
 
     public static UpdateMerchantDetailsRequest from(JsonNode node) {

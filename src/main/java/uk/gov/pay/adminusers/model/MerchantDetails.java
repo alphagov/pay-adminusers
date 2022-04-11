@@ -2,31 +2,41 @@ package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Objects;
 
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class MerchantDetails {
 
+    @Schema(example = "organisation name")
     private String name;
 
+    @Schema(example = "447700900000")
     private String telephoneNumber;
 
+    @Schema(example = "Address line 1")
     private String addressLine1;
 
+    @Schema(example = "Address line 2")
     private String addressLine2;
 
+    @Schema(example = "London")
     private String addressCity;
 
+    @Schema(example = "E1 8XX")
     private String addressPostcode;
 
+    @Schema(example = "GB")
     private String addressCountry;
-    
+
+    @Schema(example = "email@example.com")
     private String email;
 
+    @Schema(example = "http://www.example.org")
     private String url;
 
     public MerchantDetails() {

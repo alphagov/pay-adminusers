@@ -3,6 +3,7 @@ resourceClasses:
   - uk.gov.pay.adminusers.resources.HealthCheckResource
   - uk.gov.pay.adminusers.resources.InviteResource
   - uk.gov.pay.adminusers.resources.ResetPasswordResource
+  - uk.gov.pay.adminusers.resources.ServiceResource
 readAllResources: true
 sortOutput: true
 prettyPrint: true
