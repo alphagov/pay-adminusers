@@ -2,18 +2,21 @@ package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Role {
 
     @JsonIgnore
     private Integer id;
+    @Schema(example = "admin")
     private String name; // TODO Enum this to admin, view-only, view-and-refund, super-admin
+    @Schema(example = "Administrator")
     private String description; // TODO Enum this to "Super Admin", "Administrator", "View and Refund", "View only" 
     private Set<Permission> permissions = new HashSet<>();
 

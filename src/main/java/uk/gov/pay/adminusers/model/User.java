@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.media.Schema;
 import uk.gov.service.payments.commons.api.json.ApiResponseDateTimeSerializer;
 
 import java.time.ZonedDateTime;
@@ -23,20 +24,32 @@ public class User {
     public static final String FIELD_ROLE_NAME = "role_name";
 
     private Integer id;
+    @Schema(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
     private String externalId;
+    @Schema(example = "user@somegovernmentdept.gov.uk")
     private String username;
     private String password;
+    @Schema(example = "user@somegovernmentdept.gov.uk")
     private String email;
+    @Schema(example = "447700900000")
     private String telephoneNumber;
+    @Schema(example = "43c3c4t")
     private String otpKey;
+    @Schema(example = "false")
     private Boolean disabled = Boolean.FALSE;
+    @Schema(example = "0")
     private Integer loginCounter = 0;
+    @Schema(example = "feature1, feature2")
     private String features;
     private List<ServiceRole> serviceRoles;
+    @Schema(example = "SMS")
     private SecondFactorMethod secondFactor;
+    @Schema(example = "FC5IHFH2CFSKEZBBXTYEGQXQOH344LLO")
     private String provisionalOtpKey;
+    @Schema(example = "2022-04-8T12:09:43.698Z")
     @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
     private ZonedDateTime provisionalOtpKeyCreatedAt;
+    @Schema(example = "2022-04-06T23:03:41.665Z")
     @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
     private ZonedDateTime lastLoggedInAt;
     private List<Link> links = new ArrayList<>();

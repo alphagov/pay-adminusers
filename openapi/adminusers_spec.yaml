@@ -659,8 +659,430 @@ paths:
       summary: Delete user from a service
       tags:
       - Services
+  /v1/api/users:
+    get:
+      operationId: getUsers
+      parameters:
+      - in: query
+        name: ids
+        schema:
+          type: string
+          example: "93ba1ec4ed6a4238a59f16ad97b4fa12,1234"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: OK
+      summary: Gets users with the associated external ids
+      tags:
+      - Users
+    post:
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: Created
+        "400":
+          description: Invalid payload
+        "409":
+          description: User with username already exists
+        "500":
+          description: Internal server error
+      summary: Create new user
+      tags:
+      - Users
+  /v1/api/users/admin-emails-for-gateway-accounts:
+    post:
+      operationId: getAdminUserEmailsForGatewayAccountIds
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              example:
+                gatewayAccountIds:
+                - "1"
+                - "2"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: string
+                example:
+                  "1":
+                  - user@somegovernmentdept.gov.uk
+                  "2":
+                  - user2@somegovernmentdept.gov.uk
+          description: OK
+        "422":
+          description: Invalid request
+      summary: Get admin user emails for given gateway account IDs
+      tags:
+      - Users
+  /v1/api/users/authenticate:
+    post:
+      operationId: authenticate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              example:
+                username: user@somegovernmentdept.gov.uk
+                password: a-password
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        "400":
+          description: Invalid payload
+        "401":
+          description: Unauthorised
+      summary: Authenticate a given username/password
+      tags:
+      - Users
+  /v1/api/users/find:
+    post:
+      operationId: findUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              example:
+                username: user@somegovernmentdept.gov.uk
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        "400":
+          description: Invalid search params
+        "404":
+          description: Not found
+      summary: Find user by username
+      tags:
+      - Users
+  /v1/api/users/{userExternalId}:
+    get:
+      operationId: getUser
+      parameters:
+      - example: 93ba1ec4ed6a4238a59f16ad97b4fa12
+        in: path
+        name: userExternalId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        "404":
+          description: Not found
+      summary: Find user by user external ID
+      tags:
+      - Users
+    patch:
+      description: "Patch user attributes. <br>Supports patching (replace op) fields\
+        \ `disabled, email, features, telephone_number` and `append` for attrbute\
+        \ `sessionVersion`."
+      operationId: updateUserAttribute
+      parameters:
+      - example: 93ba1ec4ed6a4238a59f16ad97b4fa12
+        in: path
+        name: userExternalId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        "400":
+          description: Invalid payload
+        "404":
+          description: User with userExternalId not found
+      summary: Update user attributes
+      tags:
+      - Users
+  /v1/api/users/{userExternalId}/reset-second-factor:
+    post:
+      operationId: resetSecondFactor
+      parameters:
+      - example: 93ba1ec4ed6a4238a59f16ad97b4fa12
+        in: path
+        name: userExternalId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        "404":
+          description: User with userExternalId not found
+      summary: Reset 2FA to SMS
+      tags:
+      - Users
+  /v1/api/users/{userExternalId}/second-factor:
+    post:
+      operationId: sendOtpSms
+      parameters:
+      - example: 93ba1ec4ed6a4238a59f16ad97b4fa12
+        in: path
+        name: userExternalId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              example:
+                provisional: false
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid payload
+        "404":
+          description: Not found
+      summary: Send OTP via SMS for an existing user
+      tags:
+      - Users
+  /v1/api/users/{userExternalId}/second-factor/activate:
+    post:
+      operationId: activateSecondFactorOtpKey
+      parameters:
+      - example: 93ba1ec4ed6a4238a59f16ad97b4fa12
+        in: path
+        name: userExternalId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              example:
+                code: 123456
+                second_factor: SMS
+              required:
+              - code
+              - second_factor
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        "400":
+          description: Invalid payload
+        "401":
+          description: Unauthorised
+      summary: Activate a new OTP key and method for a user
+      tags:
+      - Users
+  /v1/api/users/{userExternalId}/second-factor/authenticate:
+    post:
+      operationId: authenticateSecondFactor
+      parameters:
+      - example: 93ba1ec4ed6a4238a59f16ad97b4fa12
+        in: path
+        name: userExternalId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              example:
+                code: 123456
+              required:
+              - code
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        "400":
+          description: Invalid payload
+        "401":
+          description: Unauthorised
+      summary: Authenticate 2FA code
+      tags:
+      - Users
+  /v1/api/users/{userExternalId}/second-factor/provision:
+    post:
+      operationId: newSecondFactorOtpKey
+      parameters:
+      - example: 93ba1ec4ed6a4238a59f16ad97b4fa12
+        in: path
+        name: userExternalId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        "404":
+          description: Not found
+      summary: Create a new provisional OTP key for a user
+      tags:
+      - Users
+  /v1/api/users/{userExternalId}/services:
+    post:
+      operationId: createServiceRole
+      parameters:
+      - example: 93ba1ec4ed6a4238a59f16ad97b4fa12
+        in: path
+        name: userExternalId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              example:
+                service_external_id: 7d19aff33f8948deb97ed16b2912dcd3
+                role_name: admin
+              required:
+              - role_name
+              - service_external_id
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        "400":
+          description: Invalid payload
+        "404":
+          description: User with userExternalId not found
+        "409":
+          description: User already got access to service
+      summary: Assign a new service along with role to a user
+      tags:
+      - Users
+  /v1/api/users/{userExternalId}/services/{serviceExternalId}:
+    put:
+      operationId: updateServiceRole
+      parameters:
+      - example: 93ba1ec4ed6a4238a59f16ad97b4fa12
+        in: path
+        name: userExternalId
+        required: true
+        schema:
+          type: string
+      - example: 7d19aff33f8948deb97ed16b2912dcd3
+        in: path
+        name: serviceExternalId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              example:
+                role_name: admin
+              required:
+              - role_name
+              - service_external_id
+      responses:
+        "200":
+          content:
+            application/json: {}
+          description: OK
+        "400":
+          description: Invalid payload
+        "404":
+          description: Not found
+        "409":
+          description: User doesnot belong to service
+      summary: Update user's role for a service
+      tags:
+      - Users
 components:
   schemas:
+    CreateUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          example: user@somegovernmentdept.gov.uk
+        features:
+          type: string
+          example: "feature1, feature2"
+        gateway_account_ids:
+          type: array
+          items:
+            type: string
+            example: "1"
+        otp_key:
+          type: string
+          example: 43c3c4t
+        password:
+          type: string
+          writeOnly: true
+        service_external_ids:
+          type: array
+          items:
+            type: string
+            example: 7d19aff33f8948deb97ed16b2912dcd3
+        telephone_number:
+          type: string
+          example: "447700900000"
+        username:
+          type: string
+          example: user@somegovernmentdept.gov.uk
     ForgottenPassword:
       type: object
       properties:
@@ -840,20 +1262,36 @@ components:
         url:
           type: string
           example: http://www.example.org
+    PatchRequest:
+      type: object
+      properties:
+        op:
+          type: string
+          example: replace
+        path:
+          type: string
+          example: email
+        value:
+          type: string
+          example: user@somegovernmentdept.gov.uk
     Permission:
       type: object
       properties:
         description:
           type: string
+          example: Revokekey
         name:
           type: string
+          example: tokens:delete
     Role:
       type: object
       properties:
         description:
           type: string
+          example: Administrator
         name:
           type: string
+          example: admin
         permissions:
           type: array
           items:
@@ -1041,25 +1479,33 @@ components:
             $ref: '#/components/schemas/Link'
         disabled:
           type: boolean
+          example: false
         email:
           type: string
+          example: user@somegovernmentdept.gov.uk
         external_id:
           type: string
+          example: 93ba1ec4ed6a4238a59f16ad97b4fa12
         features:
           type: string
+          example: "feature1, feature2"
         last_logged_in_at:
           type: string
           format: date-time
+          example: 2022-04-06T23:03:41.665Z
         login_counter:
           type: integer
           format: int32
+          example: 0
         otp_key:
           type: string
+          example: 43c3c4t
         password:
           type: string
           writeOnly: true
         provisional_otp_key:
           type: string
+          example: FC5IHFH2CFSKEZBBXTYEGQXQOH344LLO
         provisional_otp_key_created_at:
           type: string
           format: date-time
@@ -1068,6 +1514,7 @@ components:
           enum:
           - sms
           - app
+          example: SMS
         service_roles:
           type: array
           items:
@@ -1077,5 +1524,7 @@ components:
           format: int32
         telephone_number:
           type: string
+          example: "447700900000"
         username:
           type: string
+          example: user@somegovernmentdept.gov.uk

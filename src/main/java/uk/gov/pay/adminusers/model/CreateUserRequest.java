@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,13 +32,20 @@ public class CreateUserRequest {
     public static final String FIELD_ROLE_NAME = "role_name";
     public static final String FIELD_FEATURES = "features";
 
+    @Schema(example = "user@somegovernmentdept.gov.uk")
     private String username;
     private String password;
+    @Schema(example = "user@somegovernmentdept.gov.uk")
     private String email;
+    @ArraySchema(schema = @Schema(example = "1"))
     private List<String> gatewayAccountIds;
+    @ArraySchema(schema = @Schema(example = "7d19aff33f8948deb97ed16b2912dcd3"))
     private List<String> serviceExternalIds;
+    @Schema(example = "447700900000")
     private String telephoneNumber;
+    @Schema(example = "43c3c4t")
     private String otpKey;
+    @Schema(example = "feature1, feature2")
     private String features;
 
     public static CreateUserRequest from(String username, String password, String email,
