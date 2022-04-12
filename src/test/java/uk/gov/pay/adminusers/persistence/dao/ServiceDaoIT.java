@@ -30,13 +30,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.time.ZoneOffset.UTC;
 import static java.util.Comparator.comparing;
 import static java.util.stream.IntStream.range;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,12 +52,13 @@ import static uk.gov.pay.adminusers.model.Role.role;
 class ServiceDaoIT extends DaoTestBase {
 
     private ServiceDao serviceDao;
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String EN_NAME = "en-test-name";
     private static final String CY_NAME = "gwasanaeth prawf";
 
     @BeforeEach
     void before() {
+        databaseHelper.truncateAllData();
         serviceDao = env.getInstance(ServiceDao.class);
     }
 
@@ -67,7 +73,7 @@ class ServiceDaoIT extends DaoTestBase {
 
         assertThat(savedService.size(), is(1));
         assertThat(savedService.get(0).get("external_id"), is(insertedServiceEntity.getExternalId()));
-        Map<String, Object> storedBranding = objectMapper.readValue(savedService.get(0).get("custom_branding").toString(), new TypeReference<Map<String, Object>>() {
+        Map<String, Object> storedBranding = objectMapper.readValue(savedService.get(0).get("custom_branding").toString(), new TypeReference<>() {
         });
         assertThat(storedBranding, is(insertedServiceEntity.getCustomBranding()));
         assertThat(storedBranding.keySet().size(), is(2));
@@ -177,6 +183,71 @@ class ServiceDaoIT extends DaoTestBase {
     }
 
     @Test
+    void shouldFindByENServiceName() {
+        var se1 = ServiceEntityBuilder.aServiceEntity()
+                .withCustomBranding(null)
+                .withServiceNameEntity(SupportedLanguage.ENGLISH, "register a birth")
+                .build();
+        var se2 = ServiceEntityBuilder.aServiceEntity()
+                .withCustomBranding(null)
+                .withServiceNameEntity(SupportedLanguage.ENGLISH, "bulky waste collection")
+                .build();
+
+        databaseHelper.insertServiceEntity(se1);
+        databaseHelper.insertServiceEntity(se2);
+
+        List<ServiceEntity> shouldHaveServiceEntities = serviceDao.findByENServiceName("birth");
+        assertThat(shouldHaveServiceEntities, is(not(empty())));
+        assertThat(shouldHaveServiceEntities.size(), is(1));
+        var foundServiceNames = shouldHaveServiceEntities
+                .stream()
+                .map(ServiceEntity::toService)
+                .map(Service::getName)
+                .collect(Collectors.toUnmodifiableList());
+        assertThat(foundServiceNames, contains("register a birth"));
+
+        List<ServiceEntity> shouldNotHaveServiceEntities = serviceDao.findByENServiceName("random");
+        assertThat(shouldNotHaveServiceEntities, is((empty())));
+    }
+
+    @Test
+    void shouldFindByServiceMerchantName() {
+        var merchantDetails1 = MerchantDetailsEntityBuilder.aMerchantDetailsEntity()
+                .withName("Royal Borough of Gondor")
+                .build();
+        var merchantDetails2 = MerchantDetailsEntityBuilder.aMerchantDetailsEntity()
+                .withName("Royal Borough of Rivendell")
+                .build();
+
+        var se1 = ServiceEntityBuilder.aServiceEntity()
+                .withCustomBranding(null)
+                .withServiceNameEntity(SupportedLanguage.ENGLISH, "register a birth")
+                .withMerchantDetailsEntity(merchantDetails1)
+                .build();
+        var se2 = ServiceEntityBuilder.aServiceEntity()
+                .withCustomBranding(null)
+                .withServiceNameEntity(SupportedLanguage.ENGLISH, "bulky waste collection")
+                .withMerchantDetailsEntity(merchantDetails2)
+                .build();
+
+        databaseHelper.insertServiceEntity(se1);
+        databaseHelper.insertServiceEntity(se2);
+
+        List<ServiceEntity> shouldHaveServiceEntities = serviceDao.findByServiceMerchantName("royal borough");
+        assertThat(shouldHaveServiceEntities, is(not(empty())));
+        assertThat(shouldHaveServiceEntities.size(), is(2));
+        var foundServiceNames = shouldHaveServiceEntities
+                .stream()
+                .map(ServiceEntity::toService)
+                .map(Service::getName)
+                .collect(Collectors.toUnmodifiableList());
+        assertThat(foundServiceNames, containsInAnyOrder("register a birth", "bulky waste collection"));
+
+        List<ServiceEntity> shouldNotHaveServiceEntities = serviceDao.findByServiceMerchantName("of");
+        assertThat(shouldNotHaveServiceEntities, is((empty())));
+    }
+
+    @Test
     void shouldReturnServiceValuesFromDatabase() {
         ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
                 .withRedirectToServiceImmediatelyOnTerminalState(true)
@@ -246,7 +317,7 @@ class ServiceDaoIT extends DaoTestBase {
 
         assertThat(count, is(3L));
     }
-    
+
     @Test
     void shouldMergeGoLiveStage() {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
@@ -261,10 +332,10 @@ class ServiceDaoIT extends DaoTestBase {
 
         databaseHelper.insertServiceEntity(insertedServiceEntity);
         Optional<ServiceEntity> optionalService = serviceDao.findByGatewayAccountId(insertedServiceEntity.getGatewayAccountId().getGatewayAccountId());
-        
+
         assertThat(optionalService.isPresent(), is(true));
         assertThat(optionalService.get().getCurrentGoLiveStage(), is(GoLiveStage.NOT_STARTED));
-        
+
         optionalService.get().setCurrentGoLiveStage(GoLiveStage.CHOSEN_PSP_STRIPE);
         serviceDao.merge(optionalService.get());
 

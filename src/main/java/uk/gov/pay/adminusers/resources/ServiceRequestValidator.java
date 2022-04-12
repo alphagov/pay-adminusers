@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import uk.gov.pay.adminusers.exception.ValidationException;
+import uk.gov.pay.adminusers.model.ServiceSearchRequest;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
@@ -9,6 +10,8 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -21,8 +24,13 @@ public class ServiceRequestValidator {
     /* default */ static final String FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY = "address_country";
     /* default */ static final String FIELD_MERCHANT_DETAILS_EMAIL = "email";
 
+    public static final String SERVICE_SEARCH_SUPPORT_ERR_MSG = "Search only supports searching by service name or merchant name";
+    public static final String SERVICE_SEARCH_LENGTH_ERR_MSG = "Search strings can only be 60 characters or less";
+    public static final String SERVICE_SEARCH_SPECIAL_CHARS_ERR_MSG = "Search strings can only contain letters, numbers and spaces";
+
     private static final int FIELD_MERCHANT_DETAILS_NAME_MAX_LENGTH = 255;
     private static final int FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH = 255;
+    private static final int MAX_SEARCH_STRING_LENGTH = 60;
 
     private final RequestValidations requestValidations;
     private final ServiceUpdateOperationValidator serviceUpdateOperationValidator;
@@ -89,6 +97,33 @@ public class ServiceRequestValidator {
             return Optional.of(Errors.from("Find services currently support only by gatewayAccountId"));
         }
         return Optional.empty();
+    }
+
+    public Optional<Errors> validateSearchRequest(ServiceSearchRequest request) {
+        var allowedChars = Pattern.compile("^[0-9A-Za-z\\s]+$");
+        var errorList = new ArrayList<String>();
+        var values = request.toMap().values().stream()
+                .filter(value -> !isBlank(value))
+                .collect(Collectors.toList());
+
+        if (values.isEmpty()) {
+            errorList.add(SERVICE_SEARCH_SUPPORT_ERR_MSG);
+        } else {
+            values.forEach(value -> {
+                if (lengthValidator(value)) {
+                    errorList.add(SERVICE_SEARCH_LENGTH_ERR_MSG);
+                }
+                if (!allowedChars.matcher(value).matches()) {
+                    errorList.add(SERVICE_SEARCH_SPECIAL_CHARS_ERR_MSG);
+                }
+            });
+        }
+
+        return errorList.size() > 0 ? Optional.of(Errors.from(errorList)) : Optional.empty();
+    }
+
+    private boolean lengthValidator(String checkValue) {
+        return (!isBlank(checkValue) && checkValue.length() > MAX_SEARCH_STRING_LENGTH);
     }
 
 }

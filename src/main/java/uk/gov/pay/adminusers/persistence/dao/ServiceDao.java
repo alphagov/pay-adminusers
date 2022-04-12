@@ -24,6 +24,22 @@ public class ServiceDao extends JpaDao<ServiceEntity> {
                 .createQuery(query, ServiceEntity.class)
                 .getResultList();
     }
+    
+    @SuppressWarnings("unchecked")
+    public List<ServiceEntity> findByENServiceName(String searchString) {
+        String query = "SELECT * FROM services s WHERE s.id IN (SELECT service_id FROM service_names sn WHERE to_tsvector('english', sn.name) @@ plainto_tsquery('english', ?) AND sn.language = 'en')";
+        return entityManager.get().createNativeQuery(query, ServiceEntity.class)
+                .setParameter(1, searchString)
+                .getResultList();
+    }
+    
+    @SuppressWarnings("unchecked")
+    public List<ServiceEntity> findByServiceMerchantName(String searchString) {
+        String query = "SELECT * FROM services s WHERE to_tsvector('english', s.merchant_name) @@ plainto_tsquery('english', ?)";
+        return entityManager.get().createNativeQuery(query, ServiceEntity.class)
+                .setParameter(1, searchString)
+                .getResultList();
+    }
 
     public Optional<ServiceEntity> findByGatewayAccountId(String gatewayAccountId) {
 

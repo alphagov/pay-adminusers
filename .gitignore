@@ -29,5 +29,7 @@ target
 
 bin
 
+dependency-reduced-pom.xml
+
 .DS_Store
 /pacts/
