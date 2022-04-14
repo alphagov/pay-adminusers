@@ -48,37 +48,8 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
  
 ## API Specification
  
- The [API Specification](/docs/api_specification.md) provides more detail on the paths and operations including examples.
- 
-| Path                          | Supported Methods | Description                        |
-| ----------------------------- | ----------------- | ---------------------------------- |
-| [```/v1/api/users```](/docs/api_specification.md#post-v1apiusers)              | POST    |  Creates a new user            |
-| [```/v1/api/users/{externalId}```](/docs/api_specification.md#get-v1apiusersexternalid)              | GET    |  Gets a user with the associated external id            |
-| [```/v1/api/users/?ids={externalId1},{externalId2}...```](/docs/api_specification.md#get-v1apiusersids)              | GET    |  Gets users with the associated external ids            |
-| [```/v1/api/users/{externalId}```](/docs/api_specification.md#patch-v1apiusersexternalid)              | PATCH    |  amend a specific user attribute            |
-| [```/v1/api/users/{externalId}/services/{serviceId}```](/docs/api_specification.md#put-v1apiusersexternalidservicesserviceid)  | PUT    |  update user's role for a service            |
-| [```/v1/api/users/{externalId}/services```](/docs/api_specification.md#post-v1apiusersexternalidservicesserviceid)  | POST    |  assign a new service along with role to a user        |
-| [```/v1/api/users/{externalId}/second-factor```](/docs/api_specification.md#post-v1apiusersexternalidsecondfactor)  | POST    | Send OTP via SMS for an existing user |
-| [```/v1/api/users/{externalId}/second-factor/provision```](/docs/api_specification.md#post-v1apiusersexternalidsecondfactorprovision)  | POST    | Create a new provisional OTP key for a user |
-| [```/v1/api/users/{externalId}/second-factor/activate```](/docs/api_specification.md#post-v1apiusersexternalidsecondfactoractivate)  | POST    | Activate a new OTP key and method for a user |
-| [```/v1/api/users/authenticate```](/docs/api_specification.md#post-v1apiusersauthenticate)              | POST    |  Authenticate a given username/password            |
-| [```/v1/api/forgotten-passwords```](/docs/api_specification.md#post-v1apiforgottenpasswords)              | POST    |  Create a new forgotten password request            |
-| [```/v1/api/forgotten-passwords/{code}```](/docs/api_specification.md#get-v1apiforgottenpasswordscode)              | GET    |  GETs a forgotten password record by code            |
-| [```/v1/api/services```](/docs/api_specification.md#post-v1apiservices)              | POST   |  Creates a new service           |
-| [```/v1/api/invites/service```](/docs/api_specification.md#post-v1apiinvitesservice)               | POST   |  Creates a invitation for a new service     |
-| [```/v1/api/invites/user```](/docs/api_specification.md#post-v1apiinvitesuser)               | POST   |  Creates a user invitation     |
-| [```/v1/api/services/{externalId}```](/docs/api_specification.md#get-v1apiservicesserviceexternalid)               | GET     |  returns the service with the given external id     |
-| [```/v1/api/services/{externalId}/users```](/docs/api_specification.md#get-v1apiservicesserviceexternalidusers)               | GET     |  returns the users for a service with the given external id     |
-| [```/v1/api/services/{externalId}```](/docs/api_specification.md#patch-v1apiservicesserviceexternalid)               | PATCH   |  Updates the value of a service attribute     |
-| [```/v1/api/services?gatewayAccountId={gateway_account_id}```](/docs/api_specification.md#get-v1apiservicesgatewayaccountidgatewayaccountid)    | GET   |  Find the service with the given gateway account id associated with  |
-| [```/v1/api/services/{externalId}/stripe-agreement```](/docs/api_specification.md#post-v1apiservicesserviceexternalidstripe-agreement)  | POST | Record acceptance of Stripe terms |
-| [```/v1/api/services/{externalId}/stripe-agreement```](/docs/api_specification.md#get-v1apiservicesserviceexternalidstripe-agreement)  | GET | Get details about the acceptance of Stripe terms |
-| [```/v1/api/services/{externalId}/govuk-pay-agreement```](/docs/api_specification.md#post-v1apiservicesserviceexternalidgovuk-pay-agreement)  | POST | Record acceptance of GOV.UK Pay terms |
-| [```/v1/api/services/{externalId}/govuk-pay-agreement```](/docs/api_specification.md#get-v1apiservicesserviceexternalidgovuk-pay-agreement)  | GET | Get details about the acceptance of GOV.UK Pay terms |
-| [```/v1/api/services/{externalId}/send-live-email```](/docs/api_specification.md#post-v1apiservicesserviceexternalidsend-live-email)  | POST | Sends an email to the user who signed the service agreement to inform them that their service is live |
-| [```/v1/api/invites/{code}/complete```](/docs/api_specification.md#post-v1apiinvitescodecomplete)               | POST   |  Completes an invitation by creating user/service     |
-| [```/v1/api/invites/{code}/otp/generate```](/docs/api_specification.md#post-v1apiinvitescodeotpgenerate)               | POST   |  Generates and sends otp verification code to the phone number registered in the invite     |
-****
+ The [API Specification](/openapi/adminusers_spec.yaml) provides more detail on the paths and operations including examples.
+
 -----------------------------------------------------------------------------------------------------------
 
 ## Maven profiles
