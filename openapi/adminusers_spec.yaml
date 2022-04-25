@@ -371,6 +371,33 @@ paths:
       summary: Get all services
       tags:
       - Services
+  /v1/api/services/search:
+    post:
+      description: This endpoint returns a list of services using lexical meaning
+        to determine a match to the search criteria
+      operationId: searchServices
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              example:
+                service_name: service name
+                service_merchant_name: service merchant name
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+          description: OK
+        "400":
+          description: Invalid JSON payload
+      summary: Search services by name or merchant name
+      tags:
+      - Toolbox
   /v1/api/services/{serviceExternalId}:
     get:
       operationId: findService

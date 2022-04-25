@@ -14,60 +14,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
 import uk.gov.pay.adminusers.exception.ValidationException;
-import uk.gov.pay.adminusers.model.GovUkPayAgreement;
-import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
-import uk.gov.pay.adminusers.model.StripeAgreement;
-import uk.gov.pay.adminusers.model.StripeAgreementRequest;
-import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
-import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.model.*;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
-import uk.gov.pay.adminusers.service.GovUkPayAgreementService;
-import uk.gov.pay.adminusers.service.LinksBuilder;
-import uk.gov.pay.adminusers.service.SendLiveAccountCreatedEmailService;
-import uk.gov.pay.adminusers.service.ServiceServicesFactory;
-import uk.gov.pay.adminusers.service.StripeAgreementService;
+import uk.gov.pay.adminusers.service.*;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.service.payments.commons.model.SupportedLanguage;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.CONFLICT;
-import static javax.ws.rs.core.Response.Status.CREATED;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static javax.ws.rs.core.Response.Status.NO_CONTENT;
-import static javax.ws.rs.core.Response.Status.OK;
+import static javax.ws.rs.core.Response.Status.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT_IDS;
@@ -145,7 +116,7 @@ public class ServiceResource {
             }
     )
     public Response findService(@Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3") @PathParam("serviceExternalId")
-                                        String serviceExternalId) {
+                                String serviceExternalId) {
         LOGGER.info("Find Service request - [ {} ]", serviceExternalId);
         return serviceDao.findByExternalId(serviceExternalId)
                 .map(serviceEntity ->
@@ -173,6 +144,38 @@ public class ServiceResource {
                 .orElseGet(() -> serviceServicesFactory.serviceFinder().byGatewayAccountId(gatewayAccountId)
                         .map(service -> Response.status(OK).entity(service).build())
                         .orElseGet(() -> Response.status(NOT_FOUND).build()));
+    }
+
+    @POST
+    @Path("/search")
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    @Operation(
+            tags = "Toolbox",
+            summary = "Search services by name or merchant name",
+            description = "This endpoint returns a list of services using lexical meaning to determine a match to the search criteria",
+            requestBody = @RequestBody(
+                    content = @Content(schema = @Schema(example = "{" +
+                            "    \"service_name\": \"service name\"," +
+                            "    \"service_merchant_name\": \"service merchant name\"" +
+                            "}"))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = Service.class)))),
+                    @ApiResponse(responseCode = "400", description = "Invalid JSON payload")
+            }
+    )
+    public Response searchServices(JsonNode payload) {
+        LOGGER.info("Search services request = [ {} ]", payload);
+        var searchRequest = ServiceSearchRequest.from(payload);
+        return serviceRequestValidator.validateSearchRequest(searchRequest)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> Response
+                        .status(OK)
+                        .entity(serviceServicesFactory.serviceFinder().bySearchRequest(searchRequest))
+                        .build()
+                );
     }
 
     @POST
@@ -297,7 +300,7 @@ public class ServiceResource {
     public Response updateServiceMerchantDetails(@Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3")
                                                  @PathParam("serviceExternalId") String serviceExternalId,
                                                  @Parameter(schema = @Schema(implementation = UpdateMerchantDetailsRequest.class))
-                                                         JsonNode payload)
+                                                 JsonNode payload)
             throws ValidationException, ServiceNotFoundException {
         LOGGER.info("Service PUT request to update merchant details - [ {} ]", serviceExternalId);
         serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
@@ -322,14 +325,14 @@ public class ServiceResource {
     public Response findUsersByServiceId(@PathParam("serviceExternalId") String serviceExternalId) {
         LOGGER.info("Service users GET request - [ {} ]", serviceExternalId);
         return serviceDao.findByExternalId(serviceExternalId)
-                .map(serviceEntity -> 
+                .map(serviceEntity ->
                         Response.status(200).entity(
                                 userDao.findByServiceId(serviceEntity.getId())
                                         .stream()
                                         .map(UserEntity::toUser)
                                         .map(linksBuilder::decorate)
                                         .collect(toUnmodifiableList())
-                                ).build()
+                        ).build()
                 ).orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
@@ -459,14 +462,14 @@ public class ServiceResource {
                 .map(agreement -> Response.status(OK).entity(agreement).build())
                 .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
     }
-    
+
     private Response createGovUkPayAgreementFromPayload(String serviceExternalId, JsonNode payload) {
         if (govUkPayAgreementService.findGovUkPayAgreementByServiceId(serviceExternalId).isPresent()) {
             return Response.status(CONFLICT)
                     .entity(Errors.from("GOV.UK Pay agreement information is already stored for this service"))
                     .build();
         }
-        
+
         ServiceEntity serviceEntity = serviceDao.findByExternalId(serviceExternalId)
                 .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
         Optional<UserEntity> userEntity = userDao.findByExternalId(payload.get("user_external_id").asText());
@@ -477,7 +480,7 @@ public class ServiceResource {
             return Response.status(BAD_REQUEST).entity(Errors.from("User does not belong to the given service")).build();
         }
         GovUkPayAgreement govUkPayAgreement = govUkPayAgreementService.doCreate(serviceEntity, userEntity.get().getEmail(), ZonedDateTime.now(ZoneOffset.UTC));
-        
+
         return Response.status(CREATED).entity(govUkPayAgreement).build();
     }
 
