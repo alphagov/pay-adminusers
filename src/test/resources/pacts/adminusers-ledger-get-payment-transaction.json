@@ -1,0 +1,68 @@
+{
+  "consumer": {
+    "name": "adminusers"
+  },
+  "provider": {
+    "name": "ledger"
+  },
+  "interactions": [
+    {
+      "description": "get a payment transaction request",
+      "providerStates": [
+        {
+          "name": "a payment transaction exists",
+          "params": {
+            "gateway_account_id": "3",
+            "transaction_external_id": "e8eq11mi2ndmauvb51qsg8hccn",
+            "cardholder_name": "John Doe"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/v1/transaction/e8eq11mi2ndmauvb51qsg8hccn",
+        "query": {
+          "override_account_id_restriction": [
+            "true"
+          ]
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "reference": "my reference",
+          "transaction_id": "e8eq11mi2ndmauvb51qsg8hccn",
+        },
+        "matchingRules": {
+          "body": {
+            "$.transaction_id": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.reference": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pact-specification": {
+      "version": "3.0.0"
+    },
+    "pact-jvm": {
+      "version": "3.5.16"
+    }
+  }
+}
