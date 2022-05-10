@@ -13,9 +13,15 @@
         <guice.version>5.1.0</guice.version>
         <guava.version>31.1-jre</guava.version>
         <jackson.version>2.13.2</jackson.version>
+        <pact.version>3.6.15</pact.version>
         <pay-java-commons.version>1.0.20220503105713</pay-java-commons.version>
         <junit5.version>5.8.2</junit5.version>
         <swaggger-version>2.2.0</swaggger-version>
+        <PACT_BROKER_URL/>
+        <PACT_BROKER_USERNAME/>
+        <PACT_BROKER_PASSWORD/>
+        <PACT_CONSUMER_VERSION/>
+        <PACT_CONSUMER_TAG/>
     </properties>
     <dependencies>
         <dependency>
@@ -259,7 +265,13 @@
         <dependency>
             <groupId>au.com.dius</groupId>
             <artifactId>pact-jvm-provider-junit_2.12</artifactId>
-            <version>3.6.15</version>
+            <version>${pact.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>au.com.dius</groupId>
+            <artifactId>pact-jvm-consumer-junit_2.12</artifactId>
+            <version>${pact.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -310,6 +322,22 @@
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>au.com.dius</groupId>
+                <artifactId>pact-jvm-provider-maven_2.12</artifactId>
+                <version>${pact.version}</version>
+                <configuration>
+                    <pactDirectory>target/pacts</pactDirectory>
+                    <pactBrokerUrl>${PACT_BROKER_URL}</pactBrokerUrl>
+                    <pactBrokerUsername>${PACT_BROKER_USERNAME}</pactBrokerUsername>
+                    <pactBrokerPassword>${PACT_BROKER_PASSWORD}</pactBrokerPassword>
+                    <projectVersion>${PACT_CONSUMER_VERSION}</projectVersion>
+                    <tags>
+                        <tag>${PACT_CONSUMER_TAG}</tag>
+                    </tags>
+                    <trimSnapshot>true</trimSnapshot>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>
