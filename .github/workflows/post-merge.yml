@@ -14,6 +14,38 @@ jobs:
   tests:
     uses: ./.github/workflows/run-tests.yml
 
+  publish-adminusers-consumer-contract-tests:
+    needs: tests
+    runs-on: ubuntu-18.04
+
+    name: Publish and tag adminusers consumer pact
+    steps:
+      - uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
+      - name: Set up JDK 11
+        uses: actions/setup-java@f69f00b5e5324696b07f6b1c92f0470a6df00780
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - name: Cache Maven packages
+        uses: actions/cache@48af2dc4a9e8278b89d7fa154b955c30c6aaab09
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Cache pacts directory
+        uses: actions/cache@48af2dc4a9e8278b89d7fa154b955c30c6aaab09
+        with:
+          path: target/pacts
+          key: ${{ runner.os }}-build-id-${{ github.head_ref }}-${{ github.sha }}-pacts
+      - name: Publish and tag adminusers consumer pact
+        run: |
+          mvn pact:publish -DPACT_BROKER_URL=https://pact-broker-test.cloudapps.digital \
+          -DrunConsumerContractTests \
+          -DPACT_BROKER_USERNAME=${{ secrets.pact_broker_username }} \
+          -DPACT_BROKER_PASSWORD=${{ secrets.pact_broker_password }} \
+          -DPACT_CONSUMER_TAG=master \
+          -DPACT_CONSUMER_VERSION=${{ github.sha }}
+
   provider-contract-tests:
     needs: tests
     uses: alphagov/pay-ci/.github/workflows/_run-provider-contract-tests.yml@master
