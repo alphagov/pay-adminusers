@@ -25,6 +25,11 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+      - name: Cache pacts directory
+        uses: actions/cache@136d96b4aee02b1f0de3ba493b1d47135042d9c0
+        with:
+          path: target/pacts
+          key: ${{ runner.os }}-build-id-${{ github.head_ref }}-${{ github.sha }}-pacts
       - name: Pull docker image dependencies
         run: |
           docker pull govukpay/postgres:11.1
