@@ -50,7 +50,7 @@ jobs:
     needs: consumer-contract-tests
     uses: alphagov/pay-ledger/.github/workflows/_run-pact-provider-tests.yml@master
     with:
-      consumer: adminuser
+      consumer: adminusers
       consumer_tag: master
     secrets:
       pact_broker_username: ${{ secrets.pact_broker_username }}
