@@ -20,11 +20,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId;
@@ -49,6 +47,9 @@ public class NotificationServiceTest {
     private static final String FORGOTTEN_PASSWORD_EMAIL_TEMPLATE_ID = "forgotten-password-email-template-id";
     
     private static final String STRIPE_DISPUTE_CREATED_EMAIL_TEMPLATE_ID = "stripe-dispute-created-email-template-id";
+    private static final String STRIPE_DISPUTE_LOST_EMAIL_TEMPLATE_ID = "stripe-dispute-lost-email-template-id";
+    private static final String STRIPE_DISPUTE_UPDATED_EMAIL_TEMPLATE_ID = "stripe-dispute-updated-email-template-id";
+    private static final String STRIPE_DISPUTE_WON_EMAIL_TEMPLATE_ID = "stripe-dispute-won-email-template-id";
     private static final String NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID = "notify-email-reply-to-support-id";
     
     @Mock private NotifyClientProvider mockNotifyClientProvider;
@@ -76,6 +77,9 @@ public class NotificationServiceTest {
         given(mockNotifyConfiguration.getForgottenPasswordEmailTemplateId()).willReturn(FORGOTTEN_PASSWORD_EMAIL_TEMPLATE_ID);
         
         given(mockNotifyConfiguration.getStripeDisputeCreatedEmailTemplateId()).willReturn(STRIPE_DISPUTE_CREATED_EMAIL_TEMPLATE_ID);
+        given(mockNotifyConfiguration.getStripeDisputeLostEmailTemplateId()).willReturn(STRIPE_DISPUTE_LOST_EMAIL_TEMPLATE_ID);
+        given(mockNotifyConfiguration.getStripeDisputeUpdatedEmailTemplateId()).willReturn(STRIPE_DISPUTE_UPDATED_EMAIL_TEMPLATE_ID);
+        given(mockNotifyConfiguration.getStripeDisputeWonEmailTemplateId()).willReturn(STRIPE_DISPUTE_WON_EMAIL_TEMPLATE_ID);
         given(mockNotifyConfiguration.getNotifyEmailReplyToSupportId()).willReturn(NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID);
         
         given(mockNotifyClientProvider.get()).willReturn(mockNotificationClient);
@@ -150,4 +154,60 @@ public class NotificationServiceTest {
         verify(mockNotificationClient).sendEmail(STRIPE_DISPUTE_CREATED_EMAIL_TEMPLATE_ID, "email2@service.gov.uk", personalisation, null, NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID);
     }
 
+    @Test
+    public void sendEmailWithStripeDisputeLostEmailTemplateId() throws NotificationClientException {
+        given(mockMetricRegistry.histogram("notify-operations.email.response_time")).willReturn(mock(Histogram.class));
+        given(mockNotificationClient.sendEmail(anyString(), anyString(), anyMap(), isNull(), anyString())).willReturn(mockSendEmailResponse);
+        given(mockSendEmailResponse.getNotificationId()).willReturn(NOTIFICATION_ID);
+
+        var addresses = Stream.of("email1@service.gov.uk", "email2@service.gov.uk")
+                .collect(Collectors.toSet());
+        var personalisation = Stream.of(new String[][] {
+                { "k1", "v1" },
+                { "k2", "v2" }
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+        notificationService.sendStripeDisputeLostEmail(addresses, personalisation);
+
+        verify(mockNotificationClient).sendEmail(STRIPE_DISPUTE_LOST_EMAIL_TEMPLATE_ID, "email1@service.gov.uk", personalisation, null, NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID);
+        verify(mockNotificationClient).sendEmail(STRIPE_DISPUTE_LOST_EMAIL_TEMPLATE_ID, "email2@service.gov.uk", personalisation, null, NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID);
+    }
+
+    @Test
+    public void sendEmailWithStripeDisputeUpdatedEmailTemplateId() throws NotificationClientException {
+        given(mockMetricRegistry.histogram("notify-operations.email.response_time")).willReturn(mock(Histogram.class));
+        given(mockNotificationClient.sendEmail(anyString(), anyString(), anyMap(), isNull(), anyString())).willReturn(mockSendEmailResponse);
+        given(mockSendEmailResponse.getNotificationId()).willReturn(NOTIFICATION_ID);
+
+        var addresses = Stream.of("email1@service.gov.uk", "email2@service.gov.uk")
+                .collect(Collectors.toSet());
+        var personalisation = Stream.of(new String[][] {
+                { "k1", "v1" },
+                { "k2", "v2" }
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+        notificationService.sendStripeDisputeUpdatedEmail(addresses, personalisation);
+
+        verify(mockNotificationClient).sendEmail(STRIPE_DISPUTE_UPDATED_EMAIL_TEMPLATE_ID, "email1@service.gov.uk", personalisation, null, NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID);
+        verify(mockNotificationClient).sendEmail(STRIPE_DISPUTE_UPDATED_EMAIL_TEMPLATE_ID, "email2@service.gov.uk", personalisation, null, NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID);
+    }
+
+    @Test
+    public void sendEmailWithStripeDisputeWonEmailTemplateId() throws NotificationClientException {
+        given(mockMetricRegistry.histogram("notify-operations.email.response_time")).willReturn(mock(Histogram.class));
+        given(mockNotificationClient.sendEmail(anyString(), anyString(), anyMap(), isNull(), anyString())).willReturn(mockSendEmailResponse);
+        given(mockSendEmailResponse.getNotificationId()).willReturn(NOTIFICATION_ID);
+
+        var addresses = Stream.of("email1@service.gov.uk", "email2@service.gov.uk")
+                .collect(Collectors.toSet());
+        var personalisation = Stream.of(new String[][] {
+                { "k1", "v1" },
+                { "k2", "v2" }
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+        notificationService.sendStripeDisputeWonEmail(addresses, personalisation);
+
+        verify(mockNotificationClient).sendEmail(STRIPE_DISPUTE_WON_EMAIL_TEMPLATE_ID, "email1@service.gov.uk", personalisation, null, NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID);
+        verify(mockNotificationClient).sendEmail(STRIPE_DISPUTE_WON_EMAIL_TEMPLATE_ID, "email2@service.gov.uk", personalisation, null, NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID);
+    }
 }
