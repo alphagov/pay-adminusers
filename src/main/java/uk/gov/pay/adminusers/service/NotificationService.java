@@ -43,8 +43,8 @@ public class NotificationService {
     private final String stripeDisputeUpdatedEmailTemplateId;
     private final String stripeDisputeWonEmailTemplateId;
     private final String notifyEmailReplyToSupportId;
-    private final Instant emailsNotificationsForLivePaymentsDisputeUpdatesFrom;
-    private final Instant emailsNotificationsForTestPaymentsDisputeUpdatesFrom;
+    private final Instant emailNotificationsForLivePaymentsDisputeUpdatesFrom;
+    private final Instant emailNotificationsForTestPaymentsDisputeUpdatesFrom;
 
     public NotificationService(NotifyClientProvider notifyClientProvider,
                                NotifyConfiguration notifyConfiguration,
@@ -69,8 +69,8 @@ public class NotificationService {
         this.stripeDisputeUpdatedEmailTemplateId = notifyConfiguration.getStripeDisputeUpdatedEmailTemplateId();
         this.stripeDisputeWonEmailTemplateId = notifyConfiguration.getStripeDisputeWonEmailTemplateId();
         this.notifyEmailReplyToSupportId = notifyConfiguration.getNotifyEmailReplyToSupportId();
-        this.emailsNotificationsForLivePaymentsDisputeUpdatesFrom = notifyConfiguration.getEnableEmailsNotificationsForLivePaymentsDisputeUpdatesFrom();
-        this.emailsNotificationsForTestPaymentsDisputeUpdatesFrom = notifyConfiguration.getEnableEmailsNotificationsForTestPaymentsDisputeUpdatesFrom();
+        this.emailNotificationsForLivePaymentsDisputeUpdatesFrom = notifyConfiguration.getEnableEmailNotificationsForLivePaymentsDisputeUpdatesFrom();
+        this.emailNotificationsForTestPaymentsDisputeUpdatesFrom = notifyConfiguration.getEnableEmailNotificationsForTestPaymentsDisputeUpdatesFrom();
 
         this.metricRegistry = metricRegistry;
     }
@@ -208,11 +208,11 @@ public class NotificationService {
         SIGN_IN, CHANGE_SIGN_IN_2FA_TO_SMS, SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE, CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE;
     }
 
-    public Instant getEmailsNotificationsForLivePaymentsDisputeUpdatesFrom() {
-        return emailsNotificationsForLivePaymentsDisputeUpdatesFrom;
+    public Instant getEmailNotificationsForLivePaymentsDisputeUpdatesFrom() {
+        return emailNotificationsForLivePaymentsDisputeUpdatesFrom;
     }
 
-    public Instant getEmailsNotificationsForTestPaymentsDisputeUpdatesFrom() {
-        return emailsNotificationsForTestPaymentsDisputeUpdatesFrom;
+    public Instant getEmailNotificationsForTestPaymentsDisputeUpdatesFrom() {
+        return emailNotificationsForTestPaymentsDisputeUpdatesFrom;
     }
 }
