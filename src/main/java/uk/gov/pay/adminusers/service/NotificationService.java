@@ -6,18 +6,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.app.config.NotifyConfiguration;
 import uk.gov.pay.adminusers.app.config.NotifyDirectDebitConfiguration;
-import uk.gov.pay.adminusers.model.PaymentType;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 import uk.gov.service.notify.NotificationClientException;
 import uk.gov.service.notify.SendEmailResponse;
 import uk.gov.service.notify.SendSmsResponse;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
-import static uk.gov.pay.adminusers.model.PaymentType.CARD;
 import static uk.gov.pay.adminusers.model.Service.DEFAULT_NAME_VALUE;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.userNotificationError;
 
@@ -40,7 +39,12 @@ public class NotificationService {
     private final String inviteExistingUserEmailTemplateId;
 
     private final String stripeDisputeCreatedEmailTemplateId;
+    private final String stripeDisputeLostEmailTemplateId;
+    private final String stripeDisputeUpdatedEmailTemplateId;
+    private final String stripeDisputeWonEmailTemplateId;
     private final String notifyEmailReplyToSupportId;
+    private final Instant emailsNotificationsForLivePaymentsDisputeUpdatesFrom;
+    private final Instant emailsNotificationsForTestPaymentsDisputeUpdatesFrom;
 
     public NotificationService(NotifyClientProvider notifyClientProvider,
                                NotifyConfiguration notifyConfiguration,
@@ -61,7 +65,12 @@ public class NotificationService {
         this.forgottenPasswordEmailTemplateId = notifyConfiguration.getForgottenPasswordEmailTemplateId();
         
         this.stripeDisputeCreatedEmailTemplateId = notifyConfiguration.getStripeDisputeCreatedEmailTemplateId();
+        this.stripeDisputeLostEmailTemplateId = notifyConfiguration.getStripeDisputeLostEmailTemplateId();
+        this.stripeDisputeUpdatedEmailTemplateId = notifyConfiguration.getStripeDisputeUpdatedEmailTemplateId();
+        this.stripeDisputeWonEmailTemplateId = notifyConfiguration.getStripeDisputeWonEmailTemplateId();
         this.notifyEmailReplyToSupportId = notifyConfiguration.getNotifyEmailReplyToSupportId();
+        this.emailsNotificationsForLivePaymentsDisputeUpdatesFrom = notifyConfiguration.getEnableEmailsNotificationsForLivePaymentsDisputeUpdatesFrom();
+        this.emailsNotificationsForTestPaymentsDisputeUpdatesFrom = notifyConfiguration.getEnableEmailsNotificationsForTestPaymentsDisputeUpdatesFrom();
 
         this.metricRegistry = metricRegistry;
     }
@@ -149,6 +158,18 @@ public class NotificationService {
         emailAddresses.forEach(email -> sendEmail(stripeDisputeCreatedEmailTemplateId, email, personalisation, notifyEmailReplyToSupportId));
     }
 
+    public void sendStripeDisputeLostEmail(Set<String> emailAddresses, Map<String, String> personalisation) {
+        emailAddresses.forEach(email -> sendEmail(stripeDisputeLostEmailTemplateId, email, personalisation, notifyEmailReplyToSupportId));
+    }
+
+    public void sendStripeDisputeUpdatedEmail(Set<String> emailAddresses, Map<String, String> personalisation) {
+        emailAddresses.forEach(email -> sendEmail(stripeDisputeUpdatedEmailTemplateId, email, personalisation, notifyEmailReplyToSupportId));
+    }
+
+    public void sendStripeDisputeWonEmail(Set<String> emailAddresses, Map<String, String> personalisation) {
+        emailAddresses.forEach(email -> sendEmail(stripeDisputeWonEmailTemplateId, email, personalisation, notifyEmailReplyToSupportId));
+    }
+
     public String sendEmail(final String templateId, final String email, final Map<String, String> personalisation) {
        return sendEmail(templateId, email, personalisation, null);
     }
@@ -187,4 +208,11 @@ public class NotificationService {
         SIGN_IN, CHANGE_SIGN_IN_2FA_TO_SMS, SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE, CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE;
     }
 
+    public Instant getEmailsNotificationsForLivePaymentsDisputeUpdatesFrom() {
+        return emailsNotificationsForLivePaymentsDisputeUpdatesFrom;
+    }
+
+    public Instant getEmailsNotificationsForTestPaymentsDisputeUpdatesFrom() {
+        return emailsNotificationsForTestPaymentsDisputeUpdatesFrom;
+    }
 }

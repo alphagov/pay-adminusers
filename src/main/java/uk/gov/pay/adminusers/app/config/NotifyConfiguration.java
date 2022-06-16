@@ -4,6 +4,7 @@ import io.dropwizard.Configuration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
 
 public class NotifyConfiguration extends Configuration {
 
@@ -62,10 +63,30 @@ public class NotifyConfiguration extends Configuration {
     @Valid
     @NotNull
     private String stripeDisputeCreatedEmailTemplateId;
+
+    @Valid
+    @NotNull
+    private String stripeDisputeLostEmailTemplateId;
+
+    @Valid
+    @NotNull
+    private String stripeDisputeUpdatedEmailTemplateId;
+
+    @Valid
+    @NotNull
+    private String stripeDisputeWonEmailTemplateId;
     
     @Valid
     @NotNull
     private String notifyEmailReplyToSupportId;
+
+    @Valid
+    @NotNull
+    private long enableEmailsNotificationsForLivePaymentsDisputeUpdatesFrom;
+
+    @Valid
+    @NotNull
+    private long enableEmailsNotificationsForTestPaymentsDisputeUpdatesFrom;
 
     public String getCardApiKey() {
         return cardApiKey;
@@ -123,7 +144,27 @@ public class NotifyConfiguration extends Configuration {
         return stripeDisputeCreatedEmailTemplateId;
     }
 
+    public String getStripeDisputeLostEmailTemplateId() {
+        return stripeDisputeLostEmailTemplateId;
+    }
+
+    public String getStripeDisputeUpdatedEmailTemplateId() {
+        return stripeDisputeUpdatedEmailTemplateId;
+    }
+
+    public String getStripeDisputeWonEmailTemplateId() {
+        return stripeDisputeWonEmailTemplateId;
+    }
+
     public String getNotifyEmailReplyToSupportId() {
         return notifyEmailReplyToSupportId;
+    }
+
+    public Instant getEnableEmailsNotificationsForLivePaymentsDisputeUpdatesFrom() {
+        return Instant.ofEpochSecond(enableEmailsNotificationsForLivePaymentsDisputeUpdatesFrom);
+    }
+
+    public Instant getEnableEmailsNotificationsForTestPaymentsDisputeUpdatesFrom() {
+        return Instant.ofEpochSecond(enableEmailsNotificationsForTestPaymentsDisputeUpdatesFrom);
     }
 }
