@@ -14,12 +14,14 @@ import uk.gov.pay.adminusers.queue.model.Event;
 import uk.gov.pay.adminusers.queue.model.EventMessage;
 import uk.gov.pay.adminusers.queue.model.EventType;
 import uk.gov.pay.adminusers.queue.model.event.DisputeCreatedDetails;
+import uk.gov.pay.adminusers.queue.model.event.DisputeLostDetails;
 import uk.gov.pay.adminusers.service.NotificationService;
 import uk.gov.pay.adminusers.service.ServiceFinder;
 import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.service.payments.commons.queue.exception.QueueException;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +73,8 @@ public class EventMessageHandler {
                         message.getQueueMessage().getMessageId(), message.getEvent().getResourceExternalId());
                 if (message.getEvent().getEventType().equalsIgnoreCase(EventType.DISPUTE_CREATED.name())) {
                     handleDisputeCreatedMessage(message.getEvent());
+                } else if (message.getEvent().getEventType().equalsIgnoreCase(EventType.DISPUTE_LOST.name())) {
+                    handleDisputeLostMessage(message.getEvent());
                 } else {
                     logger.warn("Unknown event type: {}", message.getEvent().getEventType());
                 }
@@ -83,6 +87,49 @@ public class EventMessageHandler {
                         kv("error", e.getMessage())
                 );
             }
+        }
+    }
+
+    private void handleDisputeLostMessage(Event disputeLostEvent) throws JsonProcessingException{
+        MDC.put(GATEWAY_DISPUTE_ID, disputeLostEvent.getResourceExternalId());
+        MDC.put(PAYMENT_EXTERNAL_ID, disputeLostEvent.getParentResourceExternalId());
+        MDC.put(SERVICE_EXTERNAL_ID, disputeLostEvent.getServiceId());
+
+        try {
+            var disputeLostDetails = objectMapper.readValue(disputeLostEvent.getEventDetails(), DisputeLostDetails.class);
+            Service service = serviceFinder.byExternalId(disputeLostEvent.getServiceId())
+                    .orElseThrow(() -> new IllegalArgumentException(format("Service not found [service_id: %s]", disputeLostEvent.getServiceId())));
+            LedgerTransaction transaction = ledgerService.getTransaction(disputeLostEvent.getParentResourceExternalId())
+                    .orElseThrow(() -> new IllegalArgumentException(format("Transaction not found [payment_external_id: %s]", disputeLostEvent.getParentResourceExternalId())));
+            List<UserEntity> serviceAdmins = userServices.getAdminUsersForService(service);
+
+            if ((disputeLostEvent.getLive() &&
+                    notificationService.getEmailNotificationsForLivePaymentsDisputeUpdatesFrom()
+                            .isBefore(Instant.now())) ||
+                    (!disputeLostEvent.getLive() &&
+                            notificationService.getEmailNotificationsForTestPaymentsDisputeUpdatesFrom()
+                                    .isBefore(Instant.now()))) {
+                Map<String, String> personalisation = Map.of(
+                        "organisationName", service.getMerchantDetails().getName(),
+                        "serviceName", service.getName(),
+                        "serviceReference", transaction.getReference(),
+                        "disputedAmount", convertPenceToPounds.apply(disputeLostDetails.getAmount()).toString(),
+                        "disputeFee", convertPenceToPounds.apply(disputeLostDetails.getFee()).toString());
+
+                if (!serviceAdmins.isEmpty()){
+                    notificationService.sendStripeDisputeLostEmail(
+                            serviceAdmins.stream().map(UserEntity::getEmail).collect(Collectors.toSet()),
+                            personalisation
+                    );
+                    logger.info("Processed notification email for lost dispute");
+                } else {
+                    throw new IllegalStateException(format("Service has no Admin users [external_id: %s]", service.getExternalId()));
+                }
+            } else {
+                throw new IllegalArgumentException(format("Dispute lost email sending is not yet enabled for [service_id: %s]", disputeLostEvent.getServiceId()));
+            }
+        } finally {
+            List.of(PAYMENT_EXTERNAL_ID, GATEWAY_DISPUTE_ID, SERVICE_EXTERNAL_ID).forEach(MDC::remove);
         }
     }
 
