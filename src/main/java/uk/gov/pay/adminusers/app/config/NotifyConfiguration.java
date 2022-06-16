@@ -82,11 +82,11 @@ public class NotifyConfiguration extends Configuration {
 
     @Valid
     @NotNull
-    private long enableEmailsNotificationsForLivePaymentsDisputeUpdatesFrom;
+    private long enableEmailNotificationsForLivePaymentsDisputeUpdatesFrom;
 
     @Valid
     @NotNull
-    private long enableEmailsNotificationsForTestPaymentsDisputeUpdatesFrom;
+    private long enableEmailNotificationsForTestPaymentsDisputeUpdatesFrom;
 
     public String getCardApiKey() {
         return cardApiKey;
@@ -160,11 +160,11 @@ public class NotifyConfiguration extends Configuration {
         return notifyEmailReplyToSupportId;
     }
 
-    public Instant getEnableEmailsNotificationsForLivePaymentsDisputeUpdatesFrom() {
-        return Instant.ofEpochSecond(enableEmailsNotificationsForLivePaymentsDisputeUpdatesFrom);
+    public Instant getEnableEmailNotificationsForLivePaymentsDisputeUpdatesFrom() {
+        return Instant.ofEpochSecond(enableEmailNotificationsForLivePaymentsDisputeUpdatesFrom);
     }
 
-    public Instant getEnableEmailsNotificationsForTestPaymentsDisputeUpdatesFrom() {
-        return Instant.ofEpochSecond(enableEmailsNotificationsForTestPaymentsDisputeUpdatesFrom);
+    public Instant getEnableEmailNotificationsForTestPaymentsDisputeUpdatesFrom() {
+        return Instant.ofEpochSecond(enableEmailNotificationsForTestPaymentsDisputeUpdatesFrom);
     }
 }
