@@ -8,6 +8,8 @@ public class EventFixture {
     private String parentResourceExternalId;
     private String eventType = "AN_EVENT_TYPE";
     private String eventDetails;
+    private String serviceId = "service_id";
+    private Boolean live = false;
 
     private EventFixture() {
     }
@@ -35,12 +37,24 @@ public class EventFixture {
         this.eventDetails = eventDetails;
         return this;
     }
-    
+
+    public EventFixture withServiceId(String serviceId) {
+        this.serviceId = serviceId;
+        return this;
+    }
+
+    public EventFixture withLive(Boolean live) {
+        this.live = live;
+        return this;
+    }
+
     public Event build() {
         return new Event(
                 resourceExternalId,
                 parentResourceExternalId,
                 eventType,
-                eventDetails);
+                eventDetails,
+                serviceId,
+                live);
     }
 }
