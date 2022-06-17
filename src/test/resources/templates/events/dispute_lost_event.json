@@ -2,7 +2,7 @@
   "event_type": "DISPUTE_LOST",
   "service_id": "111111111",
   "resource_type": "dispute",
-  "event_details": "{\"net_amount\":-4000,\"amount\":2500,\"fee\":1500}",
+  "event_details": "{\"net_amount\":-4000,\"amount\":2500,\"fee\":1500,\"gateway_account_id\":\"123\"}",
   "live": false,
   "timestamp": "2022-06-16T15:29:01.123456Z",
   "resource_external_id": "external_id",

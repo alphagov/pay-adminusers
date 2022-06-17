@@ -26,7 +26,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static net.logstash.logback.argument.StructuredArguments.kv;
@@ -91,16 +90,15 @@ public class EventMessageHandler {
     }
 
     private void handleDisputeLostMessage(Event disputeLostEvent) throws JsonProcessingException{
-        MDC.put(GATEWAY_DISPUTE_ID, disputeLostEvent.getResourceExternalId());
-        MDC.put(PAYMENT_EXTERNAL_ID, disputeLostEvent.getParentResourceExternalId());
-        MDC.put(SERVICE_EXTERNAL_ID, disputeLostEvent.getServiceId());
-
         try {
+            setupMDC(disputeLostEvent);
+
             var disputeLostDetails = objectMapper.readValue(disputeLostEvent.getEventDetails(), DisputeLostDetails.class);
-            Service service = serviceFinder.byExternalId(disputeLostEvent.getServiceId())
-                    .orElseThrow(() -> new IllegalArgumentException(format("Service not found [service_id: %s]", disputeLostEvent.getServiceId())));
-            LedgerTransaction transaction = ledgerService.getTransaction(disputeLostEvent.getParentResourceExternalId())
-                    .orElseThrow(() -> new IllegalArgumentException(format("Transaction not found [payment_external_id: %s]", disputeLostEvent.getParentResourceExternalId())));
+
+            MDC.put(GATEWAY_ACCOUNT_ID, disputeLostDetails.getGatewayAccountId());
+
+            Service service = getService(disputeLostDetails.getGatewayAccountId());
+            LedgerTransaction transaction = getTransaction(disputeLostEvent);
             List<UserEntity> serviceAdmins = userServices.getAdminUsersForService(service);
 
             if ((disputeLostEvent.getLive() &&
@@ -129,52 +127,67 @@ public class EventMessageHandler {
                 throw new IllegalArgumentException(format("Dispute lost email sending is not yet enabled for [service_id: %s]", disputeLostEvent.getServiceId()));
             }
         } finally {
-            List.of(PAYMENT_EXTERNAL_ID, GATEWAY_DISPUTE_ID, SERVICE_EXTERNAL_ID).forEach(MDC::remove);
+            tearDownMDC();
         }
     }
 
     private void handleDisputeCreatedMessage(Event disputeCreatedEvent) throws JsonProcessingException {
-        MDC.put(GATEWAY_DISPUTE_ID, disputeCreatedEvent.getResourceExternalId());
-        MDC.put(PAYMENT_EXTERNAL_ID, disputeCreatedEvent.getParentResourceExternalId());
+        try {
+            setupMDC(disputeCreatedEvent);
 
-        var disputeCreatedDetails = objectMapper.readValue(disputeCreatedEvent.getEventDetails(), DisputeCreatedDetails.class);
+            var disputeCreatedDetails = objectMapper.readValue(disputeCreatedEvent.getEventDetails(), DisputeCreatedDetails.class);
 
-        MDC.put(GATEWAY_ACCOUNT_ID, disputeCreatedDetails.getGatewayAccountId());
+            MDC.put(GATEWAY_ACCOUNT_ID, disputeCreatedDetails.getGatewayAccountId());
 
-        Service service = serviceFinder.byGatewayAccountId(disputeCreatedDetails.getGatewayAccountId())
-                .orElseThrow(() -> new IllegalArgumentException(format("Service not found [gateway_account_id: %s]", disputeCreatedDetails.getGatewayAccountId())));
-        LedgerTransaction transaction = ledgerService.getTransaction(disputeCreatedEvent.getParentResourceExternalId())
-                .orElseThrow(() -> new IllegalArgumentException(format("Transaction not found [payment_external_id: %s]", disputeCreatedEvent.getParentResourceExternalId())));
-        
-        List<UserEntity> serviceAdmins = userServices.getAdminUsersForService(service);
+            Service service = getService(disputeCreatedDetails.getGatewayAccountId());
+            LedgerTransaction transaction = getTransaction(disputeCreatedEvent);
+            List<UserEntity> serviceAdmins = userServices.getAdminUsersForService(service);
 
-        var epoch = disputeCreatedDetails.getEvidenceDueDate();
-        String formattedDueDate = getZDTForEpoch(epoch).format(DATE_TIME_FORMATTER);
-        String formattedPayDueDate = getPayDueByDateForEpoch(epoch).format(DATE_TIME_FORMATTER);
+            var epoch = disputeCreatedDetails.getEvidenceDueDate();
+            String formattedDueDate = getZDTForEpoch(epoch).format(DATE_TIME_FORMATTER);
+            String formattedPayDueDate = getPayDueByDateForEpoch(epoch).format(DATE_TIME_FORMATTER);
 
-        var paymentAmountInPounds = convertPenceToPounds.apply(disputeCreatedDetails.getAmount()).toString();
-        var disputeFeeInPounds = convertPenceToPounds.apply(disputeCreatedDetails.getFee()).toString();
-
-        Map<String, String> personalisation = Stream.of(new String[][]{
-                {"serviceName", service.getName()},
-                {"paymentExternalId", disputeCreatedEvent.getParentResourceExternalId()},
-                {"serviceReference", transaction.getReference()},
-                {"paymentAmount", paymentAmountInPounds},
-                {"disputeFee", disputeFeeInPounds},
-                {"disputeEvidenceDueDate", formattedDueDate},
-                {"sendEvidenceToPayDueDate", formattedPayDueDate}
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
-
-        if (!serviceAdmins.isEmpty()){
-            notificationService.sendStripeDisputeCreatedEmail(
-                    serviceAdmins.stream().map(UserEntity::getEmail).collect(Collectors.toSet()),
-                    personalisation
+            Map<String, String> personalisation =  Map.of(
+                    "serviceName", service.getName(),
+                    "paymentExternalId", disputeCreatedEvent.getParentResourceExternalId(),
+                    "serviceReference", transaction.getReference(),
+                    "paymentAmount", convertPenceToPounds.apply(disputeCreatedDetails.getAmount()).toString(),
+                    "disputeFee", convertPenceToPounds.apply(disputeCreatedDetails.getFee()).toString(),
+                    "disputeEvidenceDueDate", formattedDueDate,
+                    "sendEvidenceToPayDueDate", formattedPayDueDate
             );
-            logger.info("Processed notification email for disputed transaction");
-        } else {
-            throw new IllegalStateException(format("Service has no Admin users [external_id: %s]", service.getExternalId()));
-        }
 
-        List.of(PAYMENT_EXTERNAL_ID, GATEWAY_DISPUTE_ID, GATEWAY_ACCOUNT_ID).forEach(MDC::remove);
+            if (!serviceAdmins.isEmpty()) {
+                notificationService.sendStripeDisputeCreatedEmail(
+                        serviceAdmins.stream().map(UserEntity::getEmail).collect(Collectors.toSet()),
+                        personalisation
+                );
+                logger.info("Processed notification email for disputed transaction");
+            } else {
+                throw new IllegalStateException(format("Service has no Admin users [external_id: %s]", service.getExternalId()));
+            }
+        } finally {
+            tearDownMDC();
+        }
+    }
+
+    private LedgerTransaction getTransaction(Event event) {
+        return ledgerService.getTransaction(event.getParentResourceExternalId())
+                .orElseThrow(() -> new IllegalArgumentException(format("Transaction not found [payment_external_id: %s]", event.getParentResourceExternalId())));
+    }
+
+    private Service getService(String gatewayAccountId) {
+        return serviceFinder.byGatewayAccountId(gatewayAccountId)
+                .orElseThrow(() -> new IllegalArgumentException(format("Service not found [gateway_account_id: %s]", gatewayAccountId)));
+    }
+
+    private void setupMDC(Event event) {
+        MDC.put(GATEWAY_DISPUTE_ID, event.getResourceExternalId());
+        MDC.put(PAYMENT_EXTERNAL_ID, event.getParentResourceExternalId());
+        MDC.put(SERVICE_EXTERNAL_ID, event.getServiceId());
+    }
+
+    private void tearDownMDC() {
+        List.of(PAYMENT_EXTERNAL_ID, GATEWAY_DISPUTE_ID, SERVICE_EXTERNAL_ID, GATEWAY_ACCOUNT_ID).forEach(MDC::remove);
     }
 }

@@ -26,5 +26,6 @@ class DisputeLostDetailsTest {
         assertThat(disputeLostDetails.getFee(), is(1500L));
         assertThat(disputeLostDetails.getAmount(), is(2500L));
         assertThat(disputeLostDetails.getNetAmount(), is(-4000L));
+        assertThat(disputeLostDetails.getGatewayAccountId(), is("123"));
     }
 }
