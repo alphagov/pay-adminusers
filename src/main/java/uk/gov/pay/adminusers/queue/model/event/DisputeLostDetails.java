@@ -10,6 +10,7 @@ public class DisputeLostDetails {
     private Long netAmount;
     private Long amount;
     private Long fee;
+    private String gatewayAccountId;
 
     public DisputeLostDetails() {
         // empty constructor
@@ -25,5 +26,9 @@ public class DisputeLostDetails {
 
     public Long getFee() {
         return fee;
+    }
+
+    public String getGatewayAccountId() {
+        return gatewayAccountId;
     }
 }

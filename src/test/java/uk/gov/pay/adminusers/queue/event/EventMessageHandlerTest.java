@@ -1,11 +1,11 @@
 package uk.gov.pay.adminusers.queue.event;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.GsonBuilder;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import org.hamcrest.core.Is;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,6 @@ import uk.gov.service.payments.commons.queue.exception.QueueException;
 import uk.gov.service.payments.commons.queue.model.QueueMessage;
 
 import java.time.Instant;
-import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -170,7 +169,7 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_LOST.name())
-                .withEventDetails(new GsonBuilder().create().toJson(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L)))
+                .withEventDetails(new GsonBuilder().create().toJson(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L, "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .withServiceId(service.getExternalId())
                 .withLive(true)
@@ -179,7 +178,7 @@ class EventMessageHandlerTest {
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockNotificationService.getEmailNotificationsForLivePaymentsDisputeUpdatesFrom()).thenReturn(Instant.now().minusSeconds(6000L));
-        when(mockServiceFinder.byExternalId(service.getExternalId())).thenReturn(Optional.of(service));
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service)).thenReturn(users);
 
@@ -210,7 +209,7 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_LOST.name())
-                .withEventDetails(new GsonBuilder().create().toJson(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L)))
+                .withEventDetails(new GsonBuilder().create().toJson(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L, "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .withServiceId(service.getExternalId())
                 .withLive(false)
@@ -219,7 +218,7 @@ class EventMessageHandlerTest {
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockNotificationService.getEmailNotificationsForTestPaymentsDisputeUpdatesFrom()).thenReturn(Instant.now().minusSeconds(6000L));
-        when(mockServiceFinder.byExternalId(service.getExternalId())).thenReturn(Optional.of(service));
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service)).thenReturn(users);
 
@@ -259,7 +258,7 @@ class EventMessageHandlerTest {
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockNotificationService.getEmailNotificationsForTestPaymentsDisputeUpdatesFrom()).thenReturn(Instant.now().plusSeconds(6000L));
-        when(mockServiceFinder.byExternalId(service.getExternalId())).thenReturn(Optional.of(service));
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service)).thenReturn(users);
 
@@ -282,7 +281,7 @@ class EventMessageHandlerTest {
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
         when(mockNotificationService.getEmailNotificationsForLivePaymentsDisputeUpdatesFrom()).thenReturn(Instant.now().plusSeconds(6000L));
-        when(mockServiceFinder.byExternalId(service.getExternalId())).thenReturn(Optional.of(service));
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service)).thenReturn(users);
 
