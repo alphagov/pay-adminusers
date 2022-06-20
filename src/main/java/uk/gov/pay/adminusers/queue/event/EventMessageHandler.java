@@ -14,6 +14,7 @@ import uk.gov.pay.adminusers.queue.model.Event;
 import uk.gov.pay.adminusers.queue.model.EventMessage;
 import uk.gov.pay.adminusers.queue.model.EventType;
 import uk.gov.pay.adminusers.queue.model.event.DisputeCreatedDetails;
+import uk.gov.pay.adminusers.queue.model.event.DisputeEvidenceSubmittedDetails;
 import uk.gov.pay.adminusers.queue.model.event.DisputeLostDetails;
 import uk.gov.pay.adminusers.queue.model.event.DisputeWonDetails;
 import uk.gov.pay.adminusers.service.NotificationService;
@@ -77,6 +78,8 @@ public class EventMessageHandler {
                     handleDisputeLostMessage(message.getEvent());
                 } else if (message.getEvent().getEventType().equalsIgnoreCase(EventType.DISPUTE_WON.name())) {
                     handleDisputeWonMessage(message.getEvent());
+                } else if (message.getEvent().getEventType().equalsIgnoreCase(EventType.DISPUTE_EVIDENCE_SUBMITTED.name())) {
+                    handleDisputeEvidenceSubmittedMessage(message.getEvent());
                 } else {
                     logger.warn("Unknown event type: {}", message.getEvent().getEventType());
                 }
@@ -89,6 +92,40 @@ public class EventMessageHandler {
                         kv("error", e.getMessage())
                 );
             }
+        }
+    }
+
+    private void handleDisputeEvidenceSubmittedMessage(Event disputeEvidenceSubmittedEvent) throws JsonProcessingException {
+        try {
+            setupMDC(disputeEvidenceSubmittedEvent);
+
+            var disputeEvidenceSubmittedDetails = objectMapper.readValue(disputeEvidenceSubmittedEvent.getEventDetails(), DisputeEvidenceSubmittedDetails.class);
+
+            MDC.put(GATEWAY_ACCOUNT_ID, disputeEvidenceSubmittedDetails.getGatewayAccountId());
+
+            Service service = getService(disputeEvidenceSubmittedDetails.getGatewayAccountId());
+            LedgerTransaction transaction = getTransaction(disputeEvidenceSubmittedEvent);
+            List<UserEntity> serviceAdmins = userServices.getAdminUsersForService(service);
+
+            if (shallSendDisputeUpdatedEmail(disputeEvidenceSubmittedEvent)) {
+                Map<String, String> personalisation = Map.of(
+                        "organisationName", service.getMerchantDetails().getName(),
+                        "serviceName", service.getName(),
+                        "serviceReference", transaction.getReference());
+                if (!serviceAdmins.isEmpty()){
+                    notificationService.sendStripeDisputeEvidenceSubmittedEmail(
+                            serviceAdmins.stream().map(UserEntity::getEmail).collect(Collectors.toSet()),
+                            personalisation
+                    );
+                    logger.info("Processed notification email for dispute evidence submitted");
+                } else {
+                    throw new IllegalStateException(format("Service has no Admin users [external_id: %s]", service.getExternalId()));
+                }
+            } else {
+                throw new IllegalArgumentException(format("Dispute evidence submitted email sending is not yet enabled for [service_id: %s]", disputeEvidenceSubmittedEvent.getServiceId()));
+            }
+        } finally {
+            tearDownMDC();
         }
     }
 

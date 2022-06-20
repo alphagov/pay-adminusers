@@ -40,7 +40,7 @@ public class NotificationService {
 
     private final String stripeDisputeCreatedEmailTemplateId;
     private final String stripeDisputeLostEmailTemplateId;
-    private final String stripeDisputeUpdatedEmailTemplateId;
+    private final String stripeDisputeEvidenceSubmittedEmailTemplateId;
     private final String stripeDisputeWonEmailTemplateId;
     private final String notifyEmailReplyToSupportId;
     private final Instant emailNotificationsForLivePaymentsDisputeUpdatesFrom;
@@ -66,7 +66,7 @@ public class NotificationService {
         
         this.stripeDisputeCreatedEmailTemplateId = notifyConfiguration.getStripeDisputeCreatedEmailTemplateId();
         this.stripeDisputeLostEmailTemplateId = notifyConfiguration.getStripeDisputeLostEmailTemplateId();
-        this.stripeDisputeUpdatedEmailTemplateId = notifyConfiguration.getStripeDisputeUpdatedEmailTemplateId();
+        this.stripeDisputeEvidenceSubmittedEmailTemplateId = notifyConfiguration.getStripeDisputeEvidenceSubmittedEmailTemplateId();
         this.stripeDisputeWonEmailTemplateId = notifyConfiguration.getStripeDisputeWonEmailTemplateId();
         this.notifyEmailReplyToSupportId = notifyConfiguration.getNotifyEmailReplyToSupportId();
         this.emailNotificationsForLivePaymentsDisputeUpdatesFrom = notifyConfiguration.getEnableEmailNotificationsForLivePaymentsDisputeUpdatesFrom();
@@ -162,8 +162,8 @@ public class NotificationService {
         emailAddresses.forEach(email -> sendEmail(stripeDisputeLostEmailTemplateId, email, personalisation, notifyEmailReplyToSupportId));
     }
 
-    public void sendStripeDisputeUpdatedEmail(Set<String> emailAddresses, Map<String, String> personalisation) {
-        emailAddresses.forEach(email -> sendEmail(stripeDisputeUpdatedEmailTemplateId, email, personalisation, notifyEmailReplyToSupportId));
+    public void sendStripeDisputeEvidenceSubmittedEmail(Set<String> emailAddresses, Map<String, String> personalisation) {
+        emailAddresses.forEach(email -> sendEmail(stripeDisputeEvidenceSubmittedEmailTemplateId, email, personalisation, notifyEmailReplyToSupportId));
     }
 
     public void sendStripeDisputeWonEmail(Set<String> emailAddresses, Map<String, String> personalisation) {

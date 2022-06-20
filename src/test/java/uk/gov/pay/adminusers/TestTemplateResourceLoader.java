@@ -11,6 +11,8 @@ public class TestTemplateResourceLoader {
 
     public static final String DISPUTE_WON_EVENT = TEMPLATE_BASE_NAME + "/events/dispute_won_event.json";
 
+    public static final String DISPUTE_EVIDENCE_SUBMITTED_EVENT = TEMPLATE_BASE_NAME + "/events/dispute_evidence_submitted_event.json";
+
     public static final String DISPUTE_CREATED_SNS_MESSAGE = TEMPLATE_BASE_NAME + "/sns/dispute_created_sns_message.json";
 
 
