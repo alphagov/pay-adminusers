@@ -268,6 +268,44 @@ class EventMessageHandlerTest {
     }
 
     @Test
+    void shouldHandleDisputeWonEvent() throws QueueException {
+        var mockQueueMessage = mock(QueueMessage.class);
+        disputeEvent = anEventFixture()
+                .withEventType(EventType.DISPUTE_WON.name())
+                .withEventDetails(new GsonBuilder().create().toJson(Map.of("gateway_account_id", gatewayAccountId)))
+                .withParentResourceExternalId("456")
+                .withServiceId(service.getExternalId())
+                .withLive(true)
+                .build();
+        var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
+        when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
+        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
+        when(mockNotificationService.getEmailNotificationsForLivePaymentsDisputeUpdatesFrom()).thenReturn(Instant.now().minusSeconds(6000L));
+        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
+        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
+        when(mockUserServices.getAdminUsersForService(service)).thenReturn(users);
+
+        eventMessageHandler.processMessages();
+
+        verify(mockNotificationService, atMostOnce()).sendStripeDisputeWonEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
+
+        var emails = adminEmailsCaptor.getValue();
+        var personalisation = personalisationCaptor.getValue();
+
+        assertThat(emails.size(), is(2));
+        assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
+        assertThat(personalisation.get("serviceName"), is(service.getName()));
+        assertThat(personalisation.get("serviceReference"), is("tx ref"));
+        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName())) ;
+
+        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+
+        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for won dispute"));
+    }
+
+    @Test
     void shouldNotCallNotificationService_whenLiveAndNotEnabledByDate() throws QueueException {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
