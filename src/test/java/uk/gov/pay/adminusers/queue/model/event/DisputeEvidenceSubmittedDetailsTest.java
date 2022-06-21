@@ -8,21 +8,21 @@ import uk.gov.pay.adminusers.queue.model.EventType;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static uk.gov.pay.adminusers.TestTemplateResourceLoader.DISPUTE_WON_EVENT;
+import static uk.gov.pay.adminusers.TestTemplateResourceLoader.DISPUTE_EVIDENCE_SUBMITTED_EVENT;
 import static uk.gov.pay.adminusers.TestTemplateResourceLoader.load;
 
-class DisputeWonDetailsTest {
+class DisputeEvidenceSubmittedDetailsTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void shouldDeserialiseDisputeEvent() throws JsonProcessingException {
 
-        var json = objectMapper.readTree(load(DISPUTE_WON_EVENT));
+        var json = objectMapper.readTree(load(DISPUTE_EVIDENCE_SUBMITTED_EVENT));
         var evt = objectMapper.treeToValue(json, Event.class);
-        var disputeLostDetails = objectMapper.readValue(evt.getEventDetails(), DisputeWonDetails.class);
+        var disputeLostDetails = objectMapper.readValue(evt.getEventDetails(), DisputeEvidenceSubmittedDetails.class);
 
-        assertThat(evt.getEventType(), is(EventType.DISPUTE_WON.name()));
+        assertThat(evt.getEventType(), is(EventType.DISPUTE_EVIDENCE_SUBMITTED.name()));
         assertThat(disputeLostDetails.getGatewayAccountId(), is("123"));
     }
 }

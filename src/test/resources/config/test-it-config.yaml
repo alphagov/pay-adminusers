@@ -73,7 +73,7 @@ notify:
   liveAccountCreatedEmailTemplateId: ${NOTIFY_LIVE_ACCOUNT_CREATED_EMAIL_TEMPLATE_ID:-pay-notify-live-account-created-email-template-id}
   stripeDisputeCreatedEmailTemplateId: ${NOTIFY_STRIPE_DISPUTE_CREATED_EMAIL_TEMPLATE_ID:-pay-notify-stripe-dispute-created-email-template-id}
   stripeDisputeLostEmailTemplateId: ${NOTIFY_STRIPE_DISPUTE_LOST_EMAIL_TEMPLATE_ID:-pay-notify-stripe-dispute-lost-email-template-id}
-  stripeDisputeUpdatedEmailTemplateId: ${NOTIFY_STRIPE_DISPUTE_UPDATED_EMAIL_TEMPLATE_ID:-pay-notify-stripe-dispute-updated-email-template-id}
+  stripeDisputeEvidenceSubmittedEmailTemplateId: ${NOTIFY_STRIPE_DISPUTE_EVIDENCE_SUBMITTED_EMAIL_TEMPLATE_ID:-pay-notify-stripe-dispute-evidence-submitted-email-template-id}
   stripeDisputeWonEmailTemplateId: ${NOTIFY_STRIPE_DISPUTE_WON_EMAIL_TEMPLATE_ID:-pay-notify-stripe-dispute-won-email-template-id}
   notifyEmailReplyToSupportId: ${NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID:-pay-notify-email-reply-to-support-id}
   enableEmailNotificationsForLivePaymentsDisputeUpdatesFrom: ${ENABLE_EMAIL_NOTIFICATIONS_FOR_LIVE_PAYMENTS_DISPUTE_UPDATES:-1672531201}

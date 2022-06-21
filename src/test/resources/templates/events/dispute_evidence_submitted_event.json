@@ -1,5 +1,5 @@
 {
-  "event_type": "DISPUTE_WON",
+  "event_type": "DISPUTE_EVIDENCE_SUBMITTED",
   "service_id": "111111111",
   "resource_type": "dispute",
   "event_details": "{\"gateway_account_id\":\"123\"}",
