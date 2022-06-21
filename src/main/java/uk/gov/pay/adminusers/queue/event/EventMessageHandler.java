@@ -122,7 +122,7 @@ public class EventMessageHandler {
                     throw new IllegalStateException(format("Service has no Admin users [external_id: %s]", service.getExternalId()));
                 }
             } else {
-                throw new IllegalArgumentException(format("Dispute evidence submitted email sending is not yet enabled for [service_id: %s]", disputeEvidenceSubmittedEvent.getServiceId()));
+                logger.info(format("Dispute evidence submitted email sending is not yet enabled for [service_id: %s]", disputeEvidenceSubmittedEvent.getServiceId()));
             }
         } finally {
             tearDownMDC();
@@ -156,7 +156,7 @@ public class EventMessageHandler {
                     throw new IllegalStateException(format("Service has no Admin users [external_id: %s]", service.getExternalId()));
                 }
             } else {
-                throw new IllegalArgumentException(format("Dispute won email sending is not yet enabled for [service_id: %s]", disputeWonEvent.getServiceId()));
+                logger.info(format("Dispute won email sending is not yet enabled for [service_id: %s]", disputeWonEvent.getServiceId()));
             }
         } finally {
             tearDownMDC();
@@ -193,7 +193,7 @@ public class EventMessageHandler {
                     throw new IllegalStateException(format("Service has no Admin users [external_id: %s]", service.getExternalId()));
                 }
             } else {
-                throw new IllegalArgumentException(format("Dispute lost email sending is not yet enabled for [service_id: %s]", disputeLostEvent.getServiceId()));
+                logger.info(format("Dispute lost email sending is not yet enabled for [service_id: %s]", disputeLostEvent.getServiceId()));
             }
         } finally {
             tearDownMDC();
