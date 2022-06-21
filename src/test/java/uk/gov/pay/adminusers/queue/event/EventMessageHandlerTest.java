@@ -209,7 +209,10 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_LOST.name())
-                .withEventDetails(new GsonBuilder().create().toJson(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L, "gateway_account_id", gatewayAccountId)))
+                .withEventDetails(new GsonBuilder().create().toJson(Map.of("net_amount", -4000L,
+                        "fee", 1500L,
+                        "amount", 2500L,
+                        "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .withServiceId(service.getExternalId())
                 .withLive(false)
@@ -249,7 +252,10 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_LOST.name())
-                .withEventDetails(new GsonBuilder().create().toJson(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L)))
+                .withEventDetails(new GsonBuilder().create().toJson(Map.of("net_amount", -4000L,
+                        "fee", 1500L,
+                        "amount", 2500L,
+                        "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .withServiceId(service.getExternalId())
                 .withLive(false)
@@ -265,6 +271,12 @@ class EventMessageHandlerTest {
         eventMessageHandler.processMessages();
 
         verify(mockNotificationService, never()).sendStripeDisputeLostEmail(anySet(), anyMap());
+
+        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+
+        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Dispute lost email sending is not yet enabled for [service_id: " + service.getExternalId() + "]"));
     }
 
     @Test
@@ -348,7 +360,7 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_LOST.name())
-                .withEventDetails(new GsonBuilder().create().toJson(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L)))
+                .withEventDetails(new GsonBuilder().create().toJson(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L, "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .withServiceId(service.getExternalId())
                 .withLive(true)
@@ -364,6 +376,12 @@ class EventMessageHandlerTest {
         eventMessageHandler.processMessages();
 
         verify(mockNotificationService, never()).sendStripeDisputeLostEmail(anySet(), anyMap());
+
+        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
+
+        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
+        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
+        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Dispute lost email sending is not yet enabled for [service_id: " + service.getExternalId() + "]"));
     }
 
     @Test
