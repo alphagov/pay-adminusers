@@ -109,7 +109,8 @@ public class EventMessageHandler {
 
             if (shallSendDisputeUpdatedEmail(disputeEvidenceSubmittedEvent)) {
                 Map<String, String> personalisation = Map.of(
-                        "organisationName", service.getMerchantDetails().getName(),
+                        "organisationName", service.getMerchantDetails() != null ?
+                                service.getMerchantDetails().getName() : service.getName(),
                         "serviceName", service.getName(),
                         "serviceReference", transaction.getReference());
                 if (!serviceAdmins.isEmpty()){
@@ -143,7 +144,8 @@ public class EventMessageHandler {
 
             if (shallSendDisputeUpdatedEmail(disputeWonEvent)) {
                 Map<String, String> personalisation = Map.of(
-                        "organisationName", service.getMerchantDetails().getName(),
+                        "organisationName", service.getMerchantDetails() != null ?
+                                service.getMerchantDetails().getName() : service.getName(),
                         "serviceName", service.getName(),
                         "serviceReference", transaction.getReference());
                 if (!serviceAdmins.isEmpty()){
@@ -177,7 +179,8 @@ public class EventMessageHandler {
 
             if (shallSendDisputeUpdatedEmail(disputeLostEvent)) {
                 Map<String, String> personalisation = Map.of(
-                        "organisationName", service.getMerchantDetails().getName(),
+                        "organisationName", service.getMerchantDetails() != null ?
+                                service.getMerchantDetails().getName() : service.getName(),
                         "serviceName", service.getName(),
                         "serviceReference", transaction.getReference(),
                         "disputedAmount", convertPenceToPounds.apply(disputeLostDetails.getAmount()).toString(),
