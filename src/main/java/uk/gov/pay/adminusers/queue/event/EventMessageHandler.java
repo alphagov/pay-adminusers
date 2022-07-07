@@ -37,7 +37,6 @@ import static uk.gov.pay.adminusers.utils.currency.ConvertToCurrency.convertPenc
 import static uk.gov.pay.adminusers.utils.date.DisputeEvidenceDueByDateUtil.getPayDueByDateForEpoch;
 import static uk.gov.pay.adminusers.utils.date.DisputeEvidenceDueByDateUtil.getZDTForEpoch;
 import static uk.gov.service.payments.logging.LoggingKeys.GATEWAY_ACCOUNT_ID;
-import static uk.gov.service.payments.logging.LoggingKeys.GATEWAY_DISPUTE_ID;
 import static uk.gov.service.payments.logging.LoggingKeys.LEDGER_EVENT_TYPE;
 import static uk.gov.service.payments.logging.LoggingKeys.PAYMENT_EXTERNAL_ID;
 import static uk.gov.service.payments.logging.LoggingKeys.SERVICE_EXTERNAL_ID;
@@ -269,13 +268,13 @@ public class EventMessageHandler {
     }
 
     private void setupMDC(Event event) {
-        MDC.put(GATEWAY_DISPUTE_ID, event.getResourceExternalId());
+        MDC.put("dispute_external_id", event.getResourceExternalId());
         MDC.put(PAYMENT_EXTERNAL_ID, event.getParentResourceExternalId());
         MDC.put(SERVICE_EXTERNAL_ID, event.getServiceId());
         MDC.put(LEDGER_EVENT_TYPE, event.getEventType());
     }
 
     private void tearDownMDC() {
-        List.of(PAYMENT_EXTERNAL_ID, GATEWAY_DISPUTE_ID, SERVICE_EXTERNAL_ID, GATEWAY_ACCOUNT_ID, LEDGER_EVENT_TYPE).forEach(MDC::remove);
+        List.of(PAYMENT_EXTERNAL_ID, SERVICE_EXTERNAL_ID, GATEWAY_ACCOUNT_ID, "dispute_external_id", LEDGER_EVENT_TYPE).forEach(MDC::remove);
     }
 }
