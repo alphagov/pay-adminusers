@@ -23,7 +23,6 @@ class DisputeCreatedDetailsTest {
         var disputeCreatedDetails = objectMapper.readValue(evt.getEventDetails(), DisputeCreatedDetails.class);
         
         assertThat(evt.getEventType(), is(EventType.DISPUTE_CREATED.name()));
-        assertThat(disputeCreatedDetails.getFee(), is(1500L));
         assertThat(disputeCreatedDetails.getAmount(), is(125000L));
         assertThat(disputeCreatedDetails.getEvidenceDueDate(), is(1648745127L));
         assertThat(disputeCreatedDetails.getGatewayAccountId(), is("123"));

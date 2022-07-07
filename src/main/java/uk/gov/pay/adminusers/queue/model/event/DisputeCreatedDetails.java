@@ -8,12 +8,11 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DisputeCreatedDetails {
-    
+
     private Long amount;
-    private Long fee;
     private Long evidenceDueDate;
     private String gatewayAccountId;
-    
+
     public DisputeCreatedDetails() {
         // empty constructor
     }
@@ -22,13 +21,11 @@ public class DisputeCreatedDetails {
         return amount;
     }
 
-    public Long getFee() {
-        return fee;
-    }
-
     public long getEvidenceDueDate() {
         return evidenceDueDate;
     }
-    
-    public String getGatewayAccountId() { return gatewayAccountId; }
+
+    public String getGatewayAccountId() {
+        return gatewayAccountId;
+    }
 }

@@ -97,7 +97,7 @@ class EventMessageHandlerTest {
     void setUp() {
         eventMessageHandler = new EventMessageHandler(mockEventSubscriberQueue, mockLedgerService, mockNotificationService, mockServiceFinder, mockUserServices, objectMapper);
         service = Service.from(randomInt(), randomUuid(), new ServiceName(DEFAULT_NAME_VALUE));
-        service.setMerchantDetails(new MerchantDetails("Organisation Name", null, null, null, null, null, null, null,null));
+        service.setMerchantDetails(new MerchantDetails("Organisation Name", null, null, null, null, null, null, null, null));
         transaction = aLedgerTransactionFixture()
                 .withTransactionId("456")
                 .withReference("tx ref")
@@ -129,7 +129,7 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", 1646658000L, "gateway_account_id", gatewayAccountId)))
+                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "evidence_due_date", 1646658000L, "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
@@ -153,7 +153,6 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("paymentExternalId"), is("456"));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("paymentAmount"), is("210.00"));
-        assertThat(personalisation.get("disputeFee"), is("15.00"));
         assertThat(personalisation.get("disputeEvidenceDueDate"), is("7 March 2022"));
         assertThat(personalisation.get("sendEvidenceToPayDueDate"), is("4 March 2022"));
 
@@ -195,7 +194,7 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("disputedAmount"), is("25.00"));
         assertThat(personalisation.get("disputeFee"), is("15.00"));
-        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName())) ;
+        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
@@ -238,7 +237,7 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
         assertThat(personalisation.get("disputedAmount"), is("25.00"));
         assertThat(personalisation.get("disputeFee"), is("15.00"));
-        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName())) ;
+        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
@@ -308,7 +307,7 @@ class EventMessageHandlerTest {
         assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
-        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName())) ;
+        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
@@ -346,7 +345,7 @@ class EventMessageHandlerTest {
         assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
-        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName())) ;
+        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 

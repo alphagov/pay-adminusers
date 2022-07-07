@@ -12,7 +12,6 @@ import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import uk.gov.pay.adminusers.queue.model.Event;
 import uk.gov.pay.adminusers.queue.model.EventMessage;
-import uk.gov.pay.adminusers.queue.model.EventType;
 import uk.gov.pay.adminusers.queue.model.event.DisputeCreatedDetails;
 import uk.gov.pay.adminusers.queue.model.event.DisputeEvidenceSubmittedDetails;
 import uk.gov.pay.adminusers.queue.model.event.DisputeLostDetails;
@@ -31,18 +30,23 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static net.logstash.logback.argument.StructuredArguments.kv;
+import static uk.gov.pay.adminusers.queue.model.EventType.DISPUTE_CREATED;
+import static uk.gov.pay.adminusers.queue.model.EventType.DISPUTE_EVIDENCE_SUBMITTED;
+import static uk.gov.pay.adminusers.queue.model.EventType.DISPUTE_LOST;
+import static uk.gov.pay.adminusers.queue.model.EventType.DISPUTE_WON;
 import static uk.gov.pay.adminusers.utils.currency.ConvertToCurrency.convertPenceToPounds;
 import static uk.gov.pay.adminusers.utils.date.DisputeEvidenceDueByDateUtil.getPayDueByDateForEpoch;
 import static uk.gov.pay.adminusers.utils.date.DisputeEvidenceDueByDateUtil.getZDTForEpoch;
 import static uk.gov.service.payments.logging.LoggingKeys.GATEWAY_ACCOUNT_ID;
 import static uk.gov.service.payments.logging.LoggingKeys.GATEWAY_DISPUTE_ID;
+import static uk.gov.service.payments.logging.LoggingKeys.LEDGER_EVENT_TYPE;
 import static uk.gov.service.payments.logging.LoggingKeys.PAYMENT_EXTERNAL_ID;
 import static uk.gov.service.payments.logging.LoggingKeys.SERVICE_EXTERNAL_ID;
 
 public class EventMessageHandler {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy"); // 9 March 2022
-    
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final EventSubscriberQueue eventSubscriberQueue;
     private final LedgerService ledgerService;
@@ -52,11 +56,11 @@ public class EventMessageHandler {
     private final ObjectMapper objectMapper;
 
     @Inject
-    public EventMessageHandler(EventSubscriberQueue eventSubscriberQueue, 
-                               LedgerService ledgerService, 
-                               NotificationService notificationService, 
-                               ServiceFinder serviceFinder, 
-                               UserServices userServices, 
+    public EventMessageHandler(EventSubscriberQueue eventSubscriberQueue,
+                               LedgerService ledgerService,
+                               NotificationService notificationService,
+                               ServiceFinder serviceFinder,
+                               UserServices userServices,
                                ObjectMapper objectMapper) {
         this.eventSubscriberQueue = eventSubscriberQueue;
         this.ledgerService = ledgerService;
@@ -70,18 +74,19 @@ public class EventMessageHandler {
         List<EventMessage> eventMessages = eventSubscriberQueue.retrieveEvents();
         for (EventMessage message : eventMessages) {
             try {
+                String eventType = message.getEvent().getEventType();
                 logger.info("Retrieved event queue message with id [{}] for resource external id [{}]",
                         message.getQueueMessage().getMessageId(), message.getEvent().getResourceExternalId());
-                if (message.getEvent().getEventType().equalsIgnoreCase(EventType.DISPUTE_CREATED.name())) {
+                if (eventType.equalsIgnoreCase(DISPUTE_CREATED.name())) {
                     handleDisputeCreatedMessage(message.getEvent());
-                } else if (message.getEvent().getEventType().equalsIgnoreCase(EventType.DISPUTE_LOST.name())) {
+                } else if (eventType.equalsIgnoreCase(DISPUTE_LOST.name())) {
                     handleDisputeLostMessage(message.getEvent());
-                } else if (message.getEvent().getEventType().equalsIgnoreCase(EventType.DISPUTE_WON.name())) {
+                } else if (eventType.equalsIgnoreCase(DISPUTE_WON.name())) {
                     handleDisputeWonMessage(message.getEvent());
-                } else if (message.getEvent().getEventType().equalsIgnoreCase(EventType.DISPUTE_EVIDENCE_SUBMITTED.name())) {
+                } else if (eventType.equalsIgnoreCase(DISPUTE_EVIDENCE_SUBMITTED.name())) {
                     handleDisputeEvidenceSubmittedMessage(message.getEvent());
                 } else {
-                    logger.warn("Unknown event type: {}", message.getEvent().getEventType());
+                    logger.warn("Unknown event type: {}", eventType);
                 }
                 eventSubscriberQueue.markMessageAsProcessed(message.getQueueMessage());
             } catch (Exception e) {
@@ -113,7 +118,7 @@ public class EventMessageHandler {
                                 service.getMerchantDetails().getName() : service.getName(),
                         "serviceName", service.getName(),
                         "serviceReference", transaction.getReference());
-                if (!serviceAdmins.isEmpty()){
+                if (!serviceAdmins.isEmpty()) {
                     notificationService.sendStripeDisputeEvidenceSubmittedEmail(
                             serviceAdmins.stream().map(UserEntity::getEmail).collect(Collectors.toSet()),
                             personalisation
@@ -123,7 +128,7 @@ public class EventMessageHandler {
                     throw new IllegalStateException(format("Service has no Admin users [external_id: %s]", service.getExternalId()));
                 }
             } else {
-                logger.info(format("Dispute evidence submitted email sending is not yet enabled for [service_id: %s]", disputeEvidenceSubmittedEvent.getServiceId()));
+                logger.info("Dispute evidence submitted email sending is not yet enabled for [service_id: {}]", disputeEvidenceSubmittedEvent.getServiceId());
             }
         } finally {
             tearDownMDC();
@@ -148,7 +153,7 @@ public class EventMessageHandler {
                                 service.getMerchantDetails().getName() : service.getName(),
                         "serviceName", service.getName(),
                         "serviceReference", transaction.getReference());
-                if (!serviceAdmins.isEmpty()){
+                if (!serviceAdmins.isEmpty()) {
                     notificationService.sendStripeDisputeWonEmail(
                             serviceAdmins.stream().map(UserEntity::getEmail).collect(Collectors.toSet()),
                             personalisation
@@ -158,14 +163,14 @@ public class EventMessageHandler {
                     throw new IllegalStateException(format("Service has no Admin users [external_id: %s]", service.getExternalId()));
                 }
             } else {
-                logger.info(format("Dispute won email sending is not yet enabled for [service_id: %s]", disputeWonEvent.getServiceId()));
+                logger.info("Dispute won email sending is not yet enabled for [service_id: {}]", disputeWonEvent.getServiceId());
             }
         } finally {
             tearDownMDC();
         }
     }
 
-    private void handleDisputeLostMessage(Event disputeLostEvent) throws JsonProcessingException{
+    private void handleDisputeLostMessage(Event disputeLostEvent) throws JsonProcessingException {
         try {
             setupMDC(disputeLostEvent);
 
@@ -186,7 +191,7 @@ public class EventMessageHandler {
                         "disputedAmount", convertPenceToPounds.apply(disputeLostDetails.getAmount()).toString(),
                         "disputeFee", convertPenceToPounds.apply(disputeLostDetails.getFee()).toString());
 
-                if (!serviceAdmins.isEmpty()){
+                if (!serviceAdmins.isEmpty()) {
                     notificationService.sendStripeDisputeLostEmail(
                             serviceAdmins.stream().map(UserEntity::getEmail).collect(Collectors.toSet()),
                             personalisation
@@ -196,7 +201,7 @@ public class EventMessageHandler {
                     throw new IllegalStateException(format("Service has no Admin users [external_id: %s]", service.getExternalId()));
                 }
             } else {
-                logger.info(format("Dispute lost email sending is not yet enabled for [service_id: %s]", disputeLostEvent.getServiceId()));
+                logger.info("Dispute lost email sending is not yet enabled for [service_id: {}]", disputeLostEvent.getServiceId());
             }
         } finally {
             tearDownMDC();
@@ -228,12 +233,12 @@ public class EventMessageHandler {
             String formattedDueDate = getZDTForEpoch(epoch).format(DATE_TIME_FORMATTER);
             String formattedPayDueDate = getPayDueByDateForEpoch(epoch).format(DATE_TIME_FORMATTER);
 
-            Map<String, String> personalisation =  Map.of(
+            Map<String, String> personalisation = Map.of(
                     "serviceName", service.getName(),
                     "paymentExternalId", disputeCreatedEvent.getParentResourceExternalId(),
                     "serviceReference", transaction.getReference(),
+                    "disputedAmount", convertPenceToPounds.apply(disputeCreatedDetails.getAmount()).toString(),
                     "paymentAmount", convertPenceToPounds.apply(disputeCreatedDetails.getAmount()).toString(),
-                    "disputeFee", convertPenceToPounds.apply(disputeCreatedDetails.getFee()).toString(),
                     "disputeEvidenceDueDate", formattedDueDate,
                     "sendEvidenceToPayDueDate", formattedPayDueDate
             );
@@ -266,9 +271,10 @@ public class EventMessageHandler {
         MDC.put(GATEWAY_DISPUTE_ID, event.getResourceExternalId());
         MDC.put(PAYMENT_EXTERNAL_ID, event.getParentResourceExternalId());
         MDC.put(SERVICE_EXTERNAL_ID, event.getServiceId());
+        MDC.put(LEDGER_EVENT_TYPE, event.getEventType());
     }
 
     private void tearDownMDC() {
-        List.of(PAYMENT_EXTERNAL_ID, GATEWAY_DISPUTE_ID, SERVICE_EXTERNAL_ID, GATEWAY_ACCOUNT_ID).forEach(MDC::remove);
+        List.of(PAYMENT_EXTERNAL_ID, GATEWAY_DISPUTE_ID, SERVICE_EXTERNAL_ID, GATEWAY_ACCOUNT_ID, LEDGER_EVENT_TYPE).forEach(MDC::remove);
     }
 }
