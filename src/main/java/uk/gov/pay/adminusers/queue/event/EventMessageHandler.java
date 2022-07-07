@@ -12,6 +12,7 @@ import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import uk.gov.pay.adminusers.queue.model.Event;
 import uk.gov.pay.adminusers.queue.model.EventMessage;
+import uk.gov.pay.adminusers.queue.model.EventType;
 import uk.gov.pay.adminusers.queue.model.event.DisputeCreatedDetails;
 import uk.gov.pay.adminusers.queue.model.event.DisputeEvidenceSubmittedDetails;
 import uk.gov.pay.adminusers.queue.model.event.DisputeLostDetails;
@@ -24,16 +25,14 @@ import uk.gov.service.payments.commons.queue.exception.QueueException;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static net.logstash.logback.argument.StructuredArguments.kv;
-import static uk.gov.pay.adminusers.queue.model.EventType.DISPUTE_CREATED;
-import static uk.gov.pay.adminusers.queue.model.EventType.DISPUTE_EVIDENCE_SUBMITTED;
-import static uk.gov.pay.adminusers.queue.model.EventType.DISPUTE_LOST;
-import static uk.gov.pay.adminusers.queue.model.EventType.DISPUTE_WON;
 import static uk.gov.pay.adminusers.utils.currency.ConvertToCurrency.convertPenceToPounds;
 import static uk.gov.pay.adminusers.utils.date.DisputeEvidenceDueByDateUtil.getPayDueByDateForEpoch;
 import static uk.gov.pay.adminusers.utils.date.DisputeEvidenceDueByDateUtil.getZDTForEpoch;
@@ -74,20 +73,28 @@ public class EventMessageHandler {
         List<EventMessage> eventMessages = eventSubscriberQueue.retrieveEvents();
         for (EventMessage message : eventMessages) {
             try {
-                String eventType = message.getEvent().getEventType();
+                EventType eventType = EventType.valueOf(message.getEvent().getEventType().toUpperCase());
+
                 logger.info("Retrieved event queue message with id [{}] for resource external id [{}]",
                         message.getQueueMessage().getMessageId(), message.getEvent().getResourceExternalId());
-                if (eventType.equalsIgnoreCase(DISPUTE_CREATED.name())) {
-                    handleDisputeCreatedMessage(message.getEvent());
-                } else if (eventType.equalsIgnoreCase(DISPUTE_LOST.name())) {
-                    handleDisputeLostMessage(message.getEvent());
-                } else if (eventType.equalsIgnoreCase(DISPUTE_WON.name())) {
-                    handleDisputeWonMessage(message.getEvent());
-                } else if (eventType.equalsIgnoreCase(DISPUTE_EVIDENCE_SUBMITTED.name())) {
-                    handleDisputeEvidenceSubmittedMessage(message.getEvent());
-                } else {
-                    logger.warn("Unknown event type: {}", eventType);
+
+                switch (eventType) {
+                    case DISPUTE_CREATED:
+                        handleDisputeCreatedMessage(message.getEvent());
+                        break;
+                    case DISPUTE_EVIDENCE_SUBMITTED:
+                        handleDisputeEvidenceSubmittedMessage(message.getEvent());
+                        break;
+                    case DISPUTE_LOST:
+                        handleDisputeLostMessage(message.getEvent());
+                        break;
+                    case DISPUTE_WON:
+                        handleDisputeWonMessage(message.getEvent());
+                        break;
+                    default:
+                        logger.warn("Unknown event type: {}", eventType);
                 }
+
                 eventSubscriberQueue.markMessageAsProcessed(message.getQueueMessage());
             } catch (Exception e) {
                 Sentry.captureException(e);
@@ -108,25 +115,13 @@ public class EventMessageHandler {
 
             MDC.put(GATEWAY_ACCOUNT_ID, disputeEvidenceSubmittedDetails.getGatewayAccountId());
 
-            Service service = getService(disputeEvidenceSubmittedDetails.getGatewayAccountId());
-            LedgerTransaction transaction = getTransaction(disputeEvidenceSubmittedEvent);
-            List<UserEntity> serviceAdmins = userServices.getAdminUsersForService(service);
-
             if (shallSendDisputeUpdatedEmail(disputeEvidenceSubmittedEvent)) {
-                Map<String, String> personalisation = Map.of(
-                        "organisationName", service.getMerchantDetails() != null ?
-                                service.getMerchantDetails().getName() : service.getName(),
-                        "serviceName", service.getName(),
-                        "serviceReference", transaction.getReference());
-                if (!serviceAdmins.isEmpty()) {
-                    notificationService.sendStripeDisputeEvidenceSubmittedEmail(
-                            serviceAdmins.stream().map(UserEntity::getEmail).collect(Collectors.toSet()),
-                            personalisation
-                    );
-                    logger.info("Processed notification email for dispute evidence submitted");
-                } else {
-                    throw new IllegalStateException(format("Service has no Admin users [external_id: %s]", service.getExternalId()));
-                }
+                Map<String, String> personalisation = getMinimumRequiredPersonalisation(
+                        disputeEvidenceSubmittedDetails.getGatewayAccountId(),
+                        disputeEvidenceSubmittedEvent.getParentResourceExternalId());
+
+                sendEmailNotificationToServiceAdmins(disputeEvidenceSubmittedEvent.getEventType(),
+                        disputeEvidenceSubmittedDetails.getGatewayAccountId(), personalisation);
             } else {
                 logger.info("Dispute evidence submitted email sending is not yet enabled for [service_id: {}]", disputeEvidenceSubmittedEvent.getServiceId());
             }
@@ -143,25 +138,11 @@ public class EventMessageHandler {
 
             MDC.put(GATEWAY_ACCOUNT_ID, disputeWonDetails.getGatewayAccountId());
 
-            Service service = getService(disputeWonDetails.getGatewayAccountId());
-            LedgerTransaction transaction = getTransaction(disputeWonEvent);
-            List<UserEntity> serviceAdmins = userServices.getAdminUsersForService(service);
-
             if (shallSendDisputeUpdatedEmail(disputeWonEvent)) {
-                Map<String, String> personalisation = Map.of(
-                        "organisationName", service.getMerchantDetails() != null ?
-                                service.getMerchantDetails().getName() : service.getName(),
-                        "serviceName", service.getName(),
-                        "serviceReference", transaction.getReference());
-                if (!serviceAdmins.isEmpty()) {
-                    notificationService.sendStripeDisputeWonEmail(
-                            serviceAdmins.stream().map(UserEntity::getEmail).collect(Collectors.toSet()),
-                            personalisation
-                    );
-                    logger.info("Processed notification email for won dispute");
-                } else {
-                    throw new IllegalStateException(format("Service has no Admin users [external_id: %s]", service.getExternalId()));
-                }
+                Map<String, String> personalisation = getMinimumRequiredPersonalisation(disputeWonDetails.getGatewayAccountId(),
+                        disputeWonEvent.getParentResourceExternalId());
+
+                sendEmailNotificationToServiceAdmins(disputeWonEvent.getEventType(), disputeWonDetails.getGatewayAccountId(), personalisation);
             } else {
                 logger.info("Dispute won email sending is not yet enabled for [service_id: {}]", disputeWonEvent.getServiceId());
             }
@@ -178,34 +159,32 @@ public class EventMessageHandler {
 
             MDC.put(GATEWAY_ACCOUNT_ID, disputeLostDetails.getGatewayAccountId());
 
-            Service service = getService(disputeLostDetails.getGatewayAccountId());
-            LedgerTransaction transaction = getTransaction(disputeLostEvent);
-            List<UserEntity> serviceAdmins = userServices.getAdminUsersForService(service);
-
             if (shallSendDisputeUpdatedEmail(disputeLostEvent)) {
-                Map<String, String> personalisation = Map.of(
-                        "organisationName", service.getMerchantDetails() != null ?
-                                service.getMerchantDetails().getName() : service.getName(),
-                        "serviceName", service.getName(),
-                        "serviceReference", transaction.getReference(),
-                        "disputedAmount", convertPenceToPounds.apply(disputeLostDetails.getAmount()).toString(),
-                        "disputeFee", convertPenceToPounds.apply(disputeLostDetails.getFee()).toString());
+                Map<String, String> personalisation = getMinimumRequiredPersonalisation(disputeLostDetails.getGatewayAccountId(),
+                        disputeLostEvent.getParentResourceExternalId());
 
-                if (!serviceAdmins.isEmpty()) {
-                    notificationService.sendStripeDisputeLostEmail(
-                            serviceAdmins.stream().map(UserEntity::getEmail).collect(Collectors.toSet()),
-                            personalisation
-                    );
-                    logger.info("Processed notification email for lost dispute");
-                } else {
-                    throw new IllegalStateException(format("Service has no Admin users [external_id: %s]", service.getExternalId()));
-                }
+                personalisation.put("disputedAmount", convertPenceToPounds.apply(disputeLostDetails.getAmount()).toString());
+                personalisation.put("disputeFee", convertPenceToPounds.apply(disputeLostDetails.getFee()).toString());
+
+                sendEmailNotificationToServiceAdmins(disputeLostEvent.getEventType(), disputeLostDetails.getGatewayAccountId(),
+                        personalisation);
+
             } else {
                 logger.info("Dispute lost email sending is not yet enabled for [service_id: {}]", disputeLostEvent.getServiceId());
             }
         } finally {
             tearDownMDC();
         }
+    }
+
+    private Map<String, String> getMinimumRequiredPersonalisation(String gatewayAccountId, String parentResourceExternalId) {
+        Service service = getService(gatewayAccountId);
+        LedgerTransaction transaction = getTransaction(parentResourceExternalId);
+
+        return new HashMap<>(Map.of("organisationName", service.getMerchantDetails() != null ?
+                        service.getMerchantDetails().getName() : service.getName(),
+                "serviceName", service.getName(),
+                "serviceReference", transaction.getReference()));
     }
 
     private boolean shallSendDisputeUpdatedEmail(Event disputeLostEvent) {
@@ -225,46 +204,68 @@ public class EventMessageHandler {
 
             MDC.put(GATEWAY_ACCOUNT_ID, disputeCreatedDetails.getGatewayAccountId());
 
-            Service service = getService(disputeCreatedDetails.getGatewayAccountId());
-            LedgerTransaction transaction = getTransaction(disputeCreatedEvent);
-            List<UserEntity> serviceAdmins = userServices.getAdminUsersForService(service);
-
             var epoch = disputeCreatedDetails.getEvidenceDueDate();
             String formattedDueDate = getZDTForEpoch(epoch).format(DATE_TIME_FORMATTER);
             String formattedPayDueDate = getPayDueByDateForEpoch(epoch).format(DATE_TIME_FORMATTER);
 
-            Map<String, String> personalisation = Map.of(
-                    "serviceName", service.getName(),
-                    "paymentExternalId", disputeCreatedEvent.getParentResourceExternalId(),
-                    "serviceReference", transaction.getReference(),
-                    "disputedAmount", convertPenceToPounds.apply(disputeCreatedDetails.getAmount()).toString(),
-                    "paymentAmount", convertPenceToPounds.apply(disputeCreatedDetails.getAmount()).toString(),
-                    "disputeEvidenceDueDate", formattedDueDate,
-                    "sendEvidenceToPayDueDate", formattedPayDueDate
-            );
+            Map<String, String> personalisation = getMinimumRequiredPersonalisation(disputeCreatedDetails.getGatewayAccountId(),
+                    disputeCreatedEvent.getParentResourceExternalId());
 
-            if (!serviceAdmins.isEmpty()) {
-                notificationService.sendStripeDisputeCreatedEmail(
-                        serviceAdmins.stream().map(UserEntity::getEmail).collect(Collectors.toSet()),
-                        personalisation
-                );
-                logger.info("Processed notification email for disputed transaction");
-            } else {
-                throw new IllegalStateException(format("Service has no Admin users [external_id: %s]", service.getExternalId()));
-            }
+            personalisation.put("paymentExternalId", disputeCreatedEvent.getParentResourceExternalId());
+            personalisation.put("disputedAmount", convertPenceToPounds.apply(disputeCreatedDetails.getAmount()).toString());
+            personalisation.put("paymentAmount", convertPenceToPounds.apply(disputeCreatedDetails.getAmount()).toString());
+            personalisation.put("disputeEvidenceDueDate", formattedDueDate);
+            personalisation.put("sendEvidenceToPayDueDate", formattedPayDueDate);
+
+            sendEmailNotificationToServiceAdmins(disputeCreatedEvent.getEventType(), disputeCreatedDetails.getGatewayAccountId(), personalisation);
         } finally {
             tearDownMDC();
         }
     }
 
-    private LedgerTransaction getTransaction(Event event) {
-        return ledgerService.getTransaction(event.getParentResourceExternalId())
-                .orElseThrow(() -> new IllegalArgumentException(format("Transaction not found [payment_external_id: %s]", event.getParentResourceExternalId())));
+    private LedgerTransaction getTransaction(String parentResourceExternalId) {
+        return ledgerService.getTransaction(parentResourceExternalId)
+                .orElseThrow(() -> new IllegalArgumentException(format("Transaction not found [payment_external_id: %s]",
+                        parentResourceExternalId)));
     }
 
     private Service getService(String gatewayAccountId) {
         return serviceFinder.byGatewayAccountId(gatewayAccountId)
                 .orElseThrow(() -> new IllegalArgumentException(format("Service not found [gateway_account_id: %s]", gatewayAccountId)));
+    }
+
+    private void sendEmailNotificationToServiceAdmins(String eventType, String gatewayAccountId,
+                                                      Map<String, String> personalisation) {
+        Service service = getService(gatewayAccountId);
+        List<UserEntity> serviceAdmins = userServices.getAdminUsersForService(service.getId());
+
+        if (!serviceAdmins.isEmpty()) {
+            sendDisputeEmailForEvent(eventType, serviceAdmins.stream().map(UserEntity::getEmail).collect(Collectors.toSet()),
+                    personalisation);
+            logger.info("Processed notification email for disputed transaction");
+        } else {
+            throw new IllegalStateException(format("Service has no Admin users [external_id: %s]", service.getExternalId()));
+        }
+    }
+
+    private void sendDisputeEmailForEvent(String eventType, Set<String> adminEmails, Map<String, String> personalisation) {
+        EventType disputeEventType = EventType.valueOf(eventType.toUpperCase());
+        switch (disputeEventType) {
+            case DISPUTE_CREATED:
+                notificationService.sendStripeDisputeCreatedEmail(adminEmails, personalisation);
+                break;
+            case DISPUTE_LOST:
+                notificationService.sendStripeDisputeLostEmail(adminEmails, personalisation);
+                break;
+            case DISPUTE_WON:
+                notificationService.sendStripeDisputeWonEmail(adminEmails, personalisation);
+                break;
+            case DISPUTE_EVIDENCE_SUBMITTED:
+                notificationService.sendStripeDisputeEvidenceSubmittedEmail(adminEmails, personalisation);
+                break;
+            default:
+                logger.warn("Unknown event type: {}", eventType);
+        }
     }
 
     private void setupMDC(Event event) {

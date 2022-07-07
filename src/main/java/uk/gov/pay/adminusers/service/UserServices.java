@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
-import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
@@ -269,8 +268,8 @@ public class UserServices {
         return Optional.of(linksBuilder.decorate(user.toUser()));
     }
     
-    public List<UserEntity> getAdminUsersForService(Service service) {
-        List<UserEntity> serviceUsers = userDao.findByServiceId(service.getId());
+    public List<UserEntity> getAdminUsersForService(Integer serviceId) {
+        List<UserEntity> serviceUsers = userDao.findByServiceId(serviceId);
         return serviceUsers.stream().filter(userEntity -> {
             var hasAdminRole = userEntity.getRoles().stream().filter(RoleEntity::isAdmin).count();
             return hasAdminRole > 0;

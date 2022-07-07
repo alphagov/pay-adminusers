@@ -680,7 +680,7 @@ public class UserServicesTest {
                 aUserEntityWithRoleForService(serv, false, "user1"));
         when(mockUserDao.findByServiceId(serv.getId())).thenReturn(users);
 
-        var adminUsers = underTest.getAdminUsersForService(serv);
+        var adminUsers = underTest.getAdminUsersForService(serv.getId());
 
         assertThat(adminUsers.size(), is(2));
         assertThat(adminUsers, hasItems(users.get(0), users.get(1)));
