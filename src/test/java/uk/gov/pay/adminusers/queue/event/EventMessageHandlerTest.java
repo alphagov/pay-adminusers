@@ -116,7 +116,7 @@ class EventMessageHandlerTest {
     void shouldMarkMessageAsProcessed() throws Exception {
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "evidence_due_date", 1646658000L, "gateway_account_id", gatewayAccountId)))
+                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .build();
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
@@ -137,7 +137,7 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "evidence_due_date", 1646658000L, "gateway_account_id", gatewayAccountId)))
+                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
@@ -390,7 +390,7 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", 1646658000L, "gateway_account_id", gatewayAccountId)))
+                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00Z", "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
@@ -407,7 +407,7 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", 1646658000L, "gateway_account_id", gatewayAccountId)))
+                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
@@ -425,7 +425,7 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", 1646658000L, "gateway_account_id", gatewayAccountId)))
+                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "fee", 1500L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
                 .withParentResourceExternalId("456")
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);

@@ -2,7 +2,7 @@
   "event_type": "DISPUTE_CREATED",
   "service_id": "111111111",
   "resource_type": "dispute",
-  "event_details": "{\"fee\":1500,\"evidence_due_date\":1648745127,\"gateway_account_id\":\"123\",\"amount\":125000,\"net_amount\":126500,\"reason\":\"fraudulent\"}",
+  "event_details": "{\"fee\":1500,\"evidence_due_date\":\"2022-03-07T13:00:00.001Z\",\"gateway_account_id\":\"123\",\"amount\":125000,\"net_amount\":126500,\"reason\":\"fraudulent\"}",
   "live": false,
   "timestamp": "2022-03-17T17:46:01.123456Z",
   "resource_external_id": "du_abcd",
