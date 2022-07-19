@@ -34,8 +34,7 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 import static net.logstash.logback.argument.StructuredArguments.kv;
 import static uk.gov.pay.adminusers.utils.currency.ConvertToCurrency.convertPenceToPounds;
-import static uk.gov.pay.adminusers.utils.date.DisputeEvidenceDueByDateUtil.getPayDueByDateForEpoch;
-import static uk.gov.pay.adminusers.utils.date.DisputeEvidenceDueByDateUtil.getZDTForEpoch;
+import static uk.gov.pay.adminusers.utils.date.DisputeEvidenceDueByDateUtil.getPayDueByDate;
 import static uk.gov.service.payments.logging.LoggingKeys.GATEWAY_ACCOUNT_ID;
 import static uk.gov.service.payments.logging.LoggingKeys.LEDGER_EVENT_TYPE;
 import static uk.gov.service.payments.logging.LoggingKeys.PAYMENT_EXTERNAL_ID;
@@ -203,9 +202,8 @@ public class EventMessageHandler {
 
             MDC.put(GATEWAY_ACCOUNT_ID, disputeCreatedDetails.getGatewayAccountId());
 
-            var epoch = disputeCreatedDetails.getEvidenceDueDate();
-            String formattedDueDate = getZDTForEpoch(epoch).format(DATE_TIME_FORMATTER);
-            String formattedPayDueDate = getPayDueByDateForEpoch(epoch).format(DATE_TIME_FORMATTER);
+            String formattedDueDate = disputeCreatedDetails.getEvidenceDueDate().format(DATE_TIME_FORMATTER);
+            String formattedPayDueDate = getPayDueByDate(disputeCreatedDetails.getEvidenceDueDate()).format(DATE_TIME_FORMATTER);
 
             Map<String, String> personalisation = getMinimumRequiredPersonalisation(disputeCreatedDetails.getGatewayAccountId(),
                     disputeCreatedEvent.getParentResourceExternalId());

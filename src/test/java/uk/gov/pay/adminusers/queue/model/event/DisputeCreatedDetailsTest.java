@@ -12,8 +12,8 @@ import static uk.gov.pay.adminusers.TestTemplateResourceLoader.DISPUTE_CREATED_E
 import static uk.gov.pay.adminusers.TestTemplateResourceLoader.load;
 
 class DisputeCreatedDetailsTest {
-    
-    private final ObjectMapper objectMapper = new ObjectMapper(); 
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void shouldDeserialiseDisputeEvent() throws JsonProcessingException {
@@ -21,10 +21,10 @@ class DisputeCreatedDetailsTest {
         var json = objectMapper.readTree(load(DISPUTE_CREATED_EVENT));
         var evt = objectMapper.treeToValue(json, Event.class);
         var disputeCreatedDetails = objectMapper.readValue(evt.getEventDetails(), DisputeCreatedDetails.class);
-        
+
         assertThat(evt.getEventType(), is(EventType.DISPUTE_CREATED.name()));
         assertThat(disputeCreatedDetails.getAmount(), is(125000L));
-        assertThat(disputeCreatedDetails.getEvidenceDueDate(), is(1648745127L));
+        assertThat(disputeCreatedDetails.getEvidenceDueDate().toString(), is("2022-03-07T13:00:00.001Z"));
         assertThat(disputeCreatedDetails.getGatewayAccountId(), is("123"));
     }
 }
