@@ -200,8 +200,6 @@ class EventMessageHandlerTest {
         assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
-        assertThat(personalisation.get("disputedAmount"), is("25.00"));
-        assertThat(personalisation.get("disputeFee"), is("15.00"));
         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
@@ -243,8 +241,6 @@ class EventMessageHandlerTest {
         assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
-        assertThat(personalisation.get("disputedAmount"), is("25.00"));
-        assertThat(personalisation.get("disputeFee"), is("15.00"));
         assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());

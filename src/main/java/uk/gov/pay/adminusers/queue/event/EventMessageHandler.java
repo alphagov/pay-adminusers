@@ -161,9 +161,6 @@ public class EventMessageHandler {
                 Map<String, String> personalisation = getMinimumRequiredPersonalisation(disputeLostDetails.getGatewayAccountId(),
                         disputeLostEvent.getParentResourceExternalId());
 
-                personalisation.put("disputedAmount", convertPenceToPounds.apply(disputeLostDetails.getAmount()).toString());
-                personalisation.put("disputeFee", convertPenceToPounds.apply(disputeLostDetails.getFee()).toString());
-
                 sendEmailNotificationToServiceAdmins(disputeLostEvent.getEventType(), disputeLostDetails.getGatewayAccountId(),
                         personalisation);
 
