@@ -48,6 +48,7 @@ public class NotificationServiceTest {
     
     private static final String STRIPE_DISPUTE_CREATED_EMAIL_TEMPLATE_ID = "stripe-dispute-created-email-template-id";
     private static final String STRIPE_DISPUTE_LOST_EMAIL_TEMPLATE_ID = "stripe-dispute-lost-email-template-id";
+    private static final String STRIPE_DISPUTE_LOST_AND_SERVICE_CHARGED_EMAIL_TEMPLATE_ID = "stripe-dispute-lost-and-service-charged-email-template-id";
     private static final String STRIPE_DISPUTE_EVIDENCE_SUBMITTED_EMAIL_TEMPLATE_ID = "stripe-dispute-evidence-submitted-email-template-id";
     private static final String STRIPE_DISPUTE_WON_EMAIL_TEMPLATE_ID = "stripe-dispute-won-email-template-id";
     private static final String NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID = "notify-email-reply-to-support-id";
@@ -78,6 +79,7 @@ public class NotificationServiceTest {
         
         given(mockNotifyConfiguration.getStripeDisputeCreatedEmailTemplateId()).willReturn(STRIPE_DISPUTE_CREATED_EMAIL_TEMPLATE_ID);
         given(mockNotifyConfiguration.getStripeDisputeLostEmailTemplateId()).willReturn(STRIPE_DISPUTE_LOST_EMAIL_TEMPLATE_ID);
+        given(mockNotifyConfiguration.getStripeDisputeLostAndServiceChargedEmailTemplateId()).willReturn(STRIPE_DISPUTE_LOST_AND_SERVICE_CHARGED_EMAIL_TEMPLATE_ID);
         given(mockNotifyConfiguration.getStripeDisputeEvidenceSubmittedEmailTemplateId()).willReturn(STRIPE_DISPUTE_EVIDENCE_SUBMITTED_EMAIL_TEMPLATE_ID);
         given(mockNotifyConfiguration.getStripeDisputeWonEmailTemplateId()).willReturn(STRIPE_DISPUTE_WON_EMAIL_TEMPLATE_ID);
         given(mockNotifyConfiguration.getNotifyEmailReplyToSupportId()).willReturn(NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID);
@@ -171,6 +173,26 @@ public class NotificationServiceTest {
 
         verify(mockNotificationClient).sendEmail(STRIPE_DISPUTE_LOST_EMAIL_TEMPLATE_ID, "email1@service.gov.uk", personalisation, null, NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID);
         verify(mockNotificationClient).sendEmail(STRIPE_DISPUTE_LOST_EMAIL_TEMPLATE_ID, "email2@service.gov.uk", personalisation, null, NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID);
+    }
+
+    @Test
+    public void sendEmailWithStripeDisputeLostAndServiceChargedEmailTemplateId() throws NotificationClientException {
+        given(mockMetricRegistry.histogram("notify-operations.email.response_time")).willReturn(mock(Histogram.class));
+        given(mockNotificationClient.sendEmail(anyString(), anyString(), anyMap(), isNull(), anyString())).willReturn(mockSendEmailResponse);
+        given(mockSendEmailResponse.getNotificationId()).willReturn(NOTIFICATION_ID);
+
+        var addresses = Stream.of("email1@service.gov.uk", "email2@service.gov.uk")
+                .collect(Collectors.toSet());
+        var personalisation = Stream.of(new String[][] {
+                { "k1", "v1" },
+                { "k2", "v2" },
+                { "disputeFee", "v2" }  // This causes the "[...] and service charged" template to be used
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+
+        notificationService.sendStripeDisputeLostEmail(addresses, personalisation);
+
+        verify(mockNotificationClient).sendEmail(STRIPE_DISPUTE_LOST_AND_SERVICE_CHARGED_EMAIL_TEMPLATE_ID, "email1@service.gov.uk", personalisation, null, NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID);
+        verify(mockNotificationClient).sendEmail(STRIPE_DISPUTE_LOST_AND_SERVICE_CHARGED_EMAIL_TEMPLATE_ID, "email2@service.gov.uk", personalisation, null, NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID);
     }
 
     @Test
