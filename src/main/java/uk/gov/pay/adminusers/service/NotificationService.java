@@ -40,6 +40,7 @@ public class NotificationService {
 
     private final String stripeDisputeCreatedEmailTemplateId;
     private final String stripeDisputeLostEmailTemplateId;
+    private final String stripeDisputeLostAndServiceChargedEmailTemplateId;
     private final String stripeDisputeEvidenceSubmittedEmailTemplateId;
     private final String stripeDisputeWonEmailTemplateId;
     private final String notifyEmailReplyToSupportId;
@@ -66,6 +67,7 @@ public class NotificationService {
         
         this.stripeDisputeCreatedEmailTemplateId = notifyConfiguration.getStripeDisputeCreatedEmailTemplateId();
         this.stripeDisputeLostEmailTemplateId = notifyConfiguration.getStripeDisputeLostEmailTemplateId();
+        this.stripeDisputeLostAndServiceChargedEmailTemplateId = notifyConfiguration.getStripeDisputeLostAndServiceChargedEmailTemplateId();
         this.stripeDisputeEvidenceSubmittedEmailTemplateId = notifyConfiguration.getStripeDisputeEvidenceSubmittedEmailTemplateId();
         this.stripeDisputeWonEmailTemplateId = notifyConfiguration.getStripeDisputeWonEmailTemplateId();
         this.notifyEmailReplyToSupportId = notifyConfiguration.getNotifyEmailReplyToSupportId();
@@ -159,7 +161,10 @@ public class NotificationService {
     }
 
     public void sendStripeDisputeLostEmail(Set<String> emailAddresses, Map<String, String> personalisation) {
-        emailAddresses.forEach(email -> sendEmail(stripeDisputeLostEmailTemplateId, email, personalisation, notifyEmailReplyToSupportId));
+        boolean hasFee = personalisation.containsKey("disputeFee");
+        String templateId = hasFee ? stripeDisputeLostAndServiceChargedEmailTemplateId : stripeDisputeLostEmailTemplateId;
+
+        emailAddresses.forEach(email -> sendEmail(templateId, email, personalisation, notifyEmailReplyToSupportId));
     }
 
     public void sendStripeDisputeEvidenceSubmittedEmail(Set<String> emailAddresses, Map<String, String> personalisation) {

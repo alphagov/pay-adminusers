@@ -70,6 +70,10 @@ public class NotifyConfiguration extends Configuration {
 
     @Valid
     @NotNull
+    private String stripeDisputeLostAndServiceChargedEmailTemplateId;
+
+    @Valid
+    @NotNull
     private String stripeDisputeEvidenceSubmittedEmailTemplateId;
 
     @Valid
@@ -146,6 +150,10 @@ public class NotifyConfiguration extends Configuration {
 
     public String getStripeDisputeLostEmailTemplateId() {
         return stripeDisputeLostEmailTemplateId;
+    }
+
+    public String getStripeDisputeLostAndServiceChargedEmailTemplateId() {
+        return stripeDisputeLostAndServiceChargedEmailTemplateId;
     }
 
     public String getStripeDisputeEvidenceSubmittedEmailTemplateId() {

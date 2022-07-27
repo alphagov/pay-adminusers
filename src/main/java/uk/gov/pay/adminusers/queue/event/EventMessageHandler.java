@@ -158,7 +158,7 @@ public class EventMessageHandler {
             MDC.put(GATEWAY_ACCOUNT_ID, disputeLostDetails.getGatewayAccountId());
 
             if (shallSendDisputeUpdatedEmail(disputeLostEvent)) {
-                Map<String, String> personalisation = getMinimumRequiredPersonalisation(disputeLostDetails.getGatewayAccountId(),
+                Map<String, String> personalisation = getPersonalisationForDisputeLost(disputeLostDetails,
                         disputeLostEvent.getParentResourceExternalId());
 
                 sendEmailNotificationToServiceAdmins(disputeLostEvent.getEventType(), disputeLostDetails.getGatewayAccountId(),
@@ -180,6 +180,17 @@ public class EventMessageHandler {
                         service.getMerchantDetails().getName() : service.getName(),
                 "serviceName", service.getName(),
                 "serviceReference", transaction.getReference()));
+    }
+
+    private Map<String, String> getPersonalisationForDisputeLost(DisputeLostDetails details, String parentResourceExternalId) {
+        var personalisation = getMinimumRequiredPersonalisation(details.getGatewayAccountId(), parentResourceExternalId);
+
+        if (details.getFee() != null) {
+            personalisation.put("disputedAmount", convertPenceToPounds.apply(details.getAmount()).toString());
+            personalisation.put("disputeFee", convertPenceToPounds.apply(details.getFee()).toString());
+        }
+
+        return personalisation;
     }
 
     private boolean shallSendDisputeUpdatedEmail(Event disputeLostEvent) {
