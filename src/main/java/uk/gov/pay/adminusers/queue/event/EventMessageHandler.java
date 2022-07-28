@@ -71,7 +71,7 @@ public class EventMessageHandler {
         List<EventMessage> eventMessages = eventSubscriberQueue.retrieveEvents();
         for (EventMessage message : eventMessages) {
             try {
-                EventType eventType = EventType.valueOf(message.getEvent().getEventType().toUpperCase());
+                EventType eventType = EventType.byType(message.getEvent().getEventType());
 
                 logger.info("Retrieved event queue message with id [{}] for resource external id [{}]",
                         message.getQueueMessage().getMessageId(), message.getEvent().getResourceExternalId());
@@ -90,7 +90,7 @@ public class EventMessageHandler {
                         handleDisputeWonMessage(message.getEvent());
                         break;
                     default:
-                        logger.warn("Unknown event type: {}", eventType);
+                        logger.info("Unknown event type: {}", message.getEvent().getEventType());
                 }
 
                 eventSubscriberQueue.markMessageAsProcessed(message.getQueueMessage());
@@ -176,8 +176,10 @@ public class EventMessageHandler {
         Service service = getService(gatewayAccountId);
         LedgerTransaction transaction = getTransaction(parentResourceExternalId);
 
-        return new HashMap<>(Map.of("organisationName", service.getMerchantDetails() != null ?
-                        service.getMerchantDetails().getName() : service.getName(),
+        String organisationName = (service.getMerchantDetails() != null && service.getMerchantDetails().getName() != null) ?
+                service.getMerchantDetails().getName() : service.getName();
+
+        return new HashMap<>(Map.of("organisationName", organisationName,
                 "serviceName", service.getName(),
                 "serviceReference", transaction.getReference()));
     }
