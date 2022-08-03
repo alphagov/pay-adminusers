@@ -137,7 +137,7 @@ class EventMessageHandlerTest {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_CREATED.name())
-                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId)))
+                .withEventDetails(new GsonBuilder().create().toJson(Map.of("amount", 21000L, "evidence_due_date", "2022-03-07T13:00:00.001Z", "gateway_account_id", gatewayAccountId, "reason", "fraudulent")))
                 .withParentResourceExternalId("456")
                 .build();
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
@@ -163,6 +163,9 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("paymentAmount"), is("210.00"));
         assertThat(personalisation.get("disputeEvidenceDueDate"), is("7 March 2022"));
         assertThat(personalisation.get("sendEvidenceToPayDueDate"), is("4 March 2022"));
+
+        assertThat(personalisation.get("fraudulent"), is("yes"));
+        assertThat(personalisation.get("disputedAmount"), is("210.00"));
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
