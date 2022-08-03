@@ -123,7 +123,7 @@ public class EventMessageHandler {
         try {
             setupMDC(disputeEvidenceSubmittedEvent);
 
-            var disputeEvidenceSubmittedDetails = objectMapper.readValue(disputeEvidenceSubmittedEvent.getEventDetails(), DisputeEvidenceSubmittedDetails.class);
+            var disputeEvidenceSubmittedDetails = objectMapper.treeToValue(disputeEvidenceSubmittedEvent.getEventDetails(), DisputeEvidenceSubmittedDetails.class);
 
             MDC.put(GATEWAY_ACCOUNT_ID, disputeEvidenceSubmittedDetails.getGatewayAccountId());
 
@@ -146,7 +146,7 @@ public class EventMessageHandler {
         try {
             setupMDC(disputeWonEvent);
 
-            var disputeWonDetails = objectMapper.readValue(disputeWonEvent.getEventDetails(), DisputeWonDetails.class);
+            var disputeWonDetails = objectMapper.treeToValue(disputeWonEvent.getEventDetails(), DisputeWonDetails.class);
 
             MDC.put(GATEWAY_ACCOUNT_ID, disputeWonDetails.getGatewayAccountId());
 
@@ -167,7 +167,7 @@ public class EventMessageHandler {
         try {
             setupMDC(disputeLostEvent);
 
-            var disputeLostDetails = objectMapper.readValue(disputeLostEvent.getEventDetails(), DisputeLostDetails.class);
+            var disputeLostDetails = objectMapper.treeToValue(disputeLostEvent.getEventDetails(), DisputeLostDetails.class);
 
             MDC.put(GATEWAY_ACCOUNT_ID, disputeLostDetails.getGatewayAccountId());
 
@@ -222,7 +222,7 @@ public class EventMessageHandler {
         try {
             setupMDC(disputeCreatedEvent);
 
-            var disputeCreatedDetails = objectMapper.readValue(disputeCreatedEvent.getEventDetails(), DisputeCreatedDetails.class);
+            var disputeCreatedDetails = objectMapper.treeToValue(disputeCreatedEvent.getEventDetails(), DisputeCreatedDetails.class);
 
             MDC.put(GATEWAY_ACCOUNT_ID, disputeCreatedDetails.getGatewayAccountId());
 

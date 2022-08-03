@@ -71,7 +71,6 @@ class EventSubscriberQueueTest {
         assertThat(event.getResourceExternalId(), is("dp_1KfoljHj08j2jFuBkNEd89sd"));
         assertThat(event.getParentResourceExternalId(), is("pk8vak8vfiii5hjvqpsa4dsd"));
         assertThat(event.getEventType(), is("DISPUTE_CREATED"));
-        
-        assertThat(event.getEventDetails(), is("{\"fee\":1500,\"evidence_due_date\":1648684799,\"gateway_account_id\":\"528\",\"amount\":1000,\"net_amount\":2500,\"reason\":\"fraudulent\"}"));
+        assertThat(event.getEventDetails().toString(), is("{\"fee\":1500,\"evidence_due_date\":1648684799,\"gateway_account_id\":\"528\",\"amount\":1000,\"net_amount\":2500,\"reason\":\"fraudulent\"}"));
     }
 }

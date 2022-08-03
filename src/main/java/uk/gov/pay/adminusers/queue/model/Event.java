@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.queue.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -13,7 +14,7 @@ public class Event {
     private String resourceExternalId;
     private String parentResourceExternalId;
     private String eventType;
-    private String eventDetails;
+    private JsonNode eventDetails;
     private String serviceId;
     private Boolean live;
 
@@ -24,7 +25,7 @@ public class Event {
     public Event(String resourceExternalId,
                  String parentResourceExternalId,
                  String eventType,
-                 String eventDetails,
+                 JsonNode eventDetails,
                  String serviceId,
                  Boolean live) {
         this.resourceExternalId = resourceExternalId;
@@ -47,7 +48,7 @@ public class Event {
         return eventType;
     }
 
-    public String getEventDetails() {
+    public JsonNode getEventDetails() {
         return eventDetails;
     }
 

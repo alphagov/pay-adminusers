@@ -44,7 +44,7 @@ public class EventSubscriberQueue extends AbstractQueue {
         try {
             SNSMessage snsMessage = objectMapper.readValue(queueMessage.getMessageBody(), SNSMessage.class);
             Event event = objectMapper.readValue(snsMessage.getMessage(), Event.class);
-
+            
             return EventMessage.of(event, queueMessage);
         } catch (IOException e) {
             logger.warn(

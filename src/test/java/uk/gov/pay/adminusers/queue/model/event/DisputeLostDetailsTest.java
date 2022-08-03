@@ -20,7 +20,7 @@ class DisputeLostDetailsTest {
 
         var json = objectMapper.readTree(load(DISPUTE_LOST_EVENT));
         var evt = objectMapper.treeToValue(json, Event.class);
-        var disputeLostDetails = objectMapper.readValue(evt.getEventDetails(), DisputeLostDetails.class);
+        var disputeLostDetails = objectMapper.treeToValue(evt.getEventDetails(), DisputeLostDetails.class);
         
         assertThat(evt.getEventType(), is(EventType.DISPUTE_LOST.name()));
         assertThat(disputeLostDetails.getFee(), is(1500L));

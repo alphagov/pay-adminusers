@@ -20,7 +20,7 @@ class DisputeEvidenceSubmittedDetailsTest {
 
         var json = objectMapper.readTree(load(DISPUTE_EVIDENCE_SUBMITTED_EVENT));
         var evt = objectMapper.treeToValue(json, Event.class);
-        var disputeLostDetails = objectMapper.readValue(evt.getEventDetails(), DisputeEvidenceSubmittedDetails.class);
+        var disputeLostDetails = objectMapper.treeToValue(evt.getEventDetails(), DisputeEvidenceSubmittedDetails.class);
 
         assertThat(evt.getEventType(), is(EventType.DISPUTE_EVIDENCE_SUBMITTED.name()));
         assertThat(disputeLostDetails.getGatewayAccountId(), is("123"));
