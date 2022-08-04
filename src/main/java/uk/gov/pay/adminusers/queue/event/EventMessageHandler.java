@@ -20,6 +20,7 @@ import uk.gov.pay.adminusers.queue.model.event.DisputeWonDetails;
 import uk.gov.pay.adminusers.service.NotificationService;
 import uk.gov.pay.adminusers.service.ServiceFinder;
 import uk.gov.pay.adminusers.service.UserServices;
+import uk.gov.pay.adminusers.utils.dispute.DisputeReasonMapper;
 import uk.gov.service.payments.commons.queue.exception.QueueException;
 
 import javax.inject.Inject;
@@ -51,6 +52,19 @@ public class EventMessageHandler {
     private final ServiceFinder serviceFinder;
     private final UserServices userServices;
     private final ObjectMapper objectMapper;
+
+    private final String NO = "no";
+    private final String YES = "yes";
+
+    private final Map<String, String> disputeDefinitionDisplay = Map.of(
+            "credit_not_processed", NO,
+            "duplicate", NO,
+            "fraudulent", NO,
+            "product_not_received", NO,
+            "product_unacceptable", NO,
+            "subscription_canceled", NO,
+            "unrecognized", NO
+    );
 
     @Inject
     public EventMessageHandler(EventSubscriberQueue eventSubscriberQueue,
@@ -223,6 +237,10 @@ public class EventMessageHandler {
             personalisation.put("paymentAmount", convertPenceToPounds.apply(disputeCreatedDetails.getAmount()).toString());
             personalisation.put("disputeEvidenceDueDate", formattedDueDate);
             personalisation.put("sendEvidenceToPayDueDate", formattedPayDueDate);
+
+            personalisation.put("disputeType", DisputeReasonMapper.mapToNotifyEmail(disputeCreatedDetails.getReason()));
+            personalisation.putAll(disputeDefinitionDisplay);
+            personalisation.replace(disputeCreatedDetails.getReason(), YES);
 
             sendEmailNotificationToServiceAdmins(disputeCreatedEvent.getEventType(), disputeCreatedDetails.getGatewayAccountId(), personalisation);
         } finally {

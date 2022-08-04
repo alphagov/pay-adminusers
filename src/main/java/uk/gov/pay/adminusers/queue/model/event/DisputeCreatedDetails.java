@@ -16,6 +16,7 @@ public class DisputeCreatedDetails {
     @JsonDeserialize(using = ApiResponseDateTimeDeserializer.class)
     private ZonedDateTime evidenceDueDate;
     private String gatewayAccountId;
+    private String reason;
 
     public DisputeCreatedDetails() {
         // empty constructor
@@ -31,5 +32,9 @@ public class DisputeCreatedDetails {
 
     public String getGatewayAccountId() {
         return gatewayAccountId;
+    }
+
+    public String getReason() {
+        return reason;
     }
 }

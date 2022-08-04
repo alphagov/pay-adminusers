@@ -26,5 +26,6 @@ class DisputeCreatedDetailsTest {
         assertThat(disputeCreatedDetails.getAmount(), is(125000L));
         assertThat(disputeCreatedDetails.getEvidenceDueDate().toString(), is("2022-03-07T13:00:00.001Z"));
         assertThat(disputeCreatedDetails.getGatewayAccountId(), is("123"));
+        assertThat(disputeCreatedDetails.getReason(), is("fraudulent"));
     }
 }
