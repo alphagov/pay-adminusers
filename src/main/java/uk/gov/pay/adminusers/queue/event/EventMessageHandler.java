@@ -234,8 +234,6 @@ public class EventMessageHandler {
 
             personalisation.put("paymentExternalId", disputeCreatedEvent.getParentResourceExternalId());
             personalisation.put("disputedAmount", convertPenceToPounds.apply(disputeCreatedDetails.getAmount()).toString());
-            personalisation.put("paymentAmount", convertPenceToPounds.apply(disputeCreatedDetails.getAmount()).toString());
-            personalisation.put("disputeEvidenceDueDate", formattedDueDate);
             personalisation.put("sendEvidenceToPayDueDate", formattedPayDueDate);
 
             personalisation.put("disputeType", DisputeReasonMapper.mapToNotifyEmail(disputeCreatedDetails.getReason()));

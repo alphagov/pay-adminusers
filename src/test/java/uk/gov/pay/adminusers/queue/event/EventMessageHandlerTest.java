@@ -41,6 +41,7 @@ import java.util.Set;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.atMostOnce;
@@ -160,12 +161,18 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("paymentExternalId"), is("456"));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
-        assertThat(personalisation.get("paymentAmount"), is("210.00"));
-        assertThat(personalisation.get("disputeEvidenceDueDate"), is("7 March 2022"));
         assertThat(personalisation.get("sendEvidenceToPayDueDate"), is("4 March 2022"));
+        assertThat(personalisation.get("disputedAmount"), is("210.00"));
 
         assertThat(personalisation.get("fraudulent"), is("yes"));
-        assertThat(personalisation.get("disputedAmount"), is("210.00"));
+        assertThat(personalisation.get("duplicate"), is("no"));
+        assertThat(personalisation.get("credit_not_processed"), is("no"));
+        assertThat(personalisation.get("product_not_received"), is("no"));
+        assertThat(personalisation.get("product_unacceptable"), is("no"));
+        assertThat(personalisation.get("subscription_canceled"), is("no"));
+        assertThat(personalisation.get("unrecognized"), is("no"));
+        assertThat(personalisation.get("paymentAmount"), is(nullValue()));
+        assertThat(personalisation.get("disputeEvidenceDueDate"), is(nullValue()));
 
         verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
 
