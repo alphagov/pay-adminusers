@@ -20,7 +20,7 @@ class DisputeCreatedDetailsTest {
 
         var json = objectMapper.readTree(load(DISPUTE_CREATED_EVENT));
         var evt = objectMapper.treeToValue(json, Event.class);
-        var disputeCreatedDetails = objectMapper.readValue(evt.getEventDetails(), DisputeCreatedDetails.class);
+        var disputeCreatedDetails = objectMapper.treeToValue(evt.getEventDetails(), DisputeCreatedDetails.class);
 
         assertThat(evt.getEventType(), is(EventType.DISPUTE_CREATED.name()));
         assertThat(disputeCreatedDetails.getAmount(), is(125000L));
