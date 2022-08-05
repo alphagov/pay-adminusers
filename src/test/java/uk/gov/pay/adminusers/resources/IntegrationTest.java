@@ -9,7 +9,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.pay.adminusers.infra.DropwizardAppWithPostgresExtension;
+import uk.gov.pay.adminusers.infra.AppWithPostgresExtension;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import javax.ws.rs.Consumes;
@@ -51,7 +51,7 @@ public class IntegrationTest {
     public static final DropwizardClientExtension NOTIFY;
 
     @RegisterExtension
-    public static final DropwizardAppWithPostgresExtension APP;
+    public static final AppWithPostgresExtension APP;
 
     protected DatabaseTestHelper databaseHelper;
     protected static ObjectMapper mapper = new ObjectMapper();
@@ -78,7 +78,7 @@ public class IntegrationTest {
             LOGGER.error("Exception starting client extension for NotifyResource - {}", throwable.getMessage());
             throw new RuntimeException(throwable);
         }
-        APP = new DropwizardAppWithPostgresExtension(
+        APP = new AppWithPostgresExtension(
                 ConfigOverride.config("notify.notificationBaseURL", () -> NOTIFY.baseUri().toString()));
     }
 

@@ -22,7 +22,7 @@ public class EventSubscriberQueueMessageReceiver implements Managed {
     private final EventMessageHandler eventMessageHandler;
     private final ScheduledExecutorService scheduledExecutorService;
 
-    private final int queueSchedulerThreadDelayInSeconds;
+    private final int queueSchedulerThreadDelayInMilliseconds;
     private final int queueSchedulerShutdownTimeoutInSeconds;
     private boolean queueEnabled;
 
@@ -39,19 +39,19 @@ public class EventSubscriberQueueMessageReceiver implements Managed {
 
         EventSubscriberQueueConfig eventSubscriberQueueConfig = adminUsersConfig.getEventSubscriberQueueConfig();
         queueEnabled = eventSubscriberQueueConfig.getEventSubscriberQueueEnabled();
-        queueSchedulerThreadDelayInSeconds = eventSubscriberQueueConfig.getQueueSchedulerThreadDelayInSeconds();
+        queueSchedulerThreadDelayInMilliseconds = eventSubscriberQueueConfig.getQueueSchedulerThreadDelayInMilliseconds();
         queueSchedulerShutdownTimeoutInSeconds = eventSubscriberQueueConfig.getQueueSchedulerShutdownTimeoutInSeconds();
     }
 
     @Override
     public void start() {
         if (queueEnabled) {
-            int initialDelay = queueSchedulerThreadDelayInSeconds;
+            int initialDelay = queueSchedulerThreadDelayInMilliseconds;
             scheduledExecutorService.scheduleWithFixedDelay(
                     this::processMessages,
                     initialDelay,
-                    queueSchedulerThreadDelayInSeconds,
-                    TimeUnit.SECONDS);
+                    queueSchedulerThreadDelayInMilliseconds,
+                    TimeUnit.MILLISECONDS);
         }
     }
 

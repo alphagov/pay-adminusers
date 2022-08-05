@@ -7,7 +7,7 @@ import au.com.dius.pact.provider.junit.target.TestTarget;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import uk.gov.pay.adminusers.infra.DropwizardAppWithPostgresRule;
+import uk.gov.pay.adminusers.infra.AppWithPostgresAndSqsRule;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.Permission;
@@ -29,7 +29,7 @@ import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 public abstract class ContractTest {
 
     @ClassRule
-    public static DropwizardAppWithPostgresRule app = new DropwizardAppWithPostgresRule();
+    public static AppWithPostgresAndSqsRule app = new AppWithPostgresAndSqsRule();
 
     @TestTarget
     public static Target target;
