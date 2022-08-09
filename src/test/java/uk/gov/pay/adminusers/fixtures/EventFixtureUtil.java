@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.commons.lang3.NotImplementedException;
 import uk.gov.pay.adminusers.infra.SqsTestDocker;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 public class EventFixtureUtil {
 
     public static String insert(AmazonSQS sqsClient, String eventType, String serviceId, Boolean live, String resourceExternalId,
@@ -16,7 +18,7 @@ public class EventFixtureUtil {
                         "\"resource_external_id\": \"%s\"," +
                         "\"service_id\": \"%s\"," +
                         "\"live\": \"%s\"," +
-                        (parentResourceExternalId == null || parentResourceExternalId.isEmpty() ? "%s" : "\"parent_resource_external_id\": \"%s\",") +
+                        (isBlank(parentResourceExternalId) ? "%s" : "\"parent_resource_external_id\": \"%s\",") +
                         "\"event_type\":\"%s\"," +
                         "\"event_details\": %s" +
                         "}",
@@ -39,10 +41,10 @@ public class EventFixtureUtil {
         message.stringType("event_type", eventType);
         message.stringType("resource_external_id", resourceExternalId);
         message.booleanType("live", live);
-        if (parentResourceExternalId != null && !parentResourceExternalId.isEmpty()) {
+        if (!isBlank(parentResourceExternalId)) {
             message.stringType("parent_resource_external_id", parentResourceExternalId);
         }
-        if (serviceId != null) {
+        if (!isBlank(serviceId)) {
             message.stringType("service_id", serviceId);
         }
         if (live != null) {
@@ -50,10 +52,7 @@ public class EventFixtureUtil {
         }
 
         PactDslJsonBody eventDetailsPact = getNestedPact(eventData);
-
         message.object("event_details", eventDetailsPact);
-        PactDslJsonBody snsMessage = new PactDslJsonBody();
-        snsMessage.object("Message", message);
 
         return message;
     }

@@ -10,15 +10,17 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
+import java.util.List;
+
 public class SqsTestDocker {
     private static final Logger logger = LoggerFactory.getLogger(SqsTestDocker.class);
 
     private static GenericContainer sqsContainer;
 
-    public static AmazonSQS initialise(String... queues) {
+    public static AmazonSQS initialise(List<String> queueNames) {
         try {
             createContainer();
-            return createQueues(queues);
+            return createQueues(queueNames);
         } catch (Exception e) {
             logger.error("Exception initialising SQS Container - {}", e.getMessage());
             throw new RuntimeException(e);
@@ -42,13 +44,9 @@ public class SqsTestDocker {
         sqsContainer = null;
     }
 
-    private static AmazonSQS createQueues(String... queues) {
+    private static AmazonSQS createQueues(List<String> queueNames) {
         AmazonSQS amazonSQS = getSqsClient();
-        if (queues != null) {
-            for (String queue : queues ) {
-                amazonSQS.createQueue(queue);
-            }
-        }
+        queueNames.forEach(amazonSQS::createQueue);
 
         return amazonSQS;
     }
