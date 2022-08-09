@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.fixtures;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import au.com.dius.pact.consumer.dsl.PactDslJsonBody;
 import uk.gov.pay.adminusers.queue.model.Event;
 
 public class EventFixture {
@@ -57,5 +58,10 @@ public class EventFixture {
                 eventDetails,
                 serviceId,
                 live);
+    }
+
+    public PactDslJsonBody getAsPact() {
+        return EventFixtureUtil.getAsPact(serviceId, live, eventType, resourceExternalId,
+                parentResourceExternalId, eventDetails);
     }
 }

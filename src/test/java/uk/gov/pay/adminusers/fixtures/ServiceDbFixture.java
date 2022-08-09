@@ -40,6 +40,11 @@ public class ServiceDbFixture {
         return new ServiceDbFixture(databaseTestHelper);
     }
 
+    public ServiceDbFixture withName(String name) {
+        this.name = name;
+        return this;
+    }
+    
     public ServiceDbFixture withGatewayAccountIds(String... gatewayAccountIds) {
         this.gatewayAccountIds = Arrays.asList(gatewayAccountIds);
         return this;

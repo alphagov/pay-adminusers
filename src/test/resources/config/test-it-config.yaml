@@ -109,11 +109,11 @@ secondFactorAuthentication:
   validTimeWindows: 9
 
 sqs:
-  nonStandardServiceEndpoint: ${AWS_SQS_NON_STANDARD_SERVICE_ENDPOINT:-false}
+  nonStandardServiceEndpoint: ${AWS_SQS_NON_STANDARD_SERVICE_ENDPOINT:-true}
   endpoint: ${AWS_SQS_ENDPOINT:-localhost}
   region: ${AWS_SQS_REGION:-region-1}
-  secretKey: ${AWS_SECRET_KEY:-secret-key}
-  accessKey: ${AWS_ACCESS_KEY:-access-key}
+  secretKey: ${AWS_SECRET_KEY:-x}
+  accessKey: ${AWS_ACCESS_KEY:-x}
   eventSubscriberQueueUrl: ${AWS_SQS_EVENT_SUBSCRIBER_QUEUE_URL}
   messageMaximumWaitTimeInSeconds: ${AWS_SQS_MESSAGE_MAXIMUM_WAIT_TIME_IN_SECONDS:-1}
   messageMaximumBatchSize: ${AWS_SQS_MESSAGE_MAXIMUM_BATCH_SIZE:-10}
@@ -122,7 +122,7 @@ eventSubscriberQueue:
   eventSubscriberQueueEnabled: ${EVENT_SUBSCRIBER_QUEUE_ENABLED:-false}
   failedMessageRetryDelayInSeconds: ${EVENT_SUBSCRIBER_QUEUE_MESSAGE_RETRY_FAILED_IN_SECONDS:-3600}
   queueSchedulerNumberOfThreads: ${EVENT_SUBSCRIBER_QUEUE_SCHEDULER_NUMBER_OF_THREADS:-1}
-  queueSchedulerThreadDelayInSeconds: ${EVENT_SUBSCRIBER_QUEUE_SCHEDULER_THREAD_DELAY_IN_SECONDS:-60}
+  queueSchedulerThreadDelayInMilliseconds: ${EVENT_SUBSCRIBER_QUEUE_SCHEDULER_THREAD_DELAY_IN_MILLISECONDS:-1}
   queueSchedulerShutdownTimeoutInSeconds: ${EVENT_SUBSCRIBER_QUEUE_SCHEDULER_SHUTDOWN_TIMEOUT_IN_SECONDS:-15}
 
 ledgerBaseURL: ${LEDGER_URL}

@@ -4,7 +4,7 @@ public class EventSubscriberQueueConfig {
 
     private Boolean eventSubscriberQueueEnabled;
     private int queueSchedulerNumberOfThreads;
-    private int queueSchedulerThreadDelayInSeconds;
+    private int queueSchedulerThreadDelayInMilliseconds;
     private int failedMessageRetryDelayInSeconds;
     private int queueSchedulerShutdownTimeoutInSeconds;
 
@@ -16,8 +16,8 @@ public class EventSubscriberQueueConfig {
         return queueSchedulerNumberOfThreads;
     }
 
-    public int getQueueSchedulerThreadDelayInSeconds() {
-        return queueSchedulerThreadDelayInSeconds;
+    public int getQueueSchedulerThreadDelayInMilliseconds() {
+        return queueSchedulerThreadDelayInMilliseconds;
     }
 
     public int getFailedMessageRetryDelayInSeconds() {

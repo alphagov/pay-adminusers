@@ -17,6 +17,9 @@
         <pay-java-commons.version>1.0.20220808113926</pay-java-commons.version>
         <junit5.version>5.9.0</junit5.version>
         <swaggger-version>2.2.2</swaggger-version>
+        <testcontainers.version>1.17.3</testcontainers.version>
+        <wiremock.version>2.33.2</wiremock.version>
+        <surefire.version>3.0.0-M7</surefire.version>
         <PACT_BROKER_URL/>
         <PACT_BROKER_USERNAME/>
         <PACT_BROKER_PASSWORD/>
@@ -319,6 +322,40 @@
             <artifactId>swagger-annotations</artifactId>
             <version>${swaggger-version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-jre8</artifactId>
+            <version>${wiremock.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-server</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-servlet</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-servlets</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-webapp</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -489,15 +526,13 @@
         <profile>
             <id>default</id>
             <activation>
-                <property>
-                    <name>!runContractTests</name>
-                </property>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <build>
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>3.0.0-M7</version>
+                        <version>${surefire.version}</version>
                         <configuration>
                             <excludes>
                                 <exclude>**/*ContractTest.java</exclude>
@@ -509,7 +544,7 @@
             </build>
         </profile>
         <profile>
-            <id>contract-tests</id>
+            <id>provider-contract-tests</id>
             <activation>
                 <property>
                     <name>runContractTests</name>
@@ -519,10 +554,31 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>3.0.0-M7</version>
+                        <version>${surefire.version}</version>
                         <configuration>
                             <includes>
-                                <include>**/*ContractTestSuite.java</include>
+                                <include>**/*ProviderContractTestSuite.java</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>consumer-contract-tests</id>
+            <activation>
+                <property>
+                    <name>runConsumerContractTests</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire.version}</version>
+                        <configuration>
+                            <includes>
+                                <include>**/*ConsumerContractTestSuite.java</include>
                             </includes>
                         </configuration>
                     </plugin>

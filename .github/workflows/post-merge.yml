@@ -58,6 +58,16 @@ jobs:
       pact_broker_username: ${{ secrets.pact_broker_username }}
       pact_broker_password: ${{ secrets.pact_broker_password }}
 
+  connector-provider-contract-tests:
+    needs: consumer-contract-tests
+    uses: alphagov/pay-connector/.github/workflows/_run-pact-provider-tests.yml@master
+    with:
+      consumer: adminusers
+      consumer_tag: master
+    secrets:
+      pact_broker_username: ${{ secrets.pact_broker_username }}
+      pact_broker_password: ${{ secrets.pact_broker_password }}
+
   provider-contract-tests:
     needs: tests
     uses: alphagov/pay-ci/.github/workflows/_run-provider-contract-tests.yml@master
@@ -70,6 +80,7 @@ jobs:
       - provider-contract-tests
       - consumer-contract-tests
       - ledger-provider-contract-tests
+      - connector-provider-contract-tests
     permissions:
       contents: write
     uses: alphagov/pay-ci/.github/workflows/_create-alpha-release-tag.yml@master

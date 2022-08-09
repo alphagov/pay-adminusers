@@ -10,7 +10,6 @@ import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jdbi.v3.core.Jdbi;
-import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
@@ -29,8 +28,8 @@ import java.util.Properties;
 import static io.dropwizard.testing.ConfigOverride.config;
 import static io.dropwizard.testing.ResourceHelpers.resourceFilePath;
 
-public class DropwizardAppWithPostgresExtension implements BeforeAllCallback {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DropwizardAppWithPostgresExtension.class);
+public class AppWithPostgresExtension implements BeforeAllCallback {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppWithPostgresExtension.class);
     private static final String JPA_UNIT = "AdminUsersUnit";
 
     private final String configFilePath;
@@ -39,11 +38,11 @@ public class DropwizardAppWithPostgresExtension implements BeforeAllCallback {
 
     private DatabaseTestHelper databaseTestHelper;
 
-    public DropwizardAppWithPostgresExtension(ConfigOverride... configOverrides) {
+    public AppWithPostgresExtension(ConfigOverride... configOverrides) {
         this("config/test-it-config.yaml", configOverrides);
     }
 
-    public DropwizardAppWithPostgresExtension(String configPath, ConfigOverride... configOverrides) {
+    public AppWithPostgresExtension(String configPath, ConfigOverride... configOverrides) {
         configFilePath = resourceFilePath(configPath);
         postgres = new PostgresDockerExtension();
 

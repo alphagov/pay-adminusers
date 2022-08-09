@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.infra;
 
+import com.amazonaws.services.sqs.AmazonSQS;
 import com.google.inject.persist.jpa.JpaPersistModule;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.testing.ConfigOverride;
@@ -20,45 +21,54 @@ import uk.gov.pay.adminusers.app.AdminUsersApp;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 import uk.gov.service.payments.commons.testing.db.PostgresDockerRule;
+import uk.gov.service.payments.commons.testing.port.PortFactory;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static io.dropwizard.testing.ConfigOverride.config;
 import static io.dropwizard.testing.ResourceHelpers.resourceFilePath;
 
-public class DropwizardAppWithPostgresRule implements TestRule {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DropwizardAppWithPostgresRule.class);
+public class AppWithPostgresAndSqsRule implements TestRule {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppWithPostgresAndSqsRule.class);
     private static final String JPA_UNIT = "AdminUsersUnit";
 
     private final String configFilePath;
     private final PostgresDockerRule postgres;
+    private AmazonSQS sqsClient;
     private final DropwizardAppRule<AdminUsersConfig> app;
     private final RuleChain rules;
 
     private DatabaseTestHelper databaseTestHelper;
+    private int wireMockPort = PortFactory.findFreePort();
 
-    public DropwizardAppWithPostgresRule(ConfigOverride... configOverrides) {
+    public AppWithPostgresAndSqsRule(ConfigOverride... configOverrides) {
         this("config/test-it-config.yaml", configOverrides);
     }
 
-    public DropwizardAppWithPostgresRule(String configPath, ConfigOverride... configOverrides) {
+    public AppWithPostgresAndSqsRule(String configPath, ConfigOverride... configOverrides) {
         configFilePath = resourceFilePath(configPath);
         postgres = new PostgresDockerRule();
 
-        ConfigOverride[] postgresOverrides = List.of(
+        sqsClient = SqsTestDocker.initialise(Collections.singletonList("event-queue"));
+        
+        ConfigOverride[] newConfigOverrides = List.of(
                 config("database.url", postgres.getConnectionUrl()),
                 config("database.user", postgres.getUsername()),
                 config("database.password", postgres.getPassword()))
                 .toArray(new ConfigOverride[0]);
+        newConfigOverrides = overrideSqsConfig(newConfigOverrides);
+        newConfigOverrides = overrideUrlsConfig(newConfigOverrides);
 
         app = new DropwizardAppRule<>(
                 AdminUsersApp.class,
                 configFilePath,
-                ArrayUtils.addAll(postgresOverrides, configOverrides)
+                ArrayUtils.addAll(newConfigOverrides, configOverrides)
         );
         createJpaModule(postgres);
         rules = RuleChain.outerRule(postgres).around(app);
@@ -99,6 +109,14 @@ public class DropwizardAppWithPostgresRule implements TestRule {
         return databaseTestHelper;
     }
 
+    public AmazonSQS getSqsClient() {
+        return sqsClient;
+    }
+
+    public int getWireMockPort() {
+        return wireMockPort;
+    }
+
     private void registerShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(postgres::stop));
     }
@@ -119,5 +137,19 @@ public class DropwizardAppWithPostgresRule implements TestRule {
     private void restoreDropwizardsLogging() {
         app.getConfiguration().getLoggingFactory().configure(app.getEnvironment().metrics(),
                 app.getApplication().getName());
+    }
+
+    private ConfigOverride[] overrideSqsConfig(ConfigOverride[] configOverrides) {
+        List<ConfigOverride> newConfigOverride = newArrayList(configOverrides);
+        newConfigOverride.add(config("sqs.eventSubscriberQueueUrl", SqsTestDocker.getQueueUrl("event-queue")));
+        newConfigOverride.add(config("sqs.endpoint", SqsTestDocker.getEndpoint()));
+        return newConfigOverride.toArray(new ConfigOverride[0]);
+    }
+    
+    private ConfigOverride[] overrideUrlsConfig(ConfigOverride[] configOverrides) {
+        List<ConfigOverride> newConfigOverride = newArrayList(configOverrides);
+        newConfigOverride.add(config("notify.notificationBaseURL","http://localhost:" + wireMockPort));
+        newConfigOverride.add(config("ledgerBaseURL", "http://localhost:" + wireMockPort));
+        return newConfigOverride.toArray(new ConfigOverride[0]);
     }
 }
