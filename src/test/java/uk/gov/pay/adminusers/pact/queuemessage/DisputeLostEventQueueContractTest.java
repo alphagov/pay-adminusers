@@ -42,8 +42,8 @@ import static uk.gov.pay.adminusers.fixtures.LedgerTransactionFixture.aLedgerTra
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
-public class DisputeCreatedEventQueueContractTest {
-    
+public class DisputeLostEventQueueContractTest {
+
     @Rule
     public MessagePactProviderRule mockProvider = new MessagePactProviderRule(this);
 
@@ -54,21 +54,19 @@ public class DisputeCreatedEventQueueContractTest {
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(options().port(adminusersApp.getWireMockPort()));
-    
+
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private byte[] currentMessage;
-    private final long amount = 6500L;
-    private final String reason = "duplicate";
     private final String gatewayAccountId = "a-gateway-account-id";
     private final String resourceExternalId = "dispute-id";
     private final String parentResourceExternalId = "payment-id";
     private final String reference = "REF123";
     private final String serviceId = "service-id";
     private final String serviceName = "A service";
-    private final String organisationName = "organisation name";;
+    private final String organisationName = "organisation name";
+    ;
     private final String adminUserEmail = "user@example.com";
-    private String evidenceDueDate = "2022-02-14T23:59:59.000Z";
 
     private EventFixture eventFixture;
 
@@ -76,27 +74,26 @@ public class DisputeCreatedEventQueueContractTest {
     private NotifyStub notifyStub;
 
     @Pact(provider = "connector", consumer = "adminusers")
-    public MessagePact createDisputeCreatedEventPact(MessagePactBuilder builder) {
+    public MessagePact createEvidenceSubmittedEventPact(MessagePactBuilder builder) {
         JsonNode eventDetails = objectMapper.valueToTree(Map.of(
-                        "gateway_account_id", gatewayAccountId,
-                        "amount", amount,
-                        "reason", reason,
-                        "evidence_due_date", evidenceDueDate
-                ));
-        
+                "gateway_account_id", gatewayAccountId,
+                "amount", 1000,
+                "fee", 1500
+        ));
+
         eventFixture = anEventFixture()
                 .withLive(true)
                 .withResourceExternalId(resourceExternalId)
                 .withParentResourceExternalId(parentResourceExternalId)
                 .withServiceId(serviceId)
-                .withEventType("DISPUTE_CREATED")
+                .withEventType("DISPUTE_LOST")
                 .withEventDetails(eventDetails);
 
         Map<String, String> metadata = new HashMap<>();
         metadata.put("contentType", "application/json");
 
         return builder
-                .expectsToReceive("a dispute created event")
+                .expectsToReceive("a dispute lost event")
                 .withMetadata(metadata)
                 .withContent(eventFixture.getAsPact())
                 .toPact();
@@ -105,7 +102,7 @@ public class DisputeCreatedEventQueueContractTest {
     @Before
     public void setUp() throws Exception {
         adminusersApp.getDatabaseTestHelper().truncateAllData();
-        
+
         ledgerStub = new LedgerStub(wireMockRule);
         notifyStub = new NotifyStub(wireMockRule);
 
@@ -140,19 +137,17 @@ public class DisputeCreatedEventQueueContractTest {
         adminusersApp.getSqsClient().sendMessage(SqsTestDocker.getQueueUrl("event-queue"), snsMessage);
         await().atMost(2, TimeUnit.SECONDS).until(
                 () -> !wireMockRule.findAll(RequestPatternBuilder.newRequestPattern().withUrl("/v2/notifications/email")).isEmpty());
-        
-        wireMockRule.verify(1, postRequestedFor(urlPathEqualTo( "/v2/notifications/email"))
+
+        wireMockRule.verify(1, postRequestedFor(urlPathEqualTo("/v2/notifications/email"))
                 .withHeader(CONTENT_TYPE, equalTo(APPLICATION_JSON))
                 .withRequestBody(matchingJsonPath("$.email_address", equalTo(adminUserEmail)))
-                .withRequestBody(matchingJsonPath("$.template_id", equalTo("pay-notify-stripe-dispute-created-email-template-id")))
+                .withRequestBody(matchingJsonPath("$.template_id", equalTo("pay-notify-stripe-dispute-lost-email-template-id")))
                 .withRequestBody(matchingJsonPath("$.email_reply_to_id", equalTo("pay-notify-email-reply-to-support-id")))
-                .withRequestBody(matchingJsonPath("$.personalisation.disputeType", equalTo(reason)))
-                .withRequestBody(matchingJsonPath("$.personalisation.sendEvidenceToPayDueDate", equalTo("11 February 2022")))
-                .withRequestBody(matchingJsonPath("$.personalisation.paymentExternalId", equalTo(parentResourceExternalId)))
-                .withRequestBody(matchingJsonPath("$.personalisation.disputedAmount", equalTo("65.00")))
                 .withRequestBody(matchingJsonPath("$.personalisation.serviceName", equalTo(serviceName)))
                 .withRequestBody(matchingJsonPath("$.personalisation.organisationName", equalTo(organisationName)))
-                
+                .withRequestBody(matchingJsonPath("$.personalisation.disputedAmount", equalTo("10.00")))
+                .withRequestBody(matchingJsonPath("$.personalisation.disputeFee", equalTo("15.00")))
+
         );
     }
 
