@@ -42,8 +42,8 @@ import static uk.gov.pay.adminusers.fixtures.LedgerTransactionFixture.aLedgerTra
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
-public class DisputeEvidenceSubmittedEventQueueContractTest {
-    
+public class DisputeLostEventQueueConsumerIT {
+
     @Rule
     public MessagePactProviderRule mockProvider = new MessagePactProviderRule(this);
 
@@ -54,7 +54,7 @@ public class DisputeEvidenceSubmittedEventQueueContractTest {
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(options().port(adminusersApp.getWireMockPort()));
-    
+
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private byte[] currentMessage;
@@ -64,7 +64,8 @@ public class DisputeEvidenceSubmittedEventQueueContractTest {
     private final String reference = "REF123";
     private final String serviceId = "service-id";
     private final String serviceName = "A service";
-    private final String organisationName = "organisation name";;
+    private final String organisationName = "organisation name";
+    ;
     private final String adminUserEmail = "user@example.com";
 
     private EventFixture eventFixture;
@@ -75,22 +76,24 @@ public class DisputeEvidenceSubmittedEventQueueContractTest {
     @Pact(provider = "connector", consumer = "adminusers")
     public MessagePact createEvidenceSubmittedEventPact(MessagePactBuilder builder) {
         JsonNode eventDetails = objectMapper.valueToTree(Map.of(
-                        "gateway_account_id", gatewayAccountId
-                ));
-        
+                "gateway_account_id", gatewayAccountId,
+                "amount", 1000,
+                "fee", 1500
+        ));
+
         eventFixture = anEventFixture()
                 .withLive(true)
                 .withResourceExternalId(resourceExternalId)
                 .withParentResourceExternalId(parentResourceExternalId)
                 .withServiceId(serviceId)
-                .withEventType("DISPUTE_EVIDENCE_SUBMITTED")
+                .withEventType("DISPUTE_LOST")
                 .withEventDetails(eventDetails);
 
         Map<String, String> metadata = new HashMap<>();
         metadata.put("contentType", "application/json");
 
         return builder
-                .expectsToReceive("a dispute evidence submitted event")
+                .expectsToReceive("a dispute lost event")
                 .withMetadata(metadata)
                 .withContent(eventFixture.getAsPact())
                 .toPact();
@@ -99,7 +102,7 @@ public class DisputeEvidenceSubmittedEventQueueContractTest {
     @Before
     public void setUp() throws Exception {
         adminusersApp.getDatabaseTestHelper().truncateAllData();
-        
+
         ledgerStub = new LedgerStub(wireMockRule);
         notifyStub = new NotifyStub(wireMockRule);
 
@@ -134,15 +137,17 @@ public class DisputeEvidenceSubmittedEventQueueContractTest {
         adminusersApp.getSqsClient().sendMessage(SqsTestDocker.getQueueUrl("event-queue"), snsMessage);
         await().atMost(2, TimeUnit.SECONDS).until(
                 () -> !wireMockRule.findAll(RequestPatternBuilder.newRequestPattern().withUrl("/v2/notifications/email")).isEmpty());
-        
-        wireMockRule.verify(1, postRequestedFor(urlPathEqualTo( "/v2/notifications/email"))
+
+        wireMockRule.verify(1, postRequestedFor(urlPathEqualTo("/v2/notifications/email"))
                 .withHeader(CONTENT_TYPE, equalTo(APPLICATION_JSON))
                 .withRequestBody(matchingJsonPath("$.email_address", equalTo(adminUserEmail)))
-                .withRequestBody(matchingJsonPath("$.template_id", equalTo("pay-notify-stripe-dispute-evidence-submitted-email-template-id")))
+                .withRequestBody(matchingJsonPath("$.template_id", equalTo("pay-notify-stripe-dispute-lost-email-template-id")))
                 .withRequestBody(matchingJsonPath("$.email_reply_to_id", equalTo("pay-notify-email-reply-to-support-id")))
                 .withRequestBody(matchingJsonPath("$.personalisation.serviceName", equalTo(serviceName)))
                 .withRequestBody(matchingJsonPath("$.personalisation.organisationName", equalTo(organisationName)))
-                
+                .withRequestBody(matchingJsonPath("$.personalisation.disputedAmount", equalTo("10.00")))
+                .withRequestBody(matchingJsonPath("$.personalisation.disputeFee", equalTo("15.00")))
+
         );
     }
 

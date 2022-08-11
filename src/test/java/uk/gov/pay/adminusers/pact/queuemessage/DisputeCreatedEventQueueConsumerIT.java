@@ -42,7 +42,7 @@ import static uk.gov.pay.adminusers.fixtures.LedgerTransactionFixture.aLedgerTra
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
-public class DisputeCreatedEventQueueContractTest {
+public class DisputeCreatedEventQueueConsumerIT {
     
     @Rule
     public MessagePactProviderRule mockProvider = new MessagePactProviderRule(this);
