@@ -564,26 +564,5 @@
                 </plugins>
             </build>
         </profile>
-        <profile>
-            <id>consumer-contract-tests</id>
-            <activation>
-                <property>
-                    <name>runConsumerContractTests</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>${surefire.version}</version>
-                        <configuration>
-                            <includes>
-                                <include>**/*ConsumerContractTestSuite.java</include>
-                            </includes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles>
 </project>
