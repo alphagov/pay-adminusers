@@ -44,8 +44,6 @@ public class NotificationService {
     private final String stripeDisputeEvidenceSubmittedEmailTemplateId;
     private final String stripeDisputeWonEmailTemplateId;
     private final String notifyEmailReplyToSupportId;
-    private final Instant emailNotificationsForLivePaymentsDisputeUpdatesFrom;
-    private final Instant emailNotificationsForTestPaymentsDisputeUpdatesFrom;
 
     public NotificationService(NotifyClientProvider notifyClientProvider,
                                NotifyConfiguration notifyConfiguration,
@@ -71,8 +69,6 @@ public class NotificationService {
         this.stripeDisputeEvidenceSubmittedEmailTemplateId = notifyConfiguration.getStripeDisputeEvidenceSubmittedEmailTemplateId();
         this.stripeDisputeWonEmailTemplateId = notifyConfiguration.getStripeDisputeWonEmailTemplateId();
         this.notifyEmailReplyToSupportId = notifyConfiguration.getNotifyEmailReplyToSupportId();
-        this.emailNotificationsForLivePaymentsDisputeUpdatesFrom = notifyConfiguration.getEnableEmailNotificationsForLivePaymentsDisputeUpdatesFrom();
-        this.emailNotificationsForTestPaymentsDisputeUpdatesFrom = notifyConfiguration.getEnableEmailNotificationsForTestPaymentsDisputeUpdatesFrom();
 
         this.metricRegistry = metricRegistry;
     }
@@ -211,13 +207,5 @@ public class NotificationService {
 
     public enum OtpNotifySmsTemplateId {
         SIGN_IN, CHANGE_SIGN_IN_2FA_TO_SMS, SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE, CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE;
-    }
-
-    public Instant getEmailNotificationsForLivePaymentsDisputeUpdatesFrom() {
-        return emailNotificationsForLivePaymentsDisputeUpdatesFrom;
-    }
-
-    public Instant getEmailNotificationsForTestPaymentsDisputeUpdatesFrom() {
-        return emailNotificationsForTestPaymentsDisputeUpdatesFrom;
     }
 }
