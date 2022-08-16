@@ -77,8 +77,6 @@ notify:
   stripeDisputeEvidenceSubmittedEmailTemplateId: ${NOTIFY_STRIPE_DISPUTE_EVIDENCE_SUBMITTED_EMAIL_TEMPLATE_ID:-pay-notify-stripe-dispute-evidence-submitted-email-template-id}
   stripeDisputeWonEmailTemplateId: ${NOTIFY_STRIPE_DISPUTE_WON_EMAIL_TEMPLATE_ID:-pay-notify-stripe-dispute-won-email-template-id}
   notifyEmailReplyToSupportId: ${NOTIFY_EMAIL_REPLY_TO_SUPPORT_ID:-pay-notify-email-reply-to-support-id}
-  enableEmailNotificationsForLivePaymentsDisputeUpdatesFrom: ${ENABLE_EMAIL_NOTIFICATIONS_FOR_LIVE_PAYMENTS_DISPUTE_UPDATES:-1640995200}
-  enableEmailNotificationsForTestPaymentsDisputeUpdatesFrom: ${ENABLE_EMAIL_NOTIFICATIONS_FOR_TEST_PAYMENTS_DISPUTE_UPDATES:-1640995200}
 
 notifyDirectDebit:
   mandateCancelledEmailTemplateId: ${NOTIFY_MANDATE_CANCELLED_EMAIL_TEMPLATE_ID:-pay-mandate-cancelled-email-template-id}

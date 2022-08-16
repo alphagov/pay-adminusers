@@ -127,16 +127,13 @@ public class EventMessageHandler {
 
             MDC.put(GATEWAY_ACCOUNT_ID, disputeEvidenceSubmittedDetails.getGatewayAccountId());
 
-            if (shallSendDisputeUpdatedEmail(disputeEvidenceSubmittedEvent)) {
-                Map<String, String> personalisation = getMinimumRequiredPersonalisation(
-                        disputeEvidenceSubmittedDetails.getGatewayAccountId(),
-                        disputeEvidenceSubmittedEvent.getParentResourceExternalId());
+            Map<String, String> personalisation = getMinimumRequiredPersonalisation(
+                    disputeEvidenceSubmittedDetails.getGatewayAccountId(),
+                    disputeEvidenceSubmittedEvent.getParentResourceExternalId());
 
-                sendEmailNotificationToServiceAdmins(disputeEvidenceSubmittedEvent.getEventType(),
-                        disputeEvidenceSubmittedDetails.getGatewayAccountId(), personalisation);
-            } else {
-                logger.info("Dispute evidence submitted email sending is not yet enabled for [service_id: {}]", disputeEvidenceSubmittedEvent.getServiceId());
-            }
+            sendEmailNotificationToServiceAdmins(disputeEvidenceSubmittedEvent.getEventType(),
+                    disputeEvidenceSubmittedDetails.getGatewayAccountId(), personalisation);
+
         } finally {
             tearDownMDC();
         }
@@ -150,14 +147,11 @@ public class EventMessageHandler {
 
             MDC.put(GATEWAY_ACCOUNT_ID, disputeWonDetails.getGatewayAccountId());
 
-            if (shallSendDisputeUpdatedEmail(disputeWonEvent)) {
-                Map<String, String> personalisation = getMinimumRequiredPersonalisation(disputeWonDetails.getGatewayAccountId(),
-                        disputeWonEvent.getParentResourceExternalId());
+            Map<String, String> personalisation = getMinimumRequiredPersonalisation(disputeWonDetails.getGatewayAccountId(),
+                    disputeWonEvent.getParentResourceExternalId());
 
-                sendEmailNotificationToServiceAdmins(disputeWonEvent.getEventType(), disputeWonDetails.getGatewayAccountId(), personalisation);
-            } else {
-                logger.info("Dispute won email sending is not yet enabled for [service_id: {}]", disputeWonEvent.getServiceId());
-            }
+            sendEmailNotificationToServiceAdmins(disputeWonEvent.getEventType(), disputeWonDetails.getGatewayAccountId(), personalisation);
+
         } finally {
             tearDownMDC();
         }
@@ -171,16 +165,11 @@ public class EventMessageHandler {
 
             MDC.put(GATEWAY_ACCOUNT_ID, disputeLostDetails.getGatewayAccountId());
 
-            if (shallSendDisputeUpdatedEmail(disputeLostEvent)) {
-                Map<String, String> personalisation = getPersonalisationForDisputeLost(disputeLostDetails,
-                        disputeLostEvent.getParentResourceExternalId());
+            Map<String, String> personalisation = getPersonalisationForDisputeLost(disputeLostDetails,
+                    disputeLostEvent.getParentResourceExternalId());
 
-                sendEmailNotificationToServiceAdmins(disputeLostEvent.getEventType(), disputeLostDetails.getGatewayAccountId(),
-                        personalisation);
-
-            } else {
-                logger.info("Dispute lost email sending is not yet enabled for [service_id: {}]", disputeLostEvent.getServiceId());
-            }
+            sendEmailNotificationToServiceAdmins(disputeLostEvent.getEventType(), disputeLostDetails.getGatewayAccountId(),
+                    personalisation);
         } finally {
             tearDownMDC();
         }
@@ -207,15 +196,6 @@ public class EventMessageHandler {
         }
 
         return personalisation;
-    }
-
-    private boolean shallSendDisputeUpdatedEmail(Event disputeLostEvent) {
-        return (disputeLostEvent.getLive() &&
-                notificationService.getEmailNotificationsForLivePaymentsDisputeUpdatesFrom()
-                        .isBefore(Instant.now())) ||
-                (!disputeLostEvent.getLive() &&
-                        notificationService.getEmailNotificationsForTestPaymentsDisputeUpdatesFrom()
-                                .isBefore(Instant.now()));
     }
 
     private void handleDisputeCreatedMessage(Event disputeCreatedEvent) throws JsonProcessingException {

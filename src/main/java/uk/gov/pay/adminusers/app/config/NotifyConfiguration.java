@@ -84,14 +84,6 @@ public class NotifyConfiguration extends Configuration {
     @NotNull
     private String notifyEmailReplyToSupportId;
 
-    @Valid
-    @NotNull
-    private long enableEmailNotificationsForLivePaymentsDisputeUpdatesFrom;
-
-    @Valid
-    @NotNull
-    private long enableEmailNotificationsForTestPaymentsDisputeUpdatesFrom;
-
     public String getCardApiKey() {
         return cardApiKey;
     }
@@ -166,13 +158,5 @@ public class NotifyConfiguration extends Configuration {
 
     public String getNotifyEmailReplyToSupportId() {
         return notifyEmailReplyToSupportId;
-    }
-
-    public Instant getEnableEmailNotificationsForLivePaymentsDisputeUpdatesFrom() {
-        return Instant.ofEpochSecond(enableEmailNotificationsForLivePaymentsDisputeUpdatesFrom);
-    }
-
-    public Instant getEnableEmailNotificationsForTestPaymentsDisputeUpdatesFrom() {
-        return Instant.ofEpochSecond(enableEmailNotificationsForTestPaymentsDisputeUpdatesFrom);
     }
 }

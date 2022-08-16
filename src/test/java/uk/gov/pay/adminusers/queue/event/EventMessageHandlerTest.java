@@ -182,7 +182,7 @@ class EventMessageHandlerTest {
     }
 
     @Test
-    void shouldHandleDisputeLostEvent_whenLiveAndEnableByDate() throws QueueException {
+    void shouldHandleDisputeLostEvent() throws QueueException {
         var mockQueueMessage = mock(QueueMessage.class);
         disputeEvent = anEventFixture()
                 .withEventType(EventType.DISPUTE_LOST.name())
@@ -194,7 +194,6 @@ class EventMessageHandlerTest {
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-        when(mockNotificationService.getEmailNotificationsForLivePaymentsDisputeUpdatesFrom()).thenReturn(Instant.now().minusSeconds(6000L));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
@@ -217,76 +216,6 @@ class EventMessageHandlerTest {
         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
-    }
-
-    @Test
-    void shouldHandleDisputeLostEvent_whenNotLiveAndEnabledByDate() throws QueueException {
-        var mockQueueMessage = mock(QueueMessage.class);
-        disputeEvent = anEventFixture()
-                .withEventType(EventType.DISPUTE_LOST.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("net_amount", -4000L,
-                        "fee", 1500L,
-                        "amount", 2500L,
-                        "gateway_account_id", gatewayAccountId)))
-                .withParentResourceExternalId("456")
-                .withServiceId(service.getExternalId())
-                .withLive(false)
-                .build();
-        var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
-        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-        when(mockNotificationService.getEmailNotificationsForTestPaymentsDisputeUpdatesFrom()).thenReturn(Instant.now().minusSeconds(6000L));
-        when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
-        when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
-        when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
-
-        eventMessageHandler.processMessages();
-
-        verify(mockNotificationService, atMostOnce()).sendStripeDisputeLostEmail(adminEmailsCaptor.capture(), personalisationCaptor.capture());
-
-        var emails = adminEmailsCaptor.getValue();
-        var personalisation = personalisationCaptor.getValue();
-
-        assertThat(emails.size(), is(2));
-        assertThat(emails, hasItems("admin1@service.gov.uk", "admin2@service.gov.uk"));
-        assertThat(personalisation.get("serviceName"), is(service.getName()));
-        assertThat(personalisation.get("serviceReference"), is("tx ref"));
-        assertThat(personalisation.get("organisationName"), is(service.getMerchantDetails().getName()));
-
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
-    }
-
-    @Test
-    void shouldNotCallNotificationService_whenNotLiveAndNotEnabledByDate() throws QueueException {
-        var mockQueueMessage = mock(QueueMessage.class);
-        disputeEvent = anEventFixture()
-                .withEventType(EventType.DISPUTE_LOST.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("net_amount", -4000L,
-                        "fee", 1500L,
-                        "amount", 2500L,
-                        "gateway_account_id", gatewayAccountId)))
-                .withParentResourceExternalId("456")
-                .withServiceId(service.getExternalId())
-                .withLive(false)
-                .build();
-        var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
-        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-        when(mockNotificationService.getEmailNotificationsForTestPaymentsDisputeUpdatesFrom()).thenReturn(Instant.now().plusSeconds(6000L));
-
-        eventMessageHandler.processMessages();
-
-        verify(mockNotificationService, never()).sendStripeDisputeLostEmail(anySet(), anyMap());
-
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Dispute lost email sending is not yet enabled for [service_id: " + service.getExternalId() + "]"));
     }
 
     @Test
@@ -302,7 +231,6 @@ class EventMessageHandlerTest {
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-        when(mockNotificationService.getEmailNotificationsForLivePaymentsDisputeUpdatesFrom()).thenReturn(Instant.now().minusSeconds(6000L));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
@@ -340,7 +268,6 @@ class EventMessageHandlerTest {
         var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
         when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
         when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-        when(mockNotificationService.getEmailNotificationsForLivePaymentsDisputeUpdatesFrom()).thenReturn(Instant.now().minusSeconds(6000L));
         when(mockServiceFinder.byGatewayAccountId(gatewayAccountId)).thenReturn(Optional.of(service));
         when(mockLedgerService.getTransaction(transaction.getTransactionId())).thenReturn(Optional.of(transaction));
         when(mockUserServices.getAdminUsersForService(service.getId())).thenReturn(users);
@@ -363,32 +290,6 @@ class EventMessageHandlerTest {
         List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
         assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
         assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Processed notification email for disputed transaction"));
-    }
-
-    @Test
-    void shouldNotCallNotificationService_whenLiveAndNotEnabledByDate() throws QueueException {
-        var mockQueueMessage = mock(QueueMessage.class);
-        disputeEvent = anEventFixture()
-                .withEventType(EventType.DISPUTE_LOST.name())
-                .withEventDetails(objectMapper.valueToTree(Map.of("net_amount", -4000L, "fee", 1500L, "amount", 2500L, "gateway_account_id", gatewayAccountId)))
-                .withParentResourceExternalId("456")
-                .withServiceId(service.getExternalId())
-                .withLive(true)
-                .build();
-        var eventMessage = EventMessage.of(disputeEvent, mockQueueMessage);
-        when(mockQueueMessage.getMessageId()).thenReturn("queue-message-id");
-        when(mockEventSubscriberQueue.retrieveEvents()).thenReturn(List.of(eventMessage));
-        when(mockNotificationService.getEmailNotificationsForLivePaymentsDisputeUpdatesFrom()).thenReturn(Instant.now().plusSeconds(6000L));
-
-        eventMessageHandler.processMessages();
-
-        verify(mockNotificationService, never()).sendStripeDisputeLostEmail(anySet(), anyMap());
-
-        verify(mockLogAppender, times(2)).doAppend(loggingEventArgumentCaptor.capture());
-
-        List<ILoggingEvent> logStatement = loggingEventArgumentCaptor.getAllValues();
-        assertThat(logStatement.get(0).getFormattedMessage(), Is.is("Retrieved event queue message with id [queue-message-id] for resource external id [a-resource-external-id]"));
-        assertThat(logStatement.get(1).getFormattedMessage(), Is.is("Dispute lost email sending is not yet enabled for [service_id: " + service.getExternalId() + "]"));
     }
 
     @Test
