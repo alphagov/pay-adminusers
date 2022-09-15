@@ -22,7 +22,9 @@ import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.service.InviteCompleter;
+import uk.gov.pay.adminusers.service.InviteFinder;
 import uk.gov.pay.adminusers.service.InviteOtpDispatcher;
+import uk.gov.pay.adminusers.service.InviteOtpValidator;
 import uk.gov.pay.adminusers.service.InviteService;
 import uk.gov.pay.adminusers.service.InviteServiceFactory;
 import uk.gov.pay.adminusers.service.ValidateOtpAndCreateUserResult;
@@ -61,13 +63,17 @@ public class InviteResource {
 
     private final InviteService inviteService;
     private final InviteRequestValidator inviteValidator;
+    private final InviteOtpValidator otpValidator;
     private final InviteServiceFactory inviteServiceFactory;
+    private final InviteFinder inviteFinder;
 
     @Inject
-    public InviteResource(InviteService service, InviteRequestValidator inviteValidator, InviteServiceFactory inviteServiceFactory) {
+    public InviteResource(InviteService service, InviteRequestValidator inviteValidator, InviteOtpValidator otpValidator, InviteServiceFactory inviteServiceFactory, InviteFinder inviteFinder) {
         inviteService = service;
         this.inviteServiceFactory = inviteServiceFactory;
         this.inviteValidator = inviteValidator;
+        this.otpValidator = otpValidator;
+        this.inviteFinder = inviteFinder;
     }
 
     @GET
@@ -114,6 +120,17 @@ public class InviteResource {
 
         if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
             return Response.status(NOT_FOUND).build();
+        }
+
+        Optional<Invite> inviteMaybe = inviteFinder.find(inviteCode);
+        if (inviteMaybe.isEmpty()) {
+            return Response.status(NOT_FOUND).build();
+        }
+        Invite invite = inviteMaybe.get();
+
+        var otpValidationError = otpValidator.validate(invite, payload);
+        if (otpValidationError.isPresent()) {
+            return handleValidateOtpAndCreateUserException(otpValidationError.get());
         }
 
         return inviteServiceFactory.inviteCompleteRouter().routeComplete(inviteCode)

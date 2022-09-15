@@ -23,7 +23,7 @@ public class Invite {
     private Integer attemptCounter = 0;
 
     private List<Link> links = new ArrayList<>();
-    private String type;
+    private InviteType type;
     private boolean userExist = false;
     private boolean expired;
     private boolean passwordSet;
@@ -35,7 +35,7 @@ public class Invite {
         this.telephoneNumber = telephoneNumber;
         this.disabled = disabled;
         this.attemptCounter = attemptCounter;
-        this.type = type;
+        this.type = InviteType.from(type);
         this.role = role;
         this.expired = expired;
         this.passwordSet = passwordSet;
@@ -94,12 +94,12 @@ public class Invite {
     }
 
     @Schema(example = "service")
-    public String getType() {
+    public InviteType getType() {
         return type;
     }
 
     public void setType(String type) {
-        this.type = type;
+        this.type = InviteType.from(type);
     }
 
     @JsonIgnore

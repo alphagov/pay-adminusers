@@ -67,7 +67,7 @@ public class ServiceInviteCreatorTest {
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
         assertThat(invite.getTelephoneNumber(), is("+441134960000"));
-        assertThat(invite.getType(), is("service"));
+        assertThat(invite.getType(), is(InviteType.SERVICE));
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
 
         assertThat(persistedInviteEntity.getValue().getPassword(), is("encrypted-password"));
@@ -90,7 +90,7 @@ public class ServiceInviteCreatorTest {
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
         assertThat(invite.getTelephoneNumber(), is(nullValue()));
-        assertThat(invite.getType(), is("service"));
+        assertThat(invite.getType(), is(InviteType.SERVICE));
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
 
         assertThat(persistedInviteEntity.getValue().getTelephoneNumber(), is(nullValue()));
@@ -113,7 +113,7 @@ public class ServiceInviteCreatorTest {
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
         assertThat(invite.getTelephoneNumber(), is("+441134960000"));
-        assertThat(invite.getType(), is("service"));
+        assertThat(invite.getType(), is(InviteType.SERVICE));
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
 
     }
@@ -142,7 +142,7 @@ public class ServiceInviteCreatorTest {
 
         verify(inviteDao, times(1)).merge(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
-        assertThat(invite.getType(), is("service"));
+        assertThat(invite.getType(), is(InviteType.SERVICE));
         assertThat(invite.getLinks().get(0).getHref(), is("http://selfservice/invites/code"));
     }
 
@@ -170,7 +170,7 @@ public class ServiceInviteCreatorTest {
         Invite invite = serviceInviteCreator.doInvite(request);
 
         assertThat(invite.getEmail(), is(request.getEmail()));
-        assertThat(invite.getType(), is("service"));
+        assertThat(invite.getType(), is(InviteType.SERVICE));
         assertThat(invite.getLinks().get(0).getHref().matches("^http://selfservice/invites/[0-9a-z]{32}$"), is(true));
     }
 

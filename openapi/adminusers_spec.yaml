@@ -1197,6 +1197,9 @@ components:
           example: +440787654534
         type:
           type: string
+          enum:
+          - USER
+          - SERVICE
           example: service
         user_exist:
           type: boolean
