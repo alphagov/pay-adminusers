@@ -49,20 +49,20 @@ public class InviteRouterTest {
     }
 
     @Test
-    public void shouldResolve_userInviteCompleter_withoutValidation() {
+    public void shouldResolve_existingUserInviteCompleter_withoutValidation() {
         String inviteCode = "a-code";
         InviteEntity inviteEntity = anInvite(inviteCode, USER);
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
-        when(inviteServiceFactory.completeUserInvite()).thenReturn(new UserInviteCompleter(null, null));
+        when(inviteServiceFactory.completeExistingUserInvite()).thenReturn(new ExistingUserInviteCompleter(null, null));
         Optional<Pair<InviteCompleter, Boolean>> result = inviteRouter.routeComplete(inviteCode);
 
         assertThat(result.isPresent(), is(true));
-        assertThat(result.get().getLeft(), is(instanceOf(UserInviteCompleter.class)));
+        assertThat(result.get().getLeft(), is(instanceOf(ExistingUserInviteCompleter.class)));
         assertThat(result.get().getRight(), is(false));
     }
 
     @Test
-    public void shouldResolve_userInviteDispatcher_withValidation() {
+    public void shouldResolve_existingUserInviteDispatcher_withValidation() {
         String inviteCode = "a-code";
         InviteEntity inviteEntity = anInvite(inviteCode, USER);
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));

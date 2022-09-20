@@ -37,14 +37,14 @@ import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
 @ExtendWith(MockitoExtension.class)
-public class UserInviteCompleterTest {
+public class ExistingUserInviteCompleterTest {
 
     @Mock
     private UserDao mockUserDao;
     @Mock
     private InviteDao mockInviteDao;
 
-    private InviteCompleter userInviteCompleter;
+    private InviteCompleter existingUserInviteCompleter;
 
     private String otpKey = "otpKey";
     private String inviteCode = "code";
@@ -56,7 +56,7 @@ public class UserInviteCompleterTest {
 
     @BeforeEach
     public void setUp() {
-        userInviteCompleter = new UserInviteCompleter(
+        existingUserInviteCompleter = new ExistingUserInviteCompleter(
                 mockInviteDao,
                 mockUserDao
         );
@@ -76,7 +76,7 @@ public class UserInviteCompleterTest {
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(user));
 
-        Optional<InviteCompleteResponse> completedInvite = userInviteCompleter.complete(inviteCode);
+        Optional<InviteCompleteResponse> completedInvite = existingUserInviteCompleter.complete(inviteCode);
 
         ArgumentCaptor<UserEntity> persistedUser = ArgumentCaptor.forClass(UserEntity.class);
         verify(mockUserDao).merge(persistedUser.capture());
@@ -102,7 +102,7 @@ public class UserInviteCompleterTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(user));
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> userInviteCompleter.complete(inviteCode));
+                () -> existingUserInviteCompleter.complete(inviteCode));
         assertThat(webApplicationException.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 
@@ -122,7 +122,7 @@ public class UserInviteCompleterTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(user));
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> userInviteCompleter.complete(inviteCode));
+                () -> existingUserInviteCompleter.complete(inviteCode));
         assertThat(webApplicationException.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 
@@ -136,7 +136,7 @@ public class UserInviteCompleterTest {
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> userInviteCompleter.complete(inviteCode));
+                () -> existingUserInviteCompleter.complete(inviteCode));
         assertThat(webApplicationException.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -149,7 +149,7 @@ public class UserInviteCompleterTest {
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> userInviteCompleter.complete(inviteCode));
+                () -> existingUserInviteCompleter.complete(inviteCode));
         assertThat(webApplicationException.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -162,7 +162,7 @@ public class UserInviteCompleterTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> userInviteCompleter.complete(inviteCode));
+                () -> existingUserInviteCompleter.complete(inviteCode));
         assertThat(webApplicationException.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 

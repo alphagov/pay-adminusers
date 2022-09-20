@@ -13,13 +13,13 @@ import static java.lang.String.format;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
 
-public class UserInviteCompleter extends InviteCompleter {
+public class ExistingUserInviteCompleter extends InviteCompleter {
 
     private final InviteDao inviteDao;
     private final UserDao userDao;
 
     @Inject
-    public UserInviteCompleter(InviteDao inviteDao, UserDao userDao) {
+    public ExistingUserInviteCompleter(InviteDao inviteDao, UserDao userDao) {
         super();
         this.inviteDao = inviteDao;
         this.userDao = userDao;

@@ -13,7 +13,7 @@ public interface InviteServiceFactory {
 
     ServiceInviteCompleter completeServiceInvite();
 
-    UserInviteCompleter completeUserInvite();
+    ExistingUserInviteCompleter completeExistingUserInvite();
 
     InviteRouter inviteOtpRouter();
 
