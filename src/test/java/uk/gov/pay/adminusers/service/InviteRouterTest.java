@@ -36,15 +36,15 @@ public class InviteRouterTest {
     }
 
     @Test
-    public void shouldResolve_serviceInviteCompleter_withValidation() {
+    public void shouldResolve_selfSignupInviteCompleter_withValidation() {
         String inviteCode = "a-code";
         InviteEntity inviteEntity = anInvite(inviteCode, SERVICE);
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
-        when(inviteServiceFactory.completeServiceInvite()).thenReturn(new ServiceInviteCompleter(null, null, null, null));
+        when(inviteServiceFactory.completeSelfSignupInvite()).thenReturn(new SelfSignupInviteCompleter(null, null, null, null));
         Optional<Pair<InviteCompleter, Boolean>> result = inviteRouter.routeComplete(inviteCode);
 
         assertThat(result.isPresent(), is(true));
-        assertThat(result.get().getLeft(), is(instanceOf(ServiceInviteCompleter.class)));
+        assertThat(result.get().getLeft(), is(instanceOf(SelfSignupInviteCompleter.class)));
         assertThat(result.get().getRight(), is(true));
     }
 
@@ -75,7 +75,7 @@ public class InviteRouterTest {
     }
 
     @Test
-    public void shouldResolve_serviceInviteDispatcher_withoutValidation() {
+    public void shouldResolve_selfSignupInviteDispatcher_withoutValidation() {
         String inviteCode = "a-code";
         InviteEntity inviteEntity = anInvite(inviteCode, SERVICE);
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));

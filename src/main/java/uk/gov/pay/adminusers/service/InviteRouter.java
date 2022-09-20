@@ -23,7 +23,7 @@ public class InviteRouter {
         return routeIfExist(inviteCode,
                 inviteEntity -> {
                     boolean isServiceType = inviteEntity.isServiceType();
-                    InviteCompleter inviteCompleter = isServiceType ? inviteServiceFactory.completeServiceInvite() : inviteServiceFactory.completeExistingUserInvite();
+                    InviteCompleter inviteCompleter = isServiceType ? inviteServiceFactory.completeSelfSignupInvite() : inviteServiceFactory.completeExistingUserInvite();
                     return Optional.of(Pair.of(inviteCompleter, isServiceType));
                 });
     }

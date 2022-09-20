@@ -41,7 +41,7 @@ import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
 @ExtendWith(MockitoExtension.class)
-public class ServiceInviteCompleterTest {
+public class SelfSignupInviteCompleterTest {
     @Mock
     private ServiceDao mockServiceDao;
     @Mock
@@ -49,7 +49,7 @@ public class ServiceInviteCompleterTest {
     @Mock
     private InviteDao mockInviteDao;
 
-    private InviteCompleter serviceInviteCompleter;
+    private InviteCompleter selfSignupInviteCompleter;
     private ArgumentCaptor<UserEntity> expectedInvitedUser = ArgumentCaptor.forClass(UserEntity.class);
     private ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
     private ArgumentCaptor<ServiceEntity> expectedService = ArgumentCaptor.forClass(ServiceEntity.class);
@@ -64,7 +64,7 @@ public class ServiceInviteCompleterTest {
 
     @BeforeEach
     public void setUp() {
-        serviceInviteCompleter = new ServiceInviteCompleter(
+        selfSignupInviteCompleter = new SelfSignupInviteCompleter(
                 mockInviteDao,
                 mockUserDao,
                 mockServiceDao,
@@ -84,7 +84,7 @@ public class ServiceInviteCompleterTest {
 
         InviteCompleteRequest data = new InviteCompleteRequest();
         data.setGatewayAccountIds(asList("1", "2"));
-        InviteCompleteResponse inviteResponse = serviceInviteCompleter.withData(data).complete(anInvite.getCode()).get();
+        InviteCompleteResponse inviteResponse = selfSignupInviteCompleter.withData(data).complete(anInvite.getCode()).get();
 
         verify(mockServiceDao).persist(expectedService.capture());
         verify(mockUserDao).merge(expectedInvitedUser.capture());
@@ -116,7 +116,7 @@ public class ServiceInviteCompleterTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
-        InviteCompleteResponse inviteResponse = serviceInviteCompleter.withData(new InviteCompleteRequest()).complete(anInvite.getCode()).get();
+        InviteCompleteResponse inviteResponse = selfSignupInviteCompleter.withData(new InviteCompleteRequest()).complete(anInvite.getCode()).get();
 
         verify(mockServiceDao).persist(expectedService.capture());
         verify(mockUserDao).merge(expectedInvitedUser.capture());
@@ -149,7 +149,7 @@ public class ServiceInviteCompleterTest {
         when(mockUserDao.findByEmail(anInvite.getEmail())).thenReturn(Optional.of(mock(UserEntity.class)));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> serviceInviteCompleter.complete(anInvite.getCode()));
+                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
         assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
     }
 
@@ -165,7 +165,7 @@ public class ServiceInviteCompleterTest {
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> serviceInviteCompleter.complete(anInvite.getCode()));
+                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -181,7 +181,7 @@ public class ServiceInviteCompleterTest {
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> serviceInviteCompleter.complete(anInvite.getCode()));
+                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -197,7 +197,7 @@ public class ServiceInviteCompleterTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> serviceInviteCompleter.complete(anInvite.getCode()));
+                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
         assertThat(exception.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 
