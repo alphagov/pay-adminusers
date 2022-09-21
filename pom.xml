@@ -15,7 +15,7 @@
         <jackson.version>2.13.4</jackson.version>
         <pact.version>3.6.15</pact.version>
         <pay-java-commons.version>1.0.20220816095248</pay-java-commons.version>
-        <junit5.version>5.9.0</junit5.version>
+        <junit5.version>5.9.1</junit5.version>
         <swaggger-version>2.2.2</swaggger-version>
         <testcontainers.version>1.17.3</testcontainers.version>
         <wiremock.version>2.34.0</wiremock.version>
