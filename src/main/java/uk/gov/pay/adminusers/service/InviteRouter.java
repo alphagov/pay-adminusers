@@ -19,12 +19,12 @@ public class InviteRouter {
         this.inviteDao = inviteDao;
     }
 
-    public Optional<Pair<InviteCompleter, Boolean>> routeComplete(String inviteCode) {
+    public Optional<InviteCompleter> routeComplete(String inviteCode) {
         return routeIfExist(inviteCode,
                 inviteEntity -> {
                     boolean isServiceType = inviteEntity.isServiceType();
                     InviteCompleter inviteCompleter = isServiceType ? inviteServiceFactory.completeSelfSignupInvite() : inviteServiceFactory.completeExistingUserInvite();
-                    return Optional.of(Pair.of(inviteCompleter, isServiceType));
+                    return Optional.of(inviteCompleter);
                 });
     }
 
@@ -38,7 +38,7 @@ public class InviteRouter {
 
     }
 
-    private <T> Optional<Pair<T, Boolean>> routeIfExist(String inviteCode, Function<InviteEntity, Optional<Pair<T, Boolean>>> routeFunction) {
+    private <T> Optional<T> routeIfExist(String inviteCode, Function<InviteEntity, Optional<T>> routeFunction) {
         return inviteDao.findByCode(inviteCode).map(routeFunction)
                 .orElseGet(Optional::empty);
     }

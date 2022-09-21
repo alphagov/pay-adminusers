@@ -117,8 +117,7 @@ public class InviteResource {
         }
 
         return inviteServiceFactory.inviteCompleteRouter().routeComplete(inviteCode)
-                .map(inviteCompleterAndValidate -> {
-                    InviteCompleter inviteCompleter = inviteCompleterAndValidate.getLeft();
+                .map(inviteCompleter -> {
                     return inviteCompleter.withData(inviteCompleteRequestFrom(payload)).complete(inviteCode)
                             .map(inviteCompleteResponse -> Response.status(OK).entity(inviteCompleteResponse).build())
                             .orElseGet(() -> Response.status(NOT_FOUND).build());

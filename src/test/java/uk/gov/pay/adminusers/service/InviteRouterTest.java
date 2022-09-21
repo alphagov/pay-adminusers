@@ -41,11 +41,10 @@ public class InviteRouterTest {
         InviteEntity inviteEntity = anInvite(inviteCode, SERVICE);
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
         when(inviteServiceFactory.completeSelfSignupInvite()).thenReturn(new SelfSignupInviteCompleter(null, null, null, null));
-        Optional<Pair<InviteCompleter, Boolean>> result = inviteRouter.routeComplete(inviteCode);
+        Optional<InviteCompleter> result = inviteRouter.routeComplete(inviteCode);
 
         assertThat(result.isPresent(), is(true));
-        assertThat(result.get().getLeft(), is(instanceOf(SelfSignupInviteCompleter.class)));
-        assertThat(result.get().getRight(), is(true));
+        assertThat(result.get(), is(instanceOf(SelfSignupInviteCompleter.class)));
     }
 
     @Test
@@ -54,11 +53,10 @@ public class InviteRouterTest {
         InviteEntity inviteEntity = anInvite(inviteCode, USER);
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
         when(inviteServiceFactory.completeExistingUserInvite()).thenReturn(new ExistingUserInviteCompleter(null, null));
-        Optional<Pair<InviteCompleter, Boolean>> result = inviteRouter.routeComplete(inviteCode);
+        Optional<InviteCompleter> result = inviteRouter.routeComplete(inviteCode);
 
         assertThat(result.isPresent(), is(true));
-        assertThat(result.get().getLeft(), is(instanceOf(ExistingUserInviteCompleter.class)));
-        assertThat(result.get().getRight(), is(false));
+        assertThat(result.get(), is(instanceOf(ExistingUserInviteCompleter.class)));
     }
 
     @Test
