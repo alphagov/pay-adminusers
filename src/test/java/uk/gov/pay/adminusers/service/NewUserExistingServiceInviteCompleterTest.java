@@ -12,7 +12,6 @@ import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.Link;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
-import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
@@ -41,96 +40,57 @@ import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
 @ExtendWith(MockitoExtension.class)
-public class SelfSignupInviteCompleterTest {
-    @Mock
-    private ServiceDao mockServiceDao;
+public class NewUserExistingServiceInviteCompleterTest {
+
     @Mock
     private UserDao mockUserDao;
     @Mock
     private InviteDao mockInviteDao;
 
-    private InviteCompleter selfSignupInviteCompleter;
-    private ArgumentCaptor<UserEntity> expectedInvitedUser = ArgumentCaptor.forClass(UserEntity.class);
-    private ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
-    private ArgumentCaptor<ServiceEntity> expectedService = ArgumentCaptor.forClass(ServiceEntity.class);
+    private InviteCompleter newUserExistingServiceInviteCompleter;
+    private final ArgumentCaptor<UserEntity> expectedInvitedUser = ArgumentCaptor.forClass(UserEntity.class);
+    private final ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
 
-    private String otpKey = "otpKey";
-    private String inviteCode = "code";
-    private String senderEmail = "sender@example.com";
-    private String email = "invited@example.com";
-    private int serviceId = 1;
-    private String senderExternalId = "12345";
-    private String baseUrl = "http://localhost";
+    private final String otpKey = "otpKey";
+    private final String inviteCode = "code";
+    private final String senderEmail = "sender@example.com";
+    private final String email = "invited@example.com";
+    private final int serviceId = 1;
+    private final String senderExternalId = "12345";
+    private final String baseUrl = "http://localhost";
 
     @BeforeEach
     public void setUp() {
-        selfSignupInviteCompleter = new SelfSignupInviteCompleter(
+        newUserExistingServiceInviteCompleter = new NewUserExistingServiceInviteCompleter(
                 mockInviteDao,
                 mockUserDao,
-                mockServiceDao,
                 new LinksBuilder(baseUrl)
         );
     }
 
     @Test
-    public void shouldCreateServiceAndUser_withGatewayAccounts_whenPassedValidServiceInviteCode() {
-        ServiceEntity service = new ServiceEntity();
-        service.setId(serviceId);
-
+    public void shouldCreateUserAndAssignThemToService_whenPassedValidServiceInviteCode() {
         InviteEntity anInvite = createInvite();
-        anInvite.setType(InviteType.SERVICE);
+        anInvite.setType(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
-        InviteCompleteRequest data = new InviteCompleteRequest();
-        data.setGatewayAccountIds(asList("1", "2"));
-        InviteCompleteResponse inviteResponse = selfSignupInviteCompleter.withData(data).complete(anInvite.getCode()).get();
+        InviteCompleteResponse inviteResponse = newUserExistingServiceInviteCompleter.withData(new InviteCompleteRequest()).complete(anInvite.getCode()).get();
 
-        verify(mockServiceDao).persist(expectedService.capture());
-        verify(mockUserDao).merge(expectedInvitedUser.capture());
+        verify(mockUserDao).persist(expectedInvitedUser.capture());
         verify(mockInviteDao).merge(expectedInvite.capture());
 
-        ServiceEntity serviceEntity = expectedService.getValue();
-        assertThat(serviceEntity.getGatewayAccountIds().stream()
-                .map(GatewayAccountIdEntity::getGatewayAccountId)
-                .collect(toUnmodifiableList()), hasItems("2", "1"));
-        assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
-        assertThat(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
-        assertThat(serviceEntity.isCollectBillingAddress(), is(true));
-        assertThat(serviceEntity.getDefaultBillingAddressCountry(), is("GB"));
-
+        UserEntity user = expectedInvitedUser.getValue();
         assertThat(inviteResponse.getInvite().isDisabled(), is(true));
         assertThat(inviteResponse.getInvite().getLinks().size(), is(1));
         assertThat(inviteResponse.getInvite().getLinks().get(0).getRel(), is(Link.Rel.USER));
         assertThat(inviteResponse.getInvite().getLinks().get(0).getHref(), matchesPattern("^" + baseUrl + "/v1/api/users/[0-9a-z]{32}$"));
-    }
+        assertThat(inviteResponse.getUserExternalId(), is(user.getExternalId()));
 
-    @Test
-    public void shouldCreateServiceAndUser_withoutGatewayAccounts_whenPassedValidServiceInviteCode() {
-        InviteEntity anInvite = createInvite();
-        anInvite.setType(InviteType.SERVICE);
-        when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
-
-        InviteCompleteResponse inviteResponse = selfSignupInviteCompleter.withData(new InviteCompleteRequest()).complete(anInvite.getCode()).get();
-
-        verify(mockServiceDao).persist(expectedService.capture());
-        verify(mockUserDao).merge(expectedInvitedUser.capture());
-        verify(mockInviteDao).merge(expectedInvite.capture());
-
-        assertThat(expectedService.getValue().getGatewayAccountIds().isEmpty(), is(true));
-
-        ServiceEntity serviceEntity = expectedService.getValue();
-        assertThat(serviceEntity.getGatewayAccountIds().isEmpty(), is(true));
-        assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
-        assertThat(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
-        assertThat(serviceEntity.isCollectBillingAddress(), is(true));
-        assertThat(serviceEntity.getDefaultBillingAddressCountry(), is("GB"));
-
-        assertThat(inviteResponse.getInvite().isDisabled(), is(true));
-        assertThat(inviteResponse.getInvite().getLinks().size(), is(1));
-        assertThat(inviteResponse.getInvite().getLinks().get(0).getRel(), is(Link.Rel.USER));
-        assertThat(inviteResponse.getInvite().getLinks().get(0).getHref(), matchesPattern("^" + baseUrl + "/v1/api/users/[0-9a-z]{32}$"));
+        assertThat(user.getServicesRoles().size(), is(1));
+        assertThat(user.getServicesRoles().get(0).getRole(), is(anInvite.getRole()));
+        assertThat(user.getServicesRoles().get(0).getService(), is(anInvite.getService()));
+        assertThat(user.getServicesRoles().get(0).getUser(), is(user));
     }
 
     @Test
@@ -139,13 +99,13 @@ public class SelfSignupInviteCompleterTest {
         service.setId(serviceId);
 
         InviteEntity anInvite = createInvite();
-        anInvite.setType(InviteType.SERVICE);
+        anInvite.setType(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
 
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
         when(mockUserDao.findByEmail(anInvite.getEmail())).thenReturn(Optional.of(mock(UserEntity.class)));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
+                () -> newUserExistingServiceInviteCompleter.complete(anInvite.getCode()));
         assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
     }
 
@@ -155,13 +115,13 @@ public class SelfSignupInviteCompleterTest {
         service.setId(serviceId);
 
         InviteEntity anInvite = createInvite();
-        anInvite.setType(InviteType.SERVICE);
+        anInvite.setType(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
         anInvite.setDisabled(true);
 
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
+                () -> newUserExistingServiceInviteCompleter.complete(anInvite.getCode()));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -171,34 +131,49 @@ public class SelfSignupInviteCompleterTest {
         service.setId(serviceId);
 
         InviteEntity anInvite = createInvite();
-        anInvite.setType(InviteType.SERVICE);
+        anInvite.setType(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
         anInvite.setExpiryDate(ZonedDateTime.now().minusDays(1));
 
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
+                () -> newUserExistingServiceInviteCompleter.complete(anInvite.getCode()));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
     @Test
-    public void shouldError_whenTryingToCreateServiceAndService_ifInviteIsOfUserType() {
+    public void shouldError_whenTryingToCreateServiceAndService_ifInviteIsOfExistingUserType() {
         ServiceEntity service = new ServiceEntity();
         service.setId(serviceId);
 
         InviteEntity anInvite = createInvite();
-        anInvite.setType(InviteType.USER);
+        anInvite.setType(InviteType.EXISTING_USER_INVITED_TO_EXISTING_SERVICE);
 
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
+                () -> newUserExistingServiceInviteCompleter.complete(anInvite.getCode()));
+        assertThat(exception.getMessage(), is("HTTP 500 Internal Server Error"));
+    }
+
+    @Test
+    public void shouldError_whenTryingToCreateServiceAndService_ifInviteIsOfSelfSignupType() {
+        ServiceEntity service = new ServiceEntity();
+        service.setId(serviceId);
+
+        InviteEntity anInvite = createInvite();
+        anInvite.setType(InviteType.NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP);
+
+        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
+        when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
+
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> newUserExistingServiceInviteCompleter.complete(anInvite.getCode()));
         assertThat(exception.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 
     private InviteEntity createInvite() {
-
         ServiceEntity service = new ServiceEntity();
         service.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, Service.DEFAULT_NAME_VALUE));
         service.setId(serviceId);

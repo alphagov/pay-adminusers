@@ -21,7 +21,6 @@ import uk.gov.pay.adminusers.model.InviteServiceRequest;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.model.User;
-import uk.gov.pay.adminusers.service.InviteCompleter;
 import uk.gov.pay.adminusers.service.InviteOtpDispatcher;
 import uk.gov.pay.adminusers.service.InviteService;
 import uk.gov.pay.adminusers.service.InviteServiceFactory;

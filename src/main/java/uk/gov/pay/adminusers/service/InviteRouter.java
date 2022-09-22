@@ -5,6 +5,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 
+import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -22,9 +23,18 @@ public class InviteRouter {
     public Optional<InviteCompleter> routeComplete(String inviteCode) {
         return routeIfExist(inviteCode,
                 inviteEntity -> {
-                    boolean isServiceType = inviteEntity.isServiceType();
-                    InviteCompleter inviteCompleter = isServiceType ? inviteServiceFactory.completeSelfSignupInvite() : inviteServiceFactory.completeExistingUserInvite();
-                    return Optional.of(inviteCompleter);
+                    switch (inviteEntity.getType()) {
+                        case SERVICE:
+                        case NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP:
+                            return Optional.of(inviteServiceFactory.completeSelfSignupInvite());
+                        case USER:
+                        case EXISTING_USER_INVITED_TO_EXISTING_SERVICE:
+                            return Optional.of(inviteServiceFactory.completeExistingUserInvite());
+                        case NEW_USER_INVITED_TO_EXISTING_SERVICE:
+                            return Optional.of(inviteServiceFactory.completeNewUserExistingServiceInvite());
+                        default:
+                            throw new WebApplicationException(String.format("Unrecognised invite type: %s", inviteEntity.getType()));
+                    }
                 });
     }
 
