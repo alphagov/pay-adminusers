@@ -24,7 +24,7 @@ permissions:
 jobs:
   run-adminusers-as-provider-tests:
     name: Run Adminusers as Provider
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748

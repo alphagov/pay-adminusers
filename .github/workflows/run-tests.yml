@@ -10,7 +10,7 @@ permissions:
 jobs:
   integration-tests:
     name: Unit and Integration tests
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
