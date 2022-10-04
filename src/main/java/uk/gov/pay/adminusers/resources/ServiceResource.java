@@ -151,7 +151,7 @@ public class ServiceResource {
     @Produces(APPLICATION_JSON)
     @Consumes(APPLICATION_JSON)
     @Operation(
-            tags = "Toolbox",
+            tags = "Services",
             summary = "Search services by name or merchant name",
             description = "This endpoint returns a list of services using lexical meaning to determine a match to the search criteria",
             requestBody = @RequestBody(
@@ -162,7 +162,7 @@ public class ServiceResource {
             ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = Service.class)))),
+                            content = @Content(schema = @Schema(implementation = SearchServicesResponse.class))),
                     @ApiResponse(responseCode = "400", description = "Invalid JSON payload")
             }
     )

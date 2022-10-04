@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
+import uk.gov.pay.adminusers.model.SearchServicesResponse;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceSearchRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -35,12 +36,12 @@ public class ServiceFinder {
                 .map(serviceEntity -> linksBuilder.decorate(serviceEntity.toService()));
     }
     
-    public Map<String, List<?>> bySearchRequest(ServiceSearchRequest request) {
-        var servicesByName = !isBlank(request.getServiceNameSearchString()) ? streamServiceEntitiesToServices(serviceDao
+    public SearchServicesResponse bySearchRequest(ServiceSearchRequest request) {
+        List<Service> servicesByName = !isBlank(request.getServiceNameSearchString()) ? streamServiceEntitiesToServices(serviceDao
                 .findByENServiceName(request.getServiceNameSearchString())) : Collections.emptyList();
-        var servicesByMerchantName = !isBlank(request.getServiceMerchantNameSearchString()) ? streamServiceEntitiesToServices(serviceDao
+        List<Service> servicesByMerchantName = !isBlank(request.getServiceMerchantNameSearchString()) ? streamServiceEntitiesToServices(serviceDao
                 .findByServiceMerchantName(request.getServiceMerchantNameSearchString())) : Collections.emptyList();
-        return Map.of("name_results", servicesByName, "merchant_results", servicesByMerchantName);
+        return new SearchServicesResponse(servicesByName, servicesByMerchantName);
     }
     
     private List<Service> streamServiceEntitiesToServices (List<ServiceEntity> serviceEntities) {

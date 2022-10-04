@@ -78,8 +78,8 @@ public class ServiceFinderTest {
         when(serviceDao.findByENServiceName("serv")).thenReturn(serviceEntities);
         var searchRequest = new ServiceSearchRequest("serv", "");
         var results = serviceFinder.bySearchRequest(searchRequest);
-        var servicesByName = (List<Service>) results.get("name_results");
-        var servicesByMerchant = (List<Service>) serviceFinder.bySearchRequest(searchRequest).get("merchant_results");
+        var servicesByName = (List<Service>) results.getNameResults();
+        var servicesByMerchant = (List<Service>) serviceFinder.bySearchRequest(searchRequest).getMerchantResults();
         assertThat(servicesByName.size(), is(2));
         assertThat(servicesByName.stream().map(Service::getName).collect(Collectors.toSet()), containsInAnyOrder("serv 1", "serv 2"));
         assertThat(servicesByMerchant, is(empty()));
@@ -93,8 +93,8 @@ public class ServiceFinderTest {
         when(serviceDao.findByServiceMerchantName("merchant name")).thenReturn(serviceEntities);
         var searchRequest = new ServiceSearchRequest("", "merchant name");
         var results = serviceFinder.bySearchRequest(searchRequest);
-        var servicesByName = (List<Service>) results.get("name_results");
-        var servicesByMerchant = (List<Service>) serviceFinder.bySearchRequest(searchRequest).get("merchant_results");
+        var servicesByName = (List<Service>) results.getNameResults();
+        var servicesByMerchant = (List<Service>) serviceFinder.bySearchRequest(searchRequest).getMerchantResults();
         assertThat(servicesByMerchant.size(), is(2));
         assertThat(servicesByMerchant.stream().map(Service::getName).collect(Collectors.toSet()), containsInAnyOrder("serv 3", "serv 4"));
         assertThat(servicesByName, is(empty()));
@@ -110,8 +110,8 @@ public class ServiceFinderTest {
         when(serviceDao.findByServiceMerchantName("merchant name")).thenReturn(serviceEntities2);
         var searchRequest = new ServiceSearchRequest("serv", "merchant name");
         var results = serviceFinder.bySearchRequest(searchRequest);
-        var servicesByName = (List<Service>) results.get("name_results");
-        var servicesByMerchant = (List<Service>) serviceFinder.bySearchRequest(searchRequest).get("merchant_results");
+        var servicesByName = (List<Service>) results.getNameResults();
+        var servicesByMerchant = (List<Service>) serviceFinder.bySearchRequest(searchRequest).getMerchantResults();
         assertThat(servicesByName.size(), is(2));
         assertThat(servicesByMerchant.size(), is(2));
         assertThat(servicesByName.stream().map(Service::getName).collect(Collectors.toSet()), containsInAnyOrder("serv 1", "serv 2"));
@@ -123,8 +123,8 @@ public class ServiceFinderTest {
     public void shouldReturnEmptyLists_whenSearchRequestParamsAreBlank() {
         var searchRequest = new ServiceSearchRequest("", "");
         var results = serviceFinder.bySearchRequest(searchRequest);
-        var servicesByName = (List<Service>) results.get("name_results");
-        var servicesByMerchant = (List<Service>) serviceFinder.bySearchRequest(searchRequest).get("merchant_results");
+        var servicesByName = (List<Service>) results.getNameResults();
+        var servicesByMerchant = (List<Service>) serviceFinder.bySearchRequest(searchRequest).getMerchantResults();
         verify(serviceDao, never()).findByENServiceName(anyString());
         verify(serviceDao, never()).findByServiceMerchantName(anyString());
         assertThat(servicesByName, is(empty()));
