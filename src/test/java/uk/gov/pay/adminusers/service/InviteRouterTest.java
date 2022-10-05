@@ -36,33 +36,31 @@ public class InviteRouterTest {
     }
 
     @Test
-    public void shouldResolve_serviceInviteCompleter_withValidation() {
+    public void shouldResolve_selfSignupInviteCompleter_withValidation() {
         String inviteCode = "a-code";
         InviteEntity inviteEntity = anInvite(inviteCode, SERVICE);
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
-        when(inviteServiceFactory.completeServiceInvite()).thenReturn(new ServiceInviteCompleter(null, null, null, null));
-        Optional<Pair<InviteCompleter, Boolean>> result = inviteRouter.routeComplete(inviteCode);
+        when(inviteServiceFactory.completeSelfSignupInvite()).thenReturn(new SelfSignupInviteCompleter(null, null, null, null));
+        Optional<InviteCompleter> result = inviteRouter.routeComplete(inviteCode);
 
         assertThat(result.isPresent(), is(true));
-        assertThat(result.get().getLeft(), is(instanceOf(ServiceInviteCompleter.class)));
-        assertThat(result.get().getRight(), is(true));
+        assertThat(result.get(), is(instanceOf(SelfSignupInviteCompleter.class)));
     }
 
     @Test
-    public void shouldResolve_userInviteCompleter_withoutValidation() {
+    public void shouldResolve_existingUserInviteCompleter_withoutValidation() {
         String inviteCode = "a-code";
         InviteEntity inviteEntity = anInvite(inviteCode, USER);
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
-        when(inviteServiceFactory.completeUserInvite()).thenReturn(new UserInviteCompleter(null, null));
-        Optional<Pair<InviteCompleter, Boolean>> result = inviteRouter.routeComplete(inviteCode);
+        when(inviteServiceFactory.completeExistingUserInvite()).thenReturn(new ExistingUserInviteCompleter(null, null));
+        Optional<InviteCompleter> result = inviteRouter.routeComplete(inviteCode);
 
         assertThat(result.isPresent(), is(true));
-        assertThat(result.get().getLeft(), is(instanceOf(UserInviteCompleter.class)));
-        assertThat(result.get().getRight(), is(false));
+        assertThat(result.get(), is(instanceOf(ExistingUserInviteCompleter.class)));
     }
 
     @Test
-    public void shouldResolve_userInviteDispatcher_withValidation() {
+    public void shouldResolve_existingUserInviteDispatcher_withValidation() {
         String inviteCode = "a-code";
         InviteEntity inviteEntity = anInvite(inviteCode, USER);
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
@@ -75,7 +73,7 @@ public class InviteRouterTest {
     }
 
     @Test
-    public void shouldResolve_serviceInviteDispatcher_withoutValidation() {
+    public void shouldResolve_selfSignupInviteDispatcher_withoutValidation() {
         String inviteCode = "a-code";
         InviteEntity inviteEntity = anInvite(inviteCode, SERVICE);
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));

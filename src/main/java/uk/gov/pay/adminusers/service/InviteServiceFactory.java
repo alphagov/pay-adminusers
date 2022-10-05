@@ -11,9 +11,11 @@ public interface InviteServiceFactory {
 
     InviteRouter inviteCompleteRouter();
 
-    ServiceInviteCompleter completeServiceInvite();
+    SelfSignupInviteCompleter completeSelfSignupInvite();
 
-    UserInviteCompleter completeUserInvite();
+    NewUserExistingServiceInviteCompleter completeNewUserExistingServiceInvite();
+
+    ExistingUserInviteCompleter completeExistingUserInvite();
 
     InviteRouter inviteOtpRouter();
 

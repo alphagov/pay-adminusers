@@ -21,7 +21,6 @@ import uk.gov.pay.adminusers.model.InviteServiceRequest;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.model.User;
-import uk.gov.pay.adminusers.service.InviteCompleter;
 import uk.gov.pay.adminusers.service.InviteOtpDispatcher;
 import uk.gov.pay.adminusers.service.InviteService;
 import uk.gov.pay.adminusers.service.InviteServiceFactory;
@@ -117,8 +116,7 @@ public class InviteResource {
         }
 
         return inviteServiceFactory.inviteCompleteRouter().routeComplete(inviteCode)
-                .map(inviteCompleterAndValidate -> {
-                    InviteCompleter inviteCompleter = inviteCompleterAndValidate.getLeft();
+                .map(inviteCompleter -> {
                     return inviteCompleter.withData(inviteCompleteRequestFrom(payload)).complete(inviteCode)
                             .map(inviteCompleteResponse -> Response.status(OK).entity(inviteCompleteResponse).build())
                             .orElseGet(() -> Response.status(NOT_FOUND).build());

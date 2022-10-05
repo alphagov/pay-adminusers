@@ -4,7 +4,14 @@ import static java.lang.String.format;
 
 public enum InviteType {
 
-    USER("user"), SERVICE("service");
+    // Old values; these are still in use.
+    USER("user"),
+    SERVICE("service"),
+
+    // New values; these are not used yet.
+    EXISTING_USER_INVITED_TO_EXISTING_SERVICE("existing_user_invited_to_existing_service"),
+    NEW_USER_INVITED_TO_EXISTING_SERVICE("new_user_invited_to_existing_service"),
+    NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP("new_user_new_service_self_signup");
 
     private String type;
 

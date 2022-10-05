@@ -19,7 +19,7 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmai
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
 
-public class ServiceInviteCompleter extends InviteCompleter {
+public class SelfSignupInviteCompleter extends InviteCompleter {
 
     private final InviteDao inviteDao;
     private final UserDao userDao;
@@ -27,7 +27,7 @@ public class ServiceInviteCompleter extends InviteCompleter {
     private final LinksBuilder linksBuilder;
 
     @Inject
-    public ServiceInviteCompleter(InviteDao inviteDao, UserDao userDao, ServiceDao serviceDao, LinksBuilder linksBuilder) {
+    public SelfSignupInviteCompleter(InviteDao inviteDao, UserDao userDao, ServiceDao serviceDao, LinksBuilder linksBuilder) {
         super();
         this.inviteDao = inviteDao;
         this.userDao = userDao;
@@ -36,9 +36,8 @@ public class ServiceInviteCompleter extends InviteCompleter {
     }
 
     /**
-     * Completes a service invite.
-     * ie. it creates and persists a user from an invite or/and subscribe a user to an existing service
-     * and if it is a service invite also creates a default service.
+     * Completes a self-signup invite.
+     * ie. it creates and persists a user from an invite and also creates a default service.
      * It then disables the invite.
      */
     @Override

@@ -5,6 +5,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 
+import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -19,12 +20,21 @@ public class InviteRouter {
         this.inviteDao = inviteDao;
     }
 
-    public Optional<Pair<InviteCompleter, Boolean>> routeComplete(String inviteCode) {
+    public Optional<InviteCompleter> routeComplete(String inviteCode) {
         return routeIfExist(inviteCode,
                 inviteEntity -> {
-                    boolean isServiceType = inviteEntity.isServiceType();
-                    InviteCompleter inviteCompleter = isServiceType ? inviteServiceFactory.completeServiceInvite() : inviteServiceFactory.completeUserInvite();
-                    return Optional.of(Pair.of(inviteCompleter, isServiceType));
+                    switch (inviteEntity.getType()) {
+                        case SERVICE:
+                        case NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP:
+                            return Optional.of(inviteServiceFactory.completeSelfSignupInvite());
+                        case USER:
+                        case EXISTING_USER_INVITED_TO_EXISTING_SERVICE:
+                            return Optional.of(inviteServiceFactory.completeExistingUserInvite());
+                        case NEW_USER_INVITED_TO_EXISTING_SERVICE:
+                            return Optional.of(inviteServiceFactory.completeNewUserExistingServiceInvite());
+                        default:
+                            throw new WebApplicationException(String.format("Unrecognised invite type: %s", inviteEntity.getType()));
+                    }
                 });
     }
 
@@ -38,7 +48,7 @@ public class InviteRouter {
 
     }
 
-    private <T> Optional<Pair<T, Boolean>> routeIfExist(String inviteCode, Function<InviteEntity, Optional<Pair<T, Boolean>>> routeFunction) {
+    private <T> Optional<T> routeIfExist(String inviteCode, Function<InviteEntity, Optional<T>> routeFunction) {
         return inviteDao.findByCode(inviteCode).map(routeFunction)
                 .orElseGet(Optional::empty);
     }
