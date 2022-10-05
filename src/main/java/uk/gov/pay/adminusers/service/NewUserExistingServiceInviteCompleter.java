@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
+import net.logstash.logback.marker.Markers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.Invite;
@@ -18,6 +19,8 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmai
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.notFoundInviteException;
+import static uk.gov.service.payments.logging.LoggingKeys.SERVICE_EXTERNAL_ID;
+import static uk.gov.service.payments.logging.LoggingKeys.USER_EXTERNAL_ID;
 
 public class NewUserExistingServiceInviteCompleter extends InviteCompleter {
 
@@ -59,7 +62,11 @@ public class NewUserExistingServiceInviteCompleter extends InviteCompleter {
                             .map(serviceRole -> serviceRole.getService().getExternalId())
                             .collect(Collectors.joining(", "));
 
-                    LOGGER.info("User created successfully from invitation [{}] for services [{}]", userEntity.getExternalId(), serviceIds);
+                    LOGGER.info(
+                            Markers.append(USER_EXTERNAL_ID, userEntity.getExternalId())
+                                    .and(Markers.append(SERVICE_EXTERNAL_ID, serviceIds)),
+                            "User created successfully from invitation"
+                    );
 
                     Invite invite = linksBuilder.addUserLink(userEntity.toUser(), inviteEntity.toInvite());
                     InviteCompleteResponse response = new InviteCompleteResponse(invite);
