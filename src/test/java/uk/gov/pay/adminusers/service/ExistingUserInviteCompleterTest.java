@@ -76,14 +76,31 @@ public class ExistingUserInviteCompleterTest {
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(user));
 
-        Optional<InviteCompleteResponse> completedInvite = existingUserInviteCompleter.complete(inviteCode);
+        InviteCompleteResponse completedInvite = existingUserInviteCompleter.complete(inviteCode);
 
         ArgumentCaptor<UserEntity> persistedUser = ArgumentCaptor.forClass(UserEntity.class);
         verify(mockUserDao).merge(persistedUser.capture());
 
-        assertThat(completedInvite.isPresent(), is(true));
-        assertThat(completedInvite.get().getInvite().isDisabled(), is(true));
+        assertThat(completedInvite.getInvite().isDisabled(), is(true));
         assertThat(persistedUser.getValue().getServicesRole(service.getExternalId()).isPresent(), is(true));
+    }
+
+    @Test
+    public void shouldError_whenSubscribingAServiceToAnExistingUser_forUnrecognisedInvite() {
+
+        ServiceEntity service = new ServiceEntity();
+        service.setId(serviceId);
+        service.setExternalId(serviceExternalId);
+
+        InviteEntity anInvite = createInvite();
+        anInvite.setType(InviteType.SERVICE);
+        anInvite.setService(service);
+
+        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.empty());
+
+        WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
+                () -> existingUserInviteCompleter.complete(inviteCode));
+        assertThat(webApplicationException.getMessage(), is("HTTP 404 Not Found"));
     }
 
     @Test

@@ -12,12 +12,11 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
-import java.util.Optional;
-
 import static java.lang.String.format;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmail;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.notFoundInviteException;
 
 public class SelfSignupInviteCompleter extends InviteCompleter {
 
@@ -42,7 +41,7 @@ public class SelfSignupInviteCompleter extends InviteCompleter {
      */
     @Override
     @Transactional
-    public Optional<InviteCompleteResponse> complete(String inviteCode) {
+    public InviteCompleteResponse complete(String inviteCode) {
         return inviteDao.findByCode(inviteCode)
                 .map(inviteEntity -> {
                     if (inviteEntity.isExpired() || inviteEntity.isDisabled()) {
@@ -76,7 +75,7 @@ public class SelfSignupInviteCompleter extends InviteCompleter {
                     } else {
                         throw internalServerError(format("Attempting to complete a service invite for a non service invite of type. invite-code = %s", inviteEntity.getCode()));
                     }
-                });
+                }).orElseThrow(() -> notFoundInviteException(inviteCode));
     }
 
 }

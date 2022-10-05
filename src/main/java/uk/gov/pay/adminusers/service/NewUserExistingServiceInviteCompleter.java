@@ -7,14 +7,10 @@ import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteCompleteResponse;
 import uk.gov.pay.adminusers.model.InviteType;
-import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
-import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
-import javax.ws.rs.WebApplicationException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -41,7 +37,7 @@ public class NewUserExistingServiceInviteCompleter extends InviteCompleter {
 
     @Override
     @Transactional
-    public Optional<InviteCompleteResponse> complete(String inviteCode) {
+    public InviteCompleteResponse complete(String inviteCode) {
         return inviteDao.findByCode(inviteCode)
                 .map(inviteEntity -> {
                     if (inviteEntity.isExpired() || inviteEntity.isDisabled()) {
@@ -69,7 +65,7 @@ public class NewUserExistingServiceInviteCompleter extends InviteCompleter {
                     InviteCompleteResponse response = new InviteCompleteResponse(invite);
                     response.setUserExternalId(userEntity.getExternalId());
 
-                    return Optional.of(response);
+                    return response;
                 })
                 .orElseThrow(() -> notFoundInviteException(inviteCode));
     }

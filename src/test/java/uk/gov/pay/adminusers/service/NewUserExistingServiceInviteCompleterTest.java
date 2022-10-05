@@ -13,7 +13,6 @@ import uk.gov.pay.adminusers.model.Link;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
-import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -26,10 +25,7 @@ import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -75,7 +71,7 @@ public class NewUserExistingServiceInviteCompleterTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
-        InviteCompleteResponse inviteResponse = newUserExistingServiceInviteCompleter.withData(new InviteCompleteRequest()).complete(anInvite.getCode()).get();
+        InviteCompleteResponse inviteResponse = newUserExistingServiceInviteCompleter.withData(new InviteCompleteRequest()).complete(anInvite.getCode());
 
         verify(mockUserDao).persist(expectedInvitedUser.capture());
         verify(mockInviteDao).merge(expectedInvite.capture());
@@ -107,6 +103,22 @@ public class NewUserExistingServiceInviteCompleterTest {
         WebApplicationException exception = assertThrows(WebApplicationException.class,
                 () -> newUserExistingServiceInviteCompleter.complete(anInvite.getCode()));
         assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
+    }
+
+    @Test
+    public void shouldThrowEmailExistsException_whenPassedUnrecognisedInviteCode() {
+        ServiceEntity service = new ServiceEntity();
+        service.setId(serviceId);
+
+        InviteEntity anInvite = createInvite();
+        anInvite.setType(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
+        anInvite.setDisabled(true);
+
+        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.empty());
+
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> newUserExistingServiceInviteCompleter.complete(anInvite.getCode()));
+        assertThat(exception.getMessage(), is("HTTP 404 Not Found"));
     }
 
     @Test

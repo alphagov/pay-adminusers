@@ -7,11 +7,10 @@ import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 
-import java.util.Optional;
-
 import static java.lang.String.format;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.notFoundInviteException;
 
 public class ExistingUserInviteCompleter extends InviteCompleter {
 
@@ -27,7 +26,7 @@ public class ExistingUserInviteCompleter extends InviteCompleter {
 
     @Override
     @Transactional
-    public Optional<InviteCompleteResponse> complete(String inviteCode) {
+    public InviteCompleteResponse complete(String inviteCode) {
         return inviteDao.findByCode(inviteCode)
                 .map(inviteEntity -> {
                     if (inviteEntity.isExpired() || inviteEntity.isDisabled()) {
@@ -46,14 +45,16 @@ public class ExistingUserInviteCompleter extends InviteCompleter {
                                     InviteCompleteResponse response = new InviteCompleteResponse(inviteEntity.toInvite());
                                     response.setUserExternalId(userEntity.getExternalId());
                                     response.setServiceExternalId(inviteEntity.getService().getExternalId());
-                                    return Optional.of(response);
+                                    return response;
                                 } else {
                                     throw internalServerError(format("Attempting to complete user subscription to a service for a non existent service. invite-code = %s", inviteEntity.getCode()));
                                 }
-                            }).orElseGet(() -> {
-                                throw internalServerError(format("Attempting to complete user subscription to a service for a non existent user. invite-code = %s", inviteEntity.getCode()));
-                            });
-                }).orElseGet(Optional::empty);
+                            }).orElseThrow(() ->
+                                internalServerError(format(
+                                        "Attempting to complete user subscription to a service for a non existent user. invite-code = %s",
+                                        inviteEntity.getCode()
+                                )));
+                }).orElseThrow(() -> notFoundInviteException(inviteCode));
 
     }
 }
