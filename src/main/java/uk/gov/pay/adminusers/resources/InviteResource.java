@@ -106,21 +106,18 @@ public class InviteResource {
                     @ApiResponse(responseCode = "404", description = "Not found")
             }
     )
-    public Response completeInvite(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode,
+    public InviteCompleteResponse completeInvite(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode,
                                    @Parameter(schema = @Schema(implementation = InviteCompleteRequest.class))
                                            JsonNode payload) {
         LOGGER.info("Invite  complete POST request for code - [ {} ]", inviteCode);
 
         if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
-            return Response.status(NOT_FOUND).build();
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
         return inviteServiceFactory.inviteCompleteRouter().routeComplete(inviteCode)
-                .map(inviteCompleter -> {
-                    InviteCompleteResponse inviteCompleteResponse = inviteCompleter.withData(inviteCompleteRequestFrom(payload)).complete(inviteCode);
-                    return Response.status(OK).entity(inviteCompleteResponse).build();
-                })
-                .orElseGet(() -> Response.status(NOT_FOUND).build());
+                .map(inviteCompleter -> inviteCompleter.withData(inviteCompleteRequestFrom(payload)).complete(inviteCode))
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private InviteCompleteRequest inviteCompleteRequestFrom(JsonNode payload) {
