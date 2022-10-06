@@ -10,12 +10,12 @@ public class InviteTypeConverter implements AttributeConverter<InviteType, Strin
 
     @Override
     public String convertToDatabaseColumn(InviteType inviteType) {
-        return inviteType.getType();
+        return inviteType.name().toLowerCase();
     }
 
     @Override
     public InviteType convertToEntityAttribute(String string) {
-        return InviteType.from(string);
+        return InviteType.valueOf(string.toUpperCase());
     }
 
 }

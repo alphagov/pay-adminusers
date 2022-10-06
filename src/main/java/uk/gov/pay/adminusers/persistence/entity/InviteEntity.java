@@ -219,7 +219,7 @@ public class InviteEntity extends AbstractEntity {
     }
 
     public Invite toInvite() {
-        return new Invite(code, email, telephoneNumber, disabled, loginCounter, type.getType(), role.getName(), isExpired(), hasPassword());
+        return new Invite(code, email, telephoneNumber, disabled, loginCounter, type, role.getName(), isExpired(), hasPassword());
     }
 
     public boolean isExpired() {

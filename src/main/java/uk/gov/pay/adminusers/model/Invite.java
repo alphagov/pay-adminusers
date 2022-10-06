@@ -23,13 +23,13 @@ public class Invite {
     private Integer attemptCounter = 0;
 
     private List<Link> links = new ArrayList<>();
-    private String type;
+    private InviteType type;
     private boolean userExist = false;
     private boolean expired;
     private boolean passwordSet;
 
     public Invite(String code, String email, String telephoneNumber,
-                  Boolean disabled, Integer attemptCounter, String type, String role, Boolean expired, boolean passwordSet) {
+                  Boolean disabled, Integer attemptCounter, InviteType type, String role, Boolean expired, boolean passwordSet) {
         this.code = code;
         this.email = email;
         this.telephoneNumber = telephoneNumber;
@@ -94,11 +94,11 @@ public class Invite {
     }
 
     @Schema(example = "service")
-    public String getType() {
+    public InviteType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(InviteType type) {
         this.type = type;
     }
 
