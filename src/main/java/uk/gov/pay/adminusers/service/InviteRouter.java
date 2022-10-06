@@ -5,7 +5,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 
-import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -33,7 +32,7 @@ public class InviteRouter {
                         case NEW_USER_INVITED_TO_EXISTING_SERVICE:
                             return Optional.of(inviteServiceFactory.completeNewUserExistingServiceInvite());
                         default:
-                            throw new WebApplicationException(String.format("Unrecognised invite type: %s", inviteEntity.getType()));
+                            throw new IllegalArgumentException(String.format("Unrecognised invite type: %s", inviteEntity.getType()));
                     }
                 });
     }

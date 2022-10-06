@@ -2,19 +2,16 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
+import net.logstash.logback.marker.Markers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteCompleteResponse;
 import uk.gov.pay.adminusers.model.InviteType;
-import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
-import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
-import javax.ws.rs.WebApplicationException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -22,6 +19,8 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmai
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.notFoundInviteException;
+import static uk.gov.service.payments.logging.LoggingKeys.SERVICE_EXTERNAL_ID;
+import static uk.gov.service.payments.logging.LoggingKeys.USER_EXTERNAL_ID;
 
 public class NewUserExistingServiceInviteCompleter extends InviteCompleter {
 
@@ -41,7 +40,7 @@ public class NewUserExistingServiceInviteCompleter extends InviteCompleter {
 
     @Override
     @Transactional
-    public Optional<InviteCompleteResponse> complete(String inviteCode) {
+    public InviteCompleteResponse complete(String inviteCode) {
         return inviteDao.findByCode(inviteCode)
                 .map(inviteEntity -> {
                     if (inviteEntity.isExpired() || inviteEntity.isDisabled()) {
@@ -63,13 +62,17 @@ public class NewUserExistingServiceInviteCompleter extends InviteCompleter {
                             .map(serviceRole -> serviceRole.getService().getExternalId())
                             .collect(Collectors.joining(", "));
 
-                    LOGGER.info("User created successfully from invitation [{}] for services [{}]", userEntity.getExternalId(), serviceIds);
+                    LOGGER.info(
+                            Markers.append(USER_EXTERNAL_ID, userEntity.getExternalId())
+                                    .and(Markers.append(SERVICE_EXTERNAL_ID, serviceIds)),
+                            "User created successfully from invitation"
+                    );
 
                     Invite invite = linksBuilder.addUserLink(userEntity.toUser(), inviteEntity.toInvite());
                     InviteCompleteResponse response = new InviteCompleteResponse(invite);
                     response.setUserExternalId(userEntity.getExternalId());
 
-                    return Optional.of(response);
+                    return response;
                 })
                 .orElseThrow(() -> notFoundInviteException(inviteCode));
     }

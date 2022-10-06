@@ -84,7 +84,7 @@ public class SelfSignupInviteCompleterTest {
 
         InviteCompleteRequest data = new InviteCompleteRequest();
         data.setGatewayAccountIds(asList("1", "2"));
-        InviteCompleteResponse inviteResponse = selfSignupInviteCompleter.withData(data).complete(anInvite.getCode()).get();
+        InviteCompleteResponse inviteResponse = selfSignupInviteCompleter.withData(data).complete(anInvite.getCode());
 
         verify(mockServiceDao).persist(expectedService.capture());
         verify(mockUserDao).merge(expectedInvitedUser.capture());
@@ -112,7 +112,7 @@ public class SelfSignupInviteCompleterTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
         when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
-        InviteCompleteResponse inviteResponse = selfSignupInviteCompleter.withData(new InviteCompleteRequest()).complete(anInvite.getCode()).get();
+        InviteCompleteResponse inviteResponse = selfSignupInviteCompleter.withData(new InviteCompleteRequest()).complete(anInvite.getCode());
 
         verify(mockServiceDao).persist(expectedService.capture());
         verify(mockUserDao).merge(expectedInvitedUser.capture());
@@ -147,6 +147,22 @@ public class SelfSignupInviteCompleterTest {
         WebApplicationException exception = assertThrows(WebApplicationException.class,
                 () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
         assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
+    }
+
+    @Test
+    public void shouldThrowEmailExistsException_whenPassedUnrecognisedInviteCode() {
+        ServiceEntity service = new ServiceEntity();
+        service.setId(serviceId);
+
+        InviteEntity anInvite = createInvite();
+        anInvite.setType(InviteType.SERVICE);
+        anInvite.setDisabled(true);
+
+        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.empty());
+
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
+        assertThat(exception.getMessage(), is("HTTP 404 Not Found"));
     }
 
     @Test
