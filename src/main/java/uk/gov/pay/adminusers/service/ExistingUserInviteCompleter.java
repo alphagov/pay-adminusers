@@ -34,7 +34,7 @@ public class ExistingUserInviteCompleter extends InviteCompleter {
                     }
                     return userDao.findByEmail(inviteEntity.getEmail())
                             .map(userEntity -> {
-                                if (inviteEntity.getService() != null && inviteEntity.isUserType()) {
+                                if (inviteEntity.getService() != null && inviteEntity.getType().isExistingUserExistingService()) {
                                     ServiceRoleEntity serviceRole = new ServiceRoleEntity(inviteEntity.getService(), inviteEntity.getRole());
                                     userEntity.addServiceRole(serviceRole);
                                     userDao.merge(userEntity);

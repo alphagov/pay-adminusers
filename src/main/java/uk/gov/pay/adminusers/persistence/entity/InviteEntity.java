@@ -210,14 +210,6 @@ public class InviteEntity extends AbstractEntity {
         this.type = type;
     }
 
-    public boolean isServiceType() {
-        return InviteType.SERVICE.equals(type);
-    }
-
-    public boolean isUserType() {
-        return InviteType.USER.equals(type);
-    }
-
     public Invite toInvite() {
         return new Invite(code, email, telephoneNumber, disabled, loginCounter, type.getType(), role.getName(), isExpired(), hasPassword());
     }
