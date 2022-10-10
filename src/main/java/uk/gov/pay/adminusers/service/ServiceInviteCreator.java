@@ -35,10 +35,17 @@ public class ServiceInviteCreator {
     private final LinksConfig linksConfig;
     private final NotificationService notificationService;
     private final PasswordHasher passwordHasher;
+    private final SecondFactorAuthenticator secondFactorAuthenticator;
 
     @Inject
-    public ServiceInviteCreator(InviteDao inviteDao, UserDao userDao, RoleDao roleDao, LinksBuilder linksBuilder,
-                                LinksConfig linksConfig, NotificationService notificationService, PasswordHasher passwordHasher) {
+    public ServiceInviteCreator(InviteDao inviteDao,
+                                UserDao userDao,
+                                RoleDao roleDao,
+                                LinksBuilder linksBuilder,
+                                LinksConfig linksConfig,
+                                NotificationService notificationService,
+                                PasswordHasher passwordHasher,
+                                SecondFactorAuthenticator secondFactorAuthenticator) {
         this.inviteDao = inviteDao;
         this.userDao = userDao;
         this.roleDao = roleDao;
@@ -46,6 +53,7 @@ public class ServiceInviteCreator {
         this.linksConfig = linksConfig;
         this.notificationService = notificationService;
         this.passwordHasher = passwordHasher;
+        this.secondFactorAuthenticator = secondFactorAuthenticator;
     }
 
     @Transactional
@@ -63,11 +71,11 @@ public class ServiceInviteCreator {
         }
 
         List<InviteEntity> exitingInvites = inviteDao.findByEmail(requestEmail);
-        List<InviteEntity> existingValidServiceInvitesForSameEmail =  exitingInvites.stream()
+        List<InviteEntity> existingValidServiceInvitesForSameEmail = exitingInvites.stream()
                 .filter(inviteEntity -> !inviteEntity.isDisabled() && !inviteEntity.isExpired())
                 .filter(InviteEntity::isServiceType).collect(toUnmodifiableList());
 
-        if(!existingValidServiceInvitesForSameEmail.isEmpty()) {
+        if (!existingValidServiceInvitesForSameEmail.isEmpty()) {
             InviteEntity foundInvite = existingValidServiceInvitesForSameEmail.get(0);
             return constructInviteAndSendEmail(inviteServiceRequest, foundInvite, inviteEntity -> {
                 inviteDao.merge(inviteEntity);
@@ -77,7 +85,8 @@ public class ServiceInviteCreator {
 
         return roleDao.findByRoleName(inviteServiceRequest.getRoleName())
                 .map(roleEntity -> {
-                    InviteEntity inviteEntity = new InviteEntity(requestEmail, randomUuid(), inviteServiceRequest.getOtpKey(), roleEntity);
+                    String otpKey = secondFactorAuthenticator.generateNewBase32EncodedSecret();
+                    InviteEntity inviteEntity = new InviteEntity(requestEmail, randomUuid(), otpKey, roleEntity);
                     inviteEntity.setType(SERVICE);
                     return constructInviteAndSendEmail(inviteServiceRequest, inviteEntity, inviteToPersist -> {
                         inviteDao.persist(inviteToPersist);
@@ -104,7 +113,7 @@ public class ServiceInviteCreator {
         try {
             String notificationId = notificationService.sendServiceInviteEmail(invite.getEmail(), targetUrl);
             LOGGER.info("sent create service invitation email successfully, notification id [{}]", notificationId);
-        } catch(Exception e) {
+        } catch (Exception e) {
             LOGGER.error("error sending create service invitation", e);
         }
     }

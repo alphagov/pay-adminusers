@@ -52,6 +52,8 @@ class ServiceInviteCreatorTest {
     private RoleDao roleDao;
     @Mock
     private PasswordHasher passwordHasher;
+    @Mock
+    private SecondFactorAuthenticator secondFactorAuthenticator;
     @Captor
     private ArgumentCaptor<InviteEntity> persistedInviteEntity;
     private ServiceInviteCreator serviceInviteCreator;
@@ -59,7 +61,8 @@ class ServiceInviteCreatorTest {
     @BeforeEach
     void before() {
         serviceInviteCreator = new ServiceInviteCreator(inviteDao, userDao, roleDao,
-                new LinksBuilder("http://localhost/"), linksConfig, notificationService, passwordHasher);
+                new LinksBuilder("http://localhost/"), linksConfig, notificationService, passwordHasher,
+                secondFactorAuthenticator);
     }
 
     @Test

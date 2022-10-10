@@ -63,7 +63,7 @@ public class CreateUserRequest {
         String password = getOrElseRandom(node.get(FIELD_PASSWORD), randomUuid());
         String email = getNodeAsTextOrFail(node, FIELD_EMAIL);
         String telephoneNumber = getNodeAsTextOrFail(node, FIELD_TELEPHONE_NUMBER);
-        String otpKey = getOrElseRandom(node.get(FIELD_OTP_KEY), newId());
+        String otpKey = getNodeAsTextNullable(node, FIELD_OTP_KEY);
         String features = getOrElseRandom(node.get(FIELD_FEATURES), null);
         return from(username, password, email, gatewayAccountIds, serviceExternalIds, otpKey, telephoneNumber, features);
     }
@@ -84,6 +84,12 @@ public class CreateUserRequest {
         return Optional.ofNullable(node.get(fieldName))
                 .map(JsonNode::asText)
                 .orElseThrow(() -> new RuntimeException(format("Error retrieving field %s for creating a user", fieldName)));
+    }
+    
+    private static String getNodeAsTextNullable(JsonNode node, String fieldName) {
+        return Optional.ofNullable(node.get(fieldName))
+                .map(JsonNode::asText)
+                .orElse(null);
     }
 
     private static String getOrElseRandom(JsonNode elementNode, String randomValue) {
@@ -121,8 +127,8 @@ public class CreateUserRequest {
         return gatewayAccountIds;
     }
 
-    public String getOtpKey() {
-        return otpKey;
+    public Optional<String> getOtpKey() {
+        return Optional.ofNullable(otpKey);
     }
 
     public String getTelephoneNumber() {

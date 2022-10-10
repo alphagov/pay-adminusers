@@ -32,21 +32,29 @@ public class UserCreator {
     private final ServiceDao serviceDao;
     private final PasswordHasher passwordHasher;
     private final LinksBuilder linksBuilder;
+    private final SecondFactorAuthenticator secondFactorAuthenticator;
 
     @Inject
-    public UserCreator(UserDao userDao, RoleDao roleDao, ServiceDao serviceDao, PasswordHasher passwordHasher, LinksBuilder linksBuilder) {
+    public UserCreator(UserDao userDao,
+                       RoleDao roleDao,
+                       ServiceDao serviceDao,
+                       PasswordHasher passwordHasher,
+                       LinksBuilder linksBuilder,
+                       SecondFactorAuthenticator secondFactorAuthenticator) {
         this.userDao = userDao;
         this.roleDao = roleDao;
         this.serviceDao = serviceDao;
         this.passwordHasher = passwordHasher;
         this.linksBuilder = linksBuilder;
+        this.secondFactorAuthenticator = secondFactorAuthenticator;
     }
 
     @Transactional
     public User doCreate(CreateUserRequest userRequest, String roleName) {
         return roleDao.findByRoleName(roleName)
                 .map(roleEntity -> {
-                    UserEntity userEntity = UserEntity.from(userRequest);
+                    String otpKey = userRequest.getOtpKey().orElseGet(secondFactorAuthenticator::generateNewBase32EncodedSecret);
+                    UserEntity userEntity = UserEntity.from(userRequest, otpKey);
                     userEntity.setPassword(passwordHasher.hash(userRequest.getPassword()));
                     if (hasServiceIds(userRequest)) {
                         addServiceRoleToUser(userEntity, roleEntity, userRequest.getServiceExternalIds());

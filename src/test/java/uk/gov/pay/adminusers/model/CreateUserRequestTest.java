@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -54,7 +56,7 @@ class CreateUserRequestTest {
         assertThat(createUserRequest.getGatewayAccountIds().get(0), is("1"));
         assertThat(createUserRequest.getGatewayAccountIds().get(1), is("2"));
         assertThat(createUserRequest.getTelephoneNumber(), is("2123524"));
-        assertThat(createUserRequest.getOtpKey(), is("fr6ysdf"));
+        assertThat(createUserRequest.getOtpKey(), is(Optional.of("fr6ysdf")));
         assertThat(createUserRequest.getEmail(), is("email@example.com"));
     }
 }
