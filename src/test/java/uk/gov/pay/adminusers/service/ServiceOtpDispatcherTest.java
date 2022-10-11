@@ -118,6 +118,78 @@ public class ServiceOtpDispatcherTest {
     }
 
     @Test
+    public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExist__newEnumValue() {
+        String inviteCode = "valid-invite-code";
+        String telephone = "+441134960000";
+        InviteEntity inviteEntity = new InviteEntity();
+        inviteEntity.setCode(inviteCode);
+        inviteEntity.setType(InviteType.NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP);
+        inviteEntity.setOtpKey("otp-key");
+        inviteEntity.setTelephoneNumber(telephone);
+
+        when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+        when(secondFactorAuthenticator.newPassCode("otp-key")).thenReturn(123456);
+        when(notificationService.sendSecondFactorPasscodeSms(telephone, "123456", SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE))
+                .thenReturn("success code from notify");
+        boolean dispatched = serviceOtpDispatcher.dispatchOtp(inviteCode);
+
+        assertThat(dispatched,is(true));
+    }
+
+    @Test
+    public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExist_butPhoneAndPasswordOnlyInRequest_andUpdateInviteEntityWithPhoneAndPassword__newEnumValue() {
+        String inviteCode = "valid-invite-code";
+        InviteEntity inviteEntity = new InviteEntity();
+        inviteEntity.setCode(inviteCode);
+        inviteEntity.setType(InviteType.NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP);
+        inviteEntity.setOtpKey("otp-key");
+
+        String telephone = "+447700900000";
+        String password = "random"; // pragma: allowlist secret
+        serviceOtpDispatcher.withData(InviteOtpRequest.from(objectMapper.valueToTree(Map.of("telephone_number", telephone, "password", "random"))));
+
+        when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+        when(passwordHasher.hash(password)).thenReturn("hashed-password");
+        when(secondFactorAuthenticator.newPassCode("otp-key")).thenReturn(123456);
+        when(notificationService.sendSecondFactorPasscodeSms(telephone, "123456", SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE))
+                .thenReturn("success code from notify");
+        boolean dispatched = serviceOtpDispatcher.dispatchOtp(inviteCode);
+
+        assertThat(dispatched,is(true));
+
+        verify(inviteDao).merge(expectedInvite.capture());
+        assertThat(dispatched, is(true));
+        assertThat(expectedInvite.getValue().getTelephoneNumber(), is(telephone));
+        assertThat(expectedInvite.getValue().getPassword(),is("hashed-password"));
+    }
+
+    @Test
+    public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExistWithPassword_butPhoneOnlyInRequest_andUpdateInviteEntityWithPhone__newEnumValue() {
+        String inviteCode = "valid-invite-code";
+        InviteEntity inviteEntity = new InviteEntity();
+        inviteEntity.setCode(inviteCode);
+        inviteEntity.setType(InviteType.NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP);
+        inviteEntity.setOtpKey("otp-key");
+        inviteEntity.setPassword("hashed-password");
+
+        String telephone = "+447700900000";
+        serviceOtpDispatcher.withData(InviteOtpRequest.from(objectMapper.valueToTree(Map.of("telephone_number", telephone))));
+
+        when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+        when(secondFactorAuthenticator.newPassCode("otp-key")).thenReturn(123456);
+        when(notificationService.sendSecondFactorPasscodeSms(telephone, "123456", SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE))
+                .thenReturn("success code from notify");
+        boolean dispatched = serviceOtpDispatcher.dispatchOtp(inviteCode);
+
+        assertThat(dispatched,is(true));
+
+        verify(inviteDao).merge(expectedInvite.capture());
+        assertThat(dispatched, is(true));
+        assertThat(expectedInvite.getValue().getTelephoneNumber(), is(telephone));
+        assertThat(expectedInvite.getValue().getPassword(),is("hashed-password"));
+    }
+
+    @Test
     public void shouldFail_whenDispatchServiceOtp_ifInviteEntityNotFound() {
 
         String inviteCode = "non-existent-code";

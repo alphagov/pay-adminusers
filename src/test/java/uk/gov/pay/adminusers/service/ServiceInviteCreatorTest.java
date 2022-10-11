@@ -158,6 +158,32 @@ class ServiceInviteCreatorTest {
     }
 
     @Test
+    void shouldSuccess_ifUserAlreadyHasAValidServiceInvitationWithGivenEmail__newEnumValue() {
+        String email = "email@example.gov.uk";
+        InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
+        UserEntity sender = mock(UserEntity.class);
+        ServiceEntity service = mock(ServiceEntity.class);
+        RoleEntity role = mock(RoleEntity.class);
+        InviteEntity validInvite = new InviteEntity(email, "code", "otpKey", role);
+        validInvite.setService(service);
+        validInvite.setSender(sender);
+        validInvite.setType(InviteType.NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP);
+
+        when(userDao.findByEmail(email)).thenReturn(Optional.empty());
+        when(inviteDao.findByEmail(email)).thenReturn(List.of(validInvite));
+        when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
+        when(notificationService.sendServiceInviteEmail(eq(email), anyString()))
+                .thenReturn("done");
+
+        Invite invite = serviceInviteCreator.doInvite(request);
+
+        verify(inviteDao, times(1)).merge(persistedInviteEntity.capture());
+        assertThat(invite.getEmail(), is(request.getEmail()));
+        assertThat(invite.getType(), is("new_user_and_new_service_self_signup"));
+        assertThat(invite.getLinks().get(0).getHref(), is("http://selfservice/invites/code"));
+    }
+
+    @Test
     void shouldSuccess_serviceInvite_evenIfUserAlreadyHasAValidUserInvitationWithGivenEmail() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
