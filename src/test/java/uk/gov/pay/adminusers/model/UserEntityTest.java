@@ -14,7 +14,6 @@ import java.util.Set;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.pay.adminusers.model.Permission.permission;
 import static uk.gov.pay.adminusers.model.Role.role;
 
@@ -36,12 +35,12 @@ class UserEntityTest {
 
         UserEntity userEntity = UserEntity.from(createUserRequest);
 
-        assertEquals(createUserRequest.getUsername(), userEntity.getUsername());
-        assertEquals(createUserRequest.getPassword(), userEntity.getPassword());
-        assertEquals(createUserRequest.getOtpKey(), userEntity.getOtpKey());
-        assertEquals(createUserRequest.getTelephoneNumber(), userEntity.getTelephoneNumber());
-        assertEquals(createUserRequest.getEmail(), userEntity.getEmail());
-        assertEquals(SecondFactorMethod.SMS, userEntity.getSecondFactor());
+        assertThat(userEntity.getUsername(), is(createUserRequest.getUsername()));
+        assertThat(userEntity.getPassword(), is(createUserRequest.getPassword()));
+        assertThat(userEntity.getOtpKey(), is(createUserRequest.getOtpKey()));
+        assertThat(userEntity.getTelephoneNumber(), is(createUserRequest.getTelephoneNumber()));
+        assertThat(userEntity.getEmail(), is(createUserRequest.getEmail()));
+        assertThat(userEntity.getSecondFactor(), is(SecondFactorMethod.SMS));
         assertThat(userEntity.getCreatedAt(), is(notNullValue()));
         assertThat(userEntity.getUpdatedAt(), is(notNullValue()));
         // Since role and gatewayAccountId will be set up after won't be unit-testing from JSON to entity.
