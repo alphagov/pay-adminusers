@@ -9,6 +9,7 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -32,12 +33,13 @@ class UserEntityTest {
 
         JsonNode jsonNode = objectMapper.readTree(minimumUserJson);
         CreateUserRequest createUserRequest = CreateUserRequest.from(jsonNode);
+        String otpKey = "an-otp-key";
 
-        UserEntity userEntity = UserEntity.from(createUserRequest);
+        UserEntity userEntity = UserEntity.from(createUserRequest, otpKey);
 
         assertThat(userEntity.getUsername(), is(createUserRequest.getUsername()));
         assertThat(userEntity.getPassword(), is(createUserRequest.getPassword()));
-        assertThat(userEntity.getOtpKey(), is(createUserRequest.getOtpKey()));
+        assertThat(userEntity.getOtpKey(), is(otpKey));
         assertThat(userEntity.getTelephoneNumber(), is(createUserRequest.getTelephoneNumber()));
         assertThat(userEntity.getEmail(), is(createUserRequest.getEmail()));
         assertThat(userEntity.getSecondFactor(), is(SecondFactorMethod.SMS));

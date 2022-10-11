@@ -39,15 +39,23 @@ public class UserInviteCreator {
     private final LinksConfig linksConfig;
     private final NotificationService notificationService;
     private final ServiceDao serviceDao;
+    private final SecondFactorAuthenticator secondFactorAuthenticator;
 
     @Inject
-    public UserInviteCreator(InviteDao inviteDao, UserDao userDao, RoleDao roleDao, LinksConfig linksConfig, NotificationService notificationService, ServiceDao serviceDao) {
+    public UserInviteCreator(InviteDao inviteDao,
+                             UserDao userDao,
+                             RoleDao roleDao,
+                             LinksConfig linksConfig,
+                             NotificationService notificationService,
+                             ServiceDao serviceDao,
+                             SecondFactorAuthenticator secondFactorAuthenticator) {
         this.inviteDao = inviteDao;
         this.userDao = userDao;
         this.roleDao = roleDao;
         this.linksConfig = linksConfig;
         this.notificationService = notificationService;
         this.serviceDao = serviceDao;
+        this.secondFactorAuthenticator = secondFactorAuthenticator;
     }
 
     @Transactional
@@ -89,7 +97,8 @@ public class UserInviteCreator {
                 .map(role -> {
                     Optional<UserEntity> userSender = userDao.findByExternalId(inviteUserRequest.getSender());
                     if (userSender.isPresent() && userSender.get().canInviteUsersTo(serviceEntity.getId())) {
-                        InviteEntity inviteEntity = new InviteEntity(inviteUserRequest.getEmail(), randomUuid(), inviteUserRequest.getOtpKey(), role);
+                        String otpKey = secondFactorAuthenticator.generateNewBase32EncodedSecret();
+                        InviteEntity inviteEntity = new InviteEntity(inviteUserRequest.getEmail(), randomUuid(), otpKey, role);
                         inviteEntity.setSender(userSender.get());
                         inviteEntity.setService(serviceEntity);
                         inviteEntity.setType(USER);

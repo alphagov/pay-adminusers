@@ -10,16 +10,13 @@ public abstract class InviteRequest {
 
     public static final String FIELD_EMAIL = "email";
     public static final String FIELD_ROLE_NAME = "role_name";
-    public static final String FIELD_OTP_KEY = "otp_key";
 
     protected final String roleName;
     protected final String email;
-    protected final String otpKey;
 
-    public InviteRequest(String roleName, String email, String otpKey) {
+    public InviteRequest(String roleName, String email) {
         this.roleName = roleName;
         this.email = email;
-        this.otpKey = otpKey;
     }
 
     @Schema(example = "example@example.gov.uk", required = true)
@@ -30,13 +27,5 @@ public abstract class InviteRequest {
     @Schema(example = "view-only", required = true)
     public String getRoleName() {
         return roleName;
-    }
-
-    public String getOtpKey() {
-        return otpKey;
-    }
-
-    protected static String getOrElseRandom(JsonNode elementNode) {
-        return elementNode == null || isBlank(elementNode.asText()) ? randomUuid() : elementNode.asText();
     }
 }

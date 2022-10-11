@@ -68,6 +68,8 @@ class UserInviteCreatorTest {
     @Mock
     private NotificationService mockNotificationService;
     @Mock
+    private SecondFactorAuthenticator secondFactorAuthenticator;
+    @Mock
     private LinksConfig linksConfig;
 
     private UserInviteCreator userInviteCreator;
@@ -83,7 +85,7 @@ class UserInviteCreatorTest {
     @BeforeEach
     void setUp() {
         userInviteCreator = new UserInviteCreator(mockInviteDao, mockUserDao, mockRoleDao, linksConfig,
-                mockNotificationService, mockServiceDao);
+                mockNotificationService, mockServiceDao, secondFactorAuthenticator);
     }
 
     @Test
@@ -94,6 +96,8 @@ class UserInviteCreatorTest {
         when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
                 .thenReturn("random-notify-id");
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
+        String otpKey = "an-otp-key";
+        when(secondFactorAuthenticator.generateNewBase32EncodedSecret()).thenReturn(otpKey);
 
         userInviteCreator.doInvite(inviteRequestFrom(senderExternalId, email, roleName));
 
@@ -101,7 +105,7 @@ class UserInviteCreatorTest {
         InviteEntity savedInvite = expectedInvite.getValue();
 
         assertThat(savedInvite.getEmail(), is(email));
-        assertThat(savedInvite.getOtpKey(), is(notNullValue()));
+        assertThat(savedInvite.getOtpKey(), is(otpKey));
         assertThat(savedInvite.getCode(), is(notNullValue()));
     }
 
@@ -122,6 +126,8 @@ class UserInviteCreatorTest {
         when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
                 .thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
+        String otpKey = "an-otp-key";
+        when(secondFactorAuthenticator.generateNewBase32EncodedSecret()).thenReturn(otpKey);
 
         userInviteCreator.doInvite(inviteRequestFrom(senderExternalId, email, roleName));
 
@@ -129,7 +135,7 @@ class UserInviteCreatorTest {
         InviteEntity savedInvite = expectedInvite.getValue();
 
         assertThat(savedInvite.getEmail(), is(email));
-        assertThat(savedInvite.getOtpKey(), is(notNullValue()));
+        assertThat(savedInvite.getOtpKey(), is(otpKey));
         assertThat(savedInvite.getCode(), is(notNullValue()));
     }
 

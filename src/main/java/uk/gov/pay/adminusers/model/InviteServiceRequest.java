@@ -17,9 +17,8 @@ public class InviteServiceRequest extends InviteRequest {
     private InviteServiceRequest(String roleName,
                                  String password,
                                  String email,
-                                 String telephoneNumber,
-                                 String otpKey) {
-        super(roleName, email, otpKey);
+                                 String telephoneNumber) {
+        super(roleName, email);
         this.password = password;
         this.telephoneNumber = telephoneNumber;
     }
@@ -28,11 +27,11 @@ public class InviteServiceRequest extends InviteRequest {
             String password,
             String email,
             String telephoneNumber) {
-        this(DEFAULT_ROLE_NAME, password, email, telephoneNumber, randomUuid());
+        this(DEFAULT_ROLE_NAME, password, email, telephoneNumber);
     }
 
     public InviteServiceRequest(String email) {
-        this(DEFAULT_ROLE_NAME, null, email, null, randomUuid());
+        this(DEFAULT_ROLE_NAME, null, email, null);
     }
 
     public String getPassword() {
@@ -57,8 +56,7 @@ public class InviteServiceRequest extends InviteRequest {
                 DEFAULT_ROLE_NAME,
                 Optional.ofNullable(payload.get(FIELD_PASSWORD)).map(JsonNode::asText).orElse(null),
                 payload.get(FIELD_EMAIL).asText(),
-                Optional.ofNullable(payload.get(FIELD_TELEPHONE_NUMBER)).map(JsonNode::asText).orElse(null),
-                getOrElseRandom(payload.get(FIELD_OTP_KEY))
+                Optional.ofNullable(payload.get(FIELD_TELEPHONE_NUMBER)).map(JsonNode::asText).orElse(null)
         );
     }
 

@@ -41,6 +41,8 @@ class UserCreatorTest {
     private RoleDao mockRoleDao;
     @Mock
     private PasswordHasher mockPasswordHasher;
+    @Mock
+    private SecondFactorAuthenticator secondFactorAuthenticator;
     private LinksBuilder linksBuilder = new LinksBuilder("http://localhost");
     private ArgumentCaptor<UserEntity> expectedUser = ArgumentCaptor.forClass(UserEntity.class);
 
@@ -48,7 +50,7 @@ class UserCreatorTest {
 
     @BeforeEach
     void before() {
-        userCreator = new UserCreator(mockUserDao, mockRoleDao, mockServiceDao, mockPasswordHasher, linksBuilder);
+        userCreator = new UserCreator(mockUserDao, mockRoleDao, mockServiceDao, mockPasswordHasher, linksBuilder, secondFactorAuthenticator);
     }
 
     @Test

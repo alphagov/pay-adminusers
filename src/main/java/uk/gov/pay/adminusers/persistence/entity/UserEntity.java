@@ -262,13 +262,13 @@ public class UserEntity extends AbstractEntity {
      * @param createUserRequest
      * @return persistable UserEntity object not bounded to entity manager
      */
-    public static UserEntity from(CreateUserRequest createUserRequest) {
+    public static UserEntity from(CreateUserRequest createUserRequest, String otpKey) {
         UserEntity userEntity = new UserEntity();
         userEntity.setExternalId(RandomIdGenerator.randomUuid());
         userEntity.setUsername(createUserRequest.getUsername());
         userEntity.setPassword(createUserRequest.getPassword());
         userEntity.setEmail(createUserRequest.getEmail());
-        userEntity.setOtpKey(createUserRequest.getOtpKey());
+        userEntity.setOtpKey(otpKey);
         userEntity.setTelephoneNumber(TelephoneNumberUtility.formatToE164(createUserRequest.getTelephoneNumber()));
         userEntity.setSecondFactor(SecondFactorMethod.SMS);
         userEntity.setLoginCounter(0);

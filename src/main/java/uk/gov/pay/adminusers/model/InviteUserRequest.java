@@ -15,8 +15,8 @@ public class InviteUserRequest extends InviteRequest {
 
     private String serviceExternalId;
 
-    private InviteUserRequest(String sender, String email, String roleName, String otpKey, String serviceExternalId) {
-        super(roleName, email, otpKey);
+    private InviteUserRequest(String sender, String email, String roleName, String serviceExternalId) {
+        super(roleName, email);
         this.sender = sender;
         this.serviceExternalId = serviceExternalId;
     }
@@ -26,7 +26,6 @@ public class InviteUserRequest extends InviteRequest {
                 jsonNode.get(FIELD_SENDER).asText(),
                 jsonNode.get(FIELD_EMAIL).asText(),
                 jsonNode.get(FIELD_ROLE_NAME).asText(),
-                getOrElseRandom(jsonNode.get(FIELD_OTP_KEY)),
                 jsonNode.get(FIELD_SERVICE_EXTERNAL_ID).asText()
         );
     }
@@ -36,7 +35,6 @@ public class InviteUserRequest extends InviteRequest {
         return new InviteUserRequest(jsonNode.get(FIELD_SENDER).asText(),
                 jsonNode.get(FIELD_EMAIL).asText(),
                 jsonNode.get(FIELD_ROLE_NAME).asText(),
-                getOrElseRandom(jsonNode.get(FIELD_OTP_KEY)),
                 serviceExternalId
         );
     }
