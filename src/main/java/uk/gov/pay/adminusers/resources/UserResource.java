@@ -178,6 +178,7 @@ public class UserResource {
     @Operation(
             tags = "Users",
             summary = "Create new user",
+            description = "This is only used by the Pay CLI for creating Users. Users are usually created by completing an invite",
             responses = {
                     @ApiResponse(responseCode = "201", description = "Created",
                             content = @Content(schema = @Schema(implementation = User.class))),

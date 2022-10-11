@@ -2,7 +2,11 @@ package uk.gov.pay.adminusers.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteServiceRequest;
@@ -34,23 +38,32 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
-public class ServiceInviteCreatorTest {
-    private NotificationService notificationService = mock(NotificationService.class);
-    private LinksConfig linksConfig = mock(LinksConfig.class);
-    private InviteDao inviteDao = mock(InviteDao.class);
-    private UserDao userDao = mock(UserDao.class);
-    private RoleDao roleDao = mock(RoleDao.class);
-    private PasswordHasher passwordHasher = mock(PasswordHasher.class);
-    private ArgumentCaptor<InviteEntity> persistedInviteEntity = ArgumentCaptor.forClass(InviteEntity.class);
+@ExtendWith(MockitoExtension.class)
+class ServiceInviteCreatorTest {
+    @Mock
+    private NotificationService notificationService;
+    @Mock
+    private LinksConfig linksConfig;
+    @Mock
+    private InviteDao inviteDao;
+    @Mock
+    private UserDao userDao;
+    @Mock
+    private RoleDao roleDao;
+    @Mock
+    private PasswordHasher passwordHasher;
+    @Captor
+    private ArgumentCaptor<InviteEntity> persistedInviteEntity;
     private ServiceInviteCreator serviceInviteCreator;
 
     @BeforeEach
-    public void before() {
-        serviceInviteCreator = new ServiceInviteCreator(inviteDao, userDao, roleDao, new LinksBuilder("http://localhost/"), linksConfig, notificationService, passwordHasher);
+    void before() {
+        serviceInviteCreator = new ServiceInviteCreator(inviteDao, userDao, roleDao,
+                new LinksBuilder("http://localhost/"), linksConfig, notificationService, passwordHasher);
     }
 
     @Test
-    public void shouldSuccess_serviceInvite_IfEmailDoesNotConflict() {
+    void shouldSuccess_serviceInvite_IfEmailDoesNotConflict() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
@@ -59,7 +72,6 @@ public class ServiceInviteCreatorTest {
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
         when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn("done");
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
-        when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
         when(passwordHasher.hash("password")).thenReturn("encrypted-password");
 
         Invite invite = serviceInviteCreator.doInvite(request);
@@ -74,7 +86,7 @@ public class ServiceInviteCreatorTest {
     }
 
     @Test
-    public void shouldSuccess_serviceInvite_IfTelephoneNumberAndPasswordNotPresent() {
+    void shouldSuccess_serviceInvite_IfTelephoneNumberAndPasswordNotPresent() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest(email);
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
@@ -83,7 +95,6 @@ public class ServiceInviteCreatorTest {
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
         when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn("done");
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
-        when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
 
         Invite invite = serviceInviteCreator.doInvite(request);
 
@@ -98,7 +109,7 @@ public class ServiceInviteCreatorTest {
     }
 
     @Test
-    public void shouldSuccess_serviceInvite_evenIfNotifyThrowsAnError() {
+    void shouldSuccess_serviceInvite_evenIfNotifyThrowsAnError() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
@@ -106,7 +117,6 @@ public class ServiceInviteCreatorTest {
         when(inviteDao.findByEmail(email)).thenReturn(emptyList());
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
         when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
-        when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         Invite invite = serviceInviteCreator.doInvite(request);
 
@@ -119,7 +129,7 @@ public class ServiceInviteCreatorTest {
     }
 
     @Test
-    public void shouldSuccess_ifUserAlreadyHasAValidServiceInvitationWithGivenEmail() {
+    void shouldSuccess_ifUserAlreadyHasAValidServiceInvitationWithGivenEmail() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         UserEntity sender = mock(UserEntity.class);
@@ -131,8 +141,6 @@ public class ServiceInviteCreatorTest {
         validInvite.setType(InviteType.SERVICE);
 
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(sender.getExternalId()).thenReturn("inviter-id");
-        when(sender.getEmail()).thenReturn("inviter@example.com");
         when(inviteDao.findByEmail(email)).thenReturn(List.of(validInvite));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         when(notificationService.sendServiceInviteEmail(eq(email), anyString()))
@@ -147,7 +155,7 @@ public class ServiceInviteCreatorTest {
     }
 
     @Test
-    public void shouldSuccess_serviceInvite_evenIfUserAlreadyHasAValidUserInvitationWithGivenEmail() {
+    void shouldSuccess_serviceInvite_evenIfUserAlreadyHasAValidUserInvitationWithGivenEmail() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         UserEntity sender = mock(UserEntity.class);
@@ -160,8 +168,6 @@ public class ServiceInviteCreatorTest {
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(sender.getExternalId()).thenReturn("inviter-id");
-        when(sender.getEmail()).thenReturn("inviter@example.com");
         when(inviteDao.findByEmail(email)).thenReturn(List.of(validInvite));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         when(notificationService.sendServiceInviteEmail(eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
@@ -175,16 +181,14 @@ public class ServiceInviteCreatorTest {
     }
 
     @Test
-    public void shouldError_ifUserAlreadyExistsWithGivenEmail() {
+    void shouldError_ifUserAlreadyExistsWithGivenEmail() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         UserEntity existingUserEntity = new UserEntity();
         when(userDao.findByEmail(email)).thenReturn(Optional.of(existingUserEntity));
         when(linksConfig.getSupportUrl()).thenReturn("http://frontend");
         when(linksConfig.getSelfserviceForgottenPasswordUrl()).thenReturn("http://selfservice/forgotten-password");
-        when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         when(linksConfig.getSelfserviceLoginUrl()).thenReturn("http://selfservice/login");
-        when(linksConfig.getSelfserviceUrl()).thenReturn("http://selfservice");
         when(notificationService.sendServiceInviteUserExistsEmail(eq(email), anyString(), anyString(), anyString()))
                 .thenReturn("done");
 
@@ -194,7 +198,7 @@ public class ServiceInviteCreatorTest {
     }
 
     @Test
-    public void shouldError_ifUserAlreadyExistsAndDisabledWithGivenEmail() {
+    void shouldError_ifUserAlreadyExistsAndDisabledWithGivenEmail() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         UserEntity existingUserEntity = new UserEntity();
@@ -210,7 +214,7 @@ public class ServiceInviteCreatorTest {
     }
 
     @Test
-    public void shouldError_ifRoleDoesNotExists() {
+    void shouldError_ifRoleDoesNotExists() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());

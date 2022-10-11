@@ -730,6 +730,8 @@ paths:
       tags:
       - Users
     post:
+      description: This is only used by the Pay CLI for creating Users. Users are
+        usually created by completing an invite
       operationId: createUser
       requestBody:
         content:
@@ -1238,8 +1240,6 @@ components:
         email:
           type: string
           example: example@example.gov.uk
-        otp_key:
-          type: string
         role_name:
           type: string
           example: view-only
