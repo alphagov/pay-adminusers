@@ -51,7 +51,7 @@ public class SelfSignupInviteCompleter extends InviteCompleter {
                         throw conflictingEmail(inviteEntity.getEmail());
                     }
 
-                    if (inviteEntity.isServiceType()) {
+                    if (inviteEntity.getType().isSelfSignup()) {
                         UserEntity userEntity = inviteEntity.mapToUserEntity();
                         ServiceEntity serviceEntity = ServiceEntity.from(Service.from());
                         if (!data.getGatewayAccountIds().isEmpty()) {

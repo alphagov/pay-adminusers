@@ -73,6 +73,32 @@ class UserOtpDispatcherTest {
     }
 
     @Test
+    void shouldSuccess_whenDispatchUserOtp_ifInviteEntityExist__newEnumValue() {
+        String inviteCode = "valid-invite-code";
+        InviteEntity inviteEntity = new InviteEntity();
+        inviteEntity.setCode(inviteCode);
+        inviteEntity.setType(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
+        inviteEntity.setOtpKey("otp-key");
+
+        String telephone = "+441134960000";
+        String password = "random"; // pragma: allowlist secret
+        JsonNode payload = objectMapper.valueToTree(Map.of("telephone_number", telephone, "password", password));
+        userOtpDispatcher = userOtpDispatcher.withData(InviteOtpRequest.from(payload));
+
+        when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+        when(passwordHasher.hash(password)).thenReturn("hashed-password");
+        when(secondFactorAuthenticator.newPassCode("otp-key")).thenReturn(123456);
+        when(notificationService.sendSecondFactorPasscodeSms(telephone, "123456", CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE))
+                .thenReturn("success code from notify");
+        boolean dispatched = userOtpDispatcher.dispatchOtp(inviteCode);
+
+        verify(inviteDao).merge(expectedInvite.capture());
+        assertThat(dispatched, is(true));
+        assertThat(expectedInvite.getValue().getTelephoneNumber(),is(telephone));
+        assertThat(expectedInvite.getValue().getPassword(),is(notNullValue()));
+    }
+
+    @Test
     void shouldFail_whenDispatchServiceOtp_ifInviteEntityNotFound() {
         String inviteCode = "non-existent-code";
         when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.empty());
