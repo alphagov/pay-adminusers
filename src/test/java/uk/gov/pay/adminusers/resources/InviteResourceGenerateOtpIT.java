@@ -12,6 +12,8 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.RandomStringUtils.random;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 
 public class InviteResourceGenerateOtpIT extends IntegrationTest {
@@ -38,6 +40,9 @@ public class InviteResourceGenerateOtpIT extends IntegrationTest {
                 .post(format(INVITES_GENERATE_OTP_RESOURCE_URL, code))
                 .then()
                 .statusCode(OK.getStatusCode());
+
+        Map<String, Object> invite = databaseHelper.findInviteByCode(code).get();
+        assertThat(invite.get("telephone_number"), is(TELEPHONE_NUMBER));
     }
 
     @Test
@@ -108,6 +113,9 @@ public class InviteResourceGenerateOtpIT extends IntegrationTest {
                 .post(format(INVITES_GENERATE_OTP_RESOURCE_URL, code))
                 .then()
                 .statusCode(OK.getStatusCode());
+
+        Map<String, Object> invite = databaseHelper.findInviteByCode(code).get();
+        assertThat(invite.get("telephone_number"), is(TELEPHONE_NUMBER));
     }
 
     private void givenAnExistingUserInvite() {

@@ -21,6 +21,7 @@ import uk.gov.pay.adminusers.model.InviteServiceRequest;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.service.InviteCompleter;
 import uk.gov.pay.adminusers.service.InviteOtpDispatcher;
 import uk.gov.pay.adminusers.service.InviteService;
 import uk.gov.pay.adminusers.service.InviteServiceFactory;
@@ -115,9 +116,10 @@ public class InviteResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
-        return inviteServiceFactory.inviteCompleteRouter().routeComplete(inviteCode)
-                .map(inviteCompleter -> inviteCompleter.withData(inviteCompleteRequestFrom(payload)).complete(inviteCode))
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return inviteService.findInvite(inviteCode).map(inviteEntity -> {
+            InviteCompleter inviteCompleter = inviteServiceFactory.inviteCompleteRouter().routeComplete(inviteEntity);
+            return inviteCompleter.withData(inviteCompleteRequestFrom(payload)).complete(inviteEntity);
+        }).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private InviteCompleteRequest inviteCompleteRequestFrom(JsonNode payload) {
@@ -156,23 +158,21 @@ public class InviteResource {
             return Response.status(NOT_FOUND).build();
         }
 
-        return inviteServiceFactory.inviteOtpRouter().routeOtpDispatch(inviteCode)
-                .map(inviteOtpDispatcherValidate -> {
-                    if (inviteOtpDispatcherValidate.getRight()) {
-                        Optional<Errors> errors = inviteValidator.validateGenerateOtpRequest(payload);
-                        if (errors.isPresent()) {
-                            return Response.status(BAD_REQUEST).entity(errors).build();
-                        }
-                    }
-
-                    InviteOtpDispatcher otpDispatcher = inviteOtpDispatcherValidate.getLeft();
-                    if(otpDispatcher.withData(InviteOtpRequest.from(payload)).dispatchOtp(inviteCode)){
-                        return Response.status(OK).build();
-                    } else {
-                        throw internalServerError("unable to dispatch otp at this moment");
-                    }
-                })
-                .orElseGet(() -> Response.status(NOT_FOUND).build());
+        return inviteService.findInvite(inviteCode).map(inviteEntity -> {
+            if (inviteEntity.getType().isExistingUserExistingService()) {
+                Optional<Errors> errors = inviteValidator.validateGenerateOtpRequest(payload);
+                if (errors.isPresent()) {
+                    return Response.status(BAD_REQUEST).entity(errors).build();
+                }
+            }
+            
+            InviteOtpDispatcher otpDispatcher = inviteServiceFactory.inviteOtpRouter().routeOtpDispatch(inviteEntity);
+            if(otpDispatcher.withData(InviteOtpRequest.from(payload)).dispatchOtp(inviteCode)){
+                return Response.status(OK).build();
+            } else {
+                throw internalServerError("unable to dispatch otp at this moment");
+            }
+        }).orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
     @GET

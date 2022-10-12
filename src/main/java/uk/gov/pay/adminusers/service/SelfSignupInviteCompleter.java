@@ -8,6 +8,7 @@ import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
@@ -16,7 +17,6 @@ import static java.lang.String.format;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmail;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.notFoundInviteException;
 
 public class SelfSignupInviteCompleter extends InviteCompleter {
 
@@ -41,41 +41,38 @@ public class SelfSignupInviteCompleter extends InviteCompleter {
      */
     @Override
     @Transactional
-    public InviteCompleteResponse complete(String inviteCode) {
-        return inviteDao.findByCode(inviteCode)
-                .map(inviteEntity -> {
-                    if (inviteEntity.isExpired() || inviteEntity.isDisabled()) {
-                        throw inviteLockedException(inviteEntity.getCode());
-                    }
-                    if (userDao.findByEmail(inviteEntity.getEmail()).isPresent()) {
-                        throw conflictingEmail(inviteEntity.getEmail());
-                    }
+    public InviteCompleteResponse complete(InviteEntity inviteEntity) {
+        if (inviteEntity.isExpired() || inviteEntity.isDisabled()) {
+            throw inviteLockedException(inviteEntity.getCode());
+        }
+        if (userDao.findByEmail(inviteEntity.getEmail()).isPresent()) {
+            throw conflictingEmail(inviteEntity.getEmail());
+        }
 
-                    if (inviteEntity.getType().isSelfSignup()) {
-                        UserEntity userEntity = inviteEntity.mapToUserEntity();
-                        ServiceEntity serviceEntity = ServiceEntity.from(Service.from());
-                        if (!data.getGatewayAccountIds().isEmpty()) {
-                            serviceEntity.addGatewayAccountIds(data.getGatewayAccountIds().toArray(new String[0]));
-                        }
-                        serviceDao.persist(serviceEntity);
+        if (inviteEntity.getType().isSelfSignup()) {
+            UserEntity userEntity = inviteEntity.mapToUserEntity();
+            ServiceEntity serviceEntity = ServiceEntity.from(Service.from());
+            if (!data.getGatewayAccountIds().isEmpty()) {
+                serviceEntity.addGatewayAccountIds(data.getGatewayAccountIds().toArray(new String[0]));
+            }
+            serviceDao.persist(serviceEntity);
 
-                        ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity, inviteEntity.getRole());
-                        userEntity.addServiceRole(serviceRoleEntity);
-                        userDao.merge(userEntity);
+            ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity, inviteEntity.getRole());
+            userEntity.addServiceRole(serviceRoleEntity);
+            userDao.merge(userEntity);
 
-                        inviteEntity.setService(serviceEntity);
-                        inviteEntity.setDisabled(true);
-                        inviteDao.merge(inviteEntity);
+            inviteEntity.setService(serviceEntity);
+            inviteEntity.setDisabled(true);
+            inviteDao.merge(inviteEntity);
 
-                        Invite invite = linksBuilder.addUserLink(userEntity.toUser(), inviteEntity.toInvite());
-                        InviteCompleteResponse response = new InviteCompleteResponse(invite);
-                        response.setServiceExternalId(serviceEntity.getExternalId());
-                        response.setUserExternalId(userEntity.getExternalId());
-                        return response;
-                    } else {
-                        throw internalServerError(format("Attempting to complete a service invite for a non service invite of type. invite-code = %s", inviteEntity.getCode()));
-                    }
-                }).orElseThrow(() -> notFoundInviteException(inviteCode));
+            Invite invite = linksBuilder.addUserLink(userEntity.toUser(), inviteEntity.toInvite());
+            InviteCompleteResponse response = new InviteCompleteResponse(invite);
+            response.setServiceExternalId(serviceEntity.getExternalId());
+            response.setUserExternalId(userEntity.getExternalId());
+            return response;
+        } else {
+            throw internalServerError(format("Attempting to complete a service invite for a non service invite of type. invite-code = %s", inviteEntity.getCode()));
+        }
     }
 
 }

@@ -80,11 +80,10 @@ public class SelfSignupInviteCompleterTest {
         InviteEntity anInvite = createInvite();
         anInvite.setType(InviteType.SERVICE);
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
         InviteCompleteRequest data = new InviteCompleteRequest();
         data.setGatewayAccountIds(asList("1", "2"));
-        InviteCompleteResponse inviteResponse = selfSignupInviteCompleter.withData(data).complete(anInvite.getCode());
+        InviteCompleteResponse inviteResponse = selfSignupInviteCompleter.withData(data).complete(anInvite);
 
         verify(mockServiceDao).persist(expectedService.capture());
         verify(mockUserDao).merge(expectedInvitedUser.capture());
@@ -110,9 +109,8 @@ public class SelfSignupInviteCompleterTest {
         InviteEntity anInvite = createInvite();
         anInvite.setType(InviteType.SERVICE);
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
-        InviteCompleteResponse inviteResponse = selfSignupInviteCompleter.withData(new InviteCompleteRequest()).complete(anInvite.getCode());
+        InviteCompleteResponse inviteResponse = selfSignupInviteCompleter.withData(new InviteCompleteRequest()).complete(anInvite);
 
         verify(mockServiceDao).persist(expectedService.capture());
         verify(mockUserDao).merge(expectedInvitedUser.capture());
@@ -141,28 +139,11 @@ public class SelfSignupInviteCompleterTest {
         InviteEntity anInvite = createInvite();
         anInvite.setType(InviteType.SERVICE);
 
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
         when(mockUserDao.findByEmail(anInvite.getEmail())).thenReturn(Optional.of(mock(UserEntity.class)));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
+                () -> selfSignupInviteCompleter.complete(anInvite));
         assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
-    }
-
-    @Test
-    public void shouldThrowEmailExistsException_whenPassedUnrecognisedInviteCode() {
-        ServiceEntity service = new ServiceEntity();
-        service.setId(serviceId);
-
-        InviteEntity anInvite = createInvite();
-        anInvite.setType(InviteType.SERVICE);
-        anInvite.setDisabled(true);
-
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.empty());
-
-        WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
-        assertThat(exception.getMessage(), is("HTTP 404 Not Found"));
     }
 
     @Test
@@ -174,10 +155,8 @@ public class SelfSignupInviteCompleterTest {
         anInvite.setType(InviteType.SERVICE);
         anInvite.setDisabled(true);
 
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
-
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
+                () -> selfSignupInviteCompleter.complete(anInvite));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -190,10 +169,8 @@ public class SelfSignupInviteCompleterTest {
         anInvite.setType(InviteType.SERVICE);
         anInvite.setExpiryDate(ZonedDateTime.now().minusDays(1));
 
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
-
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
+                () -> selfSignupInviteCompleter.complete(anInvite));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -204,12 +181,11 @@ public class SelfSignupInviteCompleterTest {
 
         InviteEntity anInvite = createInvite();
         anInvite.setType(InviteType.USER);
-
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
+        
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
+                () -> selfSignupInviteCompleter.complete(anInvite));
         assertThat(exception.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 
@@ -222,10 +198,8 @@ public class SelfSignupInviteCompleterTest {
         anInvite.setType(InviteType.NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP);
         anInvite.setExpiryDate(ZonedDateTime.now().minusDays(1));
 
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
-
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
+                () -> selfSignupInviteCompleter.complete(anInvite));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -236,12 +210,11 @@ public class SelfSignupInviteCompleterTest {
 
         InviteEntity anInvite = createInvite();
         anInvite.setType(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
-
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
+        
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
+                () -> selfSignupInviteCompleter.complete(anInvite));
         assertThat(exception.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 
@@ -252,12 +225,11 @@ public class SelfSignupInviteCompleterTest {
 
         InviteEntity anInvite = createInvite();
         anInvite.setType(InviteType.EXISTING_USER_INVITED_TO_EXISTING_SERVICE);
-
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
+        
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite.getCode()));
+                () -> selfSignupInviteCompleter.complete(anInvite));
         assertThat(exception.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 

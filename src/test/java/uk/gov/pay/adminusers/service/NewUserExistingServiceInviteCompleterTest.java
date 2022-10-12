@@ -69,9 +69,8 @@ public class NewUserExistingServiceInviteCompleterTest {
         InviteEntity anInvite = createInvite();
         anInvite.setType(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
 
-        InviteCompleteResponse inviteResponse = newUserExistingServiceInviteCompleter.withData(new InviteCompleteRequest()).complete(anInvite.getCode());
+        InviteCompleteResponse inviteResponse = newUserExistingServiceInviteCompleter.withData(new InviteCompleteRequest()).complete(anInvite);
 
         verify(mockUserDao).persist(expectedInvitedUser.capture());
         verify(mockInviteDao).merge(expectedInvite.capture());
@@ -97,28 +96,11 @@ public class NewUserExistingServiceInviteCompleterTest {
         InviteEntity anInvite = createInvite();
         anInvite.setType(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
 
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
         when(mockUserDao.findByEmail(anInvite.getEmail())).thenReturn(Optional.of(mock(UserEntity.class)));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> newUserExistingServiceInviteCompleter.complete(anInvite.getCode()));
+                () -> newUserExistingServiceInviteCompleter.complete(anInvite));
         assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
-    }
-
-    @Test
-    public void shouldThrowEmailExistsException_whenPassedUnrecognisedInviteCode() {
-        ServiceEntity service = new ServiceEntity();
-        service.setId(serviceId);
-
-        InviteEntity anInvite = createInvite();
-        anInvite.setType(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
-        anInvite.setDisabled(true);
-
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.empty());
-
-        WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> newUserExistingServiceInviteCompleter.complete(anInvite.getCode()));
-        assertThat(exception.getMessage(), is("HTTP 404 Not Found"));
     }
 
     @Test
@@ -130,10 +112,8 @@ public class NewUserExistingServiceInviteCompleterTest {
         anInvite.setType(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
         anInvite.setDisabled(true);
 
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
-
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> newUserExistingServiceInviteCompleter.complete(anInvite.getCode()));
+                () -> newUserExistingServiceInviteCompleter.complete(anInvite));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -146,10 +126,8 @@ public class NewUserExistingServiceInviteCompleterTest {
         anInvite.setType(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
         anInvite.setExpiryDate(ZonedDateTime.now().minusDays(1));
 
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
-
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> newUserExistingServiceInviteCompleter.complete(anInvite.getCode()));
+                () -> newUserExistingServiceInviteCompleter.complete(anInvite));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -161,11 +139,10 @@ public class NewUserExistingServiceInviteCompleterTest {
         InviteEntity anInvite = createInvite();
         anInvite.setType(InviteType.EXISTING_USER_INVITED_TO_EXISTING_SERVICE);
 
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> newUserExistingServiceInviteCompleter.complete(anInvite.getCode()));
+                () -> newUserExistingServiceInviteCompleter.complete(anInvite));
         assertThat(exception.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 
@@ -177,11 +154,10 @@ public class NewUserExistingServiceInviteCompleterTest {
         InviteEntity anInvite = createInvite();
         anInvite.setType(InviteType.NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP);
 
-        when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(anInvite));
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> newUserExistingServiceInviteCompleter.complete(anInvite.getCode()));
+                () -> newUserExistingServiceInviteCompleter.complete(anInvite));
         assertThat(exception.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 

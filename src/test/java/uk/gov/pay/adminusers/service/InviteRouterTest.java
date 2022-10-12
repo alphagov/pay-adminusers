@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.service;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,8 +8,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
-
-import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,133 +33,100 @@ public class InviteRouterTest {
 
     @BeforeEach
     public void before() {
-        inviteRouter = new InviteRouter(inviteServiceFactory, inviteDao);
+        inviteRouter = new InviteRouter(inviteServiceFactory);
     }
 
     @Test
     public void shouldResolve_selfSignupInviteCompleter_withValidation() {
-        String inviteCode = "a-code";
-        InviteEntity inviteEntity = anInvite(inviteCode, SERVICE);
-        when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+        InviteEntity inviteEntity = anInvite(SERVICE);
         when(inviteServiceFactory.completeSelfSignupInvite()).thenReturn(new SelfSignupInviteCompleter(null, null, null, null));
-        Optional<InviteCompleter> result = inviteRouter.routeComplete(inviteCode);
-
-        assertThat(result.isPresent(), is(true));
-        assertThat(result.get(), is(instanceOf(SelfSignupInviteCompleter.class)));
+        InviteCompleter inviteCompleter = inviteRouter.routeComplete(inviteEntity);
+        
+        assertThat(inviteCompleter, is(instanceOf(SelfSignupInviteCompleter.class)));
     }
 
     @Test
     public void shouldResolve_existingUserInviteCompleter_withoutValidation() {
-        String inviteCode = "a-code";
-        InviteEntity inviteEntity = anInvite(inviteCode, USER);
-        when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+        InviteEntity inviteEntity = anInvite(USER);
         when(inviteServiceFactory.completeExistingUserInvite()).thenReturn(new ExistingUserInviteCompleter(null, null));
-        Optional<InviteCompleter> result = inviteRouter.routeComplete(inviteCode);
-
-        assertThat(result.isPresent(), is(true));
-        assertThat(result.get(), is(instanceOf(ExistingUserInviteCompleter.class)));
+        InviteCompleter inviteCompleter = inviteRouter.routeComplete(inviteEntity);
+        
+        assertThat(inviteCompleter, is(instanceOf(ExistingUserInviteCompleter.class)));
     }
 
     @Test
-    public void shouldResolve_existingUserInviteDispatcher_withValidation() {
-        String inviteCode = "a-code";
-        InviteEntity inviteEntity = anInvite(inviteCode, USER);
-        when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+    public void shouldResolve_existingUserInviteDispatcher_forUserInviteType() {
+        InviteEntity inviteEntity = anInvite(USER);
         when(inviteServiceFactory.dispatchUserOtp()).thenReturn(new UserOtpDispatcher(null, null, null, null));
-        Optional<Pair<InviteOtpDispatcher, Boolean>> result = inviteRouter.routeOtpDispatch(inviteCode);
-
-        assertThat(result.isPresent(), is(true));
-        assertThat(result.get().getLeft(), is(instanceOf(UserOtpDispatcher.class)));
-        assertThat(result.get().getRight(), is(true));
+        InviteOtpDispatcher otpDispatcher = inviteRouter.routeOtpDispatch(inviteEntity);
+        
+        assertThat(otpDispatcher, is(instanceOf(UserOtpDispatcher.class)));
     }
 
     @Test
-    public void shouldResolve_selfSignupInviteDispatcher_withoutValidation() {
-        String inviteCode = "a-code";
-        InviteEntity inviteEntity = anInvite(inviteCode, SERVICE);
-        when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+    public void shouldResolve_selfSignupInviteDispatcher_forServiceInviteType() {
+        InviteEntity inviteEntity = anInvite(SERVICE);
         when(inviteServiceFactory.dispatchServiceOtp()).thenReturn(new ServiceOtpDispatcher(null, null, null, null));
-        Optional<Pair<InviteOtpDispatcher, Boolean>> result = inviteRouter.routeOtpDispatch(inviteCode);
-
-        assertThat(result.isPresent(), is(true));
-        assertThat(result.get().getLeft(), is(instanceOf(ServiceOtpDispatcher.class)));
-        assertThat(result.get().getRight(), is(false));
+        InviteOtpDispatcher otpDispatcher = inviteRouter.routeOtpDispatch(inviteEntity);
+        
+        assertThat(otpDispatcher, is(instanceOf(ServiceOtpDispatcher.class)));
     }
 
     @Test
     public void shouldResolve_selfSignupInviteCompleter() {
-        String inviteCode = "a-code";
-        InviteEntity inviteEntity = anInvite(inviteCode, NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP);
-        when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+        InviteEntity inviteEntity = anInvite(NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP);
         when(inviteServiceFactory.completeSelfSignupInvite()).thenReturn(new SelfSignupInviteCompleter(null, null, null, null));
-        Optional<InviteCompleter> result = inviteRouter.routeComplete(inviteCode);
-
-        assertThat(result.isPresent(), is(true));
-        assertThat(result.get(), is(instanceOf(SelfSignupInviteCompleter.class)));
+        InviteCompleter inviteCompleter = inviteRouter.routeComplete(inviteEntity);
+        
+        assertThat(inviteCompleter, is(instanceOf(SelfSignupInviteCompleter.class)));
     }
 
     @Test
     public void shouldResolve_newUserExistingServiceInviteCompleter() {
-        String inviteCode = "a-code";
-        InviteEntity inviteEntity = anInvite(inviteCode, NEW_USER_INVITED_TO_EXISTING_SERVICE);
-        when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+        InviteEntity inviteEntity = anInvite(NEW_USER_INVITED_TO_EXISTING_SERVICE);
         when(inviteServiceFactory.completeNewUserExistingServiceInvite()).thenReturn(new NewUserExistingServiceInviteCompleter(null, null, null));
-        Optional<InviteCompleter> result = inviteRouter.routeComplete(inviteCode);
+        InviteCompleter inviteCompleter = inviteRouter.routeComplete(inviteEntity);
 
-        assertThat(result.isPresent(), is(true));
-        assertThat(result.get(), is(instanceOf(NewUserExistingServiceInviteCompleter.class)));
+        assertThat(inviteCompleter, is(instanceOf(NewUserExistingServiceInviteCompleter.class)));
     }
 
     @Test
     public void shouldResolve_existingUserInviteCompleter() {
-        String inviteCode = "a-code";
-        InviteEntity inviteEntity = anInvite(inviteCode, EXISTING_USER_INVITED_TO_EXISTING_SERVICE);
-        when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+        InviteEntity inviteEntity = anInvite(EXISTING_USER_INVITED_TO_EXISTING_SERVICE);
         when(inviteServiceFactory.completeExistingUserInvite()).thenReturn(new ExistingUserInviteCompleter(null, null));
-        Optional<InviteCompleter> result = inviteRouter.routeComplete(inviteCode);
-
-        assertThat(result.isPresent(), is(true));
-        assertThat(result.get(), is(instanceOf(ExistingUserInviteCompleter.class)));
+        InviteCompleter inviteCompleter = inviteRouter.routeComplete(inviteEntity);
+        
+        assertThat(inviteCompleter, is(instanceOf(ExistingUserInviteCompleter.class)));
     }
 
     @Test
     public void shouldResolve_selfSignupInviteDispatcher() {
-        String inviteCode = "a-code";
-        InviteEntity inviteEntity = anInvite(inviteCode, NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP);
-        when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+        InviteEntity inviteEntity = anInvite(NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP);
         when(inviteServiceFactory.dispatchServiceOtp()).thenReturn(new ServiceOtpDispatcher(null, null, null, null));
-        Optional<Pair<InviteOtpDispatcher, Boolean>> result = inviteRouter.routeOtpDispatch(inviteCode);
-
-        assertThat(result.isPresent(), is(true));
-        assertThat(result.get().getLeft(), is(instanceOf(ServiceOtpDispatcher.class)));
-        assertThat(result.get().getRight(), is(false));
+        InviteOtpDispatcher otpDispatcher = inviteRouter.routeOtpDispatch(inviteEntity);
+        
+        assertThat(otpDispatcher, is(instanceOf(ServiceOtpDispatcher.class)));
     }
 
     @Test
     public void shouldResolve_newUserExistingServiceInviteDispatcher() {
-        String inviteCode = "a-code";
-        InviteEntity inviteEntity = anInvite(inviteCode, NEW_USER_INVITED_TO_EXISTING_SERVICE);
-        when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+        InviteEntity inviteEntity = anInvite(NEW_USER_INVITED_TO_EXISTING_SERVICE);
         when(inviteServiceFactory.dispatchUserOtp()).thenReturn(new UserOtpDispatcher(null, null, null, null));
-        Optional<Pair<InviteOtpDispatcher, Boolean>> result = inviteRouter.routeOtpDispatch(inviteCode);
-
-        assertThat(result.isPresent(), is(true));
-        assertThat(result.get().getLeft(), is(instanceOf(UserOtpDispatcher.class)));
-        assertThat(result.get().getRight(), is(true));
+        InviteOtpDispatcher otpDispatcher = inviteRouter.routeOtpDispatch(inviteEntity);
+        
+        assertThat(otpDispatcher, is(instanceOf(UserOtpDispatcher.class)));
     }
 
     @Test
     public void shouldResolve_existingUserInviteDispatcher() {
-        String inviteCode = "a-code";
-        InviteEntity inviteEntity = anInvite(inviteCode, EXISTING_USER_INVITED_TO_EXISTING_SERVICE);
-        when(inviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
+        InviteEntity inviteEntity = anInvite(EXISTING_USER_INVITED_TO_EXISTING_SERVICE);
 
-        assertThrows(IllegalArgumentException.class, () -> inviteRouter.routeOtpDispatch(inviteCode));
+        assertThrows(IllegalArgumentException.class, () -> inviteRouter.routeOtpDispatch(inviteEntity));
     }
 
-    private InviteEntity anInvite(String code, InviteType inviteType) {
+    private InviteEntity anInvite(InviteType inviteType) {
         InviteEntity inviteEntity = new InviteEntity();
-        inviteEntity.setCode(code);
+        inviteEntity.setCode("a-code");
         inviteEntity.setEmail("example@example.com");
         inviteEntity.setTelephoneNumber("+441134960000");
         inviteEntity.setOtpKey("u73t2b7");

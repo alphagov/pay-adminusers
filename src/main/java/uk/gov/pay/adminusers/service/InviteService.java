@@ -4,6 +4,7 @@ import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
@@ -119,6 +120,10 @@ public class InviteService {
             return Optional.of(invalidOtpAuthCodeInviteException(inviteEntity.getCode()));
         }
         return Optional.empty();
+    }
+    
+    public Optional<InviteEntity> findInvite(String code) {
+        return inviteDao.findByCode(code);
     }
 
     private static OtpNotifySmsTemplateId mapInviteTypeToOtpNotifySmsTemplateId(InviteType inviteType) {
