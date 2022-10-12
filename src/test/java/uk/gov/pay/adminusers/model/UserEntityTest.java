@@ -40,7 +40,7 @@ class UserEntityTest {
         assertThat(userEntity.getUsername(), is(createUserRequest.getUsername()));
         assertThat(userEntity.getPassword(), is(createUserRequest.getPassword()));
         assertThat(userEntity.getOtpKey(), is(otpKey));
-        assertThat(userEntity.getTelephoneNumber(), is(createUserRequest.getTelephoneNumber()));
+        assertThat(userEntity.getTelephoneNumber().get(), is(createUserRequest.getTelephoneNumber()));
         assertThat(userEntity.getEmail(), is(createUserRequest.getEmail()));
         assertThat(userEntity.getSecondFactor(), is(SecondFactorMethod.SMS));
         assertThat(userEntity.getCreatedAt(), is(notNullValue()));

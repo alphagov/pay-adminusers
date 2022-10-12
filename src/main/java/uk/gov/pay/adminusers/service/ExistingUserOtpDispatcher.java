@@ -44,25 +44,30 @@ public class ExistingUserOtpDispatcher {
             throw AdminUsersExceptions.otpKeyMissingException(userEntity.getExternalId());
         }
 
-        int newPassCode = secondFactorAuthenticator.newPassCode(otpKeyOrProvisionalOtpKey);
-        SecondFactorToken token = SecondFactorToken.from(userEntity.getExternalId(), newPassCode);
-        String userExternalId = userEntity.getExternalId();
-        NotificationService.OtpNotifySmsTemplateId notifyTemplateId = changingSignInMethodToSms ? CHANGE_SIGN_IN_2FA_TO_SMS : SIGN_IN;
+        return userEntity.getTelephoneNumber().map(telephoneNumber -> {
+            int newPassCode = secondFactorAuthenticator.newPassCode(otpKeyOrProvisionalOtpKey);
+            SecondFactorToken token = SecondFactorToken.from(userEntity.getExternalId(), newPassCode);
+            String userExternalId = userEntity.getExternalId();
+            NotificationService.OtpNotifySmsTemplateId notifyTemplateId = changingSignInMethodToSms ? CHANGE_SIGN_IN_2FA_TO_SMS : SIGN_IN;
 
-        try {
-            String notificationId = notificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), token.getPasscode(),
-                    notifyTemplateId);
-            LOGGER.info("sent 2FA token successfully to user [{}], notification id [{}]", userExternalId, notificationId);
-        } catch (Exception e) {
-            LOGGER.error("error sending 2FA token to user [{}]", userExternalId, e);
-        }
+            try {
+                String notificationId = notificationService.sendSecondFactorPasscodeSms(telephoneNumber, token.getPasscode(),
+                        notifyTemplateId);
+                LOGGER.info("sent 2FA token successfully to user [{}], notification id [{}]", userExternalId, notificationId);
+            } catch (Exception e) {
+                LOGGER.error("error sending 2FA token to user [{}]", userExternalId, e);
+            }
 
-        if (changingSignInMethodToSms) {
-            LOGGER.info("New 2FA token generated for User [{}] from provisional OTP key", userExternalId);
-        } else {
-            LOGGER.info("New 2FA token generated for User [{}]", userExternalId);
-        }
-        return token;
+
+            if (changingSignInMethodToSms) {
+                LOGGER.info("New 2FA token generated for User [{}] from provisional OTP key", userExternalId);
+            } else {
+                LOGGER.info("New 2FA token generated for User [{}]", userExternalId);
+            }
+            return token;
+        }).orElseThrow(() -> {
+            throw AdminUsersExceptions.userDoesNotHaveTelephoneNumberError(userEntity.getExternalId());
+        });
     }
-
+    
 }
