@@ -2,11 +2,14 @@ package uk.gov.pay.adminusers.resources;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static javax.ws.rs.core.Response.Status.GONE;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -18,8 +21,7 @@ public class InviteResourceUserCompleteIT extends IntegrationTest {
 
     @Test
     public void shouldReturn200WithDisabledInvite_whenExistingUserSubscribingToAnExistingService() {
-        String username = randomUuid();
-        String email = format("%s@example.gov.uk", username);
+        String email = format("%s@example.gov.uk", randomUuid());
         String telephoneNumber = "+447700900000";
         String password = "valid_password";
         String serviceExternalId = randomUuid();
@@ -28,7 +30,7 @@ public class InviteResourceUserCompleteIT extends IntegrationTest {
         userDbFixture(databaseHelper)
                 .withExternalId(userExternalId)
                 .withEmail(email)
-                .withUsername(username)
+                .withUsername(email)
                 .insertUser();
 
         String inviteCode = inviteDbFixture(databaseHelper)
@@ -57,6 +59,13 @@ public class InviteResourceUserCompleteIT extends IntegrationTest {
                 .statusCode(200)
                 .body("service_roles", hasSize(1))
                 .body("service_roles[0].service.external_id", is(serviceExternalId));
+
+        Map<String, Object> user = databaseHelper.findUserByUsername(email).stream().findFirst().get();
+        Map<String, Object> role = databaseHelper.findServiceRoleForUser((Integer) user.get("id")).stream().findFirst().get();
+        Map<String, Object> invite = databaseHelper.findInviteByCode(inviteCode).stream().findFirst().get();
+
+        assertThat(role.get("id"), is(invite.get("role_id")));
+        assertThat(invite.get("disabled"), is(true));
     }
 
     @Test

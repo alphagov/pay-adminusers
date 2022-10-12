@@ -58,6 +58,8 @@ public class InviteResourceServiceCompleteIT extends IntegrationTest {
         assertThat(createdUser.get("password"), is(password));
         assertThat(createdUser.get("email"), is(email));
         assertThat(createdUser.get("telephone_number"), is(telephoneNumber));
+        
+        assertThat(invite.get("disabled"), is(true));
     }
 
     @Test
