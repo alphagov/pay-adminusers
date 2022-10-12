@@ -156,23 +156,21 @@ public class InviteResource {
             return Response.status(NOT_FOUND).build();
         }
 
-        return inviteServiceFactory.inviteOtpRouter().routeOtpDispatch(inviteCode)
-                .map(inviteOtpDispatcherValidate -> {
-                    if (inviteOtpDispatcherValidate.getRight()) {
-                        Optional<Errors> errors = inviteValidator.validateGenerateOtpRequest(payload);
-                        if (errors.isPresent()) {
-                            return Response.status(BAD_REQUEST).entity(errors).build();
-                        }
-                    }
-
-                    InviteOtpDispatcher otpDispatcher = inviteOtpDispatcherValidate.getLeft();
-                    if(otpDispatcher.withData(InviteOtpRequest.from(payload)).dispatchOtp(inviteCode)){
-                        return Response.status(OK).build();
-                    } else {
-                        throw internalServerError("unable to dispatch otp at this moment");
-                    }
-                })
-                .orElseGet(() -> Response.status(NOT_FOUND).build());
+        return inviteService.findInvite(inviteCode).map(inviteEntity -> {
+            if (inviteEntity.getType().isExistingUserExistingService()) {
+                Optional<Errors> errors = inviteValidator.validateGenerateOtpRequest(payload);
+                if (errors.isPresent()) {
+                    return Response.status(BAD_REQUEST).entity(errors).build();
+                }
+            }
+            
+            InviteOtpDispatcher otpDispatcher = inviteServiceFactory.inviteOtpRouter().routeOtpDispatch(inviteEntity);
+            if(otpDispatcher.withData(InviteOtpRequest.from(payload)).dispatchOtp(inviteCode)){
+                return Response.status(OK).build();
+            } else {
+                throw internalServerError("unable to dispatch otp at this moment");
+            }
+        }).orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
     @GET

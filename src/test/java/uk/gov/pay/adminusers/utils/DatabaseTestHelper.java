@@ -19,6 +19,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.sql.Timestamp.from;
 import static java.sql.Types.OTHER;
@@ -308,12 +309,12 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public List<Map<String, Object>> findInviteByCode(String code) {
+    public Optional<Map<String, Object>> findInviteByCode(String code) {
         return jdbi.withHandle(h ->
                 h.createQuery("SELECT id, sender_id, service_id, role_id, email, code, otp_key, date, telephone_number, disabled, login_counter FROM invites " +
                         "WHERE code = :code")
                         .bind("code", code)
-                        .mapToMap().list());
+                        .mapToMap().findOne());
     }
 
     public List<Map<String, Object>> findServiceByExternalId(String serviceExternalId) {

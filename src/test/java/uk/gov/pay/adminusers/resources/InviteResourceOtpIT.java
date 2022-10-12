@@ -60,7 +60,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
                 "code", code,
                 "otp", PASSCODE);
 
-        assertThat(databaseHelper.findInviteByCode(code).size(), is(1));
+        assertThat(databaseHelper.findInviteByCode(code).isPresent(), is(true));
 
         ValidatableResponse response = givenSetup()
                 .when()
@@ -169,9 +169,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
                 .statusCode(GONE.getStatusCode());
 
         // check if "login_counter" and "disabled" columns are properly updated
-        List<Map<String, Object>> foundInvites = databaseHelper.findInviteByCode(code);
-        assertThat(foundInvites.size(), is(1));
-        Map<String, Object> foundInvite = foundInvites.get(0);
+        Map<String, Object> foundInvite = databaseHelper.findInviteByCode(code).get();
         assertThat(foundInvite.get("disabled"), is(Boolean.TRUE));
         assertThat(foundInvite.get("login_counter"), is(10));
     }
@@ -215,9 +213,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
                 .statusCode(OK.getStatusCode());
 
         // check if we are using the newTelephoneNumber in the invitation
-        List<Map<String, Object>> foundInvites = databaseHelper.findInviteByCode(code);
-        assertThat(foundInvites.size(), is(1));
-        Map<String, Object> foundInvite = foundInvites.get(0);
+        Map<String, Object> foundInvite = databaseHelper.findInviteByCode(code).get();
         assertThat(foundInvite.get("telephone_number"), is(newTelephoneNumber));
     }
 
