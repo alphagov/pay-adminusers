@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.pay.adminusers.exception.UserNotificationException;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.SecondFactorToken;
 import uk.gov.pay.adminusers.model.User;
@@ -31,7 +32,7 @@ import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemp
 import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.SIGN_IN;
 
 @ExtendWith(MockitoExtension.class)
-public class ExistingUserOtpDispatcherTest {
+class ExistingUserOtpDispatcherTest {
 
     private static final String USER_EXTERNAL_ID = "7d19aff33f8948deb97ed16b2912dcd3";
     private static final String USER_USERNAME = "random-name";
@@ -46,12 +47,12 @@ public class ExistingUserOtpDispatcherTest {
     private ExistingUserOtpDispatcher existingUserOtpDispatcher;
 
     @BeforeEach
-    public void before() {
+    void before() {
         existingUserOtpDispatcher = new ExistingUserOtpDispatcher(() -> notificationService, secondFactorAuthenticator, userDao);
     }
 
     @Test
-    public void shouldSendSignInOtpIfUserFound() {
+    void shouldSendSignInOtpIfUserFound() throws Exception {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
@@ -65,7 +66,7 @@ public class ExistingUserOtpDispatcherTest {
     }
 
     @Test
-    public void shouldPadSignInOtpToSixDigits() {
+    void shouldPadSignInOtpToSixDigits() throws Exception {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
@@ -79,14 +80,14 @@ public class ExistingUserOtpDispatcherTest {
     }
 
     @Test
-    public void shouldGracefullyHandleNotifyErrorSendingSignInOtp() {
+    void shouldGracefullyHandleNotifyErrorSendingSignInOtp() throws Exception {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getOtpKey())).thenReturn(654321);
 
         when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("654321"), eq(SIGN_IN)))
-                .thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
+                .thenThrow(new UserNotificationException("Error sending SMS", new Exception()));
 
         Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.sendSignInOtp(user.getExternalId());
 
@@ -95,7 +96,7 @@ public class ExistingUserOtpDispatcherTest {
     }
 
     @Test
-    public void shouldNotSendSignInOtpIfUserDoesNotExist() {
+    void shouldNotSendSignInOtpIfUserDoesNotExist() {
         String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
 
@@ -105,7 +106,7 @@ public class ExistingUserOtpDispatcherTest {
     }
 
     @Test
-    public void shouldSendChangeSignInMethodOtpIfUserFound() {
+    void shouldSendChangeSignInMethodOtpIfUserFound() throws Exception {
         User user = aUserWithProvisionalOtpKey();
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
@@ -123,7 +124,7 @@ public class ExistingUserOtpDispatcherTest {
     }
 
     @Test
-    public void shouldPadChangeSignInMethodOtpToSixDigits() {
+    void shouldPadChangeSignInMethodOtpToSixDigits() throws Exception {
         User user = aUserWithProvisionalOtpKey();
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
@@ -138,7 +139,7 @@ public class ExistingUserOtpDispatcherTest {
     }
 
     @Test
-    public void shouldNotSendChangeSignInOtpIfProvisionalOtpKeyNotSet() {
+    void shouldNotSendChangeSignInOtpIfProvisionalOtpKeyNotSet() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
@@ -151,14 +152,14 @@ public class ExistingUserOtpDispatcherTest {
     }
 
     @Test
-    public void shouldGracefullyHandleNotifyErrorSendingChangeSignInOtp() {
+    void shouldGracefullyHandleNotifyErrorSendingChangeSignInOtp() throws Exception {
         User user = aUserWithProvisionalOtpKey();
         UserEntity userEntity = UserEntity.from(user);
         when(userDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
         when(secondFactorAuthenticator.newPassCode(user.getProvisionalOtpKey())).thenReturn(654321);
 
         when(notificationService.sendSecondFactorPasscodeSms(any(String.class), eq("654321"), eq(CHANGE_SIGN_IN_2FA_TO_SMS)))
-                .thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
+                .thenThrow(new UserNotificationException("Error sending SMS", new Exception()));
 
         Optional<SecondFactorToken> tokenOptional = existingUserOtpDispatcher.sendChangeSignMethodToSmsOtp(user.getExternalId());
 
@@ -167,7 +168,7 @@ public class ExistingUserOtpDispatcherTest {
     }
 
     @Test
-    public void shouldNotSendChangeSignInOtpIfUserDoesNotExist() {
+    void shouldNotSendChangeSignInOtpIfUserDoesNotExist() {
         String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         when(userDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
 

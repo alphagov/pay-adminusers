@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.pay.adminusers.exception.UserNotificationException;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
@@ -47,7 +48,7 @@ public class UserOtpDispatcher extends InviteOtpDispatcher {
                         String notificationId = notificationService.sendSecondFactorPasscodeSms(inviteOtpRequest.getTelephoneNumber(), passcode,
                                 CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE);
                         LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]", inviteCode, notificationId);
-                    } catch (Exception e) {
+                    } catch (UserNotificationException e) {
                         LOGGER.info(format("error sending 2FA token for invite code [%s]", inviteCode), e);
                     }
                     

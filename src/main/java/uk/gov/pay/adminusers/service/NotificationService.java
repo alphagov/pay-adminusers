@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.app.config.NotifyConfiguration;
 import uk.gov.pay.adminusers.app.config.NotifyDirectDebitConfiguration;
+import uk.gov.pay.adminusers.exception.UserNotificationException;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 import uk.gov.service.notify.NotificationClientException;
 import uk.gov.service.notify.SendEmailResponse;
@@ -77,7 +78,7 @@ public class NotificationService {
         return notifyDirectDebitConfiguration;
     }
 
-    public String sendSecondFactorPasscodeSms(String phoneNumber, String passcode, OtpNotifySmsTemplateId otpNotifySmsTemplateId) {
+    public String sendSecondFactorPasscodeSms(String phoneNumber, String passcode, OtpNotifySmsTemplateId otpNotifySmsTemplateId) throws UserNotificationException {
         Stopwatch responseTimeStopwatch = Stopwatch.createStarted();
         try {
             SendSmsResponse response = notifyClientProvider.get().sendSms(resolveOtpNotifySmsTemplateId(otpNotifySmsTemplateId),
@@ -86,7 +87,7 @@ public class NotificationService {
         } catch (NotificationClientException e) {
             metricRegistry.counter("notify-operations.sms.failures").inc();
             LOGGER.info("Error sending Sms: " + e.getMessage());
-            throw userNotificationError(e);
+            throw new UserNotificationException("Error sending SMS: " + e.getMessage(), e);
         } finally {
             responseTimeStopwatch.stop();
             metricRegistry.histogram("notify-operations.sms.response_time").update(responseTimeStopwatch.elapsed(TimeUnit.MILLISECONDS));

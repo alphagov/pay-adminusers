@@ -47,7 +47,7 @@ class UserOtpDispatcherTest {
     }
 
     @Test
-    void shouldSuccess_whenDispatchUserOtp_ifInviteEntityExist() {
+    void shouldSuccess_whenDispatchUserOtp_ifInviteEntityExist() throws Exception {
         String inviteCode = "valid-invite-code";
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setCode(inviteCode);
@@ -73,7 +73,7 @@ class UserOtpDispatcherTest {
     }
 
     @Test
-    void shouldSuccess_whenDispatchUserOtp_ifInviteEntityExist__newEnumValue() {
+    void shouldSuccess_whenDispatchUserOtp_ifInviteEntityExist__newEnumValue() throws Exception {
         String inviteCode = "valid-invite-code";
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setCode(inviteCode);

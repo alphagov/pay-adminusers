@@ -46,7 +46,7 @@ public class ServiceOtpDispatcherTest {
     }
 
     @Test
-    public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExist() {
+    public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExist() throws Exception {
         String inviteCode = "valid-invite-code";
         String telephone = "+441134960000";
         InviteEntity inviteEntity = new InviteEntity();
@@ -65,7 +65,7 @@ public class ServiceOtpDispatcherTest {
     }
 
     @Test
-    public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExist_butPhoneAndPasswordOnlyInRequest_andUpdateInviteEntityWithPhoneAndPassword() {
+    public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExist_butPhoneAndPasswordOnlyInRequest_andUpdateInviteEntityWithPhoneAndPassword() throws Exception {
         String inviteCode = "valid-invite-code";
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setCode(inviteCode);
@@ -92,7 +92,7 @@ public class ServiceOtpDispatcherTest {
     }
 
     @Test
-    public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExistWithPassword_butPhoneOnlyInRequest_andUpdateInviteEntityWithPhone() {
+    public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExistWithPassword_butPhoneOnlyInRequest_andUpdateInviteEntityWithPhone() throws Exception {
         String inviteCode = "valid-invite-code";
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setCode(inviteCode);
@@ -118,7 +118,7 @@ public class ServiceOtpDispatcherTest {
     }
 
     @Test
-    public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExist__newEnumValue() {
+    public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExist__newEnumValue() throws Exception {
         String inviteCode = "valid-invite-code";
         String telephone = "+441134960000";
         InviteEntity inviteEntity = new InviteEntity();
@@ -137,7 +137,7 @@ public class ServiceOtpDispatcherTest {
     }
 
     @Test
-    public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExist_butPhoneAndPasswordOnlyInRequest_andUpdateInviteEntityWithPhoneAndPassword__newEnumValue() {
+    public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExist_butPhoneAndPasswordOnlyInRequest_andUpdateInviteEntityWithPhoneAndPassword__newEnumValue() throws Exception {
         String inviteCode = "valid-invite-code";
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setCode(inviteCode);
@@ -164,7 +164,7 @@ public class ServiceOtpDispatcherTest {
     }
 
     @Test
-    public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExistWithPassword_butPhoneOnlyInRequest_andUpdateInviteEntityWithPhone__newEnumValue() {
+    public void shouldSuccess_whenDispatchServiceOtp_ifInviteEntityExistWithPassword_butPhoneOnlyInRequest_andUpdateInviteEntityWithPhone__newEnumValue() throws Exception {
         String inviteCode = "valid-invite-code";
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setCode(inviteCode);

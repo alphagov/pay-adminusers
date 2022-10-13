@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.service;
 import com.google.inject.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.pay.adminusers.exception.UserNotificationException;
 import uk.gov.pay.adminusers.model.SecondFactorToken;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 
@@ -50,7 +51,7 @@ public class ExistingUserOtpDispatcher {
                             String notificationId = notificationService.sendSecondFactorPasscodeSms(userEntity.getTelephoneNumber(), token.getPasscode(),
                                     notifyTemplateId);
                             LOGGER.info("sent 2FA token successfully to user [{}], notification id [{}]", userExternalId, notificationId);
-                        } catch (Exception e) {
+                        } catch (UserNotificationException e) {
                             LOGGER.error("error sending 2FA token to user [{}]", userExternalId, e);
                         }
 

@@ -92,7 +92,7 @@ public class NotificationServiceTest {
     }
 
     @Test
-    public void sendSecondFactorPasscodeSmsWithSignInTemplate() throws NotificationClientException {
+    public void sendSecondFactorPasscodeSmsWithSignInTemplate() throws Exception {
         given(mockMetricRegistry.histogram("notify-operations.sms.response_time")).willReturn(mock(Histogram.class));
         given(mockNotificationClient.sendSms(anyString(), anyString(), anyMap(), isNull())).willReturn(mockSendSmsResponse);
         given(mockSendSmsResponse.getNotificationId()).willReturn(NOTIFICATION_ID);
@@ -103,7 +103,7 @@ public class NotificationServiceTest {
     }
 
     @Test
-    public void sendSecondFactorPasscodeSmsWithChangeSignIn2faToSmsTemplate() throws NotificationClientException {
+    public void sendSecondFactorPasscodeSmsWithChangeSignIn2faToSmsTemplate() throws Exception {
         given(mockMetricRegistry.histogram("notify-operations.sms.response_time")).willReturn(mock(Histogram.class));
         given(mockNotificationClient.sendSms(anyString(), anyString(), anyMap(), isNull())).willReturn(mockSendSmsResponse);
         given(mockSendSmsResponse.getNotificationId()).willReturn(NOTIFICATION_ID);
@@ -114,7 +114,7 @@ public class NotificationServiceTest {
     }
 
     @Test
-    public void sendSecondFactorPasscodeSmsWithSelfInitiatedCreateNewUserAndServiceTemplate() throws NotificationClientException {
+    public void sendSecondFactorPasscodeSmsWithSelfInitiatedCreateNewUserAndServiceTemplate() throws Exception {
         given(mockMetricRegistry.histogram("notify-operations.sms.response_time")).willReturn(mock(Histogram.class));
         given(mockNotificationClient.sendSms(anyString(), anyString(), anyMap(), isNull())).willReturn(mockSendSmsResponse);
         given(mockSendSmsResponse.getNotificationId()).willReturn(NOTIFICATION_ID);
@@ -126,7 +126,7 @@ public class NotificationServiceTest {
     }
 
     @Test
-    public void sendSecondFactorPasscodeSmsWithCreateUserInResponseToInvitationToServiceTemplate() throws NotificationClientException {
+    public void sendSecondFactorPasscodeSmsWithCreateUserInResponseToInvitationToServiceTemplate() throws Exception {
         given(mockMetricRegistry.histogram("notify-operations.sms.response_time")).willReturn(mock(Histogram.class));
         given(mockNotificationClient.sendSms(anyString(), anyString(), anyMap(), isNull())).willReturn(mockSendSmsResponse);
         given(mockSendSmsResponse.getNotificationId()).willReturn(NOTIFICATION_ID);
