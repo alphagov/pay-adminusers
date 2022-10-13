@@ -18,6 +18,7 @@ import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.service.ExistingUserOtpDispatcher;
+import uk.gov.pay.adminusers.service.LinksBuilder;
 import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.pay.adminusers.service.UserServicesFactory;
 
@@ -48,7 +49,7 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerE
 
 @Path(UserResource.USERS_RESOURCE)
 public class UserResource {
-    
+
     public static final String USERS_RESOURCE = "/v1/api/users";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserResource.class);
@@ -64,13 +65,16 @@ public class UserResource {
 
     private final UserRequestValidator validator;
 
+    private final LinksBuilder linksBuilder;
+
     @Inject
     public UserResource(UserServices userServices, UserRequestValidator validator, UserServicesFactory userServicesFactory,
-                        ExistingUserOtpDispatcher existingUserOtpDispatcher) {
+                        ExistingUserOtpDispatcher existingUserOtpDispatcher, LinksBuilder linksBuilder) {
         this.userServices = userServices;
         this.validator = validator;
         this.userServicesFactory = userServicesFactory;
         this.existingUserOtpDispatcher = existingUserOtpDispatcher;
+        this.linksBuilder = linksBuilder;
     }
 
     @Path("/find")
@@ -118,7 +122,10 @@ public class UserResource {
                             @PathParam("userExternalId") String externalId) {
         LOGGER.info("User GET request - [ {} ]", externalId);
         return userServices.findUserByExternalId(externalId)
-                .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
+                .map(userEntity -> {
+                    User user = linksBuilder.decorate(userEntity.toUser());
+                    return Response.status(OK).type(APPLICATION_JSON).entity(user).build();
+                })
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
@@ -188,7 +195,7 @@ public class UserResource {
             }
     )
     public Response createUser(@Parameter(schema = @Schema(implementation = CreateUserRequest.class))
-                                       JsonNode node) {
+                               JsonNode node) {
         LOGGER.info("Attempting user create request");
         return validator.validateCreateRequest(node)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -266,15 +273,15 @@ public class UserResource {
                 .orElseGet(() -> {
                     boolean changingSignInMethod = payload != null && payload.get("provisional") != null && payload.get("provisional").asBoolean();
 
-                    if (changingSignInMethod) {
-                        return existingUserOtpDispatcher.sendChangeSignMethodToSmsOtp(externalId)
-                                .map(twoFAToken -> Response.status(OK).type(APPLICATION_JSON).build())
-                                .orElseGet(() -> Response.status(NOT_FOUND).build());
-                    }
+                    return userServices.findUserByExternalId(externalId).map(userEntity -> {
+                        if (changingSignInMethod) {
+                            existingUserOtpDispatcher.sendChangeSignMethodToSmsOtp(userEntity);
+                            return Response.status(OK).type(APPLICATION_JSON).build();
+                        }
 
-                    return existingUserOtpDispatcher.sendSignInOtp(externalId)
-                            .map(twoFAToken -> Response.status(OK).type(APPLICATION_JSON).build())
-                            .orElseGet(() -> Response.status(NOT_FOUND).build());
+                        existingUserOtpDispatcher.sendSignInOtp(userEntity);
+                        return Response.status(OK).type(APPLICATION_JSON).build();
+                    }).orElseGet(() -> Response.status(NOT_FOUND).build());
                 });
     }
 
@@ -398,7 +405,7 @@ public class UserResource {
     public Response updateUserAttribute(@Parameter(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
                                         @PathParam("userExternalId") String externalId,
                                         @Parameter(schema = @Schema(implementation = PatchRequest.class))
-                                                JsonNode node) {
+                                        JsonNode node) {
         LOGGER.info("User update attribute attempt request");
         return validator.validatePatchRequest(node)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())

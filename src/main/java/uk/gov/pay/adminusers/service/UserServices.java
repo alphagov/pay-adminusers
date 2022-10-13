@@ -90,9 +90,8 @@ public class UserServices {
         }
     }
 
-    public Optional<User> findUserByExternalId(String externalId) {
-        Optional<UserEntity> userEntityOptional = userDao.findByExternalId(externalId);
-        return userEntityOptional.map(userEntity -> linksBuilder.decorate(userEntity.toUser()));
+    public Optional<UserEntity> findUserByExternalId(String externalId) {
+        return userDao.findByExternalId(externalId);
     }
 
     public List<User> findUsersByExternalIds(List<String> externalIds) {

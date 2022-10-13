@@ -94,7 +94,7 @@ public class UserServicesTest {
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
         when(mockUserDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(userEntityOptional);
 
-        Optional<User> userOptional = underTest.findUserByExternalId(USER_EXTERNAL_ID);
+        Optional<UserEntity> userOptional = underTest.findUserByExternalId(USER_EXTERNAL_ID);
         assertTrue(userOptional.isPresent());
 
         assertThat(userOptional.get().getExternalId(), is(USER_EXTERNAL_ID));
@@ -121,7 +121,7 @@ public class UserServicesTest {
     void shouldReturnEmpty_WhenFindByExternalId_ifNotFound() {
         when(mockUserDao.findByExternalId(USER_EXTERNAL_ID)).thenReturn(Optional.empty());
 
-        Optional<User> userOptional = underTest.findUserByExternalId(USER_EXTERNAL_ID);
+        Optional<UserEntity> userOptional = underTest.findUserByExternalId(USER_EXTERNAL_ID);
         assertFalse(userOptional.isPresent());
     }
 

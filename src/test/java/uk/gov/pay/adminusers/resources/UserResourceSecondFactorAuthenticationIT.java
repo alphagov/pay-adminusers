@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.User;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.io.BaseEncoding.base32;
@@ -73,7 +74,7 @@ public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturnNotFound_forAValidNewSecondFactorPasscodeRequest_withProvisionalTrue_ifNoProvisionalOtpKey() throws JsonProcessingException {
+    public void shouldReturnBadRequest_forAValidNewSecondFactorPasscodeRequest_withProvisionalTrue_ifNoProvisionalOtpKey() throws JsonProcessingException {
         Map<String, Boolean> body = Map.of("provisional", true);
 
         givenSetup()
@@ -82,7 +83,8 @@ public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
                 .body(mapper.writeValueAsString(body))
                 .post(format(USER_2FA_URL, externalId))
                 .then()
-                .statusCode(404);
+                .statusCode(400)
+                .body("errors", is(List.of(format("Attempted to send a 2FA token attempted for user without an OTP key [%s]", externalId))));
     }
 
     @Test
