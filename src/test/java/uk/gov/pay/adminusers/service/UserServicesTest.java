@@ -302,7 +302,7 @@ public class UserServicesTest {
         verify(mockUserDao, times(1)).merge(userEntityArgumentCaptor.capture());
 
         UserEntity persistedUser = userEntityArgumentCaptor.getValue();
-        assertThat(persistedUser.getTelephoneNumber(), is(newTelephoneNumber));
+        assertThat(persistedUser.getTelephoneNumber().get(), is(newTelephoneNumber));
         assertTrue(userOptional.isPresent());
 
         assertThat(userOptional.get().getTelephoneNumber(), is(newTelephoneNumber));

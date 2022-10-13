@@ -137,8 +137,8 @@ public class UserEntity extends AbstractEntity {
         this.otpKey = otpKey;
     }
 
-    public String getTelephoneNumber() {
-        return telephoneNumber;
+    public Optional<String> getTelephoneNumber() {
+        return Optional.ofNullable(telephoneNumber);
     }
 
     public void setTelephoneNumber(String telephoneNumber) {

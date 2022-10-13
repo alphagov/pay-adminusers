@@ -13,10 +13,14 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -60,6 +64,20 @@ class ExistingUserOtpDispatcherTest {
         SecondFactorToken token = existingUserOtpDispatcher.sendSignInOtp(userEntity);
         
         assertThat(token.getPasscode(), is("123456"));
+    }
+
+    @Test
+    void shouldThrowExceptionIfUserDoesNotHaveTelephoneNumber() {
+        User user = aUser();
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setTelephoneNumber(null);
+
+        WebApplicationException exception = assertThrows(WebApplicationException.class, () -> existingUserOtpDispatcher.sendSignInOtp(userEntity));
+
+        String expectedError = format("Unable to send second factor code as user [%s] does not have a telephone number set", user.getExternalId());
+        Map<String, String> response = (Map<String, String>) exception.getResponse().getEntity();
+        assertThat(exception.getResponse().getStatus(), is(412));
+        assertThat(response, hasEntry("errors", List.of(expectedError)));
     }
 
     @Test
@@ -121,8 +139,13 @@ class ExistingUserOtpDispatcherTest {
     void shouldNotSendChangeSignInOtpIfProvisionalOtpKeyNotSet() {
         User user = aUser();
         UserEntity userEntity = UserEntity.from(user);
-        
-        assertThrows(WebApplicationException.class, () -> existingUserOtpDispatcher.sendChangeSignMethodToSmsOtp(userEntity));
+
+        WebApplicationException exception = assertThrows(WebApplicationException.class, () -> existingUserOtpDispatcher.sendChangeSignMethodToSmsOtp(userEntity));
+
+        String expectedError = format("Attempted to send a 2FA token attempted for user without an OTP key [%s]", user.getExternalId());
+        Map<String, String> response = (Map<String, String>) exception.getResponse().getEntity();
+        assertThat(exception.getResponse().getStatus(), is(400));
+        assertThat(response, hasEntry("errors", List.of(expectedError)));
     }
 
     @Test

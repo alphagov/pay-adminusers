@@ -108,6 +108,11 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, BAD_REQUEST.getStatusCode());
     }
 
+    public static WebApplicationException userDoesNotHaveTelephoneNumberError(String userExternalId) {
+        String error = format("Unable to send second factor code as user [%s] does not have a telephone number set", userExternalId);
+        return buildWebApplicationException(error, PRECONDITION_FAILED.getStatusCode());
+    }
+
     private static WebApplicationException buildWebApplicationException(String error, int status) {
         return buildWebApplicationException(error, status, null);
     }

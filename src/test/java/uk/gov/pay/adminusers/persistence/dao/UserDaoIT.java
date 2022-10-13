@@ -97,7 +97,7 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(savedUserData.get(0).get("password"), is(userEntity.getPassword()));
         assertThat(savedUserData.get(0).get("email"), is(userEntity.getEmail()));
         assertThat(savedUserData.get(0).get("otp_key"), is(userEntity.getOtpKey()));
-        assertThat(savedUserData.get(0).get("telephone_number"), is(userEntity.getTelephoneNumber()));
+        assertThat(savedUserData.get(0).get("telephone_number"), is(userEntity.getTelephoneNumber().get()));
         assertThat(savedUserData.get(0).get("disabled"), is(Boolean.FALSE));
         assertThat(savedUserData.get(0).get("session_version"), is(0));
         assertThat(savedUserData.get(0).get("createdat"), is(java.sql.Timestamp.from(timeNow.toInstant())));
@@ -138,7 +138,7 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(foundUser.getUsername(), is(username));
         assertThat(foundUser.getEmail(), is(email));
         assertThat(foundUser.getOtpKey(), is(otpKey));
-        assertThat(foundUser.getTelephoneNumber(), is("+447700900000"));
+        assertThat(foundUser.getTelephoneNumber().get(), is("+447700900000"));
         assertThat(foundUser.isDisabled(), is(false));
         assertThat(foundUser.getLoginCounter(), is(0));
         assertThat(foundUser.getSessionVersion(), is(0));
@@ -190,7 +190,7 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(foundUser1.getUsername(), is(user1.getUsername()));
         assertThat(foundUser1.getEmail(), is(user1.getEmail()));
         assertThat(foundUser1.getOtpKey(), is(user1.getOtpKey()));
-        assertThat(foundUser1.getTelephoneNumber(), is("+447700900000"));
+        assertThat(foundUser1.getTelephoneNumber().get(), is("+447700900000"));
         assertThat(foundUser1.isDisabled(), is(false));
         assertThat(foundUser1.getLoginCounter(), is(0));
         assertThat(foundUser1.getSessionVersion(), is(0));
@@ -203,7 +203,7 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(foundUser2.getUsername(), is(user2.getUsername()));
         assertThat(foundUser2.getEmail(), is(user2.getEmail()));
         assertThat(foundUser2.getOtpKey(), is(user2.getOtpKey()));
-        assertThat(foundUser2.getTelephoneNumber(), is("+447700900000"));
+        assertThat(foundUser2.getTelephoneNumber().get(), is("+447700900000"));
         assertThat(foundUser2.isDisabled(), is(false));
         assertThat(foundUser2.getLoginCounter(), is(0));
         assertThat(foundUser2.getSessionVersion(), is(0));
@@ -231,7 +231,7 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(foundUser.getEmail(), is(email));
         assertThat(foundUser.getUsername(), is(username));
         assertThat(foundUser.getOtpKey(), is(otpKey));
-        assertThat(foundUser.getTelephoneNumber(), is("+447700900000"));
+        assertThat(foundUser.getTelephoneNumber().get(), is("+447700900000"));
         assertThat(foundUser.isDisabled(), is(false));
         assertThat(foundUser.getLoginCounter(), is(0));
         assertThat(foundUser.getSessionVersion(), is(0));
@@ -257,7 +257,7 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(foundUser.getUsername(), is(username));
         assertThat(foundUser.getEmail(), is(email));
         assertThat(foundUser.getOtpKey(), is(otpKey));
-        assertThat(foundUser.getTelephoneNumber(), is("+447700900000"));
+        assertThat(foundUser.getTelephoneNumber().get(), is("+447700900000"));
         assertThat(foundUser.isDisabled(), is(false));
         assertThat(foundUser.getLoginCounter(), is(0));
         assertThat(foundUser.getSessionVersion(), is(0));
