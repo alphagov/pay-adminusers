@@ -24,6 +24,7 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.service.payments.commons.model.SupportedLanguage;
 
+import javax.ws.rs.WebApplicationException;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -38,12 +39,14 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Collections.emptyList;
 import static org.exparity.hamcrest.date.ZonedDateTimeMatchers.within;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -655,6 +658,22 @@ public class UserServicesTest {
 
         verify(mockUserDao, never()).merge(any(UserEntity.class));
         assertThat(result.isPresent(), is(false));
+    }
+
+    @Test
+    void resetSecondFactor_shouldThrowExceptionWhenUserDoesNotHaveTelephoneNumberSet() {
+        User user = aUser();
+        user.setSecondFactor(SecondFactorMethod.APP);
+        UserEntity userEntity = UserEntity.from(user);
+        userEntity.setTelephoneNumber(null);
+        when(mockUserDao.findByExternalId(user.getExternalId())).thenReturn(Optional.of(userEntity));
+
+        WebApplicationException exception = assertThrows(WebApplicationException.class, () -> underTest.resetSecondFactor(user.getExternalId()));
+
+        String expectedError = format("Unable to reset second factor method to SMS as user [%s] does not have a telephone number set", user.getExternalId());
+        Map<String, String> response = (Map<String, String>) exception.getResponse().getEntity();
+        assertThat(exception.getResponse().getStatus(), is(412));
+        assertThat(response, hasEntry("errors", List.of(expectedError)));
     }
 
     @Test
