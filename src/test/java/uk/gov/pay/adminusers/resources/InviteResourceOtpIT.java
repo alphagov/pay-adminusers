@@ -9,7 +9,6 @@ import uk.gov.pay.adminusers.fixtures.InviteDbFixture;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.io.BaseEncoding.base32;
 import static io.restassured.http.ContentType.JSON;
 import static java.util.Collections.emptyMap;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -23,20 +22,19 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 
-public class InviteResourceOtpIT extends IntegrationTest {
+class InviteResourceOtpIT extends IntegrationTest {
 
     private String code;
 
-    private static final String OTP_KEY = newId();
-    private static final int PASSCODE = new GoogleAuthenticator().getTotpPassword(base32().encode(OTP_KEY.getBytes()));
+    private static final String OTP_KEY = "KPWXGUTNWOE7PMVK";
+    private static final int PASSCODE = new GoogleAuthenticator().getTotpPassword(OTP_KEY);
     private static final String EMAIL = "invited-" + random(5) + "@example.com";
     private static final String TELEPHONE_NUMBER = "+447999999999";
     private static final String PASSWORD = "a-secure-password";
 
     @BeforeEach
-    public void givenAnExistingInvite() {
+    void givenAnExistingInvite() {
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
                 .withEmail(EMAIL)
                 .withOtpKey(OTP_KEY)
@@ -45,7 +43,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
     }
 
     @Test
-    public void validateOtp_shouldCreateUserWhenValidOtp() throws Exception {
+    void validateOtp_shouldCreateUserWhenValidOtp() throws Exception {
 
         // create an invitation
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
@@ -103,7 +101,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
     }
 
     @Test
-    public void validateOtp_shouldFail_whenInvalidCode() throws Exception {
+    void validateOtp_shouldFail_whenInvalidCode() throws Exception {
 
         Map<Object, Object> invitationOtpRequest = Map.of(
                 "code", "non-existent-code",
@@ -119,7 +117,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
     }
 
     @Test
-    public void validateOtp_shouldFail_whenInvalidOtpAuthCode() throws Exception {
+    void validateOtp_shouldFail_whenInvalidOtpAuthCode() throws Exception {
 
         // create an invitation
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
@@ -144,7 +142,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
     }
 
     @Test
-    public void validateOtp_shouldFailAndLockInvite_whenInvalidOtpAuthCode_ifMaxRetryExceeded() throws Exception {
+    void validateOtp_shouldFailAndLockInvite_whenInvalidOtpAuthCode_ifMaxRetryExceeded() throws Exception {
 
         // create an invitation
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
@@ -175,7 +173,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
     }
 
     @Test
-    public void validateOtp_shouldFail_whenAllMandatoryFieldsAreMissing() throws Exception {
+    void validateOtp_shouldFail_whenAllMandatoryFieldsAreMissing() throws Exception {
         givenSetup()
                 .when()
                 .body(mapper.writeValueAsString(emptyMap()))
@@ -186,7 +184,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
     }
 
     @Test
-    public void resendOtp_shouldUpdateTelephoneNumber_whenValidOtp() throws Exception {
+    void resendOtp_shouldUpdateTelephoneNumber_whenValidOtp() throws Exception {
 
         // create an invitation with initial telephone number
         String initialTelephoneNumber = "+447451111111";
@@ -218,7 +216,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
     }
 
     @Test
-    public void resendOtp_shouldFail_whenAllMandatoryFieldsAreMissing() throws Exception {
+    void resendOtp_shouldFail_whenAllMandatoryFieldsAreMissing() throws Exception {
 
         givenSetup()
                 .when()
@@ -230,7 +228,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
     }
 
     @Test
-    public void validateServiceOtpKey_shouldSucceed_whenValidOtp() throws Exception {
+    void validateServiceOtpKey_shouldSucceed_whenValidOtp() throws Exception {
 
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
                 .withOtpKey(OTP_KEY)
@@ -250,7 +248,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
     }
 
     @Test
-    public void validateServiceOtpKey_shouldFailWith401_whenInvalidOtp() throws Exception {
+    void validateServiceOtpKey_shouldFailWith401_whenInvalidOtp() throws Exception {
 
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
                 .withOtpKey(OTP_KEY)

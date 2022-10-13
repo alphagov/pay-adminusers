@@ -14,20 +14,19 @@ import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.RandomStringUtils.random;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.newId;
 
-public class InviteResourceGenerateOtpIT extends IntegrationTest {
+class InviteResourceGenerateOtpIT extends IntegrationTest {
 
     private String code;
 
-    private static final String OTP_KEY = newId();
+    private static final String OTP_KEY = "KPWXGUTNWOE7PMVK";
     private static final String EMAIL = "invited-" + random(5) + "@example.com";
     private static final String TELEPHONE_NUMBER = "+447999999999";
     private static final String PASSWORD = "a-secure-password";
 
 
     @Test
-    public void generateOtp_shouldSucceed_forUserInvite_evenWhenTokenIsExpired_sinceItShouldBeValidatedOnGetInvite() throws Exception {
+    void generateOtp_shouldSucceed_forUserInvite_evenWhenTokenIsExpired_sinceItShouldBeValidatedOnGetInvite() throws Exception {
         givenAnExistingUserInvite();
         Map<Object, Object> invitationRequest = Map.of(
                 "telephone_number", TELEPHONE_NUMBER,
@@ -46,7 +45,7 @@ public class InviteResourceGenerateOtpIT extends IntegrationTest {
     }
 
     @Test
-    public void generateOtp_should_FailforUserInvite_whenInviteDoesNotExist() throws Exception {
+    void generateOtp_should_FailforUserInvite_whenInviteDoesNotExist() throws Exception {
         Map<Object, Object> invitationRequest = Map.of(
                 "telephone_number", TELEPHONE_NUMBER,
                 "password", PASSWORD);
@@ -61,7 +60,7 @@ public class InviteResourceGenerateOtpIT extends IntegrationTest {
     }
 
     @Test
-    public void generateOtp_shouldFail_forUserInvite_whenAllMandatoryFieldsAreMissing() throws Exception {
+    void generateOtp_shouldFail_forUserInvite_whenAllMandatoryFieldsAreMissing() throws Exception {
         givenAnExistingUserInvite();
         Map<Object, Object> invitationRequest = emptyMap();
 
@@ -75,7 +74,7 @@ public class InviteResourceGenerateOtpIT extends IntegrationTest {
     }
 
     @Test
-    public void generateOtp_shouldSucceed_forServiceInvite_evenWhenTokenIsExpired_sinceItShouldBeValidatedOnGetInvite() {
+    void generateOtp_shouldSucceed_forServiceInvite_evenWhenTokenIsExpired_sinceItShouldBeValidatedOnGetInvite() {
         givenAnExistingServiceInvite();
         givenSetup()
                 .when()
@@ -86,7 +85,7 @@ public class InviteResourceGenerateOtpIT extends IntegrationTest {
     }
 
     @Test
-    public void generateOtp_shouldSucceed_forServiceInvite_whenNoFieldsPresent() throws Exception {
+    void generateOtp_shouldSucceed_forServiceInvite_whenNoFieldsPresent() throws Exception {
         givenAnExistingServiceInvite();
         Map<Object, Object> invitationRequest = emptyMap();
 
@@ -100,7 +99,7 @@ public class InviteResourceGenerateOtpIT extends IntegrationTest {
     }
 
     @Test
-    public void generateOtp_shouldSucceed_forServiceInvite_whenPasswordAndPhoneNumberPresent() throws Exception {
+    void generateOtp_shouldSucceed_forServiceInvite_whenPasswordAndPhoneNumberPresent() throws Exception {
         givenAnExistingServiceInvite();
         Map<Object, Object> invitationRequest = Map.of(
                 "telephone_number", TELEPHONE_NUMBER,

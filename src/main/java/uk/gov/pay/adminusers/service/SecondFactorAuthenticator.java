@@ -30,14 +30,12 @@ public class SecondFactorAuthenticator {
 
     public int newPassCode(String secret) {
         checkNull(secret);
-        String base32EncodedSecret = BASE32_ALPHABET.matcher(secret).matches() ? secret : base32EncodedUtf8BytesOfSecret(secret);
-        return authenticator.getTotpPassword(base32EncodedSecret, clock.millis());
+        return authenticator.getTotpPassword(secret, clock.millis());
     }
 
     public boolean authorize(String secret, int passcode) {
         checkNull(secret);
-        String base32EncodedSecret = BASE32_ALPHABET.matcher(secret).matches() ? secret : base32EncodedUtf8BytesOfSecret(secret);
-        return authenticator.authorize(base32EncodedSecret, passcode, clock.millis());
+        return authenticator.authorize(secret, passcode, clock.millis());
     }
 
     public String generateNewBase32EncodedSecret() {

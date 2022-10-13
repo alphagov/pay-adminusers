@@ -22,9 +22,8 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class SecondFactorAuthenticatorTest {
-
-    private static final String SECRET = "mysecret";
+class SecondFactorAuthenticatorTest {
+    
     private static final String BASE32_ENCODED_SECRET = "KPWXGUTNWOE7PMVK";
 
     private static final Duration TIME_STEP = Duration.of(30, SECONDS);
@@ -45,38 +44,24 @@ public class SecondFactorAuthenticatorTest {
     private SecondFactorAuthenticator secondFactorAuthenticator;
 
     @BeforeEach
-    public void before() {
+    void before() {
         initialTime = Instant.now();
         lenient().when(clock.millis()).thenReturn(initialTime.toEpochMilli());
         secondFactorAuthenticator = new SecondFactorAuthenticator(AUTH_CONFIG, clock);
     }
 
     @Test
-    public void shouldGenerateAndValidate2FAPasscode() {
-        int passCode = secondFactorAuthenticator.newPassCode(SECRET);
-
-        assertTrue(secondFactorAuthenticator.authorize(SECRET, passCode));
-        assertFalse(secondFactorAuthenticator.authorize("incorrectSecret", passCode));
-    }
-
-    @Test
-    public void shouldGenerateAndValidate2FAPasscodeFromBase32EncodedSecret() {
+    void shouldGenerateAndValidate2FAPasscode() {
         int passCode = secondFactorAuthenticator.newPassCode(BASE32_ENCODED_SECRET);
 
         assertTrue(secondFactorAuthenticator.authorize(BASE32_ENCODED_SECRET, passCode));
+        
+        String incorrectSecret = "7FLZNEDRXUVBN7OJQVCGUO344R4LO22Y";
+        assertFalse(secondFactorAuthenticator.authorize(incorrectSecret, passCode));
     }
 
     @Test
-    public void shouldSuccess_ifAskedToValidateImmediateLastSteps2FAPasscode() {
-        int passCode = secondFactorAuthenticator.newPassCode(SECRET);
-
-        when(clock.millis()).thenReturn(initialTime.plus(TIME_STEP).toEpochMilli());
-
-        assertTrue(secondFactorAuthenticator.authorize(SECRET, passCode));
-    }
-
-    @Test
-    public void shouldSuccess_ifAskedToValidateImmediateLastSteps2FAPasscode_fromBase32EncodedSecret() {
+    void shouldSuccess_ifAskedToValidateImmediateLastSteps2FAPasscode() {
         int passCode = secondFactorAuthenticator.newPassCode(BASE32_ENCODED_SECRET);
 
         when(clock.millis()).thenReturn(initialTime.plus(TIME_STEP).toEpochMilli());
@@ -85,16 +70,7 @@ public class SecondFactorAuthenticatorTest {
     }
 
     @Test
-    public void shouldSuccess_ifAskedToValidateAValidPastSteps2FAPasscode() {
-        int passCode = secondFactorAuthenticator.newPassCode(SECRET);
-
-        when(clock.millis()).thenReturn(initialTime.plus(TIME_STEP.multipliedBy(PAST_OR_FUTURE_WINDOWS_TO_CHECK)).toEpochMilli());
-
-        assertTrue(secondFactorAuthenticator.authorize(SECRET, passCode));
-    }
-
-    @Test
-    public void shouldSuccess_ifAskedToValidateAValidPastSteps2FAPasscode_fromBase32EncodedSecret() {
+    void shouldSuccess_ifAskedToValidateAValidPastSteps2FAPasscode() {
         int passCode = secondFactorAuthenticator.newPassCode(BASE32_ENCODED_SECRET);
 
         when(clock.millis()).thenReturn(initialTime.plus(TIME_STEP.multipliedBy(PAST_OR_FUTURE_WINDOWS_TO_CHECK)).toEpochMilli());
@@ -103,16 +79,7 @@ public class SecondFactorAuthenticatorTest {
     }
 
     @Test
-    public void shouldError_ifAskedToValidate2FAPasscodeOlderThanLastValidStep() {
-        int passCode = secondFactorAuthenticator.newPassCode(SECRET);
-
-        when(clock.millis()).thenReturn(initialTime.plus(TIME_STEP.multipliedBy(PAST_OR_FUTURE_WINDOWS_TO_CHECK + 1)).toEpochMilli());
-
-        assertFalse(secondFactorAuthenticator.authorize(SECRET, passCode));
-    }
-
-    @Test
-    public void shouldError_ifAskedToValidate2FAPasscodeOlderThanLastValidStep_fromBase32EncodedSecret() {
+    void shouldError_ifAskedToValidate2FAPasscodeOlderThanLastValidStep() {
         int passCode = secondFactorAuthenticator.newPassCode(BASE32_ENCODED_SECRET);
 
         when(clock.millis()).thenReturn(initialTime.plus(TIME_STEP.multipliedBy(PAST_OR_FUTURE_WINDOWS_TO_CHECK + 1)).toEpochMilli());
@@ -121,14 +88,14 @@ public class SecondFactorAuthenticatorTest {
     }
 
     @Test
-    public void shouldError_IfPasscodeIsNull_WhenCreate() {
+    void shouldError_IfPasscodeIsNull_WhenCreate() {
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> secondFactorAuthenticator.newPassCode(null));
         assertThat(exception.getMessage(), is("supplied a null/empty otpKey for second factor"));
     }
 
     @Test
-    public void shouldGenerateNewBase32EncodedSecret() {
+    void shouldGenerateNewBase32EncodedSecret() {
         String thirtyTwoCharacterBase32Regex = "[A-Z2-7]{32}";
         assertThat(secondFactorAuthenticator.generateNewBase32EncodedSecret(), matchesPattern(thirtyTwoCharacterBase32Regex));
     }
