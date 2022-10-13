@@ -112,6 +112,11 @@ public class AdminUsersExceptions {
         String error = format("Unable to send second factor code as user [%s] does not have a telephone number set", userExternalId);
         return buildWebApplicationException(error, PRECONDITION_FAILED.getStatusCode());
     }
+    
+    public static WebApplicationException cannotResetSecondFactorToSmsError(String userExternalId) {
+        String error = format("Unable to reset second factor method to SMS as user [%s] does not have a telephone number set", userExternalId);
+        return buildWebApplicationException(error, PRECONDITION_FAILED.getStatusCode());
+    }
 
     private static WebApplicationException buildWebApplicationException(String error, int status) {
         return buildWebApplicationException(error, status, null);

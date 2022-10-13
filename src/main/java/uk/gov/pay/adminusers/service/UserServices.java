@@ -219,6 +219,9 @@ public class UserServices {
                 logger.info("Second factor method is already SMS, doing nothing");
                 return linksBuilder.decorate(userEntity.toUser());
             }
+            if (userEntity.getTelephoneNumber().isEmpty()) {
+                throw AdminUsersExceptions.cannotResetSecondFactorToSmsError(externalId);
+            }
             
             logger.info("Resetting OTP method to SMS for user {}", userEntity.getExternalId());
             userEntity.setOtpKey(secondFactorAuthenticator.generateNewBase32EncodedSecret());
