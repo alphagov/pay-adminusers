@@ -102,6 +102,11 @@ public class AdminUsersExceptions {
     public static WebApplicationException userNotificationError(Exception cause) {
         return buildWebApplicationException("error sending user notification", INTERNAL_SERVER_ERROR.getStatusCode(), cause);
     }
+    
+    public static WebApplicationException otpKeyMissingException(String userExternalId) {
+        String error = format("Attempted to send a 2FA token attempted for user without an OTP key [%s]", userExternalId);
+        return buildWebApplicationException(error, BAD_REQUEST.getStatusCode());
+    }
 
     private static WebApplicationException buildWebApplicationException(String error, int status) {
         return buildWebApplicationException(error, status, null);
