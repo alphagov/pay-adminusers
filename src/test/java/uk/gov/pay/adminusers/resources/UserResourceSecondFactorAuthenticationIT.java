@@ -9,23 +9,22 @@ import uk.gov.pay.adminusers.model.User;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.io.BaseEncoding.base32;
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
-public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
+class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
 
     private static final String USER_2FA_AUTHENTICATE_URL = USER_2FA_URL + "/authenticate";
-    private static final String OTP_KEY = "34f34";
+    private static final String OTP_KEY = "KPWXGUTNWOE7PMVK";
 
     private String externalId;
     private String username;
 
     @BeforeEach
-    public void createValidUser() {
+    void createValidUser() {
         String username = randomUuid();
         String email = username + "@example.com";
         User user = userDbFixture(databaseHelper).withOtpKey(OTP_KEY).withUsername(username).withEmail(email).insertUser();
@@ -36,7 +35,7 @@ public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
 
 
     @Test
-    public void shouldCreate2FA_forAValidNewSecondFactorPasscodeRequest_withNoBody() {
+    void shouldCreate2FA_forAValidNewSecondFactorPasscodeRequest_withNoBody() {
         givenSetup()
                 .when()
                 .accept(JSON)
@@ -46,7 +45,7 @@ public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldCreate2FA_forAValidNewSecondFactorPasscodeRequest_withProvisionalFalse() throws JsonProcessingException {
+    void shouldCreate2FA_forAValidNewSecondFactorPasscodeRequest_withProvisionalFalse() throws JsonProcessingException {
         Map<String, Boolean> body = Map.of("provisional", false);
 
         givenSetup()
@@ -59,7 +58,7 @@ public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldCreate2FA_forAValidNewSecondFactorPasscodeRequest_withProvisionalTrue() throws JsonProcessingException {
+    void shouldCreate2FA_forAValidNewSecondFactorPasscodeRequest_withProvisionalTrue() throws JsonProcessingException {
         databaseHelper.updateProvisionalOtpKey(username, "ABCDEFGHIJKLMNOP");
 
         Map<String, Boolean> body = Map.of("provisional", true);
@@ -74,7 +73,7 @@ public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturnBadRequest_forAValidNewSecondFactorPasscodeRequest_withProvisionalTrue_ifNoProvisionalOtpKey() throws JsonProcessingException {
+    void shouldReturnBadRequest_forAValidNewSecondFactorPasscodeRequest_withProvisionalTrue_ifNoProvisionalOtpKey() throws JsonProcessingException {
         Map<String, Boolean> body = Map.of("provisional", true);
 
         givenSetup()
@@ -88,9 +87,9 @@ public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldAuthenticate2FA_forAValid2FAAuthRequest() throws Exception {
+    void shouldAuthenticate2FA_forAValid2FAAuthRequest() throws Exception {
         GoogleAuthenticator testAuthenticator = new GoogleAuthenticator();
-        int passcode = testAuthenticator.getTotpPassword(base32().encode(OTP_KEY.getBytes()));
+        int passcode = testAuthenticator.getTotpPassword(OTP_KEY);
         Map<String, Integer> authBody = Map.of("code", passcode);
 
         givenSetup()
@@ -106,7 +105,7 @@ public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturnNotFound_forNonExistentUser_when2FAAuthCreateRequest() {
+    void shouldReturnNotFound_forNonExistentUser_when2FAAuthCreateRequest() {
         String nonExistingExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         givenSetup()
                 .when()
@@ -117,7 +116,7 @@ public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturnUnauthorized_onInvalid2FACode_during2FAAuth() throws Exception {
+    void shouldReturnUnauthorized_onInvalid2FACode_during2FAAuth() throws Exception {
         int invalidPasscode = 111111;
         Map<String, Integer> authBody = Map.of("code", invalidPasscode);
 
@@ -131,7 +130,7 @@ public class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturnUnauthorizedAndAccountLocked_during2FAAuth_ifMaxRetryExceeded() throws Exception {
+    void shouldReturnUnauthorizedAndAccountLocked_during2FAAuth_ifMaxRetryExceeded() throws Exception {
         databaseHelper.updateLoginCount(username, 10);
 
         int invalidPasscode = 111111;
