@@ -21,7 +21,7 @@ import java.util.function.Function;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.model.InviteType.SERVICE;
+import static uk.gov.pay.adminusers.model.InviteType.NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmail;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 
@@ -87,7 +87,7 @@ public class ServiceInviteCreator {
                 .map(roleEntity -> {
                     String otpKey = secondFactorAuthenticator.generateNewBase32EncodedSecret();
                     InviteEntity inviteEntity = new InviteEntity(requestEmail, randomUuid(), otpKey, roleEntity);
-                    inviteEntity.setType(SERVICE);
+                    inviteEntity.setType(NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP);
                     return constructInviteAndSendEmail(inviteServiceRequest, inviteEntity, inviteToPersist -> {
                         inviteDao.persist(inviteToPersist);
                         return null;
