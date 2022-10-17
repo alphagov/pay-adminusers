@@ -67,7 +67,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
                 .body(mapper.writeValueAsString(invitationOtpRequest))
                 .contentType(JSON)
                 .accept(JSON)
-                .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
+                .post(V1_INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(CREATED.getStatusCode());
 
@@ -113,7 +113,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
                 .when()
                 .body(mapper.writeValueAsString(invitationOtpRequest))
                 .contentType(JSON)
-                .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
+                .post(V1_INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(NOT_FOUND.getStatusCode());
     }
@@ -138,7 +138,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
                 .when()
                 .body(mapper.writeValueAsString(invitationOtpRequest))
                 .contentType(JSON)
-                .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
+                .post(V1_INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(UNAUTHORIZED.getStatusCode());
     }
@@ -164,7 +164,38 @@ public class InviteResourceOtpIT extends IntegrationTest {
                 .when()
                 .body(mapper.writeValueAsString(invitationOtpRequest))
                 .contentType(JSON)
-                .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
+                .post(V1_INVITES_VALIDATE_OTP_RESOURCE_URL)
+                .then()
+                .statusCode(GONE.getStatusCode());
+
+        // check if "login_counter" and "disabled" columns are properly updated
+        Map<String, Object> foundInvite = databaseHelper.findInviteByCode(code).get();
+        assertThat(foundInvite.get("disabled"), is(Boolean.TRUE));
+        assertThat(foundInvite.get("login_counter"), is(10));
+    }
+
+    @Test
+    public void validateOtpV2_shouldFailAndLockInvite_whenInvalidOtpAuthCode_ifMaxRetryExceeded() throws Exception {
+
+        // create an invitation
+        code = InviteDbFixture.inviteDbFixture(databaseHelper)
+                .withEmail(EMAIL)
+                .withOtpKey(OTP_KEY)
+                .withTelephoneNumber(TELEPHONE_NUMBER)
+                .withPassword(PASSWORD)
+                .withLoginCounter(9)
+                .insertInvite();
+
+        // generate invalid invitationOtpRequest and execute it
+        Map<Object, Object> invitationOtpRequest = Map.of(
+                "code", code,
+                "otp", 123456);
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(invitationOtpRequest))
+                .contentType(JSON)
+                .post(V2_INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(GONE.getStatusCode());
 
@@ -180,7 +211,7 @@ public class InviteResourceOtpIT extends IntegrationTest {
                 .when()
                 .body(mapper.writeValueAsString(emptyMap()))
                 .contentType(JSON)
-                .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
+                .post(V1_INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(BAD_REQUEST.getStatusCode());
     }
@@ -267,6 +298,48 @@ public class InviteResourceOtpIT extends IntegrationTest {
                 .body(mapper.writeValueAsString(sendRequest))
                 .contentType(JSON)
                 .post(SERVICE_INVITES_VALIDATE_OTP_RESOURCE_URL)
+                .then()
+                .statusCode(UNAUTHORIZED.getStatusCode());
+    }
+
+    @Test
+    public void validateOtpKey_shouldSucceed_whenValidOtp() throws Exception {
+
+        code = InviteDbFixture.inviteDbFixture(databaseHelper)
+                .withOtpKey(OTP_KEY)
+                .insertInvite();
+
+        Map<Object, Object> sendRequest = Map.of(
+                "code", code,
+                "otp", PASSCODE);
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(sendRequest))
+                .contentType(JSON)
+                .post(V2_INVITES_VALIDATE_OTP_RESOURCE_URL)
+                .then()
+                .statusCode(OK.getStatusCode());
+    }
+
+    @Test
+    public void validateOtpKey_shouldFailWith401_whenInvalidOtp() throws Exception {
+
+        code = InviteDbFixture.inviteDbFixture(databaseHelper)
+                .withOtpKey(OTP_KEY)
+                .insertInvite();
+
+        int invalidOtp = 111111;
+
+        Map<Object, Object> sendRequest = Map.of(
+                "code", code,
+                "otp", invalidOtp);
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(sendRequest))
+                .contentType(JSON)
+                .post(V2_INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(UNAUTHORIZED.getStatusCode());
     }

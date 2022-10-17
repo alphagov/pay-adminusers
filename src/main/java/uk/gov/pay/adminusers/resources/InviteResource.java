@@ -50,11 +50,9 @@ import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 
-@Path(InviteResource.INVITES_RESOURCE)
+@Path("/")
 @Tag(name = "Invites")
 public class InviteResource {
-
-    public static final String INVITES_RESOURCE = "/v1/api/invites";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InviteResource.class);
     private static final int MAX_LENGTH_CODE = 255;
@@ -71,7 +69,7 @@ public class InviteResource {
     }
 
     @GET
-    @Path("/{code}")
+    @Path("/v1/api/invites/{code}")
     @Produces(APPLICATION_JSON)
     @Operation(
             summary = "Find invite for invite code",
@@ -94,7 +92,7 @@ public class InviteResource {
     }
 
     @POST
-    @Path("/{code}/complete")
+    @Path("/v1/api/invites/{code}/complete")
     @Produces(APPLICATION_JSON)
     @Operation(
             summary = "Completes the invite by creating user/service and invalidating the invite code",
@@ -135,7 +133,7 @@ public class InviteResource {
     }
 
     @POST
-    @Path("{code}/otp/generate")
+    @Path("/v1/api/invites/{code}/otp/generate")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(
@@ -176,6 +174,7 @@ public class InviteResource {
     }
 
     @GET
+    @Path("/v1/api/invites")
     @Produces(APPLICATION_JSON)
     @Operation(
             summary = "List invites for a service",
@@ -191,7 +190,7 @@ public class InviteResource {
     }
 
     @POST
-    @Path("/service")
+    @Path("/v1/api/invites/service")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(
@@ -220,7 +219,7 @@ public class InviteResource {
     }
 
     @POST
-    @Path("/user")
+    @Path("/v1/api/invites/user")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(
@@ -245,7 +244,7 @@ public class InviteResource {
     }
 
     @POST
-    @Path("/otp/resend")
+    @Path("/v1/api/invites/otp/resend")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(
@@ -269,7 +268,7 @@ public class InviteResource {
     }
 
     @POST
-    @Path("/otp/validate")
+    @Path("/v1/api/invites/otp/validate")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(
@@ -302,7 +301,7 @@ public class InviteResource {
     }
 
     @POST
-    @Path("/otp/validate/service")
+    @Path("/v1/api/invites/otp/validate/service")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     @Operation(
@@ -313,9 +312,32 @@ public class InviteResource {
             }
     )
     public Response validateOtpKeyForService(@Parameter(schema = @Schema(implementation = InviteValidateOtpRequest.class))
-                                                     JsonNode payload) {
+                                             JsonNode payload) {
 
         LOGGER.info("Invite POST request for validating otp for service create");
+
+        return inviteValidator.validateOtpValidationRequest(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> inviteService.validateOtp(InviteValidateOtpRequest.from(payload))
+                        .map(this::handleValidateOtpAndCreateUserException)
+                        .orElseGet(() -> Response.status(OK).build()));
+    }
+
+    @POST
+    @Path("/v2/api/invites/otp/validate")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(
+            summary = "Validates OTP for the invite",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload")
+            }
+    )
+    public Response validateOtpKey(@Parameter(schema = @Schema(implementation = InviteValidateOtpRequest.class))
+                                             JsonNode payload) {
+
+        LOGGER.info("Invite POST request for validating otp");
 
         return inviteValidator.validateOtpValidationRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())

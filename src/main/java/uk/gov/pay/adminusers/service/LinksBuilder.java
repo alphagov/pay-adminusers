@@ -12,7 +12,6 @@ import java.util.List;
 
 import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.resources.ForgottenPasswordResource.FORGOTTEN_PASSWORDS_RESOURCE;
-import static uk.gov.pay.adminusers.resources.InviteResource.INVITES_RESOURCE;
 import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
 import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
 
@@ -49,7 +48,7 @@ public class LinksBuilder {
     }
 
     public Invite decorate(Invite invite) {
-        URI uri = fromUri(baseUrl).path(INVITES_RESOURCE).path(invite.getCode())
+        URI uri = fromUri(baseUrl).path("/v1/api/invites").path(invite.getCode())
                 .build();
         Link selfLink = Link.from(Rel.SELF, "GET", uri.toString());
         invite.getLinks().add(selfLink);
