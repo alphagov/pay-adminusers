@@ -31,17 +31,11 @@ public class SqsTestDocker {
         if (sqsContainer == null) {
             logger.info("Creating SQS Container");
 
-            sqsContainer = new GenericContainer("mvisonneau/alpine-sqs:1.2.0")
+            sqsContainer = new GenericContainer("softwaremill/elasticmq-native")
                     .withExposedPorts(9324)
-                    .waitingFor(Wait.forHttp("/?Action=GetQueueUrl&QueueName=default"));
-
+                    .waitingFor(Wait.forLogMessage(".*ElasticMQ server.*.*started.*", 1));
             sqsContainer.start();
         }
-    }
-
-    public static void stopContainer() {
-        sqsContainer.stop();
-        sqsContainer = null;
     }
 
     private static AmazonSQS createQueues(List<String> queueNames) {

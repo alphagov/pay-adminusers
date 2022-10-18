@@ -26,7 +26,7 @@ public class DaoTestBase {
 
     private static Logger logger = LoggerFactory.getLogger(DaoTestBase.class);
 
-    public static PostgresDockerExtension postgres = new PostgresDockerExtension();
+    public static PostgresDockerExtension postgres = new PostgresDockerExtension("11.16");
 
     protected static DatabaseTestHelper databaseHelper;
     protected static GuicedTestEnvironment env;
@@ -46,7 +46,7 @@ public class DaoTestBase {
         try (Connection connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword())) {
 
             Liquibase migrator = new Liquibase("config/initial-db-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
-            Liquibase migrator2 = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
+            Liquibase migrator2 = new Liquibase("it-migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator.update("");
             migrator2.update("");
         }
@@ -61,7 +61,7 @@ public class DaoTestBase {
                 postgres.getUsername(),
                 postgres.getPassword())) {
             Liquibase migrator = new Liquibase("config/initial-db-state.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
-            Liquibase migrator2 = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
+            Liquibase migrator2 = new Liquibase("it-migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator2.dropAll();
             migrator.dropAll();
         } catch (Exception e) {

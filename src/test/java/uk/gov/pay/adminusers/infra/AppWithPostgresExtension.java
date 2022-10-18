@@ -18,6 +18,7 @@ import uk.gov.pay.adminusers.app.AdminUsersApp;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 import uk.gov.service.payments.commons.testing.db.PostgresDockerExtension;
+import uk.gov.service.payments.commons.testing.db.PostgresTestHelper;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -31,9 +32,8 @@ import static io.dropwizard.testing.ResourceHelpers.resourceFilePath;
 public class AppWithPostgresExtension implements BeforeAllCallback {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppWithPostgresExtension.class);
     private static final String JPA_UNIT = "AdminUsersUnit";
-
-    private final String configFilePath;
     private final PostgresDockerExtension postgres;
+    private final String configFilePath;
     private final DropwizardAppExtension<AdminUsersConfig> app;
 
     private DatabaseTestHelper databaseTestHelper;
@@ -44,12 +44,12 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
 
     public AppWithPostgresExtension(String configPath, ConfigOverride... configOverrides) {
         configFilePath = resourceFilePath(configPath);
-        postgres = new PostgresDockerExtension();
+        postgres = new PostgresDockerExtension("11.16");
 
         ConfigOverride[] postgresOverrides = List.of(
-                config("database.url", postgres.getConnectionUrl()),
-                config("database.user", postgres.getUsername()),
-                config("database.password", postgres.getPassword()))
+                        config("database.url", postgres.getConnectionUrl()),
+                        config("database.user", postgres.getUsername()),
+                        config("database.password", postgres.getPassword()))
                 .toArray(new ConfigOverride[0]);
 
         app = new DropwizardAppExtension<>(
@@ -86,7 +86,7 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
 
     private void doSecondaryDatabaseMigration() throws SQLException, LiquibaseException {
         try (Connection connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword())) {
-            Liquibase migrator = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
+            Liquibase migrator = new Liquibase("it-migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator.update("");
         }
     }
@@ -99,8 +99,8 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
         return databaseTestHelper;
     }
 
-    private void registerShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread(postgres::stop));
+    private static void registerShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(PostgresTestHelper::stop));
     }
 
     private JpaPersistModule createJpaModule(final PostgresDockerExtension postgres) {
