@@ -38,7 +38,8 @@ public class IntegrationTest {
     /* default */ static final String INVITES_RESOURCE_URL = "/v1/api/invites";
     /* default */ static final String INVITES_GENERATE_OTP_RESOURCE_URL = "/v1/api/invites/%s/otp/generate";
     /* default */ static final String INVITES_RESEND_OTP_RESOURCE_URL = "/v1/api/invites/otp/resend";
-    /* default */ static final String INVITES_VALIDATE_OTP_RESOURCE_URL = "/v1/api/invites/otp/validate";
+    /* default */ static final String V1_INVITES_VALIDATE_OTP_RESOURCE_URL = "/v1/api/invites/otp/validate";
+    /* default */ static final String V2_INVITES_VALIDATE_OTP_RESOURCE_URL = "/v2/api/invites/otp/validate";
 
     /* default */ static final String SERVICE_INVITES_VALIDATE_OTP_RESOURCE_URL = "/v1/api/invites/otp/validate/service";
     /* default */ static final String SERVICES_RESOURCE = "/v1/api/services";
