@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.service;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,7 +68,7 @@ public class NewUserExistingServiceInviteCompleterTest {
     @Test
     public void shouldCreateUserAndAssignThemToService_whenPassedValidServiceInviteCode() {
         InviteEntity anInvite = createInvite();
-        anInvite.setType(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
+        anInvite.setType(InviteType.USER);
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
         InviteCompleteResponse inviteResponse = newUserExistingServiceInviteCompleter.withData(new InviteCompleteRequest()).complete(anInvite);
@@ -94,7 +95,7 @@ public class NewUserExistingServiceInviteCompleterTest {
         service.setId(serviceId);
 
         InviteEntity anInvite = createInvite();
-        anInvite.setType(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
+        anInvite.setType(InviteType.USER);
 
         when(mockUserDao.findByEmail(anInvite.getEmail())).thenReturn(Optional.of(mock(UserEntity.class)));
 
@@ -109,7 +110,7 @@ public class NewUserExistingServiceInviteCompleterTest {
         service.setId(serviceId);
 
         InviteEntity anInvite = createInvite();
-        anInvite.setType(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
+        anInvite.setType(InviteType.USER);
         anInvite.setDisabled(true);
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
@@ -123,7 +124,7 @@ public class NewUserExistingServiceInviteCompleterTest {
         service.setId(serviceId);
 
         InviteEntity anInvite = createInvite();
-        anInvite.setType(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
+        anInvite.setType(InviteType.USER);
         anInvite.setExpiryDate(ZonedDateTime.now().minusDays(1));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
@@ -132,27 +133,12 @@ public class NewUserExistingServiceInviteCompleterTest {
     }
 
     @Test
-    public void shouldError_whenTryingToCreateServiceAndService_ifInviteIsOfExistingUserType() {
+    public void shouldError_whenTryingToCreateServiceAndService_ifInviteIsOfServiceType() {
         ServiceEntity service = new ServiceEntity();
         service.setId(serviceId);
 
         InviteEntity anInvite = createInvite();
-        anInvite.setType(InviteType.EXISTING_USER_INVITED_TO_EXISTING_SERVICE);
-
-        when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
-
-        WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> newUserExistingServiceInviteCompleter.complete(anInvite));
-        assertThat(exception.getMessage(), is("HTTP 500 Internal Server Error"));
-    }
-
-    @Test
-    public void shouldError_whenTryingToCreateServiceAndService_ifInviteIsOfSelfSignupType() {
-        ServiceEntity service = new ServiceEntity();
-        service.setId(serviceId);
-
-        InviteEntity anInvite = createInvite();
-        anInvite.setType(InviteType.NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP);
+        anInvite.setType(InviteType.SERVICE);
 
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 

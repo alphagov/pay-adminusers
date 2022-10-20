@@ -25,6 +25,7 @@ import uk.gov.pay.adminusers.service.InviteCompleter;
 import uk.gov.pay.adminusers.service.InviteOtpDispatcher;
 import uk.gov.pay.adminusers.service.InviteService;
 import uk.gov.pay.adminusers.service.InviteServiceFactory;
+import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.pay.adminusers.service.ValidateOtpAndCreateUserResult;
 import uk.gov.pay.adminusers.utils.Errors;
 
@@ -157,7 +158,7 @@ public class InviteResource {
         }
 
         return inviteService.findInvite(inviteCode).map(inviteEntity -> {
-            if (inviteEntity.getType().isExistingUserExistingService()) {
+            if (inviteEntity.isUserType()) {
                 Optional<Errors> errors = inviteValidator.validateGenerateOtpRequest(payload);
                 if (errors.isPresent()) {
                     return Response.status(BAD_REQUEST).entity(errors).build();
