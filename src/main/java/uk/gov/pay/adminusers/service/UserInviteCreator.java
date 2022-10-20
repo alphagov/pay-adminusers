@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
-import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
@@ -24,8 +23,7 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.model.InviteType.EXISTING_USER_INVITED_TO_EXISTING_SERVICE;
-import static uk.gov.pay.adminusers.model.InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE;
+import static uk.gov.pay.adminusers.model.InviteType.USER;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingInvite;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.forbiddenOperationException;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.undefinedRoleException;
@@ -94,7 +92,6 @@ public class UserInviteCreator {
         }
 
         ServiceEntity serviceEntity = serviceEntityOptional.get();
-        InviteType inviteType = existingUser.isPresent() ? EXISTING_USER_INVITED_TO_EXISTING_SERVICE : NEW_USER_INVITED_TO_EXISTING_SERVICE;
 
         return roleDao.findByRoleName(inviteUserRequest.getRoleName())
                 .map(role -> {
@@ -104,7 +101,7 @@ public class UserInviteCreator {
                         InviteEntity inviteEntity = new InviteEntity(inviteUserRequest.getEmail(), randomUuid(), otpKey, role);
                         inviteEntity.setSender(userSender.get());
                         inviteEntity.setService(serviceEntity);
-                        inviteEntity.setType(inviteType);
+                        inviteEntity.setType(USER);
                         inviteDao.persist(inviteEntity);
                         String inviteUrl = fromUri(linksConfig.getSelfserviceInvitesUrl()).path(inviteEntity.getCode()).build().toString();
                         sendUserInviteNotification(inviteEntity, inviteUrl, serviceEntity, existingUser);
