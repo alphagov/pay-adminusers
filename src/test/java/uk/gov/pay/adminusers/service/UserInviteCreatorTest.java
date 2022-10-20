@@ -11,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
-import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
@@ -50,8 +49,6 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.InviteRequest.FIELD_EMAIL;
 import static uk.gov.pay.adminusers.model.InviteRequest.FIELD_ROLE_NAME;
-import static uk.gov.pay.adminusers.model.InviteType.EXISTING_USER_INVITED_TO_EXISTING_SERVICE;
-import static uk.gov.pay.adminusers.model.InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE;
 import static uk.gov.pay.adminusers.model.InviteUserRequest.FIELD_SENDER;
 import static uk.gov.pay.adminusers.model.InviteUserRequest.FIELD_SERVICE_EXTERNAL_ID;
 import static uk.gov.pay.adminusers.model.Role.role;
@@ -78,13 +75,12 @@ class UserInviteCreatorTest {
     private UserInviteCreator userInviteCreator;
     @Captor
     private ArgumentCaptor<InviteEntity> expectedInvite;
-    private final String senderEmail = "sender@example.com";
-    private final String email = "invited@example.com";
-    private final int serviceId = 1;
-    private final String serviceExternalId = "3453rmeuty87t";
-    private final String externalId = "54321";
-    private final String senderExternalId = "12345";
-    private final String roleName = "view-only";
+    private String senderEmail = "sender@example.com";
+    private String email = "invited@example.com";
+    private int serviceId = 1;
+    private String serviceExternalId = "3453rmeuty87t";
+    private String senderExternalId = "12345";
+    private String roleName = "view-only";
 
     @BeforeEach
     void setUp() {
@@ -120,40 +116,6 @@ class UserInviteCreatorTest {
         Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
 
         assertFalse(invite.isPresent());
-    }
-
-    @Test
-    void create_shouldCorrectlySetInviteType_forExistingUser() {
-        mockInviteSuccessForExistingUserNonExistingInvite();
-
-        when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
-        String otpKey = "an-otp-key";
-        when(secondFactorAuthenticator.generateNewBase32EncodedSecret()).thenReturn(otpKey);
-
-        userInviteCreator.doInvite(inviteRequestFrom(senderExternalId, email, roleName));
-
-        verify(mockInviteDao).persist(expectedInvite.capture());
-        InviteEntity savedInvite = expectedInvite.getValue();
-
-        assertThat(savedInvite.getType(), is(EXISTING_USER_INVITED_TO_EXISTING_SERVICE));
-    }
-
-    @Test
-    void create_shouldCorrectlySetInviteType_forNewUser() {
-        mockInviteSuccessForNonExistingUserNonExistingInvite();
-
-        when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
-                .thenReturn("random-notify-id");
-        when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
-        String otpKey = "an-otp-key";
-        when(secondFactorAuthenticator.generateNewBase32EncodedSecret()).thenReturn(otpKey);
-
-        userInviteCreator.doInvite(inviteRequestFrom(senderExternalId, email, roleName));
-
-        verify(mockInviteDao).persist(expectedInvite.capture());
-        InviteEntity savedInvite = expectedInvite.getValue();
-
-        assertThat(savedInvite.getType(), is(NEW_USER_INVITED_TO_EXISTING_SERVICE));
     }
 
     @Test
@@ -370,34 +332,8 @@ class UserInviteCreatorTest {
 
         String inviteCode = "code";
         InviteEntity anInvite = anInvite(email, inviteCode, "otpKey", senderUser, service, role);
-
+        
         return anInvite;
-    }
-
-    private InviteEntity mockInviteSuccessForExistingUserNonExistingInvite() {
-        ServiceEntity service = new ServiceEntity();
-        service.setId(serviceId);
-        service.setExternalId(serviceExternalId);
-
-        UserEntity invitedUser = new UserEntity();
-        invitedUser.setExternalId(externalId);
-        invitedUser.setEmail(email);
-
-        when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(invitedUser));
-        when(mockInviteDao.findByEmail(email)).thenReturn(emptyList());
-        when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.of(service));
-        when(mockRoleDao.findByRoleName(roleName)).thenReturn(Optional.of(new RoleEntity()));
-
-        UserEntity senderUser = new UserEntity();
-        senderUser.setExternalId(senderExternalId);
-        senderUser.setEmail(senderEmail);
-        RoleEntity role = new RoleEntity(role(ADMIN.getId(), "admin", "Admin Role"));
-        senderUser.addServiceRole(new ServiceRoleEntity(service, role));
-        when(mockUserDao.findByExternalId(senderExternalId)).thenReturn(Optional.of(senderUser));
-
-        String inviteCode = "code";
-
-        return anInvite(email, inviteCode, "otpKey", senderUser, service, role);
     }
 
     private InviteEntity anInvite(String email, String code, String otpKey, UserEntity userEntity, ServiceEntity serviceEntity, RoleEntity roleEntity) {
