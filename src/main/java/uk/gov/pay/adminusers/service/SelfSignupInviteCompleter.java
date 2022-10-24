@@ -49,7 +49,7 @@ public class SelfSignupInviteCompleter extends InviteCompleter {
             throw conflictingEmail(inviteEntity.getEmail());
         }
 
-        if (inviteEntity.getType().isSelfSignup()) {
+        if (inviteEntity.isServiceType()) {
             UserEntity userEntity = inviteEntity.mapToUserEntity();
             ServiceEntity serviceEntity = ServiceEntity.from(Service.from());
             if (!data.getGatewayAccountIds().isEmpty()) {
@@ -71,7 +71,7 @@ public class SelfSignupInviteCompleter extends InviteCompleter {
             response.setUserExternalId(userEntity.getExternalId());
             return response;
         } else {
-            throw internalServerError(format("Attempting to complete a service invite for a non service invite of type. invite-code = %s", inviteEntity.getCode()));
+            throw internalServerError(format("Attempting to complete a service invite for a non service invite. invite-code = %s", inviteEntity.getCode()));
         }
     }
 

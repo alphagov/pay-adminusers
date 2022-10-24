@@ -152,6 +152,29 @@ public class UserServicesTest {
     }
 
     @Test
+    void shouldFindAUserByEmail() {
+        User user = aUser();
+
+        UserEntity userEntity = aUserEntityWithTrimmings(user);
+
+        Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
+        when(mockUserDao.findByEmail(USER_USERNAME)).thenReturn(userEntityOptional);
+
+        Optional<User> userOptional = underTest.findUserByEmail(USER_USERNAME);
+        assertTrue(userOptional.isPresent());
+
+        assertThat(userOptional.get().getUsername(), is(USER_USERNAME));
+    }
+
+    @Test
+    void shouldReturnEmpty_WhenFindByEmail_ifNotFound() {
+        when(mockUserDao.findByEmail(USER_USERNAME)).thenReturn(Optional.empty());
+
+        Optional<User> userOptional = underTest.findUserByEmail(USER_USERNAME);
+        assertFalse(userOptional.isPresent());
+    }
+
+    @Test
     void shouldReturnUserAndResetLoginCount_ifAuthenticationSuccessfulAndUserNotDisabled() {
         User user = aUser();
         user.setLoginCounter(2);

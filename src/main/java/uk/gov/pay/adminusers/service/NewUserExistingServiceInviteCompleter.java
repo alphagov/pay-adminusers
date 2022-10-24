@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteCompleteResponse;
-import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
@@ -47,8 +46,8 @@ public class NewUserExistingServiceInviteCompleter extends InviteCompleter {
         if (userDao.findByEmail(inviteEntity.getEmail()).isPresent()) {
             throw conflictingEmail(inviteEntity.getEmail());
         }
-        if (inviteEntity.getType() != InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE) {
-            throw internalServerError(format("Attempting to complete a 'new user, existing service' invite for an invite of type '%s'", inviteEntity.getCode()));
+        if (!inviteEntity.isUserType()) {
+            throw internalServerError(format("Attempting to complete a 'new user, existing service' invite for an non user invite. invite-code = %s", inviteEntity.getCode()));
         }
 
         UserEntity userEntity = inviteEntity.mapToUserEntity();

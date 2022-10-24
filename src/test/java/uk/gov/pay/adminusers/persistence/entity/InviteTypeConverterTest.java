@@ -24,24 +24,6 @@ public class InviteTypeConverterTest {
     }
 
     @Test
-    public void existingUserInvitedToExistingServiceEnumConstantConvertToDatabaseColumnReturnsExistingUserInvitedToExistingServiceString() {
-        String databaseColumnValue = inviteTypeConverter.convertToDatabaseColumn(InviteType.EXISTING_USER_INVITED_TO_EXISTING_SERVICE);
-        assertThat(databaseColumnValue, is("existing_user_invited_to_existing_service"));
-    }
-
-    @Test
-    public void newUserInvitedToExistingServiceEnumConstantConvertToDatabaseColumnReturnsNewUserInvitedToExistingServiceString() {
-        String databaseColumnValue = inviteTypeConverter.convertToDatabaseColumn(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE);
-        assertThat(databaseColumnValue, is("new_user_invited_to_existing_service"));
-    }
-
-    @Test
-    public void newUserAndNewServiceSelfSignupEnumConstantConvertToDatabaseColumnReturnsnewUserAndNewServiceSelfSignupString() {
-        String databaseColumnValue = inviteTypeConverter.convertToDatabaseColumn(InviteType.NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP);
-        assertThat(databaseColumnValue, is("new_user_and_new_service_self_signup"));
-    }
-
-    @Test
     public void userStringConvertToEntityAttributeReturnsUserEnumConstant() {
         InviteType entityAttribute = inviteTypeConverter.convertToEntityAttribute("user");
         assertThat(entityAttribute, is(InviteType.USER));
@@ -51,24 +33,6 @@ public class InviteTypeConverterTest {
     public void serviceStringConvertToEntityAttributeReturnsServiceEnumConstant() {
         InviteType entityAttribute = inviteTypeConverter.convertToEntityAttribute("service");
         assertThat(entityAttribute, is(InviteType.SERVICE));
-    }
-
-    @Test
-    public void existingUserInvitedToExistingServiceStringConvertToEntityAttributeReturnsExistingUserInvitedToExistingServiceEnumConstant() {
-        InviteType entityAttribute = inviteTypeConverter.convertToEntityAttribute("existing_user_invited_to_existing_service");
-        assertThat(entityAttribute, is(InviteType.EXISTING_USER_INVITED_TO_EXISTING_SERVICE));
-    }
-
-    @Test
-    public void newUserInvitedToExistingServiceStringConvertToEntityAttributeReturnsNewUserInvitedToExistingServiceEnumConstant() {
-        InviteType entityAttribute = inviteTypeConverter.convertToEntityAttribute("new_user_invited_to_existing_service");
-        assertThat(entityAttribute, is(InviteType.NEW_USER_INVITED_TO_EXISTING_SERVICE));
-    }
-
-    @Test
-    public void newUserAndNewServiceSelfSignupStringConvertToEntityAttributeReturnsNewUserAndNewServiceSelfSignupEnumConstant() {
-        InviteType entityAttribute = inviteTypeConverter.convertToEntityAttribute("new_user_and_new_service_self_signup");
-        assertThat(entityAttribute, is(InviteType.NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP));
     }
 
     @Test

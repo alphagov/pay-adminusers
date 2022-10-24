@@ -106,6 +106,11 @@ public class UserServices {
         Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
         return userEntityOptional.map(userEntity -> linksBuilder.decorate(userEntity.toUser()));
     }
+
+    public Optional<User> findUserByEmail(String username) {
+        Optional<UserEntity> userEntityOptional = userDao.findByEmail(username);
+        return userEntityOptional.map(userEntity -> linksBuilder.decorate(userEntity.toUser()));
+    }
     
     public Map<String, List<String>> getAdminUserEmailsForGatewayAccountIds(List<String> gatewayAccountIds) {
         Map<String, List<String>> gatewayAccountIdsToAdminEmails = new HashMap<>(userDao.getAdminUserEmailsForGatewayAccountIds(gatewayAccountIds));

@@ -129,13 +129,9 @@ public class InviteService {
     private static OtpNotifySmsTemplateId mapInviteTypeToOtpNotifySmsTemplateId(InviteType inviteType) {
         switch (inviteType) {
             case SERVICE:
-            case NEW_USER_AND_NEW_SERVICE_SELF_SIGNUP:
                 return SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE;
             case USER:
-            case NEW_USER_INVITED_TO_EXISTING_SERVICE:
                 return CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE;
-            case EXISTING_USER_INVITED_TO_EXISTING_SERVICE:
-                throw new IllegalArgumentException("mapInviteTypeToOtpNotifySmsTemplateId called on an invite for an existing user");
             default:
                 throw new IllegalArgumentException("Unrecognised InviteType: " + inviteType.name());
         }
