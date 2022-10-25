@@ -4,14 +4,12 @@ import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
-import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
@@ -32,26 +30,20 @@ public class InviteService {
 
     private static final String SIX_DIGITS_WITH_LEADING_ZEROS = "%06d";
 
-    private final UserDao userDao;
     private final InviteDao inviteDao;
     private final NotificationService notificationService;
     private final SecondFactorAuthenticator secondFactorAuthenticator;
-    private final LinksBuilder linksBuilder;
 
     private final Integer loginAttemptCap;
 
     @Inject
-    public InviteService(UserDao userDao,
-                         InviteDao inviteDao,
+    public InviteService(InviteDao inviteDao,
                          NotificationService notificationService,
                          SecondFactorAuthenticator secondFactorAuthenticator,
-                         LinksBuilder linksBuilder,
                          @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap) {
-        this.userDao = userDao;
         this.inviteDao = inviteDao;
         this.notificationService = notificationService;
         this.secondFactorAuthenticator = secondFactorAuthenticator;
-        this.linksBuilder = linksBuilder;
         this.loginAttemptCap = loginAttemptCap;
     }
 
@@ -79,22 +71,6 @@ public class InviteService {
         } else {
             throw notFoundInviteException(inviteOtpRequest.getCode());
         }
-    }
-
-    @Transactional
-    public ValidateOtpAndCreateUserResult validateOtpAndCreateUser(InviteValidateOtpRequest inviteValidateOtpRequest) {
-        return inviteDao.findByCode(inviteValidateOtpRequest.getCode())
-                .map(inviteEntity -> validateOtp(inviteEntity, inviteValidateOtpRequest.getOtpCode())
-                            .map(ValidateOtpAndCreateUserResult::new)
-                            .orElseGet(() -> {
-                                inviteEntity.setLoginCounter(0);
-                                UserEntity userEntity = inviteEntity.mapToUserEntity();
-                                userDao.persist(userEntity);
-                                inviteEntity.setDisabled(Boolean.TRUE);
-                                inviteDao.merge(inviteEntity);
-                                return new ValidateOtpAndCreateUserResult(linksBuilder.decorate(userEntity.toUser()));
-                }))
-                .orElseGet(() -> new ValidateOtpAndCreateUserResult(notFoundInviteException(inviteValidateOtpRequest.getCode())));
     }
 
     @Transactional
