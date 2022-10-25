@@ -269,62 +269,6 @@ public class InviteResource {
     }
 
     @POST
-    @Path("/v1/api/invites/otp/validate")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(
-            summary = "Validates OTP for the invite and creates user",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "OK"),
-                    @ApiResponse(responseCode = "400", description = "Invalid payload")
-            }
-    )
-    public Response createUserUponOtpValidation(@Parameter(schema = @Schema(implementation = InviteValidateOtpRequest.class))
-                                                        JsonNode payload) {
-
-        LOGGER.info("Invite POST request for validating otp and creating user");
-
-        return inviteValidator.validateOtpValidationRequest(payload)
-                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> {
-                    ValidateOtpAndCreateUserResult validateOtpAndCreateUserResult = inviteService.validateOtpAndCreateUser(InviteValidateOtpRequest.from(payload));
-                    if (!validateOtpAndCreateUserResult.isError()) {
-                        User createdUser = validateOtpAndCreateUserResult.getUser();
-                        String serviceIds = createdUser.getServiceRoles().stream()
-                                .map(serviceRole -> serviceRole.getService().getExternalId())
-                                .collect(Collectors.joining(", "));
-                        
-                        LOGGER.info("User created successfully from invitation [{}] for services [{}]", createdUser.getExternalId(), serviceIds);
-                        return Response.status(CREATED).type(APPLICATION_JSON).entity(createdUser).build();
-                    }
-                    return handleValidateOtpAndCreateUserException(validateOtpAndCreateUserResult.getError());
-                });
-    }
-
-    @POST
-    @Path("/v1/api/invites/otp/validate/service")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(
-            summary = "Validates OTP for the invite - part of creating service",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "OK"),
-                    @ApiResponse(responseCode = "400", description = "Invalid payload")
-            }
-    )
-    public Response validateOtpKeyForService(@Parameter(schema = @Schema(implementation = InviteValidateOtpRequest.class))
-                                             JsonNode payload) {
-
-        LOGGER.info("Invite POST request for validating otp for service create");
-
-        return inviteValidator.validateOtpValidationRequest(payload)
-                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> inviteService.validateOtp(InviteValidateOtpRequest.from(payload))
-                        .map(this::handleValidateOtpAndCreateUserException)
-                        .orElseGet(() -> Response.status(OK).build()));
-    }
-
-    @POST
     @Path("/v2/api/invites/otp/validate")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
@@ -343,11 +287,11 @@ public class InviteResource {
         return inviteValidator.validateOtpValidationRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> inviteService.validateOtp(InviteValidateOtpRequest.from(payload))
-                        .map(this::handleValidateOtpAndCreateUserException)
+                        .map(this::handleValidateOtpKeyException)
                         .orElseGet(() -> Response.status(OK).build()));
     }
 
-    private Response handleValidateOtpAndCreateUserException(WebApplicationException error) {
+    private Response handleValidateOtpKeyException(WebApplicationException error) {
         throw error;
     }
 }
