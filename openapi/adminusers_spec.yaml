@@ -107,38 +107,6 @@ paths:
       summary: Resend OTP
       tags:
       - Invites
-  /v1/api/invites/otp/validate:
-    post:
-      operationId: createUserUponOtpValidation
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/InviteValidateOtpRequest'
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Invalid payload
-      summary: Validates OTP for the invite and creates user
-      tags:
-      - Invites
-  /v1/api/invites/otp/validate/service:
-    post:
-      operationId: validateOtpKeyForService
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/InviteValidateOtpRequest'
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Invalid payload
-      summary: Validates OTP for the invite - part of creating service
-      tags:
-      - Invites
   /v1/api/invites/service:
     post:
       operationId: createServiceInvite
@@ -1103,6 +1071,22 @@ paths:
       summary: Update user's role for a service
       tags:
       - Users
+  /v2/api/invites/otp/validate:
+    post:
+      operationId: validateOtpKey
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InviteValidateOtpRequest'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid payload
+      summary: Validates OTP for the invite
+      tags:
+      - Invites
 components:
   schemas:
     CreateUserRequest:
