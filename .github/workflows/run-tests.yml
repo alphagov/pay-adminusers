@@ -32,6 +32,6 @@ jobs:
           key: ${{ runner.os }}-build-id-${{ github.head_ref }}-${{ github.sha }}-pacts
       - name: Pull docker image dependencies
         run: |
-          docker pull govukpay/postgres:11.1
+          docker pull postgres:11.16
       - name: Run integration tests
         run: mvn clean verify

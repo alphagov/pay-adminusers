@@ -21,6 +21,7 @@ import uk.gov.pay.adminusers.app.AdminUsersApp;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 import uk.gov.service.payments.commons.testing.db.PostgresDockerRule;
+import uk.gov.service.payments.commons.testing.db.PostgresTestHelper;
 import uk.gov.service.payments.commons.testing.port.PortFactory;
 
 import java.sql.Connection;
@@ -40,12 +41,12 @@ public class AppWithPostgresAndSqsRule implements TestRule {
 
     private final String configFilePath;
     private final PostgresDockerRule postgres;
-    private AmazonSQS sqsClient;
+    private final AmazonSQS sqsClient;
     private final DropwizardAppRule<AdminUsersConfig> app;
     private final RuleChain rules;
 
     private DatabaseTestHelper databaseTestHelper;
-    private int wireMockPort = PortFactory.findFreePort();
+    private final int wireMockPort = PortFactory.findFreePort();
 
     public AppWithPostgresAndSqsRule(ConfigOverride... configOverrides) {
         this("config/test-it-config.yaml", configOverrides);
@@ -53,14 +54,14 @@ public class AppWithPostgresAndSqsRule implements TestRule {
 
     public AppWithPostgresAndSqsRule(String configPath, ConfigOverride... configOverrides) {
         configFilePath = resourceFilePath(configPath);
-        postgres = new PostgresDockerRule();
+        postgres = new PostgresDockerRule("11.16");
 
         sqsClient = SqsTestDocker.initialise(Collections.singletonList("event-queue"));
-        
+
         ConfigOverride[] newConfigOverrides = List.of(
-                config("database.url", postgres.getConnectionUrl()),
-                config("database.user", postgres.getUsername()),
-                config("database.password", postgres.getPassword()))
+                        config("database.url", postgres.getConnectionUrl()),
+                        config("database.user", postgres.getUsername()),
+                        config("database.password", postgres.getPassword()))
                 .toArray(new ConfigOverride[0]);
         newConfigOverrides = overrideSqsConfig(newConfigOverrides);
         newConfigOverrides = overrideUrlsConfig(newConfigOverrides);
@@ -96,7 +97,7 @@ public class AppWithPostgresAndSqsRule implements TestRule {
 
     private void doSecondaryDatabaseMigration() throws SQLException, LiquibaseException {
         try (Connection connection = DriverManager.getConnection(postgres.getConnectionUrl(), postgres.getUsername(), postgres.getPassword())) {
-            Liquibase migrator = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
+            Liquibase migrator = new Liquibase("it-migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator.update("");
         }
     }
@@ -118,7 +119,7 @@ public class AppWithPostgresAndSqsRule implements TestRule {
     }
 
     private void registerShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new Thread(postgres::stop));
+        Runtime.getRuntime().addShutdownHook(new Thread(PostgresTestHelper::stop));
     }
 
     private JpaPersistModule createJpaModule(final PostgresDockerRule postgres) {
@@ -145,10 +146,10 @@ public class AppWithPostgresAndSqsRule implements TestRule {
         newConfigOverride.add(config("sqs.endpoint", SqsTestDocker.getEndpoint()));
         return newConfigOverride.toArray(new ConfigOverride[0]);
     }
-    
+
     private ConfigOverride[] overrideUrlsConfig(ConfigOverride[] configOverrides) {
         List<ConfigOverride> newConfigOverride = newArrayList(configOverrides);
-        newConfigOverride.add(config("notify.notificationBaseURL","http://localhost:" + wireMockPort));
+        newConfigOverride.add(config("notify.notificationBaseURL", "http://localhost:" + wireMockPort));
         newConfigOverride.add(config("ledgerBaseURL", "http://localhost:" + wireMockPort));
         return newConfigOverride.toArray(new ConfigOverride[0]);
     }

@@ -47,7 +47,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Pull docker image dependencies
         run: |
-          docker pull govukpay/postgres:11.1
+          docker pull postgres:11.16
       - name: Run provider pact tests
         run: |
           export MAVEN_REPO="$HOME/.m2"
