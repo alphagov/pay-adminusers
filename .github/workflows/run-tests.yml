@@ -33,5 +33,13 @@ jobs:
       - name: Pull docker image dependencies
         run: |
           docker pull postgres:11.16
+      - name: Compile
+        run: mvn clean compile
+      - name: Check for OpenApi file changes
+        run: |
+          if [[ $(git status --porcelain) ]]; then
+            echo "Changes to the OpenApi file have not been committed. Run \`mvn compile\` on your branch to regenerate the file and then commit the changes."
+            exit 1
+          fi
       - name: Run integration tests
-        run: mvn clean verify
+        run: mvn verify
