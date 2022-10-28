@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.Invite;
-import uk.gov.pay.adminusers.model.InviteCompleteRequest;
+import uk.gov.pay.adminusers.model.CompleteInviteRequest;
 import uk.gov.pay.adminusers.model.InviteCompleteResponse;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteServiceRequest;
@@ -35,7 +35,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -103,8 +102,8 @@ public class InviteResource {
             }
     )
     public InviteCompleteResponse completeInvite(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode,
-                                                 @Parameter(schema = @Schema(implementation = InviteCompleteRequest.class))
-                                                 JsonNode payload) {
+                                                 @Parameter(schema = @Schema(implementation = CompleteInviteRequest.class))
+                                                 CompleteInviteRequest completeInviteRequest) {
         LOGGER.info("Invite  complete POST request for code - [ {} ]", inviteCode);
 
         if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
@@ -113,20 +112,8 @@ public class InviteResource {
 
         return inviteService.findInvite(inviteCode).map(inviteEntity -> {
             InviteCompleter inviteCompleter = inviteServiceFactory.inviteCompleteRouter().routeComplete(inviteEntity);
-            return inviteCompleter.withData(inviteCompleteRequestFrom(payload)).complete(inviteEntity);
+            return inviteCompleter.complete(inviteEntity, completeInviteRequest);
         }).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-    }
-
-    private InviteCompleteRequest inviteCompleteRequestFrom(JsonNode payload) {
-        InviteCompleteRequest inviteCompleteRequest = new InviteCompleteRequest();
-        if (payload != null && payload.get(InviteCompleteRequest.FIELD_GATEWAY_ACCOUNT_IDS) != null) {
-            List<String> gatewayAccountIds = new ArrayList<>();
-            payload.get(InviteCompleteRequest.FIELD_GATEWAY_ACCOUNT_IDS)
-                    .elements()
-                    .forEachRemaining((node) -> gatewayAccountIds.add(node.textValue()));
-            inviteCompleteRequest.setGatewayAccountIds(gatewayAccountIds);
-        }
-        return inviteCompleteRequest;
     }
 
     @POST

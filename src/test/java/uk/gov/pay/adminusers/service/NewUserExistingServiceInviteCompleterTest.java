@@ -1,13 +1,12 @@
 package uk.gov.pay.adminusers.service;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.pay.adminusers.model.InviteCompleteRequest;
+import uk.gov.pay.adminusers.model.CompleteInviteRequest;
 import uk.gov.pay.adminusers.model.InviteCompleteResponse;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.Link;
@@ -71,7 +70,7 @@ public class NewUserExistingServiceInviteCompleterTest {
         anInvite.setType(InviteType.USER);
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
-        InviteCompleteResponse inviteResponse = newUserExistingServiceInviteCompleter.withData(new InviteCompleteRequest()).complete(anInvite);
+        InviteCompleteResponse inviteResponse = newUserExistingServiceInviteCompleter.complete(anInvite, null);
 
         verify(mockUserDao).persist(expectedInvitedUser.capture());
         verify(mockInviteDao).merge(expectedInvite.capture());
@@ -100,7 +99,7 @@ public class NewUserExistingServiceInviteCompleterTest {
         when(mockUserDao.findByEmail(anInvite.getEmail())).thenReturn(Optional.of(mock(UserEntity.class)));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> newUserExistingServiceInviteCompleter.complete(anInvite));
+                () -> newUserExistingServiceInviteCompleter.complete(anInvite, null));
         assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
     }
 
@@ -114,7 +113,7 @@ public class NewUserExistingServiceInviteCompleterTest {
         anInvite.setDisabled(true);
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> newUserExistingServiceInviteCompleter.complete(anInvite));
+                () -> newUserExistingServiceInviteCompleter.complete(anInvite, null));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -128,7 +127,7 @@ public class NewUserExistingServiceInviteCompleterTest {
         anInvite.setExpiryDate(ZonedDateTime.now().minusDays(1));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> newUserExistingServiceInviteCompleter.complete(anInvite));
+                () -> newUserExistingServiceInviteCompleter.complete(anInvite, null));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -143,7 +142,7 @@ public class NewUserExistingServiceInviteCompleterTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> newUserExistingServiceInviteCompleter.complete(anInvite));
+                () -> newUserExistingServiceInviteCompleter.complete(anInvite, null));
         assertThat(exception.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 

@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
+import uk.gov.pay.adminusers.model.CompleteInviteRequest;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteCompleteResponse;
 import uk.gov.pay.adminusers.model.Service;
@@ -41,7 +42,7 @@ public class SelfSignupInviteCompleter extends InviteCompleter {
      */
     @Override
     @Transactional
-    public InviteCompleteResponse complete(InviteEntity inviteEntity) {
+    public InviteCompleteResponse complete(InviteEntity inviteEntity, CompleteInviteRequest completeInviteRequest) {
         if (inviteEntity.isExpired() || inviteEntity.isDisabled()) {
             throw inviteLockedException(inviteEntity.getCode());
         }
@@ -52,8 +53,8 @@ public class SelfSignupInviteCompleter extends InviteCompleter {
         if (inviteEntity.isServiceType()) {
             UserEntity userEntity = inviteEntity.mapToUserEntity();
             ServiceEntity serviceEntity = ServiceEntity.from(Service.from());
-            if (!data.getGatewayAccountIds().isEmpty()) {
-                serviceEntity.addGatewayAccountIds(data.getGatewayAccountIds().toArray(new String[0]));
+            if (completeInviteRequest != null && !completeInviteRequest.getGatewayAccountIds().isEmpty()) {
+                serviceEntity.addGatewayAccountIds(completeInviteRequest.getGatewayAccountIds().toArray(new String[0]));
             }
             serviceDao.persist(serviceEntity);
 
