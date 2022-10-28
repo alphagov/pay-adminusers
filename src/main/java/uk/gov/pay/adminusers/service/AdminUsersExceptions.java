@@ -64,7 +64,7 @@ public class AdminUsersExceptions {
     public static WebApplicationException notFoundException() {
         return new WebApplicationException(Response.status(NOT_FOUND.getStatusCode()).build());
     }
-
+    
     public static WebApplicationException notFoundInviteException(String inviteCode) {
         String error = format("Invite for code %s provided does not exist", inviteCode);
         return buildWebApplicationException(error, NOT_FOUND.getStatusCode());

@@ -190,7 +190,7 @@ class InviteResourceOtpIT extends IntegrationTest {
                 .contentType(JSON)
                 .post(INVITES_RESEND_OTP_RESOURCE_URL)
                 .then()
-                .statusCode(OK.getStatusCode());
+                .statusCode(NO_CONTENT.getStatusCode());
 
         // check if we are using the newTelephoneNumber in the invitation
         Map<String, Object> foundInvite = databaseHelper.findInviteByCode(code).get();

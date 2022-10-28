@@ -10,6 +10,7 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.RandomStringUtils.random;
 import static org.hamcrest.CoreMatchers.is;
@@ -38,7 +39,7 @@ class InviteResourceGenerateOtpIT extends IntegrationTest {
                 .contentType(ContentType.JSON)
                 .post(format(INVITES_GENERATE_OTP_RESOURCE_URL, code))
                 .then()
-                .statusCode(OK.getStatusCode());
+                .statusCode(NO_CONTENT.getStatusCode());
 
         Map<String, Object> invite = databaseHelper.findInviteByCode(code).get();
         assertThat(invite.get("telephone_number"), is(TELEPHONE_NUMBER));
@@ -81,7 +82,7 @@ class InviteResourceGenerateOtpIT extends IntegrationTest {
                 .contentType(ContentType.JSON)
                 .post(format(INVITES_GENERATE_OTP_RESOURCE_URL, code))
                 .then()
-                .statusCode(OK.getStatusCode());
+                .statusCode(NO_CONTENT.getStatusCode());
     }
 
     @Test
@@ -95,7 +96,7 @@ class InviteResourceGenerateOtpIT extends IntegrationTest {
                 .contentType(ContentType.JSON)
                 .post(format(INVITES_GENERATE_OTP_RESOURCE_URL, code))
                 .then()
-                .statusCode(OK.getStatusCode());
+                .statusCode(NO_CONTENT.getStatusCode());
     }
 
     @Test
@@ -111,7 +112,7 @@ class InviteResourceGenerateOtpIT extends IntegrationTest {
                 .contentType(ContentType.JSON)
                 .post(format(INVITES_GENERATE_OTP_RESOURCE_URL, code))
                 .then()
-                .statusCode(OK.getStatusCode());
+                .statusCode(NO_CONTENT.getStatusCode());
 
         Map<String, Object> invite = databaseHelper.findInviteByCode(code).get();
         assertThat(invite.get("telephone_number"), is(TELEPHONE_NUMBER));

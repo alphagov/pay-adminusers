@@ -20,6 +20,7 @@ import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteServiceRequest;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
+import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.service.InviteCompleter;
 import uk.gov.pay.adminusers.service.InviteOtpDispatcher;
 import uk.gov.pay.adminusers.service.InviteService;
@@ -76,16 +77,14 @@ public class InviteResource {
                     @ApiResponse(responseCode = "404", description = "Not found")
             }
     )
-    public Response getInvite(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String code) {
-
+    public Invite getInvite(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String code) {
         LOGGER.info("Invite GET request for code - [ {} ]", code);
 
         if (isNotBlank(code) && code.length() > MAX_LENGTH_CODE) {
-            return Response.status(NOT_FOUND).build();
+            throw new WebApplicationException(BAD_REQUEST.getStatusCode());
         }
         return inviteServiceFactory.inviteFinder().find(code)
-                .map(invite -> Response.status(OK).type(APPLICATION_JSON).entity(invite).build())
-                .orElseGet(() -> Response.status(NOT_FOUND).build());
+                .orElseThrow(() -> new WebApplicationException(NOT_FOUND.getStatusCode()));
     }
 
     @POST
@@ -146,28 +145,23 @@ public class InviteResource {
                     @ApiResponse(responseCode = "404", description = "Not found")
             }
     )
-    public Response generateAndDispatchOtp(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode,
-                                           JsonNode payload) {
+    public void generateAndDispatchOtp(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode,
+                                       JsonNode payload) {
         LOGGER.info("Invite POST request for generating otp");
         if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
-            return Response.status(NOT_FOUND).build();
+            throw new WebApplicationException(NOT_FOUND);
         }
 
-        return inviteService.findInvite(inviteCode).map(inviteEntity -> {
-            if (inviteEntity.isUserType()) {
-                Optional<Errors> errors = inviteValidator.validateGenerateOtpRequest(payload);
-                if (errors.isPresent()) {
-                    return Response.status(BAD_REQUEST).entity(errors).build();
-                }
+        InviteEntity inviteEntity = inviteService.findInvite(inviteCode).orElseThrow(() -> new WebApplicationException(NOT_FOUND));
+        if (inviteEntity.isUserType()) {
+            Optional<Errors> errors = inviteValidator.validateGenerateOtpRequest(payload);
+            if (errors.isPresent()) {
+                throw new WebApplicationException(Response.status(BAD_REQUEST).entity(errors).build());
             }
+        }
 
-            InviteOtpDispatcher otpDispatcher = inviteServiceFactory.inviteOtpRouter().routeOtpDispatch(inviteEntity);
-            if (otpDispatcher.withData(InviteOtpRequest.from(payload)).dispatchOtp(inviteCode)) {
-                return Response.status(OK).build();
-            } else {
-                throw internalServerError("unable to dispatch otp at this moment");
-            }
-        }).orElseGet(() -> Response.status(NOT_FOUND).build());
+        InviteOtpDispatcher otpDispatcher = inviteServiceFactory.inviteOtpRouter().routeOtpDispatch(inviteEntity);
+        otpDispatcher.withData(InviteOtpRequest.from(payload)).dispatchOtp(inviteCode);
     }
 
     @GET
@@ -180,10 +174,9 @@ public class InviteResource {
                             content = @Content(array = @ArraySchema(schema = @Schema(implementation = Invite.class))))
             }
     )
-    public Response getInvites(@Parameter(example = "ahq8745yq387") @QueryParam("serviceId") String serviceId) {
+    public List<Invite> getInvites(@Parameter(example = "ahq8745yq387") @QueryParam("serviceId") String serviceId) {
         LOGGER.info("List invites GET request for service - [ {} ]", serviceId);
-        List<Invite> invites = inviteServiceFactory.inviteFinder().findAllActiveInvites(serviceId);
-        return Response.status(OK).type(APPLICATION_JSON).entity(invites).build();
+        return inviteServiceFactory.inviteFinder().findAllActiveInvites(serviceId);
     }
 
     @POST
@@ -207,12 +200,14 @@ public class InviteResource {
     )
     public Response createServiceInvite(JsonNode payload) {
         LOGGER.info("Initiating create service invitation request");
-        return inviteValidator.validateCreateServiceRequest(payload)
-                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> {
-                    Invite invite = inviteServiceFactory.serviceInvite().doInvite(InviteServiceRequest.from(payload));
-                    return Response.status(CREATED).entity(invite).build();
-                });
+        inviteValidator.validateCreateServiceRequest(payload).ifPresent(errors -> {
+            throw new WebApplicationException(Response.status(BAD_REQUEST).entity(errors).build());
+        });
+
+        return Response
+                .status(CREATED)
+                .entity(inviteServiceFactory.serviceInvite().doInvite(InviteServiceRequest.from(payload)))
+                .build();
     }
 
     @POST
@@ -222,7 +217,7 @@ public class InviteResource {
     @Operation(
             summary = "Creates an invitation to allow a new team member to join an existing service.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Created",
+                    @ApiResponse(responseCode = "201", description = "Created",
                             content = @Content(schema = @Schema(implementation = Invite.class))),
                     @ApiResponse(responseCode = "400", description = "Invalid payload"),
                     @ApiResponse(responseCode = "404", description = "Not found"),
@@ -232,12 +227,13 @@ public class InviteResource {
     public Response createUserInvite(@Parameter(schema = @Schema(implementation = InviteUserRequest.class))
                                      JsonNode payload) {
         LOGGER.info("Initiating user invitation request");
-        return inviteValidator.validateCreateUserRequest(payload)
-                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> inviteServiceFactory.userInvite().doInvite(InviteUserRequest.from(payload))
-                        .map(invite -> Response.status(CREATED).entity(invite).build())
-                        .orElseGet(() -> Response.status(NOT_FOUND).entity(StringUtils.EMPTY).build())
-                );
+        inviteValidator.validateCreateUserRequest(payload).ifPresent(errors -> {
+            throw new WebApplicationException(Response.status(BAD_REQUEST).entity(errors).build());
+        });
+
+        return inviteServiceFactory.userInvite().doInvite(InviteUserRequest.from(payload))
+                .map(invite -> Response.status(CREATED).entity(invite).build())
+                .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
     }
 
     @POST
@@ -247,21 +243,19 @@ public class InviteResource {
     @Operation(
             summary = "Resend OTP",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "204", description = "No content"),
                     @ApiResponse(responseCode = "400", description = "Invalid payload")
             }
     )
-    public Response resendOtp(@Parameter(schema = @Schema(implementation = InviteOtpRequest.class))
-                              JsonNode payload) {
-
+    public void resendOtp(@Parameter(schema = @Schema(implementation = InviteOtpRequest.class))
+                          JsonNode payload) {
         LOGGER.info("Invite POST request for resending otp");
 
-        return inviteValidator.validateResendOtpRequest(payload)
-                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> {
-                    inviteService.reGenerateOtp(InviteOtpRequest.from(payload));
-                    return Response.status(OK).build();
-                });
+        inviteValidator.validateResendOtpRequest(payload).ifPresent(errors -> {
+            throw new WebApplicationException(Response.status(BAD_REQUEST).entity(errors).build());
+        });
+
+        inviteService.reGenerateOtp(InviteOtpRequest.from(payload));
     }
 
     @POST

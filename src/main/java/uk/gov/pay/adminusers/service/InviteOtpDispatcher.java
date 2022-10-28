@@ -8,7 +8,7 @@ public abstract class InviteOtpDispatcher {
 
     /* default */ InviteOtpRequest inviteOtpRequest = null;
 
-    public abstract boolean dispatchOtp(String inviteCode);
+    public abstract void dispatchOtp(String inviteCode);
 
     public InviteOtpDispatcher withData(InviteOtpRequest data){
         this.inviteOtpRequest = data;

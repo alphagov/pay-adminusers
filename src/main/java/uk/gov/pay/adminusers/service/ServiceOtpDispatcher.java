@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
+import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
 import java.util.Locale;
@@ -31,36 +32,29 @@ public class ServiceOtpDispatcher extends InviteOtpDispatcher {
     }
 
     @Override
-    public boolean dispatchOtp(String inviteCode) {
-        return inviteDao.findByCode(inviteCode)
-                .map(inviteEntity -> {
-                    Optional.ofNullable(inviteOtpRequest.getTelephoneNumber())
-                            .map(TelephoneNumberUtility::formatToE164)
-                            .ifPresent(inviteEntity::setTelephoneNumber);
+    public void dispatchOtp(String inviteCode) {
+        InviteEntity inviteEntity = inviteDao.findByCode(inviteCode).orElseThrow(AdminUsersExceptions::notFoundException);
+        Optional.ofNullable(inviteOtpRequest.getTelephoneNumber())
+                .map(TelephoneNumberUtility::formatToE164)
+                .ifPresent(inviteEntity::setTelephoneNumber);
 
-                    Optional.ofNullable(inviteOtpRequest.getPassword())
-                            .map(passwordHasher::hash)
-                            .ifPresent(inviteEntity::setPassword);
+        Optional.ofNullable(inviteOtpRequest.getPassword())
+                .map(passwordHasher::hash)
+                .ifPresent(inviteEntity::setPassword);
 
-                    inviteDao.merge(inviteEntity);
+        inviteDao.merge(inviteEntity);
 
-                    int newPassCode = secondFactorAuthenticator.newPassCode(inviteEntity.getOtpKey());
-                    String passcode = format(Locale.ENGLISH, SIX_DIGITS_WITH_LEADING_ZEROS, newPassCode);
+        int newPassCode = secondFactorAuthenticator.newPassCode(inviteEntity.getOtpKey());
+        String passcode = format(Locale.ENGLISH, SIX_DIGITS_WITH_LEADING_ZEROS, newPassCode);
 
-                    LOGGER.info("New 2FA token generated for invite code [{}]", inviteEntity.getCode());
-                    
-                    try {
-                        String notificationId = notificationService.sendSecondFactorPasscodeSms(inviteEntity.getTelephoneNumber(), passcode,
-                                SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE);
-                        LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]", inviteEntity.getCode(), notificationId);
-                    } catch (Exception e) {
-                        LOGGER.error(format("error sending 2FA token for invite code [%s]", inviteEntity.getCode()), e);
-                    }
-                    
-                    return true;
-                }).orElseGet(() -> {
-                    LOGGER.error("Unable to locate invite after validating and reaching to the service otp dispatcher. invite code [{}]", inviteCode);
-                    return false;
-                });
+        LOGGER.info("New 2FA token generated for invite code [{}]", inviteEntity.getCode());
+
+        try {
+            String notificationId = notificationService.sendSecondFactorPasscodeSms(inviteEntity.getTelephoneNumber(), passcode,
+                    SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE);
+            LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]", inviteEntity.getCode(), notificationId);
+        } catch (Exception e) {
+            LOGGER.error(format("error sending 2FA token for invite code [%s]", inviteEntity.getCode()), e);
+        }
     }
 }
