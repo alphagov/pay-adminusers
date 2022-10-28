@@ -58,7 +58,7 @@ public class InviteService {
             inviteDao.merge(invite);
             int newPassCode = secondFactorAuthenticator.newPassCode(invite.getOtpKey());
             String passcode = String.format(Locale.ENGLISH, SIX_DIGITS_WITH_LEADING_ZEROS, newPassCode);
-            
+
             LOGGER.info("New 2FA token generated for invite code [{}]", inviteOtpRequest.getCode());
 
             try {
@@ -73,16 +73,15 @@ public class InviteService {
         }
     }
 
-    @Transactional
-    public Optional<WebApplicationException> validateOtp(InviteValidateOtpRequest inviteOtpRequest) {
-        return  inviteDao.findByCode(inviteOtpRequest.getCode())
-                .map(inviteEntity -> validateOtp(inviteEntity, inviteOtpRequest.getOtpCode()))
-                .orElseGet(() -> Optional.of(notFoundInviteException(inviteOtpRequest.getCode())));
+    @Transactional(ignore = {WebApplicationException.class})
+    public void validateOtp(InviteValidateOtpRequest inviteOtpRequest) {
+        InviteEntity inviteEntity = inviteDao.findByCode(inviteOtpRequest.getCode()).orElseThrow(() -> notFoundInviteException(inviteOtpRequest.getCode()));
+        validateOtp(inviteEntity, inviteOtpRequest.getOtpCode());
     }
-
-    /* default */ Optional<WebApplicationException> validateOtp(InviteEntity inviteEntity, int otpCode) {
+    
+    /* default */ void validateOtp(InviteEntity inviteEntity, int otpCode) {
         if (inviteEntity.isDisabled()) {
-            return Optional.of(inviteLockedException(inviteEntity.getCode()));
+            throw inviteLockedException(inviteEntity.getCode());
         }
 
         if (!secondFactorAuthenticator.authorize(inviteEntity.getOtpKey(), otpCode)) {
@@ -91,13 +90,12 @@ public class InviteService {
             inviteDao.merge(inviteEntity);
 
             if (inviteEntity.isDisabled()) {
-                return Optional.of(inviteLockedException(inviteEntity.getCode()));
+                throw inviteLockedException(inviteEntity.getCode());
             }
-            return Optional.of(invalidOtpAuthCodeInviteException(inviteEntity.getCode()));
+            throw invalidOtpAuthCodeInviteException(inviteEntity.getCode());
         }
-        return Optional.empty();
     }
-    
+
     public Optional<InviteEntity> findInvite(String code) {
         return inviteDao.findByCode(code);
     }

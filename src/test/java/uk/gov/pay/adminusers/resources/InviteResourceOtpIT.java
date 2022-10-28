@@ -12,6 +12,7 @@ import static java.util.Collections.emptyMap;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.GONE;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static org.apache.commons.lang3.RandomStringUtils.random;
@@ -139,7 +140,7 @@ class InviteResourceOtpIT extends IntegrationTest {
                 .contentType(JSON)
                 .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
-                .statusCode(OK.getStatusCode());
+                .statusCode(NO_CONTENT.getStatusCode());
     }
 
     @Test

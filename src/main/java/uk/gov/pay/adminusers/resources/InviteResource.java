@@ -103,8 +103,8 @@ public class InviteResource {
             }
     )
     public InviteCompleteResponse completeInvite(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode,
-                                   @Parameter(schema = @Schema(implementation = InviteCompleteRequest.class))
-                                           JsonNode payload) {
+                                                 @Parameter(schema = @Schema(implementation = InviteCompleteRequest.class))
+                                                 JsonNode payload) {
         LOGGER.info("Invite  complete POST request for code - [ {} ]", inviteCode);
 
         if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
@@ -160,9 +160,9 @@ public class InviteResource {
                     return Response.status(BAD_REQUEST).entity(errors).build();
                 }
             }
-            
+
             InviteOtpDispatcher otpDispatcher = inviteServiceFactory.inviteOtpRouter().routeOtpDispatch(inviteEntity);
-            if(otpDispatcher.withData(InviteOtpRequest.from(payload)).dispatchOtp(inviteCode)){
+            if (otpDispatcher.withData(InviteOtpRequest.from(payload)).dispatchOtp(inviteCode)) {
                 return Response.status(OK).build();
             } else {
                 throw internalServerError("unable to dispatch otp at this moment");
@@ -230,7 +230,7 @@ public class InviteResource {
             }
     )
     public Response createUserInvite(@Parameter(schema = @Schema(implementation = InviteUserRequest.class))
-                                             JsonNode payload) {
+                                     JsonNode payload) {
         LOGGER.info("Initiating user invitation request");
         return inviteValidator.validateCreateUserRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
@@ -252,7 +252,7 @@ public class InviteResource {
             }
     )
     public Response resendOtp(@Parameter(schema = @Schema(implementation = InviteOtpRequest.class))
-                                      JsonNode payload) {
+                              JsonNode payload) {
 
         LOGGER.info("Invite POST request for resending otp");
 
@@ -271,23 +271,20 @@ public class InviteResource {
     @Operation(
             summary = "Validates OTP for the invite",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "204", description = "No content"),
                     @ApiResponse(responseCode = "400", description = "Invalid payload")
             }
     )
-    public Response validateOtpKey(@Parameter(schema = @Schema(implementation = InviteValidateOtpRequest.class))
-                                             JsonNode payload) {
+    public void validateOtpKey(@Parameter(schema = @Schema(implementation = InviteValidateOtpRequest.class))
+                               JsonNode payload) {
 
         LOGGER.info("Invite POST request for validating otp");
 
-        return inviteValidator.validateOtpValidationRequest(payload)
-                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> inviteService.validateOtp(InviteValidateOtpRequest.from(payload))
-                        .map(this::handleValidateOtpKeyException)
-                        .orElseGet(() -> Response.status(OK).build()));
-    }
+        inviteValidator.validateOtpValidationRequest(payload)
+                .ifPresent(errors -> {
+                    throw new WebApplicationException(Response.status(BAD_REQUEST).entity(errors).build());
+                });
 
-    private Response handleValidateOtpKeyException(WebApplicationException error) {
-        throw error;
+        inviteService.validateOtp(InviteValidateOtpRequest.from(payload));
     }
 }
