@@ -1,6 +1,12 @@
 # pay-adminusers
 The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 
+## API Specification
+
+The [API Specification](/openapi/adminusers_spec.yaml) provides more detail on the paths and operations including examples.
+
+[View the API specification for adminusers in Swagger Editor](https://editor.swagger.io/?url=https://raw.githubusercontent.com/alphagov/pay-adminusers/master/openapi/adminusers_spec.yaml).
+
 ## Environment Variables
 
 | NAME                    | DESCRIPTION                                                                    |
@@ -45,10 +51,6 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 | `RUN_MIGRATION`                                                               | Set to `true` to run a database migration. Defaults to `false`. |
 | `SELFSERVICE_URL`                                                             | The URL to the admin portal. Defaults to `https://selfservice.pymnt.localdomain`. |
 | `SUPPORT_URL`                                                                 | The URL users can visit to get support. Defaults to `https://frontend.pymnt.localdomain/contact/`. |
- 
-## API Specification
- 
- The [API Specification](/openapi/adminusers_spec.yaml) provides more detail on the paths and operations including examples.
 
 -----------------------------------------------------------------------------------------------------------
 
