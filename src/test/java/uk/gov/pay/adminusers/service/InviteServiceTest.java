@@ -9,10 +9,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
-import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
-import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 
 import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
@@ -20,6 +18,8 @@ import java.util.Optional;
 import static java.lang.String.valueOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -33,7 +33,7 @@ import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemp
 import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE;
 
 @ExtendWith(MockitoExtension.class)
-public class InviteServiceTest {
+class InviteServiceTest {
 
     private static final String TELEPHONE_NUMBER = "+441134960000";
     private static final String PLAIN_PASSWORD = "my-secure-pass";
@@ -46,13 +46,13 @@ public class InviteServiceTest {
     private SecondFactorAuthenticator mockSecondFactorAuthenticator;
 
     private InviteService inviteService;
-    private ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
-    private int passCode = 123456;
-    private String otpKey = "otpKey";
-    private String inviteCode = "code";
+    private final ArgumentCaptor<InviteEntity> expectedInvite = ArgumentCaptor.forClass(InviteEntity.class);
+    private final int passCode = 123456;
+    private final String otpKey = "otpKey";
+    private final String inviteCode = "code";
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         inviteService = new InviteService(
                 mockInviteDao,
                 mockNotificationService,
@@ -62,7 +62,7 @@ public class InviteServiceTest {
     }
 
     @Test
-    public void generateOtp_shouldSendNotificationOnSuccessfulServiceInviteUpdate() {
+    void generateOtp_shouldSendNotificationOnSuccessfulServiceInviteUpdate() {
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setOtpKey(otpKey);
         inviteEntity.setType(SERVICE);
@@ -80,7 +80,7 @@ public class InviteServiceTest {
     }
 
     @Test
-    public void generateOtp_shouldStillUpdateTheServiceInviteWhen2FAFails() {
+    void generateOtp_shouldStillUpdateTheServiceInviteWhen2FAFails() {
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setOtpKey(otpKey);
         inviteEntity.setType(SERVICE);
@@ -98,7 +98,7 @@ public class InviteServiceTest {
     }
 
     @Test
-    public void generateOtp_shouldSendNotificationOnSuccessfulUserInviteUpdate() {
+    void generateOtp_shouldSendNotificationOnSuccessfulUserInviteUpdate() {
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setOtpKey(otpKey);
         inviteEntity.setType(USER);
@@ -116,7 +116,7 @@ public class InviteServiceTest {
     }
 
     @Test
-    public void generateOtp_shouldStillUpdateTheUserInviteWhen2FAFails() {
+    void generateOtp_shouldStillUpdateTheUserInviteWhen2FAFails() {
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setOtpKey(otpKey);
         inviteEntity.setType(USER);
@@ -134,38 +134,32 @@ public class InviteServiceTest {
     }
 
     @Test
-    public void validateOtp_shouldReturnTrueOnValidInviteAndValidOtp() {
+    void validateOtp_shouldNotThrowForValidInviteAndValidOtp() {
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setOtpKey(otpKey);
 
         when(mockSecondFactorAuthenticator.authorize(otpKey, passCode)).thenReturn(true);
 
-        Optional<WebApplicationException> validationResult = inviteService.validateOtp(inviteEntity, passCode);
-
-        assertThat(validationResult.isPresent(), is(false));
+        assertDoesNotThrow(() -> inviteService.validateOtp(inviteEntity, passCode));
     }
 
     @Test
-    public void validateOtp_shouldReturnFalseOnValidInviteAndInValidOtp() {
+    void validateOtp_shouldReturnFalseOnValidInviteAndInValidOtp() {
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setOtpKey(otpKey);
-        
-        Optional<WebApplicationException> validationResult = inviteService.validateOtp(inviteEntity, passCode);
 
-        assertThat(validationResult.isPresent(), is(true));
-        assertThat(validationResult.get().getResponse().getStatus(), is(401));
+        WebApplicationException exception = assertThrows(WebApplicationException.class, () -> inviteService.validateOtp(inviteEntity, passCode));
+        assertThat(exception.getResponse().getStatus(), is(401));
     }
 
     @Test
-    public void validateOtp_shouldReturnFalseOnValidInviteAndValidOtpAndEntityDisabled() {
+    void validateOtp_shouldReturnFalseOnValidInviteAndValidOtpAndEntityDisabled() {
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setOtpKey(otpKey);
         inviteEntity.setDisabled(true);
- 
-        Optional<WebApplicationException> validationResult = inviteService.validateOtp(inviteEntity, passCode);
 
-        assertThat(validationResult.isPresent(), is(true));
-        assertThat(validationResult.get().getResponse().getStatus(), is(410));
+        WebApplicationException exception = assertThrows(WebApplicationException.class, () -> inviteService.validateOtp(inviteEntity, passCode));
+        assertThat(exception.getResponse().getStatus(), is(410));
     }
 
     private InviteOtpRequest inviteOtpRequestFrom(String code, String telephoneNumber, String password) {
@@ -174,17 +168,6 @@ public class InviteServiceTest {
         json.put(FIELD_TELEPHONE_NUMBER, telephoneNumber);
         json.put(FIELD_PASSWORD, password);
         return InviteOtpRequest.from(json);
-    }
-
-    private InviteValidateOtpRequest inviteValidateOtpRequest(String inviteCode, int otpCode) {
-        ObjectNode json = JsonNodeFactory.instance.objectNode();
-        json.put(InviteValidateOtpRequest.FIELD_CODE, inviteCode);
-        json.put(InviteValidateOtpRequest.FIELD_OTP, otpCode);
-        return InviteValidateOtpRequest.from(json);
-    }
-
-    private InviteEntity anInvite(String email, String code, String otpKey, RoleEntity roleEntity) {
-        return new InviteEntity(email, code, otpKey, roleEntity);
     }
 
 }
