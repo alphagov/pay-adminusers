@@ -1,42 +1,37 @@
 package uk.gov.pay.adminusers.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
+import uk.gov.pay.adminusers.validations.ValidEmail;
+
+import javax.validation.constraints.NotEmpty;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class InviteUserRequest extends InviteRequest {
+public class InviteUserRequest {
 
-    public static final String FIELD_SENDER = "sender";
-    public static final String FIELD_SERVICE_EXTERNAL_ID = "service_external_id";
+    @NotEmpty
+    private String sender;
 
-    private final String sender;
+    @NotEmpty
+    @ValidEmail
+    protected String email;
 
+    @NotEmpty
+    private String roleName;
+
+    @NotEmpty
     private String serviceExternalId;
+    
+    public InviteUserRequest() {
+        // for Jackson
+    }
 
-    private InviteUserRequest(String sender, String email, String roleName, String serviceExternalId) {
-        super(roleName, email);
+    public InviteUserRequest(String sender, String email, String roleName, String serviceExternalId) {
         this.sender = sender;
+        this.email = email;
+        this.roleName = roleName;
         this.serviceExternalId = serviceExternalId;
-    }
-
-    public static InviteUserRequest from(JsonNode jsonNode) {
-        return new InviteUserRequest(
-                jsonNode.get(FIELD_SENDER).asText(),
-                jsonNode.get(FIELD_EMAIL).asText(),
-                jsonNode.get(FIELD_ROLE_NAME).asText(),
-                jsonNode.get(FIELD_SERVICE_EXTERNAL_ID).asText()
-        );
-    }
-
-    @Deprecated
-    public static InviteUserRequest from(JsonNode jsonNode, String serviceExternalId) {
-        return new InviteUserRequest(jsonNode.get(FIELD_SENDER).asText(),
-                jsonNode.get(FIELD_EMAIL).asText(),
-                jsonNode.get(FIELD_ROLE_NAME).asText(),
-                serviceExternalId
-        );
     }
 
     @Schema(example = "d0wksn12nklsdf1nd02nd9n2ndk", description = "User external ID", required = true)
@@ -44,6 +39,16 @@ public class InviteUserRequest extends InviteRequest {
         return sender;
     }
 
+    @Schema(example = "example@example.gov.uk", required = true)
+    public String getEmail() {
+        return email;
+    }
+    
+    @Schema(example = "view-only", required = true)
+    public String getRoleName() {
+        return roleName;
+    }
+    
     @Schema(example = "dj2jkejke32jfhh3", required = true)
     public String getServiceExternalId() {
         return serviceExternalId;

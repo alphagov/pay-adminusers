@@ -32,13 +32,13 @@ import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
-public class InviteResourceCreateUserIT extends IntegrationTest {
+class InviteResourceCreateUserIT extends IntegrationTest {
     private Service service;
     private String roleAdminName;
     private String senderExternalId;
 
     @BeforeEach
-    public void givenAnExistingServiceAndARole() {
+    void givenAnExistingServiceAndARole() {
 
         service = serviceDbFixture(databaseHelper)
                 .insertService();
@@ -57,7 +57,7 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
     }
 
     @Test
-    public void createInvitation_shouldSucceed_whenInvitingANewUser() throws Exception {
+    void createInvitation_shouldSucceed_whenInvitingANewUser() throws Exception {
 
         String email = randomAlphanumeric(5) + "-invite@example.com";
 
@@ -83,7 +83,7 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
     }
 
     @Test
-    public void createInvitation_shouldFail_whenAnInviteWithTheGivenEmailAlreadyExists() throws Exception {
+    void createInvitation_shouldFail_whenAnInviteWithTheGivenEmailAlreadyExists() throws Exception {
 
         String existingUserEmail = randomAlphanumeric(5) + "-invite@example.com";
 
@@ -112,7 +112,7 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
     }
 
     @Test
-    public void createInvitation_shouldFail_ifUserAlreadyBelongToService() throws Exception {
+    void createInvitation_shouldFail_ifUserAlreadyBelongToService() throws Exception {
 
         String existingUserUsername = randomUuid();
         String existingUserEmail = existingUserUsername + "-invite@example.com";
@@ -150,7 +150,7 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
     }
 
     @Test
-    public void createInvitation_shouldFail_whenServiceDoesNotExist() throws Exception {
+    void createInvitation_shouldFail_whenServiceDoesNotExist() throws Exception {
 
         String nonExistentServiceId = "non existant service external id";
         Map<Object, Object> invitationRequest = Map.of(
@@ -166,12 +166,11 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
                 .accept(ContentType.JSON)
                 .post(INVITE_USER_RESOURCE_URL)
                 .then()
-                .statusCode(NOT_FOUND.getStatusCode())
-                .body(emptyString());
+                .statusCode(NOT_FOUND.getStatusCode());
     }
 
     @Test
-    public void createInvitation_shouldFail_whenRoleDoesNotExist() throws Exception {
+    void createInvitation_shouldFail_whenRoleDoesNotExist() throws Exception {
 
         Map<Object, Object> invitationRequest = Map.of(
                 "sender", senderExternalId,
@@ -192,7 +191,7 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
     }
 
     @Test
-    public void createInvitation_shouldFail_whenSenderDoesNotExist() throws Exception {
+    void createInvitation_shouldFail_whenSenderDoesNotExist() throws Exception {
 
         String email = randomAlphanumeric(5) + "-invite@example.com";
 
@@ -212,7 +211,7 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
     }
 
     @Test
-    public void createInvitation_shouldFail_whenSenderDoesNotHaveAdminRole() throws Exception {
+    void createInvitation_shouldFail_whenSenderDoesNotHaveAdminRole() throws Exception {
 
         int otherRoleId = roleDbFixture(databaseHelper).insertRole().getId();
         String senderUsername = randomUuid();
@@ -240,7 +239,7 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
     }
 
     @Test
-    public void createInvitation_shouldFail_whenSenderDoesNotBelongToTheGivenService() throws Exception {
+    void createInvitation_shouldFail_whenSenderDoesNotBelongToTheGivenService() throws Exception {
 
         Service otherService = serviceDbFixture(databaseHelper)
                 .insertService();
@@ -266,5 +265,44 @@ public class InviteResourceCreateUserIT extends IntegrationTest {
                 .post(INVITE_USER_RESOURCE_URL)
                 .then()
                 .statusCode(FORBIDDEN.getStatusCode());
+    }
+
+    @Test
+    void createInvitation_shouldFail_whenMissingMandatoryFields() throws Exception {
+        Map<Object, Object> invitationRequest = Map.of();
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(invitationRequest))
+                .contentType(ContentType.JSON)
+                .post(INVITE_USER_RESOURCE_URL)
+                .then()
+                .statusCode(422)
+                .body("errors", hasSize(4))
+                .body("errors", hasItems(
+                        "serviceExternalId must not be empty",
+                        "roleName must not be empty",
+                        "sender must not be empty",
+                        "email must not be empty"
+                ));
+    }
+
+    @Test
+    void createInvitation_shouldFail_whenInvalidEmail() throws Exception {
+        Map<Object, Object> invitationRequest = Map.of(
+                "sender", senderExternalId,
+                "email", "invalid",
+                "role_name", roleAdminName,
+                "service_external_id", service.getExternalId());
+        
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(invitationRequest))
+                .contentType(ContentType.JSON)
+                .post(INVITE_USER_RESOURCE_URL)
+                .then()
+                .statusCode(422)
+                .body("errors", hasSize(1))
+                .body("errors", hasItems("email must be a valid email address"));
     }
 }
