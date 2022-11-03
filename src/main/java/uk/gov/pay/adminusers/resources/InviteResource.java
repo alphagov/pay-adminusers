@@ -212,8 +212,7 @@ public class InviteResource {
 
             }
     )
-    public Response createUserInvite(@Parameter(schema = @Schema(implementation = InviteUserRequest.class))
-                                     @Valid InviteUserRequest inviteUserRequest) {
+    public Response createUserInvite(@Valid InviteUserRequest inviteUserRequest) {
         LOGGER.info("Initiating user invitation request");
         return inviteServiceFactory.userInvite().doInvite(inviteUserRequest)
                 .map(invite -> Response.status(CREATED).entity(invite).build())

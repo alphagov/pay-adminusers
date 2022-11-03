@@ -70,7 +70,7 @@ class InviteResourceCreateServiceIT extends IntegrationTest {
                 .then()
                 .statusCode(422)
                 .body("errors", hasSize(1))
-                .body("errors", hasItems("email must be a valid email address"));
+                .body("errors", hasItems("email must be a well-formed email address"));
     }
 
     @Test

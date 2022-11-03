@@ -3,8 +3,8 @@ package uk.gov.pay.adminusers.model;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
-import uk.gov.pay.adminusers.validations.ValidEmail;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
@@ -14,7 +14,7 @@ public class InviteUserRequest {
     private String sender;
 
     @NotEmpty
-    @ValidEmail
+    @Email
     protected String email;
 
     @NotEmpty
