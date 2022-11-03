@@ -190,11 +190,6 @@ paths:
         required: true
         schema:
           type: string
-      requestBody:
-        content:
-          '*/*':
-            schema:
-              $ref: '#/components/schemas/CompleteInviteRequest'
       responses:
         "200":
           content:
@@ -1083,16 +1078,6 @@ paths:
       - Invites
 components:
   schemas:
-    CompleteInviteRequest:
-      type: object
-      properties:
-        gateway_account_ids:
-          type: array
-          items:
-            type: string
-            description: gateway_account_ids that needs to be associated for the new
-              service. Only applicable for invite type `service`
-            example: "1"
     CreateUserRequest:
       type: object
       properties:

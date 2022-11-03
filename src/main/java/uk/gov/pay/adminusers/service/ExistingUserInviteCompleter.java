@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
-import uk.gov.pay.adminusers.model.CompleteInviteRequest;
 import uk.gov.pay.adminusers.model.InviteCompleteResponse;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
@@ -27,7 +26,7 @@ public class ExistingUserInviteCompleter extends InviteCompleter {
 
     @Override
     @Transactional
-    public InviteCompleteResponse complete(InviteEntity inviteEntity, CompleteInviteRequest completeInviteRequest) {
+    public InviteCompleteResponse complete(InviteEntity inviteEntity) {
         if (inviteEntity.isExpired() || Boolean.TRUE.equals(inviteEntity.isDisabled())) {
             throw inviteLockedException(inviteEntity.getCode());
         }

@@ -16,11 +16,11 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
-public class InviteResourceUserCompleteIT extends IntegrationTest {
+class InviteResourceUserCompleteIT extends IntegrationTest {
     public static final String INVITES_RESOURCE_URL = "/v1/api/invites";
 
     @Test
-    public void shouldReturn200WithDisabledInvite_whenExistingUserSubscribingToAnExistingService() {
+    void shouldReturn200WithDisabledInvite_whenExistingUserSubscribingToAnExistingService() {
         String email = format("%s@example.gov.uk", randomUuid());
         String telephoneNumber = "+447700900000";
         String password = "valid_password";
@@ -69,7 +69,7 @@ public class InviteResourceUserCompleteIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn404_whenInviteCodeNotFound() {
+    void shouldReturn404_whenInviteCodeNotFound() {
         givenSetup()
                 .when()
                 .post(INVITES_RESOURCE_URL + "/" + "non-existent-code" + "/complete")
@@ -79,7 +79,7 @@ public class InviteResourceUserCompleteIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn410_withDisabledInvite() {
+    void shouldReturn410_withDisabledInvite() {
         String username = randomUuid();
         String email = format("%s@example.gov.uk", username);
         String telephoneNumber = "+447700900000";

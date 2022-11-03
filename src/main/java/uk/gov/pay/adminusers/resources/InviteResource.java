@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.pay.adminusers.model.CompleteInviteRequest;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteCompleteResponse;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
@@ -103,9 +102,7 @@ public class InviteResource {
                     @ApiResponse(responseCode = "404", description = "Not found")
             }
     )
-    public InviteCompleteResponse completeInvite(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode,
-                                                 @Parameter(schema = @Schema(implementation = CompleteInviteRequest.class))
-                                                 CompleteInviteRequest completeInviteRequest) {
+    public InviteCompleteResponse completeInvite(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode) {
         LOGGER.info("Invite  complete POST request for code - [ {} ]", inviteCode);
 
         if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
@@ -114,7 +111,7 @@ public class InviteResource {
 
         return inviteService.findInvite(inviteCode).map(inviteEntity -> {
             InviteCompleter inviteCompleter = inviteServiceFactory.inviteCompleteRouter().routeComplete(inviteEntity);
-            return inviteCompleter.complete(inviteEntity, completeInviteRequest);
+            return inviteCompleter.complete(inviteEntity);
         }).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
