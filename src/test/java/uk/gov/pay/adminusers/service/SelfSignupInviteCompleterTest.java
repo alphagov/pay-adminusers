@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.pay.adminusers.model.CompleteInviteRequest;
 import uk.gov.pay.adminusers.model.InviteCompleteResponse;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.Link;
@@ -14,7 +13,6 @@ import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
-import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -25,12 +23,9 @@ import uk.gov.service.payments.commons.model.SupportedLanguage;
 
 import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -73,43 +68,12 @@ class SelfSignupInviteCompleterTest {
     }
 
     @Test
-    void shouldCreateServiceAndUser_withGatewayAccounts_whenPassedValidServiceInviteCode() {
-        ServiceEntity service = new ServiceEntity();
-        service.setId(serviceId);
-
+    void shouldCreateServiceAndUser_whenPassedValidServiceInviteCode() {
         InviteEntity anInvite = createInvite();
         anInvite.setType(InviteType.SERVICE);
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
-        CompleteInviteRequest completeInviteRequest = new CompleteInviteRequest(List.of("1", "2"));
-        InviteCompleteResponse inviteResponse = selfSignupInviteCompleter.complete(anInvite, completeInviteRequest);
-
-        verify(mockServiceDao).persist(expectedService.capture());
-        verify(mockUserDao).merge(expectedInvitedUser.capture());
-        verify(mockInviteDao).merge(expectedInvite.capture());
-
-        ServiceEntity serviceEntity = expectedService.getValue();
-        assertThat(serviceEntity.getGatewayAccountIds().stream()
-                .map(GatewayAccountIdEntity::getGatewayAccountId)
-                .collect(toUnmodifiableList()), hasItems("2", "1"));
-        assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
-        assertThat(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
-        assertThat(serviceEntity.isCollectBillingAddress(), is(true));
-        assertThat(serviceEntity.getDefaultBillingAddressCountry(), is("GB"));
-
-        assertThat(inviteResponse.getInvite().isDisabled(), is(true));
-        assertThat(inviteResponse.getInvite().getLinks().size(), is(1));
-        assertThat(inviteResponse.getInvite().getLinks().get(0).getRel(), is(Link.Rel.USER));
-        assertThat(inviteResponse.getInvite().getLinks().get(0).getHref(), matchesPattern("^" + baseUrl + "/v1/api/users/[0-9a-z]{32}$"));
-    }
-
-    @Test
-    void shouldCreateServiceAndUser_withoutGatewayAccounts_whenPassedValidServiceInviteCode() {
-        InviteEntity anInvite = createInvite();
-        anInvite.setType(InviteType.SERVICE);
-        when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
-
-        InviteCompleteResponse inviteResponse = selfSignupInviteCompleter.complete(anInvite, null);
+        InviteCompleteResponse inviteResponse = selfSignupInviteCompleter.complete(anInvite);
 
         verify(mockServiceDao).persist(expectedService.capture());
         verify(mockUserDao).merge(expectedInvitedUser.capture());
@@ -141,7 +105,7 @@ class SelfSignupInviteCompleterTest {
         when(mockUserDao.findByEmail(anInvite.getEmail())).thenReturn(Optional.of(mock(UserEntity.class)));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite, null));
+                () -> selfSignupInviteCompleter.complete(anInvite));
         assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
     }
 
@@ -155,7 +119,7 @@ class SelfSignupInviteCompleterTest {
         anInvite.setDisabled(true);
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite, null));
+                () -> selfSignupInviteCompleter.complete(anInvite));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -169,7 +133,7 @@ class SelfSignupInviteCompleterTest {
         anInvite.setExpiryDate(ZonedDateTime.now().minusDays(1));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite, null));
+                () -> selfSignupInviteCompleter.complete(anInvite));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -184,7 +148,7 @@ class SelfSignupInviteCompleterTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite, null));
+                () -> selfSignupInviteCompleter.complete(anInvite));
         assertThat(exception.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 

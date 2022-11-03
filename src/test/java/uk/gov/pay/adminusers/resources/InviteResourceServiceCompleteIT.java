@@ -1,23 +1,17 @@
 package uk.gov.pay.adminusers.resources;
 
-import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Map;
 
-import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.GONE;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
@@ -26,7 +20,7 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
     public static final String INVITES_RESOURCE_URL = "/v1/api/invites";
 
     @Test
-    void shouldReturn200withDisabledInviteLinkingToCreatedUser_WhenPassedAValidInviteCode_withoutGatewayAccountIds() {
+    void shouldReturn200withDisabledInviteLinkingToCreatedUser_WhenPassedAValidInviteCode() {
         String email = format("%s@example.gov.uk", randomUuid());
         String telephoneNumber = "+447700900000";
         String password = "valid_password";
@@ -60,50 +54,6 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
         assertThat(createdUser.get("telephone_number"), is(telephoneNumber));
         
         assertThat(invite.get("disabled"), is(true));
-    }
-
-    @Test
-    void shouldReturn200withDisabledInviteLinkingToCreatedUser_WhenPassedAValidInviteCode_withGatewayAccountIds() throws Exception {
-        String email = format("%s@example.gov.uk", randomUuid());
-        String telephoneNumber = "+447700900000";
-        String password = "valid_password";
-        String gatewayAccountId1 = String.valueOf(randomInt());
-        String gatewayAccountId2 = String.valueOf(randomInt());
-
-        Map<String, List<String>> payload = Map.of("gateway_account_ids", asList(gatewayAccountId1, gatewayAccountId2));
-
-        String inviteCode = inviteDbFixture(databaseHelper)
-                .withTelephoneNumber(telephoneNumber)
-                .withEmail(email)
-                .withPassword(password)
-                .insertServiceInvite();
-        ValidatableResponse validatableResponse = givenSetup()
-                .when()
-                .body(mapper.writeValueAsString(payload))
-                .post(INVITES_RESOURCE_URL + "/" + inviteCode + "/complete")
-                .then()
-                .statusCode(OK.getStatusCode());
-        validatableResponse
-                .body("invite._links", hasSize(1))
-                .body("invite._links[0].href", matchesPattern("^http://localhost:8080/v1/api/users/[0-9a-z]{32}$"))
-                .body("invite._links[0].rel", is("user"))
-                .body("invite.disabled", is(true))
-                .body("user_external_id", matchesPattern("[0-9a-z]{32}$"))
-                .body("service_external_id", matchesPattern("[0-9a-z]{32}$"));
-
-        String userExternalId = validatableResponse.extract().path("user_external_id");
-        String serviceExternalId = validatableResponse.extract().path("service_external_id");
-
-        givenSetup()
-                .when()
-                .contentType(JSON)
-                .accept(JSON)
-                .get(format(USER_RESOURCE_URL, userExternalId))
-                .then()
-                .statusCode(200)
-                .body("external_id", is(userExternalId))
-                .body("service_roles[0].service.external_id", is(serviceExternalId))
-                .body("service_roles[0].service.gateway_account_ids", hasItems(gatewayAccountId1, gatewayAccountId2));
     }
 
     @Test
@@ -157,7 +107,7 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
     }
 
     @Test
-    void shouldReturn410_WheninviteIsDisabled() {
+    void shouldReturn410_WhenInviteIsDisabled() {
         String email = format("%s@example.gov.uk", randomUuid());
         String telephoneNumber = "+447700900000";
         String password = "valid_password";
