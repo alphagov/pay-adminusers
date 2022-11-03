@@ -17,6 +17,8 @@ import static javax.ws.rs.core.Response.Status.OK;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static org.apache.commons.lang3.RandomStringUtils.random;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 
 class InviteResourceOtpIT extends IntegrationTest {
@@ -80,7 +82,7 @@ class InviteResourceOtpIT extends IntegrationTest {
     }
 
     @Test
-    public void validateOtp_shouldFailAndLockInvite_whenInvalidOtpAuthCode_ifMaxRetryExceeded() throws Exception {
+    void validateOtp_shouldFailAndLockInvite_whenInvalidOtpAuthCode_ifMaxRetryExceeded() throws Exception {
 
         // create an invitation
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
@@ -118,9 +120,27 @@ class InviteResourceOtpIT extends IntegrationTest {
                 .contentType(JSON)
                 .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
-                .statusCode(BAD_REQUEST.getStatusCode());
+                .statusCode(422)
+                .body("errors", hasSize(2))
+                .body("errors", hasItems("code must not be empty", "otp must not be empty"));
     }
 
+    @Test
+    void validateOtp_shouldFail_whenOtpIsNotNumeric() throws Exception {
+        Map<Object, Object> sendRequest = Map.of(
+                "code", code,
+                "otp", "not-numeric");
+        
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(sendRequest))
+                .contentType(JSON)
+                .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
+                .then()
+                .statusCode(422)
+                .body("errors", hasSize(1))
+                .body("errors", hasItems("otp must be numeric"));
+    }
 
 
     @Test
@@ -190,7 +210,7 @@ class InviteResourceOtpIT extends IntegrationTest {
                 .contentType(JSON)
                 .post(INVITES_RESEND_OTP_RESOURCE_URL)
                 .then()
-                .statusCode(OK.getStatusCode());
+                .statusCode(NO_CONTENT.getStatusCode());
 
         // check if we are using the newTelephoneNumber in the invitation
         Map<String, Object> foundInvite = databaseHelper.findInviteByCode(code).get();
@@ -206,6 +226,25 @@ class InviteResourceOtpIT extends IntegrationTest {
                 .contentType(JSON)
                 .post(INVITES_RESEND_OTP_RESOURCE_URL)
                 .then()
-                .statusCode(BAD_REQUEST.getStatusCode());
+                .statusCode(422)
+                .body("errors", hasSize(2))
+                .body("errors", hasItems("code must not be empty", "telephoneNumber must not be empty"));
+    }
+
+    @Test
+    void resendOtp_shouldFail_whenTelephoneNumberIsInvalid() throws Exception {
+        Map<Object, Object> resendRequest = Map.of(
+                "code", code,
+                "telephone_number", "invalid");
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(resendRequest))
+                .contentType(JSON)
+                .post(INVITES_RESEND_OTP_RESOURCE_URL)
+                .then()
+                .statusCode(422)
+                .body("errors", hasSize(1))
+                .body("errors", hasItems("telephoneNumber must be a valid telephone number"));
     }
 }
