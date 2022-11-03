@@ -114,15 +114,7 @@ paths:
         content:
           application/json:
             schema:
-              type: string
-              example:
-                telephone_number: +440787654534
-                email: example@example.gov.uk
-                password: plain-txt-passsword
-              required:
-              - email
-              - password
-              - telephone_number
+              $ref: '#/components/schemas/InviteServiceRequest'
       responses:
         "201":
           content:
@@ -130,8 +122,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/Invite'
           description: Created
-        "400":
-          description: Invalid payload
+        "403":
+          description: The email is not an allowed public sector email address
+        "422":
+          description: Missing required fields or invalid values
       summary: Creates an invitation to allow self provisioning new service with Pay
       tags:
       - Invites
@@ -144,16 +138,16 @@ paths:
             schema:
               $ref: '#/components/schemas/InviteUserRequest'
       responses:
-        "200":
+        "201":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Invite'
           description: Created
-        "400":
-          description: Invalid payload
         "404":
           description: Not found
+        "422":
+          description: Missing required fields or invalid values
       summary: Creates an invitation to allow a new team member to join an existing
         service.
       tags:
@@ -1221,6 +1215,20 @@ components:
       required:
       - code
       - telephone_number
+    InviteServiceRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          example: example@example.gov.uk
+        password:
+          type: string
+          example: a-password
+        telephone_number:
+          type: string
+          example: +440787654534
+      required:
+      - email
     InviteUserRequest:
       type: object
       properties:

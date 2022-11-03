@@ -10,22 +10,23 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.CompleteInviteRequest;
+import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteCompleteResponse;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteServiceRequest;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
+import uk.gov.pay.adminusers.service.AdminUsersExceptions;
 import uk.gov.pay.adminusers.service.InviteCompleter;
 import uk.gov.pay.adminusers.service.InviteOtpDispatcher;
 import uk.gov.pay.adminusers.service.InviteService;
 import uk.gov.pay.adminusers.service.InviteServiceFactory;
 import uk.gov.pay.adminusers.utils.Errors;
 
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -45,6 +46,7 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
+import static uk.gov.pay.adminusers.utils.email.EmailValidator.isPublicSectorEmail;
 
 @Path("/")
 @Tag(name = "Invites")
@@ -179,27 +181,21 @@ public class InviteResource {
     @Produces(APPLICATION_JSON)
     @Operation(
             summary = "Creates an invitation to allow self provisioning new service with Pay",
-            requestBody = @RequestBody(
-                    content = @Content(schema = @Schema(example = "{" +
-                            "\"telephone_number\":\"+440787654534\"," +
-                            "\"email\": \"example@example.gov.uk\"," +
-                            "\"password\" : \"plain-txt-passsword\"" +
-                            "}", requiredProperties = {"telephone_number", "email", "password"}))
-            ),
             responses = {
                     @ApiResponse(responseCode = "201", description = "Created",
                             content = @Content(schema = @Schema(implementation = Invite.class))),
-                    @ApiResponse(responseCode = "400", description = "Invalid payload")
+                    @ApiResponse(responseCode = "422", description = "Missing required fields or invalid values"),
+                    @ApiResponse(responseCode = "403", description = "The email is not an allowed public sector email address")
             }
     )
-    public Response createServiceInvite(JsonNode payload) {
+    public Response createServiceInvite(@Valid InviteServiceRequest inviteServiceRequest) {
         LOGGER.info("Initiating create service invitation request");
-        return inviteValidator.validateCreateServiceRequest(payload)
-                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> {
-                    Invite invite = inviteServiceFactory.serviceInvite().doInvite(InviteServiceRequest.from(payload));
-                    return Response.status(CREATED).entity(invite).build();
-                });
+        if (!isPublicSectorEmail(inviteServiceRequest.getEmail())) {
+            throw AdminUsersExceptions.invalidPublicSectorEmail(inviteServiceRequest.getEmail());
+        }
+
+        Invite invite = inviteServiceFactory.serviceInvite().doInvite(inviteServiceRequest);
+        return Response.status(CREATED).entity(invite).build();
     }
 
     @POST
@@ -209,22 +205,18 @@ public class InviteResource {
     @Operation(
             summary = "Creates an invitation to allow a new team member to join an existing service.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Created",
+                    @ApiResponse(responseCode = "201", description = "Created",
                             content = @Content(schema = @Schema(implementation = Invite.class))),
-                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+                    @ApiResponse(responseCode = "422", description = "Missing required fields or invalid values"),
                     @ApiResponse(responseCode = "404", description = "Not found"),
 
             }
     )
-    public Response createUserInvite(@Parameter(schema = @Schema(implementation = InviteUserRequest.class))
-                                     JsonNode payload) {
+    public Response createUserInvite(@Valid InviteUserRequest inviteUserRequest) {
         LOGGER.info("Initiating user invitation request");
-        return inviteValidator.validateCreateUserRequest(payload)
-                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> inviteServiceFactory.userInvite().doInvite(InviteUserRequest.from(payload))
-                        .map(invite -> Response.status(CREATED).entity(invite).build())
-                        .orElseGet(() -> Response.status(NOT_FOUND).entity(StringUtils.EMPTY).build())
-                );
+        return inviteServiceFactory.userInvite().doInvite(inviteUserRequest)
+                .map(invite -> Response.status(CREATED).entity(invite).build())
+                .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
     }
 
     @POST

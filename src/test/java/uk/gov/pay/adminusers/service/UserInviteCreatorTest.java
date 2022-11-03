@@ -1,7 +1,5 @@
 package uk.gov.pay.adminusers.service;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,10 +45,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.model.InviteRequest.FIELD_EMAIL;
-import static uk.gov.pay.adminusers.model.InviteRequest.FIELD_ROLE_NAME;
-import static uk.gov.pay.adminusers.model.InviteUserRequest.FIELD_SENDER;
-import static uk.gov.pay.adminusers.model.InviteUserRequest.FIELD_SERVICE_EXTERNAL_ID;
 import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
@@ -99,7 +93,7 @@ class UserInviteCreatorTest {
         String otpKey = "an-otp-key";
         when(secondFactorAuthenticator.generateNewBase32EncodedSecret()).thenReturn(otpKey);
 
-        userInviteCreator.doInvite(inviteRequestFrom(senderExternalId, email, roleName));
+        userInviteCreator.doInvite(new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId));
 
         verify(mockInviteDao).persist(expectedInvite.capture());
         InviteEntity savedInvite = expectedInvite.getValue();
@@ -112,7 +106,7 @@ class UserInviteCreatorTest {
     @Test
     void shouldReturnEmpty_ifServiceNotFound() {
         when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.empty());
-        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderEmail, email, roleName);
+        InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
         Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
 
         assertFalse(invite.isPresent());
@@ -129,7 +123,7 @@ class UserInviteCreatorTest {
         String otpKey = "an-otp-key";
         when(secondFactorAuthenticator.generateNewBase32EncodedSecret()).thenReturn(otpKey);
 
-        userInviteCreator.doInvite(inviteRequestFrom(senderExternalId, email, roleName));
+        userInviteCreator.doInvite(new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId));
 
         verify(mockInviteDao).persist(expectedInvite.capture());
         InviteEntity savedInvite = expectedInvite.getValue();
@@ -161,7 +155,7 @@ class UserInviteCreatorTest {
 
 
         when(mockInviteDao.findByEmail(email)).thenReturn(List.of(anInvite));
-        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
+        InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class, ()
                 -> userInviteCreator.doInvite(inviteUserRequest));
@@ -184,7 +178,7 @@ class UserInviteCreatorTest {
         when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.of(service));
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(existingUser));
 
-        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
+        InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
                 () -> userInviteCreator.doInvite(inviteUserRequest));
         assertThat(webApplicationException.getMessage(), is("HTTP 412 Precondition Failed"));
@@ -201,7 +195,7 @@ class UserInviteCreatorTest {
 
 
         //When
-        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
+        InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
         Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
 
         //Then
@@ -215,7 +209,7 @@ class UserInviteCreatorTest {
         InviteEntity inviteEntity = mockInviteSuccessForNonExistingUserNonExistingInvite();
         inviteEntity.getSender().getServicesRoles().clear();
 
-        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
+        InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
                 () -> userInviteCreator.doInvite(inviteUserRequest));
         assertThat(webApplicationException.getMessage(), is("HTTP 403 Forbidden"));
@@ -230,7 +224,7 @@ class UserInviteCreatorTest {
         when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
                 eq(anInvite.getService().getServiceNames().get(SupportedLanguage.ENGLISH).getName()))).thenReturn("random-notify-id");
 
-        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
+        InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
         Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
 
         assertThat(invite.isPresent(), is(true));
@@ -248,7 +242,7 @@ class UserInviteCreatorTest {
                 eq(anInvite.getService().getServiceNames().get(SupportedLanguage.ENGLISH).getName())))
                 .thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
 
-        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
+        InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
         Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
 
         assertThat(invite.isPresent(), is(true));
@@ -283,7 +277,7 @@ class UserInviteCreatorTest {
         when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
                 eq(validInvite.getService().getServiceNames().get(SupportedLanguage.ENGLISH).getName()))).thenReturn("random-notify-id");
 
-        InviteUserRequest inviteUserRequest = inviteRequestFrom(senderExternalId, email, roleName);
+        InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
         Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
 
         assertThat(invite.isPresent(), is(true));
@@ -341,15 +335,6 @@ class UserInviteCreatorTest {
         inviteEntity.setSender(userEntity);
         inviteEntity.setService(serviceEntity);
         return inviteEntity;
-    }
-
-    private InviteUserRequest inviteRequestFrom(String senderExternalId, String email, String roleName) {
-        ObjectNode json = JsonNodeFactory.instance.objectNode();
-        json.put(FIELD_SENDER, senderExternalId);
-        json.put(FIELD_EMAIL, email);
-        json.put(FIELD_ROLE_NAME, roleName);
-        json.put(FIELD_SERVICE_EXTERNAL_ID, serviceExternalId);
-        return InviteUserRequest.from(json);
     }
 
     private User aUser(String email) {

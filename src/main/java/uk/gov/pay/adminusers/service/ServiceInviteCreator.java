@@ -28,6 +28,9 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerE
 public class ServiceInviteCreator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceInviteCreator.class);
+    
+    private static final String ADMIN_ROLE_NAME = "admin";
+    
     private final InviteDao inviteDao;
     private final UserDao userDao;
     private final RoleDao roleDao;
@@ -83,7 +86,7 @@ public class ServiceInviteCreator {
             });
         }
 
-        return roleDao.findByRoleName(inviteServiceRequest.getRoleName())
+        return roleDao.findByRoleName(ADMIN_ROLE_NAME)
                 .map(roleEntity -> {
                     String otpKey = secondFactorAuthenticator.generateNewBase32EncodedSecret();
                     InviteEntity inviteEntity = new InviteEntity(requestEmail, randomUuid(), otpKey, roleEntity);
@@ -93,7 +96,7 @@ public class ServiceInviteCreator {
                         return null;
                     });
                 })
-                .orElseThrow(() -> internalServerError(format("Role [%s] not a valid role for creating a invite service request", inviteServiceRequest.getRoleName())));
+                .orElseThrow(() -> internalServerError("Unable to retrieve admin service role"));
 
     }
 

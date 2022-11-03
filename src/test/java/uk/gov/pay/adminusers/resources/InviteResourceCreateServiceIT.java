@@ -8,7 +8,6 @@ import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import java.util.Locale;
 import java.util.Map;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
@@ -18,15 +17,16 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
-public class InviteResourceCreateServiceIT extends IntegrationTest {
+class InviteResourceCreateServiceIT extends IntegrationTest {
 
     public static final String SERVICE_INVITES_CREATE_URL = "/v1/api/invites/service";
+    
+    private static final String validTelephoneNumber = "01134960000";
 
     @Test
-    public void shouldSuccess_WhenAllRequiredFieldsAreProvidedAndValid() throws Exception {
+    void shouldSuccess_WhenAllRequiredFieldsAreProvidedAndValid() throws Exception {
         String email = "example@example.gov.uk";
-        String telephoneNumber = "01134960000";
-        Map<String, String> payload = Map.of("telephone_number", telephoneNumber, "email", email, "password", "plain_text_password");
+        Map<String, String> payload = Map.of("telephone_number", validTelephoneNumber, "email", email, "password", "plain_text_password");
 
         givenSetup()
                 .when()
@@ -44,9 +44,8 @@ public class InviteResourceCreateServiceIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldFail_WhenMandatoryFieldsAreMissing() throws Exception {
-        String telephoneNumber = "07700900000";
-        Map<String, String> payload = Map.of("telephone_number", telephoneNumber, "password", "plain_text_password");
+    void shouldFail_WhenMandatoryFieldsAreMissing() throws Exception {
+        Map<String, String> payload = Map.of("telephone_number", validTelephoneNumber, "password", "plain_text_password");
 
         givenSetup()
                 .when()
@@ -54,16 +53,30 @@ public class InviteResourceCreateServiceIT extends IntegrationTest {
                 .contentType(ContentType.JSON)
                 .post(SERVICE_INVITES_CREATE_URL)
                 .then()
-                .statusCode(BAD_REQUEST.getStatusCode())
+                .statusCode(422)
                 .body("errors", hasSize(1))
-                .body("errors", hasItems("Field [email] is required"));
+                .body("errors", hasItems("email must not be empty"));
     }
 
     @Test
-    public void shouldFail_WhenEmailIsNotPublicSectorDomain() throws Exception {
+    void shouldFail_WhenEmailIsInvalid() throws Exception {
+        Map<String, String> payload = Map.of("telephone_number", validTelephoneNumber, "email", "invalid", "password", "plain_text_password");
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(payload))
+                .contentType(ContentType.JSON)
+                .post(SERVICE_INVITES_CREATE_URL)
+                .then()
+                .statusCode(422)
+                .body("errors", hasSize(1))
+                .body("errors", hasItems("email must be a well-formed email address"));
+    }
+
+    @Test
+    void shouldFail_WhenEmailIsNotPublicSectorDomain() throws Exception {
         String email = "example@example.com";
-        String telephoneNumber = "07700900000";
-        Map<String, String> payload = Map.of("telephone_number", telephoneNumber, "email", email, "password", "plain_text_password");
+        Map<String, String> payload = Map.of("telephone_number", validTelephoneNumber, "email", email, "password", "plain_text_password");
 
         givenSetup()
                 .when()
@@ -77,7 +90,7 @@ public class InviteResourceCreateServiceIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldFail_WhenEmailIsAlreadyRegistered() throws Exception {
+    void shouldFail_WhenEmailIsAlreadyRegistered() throws Exception {
 
         String username = randomUuid();
         String email = username + "@example.gov.uk";
@@ -95,6 +108,22 @@ public class InviteResourceCreateServiceIT extends IntegrationTest {
                 .statusCode(CONFLICT.getStatusCode())
                 .body("errors", hasSize(1))
                 .body("errors", hasItems("email [" + email + "] already exists"));
+    }
+
+    @Test
+    void shouldFail_whenTelephoneNumberIsInvalid() throws Exception {
+        String email = "example@example.gov.uk";
+        Map<String, String> payload = Map.of("telephone_number", "invalid", "email", email, "password", "plain_text_password");
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(payload))
+                .contentType(ContentType.JSON)
+                .post(SERVICE_INVITES_CREATE_URL)
+                .then()
+                .statusCode(422)
+                .body("errors", hasSize(1))
+                .body("errors", hasItems("telephoneNumber must be a valid telephone number"));
     }
 
 }
