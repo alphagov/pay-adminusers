@@ -4,11 +4,10 @@ import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
+import uk.gov.pay.adminusers.model.ResendOtpRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
-import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
@@ -46,37 +45,35 @@ public class InviteService {
         this.secondFactorAuthenticator = secondFactorAuthenticator;
         this.loginAttemptCap = loginAttemptCap;
     }
-
-    @Deprecated
+    
     @Transactional
-    // Refactor to adopt UserOtpDispatcher. And Avoid using generic InviteOtpRequest object to avoid having to use optional fields
-    public void reGenerateOtp(InviteOtpRequest inviteOtpRequest) {
-        Optional<InviteEntity> inviteOptional = inviteDao.findByCode(inviteOtpRequest.getCode());
+    public void reGenerateOtp(ResendOtpRequest resendOtpRequest) {
+        Optional<InviteEntity> inviteOptional = inviteDao.findByCode(resendOtpRequest.getCode());
         if (inviteOptional.isPresent()) {
             InviteEntity invite = inviteOptional.get();
-            invite.setTelephoneNumber(TelephoneNumberUtility.formatToE164(inviteOtpRequest.getTelephoneNumber()));
+            invite.setTelephoneNumber(TelephoneNumberUtility.formatToE164(resendOtpRequest.getTelephoneNumber()));
             inviteDao.merge(invite);
             int newPassCode = secondFactorAuthenticator.newPassCode(invite.getOtpKey());
             String passcode = String.format(Locale.ENGLISH, SIX_DIGITS_WITH_LEADING_ZEROS, newPassCode);
 
-            LOGGER.info("New 2FA token generated for invite code [{}]", inviteOtpRequest.getCode());
+            LOGGER.info("New 2FA token generated for invite code [{}]", resendOtpRequest.getCode());
 
             try {
-                String notificationId = notificationService.sendSecondFactorPasscodeSms(inviteOtpRequest.getTelephoneNumber(), passcode,
+                String notificationId = notificationService.sendSecondFactorPasscodeSms(resendOtpRequest.getTelephoneNumber(), passcode,
                         mapInviteTypeToOtpNotifySmsTemplateId(invite.getType()));
-                LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]", inviteOtpRequest.getCode(), notificationId);
+                LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]", resendOtpRequest.getCode(), notificationId);
             } catch (Exception e) {
-                LOGGER.error(String.format("error sending 2FA token for invite code [%s]", inviteOtpRequest.getCode()), e);
+                LOGGER.error(String.format("error sending 2FA token for invite code [%s]", resendOtpRequest.getCode()), e);
             }
         } else {
-            throw notFoundInviteException(inviteOtpRequest.getCode());
+            throw notFoundInviteException(resendOtpRequest.getCode());
         }
     }
 
     @Transactional(ignore = {WebApplicationException.class})
     public void validateOtp(InviteValidateOtpRequest inviteOtpRequest) {
         InviteEntity inviteEntity = inviteDao.findByCode(inviteOtpRequest.getCode()).orElseThrow(() -> notFoundInviteException(inviteOtpRequest.getCode()));
-        validateOtp(inviteEntity, inviteOtpRequest.getOtpCode());
+        validateOtp(inviteEntity, inviteOtpRequest.getOtp());
     }
     
     /* default */ void validateOtp(InviteEntity inviteEntity, int otpCode) {

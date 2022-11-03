@@ -9,6 +9,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
+import uk.gov.pay.adminusers.model.ResendOtpRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 
@@ -72,7 +73,7 @@ class InviteServiceTest {
         when(mockNotificationService.sendSecondFactorPasscodeSms(eq(TELEPHONE_NUMBER), eq(valueOf(passCode)), eq(SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE)))
                 .thenReturn("random-notify-id");
 
-        inviteService.reGenerateOtp(inviteOtpRequestFrom(inviteCode, TELEPHONE_NUMBER, PLAIN_PASSWORD));
+        inviteService.reGenerateOtp(new ResendOtpRequest(inviteCode, TELEPHONE_NUMBER));
 
         verify(mockInviteDao).merge(expectedInvite.capture());
         InviteEntity updatedInvite = expectedInvite.getValue();
@@ -90,7 +91,7 @@ class InviteServiceTest {
         when(mockNotificationService.sendSecondFactorPasscodeSms(eq(TELEPHONE_NUMBER), eq(valueOf(passCode)), eq(SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE)))
                 .thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
 
-        inviteService.reGenerateOtp(inviteOtpRequestFrom(inviteCode, TELEPHONE_NUMBER, PLAIN_PASSWORD));
+        inviteService.reGenerateOtp(new ResendOtpRequest(inviteCode, TELEPHONE_NUMBER));
 
         verify(mockInviteDao).merge(expectedInvite.capture());
         InviteEntity updatedInvite = expectedInvite.getValue();
@@ -108,7 +109,7 @@ class InviteServiceTest {
         when(mockNotificationService.sendSecondFactorPasscodeSms(eq(TELEPHONE_NUMBER), eq(valueOf(passCode)),
                 eq(CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE))).thenReturn("random-notify-id");
 
-        inviteService.reGenerateOtp(inviteOtpRequestFrom(inviteCode, TELEPHONE_NUMBER, PLAIN_PASSWORD));
+        inviteService.reGenerateOtp(new ResendOtpRequest(inviteCode, TELEPHONE_NUMBER));
 
         verify(mockInviteDao).merge(expectedInvite.capture());
         InviteEntity updatedInvite = expectedInvite.getValue();
@@ -126,7 +127,7 @@ class InviteServiceTest {
         when(mockNotificationService.sendSecondFactorPasscodeSms(eq(TELEPHONE_NUMBER), eq(valueOf(passCode)),
                 eq(CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE))).thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
 
-        inviteService.reGenerateOtp(inviteOtpRequestFrom(inviteCode, TELEPHONE_NUMBER, PLAIN_PASSWORD));
+        inviteService.reGenerateOtp(new ResendOtpRequest(inviteCode, TELEPHONE_NUMBER));
 
         verify(mockInviteDao).merge(expectedInvite.capture());
         InviteEntity updatedInvite = expectedInvite.getValue();

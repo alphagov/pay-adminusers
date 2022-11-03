@@ -18,6 +18,7 @@ import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteServiceRequest;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
+import uk.gov.pay.adminusers.model.ResendOtpRequest;
 import uk.gov.pay.adminusers.service.AdminUsersExceptions;
 import uk.gov.pay.adminusers.service.InviteCompleter;
 import uk.gov.pay.adminusers.service.InviteOtpDispatcher;
@@ -205,8 +206,7 @@ public class InviteResource {
                     @ApiResponse(responseCode = "201", description = "Created",
                             content = @Content(schema = @Schema(implementation = Invite.class))),
                     @ApiResponse(responseCode = "422", description = "Missing required fields or invalid values"),
-                    @ApiResponse(responseCode = "404", description = "Not found"),
-
+                    @ApiResponse(responseCode = "404", description = "Service or role not found")
             }
     )
     public Response createUserInvite(@Valid InviteUserRequest inviteUserRequest) {
@@ -223,21 +223,15 @@ public class InviteResource {
     @Operation(
             summary = "Resend OTP",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "OK"),
-                    @ApiResponse(responseCode = "400", description = "Invalid payload")
+                    @ApiResponse(responseCode = "204", description = "No content"),
+                    @ApiResponse(responseCode = "422", description = "Missing required fields or invalid values"),
+                    @ApiResponse(responseCode = "404", description = "Invite not found")
             }
     )
-    public Response resendOtp(@Parameter(schema = @Schema(implementation = InviteOtpRequest.class))
-                              JsonNode payload) {
+    public void resendOtp(@Valid ResendOtpRequest resendOtpRequest) {
 
         LOGGER.info("Invite POST request for resending otp");
-
-        return inviteValidator.validateResendOtpRequest(payload)
-                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> {
-                    inviteService.reGenerateOtp(InviteOtpRequest.from(payload));
-                    return Response.status(OK).build();
-                });
+        inviteService.reGenerateOtp(resendOtpRequest);
     }
 
     @POST
@@ -248,19 +242,13 @@ public class InviteResource {
             summary = "Validates OTP for the invite",
             responses = {
                     @ApiResponse(responseCode = "204", description = "No content"),
-                    @ApiResponse(responseCode = "400", description = "Invalid payload")
+                    @ApiResponse(responseCode = "422", description = "Missing required fields or invalid values"),
+                    @ApiResponse(responseCode = "404", description = "Invite not found")
             }
     )
-    public void validateOtpKey(@Parameter(schema = @Schema(implementation = InviteValidateOtpRequest.class))
-                               JsonNode payload) {
+    public void validateOtpKey(@Valid InviteValidateOtpRequest inviteValidateOtpRequest) {
 
         LOGGER.info("Invite POST request for validating otp");
-
-        inviteValidator.validateOtpValidationRequest(payload)
-                .ifPresent(errors -> {
-                    throw new WebApplicationException(Response.status(BAD_REQUEST).entity(errors).build());
-                });
-
-        inviteService.validateOtp(InviteValidateOtpRequest.from(payload));
+        inviteService.validateOtp(inviteValidateOtpRequest);
     }
 }
