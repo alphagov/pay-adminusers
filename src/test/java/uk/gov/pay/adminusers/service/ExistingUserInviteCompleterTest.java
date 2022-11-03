@@ -75,7 +75,7 @@ public class ExistingUserInviteCompleterTest {
 
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(user));
 
-        InviteCompleteResponse completedInvite = existingUserInviteCompleter.complete(anInvite);
+        InviteCompleteResponse completedInvite = existingUserInviteCompleter.complete(anInvite, null);
 
         ArgumentCaptor<UserEntity> persistedUser = ArgumentCaptor.forClass(UserEntity.class);
         verify(mockUserDao).merge(persistedUser.capture());
@@ -99,7 +99,7 @@ public class ExistingUserInviteCompleterTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(user));
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> existingUserInviteCompleter.complete(anInvite));
+                () -> existingUserInviteCompleter.complete(anInvite, null));
         assertThat(webApplicationException.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 
@@ -118,7 +118,7 @@ public class ExistingUserInviteCompleterTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(user));
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> existingUserInviteCompleter.complete(anInvite));
+                () -> existingUserInviteCompleter.complete(anInvite, null));
         assertThat(webApplicationException.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 
@@ -130,7 +130,7 @@ public class ExistingUserInviteCompleterTest {
         anInvite.setDisabled(true);
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> existingUserInviteCompleter.complete(anInvite));
+                () -> existingUserInviteCompleter.complete(anInvite, null));
         assertThat(webApplicationException.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -141,7 +141,7 @@ public class ExistingUserInviteCompleterTest {
         anInvite.setExpiryDate(ZonedDateTime.now().minusDays(1));
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> existingUserInviteCompleter.complete(anInvite));
+                () -> existingUserInviteCompleter.complete(anInvite, null));
         assertThat(webApplicationException.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -153,7 +153,7 @@ public class ExistingUserInviteCompleterTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> existingUserInviteCompleter.complete(anInvite));
+                () -> existingUserInviteCompleter.complete(anInvite, null));
         assertThat(webApplicationException.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 

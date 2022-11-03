@@ -22,11 +22,11 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
-public class InviteResourceServiceCompleteIT extends IntegrationTest {
+class InviteResourceServiceCompleteIT extends IntegrationTest {
     public static final String INVITES_RESOURCE_URL = "/v1/api/invites";
 
     @Test
-    public void shouldReturn200withDisabledInviteLinkingToCreatedUser_WhenPassedAValidInviteCode_withoutGatewayAccountIds() {
+    void shouldReturn200withDisabledInviteLinkingToCreatedUser_WhenPassedAValidInviteCode_withoutGatewayAccountIds() {
         String email = format("%s@example.gov.uk", randomUuid());
         String telephoneNumber = "+447700900000";
         String password = "valid_password";
@@ -63,7 +63,7 @@ public class InviteResourceServiceCompleteIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn200withDisabledInviteLinkingToCreatedUser_WhenPassedAValidInviteCode_withGatewayAccountIds() throws Exception {
+    void shouldReturn200withDisabledInviteLinkingToCreatedUser_WhenPassedAValidInviteCode_withGatewayAccountIds() throws Exception {
         String email = format("%s@example.gov.uk", randomUuid());
         String telephoneNumber = "+447700900000";
         String password = "valid_password";
@@ -107,7 +107,7 @@ public class InviteResourceServiceCompleteIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn410_WhenSameInviteCodeCompletedTwice() {
+    void shouldReturn410_WhenSameInviteCodeCompletedTwice() {
         String email = format("%s@example.gov.uk", randomUuid());
         String telephoneNumber = "+447700900000";
         String password = "valid_password";
@@ -132,7 +132,7 @@ public class InviteResourceServiceCompleteIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn409_ifAUserExistsWithTheSameEmail_whenServiceInviteCompletes() {
+    void shouldReturn409_ifAUserExistsWithTheSameEmail_whenServiceInviteCompletes() {
         String email = format("%s@example.gov.uk", randomUuid());
         String username = email;
         String telephoneNumber = "+447700900000";
@@ -157,7 +157,7 @@ public class InviteResourceServiceCompleteIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn410_WheninviteIsDisabled() {
+    void shouldReturn410_WheninviteIsDisabled() {
         String email = format("%s@example.gov.uk", randomUuid());
         String telephoneNumber = "+447700900000";
         String password = "valid_password";
