@@ -24,6 +24,8 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import javax.ws.rs.WebApplicationException;
 import java.time.ZonedDateTime;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -100,7 +102,9 @@ public class ExistingUserInviteCompleterTest {
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
                 () -> existingUserInviteCompleter.complete(anInvite));
-        assertThat(webApplicationException.getMessage(), is("HTTP 500 Internal Server Error"));
+        assertThat(webApplicationException.getResponse().getStatus(), is(500));
+        Map<String, List<String>> entity = (Map<String, List<String>>) webApplicationException.getResponse().getEntity();
+        assertThat(entity.get("errors").get(0), is("Invite with code code to invite an existing user to a service does not have a service set"));
     }
 
     @Test
@@ -114,8 +118,6 @@ public class ExistingUserInviteCompleterTest {
         anInvite.setType(InviteType.SERVICE);
         anInvite.setService(service);
         UserEntity user = UserEntity.from(aUser(anInvite.getEmail()));
-
-        when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(user));
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
                 () -> existingUserInviteCompleter.complete(anInvite));

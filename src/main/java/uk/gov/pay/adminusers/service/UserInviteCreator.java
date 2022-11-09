@@ -61,7 +61,7 @@ public class UserInviteCreator {
     @Transactional
     public Optional<Invite> doInvite(InviteUserRequest inviteUserRequest) {
         Optional<ServiceEntity> serviceEntityOptional = serviceDao.findByExternalId(inviteUserRequest.getServiceExternalId());
-        if (!serviceEntityOptional.isPresent()) {
+        if (serviceEntityOptional.isEmpty()) {
             return Optional.empty();
         }
 
@@ -75,14 +75,20 @@ public class UserInviteCreator {
         List<InviteEntity> existingInvites = inviteDao.findByEmail(inviteUserRequest.getEmail());
         List<InviteEntity> validInvitesToTheSameService = existingInvites.stream()
                 .filter(inviteEntity -> !inviteEntity.isDisabled() && !inviteEntity.isExpired())
-                .filter(inviteEntity -> inviteEntity.getService() != null && inviteUserRequest.getServiceExternalId().equals(inviteEntity.getService().getExternalId()))
+                .filter(inviteEntity -> inviteEntity.getService().isPresent() && inviteUserRequest.getServiceExternalId().equals(inviteEntity.getService().get().getExternalId()))
                 .collect(toUnmodifiableList());
 
         if (!validInvitesToTheSameService.isEmpty()) {
             InviteEntity existingInvite = validInvitesToTheSameService.get(0);
             if (inviteUserRequest.getSender().equals(existingInvite.getSender().getExternalId())) {
                 String inviteUrl = fromUri(linksConfig.getSelfserviceInvitesUrl()).path(existingInvite.getCode()).build().toString();
-                sendUserInviteNotification(existingInvite, inviteUrl, existingInvite.getService(), existingUser);
+                existingUser.ifPresentOrElse(
+                        userEntity -> {
+                            ServiceEntity serviceEntity = existingInvite.getService().orElseThrow(() -> AdminUsersExceptions.existingUserInviteDoesNotHaveService(existingInvite.getCode()));
+                            sendInviteExistingUserToServiceNotification(existingInvite, inviteUrl, serviceEntity);
+                        },
+                        () -> sendNewUserInviteNotification(existingInvite, inviteUrl)
+                );
                 Invite invite = existingInvite.toInvite();
                 invite.setInviteLink(inviteUrl);
                 return Optional.of(invite);
@@ -104,7 +110,10 @@ public class UserInviteCreator {
                         inviteEntity.setType(USER);
                         inviteDao.persist(inviteEntity);
                         String inviteUrl = fromUri(linksConfig.getSelfserviceInvitesUrl()).path(inviteEntity.getCode()).build().toString();
-                        sendUserInviteNotification(inviteEntity, inviteUrl, serviceEntity, existingUser);
+                        existingUser.ifPresentOrElse(
+                                userEntity -> sendInviteExistingUserToServiceNotification(inviteEntity, inviteUrl, serviceEntity),
+                                () -> sendNewUserInviteNotification(inviteEntity, inviteUrl)
+                        );
                         Invite invite = inviteEntity.toInvite();
                         invite.setInviteLink(inviteUrl);
                         return Optional.of(invite);
@@ -115,21 +124,27 @@ public class UserInviteCreator {
                 .orElseThrow(() -> undefinedRoleException(inviteUserRequest.getRoleName()));
     }
 
-    private void sendUserInviteNotification(InviteEntity inviteEntity, String inviteUrl, ServiceEntity serviceEntity, Optional<UserEntity> existingUser) {
+    private void sendNewUserInviteNotification(InviteEntity inviteEntity, String inviteUrl) {
         UserEntity sender = inviteEntity.getSender();
         LOGGER.info("New invite created by User [{}]", sender.getExternalId());
         try {
-            String notificationId;
-            
-            if (existingUser.isPresent()) {
-                String serviceName = serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName();
-                notificationId = notificationService.sendInviteExistingUserEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl, serviceName);
-            } else {
-                notificationId = notificationService.sendInviteEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl);
-            }
+            String notificationId = notificationService.sendInviteEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl);
 
             LOGGER.info("sent invite email successfully by user [{}], notification id [{}]", sender.getExternalId(), notificationId);
-        } catch(Exception e) {
+        } catch (Exception e) {
+            LOGGER.error(format("error sending email by user [%s]", sender.getExternalId()), e);
+        }
+    }
+
+    private void sendInviteExistingUserToServiceNotification(InviteEntity inviteEntity, String inviteUrl, ServiceEntity serviceEntity) {
+        UserEntity sender = inviteEntity.getSender();
+        LOGGER.info("New invite created by User [{}]", sender.getExternalId());
+        try {
+            String serviceName = serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName();
+            String notificationId = notificationService.sendInviteExistingUserEmail(inviteEntity.getSender().getEmail(), inviteEntity.getEmail(), inviteUrl, serviceName);
+
+            LOGGER.info("sent invite email successfully by user [{}], notification id [{}]", sender.getExternalId(), notificationId);
+        } catch (Exception e) {
             LOGGER.error(format("error sending email by user [%s]", sender.getExternalId()), e);
         }
     }

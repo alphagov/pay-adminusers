@@ -4,6 +4,7 @@ import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
+import uk.gov.pay.adminusers.service.AdminUsersExceptions;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
 import javax.persistence.Column;
@@ -15,6 +16,7 @@ import javax.persistence.Table;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Locale;
+import java.util.Optional;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 import static uk.gov.pay.adminusers.model.InviteType.USER;
@@ -138,16 +140,16 @@ public class InviteEntity extends AbstractEntity {
         this.otpKey = otpKey;
     }
 
-    public RoleEntity getRole() {
-        return role;
+    public Optional<RoleEntity> getRole() {
+        return Optional.ofNullable(role);
     }
 
     public void setRole(RoleEntity role) {
         this.role = role;
     }
 
-    public ServiceEntity getService() {
-        return service;
+    public Optional<ServiceEntity> getService() {
+        return Optional.ofNullable(service);
     }
 
     public void setService(ServiceEntity service) {
@@ -219,7 +221,8 @@ public class InviteEntity extends AbstractEntity {
     }
 
     public Invite toInvite() {
-        return new Invite(code, email, telephoneNumber, disabled, loginCounter, type.getType(), role.getName(), isExpired(), hasPassword());
+        String roleName = getRole().map(RoleEntity::getName).orElse(null);
+        return new Invite(code, email, telephoneNumber, disabled, loginCounter, type.getType(), roleName, isExpired(), hasPassword());
     }
 
     public boolean isExpired() {
@@ -244,9 +247,10 @@ public class InviteEntity extends AbstractEntity {
         userEntity.setLoginCounter(0);
         userEntity.setDisabled(Boolean.FALSE);
         userEntity.setSessionVersion(0);
-        if (service != null) {
-            userEntity.addServiceRole(new ServiceRoleEntity(service, role));
-        }
+        this.getService().ifPresent(serviceEntity -> {
+            RoleEntity roleEntity = this.getRole().orElseThrow(() -> AdminUsersExceptions.inviteDoesNotHaveRole(code));
+            userEntity.addServiceRole(new ServiceRoleEntity(serviceEntity, roleEntity));
+        });
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
         userEntity.setCreatedAt(now);
         userEntity.setUpdatedAt(now);

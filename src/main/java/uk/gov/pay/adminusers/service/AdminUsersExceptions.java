@@ -60,6 +60,16 @@ public class AdminUsersExceptions {
         String error = format("Service %s provided does not exist", serviceId);
         return buildWebApplicationException(error, BAD_REQUEST.getStatusCode());
     }
+    
+    public static WebApplicationException inviteDoesNotHaveRole(String inviteCode) {
+        String error = format("Invite with code %s to invite user to a service does not have a role set", inviteCode);
+        return buildWebApplicationException(error, INTERNAL_SERVER_ERROR.getStatusCode());
+    }
+    
+    public static WebApplicationException existingUserInviteDoesNotHaveService(String inviteCode) {
+        String error = format("Invite with code %s to invite an existing user to a service does not have a service set", inviteCode);
+        return buildWebApplicationException(error, INTERNAL_SERVER_ERROR.getStatusCode());
+    }
 
     public static WebApplicationException notFoundException() {
         return new WebApplicationException(Response.status(NOT_FOUND.getStatusCode()).build());

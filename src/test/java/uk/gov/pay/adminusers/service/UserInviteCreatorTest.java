@@ -222,7 +222,7 @@ class UserInviteCreatorTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
         InviteEntity anInvite = mockInviteSuccessExistingInvite();
         when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
-                eq(anInvite.getService().getServiceNames().get(SupportedLanguage.ENGLISH).getName()))).thenReturn("random-notify-id");
+                eq(anInvite.getService().get().getServiceNames().get(SupportedLanguage.ENGLISH).getName()))).thenReturn("random-notify-id");
 
         InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
         Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
@@ -239,7 +239,7 @@ class UserInviteCreatorTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
         InviteEntity anInvite = mockInviteSuccessExistingInvite();
         when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
-                eq(anInvite.getService().getServiceNames().get(SupportedLanguage.ENGLISH).getName())))
+                eq(anInvite.getService().get().getServiceNames().get(SupportedLanguage.ENGLISH).getName())))
                 .thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
 
         InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
@@ -256,12 +256,12 @@ class UserInviteCreatorTest {
         InviteEntity validInvite = mockInviteSuccessExistingInvite();
         InviteEntity expiredInvite = new InviteEntity();
         expiredInvite.setExpiryDate(ZonedDateTime.now().minusDays(2));
-        expiredInvite.setService(validInvite.getService());
+        expiredInvite.setService(validInvite.getService().get());
 
         InviteEntity disabledInvite = new InviteEntity();
         disabledInvite.setDisabled(true);
         disabledInvite.setExpiryDate(ZonedDateTime.now().plusDays(1));
-        disabledInvite.setService(validInvite.getService());
+        disabledInvite.setService(validInvite.getService().get());
 
         InviteEntity emptyServiceInvite = new InviteEntity();
         emptyServiceInvite.setExpiryDate(ZonedDateTime.now().plusDays(1));
@@ -275,7 +275,7 @@ class UserInviteCreatorTest {
 
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
         when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
-                eq(validInvite.getService().getServiceNames().get(SupportedLanguage.ENGLISH).getName()))).thenReturn("random-notify-id");
+                eq(validInvite.getService().get().getServiceNames().get(SupportedLanguage.ENGLISH).getName()))).thenReturn("random-notify-id");
 
         InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
         Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
