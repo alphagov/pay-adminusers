@@ -2,7 +2,7 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
-import uk.gov.pay.adminusers.model.InviteCompleteResponse;
+import uk.gov.pay.adminusers.model.CompleteInviteResponse;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
@@ -30,7 +30,7 @@ public class ExistingUserInviteCompleter extends InviteCompleter {
 
     @Override
     @Transactional
-    public InviteCompleteResponse complete(InviteEntity inviteEntity) {
+    public CompleteInviteResponse complete(InviteEntity inviteEntity) {
         if (inviteEntity.isExpired() || Boolean.TRUE.equals(inviteEntity.isDisabled())) {
             throw inviteLockedException(inviteEntity.getCode());
         }
@@ -49,7 +49,7 @@ public class ExistingUserInviteCompleter extends InviteCompleter {
                     inviteEntity.setDisabled(true);
                     inviteDao.merge(inviteEntity);
 
-                    InviteCompleteResponse response = new InviteCompleteResponse(inviteEntity.toInvite());
+                    CompleteInviteResponse response = new CompleteInviteResponse(inviteEntity.toInvite());
                     response.setUserExternalId(userEntity.getExternalId());
                     response.setServiceExternalId(serviceEntity.getExternalId());
                     return response;

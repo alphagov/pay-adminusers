@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.pay.adminusers.model.InviteCompleteResponse;
+import uk.gov.pay.adminusers.model.CompleteInviteResponse;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.Link;
 import uk.gov.pay.adminusers.model.Service;
@@ -69,7 +69,7 @@ public class NewUserExistingServiceInviteCompleterTest {
         anInvite.setType(InviteType.USER);
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
-        InviteCompleteResponse inviteResponse = newUserExistingServiceInviteCompleter.complete(anInvite);
+        CompleteInviteResponse inviteResponse = newUserExistingServiceInviteCompleter.complete(anInvite);
 
         verify(mockUserDao).persist(expectedInvitedUser.capture());
         verify(mockInviteDao).merge(expectedInvite.capture());

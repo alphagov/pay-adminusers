@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.pay.adminusers.model.InviteCompleteResponse;
+import uk.gov.pay.adminusers.model.CompleteInviteResponse;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
@@ -77,7 +77,7 @@ public class ExistingUserInviteCompleterTest {
 
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(user));
 
-        InviteCompleteResponse completedInvite = existingUserInviteCompleter.complete(anInvite);
+        CompleteInviteResponse completedInvite = existingUserInviteCompleter.complete(anInvite);
 
         ArgumentCaptor<UserEntity> persistedUser = ArgumentCaptor.forClass(UserEntity.class);
         verify(mockUserDao).merge(persistedUser.capture());

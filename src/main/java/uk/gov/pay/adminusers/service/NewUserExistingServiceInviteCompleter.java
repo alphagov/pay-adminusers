@@ -6,7 +6,7 @@ import net.logstash.logback.marker.Markers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.Invite;
-import uk.gov.pay.adminusers.model.InviteCompleteResponse;
+import uk.gov.pay.adminusers.model.CompleteInviteResponse;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
@@ -39,7 +39,7 @@ public class NewUserExistingServiceInviteCompleter extends InviteCompleter {
 
     @Override
     @Transactional
-    public InviteCompleteResponse complete(InviteEntity inviteEntity) {
+    public CompleteInviteResponse complete(InviteEntity inviteEntity) {
         if (inviteEntity.isExpired() || Boolean.TRUE.equals(inviteEntity.isDisabled())) {
             throw inviteLockedException(inviteEntity.getCode());
         }
@@ -66,7 +66,7 @@ public class NewUserExistingServiceInviteCompleter extends InviteCompleter {
         );
 
         Invite invite = linksBuilder.addUserLink(userEntity.toUser(), inviteEntity.toInvite());
-        InviteCompleteResponse response = new InviteCompleteResponse(invite);
+        CompleteInviteResponse response = new CompleteInviteResponse(invite);
         response.setUserExternalId(userEntity.getExternalId());
 
         return response;
