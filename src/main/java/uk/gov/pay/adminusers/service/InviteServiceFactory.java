@@ -9,14 +9,6 @@ public interface InviteServiceFactory {
 
     InviteFinder inviteFinder();
 
-    InviteRouter inviteCompleteRouter();
-
-    SelfSignupInviteCompleter completeSelfSignupInvite();
-
-    NewUserExistingServiceInviteCompleter completeNewUserExistingServiceInvite();
-
-    ExistingUserInviteCompleter completeExistingUserInvite();
-
     InviteRouter inviteOtpRouter();
 
     ServiceOtpDispatcher dispatchServiceOtp();

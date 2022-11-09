@@ -11,7 +11,9 @@ import static javax.ws.rs.core.Response.Status.GONE;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -46,14 +48,11 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
                 .body("invite._links[0].rel", is("user"))
                 .body("invite.disabled", is(true))
                 .body("user_external_id", matchesPattern("[0-9a-z]{32}$"))
-                .body("service_external_id", matchesPattern("[0-9a-z]{32}$"));
+                .body("$", not(hasKey("service_external_id")));
 
 
         Map<String, Object> createdUser = databaseHelper.findUserByUsername(email).stream().findFirst().get();
-        Map<String, Object> role = databaseHelper.findServiceRoleForUser((Integer) createdUser.get("id")).stream().findFirst().get();
         Map<String, Object> invite = databaseHelper.findInviteByCode(inviteCode).stream().findFirst().get();
-
-        assertThat(role.get("id"), is(invite.get("role_id")));
 
         assertThat(createdUser.get("password"), is(password));
         assertThat(createdUser.get("email"), is(email));

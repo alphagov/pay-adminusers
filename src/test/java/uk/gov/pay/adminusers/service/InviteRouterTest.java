@@ -14,12 +14,10 @@ import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 
 import java.util.Collections;
-import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -29,54 +27,22 @@ import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
 @ExtendWith(MockitoExtension.class)
-public class InviteRouterTest {
+class InviteRouterTest {
 
     @Mock
     private InviteServiceFactory inviteServiceFactory;
-
-    @Mock
-    private UserServices userService;
 
     private InviteRouter inviteRouter;
     
     private static final String email = "example@example.com";
 
     @BeforeEach
-    public void before() {
-        inviteRouter = new InviteRouter(inviteServiceFactory, userService);
+    void before() {
+        inviteRouter = new InviteRouter(inviteServiceFactory);
     }
-
+    
     @Test
-    public void shouldResolve_selfSignupInviteCompleter_forServiceInviteType() {
-        InviteEntity inviteEntity = anInvite(SERVICE);
-        when(inviteServiceFactory.completeSelfSignupInvite()).thenReturn(new SelfSignupInviteCompleter(null, null, null, null));
-        InviteCompleter inviteCompleter = inviteRouter.routeComplete(inviteEntity);
-        
-        assertThat(inviteCompleter, is(instanceOf(SelfSignupInviteCompleter.class)));
-    }
-
-    @Test
-    public void shouldResolve_existingUserInviteCompleter_forUserInviteType_whenUserAlreadyExists() {
-        InviteEntity inviteEntity = anInvite(USER);
-        when(userService.findUserByEmail(email)).thenReturn(Optional.of(aUser(email)));
-        when(inviteServiceFactory.completeExistingUserInvite()).thenReturn(new ExistingUserInviteCompleter(null, null));
-        InviteCompleter inviteCompleter = inviteRouter.routeComplete(inviteEntity);
-
-        assertThat(inviteCompleter, is(instanceOf(ExistingUserInviteCompleter.class)));
-    }
-
-    @Test
-    public void shouldResolve_newUserExistingServiceInviteCompleter_forUserInviteType_whenUserDoesNotExist() {
-        InviteEntity inviteEntity = anInvite(USER);
-        when(userService.findUserByEmail(email)).thenReturn(Optional.empty());
-        when(inviteServiceFactory.completeNewUserExistingServiceInvite()).thenReturn(new NewUserExistingServiceInviteCompleter(null, null, null));
-        InviteCompleter inviteCompleter = inviteRouter.routeComplete(inviteEntity);
-
-        assertThat(inviteCompleter, is(instanceOf(NewUserExistingServiceInviteCompleter.class)));
-    }
-
-    @Test
-    public void shouldResolve_selfSignupInviteDispatcher_forServiceInviteType() {
+    void shouldResolve_selfSignupInviteDispatcher_forServiceInviteType() {
         InviteEntity inviteEntity = anInvite(SERVICE);
         when(inviteServiceFactory.dispatchServiceOtp()).thenReturn(new ServiceOtpDispatcher(null, null, null, null));
         InviteOtpDispatcher otpDispatcher = inviteRouter.routeOtpDispatch(inviteEntity);
@@ -85,7 +51,7 @@ public class InviteRouterTest {
     }
 
     @Test
-    public void shouldResolve_existingUserInviteDispatcher_forUserInviteType() {
+    void shouldResolve_existingUserInviteDispatcher_forUserInviteType() {
         InviteEntity inviteEntity = anInvite(USER);
         when(inviteServiceFactory.dispatchUserOtp()).thenReturn(new UserOtpDispatcher(null, null, null, null));
         InviteOtpDispatcher otpDispatcher = inviteRouter.routeOtpDispatch(inviteEntity);
