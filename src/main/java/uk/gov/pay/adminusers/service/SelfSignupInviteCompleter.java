@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.CompleteInviteResponse;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -14,10 +15,13 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
+import javax.annotation.Nullable;
+
 import static java.lang.String.format;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmail;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.missingSecondFactorMethod;
 
 public class SelfSignupInviteCompleter extends InviteCompleter {
 
@@ -42,16 +46,19 @@ public class SelfSignupInviteCompleter extends InviteCompleter {
      */
     @Override
     @Transactional
-    public CompleteInviteResponse complete(InviteEntity inviteEntity) {
+    public CompleteInviteResponse complete(InviteEntity inviteEntity, @Nullable SecondFactorMethod secondFactor) {
         if (inviteEntity.isExpired() || inviteEntity.isDisabled()) {
             throw inviteLockedException(inviteEntity.getCode());
         }
         if (userDao.findByEmail(inviteEntity.getEmail()).isPresent()) {
             throw conflictingEmail(inviteEntity.getEmail());
         }
+        if (secondFactor == null) {
+            throw missingSecondFactorMethod(inviteEntity.getCode());
+        }
 
         if (inviteEntity.isServiceType()) {
-            UserEntity userEntity = inviteEntity.mapToUserEntity();
+            UserEntity userEntity = inviteEntity.mapToUserEntity(secondFactor);
             ServiceEntity serviceEntity = ServiceEntity.from(Service.from());
             serviceDao.persist(serviceEntity);
 

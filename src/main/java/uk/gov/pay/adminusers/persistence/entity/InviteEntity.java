@@ -233,7 +233,7 @@ public class InviteEntity extends AbstractEntity {
         return password != null;
     }
 
-    public UserEntity mapToUserEntity() {
+    public UserEntity mapToUserEntity(SecondFactorMethod secondFactor) {
         UserEntity userEntity = new UserEntity();
         userEntity.setExternalId(RandomIdGenerator.randomUuid());
         userEntity.setUsername(email);
@@ -243,7 +243,7 @@ public class InviteEntity extends AbstractEntity {
         if (telephoneNumber != null) {
             userEntity.setTelephoneNumber(TelephoneNumberUtility.formatToE164(telephoneNumber));
         }
-        userEntity.setSecondFactor(SecondFactorMethod.SMS);
+        userEntity.setSecondFactor(secondFactor);
         userEntity.setLoginCounter(0);
         userEntity.setDisabled(Boolean.FALSE);
         userEntity.setSessionVersion(0);

@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.service;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.model.CompleteInviteResponse;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
@@ -10,7 +11,7 @@ import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 
-import javax.ws.rs.WebApplicationException;
+import javax.annotation.Nullable;
 
 import static java.lang.String.format;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
@@ -30,7 +31,11 @@ public class ExistingUserInviteCompleter extends InviteCompleter {
 
     @Override
     @Transactional
-    public CompleteInviteResponse complete(InviteEntity inviteEntity) {
+    public CompleteInviteResponse complete(InviteEntity inviteEntity, @Nullable SecondFactorMethod secondFactor) {
+        return complete(inviteEntity);
+    }
+
+    private CompleteInviteResponse complete(InviteEntity inviteEntity) {
         if (inviteEntity.isExpired() || Boolean.TRUE.equals(inviteEntity.isDisabled())) {
             throw inviteLockedException(inviteEntity.getCode());
         }

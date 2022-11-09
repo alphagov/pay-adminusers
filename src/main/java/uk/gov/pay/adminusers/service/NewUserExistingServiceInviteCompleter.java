@@ -7,17 +7,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.CompleteInviteResponse;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
+import javax.annotation.Nullable;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmail;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.missingSecondFactorMethod;
 import static uk.gov.service.payments.logging.LoggingKeys.SERVICE_EXTERNAL_ID;
 import static uk.gov.service.payments.logging.LoggingKeys.USER_EXTERNAL_ID;
 
@@ -39,18 +42,21 @@ public class NewUserExistingServiceInviteCompleter extends InviteCompleter {
 
     @Override
     @Transactional
-    public CompleteInviteResponse complete(InviteEntity inviteEntity) {
+    public CompleteInviteResponse complete(InviteEntity inviteEntity, @Nullable SecondFactorMethod secondFactor) {
         if (inviteEntity.isExpired() || Boolean.TRUE.equals(inviteEntity.isDisabled())) {
             throw inviteLockedException(inviteEntity.getCode());
         }
         if (userDao.findByEmail(inviteEntity.getEmail()).isPresent()) {
             throw conflictingEmail(inviteEntity.getEmail());
         }
+        if (secondFactor == null) {
+            throw missingSecondFactorMethod(inviteEntity.getCode());
+        }
         if (!inviteEntity.isUserType()) {
             throw internalServerError(format("Attempting to complete a 'new user, existing service' invite for an non user invite. invite-code = %s", inviteEntity.getCode()));
         }
 
-        UserEntity userEntity = inviteEntity.mapToUserEntity();
+        UserEntity userEntity = inviteEntity.mapToUserEntity(secondFactor);
         userDao.persist(userEntity);
         inviteEntity.setDisabled(Boolean.TRUE);
         inviteDao.merge(inviteEntity);

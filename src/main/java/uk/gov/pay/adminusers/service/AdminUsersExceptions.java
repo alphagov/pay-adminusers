@@ -22,6 +22,11 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, BAD_REQUEST.getStatusCode());
     }
 
+    public static WebApplicationException missingSecondFactorMethod(String inviteCode) {
+        String error = format("Second factor not provided when attempting to complete an invite for a non-existent user. invite-code = %s", inviteCode);
+        return buildWebApplicationException(error, BAD_REQUEST.getStatusCode());
+    }
+
     public static WebApplicationException conflictingUsername(String username) {
         String error = format("username [%s] already exists", username);
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
