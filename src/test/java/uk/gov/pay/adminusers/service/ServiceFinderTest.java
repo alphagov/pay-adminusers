@@ -9,7 +9,7 @@ import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceSearchRequest;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
-import uk.gov.pay.adminusers.persistence.entity.ServiceEntityBuilder;
+import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.service.payments.commons.model.SupportedLanguage;
 
@@ -143,7 +143,7 @@ public class ServiceFinderTest {
     private static List<ServiceEntity> generateServiceEntities(String... names) {
         var serviceEntities = new ArrayList<ServiceEntity>();
         for (String name : names) {
-            serviceEntities.add(ServiceEntityBuilder.aServiceEntity()
+            serviceEntities.add(ServiceEntityFixture.aServiceEntity()
                     .withServiceNameEntity(SupportedLanguage.ENGLISH, name)
                     .build());
         }

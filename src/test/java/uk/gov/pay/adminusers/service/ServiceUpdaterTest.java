@@ -39,7 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntityBuilder.aMerchantDetailsEntity;
-import static uk.gov.pay.adminusers.persistence.entity.ServiceEntityBuilder.aServiceEntity;
+import static uk.gov.pay.adminusers.fixtures.ServiceEntityFixture.aServiceEntity;
 
 public class ServiceUpdaterTest {
 

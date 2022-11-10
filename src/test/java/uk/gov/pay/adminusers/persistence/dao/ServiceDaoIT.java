@@ -19,7 +19,7 @@ import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntityBuilder;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
-import uk.gov.pay.adminusers.persistence.entity.ServiceEntityBuilder;
+import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.service.payments.commons.model.SupportedLanguage;
 
@@ -64,7 +64,7 @@ class ServiceDaoIT extends DaoTestBase {
 
     @Test
     void shouldSaveAService_withCustomisations() throws Exception {
-        ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity insertedServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withExperimentalFeaturesEnabled(true)
                 .build();
         serviceDao.persist(insertedServiceEntity);
@@ -84,7 +84,7 @@ class ServiceDaoIT extends DaoTestBase {
 
     @Test
     void shouldSaveAService_withMultipleServiceNames() {
-        ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity insertedServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withCustomBranding(null)
                 .withServiceNameEntity(SupportedLanguage.WELSH, CY_NAME)
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, EN_NAME)
@@ -110,7 +110,7 @@ class ServiceDaoIT extends DaoTestBase {
 
     @Test
     void shouldSaveAService_withoutCustomisations_andServiceName() {
-        ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity insertedServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withCustomBranding(null)
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, EN_NAME)
                 .withServiceNameEntity(SupportedLanguage.WELSH, CY_NAME)
@@ -138,7 +138,7 @@ class ServiceDaoIT extends DaoTestBase {
     @Test
     void shouldSaveAService_withMerchantDetails() {
         MerchantDetailsEntity merchantDetails = MerchantDetailsEntityBuilder.aMerchantDetailsEntity().build();
-        ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity insertedServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withMerchantDetailsEntity(merchantDetails)
                 .build();
 
@@ -162,7 +162,7 @@ class ServiceDaoIT extends DaoTestBase {
     @Test
     void shouldFindByServiceExternalId() {
         ZonedDateTime now = ZonedDateTime.now(UTC);
-        ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity insertedServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withExperimentalFeaturesEnabled(true)
                 .build();
 
@@ -184,11 +184,11 @@ class ServiceDaoIT extends DaoTestBase {
 
     @Test
     void shouldFindByENServiceName() {
-        var se1 = ServiceEntityBuilder.aServiceEntity()
+        var se1 = ServiceEntityFixture.aServiceEntity()
                 .withCustomBranding(null)
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, "register a birth")
                 .build();
-        var se2 = ServiceEntityBuilder.aServiceEntity()
+        var se2 = ServiceEntityFixture.aServiceEntity()
                 .withCustomBranding(null)
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, "bulky waste collection")
                 .build();
@@ -219,12 +219,12 @@ class ServiceDaoIT extends DaoTestBase {
                 .withName("Royal Borough of Rivendell")
                 .build();
 
-        var se1 = ServiceEntityBuilder.aServiceEntity()
+        var se1 = ServiceEntityFixture.aServiceEntity()
                 .withCustomBranding(null)
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, "register a birth")
                 .withMerchantDetailsEntity(merchantDetails1)
                 .build();
-        var se2 = ServiceEntityBuilder.aServiceEntity()
+        var se2 = ServiceEntityFixture.aServiceEntity()
                 .withCustomBranding(null)
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, "bulky waste collection")
                 .withMerchantDetailsEntity(merchantDetails2)
@@ -249,7 +249,7 @@ class ServiceDaoIT extends DaoTestBase {
 
     @Test
     void shouldReturnServiceValuesFromDatabase() {
-        ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity insertedServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withRedirectToServiceImmediatelyOnTerminalState(true)
                 .withCreatedDate(ZonedDateTime.parse("2020-11-01T00:00:00Z"))
                 .build();
@@ -269,7 +269,7 @@ class ServiceDaoIT extends DaoTestBase {
                 createServiceName(SupportedLanguage.ENGLISH, EN_NAME),
                 createServiceName(SupportedLanguage.WELSH, CY_NAME)
         ));
-        ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity insertedServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withServiceName(serviceNames)
                 .build();
 
@@ -294,7 +294,7 @@ class ServiceDaoIT extends DaoTestBase {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
         String gatewayAccountId = randomUuid();
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
-        ServiceEntity insertedServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity insertedServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withGatewayAccounts(Collections.singletonList(gatewayAccountIdEntity)).build();
 
         gatewayAccountIdEntity.setService(insertedServiceEntity);
@@ -323,7 +323,7 @@ class ServiceDaoIT extends DaoTestBase {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
         String gatewayAccountId = randomUuid();
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
-        ServiceEntity insertedServiceEntity = ServiceEntityBuilder
+        ServiceEntity insertedServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withGatewayAccounts(Collections.singletonList(gatewayAccountIdEntity))
                 .build();
@@ -350,7 +350,7 @@ class ServiceDaoIT extends DaoTestBase {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
         String gatewayAccountId = randomUuid();
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
-        ServiceEntity insertedServiceEntity = ServiceEntityBuilder
+        ServiceEntity insertedServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withGatewayAccounts(Collections.singletonList(gatewayAccountIdEntity))
                 .build();

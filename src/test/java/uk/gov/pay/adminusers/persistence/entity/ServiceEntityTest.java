@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
 import org.junit.jupiter.api.Test;
+import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
@@ -16,7 +17,7 @@ public class ServiceEntityTest {
 
     @Test
     public void shouldUpdateExistingServiceName() {
-        ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity().build();
+        ServiceEntity serviceEntity = ServiceEntityFixture.aServiceEntity().build();
 
         assertThat(serviceEntity.getServiceNames().size(), is(1));
         assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
@@ -29,7 +30,7 @@ public class ServiceEntityTest {
 
     @Test
     public void shouldAddNewServiceName() {
-        ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity().build();
+        ServiceEntity serviceEntity = ServiceEntityFixture.aServiceEntity().build();
 
         assertThat(serviceEntity.getServiceNames().size(), is(1));
         assertThat(serviceEntity.getServiceNames().get(SupportedLanguage.ENGLISH).getName(), is(Service.DEFAULT_NAME_VALUE));
@@ -43,7 +44,7 @@ public class ServiceEntityTest {
 
     @Test
     public void shouldCreateEntity_withNotStartedAsDefault() {
-        Service service = ServiceEntityBuilder.aServiceEntity().build().toService();
+        Service service = ServiceEntityFixture.aServiceEntity().build().toService();
         assertThat(service.getGoLiveStage(), is(GoLiveStage.NOT_STARTED));
     }
 

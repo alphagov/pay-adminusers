@@ -1,9 +1,13 @@
-package uk.gov.pay.adminusers.persistence.entity;
+package uk.gov.pay.adminusers.fixtures;
 
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
+import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
+import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntityBuilder;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.service.payments.commons.model.SupportedLanguage;
 
@@ -16,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public final class ServiceEntityBuilder {
+public final class ServiceEntityFixture {
     private Integer id = nextInt();
     private String externalId = RandomIdGenerator.randomUuid();
     private String name = Service.DEFAULT_NAME_VALUE;
@@ -33,44 +37,44 @@ public final class ServiceEntityBuilder {
     private String sector;
     private PspTestAccountStage pspTestAccountStage = PspTestAccountStage.NOT_STARTED;
 
-    private ServiceEntityBuilder() {
+    private ServiceEntityFixture() {
     }
 
-    public static ServiceEntityBuilder aServiceEntity() {
-        return new ServiceEntityBuilder();
+    public static ServiceEntityFixture aServiceEntity() {
+        return new ServiceEntityFixture();
     }
 
-    public ServiceEntityBuilder withId(Integer id) {
+    public ServiceEntityFixture withId(Integer id) {
         this.id = id;
         return this;
     }
 
-    public ServiceEntityBuilder withExternalId(String externalId) {
+    public ServiceEntityFixture withExternalId(String externalId) {
         this.externalId = externalId;
         return this;
     }
 
-    public ServiceEntityBuilder withMerchantDetailsEntity(MerchantDetailsEntity merchantDetailsEntity) {
+    public ServiceEntityFixture withMerchantDetailsEntity(MerchantDetailsEntity merchantDetailsEntity) {
         this.merchantDetailsEntity = merchantDetailsEntity;
         return this;
     }
 
-    public ServiceEntityBuilder withCustomBranding(Map<String, Object> customBranding) {
+    public ServiceEntityFixture withCustomBranding(Map<String, Object> customBranding) {
         this.customBranding = customBranding;
         return this;
     }
 
-    public ServiceEntityBuilder withGatewayAccounts(List<GatewayAccountIdEntity> gatewayAccountIds) {
+    public ServiceEntityFixture withGatewayAccounts(List<GatewayAccountIdEntity> gatewayAccountIds) {
         this.gatewayAccountIds = gatewayAccountIds;
         return this;
     }
 
-    public ServiceEntityBuilder withServiceName(Set<ServiceNameEntity> serviceName) {
+    public ServiceEntityFixture withServiceName(Set<ServiceNameEntity> serviceName) {
         this.serviceName = serviceName;
         return this;
     }
 
-    public ServiceEntityBuilder withServiceNameEntity(SupportedLanguage language, String name) {
+    public ServiceEntityFixture withServiceNameEntity(SupportedLanguage language, String name) {
         ServiceNameEntity entity = new ServiceNameEntity();
         entity.setLanguage(language);
         entity.setName(name);
@@ -78,42 +82,42 @@ public final class ServiceEntityBuilder {
         return this;
     }
 
-    public ServiceEntityBuilder withRedirectToServiceImmediatelyOnTerminalState(boolean redirectToServiceImmediatelyOnTerminalState) {
+    public ServiceEntityFixture withRedirectToServiceImmediatelyOnTerminalState(boolean redirectToServiceImmediatelyOnTerminalState) {
         this.redirectToServiceImmediatelyOnTerminalState = redirectToServiceImmediatelyOnTerminalState;
         return this;
     }
 
-    public ServiceEntityBuilder withCollectBillingAddress(boolean collectBillingAddress) {
+    public ServiceEntityFixture withCollectBillingAddress(boolean collectBillingAddress) {
         this.collectBillingAddress = collectBillingAddress;
         return this;
     }
     
-    public ServiceEntityBuilder withGoLiveStage(GoLiveStage goLiveStage) {
+    public ServiceEntityFixture withGoLiveStage(GoLiveStage goLiveStage) {
         this.goLiveStage = goLiveStage;
         return this;
     }
 
-    public ServiceEntityBuilder withExperimentalFeaturesEnabled(boolean experimentalFeaturesEnabled) {
+    public ServiceEntityFixture withExperimentalFeaturesEnabled(boolean experimentalFeaturesEnabled) {
         this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
         return this;
     }
     
-    public ServiceEntityBuilder withCreatedDate(ZonedDateTime createdDate) {
+    public ServiceEntityFixture withCreatedDate(ZonedDateTime createdDate) {
         this.createdDate = createdDate;
         return this;
     }
 
-    public ServiceEntityBuilder withWentLiveDate(ZonedDateTime wentLiveDate) {
+    public ServiceEntityFixture withWentLiveDate(ZonedDateTime wentLiveDate) {
         this.wentLiveDate = wentLiveDate;
         return this;
     }
 
-    public ServiceEntityBuilder withSector(String sector) {
+    public ServiceEntityFixture withSector(String sector) {
         this.sector = sector;
         return this;
     }
 
-    public ServiceEntityBuilder withPspTestAccountStage(PspTestAccountStage pspTestAccountStage) {
+    public ServiceEntityFixture withPspTestAccountStage(PspTestAccountStage pspTestAccountStage) {
         this.pspTestAccountStage = pspTestAccountStage;
         return this;
     }

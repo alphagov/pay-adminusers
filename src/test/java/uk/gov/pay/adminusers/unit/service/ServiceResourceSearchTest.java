@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntityBuilder;
-import uk.gov.pay.adminusers.persistence.entity.ServiceEntityBuilder;
+import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.resources.GovUkPayAgreementRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceResource;
@@ -87,7 +87,7 @@ public class ServiceResourceSearchTest extends ServiceResourceBaseTest {
         var merchantDetailsEntity = MerchantDetailsEntityBuilder.aMerchantDetailsEntity()
                 .withName("Government Bakery Office")
                 .build();
-        var serviceEntity = ServiceEntityBuilder.aServiceEntity()
+        var serviceEntity = ServiceEntityFixture.aServiceEntity()
                 .withExternalId(serviceExternalId)
                 .withMerchantDetailsEntity(merchantDetailsEntity)
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, "GOV.UK Cake Service")
