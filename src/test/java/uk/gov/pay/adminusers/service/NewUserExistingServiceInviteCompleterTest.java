@@ -82,8 +82,8 @@ public class NewUserExistingServiceInviteCompleterTest {
         assertThat(inviteResponse.getUserExternalId(), is(user.getExternalId()));
 
         assertThat(user.getServicesRoles().size(), is(1));
-        assertThat(user.getServicesRoles().get(0).getRole(), is(anInvite.getRole()));
-        assertThat(user.getServicesRoles().get(0).getService(), is(anInvite.getService()));
+        assertThat(user.getServicesRoles().get(0).getRole(), is(anInvite.getRole().get()));
+        assertThat(user.getServicesRoles().get(0).getService(), is(anInvite.getService().get()));
         assertThat(user.getServicesRoles().get(0).getUser(), is(user));
     }
 
