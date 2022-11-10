@@ -9,7 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
-import uk.gov.pay.adminusers.persistence.entity.ServiceEntityBuilder;
+import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.resources.GovUkPayAgreementRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceResource;
@@ -77,7 +77,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     @Test
     public void shouldUpdateExistingEnServiceNameIncludingLegacyName_inSingleObject() {
 
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
+        ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
         String jsonPayload = fixture("fixtures/resource/service/patch/single-object-replace-service-name-en.json");
@@ -100,7 +100,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     @Test
     public void shouldUpdateExistingEnServiceNameIncludingLegacyName() {
 
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
+        ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
         String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-service-name-en.json");
@@ -123,7 +123,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     @Test
     public void shouldUpdateExistingEnServiceNameAndNonExistingCyServiceName() {
 
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
+        ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
         String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-service-name-en-replace-service-name-cy.json");
@@ -147,7 +147,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     @Test
     public void shouldUpdateExistingCyServiceName() {
 
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withServiceNameEntity(SupportedLanguage.WELSH, "old-cy-name")
                 .build();
         String externalId = thisServiceEntity.getExternalId();
@@ -173,7 +173,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     @Test
     public void shouldUpdateExistingEnServiceNameAndExistingCyServiceName() {
 
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, "old-en-name")
                 .withServiceNameEntity(SupportedLanguage.WELSH, "old-cy-name")
                 .build();
@@ -200,7 +200,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     @Test
     public void shouldRemoveCyServiceNameWhenReplacedWithBlank() {
 
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, "old-en-name")
                 .withServiceNameEntity(SupportedLanguage.WELSH, "old-cy-name")
                 .build();
@@ -240,7 +240,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     @Test
     public void shouldError400_ifMandatoryFieldValueMissing() {
 
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
+        ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
         String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-service-name-en-missing-value.json");
@@ -263,7 +263,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     @Test
     public void shouldError400_ifMandatoryFieldPathMissing() {
 
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
+        ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
         String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-missing-path.json");
@@ -286,7 +286,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     @Test
     public void shouldError400_ifmandatoryFieldOpMissing() {
 
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
+        ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
         String jsonPayload = fixture("fixtures/resource/service/patch/array-missing-op-service-name-en.json");
@@ -308,7 +308,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldSuccess_whenAddGatewayAccountIds_whereNoGatewayAccountIds() {
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
+        ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
         assertThat(thisServiceEntity.getGatewayAccountIds(), is(empty()));
@@ -335,7 +335,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
         String gatewayAccountId = randomUuid();
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withGatewayAccounts(Collections.singletonList(gatewayAccountIdEntity))
                 .build();
         gatewayAccountIdEntity.setService(thisServiceEntity);
@@ -359,7 +359,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldReturn409_whenAddGatewayAccountIds_andGatewayAccountId_isUsedByAnotherService() {
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder.aServiceEntity().build();
+        ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
 
         String jsonPayload = fixture("fixtures/resource/service/patch/array-add-gateway-account-ids.json");
         when(mockedServiceDao.findByExternalId(thisServiceEntity.getExternalId())).thenReturn(Optional.of(thisServiceEntity));
@@ -381,7 +381,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldUpdateRedirect_toTrue() {
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder
+        ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withRedirectToServiceImmediatelyOnTerminalState(false)
                 .build();
@@ -406,7 +406,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldFailUpdateRedirect_whenValueIsNotBoolean() {
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder
+        ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withRedirectToServiceImmediatelyOnTerminalState(false)
                 .build();
@@ -431,7 +431,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldUpdateCollectBillingAddress_toFalse() {
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder
+        ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withCollectBillingAddress(true)
                 .build();
@@ -456,7 +456,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldFailUpdateCollectBillingAddress_whenValueIsNotBoolean() {
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder
+        ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withCollectBillingAddress(true)
                 .build();
@@ -481,7 +481,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldUpdateExperimentalFeaturesEnabled_toTrue() {
-        ServiceEntity thisServiceEntity = ServiceEntityBuilder
+        ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withExperimentalFeaturesEnabled(false)
                 .build();

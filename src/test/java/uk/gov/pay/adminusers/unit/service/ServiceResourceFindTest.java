@@ -12,7 +12,7 @@ import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
-import uk.gov.pay.adminusers.persistence.entity.ServiceEntityBuilder;
+import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.resources.GovUkPayAgreementRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceResource;
@@ -76,7 +76,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
     @Test
     public void shouldGet_existingServiceById_withDefaultEnNameVariant() {
         String serviceExternalId = randomUuid();
-        ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity().withExternalId(serviceExternalId).build();
+        ServiceEntity serviceEntity = ServiceEntityFixture.aServiceEntity().withExternalId(serviceExternalId).build();
         given(mockedServiceDao.findByExternalId(serviceExternalId)).willReturn(Optional.of(serviceEntity));
 
         Response response = RESOURCES.target(format("/v1/api/services/%s", serviceExternalId)).request().get();
@@ -100,7 +100,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
     @Test
     public void shouldGetServiceById_withServiceNameVariantForCy() {
         String serviceExternalId = randomUuid();
-        ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity serviceEntity = ServiceEntityFixture.aServiceEntity()
                 .withExternalId(serviceExternalId)
                 .withServiceNameEntity(SupportedLanguage.WELSH, CY_SERVICE_NAME)
                 .build();
@@ -121,7 +121,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
     @Test
     public void shouldGetServiceById_withServiceNameVariantsForEn_andCy() {
         String serviceExternalId = randomUuid();
-        ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity serviceEntity = ServiceEntityFixture.aServiceEntity()
                 .withExternalId(serviceExternalId)
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)
                 .withServiceNameEntity(SupportedLanguage.WELSH, CY_SERVICE_NAME)
@@ -146,7 +146,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
         String gatewayAccountId = randomUuid();
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
-        ServiceEntity serviceEntity = ServiceEntityBuilder.aServiceEntity()
+        ServiceEntity serviceEntity = ServiceEntityFixture.aServiceEntity()
                 .withGatewayAccounts(Collections.singletonList(gatewayAccountIdEntity))
                 .withRedirectToServiceImmediatelyOnTerminalState(true)
                 .withCreatedDate(ZonedDateTime.parse("2020-01-31T12:30:00Z"))
