@@ -1,10 +1,10 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import uk.gov.pay.adminusers.exception.ValidationException;
 import uk.gov.pay.adminusers.model.ServiceSearchRequest;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
+import uk.gov.service.payments.commons.api.exception.ValidationException;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -65,12 +65,12 @@ public class ServiceRequestValidator {
                 FIELD_MERCHANT_DETAILS_ADDRESS_CITY, FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE,
                 FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY);
         if (missingMandatoryFieldErrors.isPresent()) {
-            throw new ValidationException(Errors.from(missingMandatoryFieldErrors.get()));
+            throw new ValidationException(missingMandatoryFieldErrors.get());
         }
 
         Optional<List<String>> invalidLengthFieldErrors = requestValidations.checkMaxLength(payload, FIELD_MERCHANT_DETAILS_NAME_MAX_LENGTH, FIELD_MERCHANT_DETAILS_NAME);
         if (invalidLengthFieldErrors.isPresent()) {
-            throw new ValidationException(Errors.from(invalidLengthFieldErrors.get()));
+            throw new ValidationException(invalidLengthFieldErrors.get());
         }
 
         if (payload.has(FIELD_MERCHANT_DETAILS_EMAIL)) {
@@ -83,12 +83,12 @@ public class ServiceRequestValidator {
         errors = requestValidations.checkMaxLength(payload, FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH,
                 FIELD_MERCHANT_DETAILS_EMAIL);
         if (errors.isPresent()) {
-            throw new ValidationException(Errors.from(errors.get()));
+            throw new ValidationException(errors.get());
         }
 
         errors = requestValidations.isValidEmail(payload, FIELD_MERCHANT_DETAILS_EMAIL);
         if (errors.isPresent()) {
-            throw new ValidationException(Errors.from(errors.get()));
+            throw new ValidationException(errors.get());
         }
     }
 
