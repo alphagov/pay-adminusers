@@ -25,10 +25,12 @@ import uk.gov.pay.adminusers.service.InviteOtpDispatcher;
 import uk.gov.pay.adminusers.service.InviteService;
 import uk.gov.pay.adminusers.service.InviteServiceFactory;
 import uk.gov.pay.adminusers.utils.Errors;
+import uk.gov.service.payments.commons.model.jsonpatch.JsonPatchRequest;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -38,6 +40,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -87,6 +91,42 @@ public class InviteResource {
         return inviteServiceFactory.inviteFinder().find(code)
                 .map(invite -> Response.status(OK).type(APPLICATION_JSON).entity(invite).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
+    }
+
+
+    @PATCH
+    @Path("/v1/api/invites/{code}")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(
+            summary = "Update an invite",
+            requestBody = @RequestBody(content = @Content(schema = @Schema(example = "[" +
+                    "    {" +
+                    "        \"op\": \"replace\"," +
+                    "        \"path\": \"telephone_number\"," +
+                    "        \"value\": \"+441134960000\"" +
+                    "    }," +
+                    "    {" +
+                    "        \"op\": \"replace\"," +
+                    "        \"path\": \"password\"," +
+                    "        \"value\": \"a-password\"" +
+                    "    }" +
+                    "]"))),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = Invite.class))),
+                    @ApiResponse(responseCode = "422", description = "Missing required fields or invalid values"),
+                    @ApiResponse(responseCode = "400", description = "Bad request"),
+                    @ApiResponse(responseCode = "404", description = "Invite not found")
+            }
+    )
+    public Invite updateInvite(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode,
+                               JsonNode payload) {
+        inviteValidator.validatePatchRequest(payload);
+        List<JsonPatchRequest> updateRequests = StreamSupport.stream(payload.spliterator(), false)
+                .map(JsonPatchRequest::from)
+                .collect(Collectors.toList());
+        return inviteService.updateInvite(inviteCode, updateRequests);
     }
 
     @POST

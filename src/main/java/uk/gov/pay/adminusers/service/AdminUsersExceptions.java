@@ -127,6 +127,11 @@ public class AdminUsersExceptions {
         String error = format("Unable to reset second factor method to SMS as user [%s] does not have a telephone number set", userExternalId);
         return buildWebApplicationException(error, PRECONDITION_FAILED.getStatusCode());
     }
+    
+    public static WebApplicationException unexpectedPathForPatchOperation(String path) {
+        String error = format("Unexpected path for patch operation: %s", path);
+        return buildWebApplicationException(error, BAD_REQUEST.getStatusCode());
+    }
 
     private static WebApplicationException buildWebApplicationException(String error, int status) {
         return buildWebApplicationException(error, status, null);
