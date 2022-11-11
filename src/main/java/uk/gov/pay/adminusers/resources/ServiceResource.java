@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
-import uk.gov.pay.adminusers.exception.ValidationException;
 import uk.gov.pay.adminusers.model.*;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
@@ -21,6 +20,7 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import uk.gov.pay.adminusers.service.*;
 import uk.gov.pay.adminusers.utils.Errors;
+import uk.gov.service.payments.commons.api.exception.ValidationException;
 import uk.gov.service.payments.commons.model.SupportedLanguage;
 
 import javax.validation.Valid;

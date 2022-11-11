@@ -10,11 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.pay.adminusers.exception.ValidationException;
 import uk.gov.pay.adminusers.model.ServiceSearchRequest;
 import uk.gov.pay.adminusers.model.ServiceUpdateRequest;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
+import uk.gov.service.payments.commons.api.exception.ValidationException;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -209,7 +209,7 @@ public class ServiceRequestValidatorTest {
         ValidationException validationException = assertThrows(ValidationException.class,
                 () -> serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload));
 
-        assertThat(validationException.getErrors().getErrors(), hasItem("Field [email] must be a valid email address"));
+        assertThat(validationException.getErrors(), hasItem("Field [email] must be a valid email address"));
     }
 
     @Test
@@ -220,7 +220,7 @@ public class ServiceRequestValidatorTest {
         ValidationException validationException = assertThrows(ValidationException.class,
                 () -> serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload));
 
-        assertThat(validationException.getErrors().getErrors(), hasItem("Field [email] must have a maximum length of 255 characters"));
+        assertThat(validationException.getErrors(), hasItem("Field [email] must have a maximum length of 255 characters"));
     }
 
     @Test
@@ -231,7 +231,7 @@ public class ServiceRequestValidatorTest {
         ValidationException validationException = assertThrows(ValidationException.class,
                 () -> serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload));
 
-        assertThat(validationException.getErrors().getErrors(), hasItem("Field [name] must have a maximum length of 255 characters"));
+        assertThat(validationException.getErrors(), hasItem("Field [name] must have a maximum length of 255 characters"));
     }
 
     private static ObjectNode createMerchantDetailsJsonPayload(String name, String email) {
