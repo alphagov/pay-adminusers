@@ -1130,8 +1130,8 @@ components:
         second_factor:
           type: string
           enum:
-          - sms
-          - app
+          - SMS
+          - APP
     CompleteInviteResponse:
       type: object
       properties:
@@ -1605,8 +1605,8 @@ components:
         second_factor:
           type: string
           enum:
-          - sms
-          - app
+          - SMS
+          - APP
           example: SMS
         service_roles:
           type: array
