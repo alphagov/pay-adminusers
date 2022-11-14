@@ -6,9 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.pay.adminusers.model.InviteCompleteResponse;
+import uk.gov.pay.adminusers.model.CompleteInviteResponse;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.Link;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -26,6 +27,7 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -68,12 +70,12 @@ class SelfSignupInviteCompleterTest {
     }
 
     @Test
-    void shouldCreateServiceAndUser_whenPassedValidServiceInviteCode() {
+    void shouldCreateServiceAndUser_whenPassedValidServiceInviteCode_with2FAMethod() {
         InviteEntity anInvite = createInvite();
         anInvite.setType(InviteType.SERVICE);
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
-        InviteCompleteResponse inviteResponse = selfSignupInviteCompleter.complete(anInvite);
+        CompleteInviteResponse inviteResponse = selfSignupInviteCompleter.complete(anInvite, SecondFactorMethod.APP);
 
         verify(mockServiceDao).persist(expectedService.capture());
         verify(mockUserDao).merge(expectedInvitedUser.capture());
@@ -87,11 +89,26 @@ class SelfSignupInviteCompleterTest {
         assertThat(serviceEntity.isRedirectToServiceImmediatelyOnTerminalState(), is(false));
         assertThat(serviceEntity.isCollectBillingAddress(), is(true));
         assertThat(serviceEntity.getDefaultBillingAddressCountry(), is("GB"));
+        
+        UserEntity userEntity = expectedInvitedUser.getValue();
+        assertThat(userEntity.getSecondFactor(), is(SecondFactorMethod.APP));
+        assertThat(expectedInvitedUser.getValue().getServicesRole(serviceEntity.getExternalId()).isPresent(), is(true));
 
         assertThat(inviteResponse.getInvite().isDisabled(), is(true));
         assertThat(inviteResponse.getInvite().getLinks().size(), is(1));
         assertThat(inviteResponse.getInvite().getLinks().get(0).getRel(), is(Link.Rel.USER));
         assertThat(inviteResponse.getInvite().getLinks().get(0).getHref(), matchesPattern("^" + baseUrl + "/v1/api/users/[0-9a-z]{32}$"));
+    }
+
+    @Test
+    void shouldThrowMissingSecondFactorMethod_whenNo2FAMethodSupplied() {
+        InviteEntity anInvite = createInvite();
+        anInvite.setType(InviteType.SERVICE);
+        when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
+
+        WebApplicationException exception = assertThrows(WebApplicationException.class,
+                () -> selfSignupInviteCompleter.complete(anInvite, null));
+        assertThat(exception.getMessage(), is("HTTP 400 Bad Request"));
     }
 
     @Test
@@ -105,7 +122,7 @@ class SelfSignupInviteCompleterTest {
         when(mockUserDao.findByEmail(anInvite.getEmail())).thenReturn(Optional.of(mock(UserEntity.class)));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite));
+                () -> selfSignupInviteCompleter.complete(anInvite, SecondFactorMethod.SMS));
         assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
     }
 
@@ -119,7 +136,7 @@ class SelfSignupInviteCompleterTest {
         anInvite.setDisabled(true);
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite));
+                () -> selfSignupInviteCompleter.complete(anInvite, SecondFactorMethod.SMS));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -133,7 +150,7 @@ class SelfSignupInviteCompleterTest {
         anInvite.setExpiryDate(ZonedDateTime.now().minusDays(1));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite));
+                () -> selfSignupInviteCompleter.complete(anInvite, SecondFactorMethod.SMS));
         assertThat(exception.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -148,7 +165,7 @@ class SelfSignupInviteCompleterTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> selfSignupInviteCompleter.complete(anInvite));
+                () -> selfSignupInviteCompleter.complete(anInvite, SecondFactorMethod.SMS));
         assertThat(exception.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 

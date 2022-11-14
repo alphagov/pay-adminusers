@@ -5,10 +5,12 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static java.lang.String.format;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
 import static javax.ws.rs.core.Response.Status.GONE;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
@@ -20,7 +22,7 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
     public static final String INVITES_RESOURCE_URL = "/v1/api/invites";
 
     @Test
-    void shouldReturn200withDisabledInviteLinkingToCreatedUser_WhenPassedAValidInviteCode() {
+    void shouldReturn200withDisabledInviteLinkingToCreatedUser_WhenPassedAValidInviteCode() throws Exception {
         String email = format("%s@example.gov.uk", randomUuid());
         String telephoneNumber = "+447700900000";
         String password = "valid_password";
@@ -30,8 +32,12 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
                 .withEmail(email)
                 .withPassword(password)
                 .insertServiceInvite();
+
+        Map<String, String> payload = Map.of("second_factor", "SMS");
+
         givenSetup()
                 .when()
+                .body(mapper.writeValueAsString(payload))
                 .post(INVITES_RESOURCE_URL + "/" + inviteCode + "/complete")
                 .then()
                 .statusCode(OK.getStatusCode())
@@ -57,7 +63,22 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
     }
 
     @Test
-    void shouldReturn410_WhenSameInviteCodeCompletedTwice() {
+    void shouldReturn400_whenUnsupportedSecondFactorMethodSupplied() throws Exception {
+        String inviteCode = "an invite code";
+
+        Map<String, String> payload = Map.of("second_factor", "BAD_VALUE");
+
+        givenSetup()
+                .when()
+                .body(mapper.writeValueAsString(payload))
+                .post(INVITES_RESOURCE_URL + "/" + inviteCode + "/complete")
+                .then()
+                .statusCode(BAD_REQUEST.getStatusCode())
+                .body(containsString("BAD_VALUE"));
+    }
+
+    @Test
+    void shouldReturn410_WhenSameInviteCodeCompletedTwice() throws Exception {
         String email = format("%s@example.gov.uk", randomUuid());
         String telephoneNumber = "+447700900000";
         String password = "valid_password";
@@ -68,21 +89,25 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
                 .withPassword(password)
                 .insertServiceInvite();
 
+        Map<String, String> payload = Map.of("second_factor", "SMS");
+
         givenSetup()
                 .when()
+                .body(mapper.writeValueAsString(payload))
                 .post(INVITES_RESOURCE_URL + "/" + inviteCode + "/complete")
                 .then()
                 .statusCode(OK.getStatusCode());
 
         givenSetup()
                 .when()
+                .body(mapper.writeValueAsString(payload))
                 .post(INVITES_RESOURCE_URL + "/" + inviteCode + "/complete")
                 .then()
                 .statusCode(GONE.getStatusCode());
     }
 
     @Test
-    void shouldReturn409_ifAUserExistsWithTheSameEmail_whenServiceInviteCompletes() {
+    void shouldReturn409_ifAUserExistsWithTheSameEmail_whenServiceInviteCompletes() throws Exception {
         String email = format("%s@example.gov.uk", randomUuid());
         String username = email;
         String telephoneNumber = "+447700900000";
@@ -94,6 +119,8 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
                 .withPassword(password)
                 .insertServiceInvite();
 
+        Map<String, String> payload = Map.of("second_factor", "SMS");
+
         userDbFixture(databaseHelper)
                 .withUsername(username)
                 .withEmail(email)
@@ -101,13 +128,14 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
 
         givenSetup()
                 .when()
+                .body(mapper.writeValueAsString(payload))
                 .post(INVITES_RESOURCE_URL + "/" + inviteCode + "/complete")
                 .then()
                 .statusCode(CONFLICT.getStatusCode());
     }
 
     @Test
-    void shouldReturn410_WhenInviteIsDisabled() {
+    void shouldReturn410_WhenInviteIsDisabled() throws Exception {
         String email = format("%s@example.gov.uk", randomUuid());
         String telephoneNumber = "+447700900000";
         String password = "valid_password";
@@ -119,8 +147,11 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
                 .disabled()
                 .insertServiceInvite();
 
+        Map<String, String> payload = Map.of("second_factor", "SMS");
+
         givenSetup()
                 .when()
+                .body(mapper.writeValueAsString(payload))
                 .post(INVITES_RESOURCE_URL + "/" + inviteCode + "/complete")
                 .then()
                 .statusCode(GONE.getStatusCode());

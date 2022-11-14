@@ -12,13 +12,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.pay.adminusers.model.CompleteInviteRequest;
 import uk.gov.pay.adminusers.model.Invite;
-import uk.gov.pay.adminusers.model.InviteCompleteResponse;
+import uk.gov.pay.adminusers.model.CompleteInviteResponse;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteServiceRequest;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.model.ResendOtpRequest;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.service.AdminUsersExceptions;
 import uk.gov.pay.adminusers.service.InviteCompleter;
 import uk.gov.pay.adminusers.service.InviteOtpDispatcher;
@@ -139,20 +141,22 @@ public class InviteResource {
                     "The response contains the user and the service id's affected as part of the invite completion in addition to the invite",
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK",
-                            content = @Content(schema = @Schema(implementation = InviteCompleteResponse.class))),
+                            content = @Content(schema = @Schema(implementation = CompleteInviteResponse.class))),
                     @ApiResponse(responseCode = "404", description = "Not found")
             }
     )
-    public InviteCompleteResponse completeInvite(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode) {
+    public CompleteInviteResponse completeInvite(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode, @Valid CompleteInviteRequest completeInviteRequest) {
         LOGGER.info("Invite  complete POST request for code - [ {} ]", inviteCode);
 
         if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
+        SecondFactorMethod secondFactorMethod = (completeInviteRequest != null) ? completeInviteRequest.getSecondFactor() : null;
+
         return inviteService.findInvite(inviteCode).map(inviteEntity -> {
             InviteCompleter inviteCompleter = inviteServiceFactory.inviteCompleteRouter().routeComplete(inviteEntity);
-            return inviteCompleter.complete(inviteEntity);
+            return inviteCompleter.complete(inviteEntity, secondFactorMethod);
         }).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 

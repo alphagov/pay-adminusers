@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.pay.adminusers.model.InviteCompleteResponse;
+import uk.gov.pay.adminusers.model.CompleteInviteResponse;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
@@ -65,7 +65,7 @@ public class ExistingUserInviteCompleterTest {
     }
 
     @Test
-    public void shouldSuccess_whenSubscribingAServiceToAnExistingUser_forValidInvite() {
+    public void shouldSuccess_whenSubscribingAServiceToAnExistingUser_forValidInvite_without2FAMethod() {
         ServiceEntity service = new ServiceEntity();
         service.setId(serviceId);
         service.setExternalId(serviceExternalId);
@@ -77,7 +77,7 @@ public class ExistingUserInviteCompleterTest {
 
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(user));
 
-        InviteCompleteResponse completedInvite = existingUserInviteCompleter.complete(anInvite);
+        CompleteInviteResponse completedInvite = existingUserInviteCompleter.complete(anInvite, null);
 
         ArgumentCaptor<UserEntity> persistedUser = ArgumentCaptor.forClass(UserEntity.class);
         verify(mockUserDao).merge(persistedUser.capture());
@@ -101,7 +101,7 @@ public class ExistingUserInviteCompleterTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(user));
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> existingUserInviteCompleter.complete(anInvite));
+                () -> existingUserInviteCompleter.complete(anInvite, null));
         assertThat(webApplicationException.getResponse().getStatus(), is(500));
         Map<String, List<String>> entity = (Map<String, List<String>>) webApplicationException.getResponse().getEntity();
         assertThat(entity.get("errors").get(0), is("Invite with code code to invite an existing user to a service does not have a service set"));
@@ -120,7 +120,7 @@ public class ExistingUserInviteCompleterTest {
         UserEntity user = UserEntity.from(aUser(anInvite.getEmail()));
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> existingUserInviteCompleter.complete(anInvite));
+                () -> existingUserInviteCompleter.complete(anInvite, null));
         assertThat(webApplicationException.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 
@@ -132,7 +132,7 @@ public class ExistingUserInviteCompleterTest {
         anInvite.setDisabled(true);
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> existingUserInviteCompleter.complete(anInvite));
+                () -> existingUserInviteCompleter.complete(anInvite, null));
         assertThat(webApplicationException.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -143,7 +143,7 @@ public class ExistingUserInviteCompleterTest {
         anInvite.setExpiryDate(ZonedDateTime.now().minusDays(1));
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> existingUserInviteCompleter.complete(anInvite));
+                () -> existingUserInviteCompleter.complete(anInvite, null));
         assertThat(webApplicationException.getMessage(), is("HTTP 410 Gone"));
     }
 
@@ -155,7 +155,7 @@ public class ExistingUserInviteCompleterTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> existingUserInviteCompleter.complete(anInvite));
+                () -> existingUserInviteCompleter.complete(anInvite, null));
         assertThat(webApplicationException.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 

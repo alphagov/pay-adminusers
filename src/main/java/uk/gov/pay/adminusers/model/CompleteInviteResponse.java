@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class InviteCompleteResponse {
+public class CompleteInviteResponse {
 
     private Invite invite;
     @Schema(example = "287cg75v3737")
@@ -14,7 +14,7 @@ public class InviteCompleteResponse {
     @Schema(example = "89wi6il2364328")
     private String serviceExternalId;
 
-    public InviteCompleteResponse(@JsonProperty("invite") Invite invite) {
+    public CompleteInviteResponse(@JsonProperty("invite") Invite invite) {
         this.invite = invite;
     }
 
