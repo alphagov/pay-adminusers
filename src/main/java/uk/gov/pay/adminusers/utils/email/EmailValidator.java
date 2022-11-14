@@ -49,6 +49,7 @@ public class EmailValidator {
             "nmandd.org",
             "nmni.com",
             "ogauthority.co.uk",
+            "opencastsoftware.com",
             "os.uk",
             "parliament.scot",
             "parliament.uk",
