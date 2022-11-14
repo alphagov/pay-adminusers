@@ -4,6 +4,7 @@ import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.model.ResendOtpRequest;
@@ -11,12 +12,17 @@ import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
+import uk.gov.service.payments.commons.model.jsonpatch.JsonPatchOp;
+import uk.gov.service.payments.commons.model.jsonpatch.JsonPatchRequest;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import static uk.gov.pay.adminusers.resources.InviteRequestValidator.FIELD_PASSWORD;
+import static uk.gov.pay.adminusers.resources.InviteRequestValidator.FIELD_TELEPHONE_NUMBER;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.invalidOtpAuthCodeInviteException;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.notFoundInviteException;
@@ -32,6 +38,7 @@ public class InviteService {
     private final InviteDao inviteDao;
     private final NotificationService notificationService;
     private final SecondFactorAuthenticator secondFactorAuthenticator;
+    private final PasswordHasher passwordHasher;
 
     private final Integer loginAttemptCap;
 
@@ -39,13 +46,15 @@ public class InviteService {
     public InviteService(InviteDao inviteDao,
                          NotificationService notificationService,
                          SecondFactorAuthenticator secondFactorAuthenticator,
+                         PasswordHasher passwordHasher,
                          @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap) {
         this.inviteDao = inviteDao;
         this.notificationService = notificationService;
         this.secondFactorAuthenticator = secondFactorAuthenticator;
+        this.passwordHasher = passwordHasher;
         this.loginAttemptCap = loginAttemptCap;
     }
-    
+
     @Transactional
     public void reGenerateOtp(ResendOtpRequest resendOtpRequest) {
         Optional<InviteEntity> inviteOptional = inviteDao.findByCode(resendOtpRequest.getCode());
@@ -75,7 +84,7 @@ public class InviteService {
         InviteEntity inviteEntity = inviteDao.findByCode(inviteOtpRequest.getCode()).orElseThrow(() -> notFoundInviteException(inviteOtpRequest.getCode()));
         validateOtp(inviteEntity, inviteOtpRequest.getOtp());
     }
-    
+
     /* default */ void validateOtp(InviteEntity inviteEntity, int otpCode) {
         if (inviteEntity.isDisabled()) {
             throw inviteLockedException(inviteEntity.getCode());
@@ -95,6 +104,26 @@ public class InviteService {
 
     public Optional<InviteEntity> findInvite(String code) {
         return inviteDao.findByCode(code);
+    }
+
+    @Transactional
+    public Invite updateInvite(String inviteCode, List<JsonPatchRequest> updateRequests) {
+        InviteEntity inviteEntity = inviteDao.findByCode(inviteCode).orElseThrow(() -> notFoundInviteException(inviteCode));
+        updateRequests.forEach(updateRequest -> {
+            if (JsonPatchOp.REPLACE == updateRequest.getOp()) {
+                switch (updateRequest.getPath()) {
+                    case FIELD_PASSWORD:
+                        inviteEntity.setPassword(passwordHasher.hash(updateRequest.valueAsString()));
+                        break;
+                    case FIELD_TELEPHONE_NUMBER:
+                        inviteEntity.setTelephoneNumber(updateRequest.valueAsString());
+                        break;
+                    default:
+                        throw AdminUsersExceptions.unexpectedPathForPatchOperation(updateRequest.getPath());
+                }
+            }
+        });
+        return inviteEntity.toInvite();
     }
 
     private static OtpNotifySmsTemplateId mapInviteTypeToOtpNotifySmsTemplateId(InviteType inviteType) {
