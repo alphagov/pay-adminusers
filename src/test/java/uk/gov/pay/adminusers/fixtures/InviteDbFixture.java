@@ -116,4 +116,9 @@ public class InviteDbFixture {
         this.serviceId = serviceId;
         return this;
     }
+
+    public InviteDbFixture withCode(String code) {
+        this.code = code;
+        return this;
+    }
 }

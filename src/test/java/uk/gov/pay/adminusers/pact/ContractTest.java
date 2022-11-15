@@ -10,6 +10,7 @@ import org.junit.ClassRule;
 import uk.gov.pay.adminusers.infra.AppWithPostgresAndSqsRule;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.GoLiveStage;
+import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
@@ -22,6 +23,7 @@ import java.util.Map;
 import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
+import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
@@ -178,6 +180,22 @@ public abstract class ContractTest {
         Role role = createRole();
         createUserWithRoleForService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", "password", role, service);
         createUserWithRoleForService("admin-2-id", "admin-2", "password", role, service);
+    }
+
+    @State("a valid self-signup invite exists with invite code an-invite-code")
+    public void aSelfSignupInviteExists() {
+        inviteDbFixture(dbHelper)
+                .withCode("an-invite-code")
+                .withPassword("a-password")
+                .insertServiceInvite();
+    }
+
+    @State("a valid invite to add a user to a service exists with invite code an-invite-code")
+    public void anAddUserToServiceInviteExists() {
+        inviteDbFixture(dbHelper)
+                .withCode("an-invite-code")
+                .withPassword("a-password")
+                .insertInvite();
     }
 
     private static void createUserWithinAService(String externalId, String username, String password, String serviceExternalId) {
