@@ -81,7 +81,7 @@ public class InviteDaoIT extends DaoTestBase {
     @Test
     public void findByCode_shouldFindAnExistingInvite() {
 
-        String code = inviteDbFixture(databaseHelper).insertInvite();
+        String code = inviteDbFixture(databaseHelper).insertInviteToAddUserToService();
 
         Optional<InviteEntity> invite = inviteDao.findByCode(code);
 
@@ -93,7 +93,7 @@ public class InviteDaoIT extends DaoTestBase {
 
         String email = randomAlphanumeric(5) + "@example.com";
 
-        inviteDbFixture(databaseHelper).withEmail(email).insertInvite();
+        inviteDbFixture(databaseHelper).withEmail(email).insertInviteToAddUserToService();
 
         List<InviteEntity> invites = inviteDao.findByEmail(email);
 
@@ -103,7 +103,7 @@ public class InviteDaoIT extends DaoTestBase {
     @Test
     public void findAllByServiceId_shouldFindAllInvitesForAService() {
         String serviceId = "asfkhsjhfskdf";
-        inviteDbFixture(databaseHelper).withServiceExternalId(serviceId).insertInvite();
+        inviteDbFixture(databaseHelper).withServiceExternalId(serviceId).insertInviteToAddUserToService();
 
         List<InviteEntity> invites = inviteDao.findAllByServiceId(serviceId);
         

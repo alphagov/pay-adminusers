@@ -19,7 +19,7 @@ class InviteResourceUpdateIT extends IntegrationTest {
 
     @Test
     void validUpdateInviteRequest_shouldSucceed() throws Exception {
-        String inviteCode = inviteDbFixture(databaseHelper).insertInvite();
+        String inviteCode = inviteDbFixture(databaseHelper).insertInviteToAddUserToService();
 
         String newPassword = "a-new-password";
         String newPhoneNumber = "+441134960000";

@@ -122,7 +122,7 @@ class InviteResourceGenerateOtpIT extends IntegrationTest {
                 .withEmail(EMAIL)
                 .withOtpKey(OTP_KEY)
                 .expired()
-                .insertInvite();
+                .insertInviteToAddUserToService();
     }
 
     private void givenAnExistingServiceInvite() {
@@ -130,6 +130,6 @@ class InviteResourceGenerateOtpIT extends IntegrationTest {
                 .withEmail(EMAIL)
                 .withOtpKey(OTP_KEY)
                 .expired()
-                .insertServiceInvite();
+                .insertSelfSignupInvite();
     }
 }

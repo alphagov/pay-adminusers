@@ -35,7 +35,7 @@ public class InviteDbFixture {
         return new InviteDbFixture(databaseHelper);
     }
 
-    public String insertInvite() {
+    public String insertInviteToAddUserToService() {
         ServiceDbFixture.serviceDbFixture(databaseTestHelper).withId(serviceId).withExternalId(externalServiceId).insertService().getId();
         int roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
         String userUsername = randomUuid();
@@ -54,7 +54,7 @@ public class InviteDbFixture {
         return code;
     }
 
-    public String insertServiceInvite() {
+    public String insertSelfSignupInvite() {
         int roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
         String userUsername = randomUuid();
         String userEmail = userUsername + "@example.com";
@@ -114,6 +114,11 @@ public class InviteDbFixture {
 
     public InviteDbFixture withServiceId(Integer serviceId) {
         this.serviceId = serviceId;
+        return this;
+    }
+
+    public InviteDbFixture withCode(String code) {
+        this.code = code;
         return this;
     }
 }

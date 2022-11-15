@@ -18,7 +18,7 @@ public class InviteResourceGetIT extends IntegrationTest {
         String email = "user@example.com";
         String inviteCode = inviteDbFixture(databaseHelper)
                 .withEmail(email)
-                .insertInvite();
+                .insertInviteToAddUserToService();
 
         givenSetup()
                 .when()
@@ -47,7 +47,7 @@ public class InviteResourceGetIT extends IntegrationTest {
         String inviteCode = inviteDbFixture(databaseHelper)
                 .withTelephoneNumber(telephoneNumber)
                 .withEmail(email)
-                .insertInvite();
+                .insertInviteToAddUserToService();
 
         givenSetup()
                 .when()
@@ -64,7 +64,7 @@ public class InviteResourceGetIT extends IntegrationTest {
     @Test
     public void getInvitation_shouldFail_whenExpired() {
 
-        String expiredCode = inviteDbFixture(databaseHelper).expired().insertInvite();
+        String expiredCode = inviteDbFixture(databaseHelper).expired().insertInviteToAddUserToService();
 
         givenSetup()
                 .when()
@@ -77,7 +77,7 @@ public class InviteResourceGetIT extends IntegrationTest {
     @Test
     public void getInvitation_shouldFail_whenDisabled() {
 
-        String expiredCode = inviteDbFixture(databaseHelper).disabled().insertInvite();
+        String expiredCode = inviteDbFixture(databaseHelper).disabled().insertInviteToAddUserToService();
 
         givenSetup()
                 .when()
@@ -105,7 +105,7 @@ public class InviteResourceGetIT extends IntegrationTest {
         inviteDbFixture(databaseHelper)
                 .withEmail(email)
                 .withServiceExternalId(serviceExternalId)
-                .insertInvite();
+                .insertInviteToAddUserToService();
         givenSetup()
                 .when()
                 .accept(JSON)
