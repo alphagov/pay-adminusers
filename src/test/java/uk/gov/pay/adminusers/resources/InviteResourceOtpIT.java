@@ -9,11 +9,9 @@ import java.util.Map;
 
 import static io.restassured.http.ContentType.JSON;
 import static java.util.Collections.emptyMap;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.GONE;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
-import static javax.ws.rs.core.Response.Status.OK;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static org.apache.commons.lang3.RandomStringUtils.random;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,7 +35,7 @@ class InviteResourceOtpIT extends IntegrationTest {
                 .withEmail(EMAIL)
                 .withOtpKey(OTP_KEY)
                 .expired()
-                .insertInvite();
+                .insertInviteToAddUserToService();
     }
 
     @Test
@@ -65,7 +63,7 @@ class InviteResourceOtpIT extends IntegrationTest {
                 .withOtpKey(OTP_KEY)
                 .withTelephoneNumber(TELEPHONE_NUMBER)
                 .withPassword(PASSWORD)
-                .insertInvite();
+                .insertInviteToAddUserToService();
 
         // generate invalid invitationOtpRequest and execute it
         Map<Object, Object> invitationOtpRequest = Map.of(
@@ -91,7 +89,7 @@ class InviteResourceOtpIT extends IntegrationTest {
                 .withTelephoneNumber(TELEPHONE_NUMBER)
                 .withPassword(PASSWORD)
                 .withLoginCounter(9)
-                .insertInvite();
+                .insertInviteToAddUserToService();
 
         // generate invalid invitationOtpRequest and execute it
         Map<Object, Object> invitationOtpRequest = Map.of(
@@ -148,7 +146,7 @@ class InviteResourceOtpIT extends IntegrationTest {
 
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
                 .withOtpKey(OTP_KEY)
-                .insertInvite();
+                .insertInviteToAddUserToService();
 
         Map<Object, Object> sendRequest = Map.of(
                 "code", code,
@@ -168,7 +166,7 @@ class InviteResourceOtpIT extends IntegrationTest {
 
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
                 .withOtpKey(OTP_KEY)
-                .insertInvite();
+                .insertInviteToAddUserToService();
 
         int invalidOtp = 111111;
 
@@ -196,7 +194,7 @@ class InviteResourceOtpIT extends IntegrationTest {
                 .withTelephoneNumber(initialTelephoneNumber)
                 .withPassword(PASSWORD)
                 .expired()
-                .insertInvite();
+                .insertInviteToAddUserToService();
 
         // generate new invitationOtpRequest with new telephone number
         String newTelephoneNumber = "+447452222222";

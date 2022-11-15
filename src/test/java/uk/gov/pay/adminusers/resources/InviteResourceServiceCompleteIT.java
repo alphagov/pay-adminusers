@@ -33,7 +33,7 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
                 .withTelephoneNumber(telephoneNumber)
                 .withEmail(email)
                 .withPassword(password)
-                .insertServiceInvite();
+                .insertSelfSignupInvite();
 
         Map<String, String> payload = Map.of("second_factor", "SMS");
 
@@ -86,7 +86,7 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
                 .withTelephoneNumber(telephoneNumber)
                 .withEmail(email)
                 .withPassword(password)
-                .insertServiceInvite();
+                .insertSelfSignupInvite();
 
         Map<String, String> payload = Map.of("second_factor", "SMS");
 
@@ -116,7 +116,7 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
                 .withTelephoneNumber(telephoneNumber)
                 .withEmail(email)
                 .withPassword(password)
-                .insertServiceInvite();
+                .insertSelfSignupInvite();
 
         Map<String, String> payload = Map.of("second_factor", "SMS");
 
@@ -144,7 +144,7 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
                 .withEmail(email)
                 .withPassword(password)
                 .disabled()
-                .insertServiceInvite();
+                .insertSelfSignupInvite();
 
         Map<String, String> payload = Map.of("second_factor", "SMS");
 

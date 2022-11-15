@@ -18,7 +18,6 @@ import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
-import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
@@ -91,7 +90,7 @@ class InviteResourceCreateUserIT extends IntegrationTest {
         inviteDbFixture(databaseHelper)
                 .withEmail(existingUserEmail)
                 .withServiceExternalId(serviceExternalId)
-                .insertInvite();
+                .insertInviteToAddUserToService();
 
         Map<Object, Object> invitationRequest = Map.of(
                 "sender", senderExternalId,
@@ -123,7 +122,7 @@ class InviteResourceCreateUserIT extends IntegrationTest {
                 .withEmail(existingUserEmail)
                 .withServiceExternalId(serviceExternalId)
                 .withServiceId(serviceId)
-                .insertInvite();
+                .insertInviteToAddUserToService();
         User user = userDbFixture(databaseHelper)
                 .withUsername(existingUserUsername)
                 .withEmail(existingUserEmail)

@@ -10,7 +10,6 @@ import org.junit.ClassRule;
 import uk.gov.pay.adminusers.infra.AppWithPostgresAndSqsRule;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.GoLiveStage;
-import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
@@ -187,7 +186,7 @@ public abstract class ContractTest {
         inviteDbFixture(dbHelper)
                 .withCode("an-invite-code")
                 .withPassword("a-password")
-                .insertServiceInvite();
+                .insertSelfSignupInvite();
     }
 
     @State("a valid invite to add a user to a service exists with invite code an-invite-code")
@@ -195,7 +194,7 @@ public abstract class ContractTest {
         inviteDbFixture(dbHelper)
                 .withCode("an-invite-code")
                 .withPassword("a-password")
-                .insertInvite();
+                .insertInviteToAddUserToService();
     }
 
     private static void createUserWithinAService(String externalId, String username, String password, String serviceExternalId) {

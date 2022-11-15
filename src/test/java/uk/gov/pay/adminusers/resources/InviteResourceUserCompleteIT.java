@@ -38,7 +38,7 @@ class InviteResourceUserCompleteIT extends IntegrationTest {
                 .withTelephoneNumber(telephoneNumber)
                 .withEmail(email)
                 .withPassword(password)
-                .insertInvite();
+                .insertInviteToAddUserToService();
 
 
         givenSetup()
@@ -98,7 +98,7 @@ class InviteResourceUserCompleteIT extends IntegrationTest {
                 .withTelephoneNumber(telephoneNumber)
                 .withEmail(email)
                 .withPassword(password)
-                .insertInvite();
+                .insertInviteToAddUserToService();
 
 
         givenSetup()
