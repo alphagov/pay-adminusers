@@ -36,6 +36,11 @@ public class AdminUsersExceptions {
         String error = format("email [%s] already exists", email);
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
     }
+    
+    public static WebApplicationException userAlreadyExistsForSelfRegistration(String email) {
+        String error = format("User with email [%s] already exists for self-registration invite", email);
+        return buildWebApplicationException(error, CONFLICT.getStatusCode());
+    }
 
     public static WebApplicationException conflictingInvite(String email) {
         String error = format("invite with email [%s] already exists", email);

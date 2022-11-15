@@ -4,17 +4,25 @@ import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.pay.adminusers.model.CompleteInviteResponse;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.model.ResendOtpRequest;
+import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
+import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
+import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
+import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 import uk.gov.service.payments.commons.model.jsonpatch.JsonPatchOp;
 import uk.gov.service.payments.commons.model.jsonpatch.JsonPatchRequest;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import java.util.List;
@@ -25,7 +33,9 @@ import static uk.gov.pay.adminusers.resources.InviteRequestValidator.FIELD_PASSW
 import static uk.gov.pay.adminusers.resources.InviteRequestValidator.FIELD_TELEPHONE_NUMBER;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.invalidOtpAuthCodeInviteException;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.missingSecondFactorMethod;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.notFoundInviteException;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.userAlreadyExistsForSelfRegistration;
 import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE;
 import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE;
 
@@ -36,22 +46,27 @@ public class InviteService {
     private static final String SIX_DIGITS_WITH_LEADING_ZEROS = "%06d";
 
     private final InviteDao inviteDao;
+    private final UserDao userDao;
     private final NotificationService notificationService;
     private final SecondFactorAuthenticator secondFactorAuthenticator;
     private final PasswordHasher passwordHasher;
-
+    private final LinksBuilder linksBuilder;
     private final Integer loginAttemptCap;
 
     @Inject
     public InviteService(InviteDao inviteDao,
+                         UserDao userDao, 
                          NotificationService notificationService,
                          SecondFactorAuthenticator secondFactorAuthenticator,
                          PasswordHasher passwordHasher,
+                         LinksBuilder linksBuilder, 
                          @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap) {
         this.inviteDao = inviteDao;
+        this.userDao = userDao;
         this.notificationService = notificationService;
         this.secondFactorAuthenticator = secondFactorAuthenticator;
         this.passwordHasher = passwordHasher;
+        this.linksBuilder = linksBuilder;
         this.loginAttemptCap = loginAttemptCap;
     }
 
@@ -124,6 +139,48 @@ public class InviteService {
             }
         });
         return inviteEntity.toInvite();
+    }
+        
+    @Transactional
+    public CompleteInviteResponse complete(String code, @Nullable SecondFactorMethod secondFactorMethod) {
+        InviteEntity inviteEntity = inviteDao.findByCode(code).orElseThrow(() -> notFoundInviteException(code));
+        if (inviteEntity.isExpired() || Boolean.TRUE.equals(inviteEntity.isDisabled())) {
+            throw inviteLockedException(inviteEntity.getCode());
+        }
+
+        inviteEntity.setDisabled(true);
+
+        UserEntity userEntity = userDao.findByEmail(inviteEntity.getEmail())
+                .map(existingUser -> addExistingUserToService(code, inviteEntity, existingUser))
+                .orElseGet(() -> createUserFromInvite(secondFactorMethod, inviteEntity));
+
+        Invite invite = linksBuilder.addUserLink(userEntity.toUser(), inviteEntity.toInvite());
+        CompleteInviteResponse response = new CompleteInviteResponse(invite, userEntity.getExternalId());
+        inviteEntity.getService().ifPresent(serviceEntity -> response.setServiceExternalId(serviceEntity.getExternalId()));
+
+        return response;
+    }
+
+    private UserEntity addExistingUserToService(String code, InviteEntity inviteEntity, UserEntity existingUser) {
+        // shouldn't expect the user to exist if there is no service as this indicates the invite is a self-registration
+        ServiceEntity serviceEntity = inviteEntity.getService().orElseThrow(() -> userAlreadyExistsForSelfRegistration(inviteEntity.getEmail()));
+        
+        RoleEntity roleEntity = inviteEntity.getRole().orElseThrow(() -> AdminUsersExceptions.inviteDoesNotHaveRole(code));
+        if (existingUser.getServicesRole(serviceEntity.getExternalId()).isEmpty()) {
+            ServiceRoleEntity serviceRole = new ServiceRoleEntity(serviceEntity, roleEntity);
+            existingUser.addServiceRole(serviceRole);
+            userDao.merge(existingUser);
+        }
+        return existingUser;
+    }
+
+    private UserEntity createUserFromInvite(SecondFactorMethod secondFactorMethod, InviteEntity inviteEntity) {
+        if (secondFactorMethod == null) {
+            throw missingSecondFactorMethod(inviteEntity.getCode());
+        }
+        UserEntity newUser = inviteEntity.mapToUserEntity(secondFactorMethod);
+        userDao.persist(newUser);
+        return newUser;
     }
 
     private static OtpNotifySmsTemplateId mapInviteTypeToOtpNotifySmsTemplateId(InviteType inviteType) {

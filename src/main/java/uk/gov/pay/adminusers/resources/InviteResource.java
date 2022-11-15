@@ -13,8 +13,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.CompleteInviteRequest;
-import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.CompleteInviteResponse;
+import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteServiceRequest;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
@@ -22,7 +22,6 @@ import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.model.ResendOtpRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.service.AdminUsersExceptions;
-import uk.gov.pay.adminusers.service.InviteCompleter;
 import uk.gov.pay.adminusers.service.InviteOtpDispatcher;
 import uk.gov.pay.adminusers.service.InviteService;
 import uk.gov.pay.adminusers.service.InviteServiceFactory;
@@ -153,11 +152,7 @@ public class InviteResource {
         }
 
         SecondFactorMethod secondFactorMethod = (completeInviteRequest != null) ? completeInviteRequest.getSecondFactor() : null;
-
-        return inviteService.findInvite(inviteCode).map(inviteEntity -> {
-            InviteCompleter inviteCompleter = inviteServiceFactory.inviteCompleteRouter().routeComplete(inviteEntity);
-            return inviteCompleter.complete(inviteEntity, secondFactorMethod);
-        }).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return inviteService.complete(inviteCode, secondFactorMethod);
     }
 
     @POST

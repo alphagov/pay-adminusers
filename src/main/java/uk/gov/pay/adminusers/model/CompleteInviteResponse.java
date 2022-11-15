@@ -1,11 +1,12 @@
 package uk.gov.pay.adminusers.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CompleteInviteResponse {
 
     private Invite invite;
@@ -14,8 +15,9 @@ public class CompleteInviteResponse {
     @Schema(example = "89wi6il2364328")
     private String serviceExternalId;
 
-    public CompleteInviteResponse(@JsonProperty("invite") Invite invite) {
+    public CompleteInviteResponse(Invite invite, String userExternalId) {
         this.invite = invite;
+        this.userExternalId = userExternalId;
     }
 
     public Invite getInvite() {
@@ -24,10 +26,6 @@ public class CompleteInviteResponse {
 
     public String getUserExternalId() {
         return userExternalId;
-    }
-
-    public void setUserExternalId(String userExternalId) {
-        this.userExternalId = userExternalId;
     }
 
     public String getServiceExternalId() {
