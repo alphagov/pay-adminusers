@@ -32,6 +32,7 @@ public final class ServiceEntityFixture {
     private boolean collectBillingAddress = true;
     private GoLiveStage goLiveStage = GoLiveStage.NOT_STARTED;
     private boolean experimentalFeaturesEnabled = false;
+    private boolean takesPaymentsOverPhone = false;
     private ZonedDateTime createdDate = ZonedDateTime.parse("2020-06-29T01:16:00Z");
     private ZonedDateTime wentLiveDate;
     private String sector;
@@ -102,6 +103,10 @@ public final class ServiceEntityFixture {
         return this;
     }
     
+    public ServiceEntityFixture withTakesPaymentsOverPhone(boolean takesPaymentsOverPhone) {
+        this.takesPaymentsOverPhone = takesPaymentsOverPhone;
+        return this;
+    }
     public ServiceEntityFixture withCreatedDate(ZonedDateTime createdDate) {
         this.createdDate = createdDate;
         return this;
@@ -135,6 +140,7 @@ public final class ServiceEntityFixture {
         serviceEntity.setCollectBillingAddress(collectBillingAddress);
         serviceEntity.setCurrentGoLiveStage(goLiveStage);
         serviceEntity.setExperimentalFeaturesEnabled(experimentalFeaturesEnabled);
+        serviceEntity.setTakesPaymentsOverPhone(takesPaymentsOverPhone);
         serviceEntity.setCreatedDate(createdDate);
         serviceEntity.setWentLiveDate(wentLiveDate);
         serviceEntity.setSector(sector);

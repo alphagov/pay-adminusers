@@ -66,6 +66,7 @@ class ServiceDaoIT extends DaoTestBase {
     void shouldSaveAService_withCustomisations() throws Exception {
         ServiceEntity insertedServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withExperimentalFeaturesEnabled(true)
+                .withTakesPaymentsOverPhone(true)
                 .build();
         serviceDao.persist(insertedServiceEntity);
 
@@ -80,6 +81,7 @@ class ServiceDaoIT extends DaoTestBase {
         assertThat(storedBranding.keySet(), hasItems("image_url", "css_url"));
         assertThat(storedBranding.values(), hasItems("image url", "css url"));
         assertThat(savedService.get(0).get("experimental_features_enabled"), is(true));
+        assertThat(savedService.get(0).get("takes_payments_over_phone"), is(true));
     }
 
     @Test
