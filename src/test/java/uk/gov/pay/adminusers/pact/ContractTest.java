@@ -194,6 +194,7 @@ public abstract class ContractTest {
         inviteDbFixture(dbHelper)
                 .withCode("an-invite-code")
                 .withPassword("a-password")
+                .withTelephoneNumber("+441134960000")
                 .insertInviteToAddUserToService();
     }
 
