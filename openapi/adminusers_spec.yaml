@@ -1486,6 +1486,9 @@ components:
           example:
             cy: Service name in welsh
             en: Some service name
+        takes_payments_over_phone:
+          type: boolean
+          example: false
         went_live_date:
           type: string
           format: date-time

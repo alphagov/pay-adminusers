@@ -28,6 +28,8 @@ public class ServiceDbFixture {
     );
     private boolean collectBillingAddress = true;
     private boolean experimentalFeaturesEnabled = false;
+    
+    private boolean takesPaymentsOverPhone = false;
     private GoLiveStage goLiveStage = GoLiveStage.NOT_STARTED;
     private Map<String, Object> customBranding;
     private PspTestAccountStage currentPspTestAccountStage = PspTestAccountStage.NOT_STARTED;
@@ -78,6 +80,11 @@ public class ServiceDbFixture {
         return this;
     }
 
+    public ServiceDbFixture withTakesPaymentsOverPhone(boolean takesPaymentsOverPhone) {
+        this.takesPaymentsOverPhone = takesPaymentsOverPhone;
+        return this;
+    }
+    
     public ServiceDbFixture withCurrentPspTestAccountStage(PspTestAccountStage currentPspTestAccountStage) {
         this.currentPspTestAccountStage = currentPspTestAccountStage;
         return this;
@@ -93,6 +100,7 @@ public class ServiceDbFixture {
         service.setGoLiveStage(goLiveStage);
         service.setCustomBranding(customBranding);
         service.setExperimentalFeaturesEnabled(experimentalFeaturesEnabled);
+        service.setTakesPaymentsOverPhone(takesPaymentsOverPhone);
         service.setCurrentPspTestAccountStage(currentPspTestAccountStage);
         databaseHelper.addService(service, gatewayAccountIds.toArray(new String[0]));
 

@@ -45,6 +45,10 @@ public class Service {
     private GoLiveStage goLiveStage;
     @Schema(example = "false")
     private boolean experimentalFeaturesEnabled;
+    
+    @Schema(example = "false")
+    private boolean takesPaymentsOverPhone;
+    
     @Schema(example = "local government")
     private String sector;
     @Schema(example = "false")
@@ -84,6 +88,7 @@ public class Service {
                 NOT_STARTED,
                 false,
                 false,
+                false,
                 null,
                 false,
                 false,
@@ -100,6 +105,7 @@ public class Service {
                                String defaultBillingAddressCountry,
                                GoLiveStage goLiveStage,
                                boolean experimentalFeaturesEnabled,
+                               boolean takesPaymentsOverPhone,
                                boolean agentInitiatedMotoEnabled,
                                String sector,
                                boolean internal,
@@ -115,6 +121,7 @@ public class Service {
                 defaultBillingAddressCountry,
                 goLiveStage,
                 experimentalFeaturesEnabled,
+                takesPaymentsOverPhone,
                 agentInitiatedMotoEnabled,
                 sector,
                 internal,
@@ -132,6 +139,7 @@ public class Service {
                     String defaultBillingAddressCountry,
                     GoLiveStage goLiveStage,
                     boolean experimentalFeaturesEnabled,
+                    boolean takesPaymentsOverPhone,
                     boolean agentInitiatedMotoEnabled,
                     String sector,
                     boolean internal,
@@ -147,6 +155,7 @@ public class Service {
         this.serviceName = serviceName;
         this.goLiveStage = goLiveStage;
         this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
+        this.takesPaymentsOverPhone = takesPaymentsOverPhone;
         this.agentInitiatedMotoEnabled = agentInitiatedMotoEnabled;
         this.sector = sector;
         this.internal = internal;
@@ -287,6 +296,15 @@ public class Service {
 
     public void setExperimentalFeaturesEnabled(boolean experimentalFeaturesEnabled) {
         this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
+    }
+
+    @JsonProperty("takes_payments_over_phone")
+    public boolean isTakesPaymentsOverPhone() {
+        return takesPaymentsOverPhone;
+    }
+
+    public void setTakesPaymentsOverPhone(boolean takesPaymentsOverPhone) {
+        this.takesPaymentsOverPhone = takesPaymentsOverPhone;
     }
 
     @JsonProperty("agent_initiated_moto_enabled")

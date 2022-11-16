@@ -211,9 +211,9 @@ public class DatabaseTestHelper {
             return handle.createUpdate("INSERT INTO services(" +
                     "id, custom_branding, " +
                     "merchant_name, merchant_telephone_number, merchant_address_line1, merchant_address_line2, merchant_address_city, " +
-                    "merchant_address_postcode, merchant_address_country, merchant_email, merchant_url, external_id, experimental_features_enabled) " +
+                    "merchant_address_postcode, merchant_address_country, merchant_email, merchant_url, external_id, experimental_features_enabled, takes_payments_over_phone) " +
                     "VALUES (:id, :customBranding, :merchantName, :merchantTelephoneNumber, :merchantAddressLine1, :merchantAddressLine2, " +
-                    ":merchantAddressCity, :merchantAddressPostcode, :merchantAddressCountry, :merchantEmail, :merchantUrl, :externalId, :experimentalFeaturesEnabled)")
+                    ":merchantAddressCity, :merchantAddressPostcode, :merchantAddressCountry, :merchantEmail, :merchantUrl, :externalId, :experimentalFeaturesEnabled, :takesPaymentsOverPhone)")
                     .bind("id", service.getId())
                     .bindBySqlType("customBranding", customBranding, OTHER)
                     .bind("merchantName", merchantDetails.getName())
@@ -227,6 +227,7 @@ public class DatabaseTestHelper {
                     .bind("merchantUrl", merchantDetails.getUrl())
                     .bind("externalId", service.getExternalId())
                     .bind("experimentalFeaturesEnabled", service.isExperimentalFeaturesEnabled())
+                    .bind("takesPaymentsOverPhone", service.isTakesPaymentsOverPhone())
                     .execute();
         });
 

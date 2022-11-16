@@ -80,7 +80,10 @@ public class ServiceEntity {
 
     @Column(name = "experimental_features_enabled")
     private boolean experimentalFeaturesEnabled = false;
-
+    
+    @Column(name = "takes_payments_over_phone")
+    private boolean takesPaymentsOverPhone = false;
+    
     @Column(name = "agent_initiated_moto_enabled")
     private boolean agentInitiatedMotoEnabled;
     
@@ -204,6 +207,14 @@ public class ServiceEntity {
         this.experimentalFeaturesEnabled = experimentalFeaturesEnabled;
     }
 
+    public boolean isTakesPaymentsOverPhone() {
+        return takesPaymentsOverPhone;
+    }
+
+    public void setTakesPaymentsOverPhone(boolean takesPaymentsOverPhone) {
+        this.takesPaymentsOverPhone = takesPaymentsOverPhone;
+    }
+    
     public boolean isAgentInitiatedMotoEnabled() {
         return agentInitiatedMotoEnabled;
     }
@@ -270,6 +281,7 @@ public class ServiceEntity {
                 this.defaultBillingAddressCountry,
                 this.currentGoLiveStage,
                 this.experimentalFeaturesEnabled,
+                this.takesPaymentsOverPhone,
                 this.agentInitiatedMotoEnabled,
                 this.sector,
                 this.internal,
