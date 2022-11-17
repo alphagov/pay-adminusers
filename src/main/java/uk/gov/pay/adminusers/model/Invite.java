@@ -28,8 +28,18 @@ public class Invite {
     private boolean expired;
     private boolean passwordSet;
 
-    public Invite(String code, String email, String telephoneNumber,
-                  Boolean disabled, Integer attemptCounter, String type, String role, Boolean expired, boolean passwordSet) {
+    private String otpKey;
+
+    public Invite(String code,
+                  String email,
+                  String telephoneNumber,
+                  Boolean disabled,
+                  Integer attemptCounter,
+                  String type,
+                  String role,
+                  Boolean expired,
+                  boolean passwordSet,
+                  String otpKey) {
         this.code = code;
         this.email = email;
         this.telephoneNumber = telephoneNumber;
@@ -39,27 +49,24 @@ public class Invite {
         this.role = role;
         this.expired = expired;
         this.passwordSet = passwordSet;
+        this.otpKey = otpKey;
     }
 
-    @JsonProperty("email")
     @Schema(example = "example@example.gov.uk")
     public String getEmail() {
         return email;
     }
 
-    @JsonProperty("telephone_number")
     @Schema(example = "+440787654534")
     public String getTelephoneNumber() {
         return telephoneNumber;
     }
 
-    @JsonProperty("disabled")
     @Schema(example = "false")
     public Boolean isDisabled() {
         return disabled;
     }
-
-    @JsonProperty("attempt_counter")
+    
     @Schema(example = "0")
     public Integer getAttemptCounter() {
         return attemptCounter;
@@ -70,22 +77,24 @@ public class Invite {
         return links;
     }
 
-    @JsonProperty("role")
     @Schema(example = "view-only")
     public String getRole() {
         return role;
     }
 
-    @JsonProperty("expired")
     @Schema(example = "false")
     public Boolean isExpired() {
         return expired;
     }
 
-    @JsonProperty("password_set")
     @Schema(example = "false")
     public boolean isPasswordSet() {
         return passwordSet;
+    }
+
+    @Schema(example = "ABC123")
+    public String getOtpKey() {
+        return otpKey;
     }
 
     public void setInviteLink(String targetUrl) {
@@ -114,6 +123,7 @@ public class Invite {
     /**
      * Derived attribute only to indicate if a user with the specified email already exits in the system.
      * This is not stored in database rather populated at runtime every time at the usage.
+     *
      * @param userExist
      */
     public void setUserExist(boolean userExist) {

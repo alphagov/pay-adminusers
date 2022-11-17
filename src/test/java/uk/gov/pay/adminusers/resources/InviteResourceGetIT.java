@@ -6,18 +6,21 @@ import static io.restassured.http.ContentType.JSON;
 import static javax.ws.rs.core.Response.Status.GONE;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 
-public class InviteResourceGetIT extends IntegrationTest {
+class InviteResourceGetIT extends IntegrationTest {
 
     @Test
-    public void getInvitation_shouldSucceed() {
+    void getInvitation_shouldSucceed() {
 
         String email = "user@example.com";
+        String otpKey = "ABC12";
         String inviteCode = inviteDbFixture(databaseHelper)
                 .withEmail(email)
+                .withOtpKey(otpKey)
                 .insertInviteToAddUserToService();
 
         givenSetup()
@@ -31,7 +34,8 @@ public class InviteResourceGetIT extends IntegrationTest {
                 .body("disabled", is(false))
                 .body("user_exist", is(false))
                 .body("attempt_counter", is(0))
-                .body("password_set", is(false));
+                .body("password_set", is(false))
+                .body("otp_key", is(otpKey));
     }
 
     @Test
@@ -39,7 +43,7 @@ public class InviteResourceGetIT extends IntegrationTest {
      *  This situation happens when OTP is generated (with telephone_number) and then the GET Invite is again requested
      *  (still non-expired invite link)
      */
-    public void getInvitation_shouldSucceedWithTelephoneNumber_whenIsAvailable() {
+    void getInvitation_shouldSucceedWithTelephoneNumber_whenIsAvailable() {
 
         String email = "user@example.com";
         String telephoneNumber = "+440787654534";
@@ -62,7 +66,7 @@ public class InviteResourceGetIT extends IntegrationTest {
     }
 
     @Test
-    public void getInvitation_shouldFail_whenExpired() {
+    void getInvitation_shouldFail_whenExpired() {
 
         String expiredCode = inviteDbFixture(databaseHelper).expired().insertInviteToAddUserToService();
 
@@ -75,7 +79,7 @@ public class InviteResourceGetIT extends IntegrationTest {
     }
 
     @Test
-    public void getInvitation_shouldFail_whenDisabled() {
+    void getInvitation_shouldFail_whenDisabled() {
 
         String expiredCode = inviteDbFixture(databaseHelper).disabled().insertInviteToAddUserToService();
 
@@ -88,7 +92,7 @@ public class InviteResourceGetIT extends IntegrationTest {
     }
 
     @Test
-    public void createInvitation_shouldFail_whenInvalidCode() {
+    void createInvitation_shouldFail_whenInvalidCode() {
 
         givenSetup()
                 .when()
@@ -99,7 +103,7 @@ public class InviteResourceGetIT extends IntegrationTest {
     }
 
     @Test
-    public void getInvitations_shouldSucceed() {
+    void getInvitations_shouldSucceed() {
         String serviceExternalId = "sdfgsdgytgkh";
         String email = "user@example.com";
         inviteDbFixture(databaseHelper)

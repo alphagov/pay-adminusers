@@ -1224,6 +1224,9 @@ components:
         inviteLink:
           type: string
           writeOnly: true
+        otp_key:
+          type: string
+          example: ABC123
         password_set:
           type: boolean
           example: false
