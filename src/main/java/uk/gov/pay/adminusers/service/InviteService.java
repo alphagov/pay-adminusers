@@ -32,6 +32,7 @@ import java.util.Optional;
 import static uk.gov.pay.adminusers.resources.InviteRequestValidator.FIELD_PASSWORD;
 import static uk.gov.pay.adminusers.resources.InviteRequestValidator.FIELD_TELEPHONE_NUMBER;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.invalidOtpAuthCodeInviteException;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteDoesNotHaveTelephoneNumberError;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.inviteLockedException;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.missingSecondFactorMethod;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.notFoundInviteException;
@@ -91,6 +92,26 @@ public class InviteService {
             }
         } else {
             throw notFoundInviteException(resendOtpRequest.getCode());
+        }
+    }
+
+    @Transactional
+    public void sendOtp(String inviteCode) {
+        InviteEntity invite = findInvite(inviteCode).orElseThrow(() -> notFoundInviteException(inviteCode));
+
+        if (invite.getTelephoneNumber() == null) {
+            throw inviteDoesNotHaveTelephoneNumberError(inviteCode);
+        }
+
+        int passCode = secondFactorAuthenticator.newPassCode(invite.getOtpKey());
+        String formattedPasscode = String.format(Locale.ENGLISH, SIX_DIGITS_WITH_LEADING_ZEROS, passCode);
+
+        OtpNotifySmsTemplateId templateId = invite.getService().isPresent() ? CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE : SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE;
+        try {
+            String notificationId = notificationService.sendSecondFactorPasscodeSms(invite.getTelephoneNumber(), formattedPasscode, templateId);
+            LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]", invite.getCode(), notificationId);
+        } catch (Exception e) {
+            LOGGER.error(String.format("error sending 2FA token for invite code [%s]", invite.getCode()), e);
         }
     }
 

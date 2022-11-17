@@ -129,6 +129,28 @@ public class InviteResource {
                 .collect(Collectors.toList());
         return inviteService.updateInvite(inviteCode, updateRequests);
     }
+    
+    @POST
+    @Path("/v1/api/invites/{code}/send-otp")
+    @Produces(APPLICATION_JSON)
+    @Operation(
+            summary = "Sends otp verification code to the phone number registered in the invite",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "No content"),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+                    @ApiResponse(responseCode = "404", description = "Not found"),
+                    @ApiResponse(responseCode = "412", description = "Precondition failed")
+            }
+    )
+    public void sendOtp(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode) {
+        LOGGER.info("Invite send OTP POST request for code - [ {} ]", inviteCode);
+
+        if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+        inviteService.sendOtp(inviteCode);
+    }
 
     @POST
     @Path("/v1/api/invites/{code}/complete")
