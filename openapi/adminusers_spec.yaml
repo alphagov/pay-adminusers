@@ -426,22 +426,23 @@ paths:
         \ Patch](http://jsonpatch.com/).<br>\n  | op |  field | example |\n| --- |\
         \  --- | ----|\n| add | gateway_account_ids  | [\"1\"] |\n| replace | redirect_to_service_immediately_on_terminal_state\
         \ | false |\n| replace | experimental_features_enabled | false |\n| replace\
-        \ | agent_initiated_moto_enabled | false |\n| replace | collect_billing_address\
-        \ | true |\n| replace | current_go_live_stage | NOT_STARTED |\n| replace |\
-        \ current_psp_test_account_stage | NOT_STARTED |\n| replace | merchant_details/name,\
-        \ organisatio | name |\n| replace | merchant_details/address_line1, Address\
-        \ lin | 1 |\n| replace | merchant_details/address_line2, Address lin | 2 \
-        \ |\n| replace | merchant_details/address_city | London |\n| replace | merchant_details/address_country\
-        \ | GB |\n| replace | merchant_details/address_postcode | E6 8XX |\n| replace\
-        \ | merchant_detail |/email,  |\n| replace | merchant_details/email, email@exampl\
-        \ |.com |\n| replace | merchant_detail |/url,  |\n| replace | merchant_details/url,\
-        \ http://www.exampl |.org |\n| replace | merchant_detail |/telephone_number,\
-        \  |\n| replace | merchant_details/telephone_number | 447700900000 |\n| replace\
-        \ | custom_branding | { \"css_url\": \"css url\", \"image_url\": \"image url\"\
-        } |\n| replace | custom_branding | {} |\n| replace | service_name/en | Some\
-        \ service name |\n| replace | sector | local government |\n| replace | internal\
-        \ | true |\n| replace | archived | true |\n| replace | went_live_date | 2022-04-09T18:07:46Z\
-        \ |\n| replace | default_billing_address_country | GB | "
+        \ | takes_payments_over_phone | false |\n| replace | agent_initiated_moto_enabled\
+        \ | false |\n| replace | collect_billing_address | true |\n| replace | current_go_live_stage\
+        \ | NOT_STARTED |\n| replace | current_psp_test_account_stage | NOT_STARTED\
+        \ |\n| replace | merchant_details/name, organisatio | name |\n| replace |\
+        \ merchant_details/address_line1, Address lin | 1 |\n| replace | merchant_details/address_line2,\
+        \ Address lin | 2  |\n| replace | merchant_details/address_city | London |\n\
+        | replace | merchant_details/address_country | GB |\n| replace | merchant_details/address_postcode\
+        \ | E6 8XX |\n| replace | merchant_detail |/email,  |\n| replace | merchant_details/email,\
+        \ email@exampl |.com |\n| replace | merchant_detail |/url,  |\n| replace |\
+        \ merchant_details/url, http://www.exampl |.org |\n| replace | merchant_detail\
+        \ |/telephone_number,  |\n| replace | merchant_details/telephone_number |\
+        \ 447700900000 |\n| replace | custom_branding | { \"css_url\": \"css url\"\
+        , \"image_url\": \"image url\"} |\n| replace | custom_branding | {} |\n| replace\
+        \ | service_name/en | Some service name |\n| replace | sector | local government\
+        \ |\n| replace | internal | true |\n| replace | archived | true |\n| replace\
+        \ | went_live_date | 2022-04-09T18:07:46Z |\n| replace | default_billing_address_country\
+        \ | GB | "
       operationId: updateServiceAttribute
       parameters:
       - example: 7d19aff33f8948deb97ed16b2912dcd3

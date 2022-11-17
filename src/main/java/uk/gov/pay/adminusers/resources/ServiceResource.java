@@ -267,6 +267,7 @@ public class ServiceResource {
                     "| add | gateway_account_ids  | [\"1\"] |\n" +
                     "| replace | redirect_to_service_immediately_on_terminal_state | false |\n" +
                     "| replace | experimental_features_enabled | false |\n" +
+                    "| replace | takes_payments_over_phone | false |\n" +
                     "| replace | agent_initiated_moto_enabled | false |\n" +
                     "| replace | collect_billing_address | true |\n" +
                     "| replace | current_go_live_stage | NOT_STARTED |\n" +

@@ -1,0 +1,5 @@
+{
+  "op": "replace",
+  "path": "takes_payments_over_phone",
+  "value": true
+}
