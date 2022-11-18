@@ -29,6 +29,7 @@ import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CURRENT_PSP_TES
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CUSTOM_BRANDING;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_DEFAULT_BILLING_ADDRESS_COUNTRY;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_EXPERIMENTAL_FEATURES_ENABLED;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_TAKES_PAYMENTS_OVER_PHONE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT_IDS;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_INTERNAL;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_ADDRESS_CITY;
@@ -76,6 +77,7 @@ public class ServiceUpdateOperationValidator {
                 entry(FIELD_CUSTOM_BRANDING, singletonList(REPLACE)),
                 entry(FIELD_REDIRECT_NAME, singletonList(REPLACE)),
                 entry(FIELD_EXPERIMENTAL_FEATURES_ENABLED, singletonList(REPLACE)),
+                entry(FIELD_TAKES_PAYMENTS_OVER_PHONE, singletonList(REPLACE)),
                 entry(FIELD_AGENT_INITIATED_MOTO_ENABLED, singletonList(REPLACE)),
                 entry(FIELD_COLLECT_BILLING_ADDRESS, singletonList(REPLACE)),
                 entry(FIELD_DEFAULT_BILLING_ADDRESS_COUNTRY, singletonList(REPLACE)),
@@ -135,6 +137,8 @@ public class ServiceUpdateOperationValidator {
         } else if (FIELD_REDIRECT_NAME.equals(path)) {
             return validateMandatoryBooleanValue(operation);
         } else if (FIELD_EXPERIMENTAL_FEATURES_ENABLED.equals(path)) {
+            return validateMandatoryBooleanValue(operation);
+        } else if (FIELD_TAKES_PAYMENTS_OVER_PHONE.equals(path)) {
             return validateMandatoryBooleanValue(operation);
         } else if (FIELD_AGENT_INITIATED_MOTO_ENABLED.equals(path)) {
             return validateMandatoryBooleanValue(operation);

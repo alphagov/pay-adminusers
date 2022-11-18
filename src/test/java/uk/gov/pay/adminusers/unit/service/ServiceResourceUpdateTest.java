@@ -503,4 +503,29 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
 
         assertThat(json.get("experimental_features_enabled"), is(true));
     }
+
+    @Test
+    public void shouldUpdateTakesPaymentsOverPhone_toTrue() {
+        ServiceEntity thisServiceEntity = ServiceEntityFixture
+                .aServiceEntity()
+                .withTakesPaymentsOverPhone(false)
+                .build();
+        String externalId = thisServiceEntity.getExternalId();
+
+        String jsonPayload = fixture("fixtures/resource/service/patch/replace_takes_payments_over_phone_to_true.json");
+
+        when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
+        when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
+
+        Response response = RESOURCES.target(format(API_PATH, thisServiceEntity.getExternalId()))
+                .request()
+                .method("PATCH", Entity.json(jsonPayload));
+
+        assertThat(response.getStatus(), is(200));
+
+        String body = response.readEntity(String.class);
+        JsonPath json = JsonPath.from(body);
+
+        assertThat(json.get("takes_payments_over_phone"), is(true));
+    }
 }
