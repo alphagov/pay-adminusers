@@ -508,7 +508,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     public void shouldUpdateTakesPaymentsOverPhone_toTrue() {
         ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
-                .withExperimentalFeaturesEnabled(false)
+                .withTakesPaymentsOverPhone(false)
                 .build();
         String externalId = thisServiceEntity.getExternalId();
 
