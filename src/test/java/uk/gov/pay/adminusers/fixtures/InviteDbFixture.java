@@ -19,7 +19,7 @@ public class InviteDbFixture {
     private ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
     private ZonedDateTime expiryDate = this.date.plus(1, DAYS);
     private String code = randomAlphanumeric(100);
-    private String otpKey = randomAlphanumeric(100);
+    private String otpKey = "KPWXGUTNWOE7PMVK";
     private String telephoneNumber;
     private String password;
     private Boolean disabled = Boolean.FALSE;
