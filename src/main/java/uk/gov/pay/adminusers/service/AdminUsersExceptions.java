@@ -27,6 +27,11 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, BAD_REQUEST.getStatusCode());
     }
 
+    public static WebApplicationException inviteDoesNotHaveTelephoneNumberError(String inviteCode) {
+        String error = format("Unable to send second factor code as invite does not have a telephone number set. invite-code = %s", inviteCode);
+        return buildWebApplicationException(error, PRECONDITION_FAILED.getStatusCode());
+    }
+
     public static WebApplicationException conflictingUsername(String username) {
         String error = format("username [%s] already exists", username);
         return buildWebApplicationException(error, CONFLICT.getStatusCode());

@@ -30,6 +30,7 @@ import static java.lang.String.valueOf;
 import static java.time.ZonedDateTime.now;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
@@ -166,6 +167,60 @@ class InviteServiceTest {
             verify(mockInviteDao).merge(expectedInvite.capture());
             InviteEntity updatedInvite = expectedInvite.getValue();
             assertThat(updatedInvite.getTelephoneNumber(), is(TELEPHONE_NUMBER));
+        }
+    }
+    
+    @Nested
+    class sendOtp {
+        @Test
+        void sendOtp_shouldSendNotificationWithCreateUserInResponseToInvitationToServiceTemplate_whenInviteHasService() {
+            InviteEntity inviteEntity = new InviteEntity();
+            inviteEntity.setTelephoneNumber(TELEPHONE_NUMBER);
+            inviteEntity.setOtpKey(otpKey);
+            inviteEntity.setService(aServiceEntity().build());
+
+            when(mockInviteDao.findByCode(eq(inviteCode))).thenReturn(Optional.of(inviteEntity));
+            when(mockSecondFactorAuthenticator.newPassCode(otpKey)).thenReturn(passCode);
+            when(mockNotificationService.sendSecondFactorPasscodeSms(eq(TELEPHONE_NUMBER), eq(valueOf(passCode)),
+                    eq(CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE))).thenReturn("random-notify-id");
+
+            inviteService.sendOtp(inviteCode);
+        }
+        
+        @Test
+        void sendOtp_shouldSendNotificationWithSelfInitiatedCreateNewUserAndServiceTemplate_whenInviteDoesNotHaveService() {
+            InviteEntity inviteEntity = new InviteEntity();
+            inviteEntity.setTelephoneNumber(TELEPHONE_NUMBER);
+            inviteEntity.setOtpKey(otpKey);
+            inviteEntity.setService(null);
+
+            when(mockInviteDao.findByCode(eq(inviteCode))).thenReturn(Optional.of(inviteEntity));
+            when(mockSecondFactorAuthenticator.newPassCode(otpKey)).thenReturn(passCode);
+            when(mockNotificationService.sendSecondFactorPasscodeSms(eq(TELEPHONE_NUMBER), eq(valueOf(passCode)),
+                    eq(SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE))).thenReturn("random-notify-id");
+
+            inviteService.sendOtp(inviteCode);
+        }
+
+        @Test
+        void sendOtp_shouldThrowWhenInviteNotFound() {
+            when(mockInviteDao.findByCode(eq(inviteCode))).thenReturn(Optional.empty());
+
+            WebApplicationException exception = assertThrows(WebApplicationException.class, () -> inviteService.sendOtp(inviteCode));
+            assertThat(exception.getResponse().getStatus(), is(NOT_FOUND.getStatusCode()));
+        }
+
+        @Test
+        void sendOtp_shouldThrowWhenInviteDoesNotHaveTelephoneNumber() {
+            InviteEntity inviteEntity = new InviteEntity();
+            inviteEntity.setTelephoneNumber(null);
+            inviteEntity.setOtpKey(otpKey);
+            inviteEntity.setService(null);
+
+            when(mockInviteDao.findByCode(eq(inviteCode))).thenReturn(Optional.of(inviteEntity));
+
+            WebApplicationException exception = assertThrows(WebApplicationException.class, () -> inviteService.sendOtp(inviteCode));
+            assertThat(exception.getResponse().getStatus(), is(PRECONDITION_FAILED.getStatusCode()));
         }
     }
 

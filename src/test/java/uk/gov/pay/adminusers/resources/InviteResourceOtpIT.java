@@ -8,10 +8,12 @@ import uk.gov.pay.adminusers.fixtures.InviteDbFixture;
 import java.util.Map;
 
 import static io.restassured.http.ContentType.JSON;
+import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static javax.ws.rs.core.Response.Status.GONE;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
+import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static org.apache.commons.lang3.RandomStringUtils.random;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -181,6 +183,56 @@ class InviteResourceOtpIT extends IntegrationTest {
                 .post(INVITES_VALIDATE_OTP_RESOURCE_URL)
                 .then()
                 .statusCode(UNAUTHORIZED.getStatusCode());
+    }
+
+    @Test
+    void sendOtp_shouldSendNotification_whenInviteHasTelephoneNumber() {
+        code = InviteDbFixture.inviteDbFixture(databaseHelper)
+                .withTelephoneNumber("01234567890")
+                .withOtpKey(OTP_KEY)
+                .insertInviteToAddUserToService();
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .post(format(INVITES_SEND_OTP_RESOURCE_URL, code))
+                .then()
+                .statusCode(NO_CONTENT.getStatusCode());
+    }
+
+    @Test
+    void sendOtp_shouldFail_whenInviteNotFound() {
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .post(format(INVITES_SEND_OTP_RESOURCE_URL, "non-existent-invite"))
+                .then()
+                .statusCode(NOT_FOUND.getStatusCode());
+    }
+
+    @Test
+    void sendOtp_shouldFail_whenInviteCodeMalformatted() {
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .post(format(INVITES_SEND_OTP_RESOURCE_URL, ""))
+                .then()
+                .statusCode(NOT_FOUND.getStatusCode());
+    }
+
+    @Test
+    void sendOtp_shouldFail_whenInviteHasNoTelephoneNumber() {
+        code = InviteDbFixture.inviteDbFixture(databaseHelper)
+                .withTelephoneNumber(null)
+                .withOtpKey(OTP_KEY)
+                .insertInviteToAddUserToService();
+        
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .post(format(INVITES_SEND_OTP_RESOURCE_URL, code))
+                .then()
+                .statusCode(PRECONDITION_FAILED.getStatusCode());
     }
 
     @Test
