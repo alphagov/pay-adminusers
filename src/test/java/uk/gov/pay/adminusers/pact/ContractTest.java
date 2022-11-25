@@ -132,7 +132,7 @@ public abstract class ContractTest {
     public void aUserExistsWithGivenExternalId() {
         createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", "password", "cp5wa");
     }
-    
+
     @State("a user exists external id 7d19aff33f8948deb97ed16b2912dcd3 and a service exists with external id cp5wa")
     public void aUserExistsNotAssignedToService() {
         serviceDbFixture(dbHelper)
@@ -153,7 +153,7 @@ public abstract class ContractTest {
                 .withGatewayAccountIds("111")
                 .insertService();
     }
-    
+
     @State({"a service exists with custom branding and a gateway account with id 111"})
     public void aServiceExistsWithCustomBranding() {
         serviceDbFixture(dbHelper)
@@ -169,7 +169,7 @@ public abstract class ContractTest {
                 .withGoLiveStage(GoLiveStage.NOT_STARTED)
                 .insertService();
     }
-    
+
     @State("a service exists with external id cp5wa with multiple admin users")
     public void aServiceExistsWithMultipleAdmins() {
         Service service = serviceDbFixture(dbHelper)
@@ -198,6 +198,18 @@ public abstract class ContractTest {
                 .insertInviteToAddUserToService();
     }
 
+    @State("an invite to add an existing user to a service exists with invite code an-invite-code")
+    public void aUserAndInviteToAddUserToServiceExist() {
+        String email = "foo@example.com";
+        userDbFixture(dbHelper)
+                .withEmail(email)
+                .insertUser();
+        inviteDbFixture(dbHelper)
+                .withEmail(email)
+                .withCode("an-invite-code")
+                .insertInviteToAddUserToService();
+    }
+
     private static void createUserWithinAService(String externalId, String username, String password, String serviceExternalId) {
         String gatewayAccount1 = randomNumeric(5);
         String gatewayAccount2 = randomNumeric(5);
@@ -209,17 +221,16 @@ public abstract class ContractTest {
         Role role = createRole();
         createUserWithRoleForService(externalId, username, password, role, service);
     }
-    
+
     private static Role createRole() {
-        Role role = Role.role(2,"admin", "Administrator");
+        Role role = Role.role(2, "admin", "Administrator");
         return roleDbFixture(dbHelper).insert(role,
                 Permission.permission(randomInt(), "perm-1", "permission-1-description"),
                 Permission.permission(randomInt(), "perm-2", "permission-2-description"),
                 Permission.permission(randomInt(), "perm-3", "permission-3-description"));
     }
-    
-    private static void createUserWithRoleForService(String externalId, String username, String password, Role role, Service service)
-    {
+
+    private static void createUserWithRoleForService(String externalId, String username, String password, Role role, Service service) {
         userDbFixture(dbHelper)
                 .withExternalId(externalId)
                 .withUsername(username)
