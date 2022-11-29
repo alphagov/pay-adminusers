@@ -279,6 +279,28 @@ paths:
         in the invite.
       tags:
       - Invites
+  /v1/api/invites/{code}/reprovision-otp:
+    post:
+      operationId: reprovisionOtp
+      parameters:
+      - example: d02jddeib0lqpsir28fbskg9v0rv
+        in: path
+        name: code
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invite'
+          description: OK
+        "404":
+          description: Not found
+      summary: Re-provision otp secret key for the invite
+      tags:
+      - Invites
   /v1/api/invites/{code}/send-otp:
     post:
       operationId: sendOtp

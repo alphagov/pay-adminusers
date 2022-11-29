@@ -11,6 +11,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.model.CompleteInviteResponse;
+import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.ResendOtpRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
@@ -221,6 +222,34 @@ class InviteServiceTest {
 
             WebApplicationException exception = assertThrows(WebApplicationException.class, () -> inviteService.sendOtp(inviteCode));
             assertThat(exception.getResponse().getStatus(), is(PRECONDITION_FAILED.getStatusCode()));
+        }
+    }
+    
+    @Nested
+    class reprovisionOtp {
+        @Test
+        void reprovisionOtp_shouldUpdateOtpKey_andReturnUpdatedInvite() {
+            String newOtpKey = "this-is-a-new-otp-key";
+            
+            InviteEntity inviteEntity = anInviteEntity().withCode(inviteCode).withOtpKey(otpKey).build();
+
+            when(mockInviteDao.findByCode(eq(inviteCode))).thenReturn(Optional.of(inviteEntity));
+            when(mockSecondFactorAuthenticator.generateNewBase32EncodedSecret()).thenReturn(newOtpKey);
+
+            Invite invite = inviteService.reprovisionOtp(inviteCode);
+
+            assertThat(invite.getOtpKey(), is(newOtpKey));
+            assertThat(inviteEntity.getOtpKey(), is(newOtpKey));
+
+            verify(mockInviteDao).merge(inviteEntity);
+        }
+        
+        @Test
+        void reprovisionOtp_shouldThrowWhenInviteNotFound() {
+            when(mockInviteDao.findByCode(eq(inviteCode))).thenReturn(Optional.empty());
+
+            WebApplicationException exception = assertThrows(WebApplicationException.class, () -> inviteService.reprovisionOtp(inviteCode));
+            assertThat(exception.getResponse().getStatus(), is(NOT_FOUND.getStatusCode()));
         }
     }
 

@@ -153,6 +153,27 @@ public class InviteResource {
     }
 
     @POST
+    @Path("/v1/api/invites/{code}/reprovision-otp")
+    @Produces(APPLICATION_JSON)
+    @Operation(
+            summary = "Re-provision otp secret key for the invite",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = Invite.class))),
+                    @ApiResponse(responseCode = "404", description = "Not found")
+            }
+    )
+    public Invite reprovisionOtp(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode) {
+        LOGGER.info("Invite re-provision OTP POST request for code - [ {} ]", inviteCode);
+
+        if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+        return inviteService.reprovisionOtp(inviteCode);
+    }
+
+    @POST
     @Path("/v1/api/invites/{code}/complete")
     @Produces(APPLICATION_JSON)
     @Operation(
