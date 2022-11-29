@@ -114,6 +114,17 @@ public class InviteService {
             LOGGER.error(String.format("error sending 2FA token for invite code [%s]", invite.getCode()), e);
         }
     }
+    
+    @Transactional
+    public Invite reprovisionOtp(String inviteCode) {
+        InviteEntity inviteEntity = findInvite(inviteCode).orElseThrow(() -> notFoundInviteException(inviteCode));
+
+        String newOtpKey = secondFactorAuthenticator.generateNewBase32EncodedSecret();
+        inviteEntity.setOtpKey(newOtpKey);
+        inviteDao.merge(inviteEntity);
+        
+        return inviteEntity.toInvite();
+    }
 
     @Transactional(ignore = {WebApplicationException.class})
     public void validateOtp(InviteValidateOtpRequest inviteOtpRequest) {
