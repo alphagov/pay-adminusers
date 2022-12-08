@@ -26,7 +26,6 @@ import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -51,8 +50,6 @@ class ServiceInviteCreatorTest {
     @Mock
     private RoleDao roleDao;
     @Mock
-    private PasswordHasher passwordHasher;
-    @Mock
     private SecondFactorAuthenticator secondFactorAuthenticator;
     @Captor
     private ArgumentCaptor<InviteEntity> persistedInviteEntity;
@@ -61,35 +58,12 @@ class ServiceInviteCreatorTest {
     @BeforeEach
     void before() {
         serviceInviteCreator = new ServiceInviteCreator(inviteDao, userDao, roleDao,
-                new LinksBuilder("http://localhost/"), linksConfig, notificationService, passwordHasher,
+                new LinksBuilder("http://localhost/"), linksConfig, notificationService,
                 secondFactorAuthenticator);
     }
 
     @Test
     void shouldSuccess_serviceInvite_IfEmailDoesNotConflict() {
-        String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
-        RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
-        when(userDao.findByEmail(email)).thenReturn(Optional.empty());
-        when(inviteDao.findByEmail(email)).thenReturn(emptyList());
-        when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
-        when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn("done");
-        when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
-        when(passwordHasher.hash("password")).thenReturn("encrypted-password");
-
-        Invite invite = serviceInviteCreator.doInvite(request);
-
-        verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
-        assertThat(invite.getEmail(), is(request.getEmail()));
-        assertThat(invite.getTelephoneNumber(), is("+441134960000"));
-        assertThat(invite.getType(), is("service"));
-        assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
-
-        assertThat(persistedInviteEntity.getValue().getPassword(), is("encrypted-password"));
-    }
-
-    @Test
-    void shouldSuccess_serviceInvite_IfTelephoneNumberAndPasswordNotPresent() {
         String email = "email@example.gov.uk";
         InviteServiceRequest request = new InviteServiceRequest(email);
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
@@ -103,18 +77,14 @@ class ServiceInviteCreatorTest {
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
-        assertThat(invite.getTelephoneNumber(), is(nullValue()));
         assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
-
-        assertThat(persistedInviteEntity.getValue().getTelephoneNumber(), is(nullValue()));
-        assertThat(persistedInviteEntity.getValue().getPassword(), is(nullValue()));
     }
 
     @Test
     void shouldSuccess_serviceInvite_evenIfNotifyThrowsAnError() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
+        InviteServiceRequest request = new InviteServiceRequest(email);
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(emptyList());
@@ -125,7 +95,6 @@ class ServiceInviteCreatorTest {
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
-        assertThat(invite.getTelephoneNumber(), is("+441134960000"));
         assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
 
@@ -134,7 +103,7 @@ class ServiceInviteCreatorTest {
     @Test
     void shouldSuccess_ifUserAlreadyHasAValidServiceInvitationWithGivenEmail() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
+        InviteServiceRequest request = new InviteServiceRequest(email);
         UserEntity sender = mock(UserEntity.class);
         ServiceEntity service = mock(ServiceEntity.class);
         RoleEntity role = mock(RoleEntity.class);
@@ -160,7 +129,7 @@ class ServiceInviteCreatorTest {
     @Test
     void shouldSuccess_serviceInvite_evenIfUserAlreadyHasAValidUserInvitationWithGivenEmail() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
+        InviteServiceRequest request = new InviteServiceRequest(email);
         UserEntity sender = mock(UserEntity.class);
         ServiceEntity service = mock(ServiceEntity.class);
         RoleEntity role = mock(RoleEntity.class);
@@ -186,7 +155,7 @@ class ServiceInviteCreatorTest {
     @Test
     void shouldError_ifUserAlreadyExistsWithGivenEmail() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
+        InviteServiceRequest request = new InviteServiceRequest(email);
         UserEntity existingUserEntity = new UserEntity();
         when(userDao.findByEmail(email)).thenReturn(Optional.of(existingUserEntity));
         when(linksConfig.getSupportUrl()).thenReturn("http://frontend");
@@ -203,7 +172,7 @@ class ServiceInviteCreatorTest {
     @Test
     void shouldError_ifUserAlreadyExistsAndDisabledWithGivenEmail() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
+        InviteServiceRequest request = new InviteServiceRequest(email);
         UserEntity existingUserEntity = new UserEntity();
         existingUserEntity.setDisabled(true);
         when(userDao.findByEmail(email)).thenReturn(Optional.of(existingUserEntity));
@@ -217,9 +186,9 @@ class ServiceInviteCreatorTest {
     }
 
     @Test
-    void shouldError_ifRoleDoesNotExists() {
+    void shouldError_ifRoleDoesNotExist() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest("password", email, "01134960000");
+        InviteServiceRequest request = new InviteServiceRequest(email);
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(emptyList());
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.empty());

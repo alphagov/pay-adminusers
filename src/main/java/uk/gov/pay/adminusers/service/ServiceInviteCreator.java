@@ -11,7 +11,6 @@ import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
-import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -37,7 +36,6 @@ public class ServiceInviteCreator {
     private final LinksBuilder linksBuilder;
     private final LinksConfig linksConfig;
     private final NotificationService notificationService;
-    private final PasswordHasher passwordHasher;
     private final SecondFactorAuthenticator secondFactorAuthenticator;
 
     @Inject
@@ -47,7 +45,6 @@ public class ServiceInviteCreator {
                                 LinksBuilder linksBuilder,
                                 LinksConfig linksConfig,
                                 NotificationService notificationService,
-                                PasswordHasher passwordHasher,
                                 SecondFactorAuthenticator secondFactorAuthenticator) {
         this.inviteDao = inviteDao;
         this.userDao = userDao;
@@ -55,7 +52,6 @@ public class ServiceInviteCreator {
         this.linksBuilder = linksBuilder;
         this.linksConfig = linksConfig;
         this.notificationService = notificationService;
-        this.passwordHasher = passwordHasher;
         this.secondFactorAuthenticator = secondFactorAuthenticator;
     }
 
@@ -80,7 +76,7 @@ public class ServiceInviteCreator {
 
         if (!existingValidServiceInvitesForSameEmail.isEmpty()) {
             InviteEntity foundInvite = existingValidServiceInvitesForSameEmail.get(0);
-            return constructInviteAndSendEmail(inviteServiceRequest, foundInvite, inviteEntity -> {
+            return constructInviteAndSendEmail(foundInvite, inviteEntity -> {
                 inviteDao.merge(inviteEntity);
                 return null;
             });
@@ -91,7 +87,7 @@ public class ServiceInviteCreator {
                     String otpKey = secondFactorAuthenticator.generateNewBase32EncodedSecret();
                     InviteEntity inviteEntity = new InviteEntity(requestEmail, randomUuid(), otpKey, roleEntity);
                     inviteEntity.setType(SERVICE);
-                    return constructInviteAndSendEmail(inviteServiceRequest, inviteEntity, inviteToPersist -> {
+                    return constructInviteAndSendEmail(inviteEntity, inviteToPersist -> {
                         inviteDao.persist(inviteToPersist);
                         return null;
                     });
@@ -100,10 +96,8 @@ public class ServiceInviteCreator {
 
     }
 
-    private Invite constructInviteAndSendEmail(InviteServiceRequest inviteServiceRequest, InviteEntity inviteEntity, Function<InviteEntity, Void> saveOrUpdate) {
+    private Invite constructInviteAndSendEmail(InviteEntity inviteEntity, Function<InviteEntity, Void> saveOrUpdate) {
         String inviteUrl = format("%s/%s", linksConfig.getSelfserviceInvitesUrl(), inviteEntity.getCode());
-        Optional.ofNullable(inviteServiceRequest.getTelephoneNumber()).map(TelephoneNumberUtility::formatToE164).ifPresent(inviteEntity::setTelephoneNumber);
-        Optional.ofNullable(inviteServiceRequest.getPassword()).map(passwordHasher::hash).ifPresent(inviteEntity::setPassword);
         saveOrUpdate.apply(inviteEntity);
         sendServiceInviteNotification(inviteEntity, inviteUrl);
         Invite invite = inviteEntity.toInvite();
