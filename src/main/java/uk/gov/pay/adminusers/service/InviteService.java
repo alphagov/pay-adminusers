@@ -8,7 +8,6 @@ import uk.gov.pay.adminusers.model.CompleteInviteResponse;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
-import uk.gov.pay.adminusers.model.ResendOtpRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
@@ -18,7 +17,6 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId;
-import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 import uk.gov.service.payments.commons.model.jsonpatch.JsonPatchOp;
 import uk.gov.service.payments.commons.model.jsonpatch.JsonPatchRequest;
 
@@ -69,30 +67,6 @@ public class InviteService {
         this.passwordHasher = passwordHasher;
         this.linksBuilder = linksBuilder;
         this.loginAttemptCap = loginAttemptCap;
-    }
-
-    @Transactional
-    public void reGenerateOtp(ResendOtpRequest resendOtpRequest) {
-        Optional<InviteEntity> inviteOptional = inviteDao.findByCode(resendOtpRequest.getCode());
-        if (inviteOptional.isPresent()) {
-            InviteEntity invite = inviteOptional.get();
-            invite.setTelephoneNumber(TelephoneNumberUtility.formatToE164(resendOtpRequest.getTelephoneNumber()));
-            inviteDao.merge(invite);
-            int newPassCode = secondFactorAuthenticator.newPassCode(invite.getOtpKey());
-            String passcode = String.format(Locale.ENGLISH, SIX_DIGITS_WITH_LEADING_ZEROS, newPassCode);
-
-            LOGGER.info("New 2FA token generated for invite code [{}]", resendOtpRequest.getCode());
-
-            try {
-                String notificationId = notificationService.sendSecondFactorPasscodeSms(resendOtpRequest.getTelephoneNumber(), passcode,
-                        mapInviteTypeToOtpNotifySmsTemplateId(invite.getType()));
-                LOGGER.info("sent 2FA token successfully for invite code [{}], notification id [{}]", resendOtpRequest.getCode(), notificationId);
-            } catch (Exception e) {
-                LOGGER.error(String.format("error sending 2FA token for invite code [%s]", resendOtpRequest.getCode()), e);
-            }
-        } else {
-            throw notFoundInviteException(resendOtpRequest.getCode());
-        }
     }
 
     @Transactional

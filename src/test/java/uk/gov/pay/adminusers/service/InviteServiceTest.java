@@ -12,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.model.CompleteInviteResponse;
 import uk.gov.pay.adminusers.model.Invite;
-import uk.gov.pay.adminusers.model.ResendOtpRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
@@ -94,81 +93,6 @@ class InviteServiceTest {
                 new LinksBuilder(baseUrl),
                 3
         );
-    }
-
-    @Nested
-    class generateOtp {
-        @Test
-        void generateOtp_shouldSendNotificationOnSuccessfulServiceInviteUpdate() {
-            InviteEntity inviteEntity = new InviteEntity();
-            inviteEntity.setOtpKey(otpKey);
-            inviteEntity.setType(SERVICE);
-            when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
-            when(mockSecondFactorAuthenticator.newPassCode(otpKey)).thenReturn(passCode);
-            when(mockInviteDao.merge(any(InviteEntity.class))).thenReturn(inviteEntity);
-            when(mockNotificationService.sendSecondFactorPasscodeSms(eq(TELEPHONE_NUMBER), eq(valueOf(passCode)), eq(SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE)))
-                    .thenReturn("random-notify-id");
-
-            inviteService.reGenerateOtp(new ResendOtpRequest(inviteCode, TELEPHONE_NUMBER));
-
-            verify(mockInviteDao).merge(expectedInvite.capture());
-            InviteEntity updatedInvite = expectedInvite.getValue();
-            assertThat(updatedInvite.getTelephoneNumber(), is(TELEPHONE_NUMBER));
-        }
-
-        @Test
-        void generateOtp_shouldStillUpdateTheServiceInviteWhen2FAFails() {
-            InviteEntity inviteEntity = new InviteEntity();
-            inviteEntity.setOtpKey(otpKey);
-            inviteEntity.setType(SERVICE);
-            when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
-            when(mockSecondFactorAuthenticator.newPassCode(otpKey)).thenReturn(passCode);
-            when(mockInviteDao.merge(any(InviteEntity.class))).thenReturn(inviteEntity);
-            when(mockNotificationService.sendSecondFactorPasscodeSms(eq(TELEPHONE_NUMBER), eq(valueOf(passCode)), eq(SELF_INITIATED_CREATE_NEW_USER_AND_SERVICE)))
-                    .thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
-
-            inviteService.reGenerateOtp(new ResendOtpRequest(inviteCode, TELEPHONE_NUMBER));
-
-            verify(mockInviteDao).merge(expectedInvite.capture());
-            InviteEntity updatedInvite = expectedInvite.getValue();
-            assertThat(updatedInvite.getTelephoneNumber(), is(TELEPHONE_NUMBER));
-        }
-
-        @Test
-        void generateOtp_shouldSendNotificationOnSuccessfulUserInviteUpdate() {
-            InviteEntity inviteEntity = new InviteEntity();
-            inviteEntity.setOtpKey(otpKey);
-            inviteEntity.setType(USER);
-            when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
-            when(mockSecondFactorAuthenticator.newPassCode(otpKey)).thenReturn(passCode);
-            when(mockInviteDao.merge(any(InviteEntity.class))).thenReturn(inviteEntity);
-            when(mockNotificationService.sendSecondFactorPasscodeSms(eq(TELEPHONE_NUMBER), eq(valueOf(passCode)),
-                    eq(CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE))).thenReturn("random-notify-id");
-
-            inviteService.reGenerateOtp(new ResendOtpRequest(inviteCode, TELEPHONE_NUMBER));
-
-            verify(mockInviteDao).merge(expectedInvite.capture());
-            InviteEntity updatedInvite = expectedInvite.getValue();
-            assertThat(updatedInvite.getTelephoneNumber(), is(TELEPHONE_NUMBER));
-        }
-
-        @Test
-        void generateOtp_shouldStillUpdateTheUserInviteWhen2FAFails() {
-            InviteEntity inviteEntity = new InviteEntity();
-            inviteEntity.setOtpKey(otpKey);
-            inviteEntity.setType(USER);
-            when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
-            when(mockSecondFactorAuthenticator.newPassCode(otpKey)).thenReturn(passCode);
-            when(mockInviteDao.merge(any(InviteEntity.class))).thenReturn(inviteEntity);
-            when(mockNotificationService.sendSecondFactorPasscodeSms(eq(TELEPHONE_NUMBER), eq(valueOf(passCode)),
-                    eq(CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE))).thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
-
-            inviteService.reGenerateOtp(new ResendOtpRequest(inviteCode, TELEPHONE_NUMBER));
-
-            verify(mockInviteDao).merge(expectedInvite.capture());
-            InviteEntity updatedInvite = expectedInvite.getValue();
-            assertThat(updatedInvite.getTelephoneNumber(), is(TELEPHONE_NUMBER));
-        }
     }
     
     @Nested

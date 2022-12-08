@@ -8,10 +8,4 @@ public interface InviteServiceFactory {
     UserInviteCreator userInvite();
 
     InviteFinder inviteFinder();
-
-    InviteRouter inviteOtpRouter();
-
-    ServiceOtpDispatcher dispatchServiceOtp();
-
-    UserOtpDispatcher dispatchUserOtp();
 }
