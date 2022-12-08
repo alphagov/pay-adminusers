@@ -10,46 +10,22 @@ import javax.validation.constraints.NotEmpty;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class InviteServiceRequest {
-    
-    private String password;
 
     @NotEmpty
     @Email
     protected String email;
-
-    @ValidTelephoneNumber
-    private String telephoneNumber;
     
     public InviteServiceRequest() {
         // for Jackson
     }
     
-    public InviteServiceRequest(
-            String password,
-            String email,
-            String telephoneNumber) {
-        this.password = password;
-        this.email = email;
-        this.telephoneNumber = telephoneNumber;
-    }
-
     public InviteServiceRequest(String email) {
-        this(null, email, null);
-    }
-
-    @Schema(example = "a-password")
-    public String getPassword() {
-        return password;
+        this.email = email;
     }
 
     @Schema(example = "example@example.gov.uk", required = true)
     public String getEmail() {
         return email;
-    }
-
-    @Schema(example = "+440787654534")
-    public String getTelephoneNumber() {
-        return telephoneNumber;
     }
 
 }
