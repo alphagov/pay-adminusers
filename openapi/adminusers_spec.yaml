@@ -91,24 +91,6 @@ paths:
       summary: List invites for a service
       tags:
       - Invites
-  /v1/api/invites/otp/resend:
-    post:
-      operationId: resendOtp
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ResendOtpRequest'
-      responses:
-        "204":
-          description: No content
-        "404":
-          description: Invite not found
-        "422":
-          description: Missing required fields or invalid values
-      summary: Resend OTP
-      tags:
-      - Invites
   /v1/api/invites/service:
     post:
       operationId: createServiceInvite
@@ -245,38 +227,6 @@ paths:
           description: Not found
       summary: Completes the invite by creating user/service and invalidating the
         invite code
-      tags:
-      - Invites
-  /v1/api/invites/{code}/otp/generate:
-    post:
-      operationId: generateAndDispatchOtp
-      parameters:
-      - example: d02jddeib0lqpsir28fbskg9v0rv
-        in: path
-        name: code
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
-              example:
-                telephone_number: "07451234567"
-                password: a-password
-              required:
-              - password
-              - telephone_number
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Invalid payload
-        "404":
-          description: Not found
-      summary: Generates and sends otp verification code to the phone number registered
-        in the invite.
       tags:
       - Invites
   /v1/api/invites/{code}/reprovision-otp:
@@ -1400,19 +1350,6 @@ components:
         name:
           type: string
           example: tokens:delete
-    ResendOtpRequest:
-      type: object
-      properties:
-        code:
-          type: string
-          example: d02jddeib0lqpsir28fbskg9v0rv
-          maxLength: 255
-        telephone_number:
-          type: string
-          example: +440787654534
-      required:
-      - code
-      - telephone_number
     Role:
       type: object
       properties:

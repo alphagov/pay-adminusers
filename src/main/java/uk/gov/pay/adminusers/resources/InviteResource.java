@@ -15,14 +15,11 @@ import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.CompleteInviteRequest;
 import uk.gov.pay.adminusers.model.CompleteInviteResponse;
 import uk.gov.pay.adminusers.model.Invite;
-import uk.gov.pay.adminusers.model.InviteOtpRequest;
 import uk.gov.pay.adminusers.model.InviteServiceRequest;
 import uk.gov.pay.adminusers.model.InviteUserRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
-import uk.gov.pay.adminusers.model.ResendOtpRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.service.AdminUsersExceptions;
-import uk.gov.pay.adminusers.service.InviteOtpDispatcher;
 import uk.gov.pay.adminusers.service.InviteService;
 import uk.gov.pay.adminusers.service.InviteServiceFactory;
 import uk.gov.pay.adminusers.utils.Errors;
@@ -198,47 +195,6 @@ public class InviteResource {
         return inviteService.complete(inviteCode, secondFactorMethod);
     }
 
-    @POST
-    @Path("/v1/api/invites/{code}/otp/generate")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(
-            summary = "Generates and sends otp verification code to the phone number registered in the invite.",
-            requestBody = @RequestBody(content = @Content(schema =
-            @Schema(example = "{" +
-                    " \"telephone_number\": \"07451234567\"," +
-                    " \"password\": \"a-password\"" +
-                    "}", requiredProperties = {"telephone_number", "password"}))),
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "OK"),
-                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
-                    @ApiResponse(responseCode = "404", description = "Not found")
-            }
-    )
-    public Response generateAndDispatchOtp(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode,
-                                           JsonNode payload) {
-        LOGGER.info("Invite POST request for generating otp");
-        if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
-            return Response.status(NOT_FOUND).build();
-        }
-
-        return inviteService.findInvite(inviteCode).map(inviteEntity -> {
-            if (inviteEntity.isUserType()) {
-                Optional<Errors> errors = inviteValidator.validateGenerateOtpRequest(payload);
-                if (errors.isPresent()) {
-                    return Response.status(BAD_REQUEST).entity(errors).build();
-                }
-            }
-
-            InviteOtpDispatcher otpDispatcher = inviteServiceFactory.inviteOtpRouter().routeOtpDispatch(inviteEntity);
-            if (otpDispatcher.withData(InviteOtpRequest.from(payload)).dispatchOtp(inviteCode)) {
-                return Response.status(OK).build();
-            } else {
-                throw internalServerError("unable to dispatch otp at this moment");
-            }
-        }).orElseGet(() -> Response.status(NOT_FOUND).build());
-    }
-
     @GET
     @Path("/v1/api/invites")
     @Produces(APPLICATION_JSON)
@@ -296,24 +252,6 @@ public class InviteResource {
         return inviteServiceFactory.userInvite().doInvite(inviteUserRequest)
                 .map(invite -> Response.status(CREATED).entity(invite).build())
                 .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
-    }
-
-    @POST
-    @Path("/v1/api/invites/otp/resend")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(
-            summary = "Resend OTP",
-            responses = {
-                    @ApiResponse(responseCode = "204", description = "No content"),
-                    @ApiResponse(responseCode = "422", description = "Missing required fields or invalid values"),
-                    @ApiResponse(responseCode = "404", description = "Invite not found")
-            }
-    )
-    public void resendOtp(@Valid ResendOtpRequest resendOtpRequest) {
-
-        LOGGER.info("Invite POST request for resending otp");
-        inviteService.reGenerateOtp(resendOtpRequest);
     }
 
     @POST
