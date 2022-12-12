@@ -15,14 +15,13 @@ import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.CompleteInviteRequest;
 import uk.gov.pay.adminusers.model.CompleteInviteResponse;
 import uk.gov.pay.adminusers.model.Invite;
-import uk.gov.pay.adminusers.model.InviteServiceRequest;
-import uk.gov.pay.adminusers.model.InviteUserRequest;
+import uk.gov.pay.adminusers.model.CreateSelfRegistrationInviteRequest;
+import uk.gov.pay.adminusers.model.CreateInviteToJoinServiceRequest;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.service.AdminUsersExceptions;
 import uk.gov.pay.adminusers.service.InviteService;
 import uk.gov.pay.adminusers.service.InviteServiceFactory;
-import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.service.payments.commons.model.jsonpatch.JsonPatchRequest;
 
 import javax.validation.Valid;
@@ -37,17 +36,14 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 import static uk.gov.pay.adminusers.utils.email.EmailValidator.isPublicSectorEmail;
 
 @Path("/")
@@ -224,13 +220,36 @@ public class InviteResource {
                     @ApiResponse(responseCode = "403", description = "The email is not an allowed public sector email address")
             }
     )
-    public Response createServiceInvite(@Valid InviteServiceRequest inviteServiceRequest) {
+    public Response createServiceInvite(@Valid CreateSelfRegistrationInviteRequest createSelfRegistrationInviteRequest) {
         LOGGER.info("Initiating create service invitation request");
-        if (!isPublicSectorEmail(inviteServiceRequest.getEmail())) {
-            throw AdminUsersExceptions.invalidPublicSectorEmail(inviteServiceRequest.getEmail());
+        if (!isPublicSectorEmail(createSelfRegistrationInviteRequest.getEmail())) {
+            throw AdminUsersExceptions.invalidPublicSectorEmail(createSelfRegistrationInviteRequest.getEmail());
         }
 
-        Invite invite = inviteServiceFactory.serviceInvite().doInvite(inviteServiceRequest);
+        Invite invite = inviteServiceFactory.selfRegistrationInviteCreator().doInvite(createSelfRegistrationInviteRequest);
+        return Response.status(CREATED).entity(invite).build();
+    }
+
+    @POST
+    @Path("/v1/api/invites/create-self-registration-invite")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(
+            summary = "Creates an invitation to allow self provisioning new service with Pay",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Created",
+                            content = @Content(schema = @Schema(implementation = Invite.class))),
+                    @ApiResponse(responseCode = "422", description = "Missing required fields or invalid values"),
+                    @ApiResponse(responseCode = "403", description = "The email is not an allowed public sector email address")
+            }
+    )
+    public Response createSelfRegistrationInvite(@Valid CreateSelfRegistrationInviteRequest createSelfRegistrationInviteRequest) {
+        LOGGER.info("Initiating create self-registration invitation request");
+        if (!isPublicSectorEmail(createSelfRegistrationInviteRequest.getEmail())) {
+            throw AdminUsersExceptions.invalidPublicSectorEmail(createSelfRegistrationInviteRequest.getEmail());
+        }
+
+        Invite invite = inviteServiceFactory.selfRegistrationInviteCreator().doInvite(createSelfRegistrationInviteRequest);
         return Response.status(CREATED).entity(invite).build();
     }
 
@@ -247,9 +266,29 @@ public class InviteResource {
                     @ApiResponse(responseCode = "404", description = "Service or role not found")
             }
     )
-    public Response createUserInvite(@Valid InviteUserRequest inviteUserRequest) {
+    public Response createUserInvite(@Valid CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest) {
         LOGGER.info("Initiating user invitation request");
-        return inviteServiceFactory.userInvite().doInvite(inviteUserRequest)
+        return inviteServiceFactory.joinServiceInviteCreator().doInvite(createInviteToJoinServiceRequest)
+                .map(invite -> Response.status(CREATED).entity(invite).build())
+                .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
+    }
+
+    @POST
+    @Path("/v1/api/invites/create-invite-to-join-service")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(
+            summary = "Creates an invitation to allow a new team member to join an existing service.",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Created",
+                            content = @Content(schema = @Schema(implementation = Invite.class))),
+                    @ApiResponse(responseCode = "422", description = "Missing required fields or invalid values"),
+                    @ApiResponse(responseCode = "404", description = "Service or role not found")
+            }
+    )
+    public Response createInviteToJoinService(@Valid CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest) {
+        LOGGER.info("Initiating create invite to join service request");
+        return inviteServiceFactory.joinServiceInviteCreator().doInvite(createInviteToJoinServiceRequest)
                 .map(invite -> Response.status(CREATED).entity(invite).build())
                 .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
     }

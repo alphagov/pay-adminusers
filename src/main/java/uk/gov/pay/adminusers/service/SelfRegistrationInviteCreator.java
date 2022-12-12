@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
-import uk.gov.pay.adminusers.model.InviteServiceRequest;
+import uk.gov.pay.adminusers.model.CreateSelfRegistrationInviteRequest;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
@@ -24,9 +24,9 @@ import static uk.gov.pay.adminusers.model.InviteType.SERVICE;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmail;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 
-public class ServiceInviteCreator {
+public class SelfRegistrationInviteCreator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceInviteCreator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SelfRegistrationInviteCreator.class);
     
     private static final String ADMIN_ROLE_NAME = "admin";
     
@@ -39,13 +39,13 @@ public class ServiceInviteCreator {
     private final SecondFactorAuthenticator secondFactorAuthenticator;
 
     @Inject
-    public ServiceInviteCreator(InviteDao inviteDao,
-                                UserDao userDao,
-                                RoleDao roleDao,
-                                LinksBuilder linksBuilder,
-                                LinksConfig linksConfig,
-                                NotificationService notificationService,
-                                SecondFactorAuthenticator secondFactorAuthenticator) {
+    public SelfRegistrationInviteCreator(InviteDao inviteDao,
+                                         UserDao userDao,
+                                         RoleDao roleDao,
+                                         LinksBuilder linksBuilder,
+                                         LinksConfig linksConfig,
+                                         NotificationService notificationService,
+                                         SecondFactorAuthenticator secondFactorAuthenticator) {
         this.inviteDao = inviteDao;
         this.userDao = userDao;
         this.roleDao = roleDao;
@@ -56,8 +56,8 @@ public class ServiceInviteCreator {
     }
 
     @Transactional
-    public Invite doInvite(InviteServiceRequest inviteServiceRequest) {
-        String requestEmail = inviteServiceRequest.getEmail();
+    public Invite doInvite(CreateSelfRegistrationInviteRequest createSelfRegistrationInviteRequest) {
+        String requestEmail = createSelfRegistrationInviteRequest.getEmail();
         Optional<UserEntity> anExistingUser = userDao.findByEmail(requestEmail);
         if (anExistingUser.isPresent()) {
             UserEntity user = anExistingUser.get();
@@ -99,39 +99,39 @@ public class ServiceInviteCreator {
     private Invite constructInviteAndSendEmail(InviteEntity inviteEntity, Function<InviteEntity, Void> saveOrUpdate) {
         String inviteUrl = format("%s/%s", linksConfig.getSelfserviceInvitesUrl(), inviteEntity.getCode());
         saveOrUpdate.apply(inviteEntity);
-        sendServiceInviteNotification(inviteEntity, inviteUrl);
+        sendInviteNotification(inviteEntity, inviteUrl);
         Invite invite = inviteEntity.toInvite();
         invite.setInviteLink(inviteUrl);
         return linksBuilder.decorate(invite);
     }
 
-    private void sendServiceInviteNotification(InviteEntity invite, String targetUrl) {
-        LOGGER.info("New service creation invitation created");
+    private void sendInviteNotification(InviteEntity invite, String targetUrl) {
+        LOGGER.info("New self-registration invitation created");
         try {
-            String notificationId = notificationService.sendServiceInviteEmail(invite.getEmail(), targetUrl);
-            LOGGER.info("sent create service invitation email successfully, notification id [{}]", notificationId);
+            String notificationId = notificationService.sendSelfRegistrationInviteEmail(invite.getEmail(), targetUrl);
+            LOGGER.info("sent self-registration invitation email successfully, notification id [{}]", notificationId);
         } catch (Exception e) {
-            LOGGER.error("error sending create service invitation", e);
+            LOGGER.error("error sending self-registration invitation", e);
         }
     }
 
     private void sendUserDisabledNotification(String email, String userExternalId) {
-        LOGGER.info("Disabled existing user tried to create a service - user_id={}", userExternalId);
+        LOGGER.info("Disabled existing user tried to initiate self-registration - user_id={}", userExternalId);
         try {
-            String notificationId = notificationService.sendServiceInviteUserDisabledEmail(email, linksConfig.getSupportUrl());
-            LOGGER.info("sent create service, user account disabled email successfully, notification id [{}]", notificationId);
+            String notificationId = notificationService.sendSelfRegistrationInviteUserExistsAndIsDisabledEmail(email, linksConfig.getSupportUrl());
+            LOGGER.info("sent 'disabled existing user tried initiate self-registration' email successfully, notification id [{}]", notificationId);
         } catch (Exception e) {
-            LOGGER.error("error sending service creation, user account disabled email", e);
+            LOGGER.error("error sending 'disabled existing user tried initiate self-registration' email", e);
         }
     }
 
     private void sendUserExistsNotification(String email, String userExternalId) {
-        LOGGER.info("Existing user tried to create a service - user_id={}", userExternalId);
+        LOGGER.info("Existing user tried to initiate self-registration - user_id={}", userExternalId);
         try {
-            String notificationId = notificationService.sendServiceInviteUserExistsEmail(email, linksConfig.getSelfserviceLoginUrl(), linksConfig.getSelfserviceForgottenPasswordUrl(), linksConfig.getSupportUrl());
-            LOGGER.info("sent create service, user exists email successfully, notification id [{}]", notificationId);
+            String notificationId = notificationService.sendSelfRegistrationInviteUserExistsEmail(email, linksConfig.getSelfserviceLoginUrl(), linksConfig.getSelfserviceForgottenPasswordUrl(), linksConfig.getSupportUrl());
+            LOGGER.info("sent 'existing user tried to initiate self-registration' email successfully, notification id [{}]", notificationId);
         } catch (Exception e) {
-            LOGGER.error("error sending service creation, users exists email", e);
+            LOGGER.error("error sending 'existing user tried to initiate self-registration' email", e);
         }
     }
 }

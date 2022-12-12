@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
-import uk.gov.pay.adminusers.model.InviteServiceRequest;
+import uk.gov.pay.adminusers.model.CreateSelfRegistrationInviteRequest;
 import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @ExtendWith(MockitoExtension.class)
-class ServiceInviteCreatorTest {
+class SelfRegistrationInviteCreatorTest {
     @Mock
     private NotificationService notificationService;
     @Mock
@@ -53,27 +53,27 @@ class ServiceInviteCreatorTest {
     private SecondFactorAuthenticator secondFactorAuthenticator;
     @Captor
     private ArgumentCaptor<InviteEntity> persistedInviteEntity;
-    private ServiceInviteCreator serviceInviteCreator;
+    private SelfRegistrationInviteCreator selfRegistrationInviteCreator;
 
     @BeforeEach
     void before() {
-        serviceInviteCreator = new ServiceInviteCreator(inviteDao, userDao, roleDao,
+        selfRegistrationInviteCreator = new SelfRegistrationInviteCreator(inviteDao, userDao, roleDao,
                 new LinksBuilder("http://localhost/"), linksConfig, notificationService,
                 secondFactorAuthenticator);
     }
 
     @Test
-    void shouldSuccess_serviceInvite_IfEmailDoesNotConflict() {
+    void shouldSuccess_IfEmailDoesNotConflict() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest(email);
+        CreateSelfRegistrationInviteRequest request = new CreateSelfRegistrationInviteRequest(email);
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(emptyList());
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
-        when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenReturn("done");
+        when(notificationService.sendSelfRegistrationInviteEmail(eq(email), anyString())).thenReturn("done");
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
 
-        Invite invite = serviceInviteCreator.doInvite(request);
+        Invite invite = selfRegistrationInviteCreator.doInvite(request);
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
@@ -82,16 +82,16 @@ class ServiceInviteCreatorTest {
     }
 
     @Test
-    void shouldSuccess_serviceInvite_evenIfNotifyThrowsAnError() {
+    void shouldSuccess_evenIfNotifyThrowsAnError() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest(email);
+        CreateSelfRegistrationInviteRequest request = new CreateSelfRegistrationInviteRequest(email);
         RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(emptyList());
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
-        when(notificationService.sendServiceInviteEmail(eq(email), anyString())).thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
+        when(notificationService.sendSelfRegistrationInviteEmail(eq(email), anyString())).thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
-        Invite invite = serviceInviteCreator.doInvite(request);
+        Invite invite = selfRegistrationInviteCreator.doInvite(request);
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
@@ -101,9 +101,9 @@ class ServiceInviteCreatorTest {
     }
 
     @Test
-    void shouldSuccess_ifUserAlreadyHasAValidServiceInvitationWithGivenEmail() {
+    void shouldSuccess_ifUserAlreadyHasAValidSelfRegistrationInvitationWithGivenEmail() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest(email);
+        CreateSelfRegistrationInviteRequest request = new CreateSelfRegistrationInviteRequest(email);
         UserEntity sender = mock(UserEntity.class);
         ServiceEntity service = mock(ServiceEntity.class);
         RoleEntity role = mock(RoleEntity.class);
@@ -115,10 +115,10 @@ class ServiceInviteCreatorTest {
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(List.of(validInvite));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
-        when(notificationService.sendServiceInviteEmail(eq(email), anyString()))
+        when(notificationService.sendSelfRegistrationInviteEmail(eq(email), anyString()))
                 .thenReturn("done");
 
-        Invite invite = serviceInviteCreator.doInvite(request);
+        Invite invite = selfRegistrationInviteCreator.doInvite(request);
 
         verify(inviteDao, times(1)).merge(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
@@ -127,9 +127,9 @@ class ServiceInviteCreatorTest {
     }
 
     @Test
-    void shouldSuccess_serviceInvite_evenIfUserAlreadyHasAValidUserInvitationWithGivenEmail() {
+    void shouldSuccess_evenIfUserAlreadyHasAValidJoinServiceInvitationWithGivenEmail() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest(email);
+        CreateSelfRegistrationInviteRequest request = new CreateSelfRegistrationInviteRequest(email);
         UserEntity sender = mock(UserEntity.class);
         ServiceEntity service = mock(ServiceEntity.class);
         RoleEntity role = mock(RoleEntity.class);
@@ -142,10 +142,10 @@ class ServiceInviteCreatorTest {
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(List.of(validInvite));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
-        when(notificationService.sendServiceInviteEmail(eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
+        when(notificationService.sendSelfRegistrationInviteEmail(eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
                 .thenReturn("done");
 
-        Invite invite = serviceInviteCreator.doInvite(request);
+        Invite invite = selfRegistrationInviteCreator.doInvite(request);
 
         assertThat(invite.getEmail(), is(request.getEmail()));
         assertThat(invite.getType(), is("service"));
@@ -155,46 +155,46 @@ class ServiceInviteCreatorTest {
     @Test
     void shouldError_ifUserAlreadyExistsWithGivenEmail() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest(email);
+        CreateSelfRegistrationInviteRequest request = new CreateSelfRegistrationInviteRequest(email);
         UserEntity existingUserEntity = new UserEntity();
         when(userDao.findByEmail(email)).thenReturn(Optional.of(existingUserEntity));
         when(linksConfig.getSupportUrl()).thenReturn("http://frontend");
         when(linksConfig.getSelfserviceForgottenPasswordUrl()).thenReturn("http://selfservice/forgotten-password");
         when(linksConfig.getSelfserviceLoginUrl()).thenReturn("http://selfservice/login");
-        when(notificationService.sendServiceInviteUserExistsEmail(eq(email), anyString(), anyString(), anyString()))
+        when(notificationService.sendSelfRegistrationInviteUserExistsEmail(eq(email), anyString(), anyString(), anyString()))
                 .thenReturn("done");
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> serviceInviteCreator.doInvite(request));
+                () -> selfRegistrationInviteCreator.doInvite(request));
         assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
     }
 
     @Test
     void shouldError_ifUserAlreadyExistsAndDisabledWithGivenEmail() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest(email);
+        CreateSelfRegistrationInviteRequest request = new CreateSelfRegistrationInviteRequest(email);
         UserEntity existingUserEntity = new UserEntity();
         existingUserEntity.setDisabled(true);
         when(userDao.findByEmail(email)).thenReturn(Optional.of(existingUserEntity));
         when(linksConfig.getSupportUrl()).thenReturn("http://frontend");
-        when(notificationService.sendServiceInviteUserDisabledEmail(eq(email), anyString()))
+        when(notificationService.sendSelfRegistrationInviteUserExistsAndIsDisabledEmail(eq(email), anyString()))
                 .thenReturn("done");
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> serviceInviteCreator.doInvite(request));
+                () -> selfRegistrationInviteCreator.doInvite(request));
         assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
     }
 
     @Test
     void shouldError_ifRoleDoesNotExist() {
         String email = "email@example.gov.uk";
-        InviteServiceRequest request = new InviteServiceRequest(email);
+        CreateSelfRegistrationInviteRequest request = new CreateSelfRegistrationInviteRequest(email);
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(emptyList());
         when(roleDao.findByRoleName("admin")).thenReturn(Optional.empty());
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> serviceInviteCreator.doInvite(request));
+                () -> selfRegistrationInviteCreator.doInvite(request));
         assertThat(exception.getMessage(), is("HTTP 500 Internal Server Error"));
     }
 }

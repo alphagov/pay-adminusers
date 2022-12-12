@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
-import uk.gov.pay.adminusers.model.InviteUserRequest;
+import uk.gov.pay.adminusers.model.CreateInviteToJoinServiceRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
@@ -49,7 +49,7 @@ import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
 @ExtendWith(MockitoExtension.class)
-class UserInviteCreatorTest {
+class JoinServiceInviteCreatorTest {
     
     @Mock
     private RoleDao mockRoleDao;
@@ -66,7 +66,7 @@ class UserInviteCreatorTest {
     @Mock
     private LinksConfig linksConfig;
 
-    private UserInviteCreator userInviteCreator;
+    private JoinServiceInviteCreator joinServiceInviteCreator;
     @Captor
     private ArgumentCaptor<InviteEntity> expectedInvite;
     private String senderEmail = "sender@example.com";
@@ -78,7 +78,7 @@ class UserInviteCreatorTest {
 
     @BeforeEach
     void setUp() {
-        userInviteCreator = new UserInviteCreator(mockInviteDao, mockUserDao, mockRoleDao, linksConfig,
+        joinServiceInviteCreator = new JoinServiceInviteCreator(mockInviteDao, mockUserDao, mockRoleDao, linksConfig,
                 mockNotificationService, mockServiceDao, secondFactorAuthenticator);
     }
 
@@ -87,13 +87,13 @@ class UserInviteCreatorTest {
 
         mockInviteSuccessForNonExistingUserNonExistingInvite();
 
-        when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
+        when(mockNotificationService.sendInviteNewUserToJoinServiceEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
                 .thenReturn("random-notify-id");
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         String otpKey = "an-otp-key";
         when(secondFactorAuthenticator.generateNewBase32EncodedSecret()).thenReturn(otpKey);
 
-        userInviteCreator.doInvite(new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId));
+        joinServiceInviteCreator.doInvite(new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId));
 
         verify(mockInviteDao).persist(expectedInvite.capture());
         InviteEntity savedInvite = expectedInvite.getValue();
@@ -106,8 +106,8 @@ class UserInviteCreatorTest {
     @Test
     void shouldReturnEmpty_ifServiceNotFound() {
         when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.empty());
-        InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
-        Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
+        CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId);
+        Optional<Invite> invite = joinServiceInviteCreator.doInvite(createInviteToJoinServiceRequest);
 
         assertFalse(invite.isPresent());
     }
@@ -117,13 +117,13 @@ class UserInviteCreatorTest {
 
         mockInviteSuccessForNonExistingUserNonExistingInvite();
 
-        when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
+        when(mockNotificationService.sendInviteNewUserToJoinServiceEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
                 .thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         String otpKey = "an-otp-key";
         when(secondFactorAuthenticator.generateNewBase32EncodedSecret()).thenReturn(otpKey);
 
-        userInviteCreator.doInvite(new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId));
+        joinServiceInviteCreator.doInvite(new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId));
 
         verify(mockInviteDao).persist(expectedInvite.capture());
         InviteEntity savedInvite = expectedInvite.getValue();
@@ -155,10 +155,10 @@ class UserInviteCreatorTest {
 
 
         when(mockInviteDao.findByEmail(email)).thenReturn(List.of(anInvite));
-        InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
+        CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId);
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class, ()
-                -> userInviteCreator.doInvite(inviteUserRequest));
+                -> joinServiceInviteCreator.doInvite(createInviteToJoinServiceRequest));
         assertThat(webApplicationException.getMessage(), is("HTTP 409 Conflict"));
     }
 
@@ -178,9 +178,9 @@ class UserInviteCreatorTest {
         when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.of(service));
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(existingUser));
 
-        InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
+        CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId);
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> userInviteCreator.doInvite(inviteUserRequest));
+                () -> joinServiceInviteCreator.doInvite(createInviteToJoinServiceRequest));
         assertThat(webApplicationException.getMessage(), is("HTTP 412 Precondition Failed"));
     }
 
@@ -190,13 +190,13 @@ class UserInviteCreatorTest {
         //Given
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
         InviteEntity anInvite = mockInviteSuccessExistingInvite();
-        when(mockNotificationService.sendInviteEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
+        when(mockNotificationService.sendInviteNewUserToJoinServiceEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
                 .thenReturn("random-notify-id");
 
 
         //When
-        InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
-        Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
+        CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId);
+        Optional<Invite> invite = joinServiceInviteCreator.doInvite(createInviteToJoinServiceRequest);
 
         //Then
         assertThat(invite.isPresent(), is(true));
@@ -209,9 +209,9 @@ class UserInviteCreatorTest {
         InviteEntity inviteEntity = mockInviteSuccessForNonExistingUserNonExistingInvite();
         inviteEntity.getSender().getServicesRoles().clear();
 
-        InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
+        CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId);
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
-                () -> userInviteCreator.doInvite(inviteUserRequest));
+                () -> joinServiceInviteCreator.doInvite(createInviteToJoinServiceRequest));
         assertThat(webApplicationException.getMessage(), is("HTTP 403 Forbidden"));
     }
 
@@ -221,11 +221,11 @@ class UserInviteCreatorTest {
         //Given
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
         InviteEntity anInvite = mockInviteSuccessExistingInvite();
-        when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
+        when(mockNotificationService.sendInviteExistingUserToJoinServiceEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
                 eq(anInvite.getService().get().getServiceNames().get(SupportedLanguage.ENGLISH).getName()))).thenReturn("random-notify-id");
 
-        InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
-        Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
+        CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId);
+        Optional<Invite> invite = joinServiceInviteCreator.doInvite(createInviteToJoinServiceRequest);
 
         assertThat(invite.isPresent(), is(true));
         assertThat(invite.get().getCode(), is(anInvite.getCode()));
@@ -238,12 +238,12 @@ class UserInviteCreatorTest {
         //Given
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
         InviteEntity anInvite = mockInviteSuccessExistingInvite();
-        when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
+        when(mockNotificationService.sendInviteExistingUserToJoinServiceEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
                 eq(anInvite.getService().get().getServiceNames().get(SupportedLanguage.ENGLISH).getName())))
                 .thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
 
-        InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
-        Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
+        CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId);
+        Optional<Invite> invite = joinServiceInviteCreator.doInvite(createInviteToJoinServiceRequest);
 
         assertThat(invite.isPresent(), is(true));
         assertThat(invite.get().getCode(), is(anInvite.getCode()));
@@ -251,7 +251,7 @@ class UserInviteCreatorTest {
     }
 
     @Test
-    void create_shouldOnlyConsider_nonExpiredNonDisabledSameService_whenCheckingForExistingInvite() {
+    void create_shouldOnlyConsider_nonExpiredNonDisabledInviteToSameService_whenCheckingForExistingInvite() {
 
         InviteEntity validInvite = mockInviteSuccessExistingInvite();
         InviteEntity expiredInvite = new InviteEntity();
@@ -274,11 +274,11 @@ class UserInviteCreatorTest {
         when(mockInviteDao.findByEmail(email)).thenReturn(List.of(expiredInvite, disabledInvite, emptyServiceInvite, nonMatchingServiceInvite, validInvite));
 
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(UserEntity.from(aUser(email))));
-        when(mockNotificationService.sendInviteExistingUserEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
+        when(mockNotificationService.sendInviteExistingUserToJoinServiceEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
                 eq(validInvite.getService().get().getServiceNames().get(SupportedLanguage.ENGLISH).getName()))).thenReturn("random-notify-id");
 
-        InviteUserRequest inviteUserRequest = new InviteUserRequest(senderExternalId, email, roleName, serviceExternalId);
-        Optional<Invite> invite = userInviteCreator.doInvite(inviteUserRequest);
+        CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId);
+        Optional<Invite> invite = joinServiceInviteCreator.doInvite(createInviteToJoinServiceRequest);
 
         assertThat(invite.isPresent(), is(true));
         assertThat(invite.get().getCode(), is(validInvite.getCode()));

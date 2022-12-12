@@ -8,7 +8,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class InviteUserRequest {
+public class CreateInviteToJoinServiceRequest {
 
     @NotEmpty
     private String sender;
@@ -23,11 +23,11 @@ public class InviteUserRequest {
     @NotEmpty
     private String serviceExternalId;
     
-    public InviteUserRequest() {
+    public CreateInviteToJoinServiceRequest() {
         // for Jackson
     }
 
-    public InviteUserRequest(String sender, String email, String roleName, String serviceExternalId) {
+    public CreateInviteToJoinServiceRequest(String sender, String email, String roleName, String serviceExternalId) {
         this.sender = sender;
         this.email = email;
         this.roleName = roleName;

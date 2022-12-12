@@ -3,23 +3,22 @@ package uk.gov.pay.adminusers.model;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.swagger.v3.oas.annotations.media.Schema;
-import uk.gov.pay.adminusers.validations.ValidTelephoneNumber;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class InviteServiceRequest {
+public class CreateSelfRegistrationInviteRequest {
 
     @NotEmpty
     @Email
     protected String email;
     
-    public InviteServiceRequest() {
+    public CreateSelfRegistrationInviteRequest() {
         // for Jackson
     }
     
-    public InviteServiceRequest(String email) {
+    public CreateSelfRegistrationInviteRequest(String email) {
         this.email = email;
     }
 
