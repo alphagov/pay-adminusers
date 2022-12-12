@@ -3,9 +3,9 @@ package uk.gov.pay.adminusers.service;
 
 public interface InviteServiceFactory {
 
-    ServiceInviteCreator serviceInvite();
+    SelfRegistrationInviteCreator selfRegistrationInviteCreator();
 
-    UserInviteCreator userInvite();
+    JoinServiceInviteCreator joinServiceInviteCreator();
 
     InviteFinder inviteFinder();
 }

@@ -11,7 +11,6 @@ import uk.gov.service.notify.NotificationClientException;
 import uk.gov.service.notify.SendEmailResponse;
 import uk.gov.service.notify.SendSmsResponse;
 
-import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -93,14 +92,14 @@ public class NotificationService {
         }
     }
 
-    public String sendInviteEmail(String sender, String email, String inviteUrl) {
+    public String sendInviteNewUserToJoinServiceEmail(String sender, String email, String inviteUrl) {
         Map<String, String> personalisation = Map.of(
                 "username", sender,
                 "link", inviteUrl);
         return sendEmail(inviteEmailTemplateId, email, personalisation);
     }
 
-    public String sendServiceInviteEmail(String email, String inviteUrl) {
+    public String sendSelfRegistrationInviteEmail(String email, String inviteUrl) {
         Map<String, String> personalisation = Map.of(
                 "name", email,
                 "link", inviteUrl);
@@ -112,7 +111,7 @@ public class NotificationService {
         return sendEmail(forgottenPasswordEmailTemplateId, email, personalisation);
     }
 
-    public String sendServiceInviteUserExistsEmail(String email, String signInLink, String forgottenPasswordLink, String feedbackLink) {
+    public String sendSelfRegistrationInviteUserExistsEmail(String email, String signInLink, String forgottenPasswordLink, String feedbackLink) {
         Map<String, String> personalisation = Map.of(
                 "signin_link", signInLink,
                 "forgotten_password_link", forgottenPasswordLink,
@@ -120,12 +119,12 @@ public class NotificationService {
         return sendEmail(notifyConfiguration.getInviteServiceUserExistsEmailTemplateId(), email, personalisation);
     }
 
-    public String sendServiceInviteUserDisabledEmail(String email, String supportUrl) {
+    public String sendSelfRegistrationInviteUserExistsAndIsDisabledEmail(String email, String supportUrl) {
         Map<String, String> personalisation = Map.of("feedback_link", supportUrl);
         return sendEmail(notifyConfiguration.getInviteServiceUserDisabledEmailTemplateId(), email, personalisation);
     }
 
-    public String sendInviteExistingUserEmail(String sender, String email, String inviteUrl, String serviceName) {
+    public String sendInviteExistingUserToJoinServiceEmail(String sender, String email, String inviteUrl, String serviceName) {
         String collaborateServiceNamePart;
         String joinServiceNamePart;
 
