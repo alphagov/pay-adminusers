@@ -208,29 +208,6 @@ public class InviteResource {
     }
 
     @POST
-    @Path("/v1/api/invites/service")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(
-            summary = "Creates an invitation to allow self provisioning new service with Pay",
-            responses = {
-                    @ApiResponse(responseCode = "201", description = "Created",
-                            content = @Content(schema = @Schema(implementation = Invite.class))),
-                    @ApiResponse(responseCode = "422", description = "Missing required fields or invalid values"),
-                    @ApiResponse(responseCode = "403", description = "The email is not an allowed public sector email address")
-            }
-    )
-    public Response createServiceInvite(@Valid CreateSelfRegistrationInviteRequest createSelfRegistrationInviteRequest) {
-        LOGGER.info("Initiating create service invitation request");
-        if (!isPublicSectorEmail(createSelfRegistrationInviteRequest.getEmail())) {
-            throw AdminUsersExceptions.invalidPublicSectorEmail(createSelfRegistrationInviteRequest.getEmail());
-        }
-
-        Invite invite = inviteServiceFactory.selfRegistrationInviteCreator().doInvite(createSelfRegistrationInviteRequest);
-        return Response.status(CREATED).entity(invite).build();
-    }
-
-    @POST
     @Path("/v1/api/invites/create-self-registration-invite")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
@@ -251,26 +228,6 @@ public class InviteResource {
 
         Invite invite = inviteServiceFactory.selfRegistrationInviteCreator().doInvite(createSelfRegistrationInviteRequest);
         return Response.status(CREATED).entity(invite).build();
-    }
-
-    @POST
-    @Path("/v1/api/invites/user")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(
-            summary = "Creates an invitation to allow a new team member to join an existing service.",
-            responses = {
-                    @ApiResponse(responseCode = "201", description = "Created",
-                            content = @Content(schema = @Schema(implementation = Invite.class))),
-                    @ApiResponse(responseCode = "422", description = "Missing required fields or invalid values"),
-                    @ApiResponse(responseCode = "404", description = "Service or role not found")
-            }
-    )
-    public Response createUserInvite(@Valid CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest) {
-        LOGGER.info("Initiating user invitation request");
-        return inviteServiceFactory.joinServiceInviteCreator().doInvite(createInviteToJoinServiceRequest)
-                .map(invite -> Response.status(CREATED).entity(invite).build())
-                .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
     }
 
     @POST

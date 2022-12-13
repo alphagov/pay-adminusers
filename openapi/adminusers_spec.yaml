@@ -136,51 +136,6 @@ paths:
       summary: Creates an invitation to allow self provisioning new service with Pay
       tags:
       - Invites
-  /v1/api/invites/service:
-    post:
-      operationId: createServiceInvite
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateSelfRegistrationInviteRequest'
-      responses:
-        "201":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Invite'
-          description: Created
-        "403":
-          description: The email is not an allowed public sector email address
-        "422":
-          description: Missing required fields or invalid values
-      summary: Creates an invitation to allow self provisioning new service with Pay
-      tags:
-      - Invites
-  /v1/api/invites/user:
-    post:
-      operationId: createUserInvite
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateInviteToJoinServiceRequest'
-      responses:
-        "201":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Invite'
-          description: Created
-        "404":
-          description: Service or role not found
-        "422":
-          description: Missing required fields or invalid values
-      summary: Creates an invitation to allow a new team member to join an existing
-        service.
-      tags:
-      - Invites
   /v1/api/invites/{code}:
     get:
       operationId: getInvite
