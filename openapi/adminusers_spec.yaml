@@ -1293,6 +1293,9 @@ components:
         inviteLink:
           type: string
           writeOnly: true
+        invite_to_join_service:
+          type: boolean
+          example: true
         otp_key:
           type: string
           example: ABC123

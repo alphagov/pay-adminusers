@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.CreateInviteToJoinServiceRequest;
+import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
@@ -101,6 +102,8 @@ class JoinServiceInviteCreatorTest {
         assertThat(savedInvite.getEmail(), is(email));
         assertThat(savedInvite.getOtpKey(), is(otpKey));
         assertThat(savedInvite.getCode(), is(notNullValue()));
+        assertThat(savedInvite.isInviteToJoinService(), is(true));
+        assertThat(savedInvite.getType(), is(InviteType.USER));
     }
 
     @Test
@@ -131,6 +134,8 @@ class JoinServiceInviteCreatorTest {
         assertThat(savedInvite.getEmail(), is(email));
         assertThat(savedInvite.getOtpKey(), is(otpKey));
         assertThat(savedInvite.getCode(), is(notNullValue()));
+        assertThat(savedInvite.isInviteToJoinService(), is(true));
+        assertThat(savedInvite.getType(), is(InviteType.USER));
     }
 
     @Test
@@ -202,6 +207,8 @@ class JoinServiceInviteCreatorTest {
         assertThat(invite.isPresent(), is(true));
         assertThat(invite.get().getCode(), is(anInvite.getCode()));
         assertThat(invite.get().getEmail(), is(anInvite.getEmail()));
+        assertThat(invite.get().isInviteToJoinService(), is(true));
+        assertThat(invite.get().getType(), is("user"));
     }
 
     @Test
@@ -230,6 +237,8 @@ class JoinServiceInviteCreatorTest {
         assertThat(invite.isPresent(), is(true));
         assertThat(invite.get().getCode(), is(anInvite.getCode()));
         assertThat(invite.get().getEmail(), is(anInvite.getEmail()));
+        assertThat(invite.get().isInviteToJoinService(), is(true));
+        assertThat(invite.get().getType(), is("user"));
     }
 
     @Test
@@ -248,6 +257,8 @@ class JoinServiceInviteCreatorTest {
         assertThat(invite.isPresent(), is(true));
         assertThat(invite.get().getCode(), is(anInvite.getCode()));
         assertThat(invite.get().getEmail(), is(anInvite.getEmail()));
+        assertThat(invite.get().isInviteToJoinService(), is(true));
+        assertThat(invite.get().getType(), is("user"));
     }
 
     @Test
@@ -283,6 +294,8 @@ class JoinServiceInviteCreatorTest {
         assertThat(invite.isPresent(), is(true));
         assertThat(invite.get().getCode(), is(validInvite.getCode()));
         assertThat(invite.get().getEmail(), is(validInvite.getEmail()));
+        assertThat(invite.get().isInviteToJoinService(), is(true));
+        assertThat(invite.get().getType(), is("user"));
     }
 
     private InviteEntity mockInviteSuccessExistingInvite() {

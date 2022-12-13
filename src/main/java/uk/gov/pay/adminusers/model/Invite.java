@@ -23,6 +23,7 @@ public class Invite {
     private Integer attemptCounter = 0;
 
     private List<Link> links = new ArrayList<>();
+    private boolean isInviteToJoinService;
     private String type;
     private boolean userExist = false;
     private boolean expired;
@@ -35,6 +36,7 @@ public class Invite {
                   String telephoneNumber,
                   Boolean disabled,
                   Integer attemptCounter,
+                  boolean isInviteToJoinService,
                   String type,
                   String role,
                   Boolean expired,
@@ -45,6 +47,7 @@ public class Invite {
         this.telephoneNumber = telephoneNumber;
         this.disabled = disabled;
         this.attemptCounter = attemptCounter;
+        this.isInviteToJoinService = isInviteToJoinService;
         this.type = type;
         this.role = role;
         this.expired = expired;
@@ -100,6 +103,11 @@ public class Invite {
     public void setInviteLink(String targetUrl) {
         Link inviteLink = Link.from(Link.Rel.INVITE, "GET", targetUrl);
         this.links.add(inviteLink);
+    }
+    
+    @Schema(example = "true")
+    public boolean isInviteToJoinService() {
+        return isInviteToJoinService;
     }
 
     @Schema(example = "service")

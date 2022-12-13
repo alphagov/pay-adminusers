@@ -77,6 +77,7 @@ class SelfRegistrationInviteCreatorTest {
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
+        assertThat(invite.isInviteToJoinService(), is(false));
         assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
     }
@@ -95,6 +96,7 @@ class SelfRegistrationInviteCreatorTest {
 
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
+        assertThat(invite.isInviteToJoinService(), is(false));
         assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
 
@@ -105,10 +107,8 @@ class SelfRegistrationInviteCreatorTest {
         String email = "email@example.gov.uk";
         CreateSelfRegistrationInviteRequest request = new CreateSelfRegistrationInviteRequest(email);
         UserEntity sender = mock(UserEntity.class);
-        ServiceEntity service = mock(ServiceEntity.class);
         RoleEntity role = mock(RoleEntity.class);
         InviteEntity validInvite = new InviteEntity(email, "code", "otpKey", role);
-        validInvite.setService(service);
         validInvite.setSender(sender);
         validInvite.setType(InviteType.SERVICE);
 
@@ -122,6 +122,7 @@ class SelfRegistrationInviteCreatorTest {
 
         verify(inviteDao, times(1)).merge(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
+        assertThat(invite.isInviteToJoinService(), is(false));
         assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref(), is("http://selfservice/invites/code"));
     }
@@ -148,6 +149,7 @@ class SelfRegistrationInviteCreatorTest {
         Invite invite = selfRegistrationInviteCreator.doInvite(request);
 
         assertThat(invite.getEmail(), is(request.getEmail()));
+        assertThat(invite.isInviteToJoinService(), is(false));
         assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref().matches("^http://selfservice/invites/[0-9a-z]{32}$"), is(true));
     }
