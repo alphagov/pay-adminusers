@@ -34,6 +34,7 @@ class InviteResourceCreateSelfRegistrationInviteIT extends IntegrationTest {
                 .then()
                 .statusCode(CREATED.getStatusCode())
                 .body("email", is(email.toLowerCase(Locale.ENGLISH)))
+                .body("invite_to_join_service", is(false))
                 .body("_links", hasSize(2))
                 .body("_links[0].href", matchesPattern("^https://selfservice.pymnt.localdomain/invites/[0-9a-z]{32}$"))
                 .body("_links[0].method", is("GET"))

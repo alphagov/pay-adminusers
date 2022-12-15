@@ -72,7 +72,7 @@ public class SelfRegistrationInviteCreator {
         List<InviteEntity> exitingInvites = inviteDao.findByEmail(requestEmail);
         List<InviteEntity> existingValidServiceInvitesForSameEmail = exitingInvites.stream()
                 .filter(inviteEntity -> !inviteEntity.isDisabled() && !inviteEntity.isExpired())
-                .filter(InviteEntity::isServiceType).collect(toUnmodifiableList());
+                .filter(inviteEntity -> !inviteEntity.isInviteToJoinService()).collect(toUnmodifiableList());
 
         if (!existingValidServiceInvitesForSameEmail.isEmpty()) {
             InviteEntity foundInvite = existingValidServiceInvitesForSameEmail.get(0);
