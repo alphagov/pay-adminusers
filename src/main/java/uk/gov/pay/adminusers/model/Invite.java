@@ -106,6 +106,7 @@ public class Invite {
     }
     
     @Schema(example = "true")
+    @JsonProperty("is_invite_to_join_service")
     public boolean isInviteToJoinService() {
         return isInviteToJoinService;
     }
