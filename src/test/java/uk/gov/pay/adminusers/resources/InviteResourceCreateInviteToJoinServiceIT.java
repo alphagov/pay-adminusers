@@ -78,7 +78,7 @@ class InviteResourceCreateInviteToJoinServiceIT extends IntegrationTest {
                 .statusCode(CREATED.getStatusCode())
                 .body("email", is(email.toLowerCase(Locale.ENGLISH)))
                 .body("telephone_number", is(nullValue()))
-                .body("invite_to_join_service", is(true))
+                .body("is_invite_to_join_service", is(true))
                 .body("_links", hasSize(1))
                 .body("_links[0].href", matchesPattern("^https://selfservice.pymnt.localdomain/invites/[0-9a-z]{32}$"))
                 .body("_links[0].method", is("GET"))

@@ -36,7 +36,7 @@ class InviteResourceGetIT extends IntegrationTest {
                 .body("attempt_counter", is(0))
                 .body("password_set", is(false))
                 .body("otp_key", is(otpKey))
-                .body("invite_to_join_service", is(true));
+                .body("is_invite_to_join_service", is(true));
     }
 
     @Test
@@ -64,7 +64,7 @@ class InviteResourceGetIT extends IntegrationTest {
                 .body("telephone_number", is(telephoneNumber))
                 .body("disabled", is(false))
                 .body("attempt_counter", is(0))
-                .body("invite_to_join_service", is(true));
+                .body("is_invite_to_join_service", is(true));
     }
 
     @Test
@@ -125,7 +125,7 @@ class InviteResourceGetIT extends IntegrationTest {
                 .body("[0].user_exist", is(false))
                 .body("[0].attempt_counter", is(0))
                 .body("[0].password_set", is(false))
-                .body("[0].invite_to_join_service", is(true));
+                .body("[0].is_invite_to_join_service", is(true));
     }
 
 }
