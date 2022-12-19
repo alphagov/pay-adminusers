@@ -10,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.CreateSelfRegistrationInviteRequest;
-import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
@@ -78,7 +77,6 @@ class SelfRegistrationInviteCreatorTest {
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
         assertThat(invite.isInviteToJoinService(), is(false));
-        assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
     }
 
@@ -97,7 +95,6 @@ class SelfRegistrationInviteCreatorTest {
         verify(inviteDao, times(1)).persist(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
         assertThat(invite.isInviteToJoinService(), is(false));
-        assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref(), matchesPattern("^http://selfservice/invites/[0-9a-z]{32}$"));
 
     }
@@ -110,7 +107,6 @@ class SelfRegistrationInviteCreatorTest {
         RoleEntity role = mock(RoleEntity.class);
         InviteEntity validInvite = new InviteEntity(email, "code", "otpKey", role);
         validInvite.setSender(sender);
-        validInvite.setType(InviteType.SERVICE);
 
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(List.of(validInvite));
@@ -123,7 +119,6 @@ class SelfRegistrationInviteCreatorTest {
         verify(inviteDao, times(1)).merge(persistedInviteEntity.capture());
         assertThat(invite.getEmail(), is(request.getEmail()));
         assertThat(invite.isInviteToJoinService(), is(false));
-        assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref(), is("http://selfservice/invites/code"));
     }
 
@@ -150,7 +145,6 @@ class SelfRegistrationInviteCreatorTest {
 
         assertThat(invite.getEmail(), is(request.getEmail()));
         assertThat(invite.isInviteToJoinService(), is(false));
-        assertThat(invite.getType(), is("service"));
         assertThat(invite.getLinks().get(0).getHref().matches("^http://selfservice/invites/[0-9a-z]{32}$"), is(true));
     }
 

@@ -24,7 +24,6 @@ public class Invite {
 
     private List<Link> links = new ArrayList<>();
     private boolean isInviteToJoinService;
-    private String type;
     private boolean userExist = false;
     private boolean expired;
     private boolean passwordSet;
@@ -37,7 +36,6 @@ public class Invite {
                   Boolean disabled,
                   Integer attemptCounter,
                   boolean isInviteToJoinService,
-                  String type,
                   String role,
                   Boolean expired,
                   boolean passwordSet,
@@ -48,7 +46,6 @@ public class Invite {
         this.disabled = disabled;
         this.attemptCounter = attemptCounter;
         this.isInviteToJoinService = isInviteToJoinService;
-        this.type = type;
         this.role = role;
         this.expired = expired;
         this.passwordSet = passwordSet;
@@ -109,15 +106,6 @@ public class Invite {
     @JsonProperty("is_invite_to_join_service")
     public boolean isInviteToJoinService() {
         return isInviteToJoinService;
-    }
-
-    @Schema(example = "service")
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     @JsonIgnore

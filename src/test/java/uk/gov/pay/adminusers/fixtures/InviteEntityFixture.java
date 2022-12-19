@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.fixtures;
 
-import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -25,7 +24,6 @@ public final class InviteEntityFixture {
     private String password;
     private Boolean disabled;
     private Integer loginCounter;
-    private InviteType type = InviteType.USER;
 
     private InviteEntityFixture() {
     }
@@ -99,11 +97,6 @@ public final class InviteEntityFixture {
         return this;
     }
 
-    public InviteEntityFixture withType(InviteType type) {
-        this.type = type;
-        return this;
-    }
-
     public InviteEntity build() {
         InviteEntity inviteEntity = new InviteEntity();
         inviteEntity.setId(id);
@@ -119,7 +112,6 @@ public final class InviteEntityFixture {
         inviteEntity.setPassword(password);
         inviteEntity.setDisabled(disabled);
         inviteEntity.setLoginCounter(loginCounter);
-        inviteEntity.setType(type);
         return inviteEntity;
     }
 }

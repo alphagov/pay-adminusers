@@ -45,8 +45,6 @@ import static uk.gov.pay.adminusers.fixtures.InviteEntityFixture.anInviteEntity;
 import static uk.gov.pay.adminusers.fixtures.RoleEntityFixture.aRoleEntity;
 import static uk.gov.pay.adminusers.fixtures.ServiceEntityFixture.aServiceEntity;
 import static uk.gov.pay.adminusers.fixtures.UserEntityFixture.aUserEntity;
-import static uk.gov.pay.adminusers.model.InviteType.SERVICE;
-import static uk.gov.pay.adminusers.model.InviteType.USER;
 import static uk.gov.pay.adminusers.model.SecondFactorMethod.APP;
 import static uk.gov.pay.adminusers.model.SecondFactorMethod.SMS;
 import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.CREATE_USER_IN_RESPONSE_TO_INVITATION_TO_SERVICE;
