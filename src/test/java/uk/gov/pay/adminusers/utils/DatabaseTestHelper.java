@@ -290,8 +290,8 @@ public class DatabaseTestHelper {
                                                Integer loginCounter) {
         jdbi.withHandle(handle ->
                 handle
-                        .createUpdate("INSERT INTO invites(id, sender_id, role_id, email, code, otp_key, date, expiry_date, telephone_number, password, disabled, login_counter, type) " +
-                                "VALUES (:id, :senderId, :roleId, :email, :code, :otpKey, :date, :expiryDate, :telephoneNumber, :password, :disabled, :loginCounter, :type)")
+                        .createUpdate("INSERT INTO invites(id, sender_id, role_id, email, code, otp_key, date, expiry_date, telephone_number, password, disabled, login_counter) " +
+                                "VALUES (:id, :senderId, :roleId, :email, :code, :otpKey, :date, :expiryDate, :telephoneNumber, :password, :disabled, :loginCounter)")
                         .bind("id", id)
                         .bind("senderId", senderId)
                         .bind("roleId", roleId)
@@ -304,7 +304,6 @@ public class DatabaseTestHelper {
                         .bind("expiryDate", from(expiryDate.toInstant()))
                         .bind("disabled", disabled)
                         .bind("loginCounter", loginCounter)
-                        .bind("type", "service")
                         .execute()
         );
         return this;
