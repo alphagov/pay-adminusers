@@ -1263,9 +1263,6 @@ components:
         telephone_number:
           type: string
           example: +440787654534
-        type:
-          type: string
-          example: service
         user_exist:
           type: boolean
     InviteValidateOtpRequest:

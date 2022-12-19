@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.persistence.entity;
 
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.Invite;
-import uk.gov.pay.adminusers.model.InviteType;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.service.AdminUsersExceptions;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
@@ -19,7 +18,6 @@ import java.util.Locale;
 import java.util.Optional;
 
 import static java.time.temporal.ChronoUnit.DAYS;
-import static uk.gov.pay.adminusers.model.InviteType.USER;
 import static uk.gov.pay.adminusers.persistence.entity.UTCDateTimeConverter.UTC;
 
 @Entity
@@ -68,10 +66,6 @@ public class InviteEntity extends AbstractEntity {
 
     @Column(name = "login_counter")
     private Integer loginCounter = 0;
-
-    @Column(name = "type")
-    @Convert(converter = InviteTypeConverter.class)
-    private InviteType type = USER;
 
     /**
      * For JPA
@@ -204,21 +198,13 @@ public class InviteEntity extends AbstractEntity {
         this.loginCounter = loginCount;
     }
 
-    public InviteType getType() {
-        return type;
-    }
-
-    public void setType(InviteType type) {
-        this.type = type;
-    }
-
     public boolean isInviteToJoinService() {
         return getService().isPresent();
     }
 
     public Invite toInvite() {
         String roleName = getRole().map(RoleEntity::getName).orElse(null);
-        return new Invite(code, email, telephoneNumber, disabled, loginCounter, isInviteToJoinService(), type.getType(), roleName, isExpired(),
+        return new Invite(code, email, telephoneNumber, disabled, loginCounter, isInviteToJoinService(), roleName, isExpired(),
                 hasPassword(), otpKey);
     }
 

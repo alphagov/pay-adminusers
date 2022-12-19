@@ -23,7 +23,6 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.model.InviteType.USER;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingInvite;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.forbiddenOperationException;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.undefinedRoleException;
@@ -107,7 +106,6 @@ public class JoinServiceInviteCreator {
                         InviteEntity inviteEntity = new InviteEntity(createInviteToJoinServiceRequest.getEmail(), randomUuid(), otpKey, role);
                         inviteEntity.setSender(userSender.get());
                         inviteEntity.setService(serviceEntity);
-                        inviteEntity.setType(USER);
                         inviteDao.persist(inviteEntity);
                         String inviteUrl = fromUri(linksConfig.getSelfserviceInvitesUrl()).path(inviteEntity.getCode()).build().toString();
                         existingUser.ifPresentOrElse(
