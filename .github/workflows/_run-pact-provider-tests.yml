@@ -40,7 +40,7 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
       - name: Cache Maven packages
-        uses: actions/cache@56461b9eb0f8438fd15c7a9968e3c9ebb18ceff1
+        uses: actions/cache@c17f4bf4666a8001b1a45c09eb7a485c41aa64c3
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
