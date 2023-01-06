@@ -14,7 +14,7 @@
         <guava.version>31.1-jre</guava.version>
         <jackson.version>2.14.1</jackson.version>
         <pact.version>3.6.15</pact.version>
-        <pay-java-commons.version>1.0.20221220121250</pay-java-commons.version>
+        <pay-java-commons.version>1.0.20230105112551</pay-java-commons.version>
         <junit5.version>5.9.1</junit5.version>
         <swaggger-version>2.2.7</swaggger-version>
         <testcontainers.version>1.17.6</testcontainers.version>
