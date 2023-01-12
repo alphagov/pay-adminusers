@@ -19,7 +19,7 @@
         <swaggger-version>2.2.8</swaggger-version>
         <testcontainers.version>1.17.6</testcontainers.version>
         <wiremock.version>2.35.0</wiremock.version>
-        <surefire.version>3.0.0-M7</surefire.version>
+        <surefire.version>3.0.0-M8</surefire.version>
         <PACT_BROKER_URL/>
         <PACT_BROKER_USERNAME/>
         <PACT_BROKER_PASSWORD/>
