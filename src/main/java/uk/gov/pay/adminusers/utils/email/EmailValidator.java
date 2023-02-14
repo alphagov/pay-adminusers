@@ -34,6 +34,7 @@ public class EmailValidator {
             "gov.wales",
             "hial.co.uk",
             "hmcts.net",
+            "hscni.net",
             "judiciary.uk",
             "llyw.cymru",
             "mil.uk",
