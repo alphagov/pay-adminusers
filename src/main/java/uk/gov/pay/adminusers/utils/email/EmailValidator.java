@@ -35,6 +35,7 @@ public class EmailValidator {
             "hial.co.uk",
             "hmcts.net",
             "hscni.net",
+            "idoxgroup.com",
             "judiciary.uk",
             "llyw.cymru",
             "mil.uk",
