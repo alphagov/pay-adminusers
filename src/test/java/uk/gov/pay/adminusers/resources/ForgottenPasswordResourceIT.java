@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
 import org.junit.jupiter.api.Test;
+import uk.gov.pay.adminusers.model.User;
 
 import java.util.Map;
 
@@ -51,9 +52,10 @@ public class ForgottenPasswordResourceIT extends IntegrationTest {
     @Test
     public void shouldGetForgottenPassword_whenGetByCode_forAnExistingForgottenPassword() {
 
-        String username = randomUuid();
-        String email = username + "@example.com";
-        int userId = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser().getId();
+        String email = randomUuid() + "@example.com";
+        User user = userDbFixture(databaseHelper).withUsername(email).withEmail(email).insertUser();
+        Integer userId = user.getId();
+        String userExternalId = user.getExternalId();
         String forgottenPasswordCode = forgottenPasswordDbFixture(databaseHelper, userId).insertForgottenPassword();
 
         givenSetup()
@@ -62,7 +64,9 @@ public class ForgottenPasswordResourceIT extends IntegrationTest {
                 .get(FORGOTTEN_PASSWORDS_RESOURCE_URL + "/" + forgottenPasswordCode)
                 .then()
                 .statusCode(OK.getStatusCode())
-                .body("code", is(forgottenPasswordCode));
+                .body("code", is(forgottenPasswordCode))
+                .body("user_external_id", is(userExternalId))
+                .body("username", is(email));
 
     }
 

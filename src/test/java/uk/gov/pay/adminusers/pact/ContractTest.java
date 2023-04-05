@@ -55,9 +55,11 @@ public abstract class ContractTest {
     public void aUserExistsWithAForgottenPasswordRequest() {
         String code = "avalidforgottenpasswordtoken";
         String userExternalId = randomUuid();
-        createUserWithinAService(userExternalId, randomUuid(), "password", "cp5wa");
+        String username = "username";
+        createUserWithinAService(userExternalId, username, "password", "cp5wa");
         List<Map<String, Object>> userByExternalId = dbHelper.findUserByExternalId(userExternalId);
-        dbHelper.add(ForgottenPassword.forgottenPassword(code, userExternalId), (Integer) userByExternalId.get(0).get("id"));
+        dbHelper.add(ForgottenPassword.forgottenPassword(code, userExternalId ,username),
+                (Integer) userByExternalId.get(0).get("id"));
     }
 
     @State("a user exists with max login attempts")
@@ -71,9 +73,11 @@ public abstract class ContractTest {
     public void aForgottenPasswordEntryExist() {
         String code = "existing-code";
         String existingUserExternalId = "7d19aff33f8948deb97ed16b2912dcd3";
-        createUserWithinAService(existingUserExternalId, "forgotten-password-user", "password", "cp5wa");
+        String username = "forgotten-password-user";
+        createUserWithinAService(existingUserExternalId, username, "password", "cp5wa");
         List<Map<String, Object>> userByName = dbHelper.findUserByExternalId(existingUserExternalId);
-        dbHelper.add(ForgottenPassword.forgottenPassword(code, existingUserExternalId), (Integer) userByName.get(0).get("id"));
+        dbHelper.add(ForgottenPassword.forgottenPassword(code, existingUserExternalId, username),
+                (Integer) userByName.get(0).get("id"));
     }
 
     @State("a user and user admin exists in service with the given ids before a delete operation")

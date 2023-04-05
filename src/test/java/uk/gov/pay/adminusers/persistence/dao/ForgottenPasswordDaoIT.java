@@ -47,7 +47,7 @@ public class ForgottenPasswordDaoIT extends DaoTestBase {
         String userExternalId = user.getExternalId();
         UserEntity userEntity = userDao.findByExternalId(userExternalId).get();
 
-        ForgottenPassword forgottenPassword = forgottenPassword(forgottenPasswordCode, userExternalId);
+        ForgottenPassword forgottenPassword = forgottenPassword(forgottenPasswordCode, userExternalId, email);
         ForgottenPasswordEntity forgottenPasswordEntity = ForgottenPasswordEntity.from(forgottenPassword, userEntity);
 
         forgottenPasswordDao.persist(forgottenPasswordEntity);
@@ -73,7 +73,7 @@ public class ForgottenPasswordDaoIT extends DaoTestBase {
         UserEntity userEntity = userDao.findByExternalId(userExternalId).get();
 
         ZonedDateTime notExpired = ZonedDateTime.now().minusMinutes(89);
-        ForgottenPassword forgottenPassword = forgottenPassword(randomInt(), forgottenPasswordCode, notExpired, userExternalId);
+        var forgottenPassword = forgottenPassword(randomInt(), forgottenPasswordCode, notExpired, userExternalId, email);
 
         databaseHelper.add(forgottenPassword, userEntity.getId());
 
@@ -95,7 +95,7 @@ public class ForgottenPasswordDaoIT extends DaoTestBase {
         UserEntity userEntity = userDao.findByExternalId(userExternalId).get();
 
         ZonedDateTime expired = ZonedDateTime.now().minusMinutes(91);
-        ForgottenPassword forgottenPassword = forgottenPassword(randomInt(), forgottenPasswordCode, expired, userExternalId);
+        var forgottenPassword = forgottenPassword(randomInt(), forgottenPasswordCode, expired, userExternalId, email);
 
         databaseHelper.add(forgottenPassword, userEntity.getId());
 
@@ -113,7 +113,7 @@ public class ForgottenPasswordDaoIT extends DaoTestBase {
         UserEntity userEntity = userDao.findByExternalId(userExternalId).get();
 
         ZonedDateTime notExpired = ZonedDateTime.now().minusMinutes(89);
-        ForgottenPassword forgottenPassword = forgottenPassword(randomInt(), forgottenPasswordCode, notExpired, userExternalId);
+        var forgottenPassword = forgottenPassword(randomInt(), forgottenPasswordCode, notExpired, userExternalId, email);
 
         databaseHelper.add(forgottenPassword, userEntity.getId());
 

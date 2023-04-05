@@ -41,7 +41,8 @@ class LinksBuilderTest {
 
     @Test
     void shouldConstruct_forgottenPasswordSelfLinkCorrectly() throws Exception {
-        ForgottenPassword forgottenPassword = ForgottenPassword.forgottenPassword(1, "a-code", ZonedDateTime.now(), "7d19aff33f8948deb97ed16b2912dcd3");
+        var forgottenPassword = ForgottenPassword.forgottenPassword(1, "a-code", ZonedDateTime.now(),
+                "7d19aff33f8948deb97ed16b2912dcd3", "a-username"); // pragma: allowlist secret
         ForgottenPassword decorated = linksBuilder.decorate(forgottenPassword);
 
         String linkJson = objectMapper.writeValueAsString(decorated.getLinks().get(0));

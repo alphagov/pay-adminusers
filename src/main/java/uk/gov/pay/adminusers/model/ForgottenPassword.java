@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import uk.gov.service.payments.commons.api.json.ApiResponseDateTimeSerializer;
 
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -18,25 +18,28 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 public class ForgottenPassword {
 
     @JsonIgnore
-    private Integer id;
-    private String code;
-    private ZonedDateTime date;
-    private String userExternalId;
+    private final Integer id;
+    private final String code;
+    private final ZonedDateTime date;
+    private final String userExternalId;
+    private final String username;
     private List<Link> links;
 
-    public static ForgottenPassword forgottenPassword(String code, String userExternalId) {
-        return forgottenPassword(randomInt(), code, ZonedDateTime.now(ZoneId.of("UTC")), userExternalId);
+    public static ForgottenPassword forgottenPassword(String code, String userExternalId, String username) {
+        return forgottenPassword(randomInt(), code, ZonedDateTime.now(ZoneOffset.UTC), userExternalId, username);
     }
 
-    public static ForgottenPassword forgottenPassword(Integer id, String code, ZonedDateTime date, String userExternalId) {
-        return new ForgottenPassword(id, code, date, userExternalId);
+    public static ForgottenPassword forgottenPassword(Integer id, String code, ZonedDateTime date,
+                                                      String userExternalId, String username) {
+        return new ForgottenPassword(id, code, date, userExternalId, username);
     }
 
-    private ForgottenPassword(Integer id, String code, ZonedDateTime date, String userExternalId) {
+    private ForgottenPassword(Integer id, String code, ZonedDateTime date, String userExternalId, String username) {
         this.id = id;
         this.code = code;
         this.date = date;
         this.userExternalId = userExternalId;
+        this.username = username;
     }
 
     public Integer getId() {
@@ -57,6 +60,11 @@ public class ForgottenPassword {
     @Schema(example = "12e3eccfab284ae5bc1108e9c0456ba7")
     public String getUserExternalId() {
         return userExternalId;
+    }
+
+    @Schema(example = "username@example.gov.uk")
+    public String getUsername() {
+        return username;
     }
 
     public void setLinks(List<Link> links) {

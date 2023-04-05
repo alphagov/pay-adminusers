@@ -1215,6 +1215,9 @@ components:
         user_external_id:
           type: string
           example: 12e3eccfab284ae5bc1108e9c0456ba7
+        username:
+          type: string
+          example: username@example.gov.uk
     GovUkPayAgreement:
       type: object
       properties:
