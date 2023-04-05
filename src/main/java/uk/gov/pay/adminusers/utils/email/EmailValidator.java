@@ -10,11 +10,11 @@ import static java.util.stream.Collectors.joining;
 public class EmailValidator {
 
     /**
-     * {@link #PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER} is based on:<br>
+     * {@link #PUBLIC_SECTOR_EMAIL_DOMAINS_IN_ASCENDING_ORDER} is based on:<br>
      * - <a href="https://en.wikipedia.org/wiki/.uk">en.wikipedia.org/wiki/.uk</a><br>
      * - <a href="https://github.com/alphagov/notifications-admin/blob/9391181b2c7d077ea8fe0a72c718ab8f7fdbcd0c/app/config.py#L67">alphagov/notifications-admin</a><br>
      */
-    private static final List<String> PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER = List.of(
+    private static final List<String> PUBLIC_SECTOR_EMAIL_DOMAINS_IN_ASCENDING_ORDER = List.of(
             "acas.org.uk",
             "accessplanit.com",
             "achievingforchildren.org.uk",
@@ -70,12 +70,12 @@ public class EmailValidator {
 
     private static final Pattern PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERN;
     static {
-        String domainRegExPatternString = PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERNS_IN_ASCENDING_ORDER
+        String domainRegExPatternString = PUBLIC_SECTOR_EMAIL_DOMAINS_IN_ASCENDING_ORDER
                 .stream()
                 .map(Pattern::quote)
                 .collect(joining("|"));
 
-        // We are splitting the logic into two parts for whitelisted domains and subdomains
+        // We are splitting the logic into two parts for allowed domains and subdomains
         String regExDomainsOnlyPart = "(" + domainRegExPatternString + ")";
         String regExSubdomainsPart = "(((?!-)[A-Za-z0-9-]+(?<!-)\\.)+(" + domainRegExPatternString + "))";
         PUBLIC_SECTOR_EMAIL_DOMAIN_REGEX_PATTERN =
