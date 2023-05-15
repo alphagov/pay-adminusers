@@ -7,13 +7,11 @@ ENV LANG C.UTF-8
 
 RUN echo networkaddress.cache.ttl=$DNS_TTL >> "$JAVA_HOME/conf/security/java.security"
 
-RUN apt-get update && apt-get install -y \
-  tini \
-  wget
+RUN apt-get update && apt-get install -y tini wget
 
 # Add RDS CA certificates to the default truststore
-RUN wget -qO - https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem       | keytool -import -trustcacerts -keystore -cacerts -storepass changeit -noprompt -alias rds-ca-2019-root \
- && wget -qO - https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem | keytool -import -trustcacerts -keystore -cacerts -storepass changeit -noprompt -alias rds-combined-ca-bundle
+RUN wget -qO - https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem       | keytool -import -cacerts -storepass changeit -noprompt -alias rds-ca-2019-root \
+ && wget -qO - https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem | keytool -import -cacerts -storepass changeit -noprompt -alias rds-combined-ca-bundle
 
 ENV PORT 8080
 ENV ADMIN_PORT 8081
