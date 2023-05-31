@@ -17,7 +17,7 @@
         <pay-java-commons.version>1.0.20230511100444</pay-java-commons.version>
         <junit5.version>5.9.3</junit5.version>
         <swaggger-version>2.2.9</swaggger-version>
-        <testcontainers.version>1.18.0</testcontainers.version>
+        <testcontainers.version>1.18.2</testcontainers.version>
         <wiremock.version>2.35.0</wiremock.version>
         <surefire.version>3.1.0</surefire.version>
         <PACT_BROKER_URL/>
