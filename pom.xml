@@ -183,7 +183,7 @@
         <dependency>
             <groupId>uk.gov.service.notify</groupId>
             <artifactId>notifications-java-client</artifactId>
-            <version>3.19.1-RELEASE</version>
+            <version>3.19.2-RELEASE</version>
         </dependency>
         <dependency>
             <groupId>commons-validator</groupId>
@@ -460,6 +460,10 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <reportsDirectory>${project.build.directory}/test-reports</reportsDirectory>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -546,6 +550,8 @@
                                 <exclude>**/*ContractTest.java</exclude>
                                 <exclude>**/*ContractTestSuite.java</exclude>
                             </excludes>
+                            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                            <reportsDirectory>${project.build.directory}/test-reports</reportsDirectory>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -567,6 +573,8 @@
                             <includes>
                                 <include>**/*ProviderContractTestSuite.java</include>
                             </includes>
+                            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                            <reportsDirectory>${project.build.directory}/test-reports</reportsDirectory>
                         </configuration>
                     </plugin>
                 </plugins>
