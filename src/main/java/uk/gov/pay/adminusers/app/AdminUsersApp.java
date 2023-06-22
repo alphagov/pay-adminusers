@@ -5,13 +5,13 @@ import com.codahale.metrics.graphite.GraphiteSender;
 import com.codahale.metrics.graphite.GraphiteUDP;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import io.dropwizard.Application;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
+import io.dropwizard.core.Application;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.migrations.MigrationsBundle;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.AdminUsersModule;
 import uk.gov.pay.adminusers.app.config.PersistenceServiceInitialiser;
@@ -99,7 +99,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(new InvalidEmailRequestExceptionMapper());
         environment.jersey().register(new InvalidMerchantDetailsExceptionMapper());
         environment.jersey().register(new ConflictExceptionMapper());
-        
+
         environment.lifecycle().manage(injector.getInstance(EventSubscriberQueueMessageReceiver.class));
     }
 

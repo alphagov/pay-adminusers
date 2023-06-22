@@ -10,10 +10,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntityBuilder;
-import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.resources.GovUkPayAgreementRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceResource;
@@ -30,7 +30,6 @@ import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 
-import static io.dropwizard.testing.FixtureHelpers.fixture;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -40,6 +39,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static uk.gov.pay.adminusers.JsonResourceLoader.load;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.SERVICE_SEARCH_LENGTH_ERR_MSG;
 import static uk.gov.pay.adminusers.resources.ServiceRequestValidator.SERVICE_SEARCH_SPECIAL_CHARS_ERR_MSG;
@@ -82,7 +82,7 @@ public class ServiceResourceSearchTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldOK_andReturnServices_whenMatches() throws JsonProcessingException {
-        var payload = fixture("fixtures/resource/service/post/service-search-request.json");
+        var payload = load("fixtures/resource/service/post/service-search-request.json");
         var serviceExternalId = randomUuid();
         var merchantDetailsEntity = MerchantDetailsEntityBuilder.aMerchantDetailsEntity()
                 .withName("Government Bakery Office")
@@ -110,7 +110,7 @@ public class ServiceResourceSearchTest extends ServiceResourceBaseTest {
 
     @Test
     public void shouldOK_andReturnEmptyResult_whenNoMatches() throws JsonProcessingException {
-        var payload = fixture("fixtures/resource/service/post/service-search-request.json");
+        var payload = load("fixtures/resource/service/post/service-search-request.json");
 
         given(mockedServiceDao.findByENServiceName("cake")).willReturn(Collections.emptyList());
         given(mockedServiceDao.findByServiceMerchantName("bakery")).willReturn(Collections.emptyList());

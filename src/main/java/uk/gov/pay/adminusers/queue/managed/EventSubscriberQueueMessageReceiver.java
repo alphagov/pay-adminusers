@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.queue.managed;
 
+import io.dropwizard.core.setup.Environment;
 import io.dropwizard.lifecycle.Managed;
-import io.dropwizard.setup.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
@@ -13,12 +13,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class EventSubscriberQueueMessageReceiver implements Managed {
-    
+
     private static final String THREAD_NAME = "sqs-message-eventSubscriberQueueMessageReceiver";
     private static final int SCHEDULER_NUMBER_OF_THREADS = 1;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     private final EventMessageHandler eventMessageHandler;
     private final ScheduledExecutorService scheduledExecutorService;
 

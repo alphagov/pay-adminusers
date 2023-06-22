@@ -1,7 +1,8 @@
 package uk.gov.pay.adminusers.app.healthchecks;
 
-import io.dropwizard.cli.ConfiguredCommand;
-import io.dropwizard.setup.Bootstrap;
+
+import io.dropwizard.core.cli.ConfiguredCommand;
+import io.dropwizard.core.setup.Bootstrap;
 import liquibase.Liquibase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
@@ -28,8 +29,8 @@ public class MigrateToInitialDbState extends ConfiguredCommand<AdminUsersConfig>
     @Override
     protected void run(Bootstrap<AdminUsersConfig> bootstrap, Namespace namespace, AdminUsersConfig configuration) {
         try (Connection connection = getDatabaseConnection(configuration);
-            PreparedStatement statement = connection.prepareStatement("select exists (select * from pg_tables where tablename='users')");
-            ResultSet resultSet = statement.executeQuery()) {
+             PreparedStatement statement = connection.prepareStatement("select exists (select * from pg_tables where tablename='users')");
+             ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next()) {
                 boolean usersExists = resultSet.getBoolean(1);
                 if (usersExists) {

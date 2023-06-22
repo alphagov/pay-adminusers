@@ -2,9 +2,10 @@ package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.dropwizard.logback.shaded.checkerframework.checker.nullness.qual.Nullable;
 
-import javax.annotation.Nullable;
 import javax.validation.Valid;
+
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CompleteInviteRequest {

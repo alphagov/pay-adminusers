@@ -23,8 +23,8 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static uk.gov.pay.adminusers.TestTemplateResourceLoader.DISPUTE_CREATED_SNS_MESSAGE;
-import static uk.gov.pay.adminusers.TestTemplateResourceLoader.load;
+import static uk.gov.pay.adminusers.JsonResourceLoader.DISPUTE_CREATED_SNS_MESSAGE;
+import static uk.gov.pay.adminusers.JsonResourceLoader.load;
 
 @ExtendWith(MockitoExtension.class)
 class EventSubscriberQueueTest {

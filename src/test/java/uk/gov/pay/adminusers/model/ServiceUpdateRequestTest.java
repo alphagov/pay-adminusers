@@ -11,9 +11,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import static io.dropwizard.testing.FixtureHelpers.fixture;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.JsonResourceLoader.load;
 
 class ServiceUpdateRequestTest {
 
@@ -38,7 +38,7 @@ class ServiceUpdateRequestTest {
 
     @Test
     void shouldReturnAList_whenJsonIsArray() throws IOException {
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-service-name-en-replace-service-name-cy.json");
+        String jsonPayload = load("fixtures/resource/service/patch/array-replace-service-name-en-replace-service-name-cy.json");
 
         final List<ServiceUpdateRequest> requests = ServiceUpdateRequest.getUpdateRequests(objectMapper.readTree(jsonPayload));
 

@@ -1,10 +1,9 @@
 package uk.gov.pay.adminusers.app.config;
 
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.time.Instant;
 
 public class NotifyConfiguration extends Configuration {
 
@@ -55,11 +54,11 @@ public class NotifyConfiguration extends Configuration {
     @Valid
     @NotNull
     private String inviteServiceUserDisabledEmailTemplateId;
-    
+
     @Valid
     @NotNull
     private String liveAccountCreatedEmailTemplateId;
-    
+
     @Valid
     @NotNull
     private String stripeDisputeCreatedEmailTemplateId;
@@ -79,7 +78,7 @@ public class NotifyConfiguration extends Configuration {
     @Valid
     @NotNull
     private String stripeDisputeWonEmailTemplateId;
-    
+
     @Valid
     @NotNull
     private String notifyEmailReplyToSupportId;
@@ -87,7 +86,7 @@ public class NotifyConfiguration extends Configuration {
     public String getCardApiKey() {
         return cardApiKey;
     }
-    
+
     public String getNotificationBaseURL() {
         return notificationBaseURL;
     }

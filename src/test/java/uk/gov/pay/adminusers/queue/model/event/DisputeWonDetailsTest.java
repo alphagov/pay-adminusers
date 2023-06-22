@@ -8,8 +8,8 @@ import uk.gov.pay.adminusers.queue.model.EventType;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static uk.gov.pay.adminusers.TestTemplateResourceLoader.DISPUTE_WON_EVENT;
-import static uk.gov.pay.adminusers.TestTemplateResourceLoader.load;
+import static uk.gov.pay.adminusers.JsonResourceLoader.DISPUTE_WON_EVENT;
+import static uk.gov.pay.adminusers.JsonResourceLoader.load;
 
 class DisputeWonDetailsTest {
 
