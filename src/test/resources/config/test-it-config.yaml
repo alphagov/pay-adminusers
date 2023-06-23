@@ -16,6 +16,10 @@ logging:
       target: stdout
       customFields:
         container: "adminusers"
+    - type: pay-dropwizard-sentry
+      threshold: ERROR
+      dsn: ${SENTRY_DSN:-https://example.com@dummy/1}
+      environment: ${ENVIRONMENT}
 
 database:
   driverClass: org.postgresql.Driver
