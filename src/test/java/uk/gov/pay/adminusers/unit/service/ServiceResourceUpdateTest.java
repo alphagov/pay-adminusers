@@ -14,11 +14,7 @@ import uk.gov.pay.adminusers.resources.GovUkPayAgreementRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceResource;
 import uk.gov.pay.adminusers.resources.ServiceUpdateOperationValidator;
-import uk.gov.pay.adminusers.service.GovUkPayAgreementService;
-import uk.gov.pay.adminusers.service.SendLiveAccountCreatedEmailService;
-import uk.gov.pay.adminusers.service.ServiceServicesFactory;
-import uk.gov.pay.adminusers.service.ServiceUpdater;
-import uk.gov.pay.adminusers.service.StripeAgreementService;
+import uk.gov.pay.adminusers.service.*;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 import uk.gov.service.payments.commons.model.SupportedLanguage;
 
@@ -30,11 +26,7 @@ import java.util.Optional;
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -75,7 +67,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateExistingEnServiceNameIncludingLegacyName_inSingleObject() {
+    public void shouldUpdateExistingEnServiceNameIncludingLegacyName_inSingleObject() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
@@ -98,7 +90,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateExistingEnServiceNameIncludingLegacyName() {
+    public void shouldUpdateExistingEnServiceNameIncludingLegacyName() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
@@ -121,7 +113,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateExistingEnServiceNameAndNonExistingCyServiceName() {
+    public void shouldUpdateExistingEnServiceNameAndNonExistingCyServiceName() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
@@ -145,7 +137,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateExistingCyServiceName() {
+    public void shouldUpdateExistingCyServiceName() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withServiceNameEntity(SupportedLanguage.WELSH, "old-cy-name")
@@ -171,7 +163,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateExistingEnServiceNameAndExistingCyServiceName() {
+    public void shouldUpdateExistingEnServiceNameAndExistingCyServiceName() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, "old-en-name")
@@ -198,7 +190,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldRemoveCyServiceNameWhenReplacedWithBlank() {
+    public void shouldRemoveCyServiceNameWhenReplacedWithBlank() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, "old-en-name")
@@ -225,7 +217,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldError404_ifServiceExternalIdDoesNotExist() {
+    public void shouldError404_ifServiceExternalIdDoesNotExist() throws Exception {
         String jsonPayload = load("fixtures/resource/service/patch/array-replace-service-name-en.json");
         String externalId = "externalId";
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.empty());
@@ -238,7 +230,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldError400_ifMandatoryFieldValueMissing() {
+    public void shouldError400_ifMandatoryFieldValueMissing() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
@@ -261,7 +253,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldError400_ifMandatoryFieldPathMissing() {
+    public void shouldError400_ifMandatoryFieldPathMissing() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
@@ -284,7 +276,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldError400_ifmandatoryFieldOpMissing() {
+    public void shouldError400_ifmandatoryFieldOpMissing() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
@@ -307,7 +299,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldSuccess_whenAddGatewayAccountIds_whereNoGatewayAccountIds() {
+    public void shouldSuccess_whenAddGatewayAccountIds_whereNoGatewayAccountIds() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
@@ -331,7 +323,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldSuccess_whenAddGatewayAccountIds_whereThereIsGatewayAccountIds() {
+    public void shouldSuccess_whenAddGatewayAccountIds_whereThereIsGatewayAccountIds() throws Exception {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
         String gatewayAccountId = randomUuid();
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
@@ -358,7 +350,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldReturn409_whenAddGatewayAccountIds_andGatewayAccountId_isUsedByAnotherService() {
+    public void shouldReturn409_whenAddGatewayAccountIds_andGatewayAccountId_isUsedByAnotherService() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
 
         String jsonPayload = load("fixtures/resource/service/patch/array-add-gateway-account-ids.json");
@@ -380,7 +372,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateRedirect_toTrue() {
+    public void shouldUpdateRedirect_toTrue() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withRedirectToServiceImmediatelyOnTerminalState(false)
@@ -405,7 +397,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldFailUpdateRedirect_whenValueIsNotBoolean() {
+    public void shouldFailUpdateRedirect_whenValueIsNotBoolean() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withRedirectToServiceImmediatelyOnTerminalState(false)
@@ -430,7 +422,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateCollectBillingAddress_toFalse() {
+    public void shouldUpdateCollectBillingAddress_toFalse() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withCollectBillingAddress(true)
@@ -455,7 +447,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldFailUpdateCollectBillingAddress_whenValueIsNotBoolean() {
+    public void shouldFailUpdateCollectBillingAddress_whenValueIsNotBoolean() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withCollectBillingAddress(true)
@@ -480,7 +472,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateExperimentalFeaturesEnabled_toTrue() {
+    public void shouldUpdateExperimentalFeaturesEnabled_toTrue() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withExperimentalFeaturesEnabled(false)
@@ -505,7 +497,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateTakesPaymentsOverPhone_toTrue() {
+    public void shouldUpdateTakesPaymentsOverPhone_toTrue() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withTakesPaymentsOverPhone(false)

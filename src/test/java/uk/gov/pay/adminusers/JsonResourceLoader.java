@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 public class JsonResourceLoader {
@@ -19,17 +20,12 @@ public class JsonResourceLoader {
 
     public static final String DISPUTE_CREATED_SNS_MESSAGE = TEMPLATE_BASE_NAME + "/sns/dispute_created_sns_message.json";
 
-    private static JsonElement loadJsonFromFile(String filePath) {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(filePath));
-            return JsonParser.parseReader(reader);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    private static JsonElement loadJsonFromFile(String filePath) throws FileNotFoundException {
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        return JsonParser.parseReader(reader);
     }
 
-    public static String load(String location) {
+    public static String load(String location) throws FileNotFoundException {
         String filePath = JsonResourceLoader.class.getClassLoader().getResource(location).getPath();
         return loadJsonFromFile(filePath).toString();
     }
