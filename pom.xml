@@ -17,7 +17,7 @@
         <eclipselink.version>2.7.11</eclipselink.version>
         <guice.version>5.1.0</guice.version>
         <pact.version>3.6.15</pact.version>
-        <pay-java-commons.version>1.0.20230622160318</pay-java-commons.version>
+        <pay-java-commons.version>1.0.20230623145124</pay-java-commons.version>
         <swaggger-version>2.2.10</swaggger-version>
         <testcontainers.version>1.18.3</testcontainers.version>
         <wiremock.version>2.35.0</wiremock.version>
