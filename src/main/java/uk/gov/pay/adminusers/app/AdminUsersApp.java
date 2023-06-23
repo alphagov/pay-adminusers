@@ -68,6 +68,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         bootstrap.addCommand(new DependentResourceWaitCommand());
         bootstrap.addCommand(new MigrateToInitialDbState());
         bootstrap.getObjectMapper().getSubtypeResolver().registerSubtypes(LogstashConsoleAppenderFactory.class);
+        bootstrap.getObjectMapper().getSubtypeResolver().registerSubtypes(DropwizardSentryAppenderFactory.class);
         bootstrap.getObjectMapper().getSubtypeResolver().registerSubtypes(GovUkPayDropwizardRequestJsonLogLayoutFactory.class);
     }
 
