@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.CompleteInviteResponse;
@@ -19,7 +20,6 @@ import uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId;
 import uk.gov.service.payments.commons.model.jsonpatch.JsonPatchOp;
 import uk.gov.service.payments.commons.model.jsonpatch.JsonPatchRequest;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import java.util.List;
@@ -53,11 +53,11 @@ public class InviteService {
 
     @Inject
     public InviteService(InviteDao inviteDao,
-                         UserDao userDao, 
+                         UserDao userDao,
                          NotificationService notificationService,
                          SecondFactorAuthenticator secondFactorAuthenticator,
                          PasswordHasher passwordHasher,
-                         LinksBuilder linksBuilder, 
+                         LinksBuilder linksBuilder,
                          @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap) {
         this.inviteDao = inviteDao;
         this.userDao = userDao;
@@ -87,7 +87,7 @@ public class InviteService {
             LOGGER.error(String.format("error sending 2FA token for invite code [%s]", invite.getCode()), e);
         }
     }
-    
+
     @Transactional
     public Invite reprovisionOtp(String inviteCode) {
         InviteEntity inviteEntity = findInvite(inviteCode).orElseThrow(() -> notFoundInviteException(inviteCode));
@@ -95,7 +95,7 @@ public class InviteService {
         String newOtpKey = secondFactorAuthenticator.generateNewBase32EncodedSecret();
         inviteEntity.setOtpKey(newOtpKey);
         inviteDao.merge(inviteEntity);
-        
+
         return inviteEntity.toInvite();
     }
 
@@ -145,7 +145,7 @@ public class InviteService {
         });
         return inviteEntity.toInvite();
     }
-        
+
     @Transactional
     public CompleteInviteResponse complete(String code, @Nullable SecondFactorMethod secondFactorMethod) {
         InviteEntity inviteEntity = inviteDao.findByCode(code).orElseThrow(() -> notFoundInviteException(code));
@@ -169,7 +169,7 @@ public class InviteService {
     private UserEntity addExistingUserToService(String code, InviteEntity inviteEntity, UserEntity existingUser) {
         // shouldn't expect the user to exist if there is no service as this indicates the invite is a self-registration
         ServiceEntity serviceEntity = inviteEntity.getService().orElseThrow(() -> userAlreadyExistsForSelfRegistration(inviteEntity.getEmail()));
-        
+
         RoleEntity roleEntity = inviteEntity.getRole().orElseThrow(() -> AdminUsersExceptions.inviteDoesNotHaveRole(code));
         if (existingUser.getServicesRole(serviceEntity.getExternalId()).isEmpty()) {
             ServiceRoleEntity serviceRole = new ServiceRoleEntity(serviceEntity, roleEntity);

@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.app.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 import io.dropwizard.db.DataSourceFactory;
 
 import javax.validation.Valid;
@@ -43,11 +43,11 @@ public class AdminUsersConfig extends Configuration {
 
     @NotNull
     private SecondFactorAuthConfiguration secondFactorAuthConfiguration;
-    
+
     @Valid
     @NotNull
     private SqsConfig sqsConfig;
-    
+
     @NotNull
     private EventSubscriberQueueConfig eventSubscriberQueueConfig;
 
@@ -107,7 +107,7 @@ public class AdminUsersConfig extends Configuration {
     public Integer getForgottenPasswordExpiryMinutes() {
         return forgottenPasswordExpiryMinutes;
     }
-    
+
     @JsonProperty("sqs")
     public SqsConfig getSqsConfig() {
         return sqsConfig;

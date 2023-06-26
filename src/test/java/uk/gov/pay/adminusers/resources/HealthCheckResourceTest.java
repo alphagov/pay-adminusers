@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.jayway.jsonassert.JsonAssert;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.setup.Environment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 class HealthCheckResourceTest {
 
     private static ObjectMapper objectMapper = new ObjectMapper();
-    
+
     @Mock
     private Environment environment;
 
@@ -43,7 +43,7 @@ class HealthCheckResourceTest {
 
     @Test
     void checkHealthCheck_isUnHealthy() throws JsonProcessingException {
-        SortedMap<String,HealthCheck.Result> map = new TreeMap<>();
+        SortedMap<String, HealthCheck.Result> map = new TreeMap<>();
         map.put("ping", HealthCheck.Result.unhealthy("application is unavailable"));
         map.put("deadlocks", HealthCheck.Result.unhealthy("no new threads available"));
         when(healthCheckRegistry.runHealthChecks()).thenReturn(map);
@@ -60,7 +60,7 @@ class HealthCheckResourceTest {
 
     @Test
     void checkHealthCheck_isHealthy() throws JsonProcessingException {
-        SortedMap<String,HealthCheck.Result> map = new TreeMap<>();
+        SortedMap<String, HealthCheck.Result> map = new TreeMap<>();
         map.put("ping", HealthCheck.Result.healthy());
         map.put("deadlocks", HealthCheck.Result.healthy());
         when(healthCheckRegistry.runHealthChecks()).thenReturn(map);
@@ -77,7 +77,7 @@ class HealthCheckResourceTest {
 
     @Test
     void checkHealthCheck_pingIsHealthy_deadlocksIsUnhealthy() throws JsonProcessingException {
-        SortedMap<String,HealthCheck.Result> map = new TreeMap<>();
+        SortedMap<String, HealthCheck.Result> map = new TreeMap<>();
         map.put("ping", HealthCheck.Result.healthy());
         map.put("deadlocks", HealthCheck.Result.unhealthy("no new threads available"));
         when(healthCheckRegistry.runHealthChecks()).thenReturn(map);

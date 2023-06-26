@@ -1,6 +1,6 @@
 package uk.gov.pay.adminusers.app.config;
 
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 
 public class LinksConfig extends Configuration {
 
@@ -30,7 +30,7 @@ public class LinksConfig extends Configuration {
     public String getSupportUrl() {
         return supportUrl;
     }
-    
+
     public String getSelfserviceServicesUrl() {
         return selfserviceServicesUrl;
     }

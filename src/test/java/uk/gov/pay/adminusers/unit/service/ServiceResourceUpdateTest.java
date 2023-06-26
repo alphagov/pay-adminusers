@@ -6,19 +6,15 @@ import io.restassured.path.json.JsonPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
-import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.resources.GovUkPayAgreementRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceResource;
 import uk.gov.pay.adminusers.resources.ServiceUpdateOperationValidator;
-import uk.gov.pay.adminusers.service.GovUkPayAgreementService;
-import uk.gov.pay.adminusers.service.SendLiveAccountCreatedEmailService;
-import uk.gov.pay.adminusers.service.ServiceServicesFactory;
-import uk.gov.pay.adminusers.service.ServiceUpdater;
-import uk.gov.pay.adminusers.service.StripeAgreementService;
+import uk.gov.pay.adminusers.service.*;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 import uk.gov.service.payments.commons.model.SupportedLanguage;
 
@@ -27,18 +23,14 @@ import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.Optional;
 
-import static io.dropwizard.testing.FixtureHelpers.fixture;
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static uk.gov.pay.adminusers.JsonResourceLoader.load;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -75,12 +67,12 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateExistingEnServiceNameIncludingLegacyName_inSingleObject() {
+    public void shouldUpdateExistingEnServiceNameIncludingLegacyName_inSingleObject() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/single-object-replace-service-name-en.json");
+        String jsonPayload = load("fixtures/resource/service/patch/single-object-replace-service-name-en.json");
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
@@ -98,12 +90,12 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateExistingEnServiceNameIncludingLegacyName() {
+    public void shouldUpdateExistingEnServiceNameIncludingLegacyName() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-service-name-en.json");
+        String jsonPayload = load("fixtures/resource/service/patch/array-replace-service-name-en.json");
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
@@ -121,12 +113,12 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateExistingEnServiceNameAndNonExistingCyServiceName() {
+    public void shouldUpdateExistingEnServiceNameAndNonExistingCyServiceName() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-service-name-en-replace-service-name-cy.json");
+        String jsonPayload = load("fixtures/resource/service/patch/array-replace-service-name-en-replace-service-name-cy.json");
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
@@ -145,14 +137,14 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateExistingCyServiceName() {
+    public void shouldUpdateExistingCyServiceName() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withServiceNameEntity(SupportedLanguage.WELSH, "old-cy-name")
                 .build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-service-name-cy.json");
+        String jsonPayload = load("fixtures/resource/service/patch/array-replace-service-name-cy.json");
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
@@ -171,7 +163,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateExistingEnServiceNameAndExistingCyServiceName() {
+    public void shouldUpdateExistingEnServiceNameAndExistingCyServiceName() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, "old-en-name")
@@ -179,7 +171,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
                 .build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-service-name-en-replace-service-name-cy.json");
+        String jsonPayload = load("fixtures/resource/service/patch/array-replace-service-name-en-replace-service-name-cy.json");
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
@@ -198,7 +190,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldRemoveCyServiceNameWhenReplacedWithBlank() {
+    public void shouldRemoveCyServiceNameWhenReplacedWithBlank() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withServiceNameEntity(SupportedLanguage.ENGLISH, "old-en-name")
@@ -206,7 +198,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
                 .build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-service-name-cy-blank.json");
+        String jsonPayload = load("fixtures/resource/service/patch/array-replace-service-name-cy-blank.json");
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
@@ -225,8 +217,8 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldError404_ifServiceExternalIdDoesNotExist() {
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-service-name-en.json");
+    public void shouldError404_ifServiceExternalIdDoesNotExist() throws Exception {
+        String jsonPayload = load("fixtures/resource/service/patch/array-replace-service-name-en.json");
         String externalId = "externalId";
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.empty());
 
@@ -238,12 +230,12 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldError400_ifMandatoryFieldValueMissing() {
+    public void shouldError400_ifMandatoryFieldValueMissing() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-service-name-en-missing-value.json");
+        String jsonPayload = load("fixtures/resource/service/patch/array-replace-service-name-en-missing-value.json");
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
@@ -261,12 +253,12 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldError400_ifMandatoryFieldPathMissing() {
+    public void shouldError400_ifMandatoryFieldPathMissing() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-replace-missing-path.json");
+        String jsonPayload = load("fixtures/resource/service/patch/array-replace-missing-path.json");
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
@@ -284,12 +276,12 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldError400_ifmandatoryFieldOpMissing() {
+    public void shouldError400_ifmandatoryFieldOpMissing() throws Exception {
 
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-missing-op-service-name-en.json");
+        String jsonPayload = load("fixtures/resource/service/patch/array-missing-op-service-name-en.json");
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
 
@@ -307,13 +299,13 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldSuccess_whenAddGatewayAccountIds_whereNoGatewayAccountIds() {
+    public void shouldSuccess_whenAddGatewayAccountIds_whereNoGatewayAccountIds() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
         String externalId = thisServiceEntity.getExternalId();
 
         assertThat(thisServiceEntity.getGatewayAccountIds(), is(empty()));
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-add-gateway-account-ids.json");
+        String jsonPayload = load("fixtures/resource/service/patch/array-add-gateway-account-ids.json");
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
         when(mockedServiceDao.checkIfGatewayAccountsUsed(Collections.singletonList("1014748185"))).thenReturn(false);
@@ -331,7 +323,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldSuccess_whenAddGatewayAccountIds_whereThereIsGatewayAccountIds() {
+    public void shouldSuccess_whenAddGatewayAccountIds_whereThereIsGatewayAccountIds() throws Exception {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
         String gatewayAccountId = randomUuid();
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
@@ -340,7 +332,7 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
                 .build();
         gatewayAccountIdEntity.setService(thisServiceEntity);
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-add-gateway-account-ids.json");
+        String jsonPayload = load("fixtures/resource/service/patch/array-add-gateway-account-ids.json");
         when(mockedServiceDao.findByExternalId(thisServiceEntity.getExternalId())).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
         when(mockedServiceDao.checkIfGatewayAccountsUsed(Collections.singletonList("1014748185"))).thenReturn(false);
@@ -358,10 +350,10 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldReturn409_whenAddGatewayAccountIds_andGatewayAccountId_isUsedByAnotherService() {
+    public void shouldReturn409_whenAddGatewayAccountIds_andGatewayAccountId_isUsedByAnotherService() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityFixture.aServiceEntity().build();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/array-add-gateway-account-ids.json");
+        String jsonPayload = load("fixtures/resource/service/patch/array-add-gateway-account-ids.json");
         when(mockedServiceDao.findByExternalId(thisServiceEntity.getExternalId())).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
         when(mockedServiceDao.checkIfGatewayAccountsUsed(Collections.singletonList("1014748185"))).thenReturn(true);
@@ -380,14 +372,14 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateRedirect_toTrue() {
+    public void shouldUpdateRedirect_toTrue() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withRedirectToServiceImmediatelyOnTerminalState(false)
                 .build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/replace_redirect_immediately_to_true.json");
+        String jsonPayload = load("fixtures/resource/service/patch/replace_redirect_immediately_to_true.json");
 
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
@@ -405,14 +397,14 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldFailUpdateRedirect_whenValueIsNotBoolean() {
+    public void shouldFailUpdateRedirect_whenValueIsNotBoolean() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withRedirectToServiceImmediatelyOnTerminalState(false)
                 .build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/replace_redirect_immediately_invalid_value.json");
+        String jsonPayload = load("fixtures/resource/service/patch/replace_redirect_immediately_invalid_value.json");
 
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
@@ -430,14 +422,14 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateCollectBillingAddress_toFalse() {
+    public void shouldUpdateCollectBillingAddress_toFalse() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withCollectBillingAddress(true)
                 .build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/replace_collect_billing_address_to_false.json");
+        String jsonPayload = load("fixtures/resource/service/patch/replace_collect_billing_address_to_false.json");
 
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
@@ -455,14 +447,14 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldFailUpdateCollectBillingAddress_whenValueIsNotBoolean() {
+    public void shouldFailUpdateCollectBillingAddress_whenValueIsNotBoolean() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withCollectBillingAddress(true)
                 .build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/replace_collect_billing_address_invalid_value.json");
+        String jsonPayload = load("fixtures/resource/service/patch/replace_collect_billing_address_invalid_value.json");
 
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
@@ -480,14 +472,14 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateExperimentalFeaturesEnabled_toTrue() {
+    public void shouldUpdateExperimentalFeaturesEnabled_toTrue() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withExperimentalFeaturesEnabled(false)
                 .build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/replace_experimental_features_enabled_to_true.json");
+        String jsonPayload = load("fixtures/resource/service/patch/replace_experimental_features_enabled_to_true.json");
 
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
@@ -505,14 +497,14 @@ public class ServiceResourceUpdateTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldUpdateTakesPaymentsOverPhone_toTrue() {
+    public void shouldUpdateTakesPaymentsOverPhone_toTrue() throws Exception {
         ServiceEntity thisServiceEntity = ServiceEntityFixture
                 .aServiceEntity()
                 .withTakesPaymentsOverPhone(false)
                 .build();
         String externalId = thisServiceEntity.getExternalId();
 
-        String jsonPayload = fixture("fixtures/resource/service/patch/replace_takes_payments_over_phone_to_true.json");
+        String jsonPayload = load("fixtures/resource/service/patch/replace_takes_payments_over_phone_to_true.json");
 
         when(mockedServiceDao.findByExternalId(externalId)).thenReturn(Optional.of(thisServiceEntity));
         when(mockedServiceDao.merge(thisServiceEntity)).thenReturn(thisServiceEntity);
