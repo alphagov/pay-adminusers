@@ -21,7 +21,7 @@
         <swaggger-version>2.2.10</swaggger-version>
         <testcontainers.version>1.18.3</testcontainers.version>
         <wiremock.version>2.35.0</wiremock.version>
-        <surefire.version>3.1.0</surefire.version>
+        <surefire.version>3.1.2</surefire.version>
         <PACT_BROKER_URL/>
         <PACT_BROKER_USERNAME/>
         <PACT_BROKER_PASSWORD/>
