@@ -23,12 +23,14 @@ import static java.lang.String.valueOf;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -348,5 +350,47 @@ public class UserDaoIT extends DaoTestBase {
         List<UserEntity> users = userDao.findByServiceId(serviceId);
 
         assertThat(users.isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldNotCreateAUserWithDifferentCaseEmail() {
+        Role existingRole = roleDbFixture(databaseHelper)
+                .withName("admin")
+                .insertRole();
+
+        int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
+        userDbFixture(databaseHelper)
+                .withUsername("user@example.com")
+                .withEmail("user@example.com")
+                .withServiceRole(serviceId, existingRole.getId()).insertUser();
+
+        Role role = roleDbFixture(databaseHelper).insertRole();
+
+        String username = valueOf(nextInt());
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setExternalId(randomUuid());
+        userEntity.setUsername("User@example.com");
+        userEntity.setPassword("password-" + username);
+        userEntity.setDisabled(false);
+        userEntity.setEmail("User@example.com");
+        userEntity.setOtpKey(randomInt().toString());
+        userEntity.setTelephoneNumber("+447700900000");
+        userEntity.setSecondFactor(SecondFactorMethod.SMS);
+        userEntity.setSessionVersion(0);
+        ZonedDateTime timeNow = ZonedDateTime.now(ZoneId.of("UTC"));
+        userEntity.setCreatedAt(timeNow);
+        userEntity.setUpdatedAt(timeNow);
+
+        Optional<ServiceEntity> serviceEntity = serviceDao.findById(serviceId);
+        RoleEntity roleEntity = roleDao.findByRoleName(role.getName()).get();
+
+        ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity.get(), roleEntity);
+        serviceRoleEntity.setUser(userEntity);
+
+        userEntity.addServiceRole(serviceRoleEntity);
+
+        var thrown = assertThrows(javax.persistence.RollbackException.class, () -> userDao.persist(userEntity));
+        assertThat(thrown.getMessage(), containsString("ERROR: duplicate key value violates unique constraint \"lower_case_email_index\""));
     }
 }
