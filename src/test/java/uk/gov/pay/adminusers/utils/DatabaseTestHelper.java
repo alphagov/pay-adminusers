@@ -41,15 +41,14 @@ public class DatabaseTestHelper {
                         .mapToMap().list());
     }
 
-    public List<Map<String, Object>> findUserByUsername(String username) {
+    public List<Map<String, Object>> findUserByEmail(String email) {
         return jdbi.withHandle(h ->
                 h.createQuery("SELECT id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
-                        "FROM users " +
-                        "WHERE username = :username")
-                        .bind("username", username)
+                                "FROM users " +
+                                "WHERE email = :email")
+                        .bind("email", email)
                         .mapToMap().list());
     }
-
     public List<Map<String, Object>> findUser(long userId) {
         return jdbi.withHandle(h ->
                 h.createQuery("SELECT id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +

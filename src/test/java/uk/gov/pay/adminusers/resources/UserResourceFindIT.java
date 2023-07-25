@@ -24,35 +24,6 @@ public class UserResourceFindIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldFindSuccessfully_existingUserByUserName() throws Exception {
-
-        Map<String, String> findPayload = Map.of("username", username);
-
-        givenSetup()
-                .when()
-                .contentType(JSON)
-                .body(mapper.writeValueAsString(findPayload))
-                .post(FIND_RESOURCE_URL)
-                .then()
-                .statusCode(200)
-                .body("username", is(username));
-    }
-
-    @Test
-    public void shouldError404_ifUserNotFound() throws Exception {
-        Map<String, String> findPayload = Map.of("username", "unknown-user@somewhere.com");
-
-        givenSetup()
-                .when()
-                .contentType(JSON)
-                .body(mapper.writeValueAsString(findPayload))
-                .post(FIND_RESOURCE_URL)
-                .then()
-                .statusCode(404);
-
-    }
-
-    @Test
     public void shouldError400_ifFieldsMissing() throws Exception {
         Map<String, String> findPayload = Map.of("", "");
 

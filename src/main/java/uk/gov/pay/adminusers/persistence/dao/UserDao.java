@@ -80,17 +80,7 @@ public class UserDao extends JpaDao<UserEntity> {
             return Map.of();
         }
     }
-
-    public Optional<UserEntity> findByUsername(String username) {
-        String query = "SELECT u FROM UserEntity u " +
-                "WHERE LOWER(u.username) = LOWER(:username)";
-
-        return entityManager.get()
-                .createQuery(query, UserEntity.class)
-                .setParameter("username", username)
-                .getResultList().stream().findFirst();
-    }
-
+    
     public Optional<UserEntity> findByEmail(String email) {
         String query = "SELECT u FROM UserEntity u " +
                 "WHERE LOWER(u.email) = LOWER(:email)";
@@ -104,7 +94,7 @@ public class UserDao extends JpaDao<UserEntity> {
     public List<UserEntity> findByServiceId(Integer serviceId) {
 
         String query = "SELECT s FROM ServiceRoleEntity s " +
-                "WHERE s.service.id = :serviceId ORDER BY s.user.username";
+                "WHERE s.service.id = :serviceId ORDER BY s.user.email";
 
         return entityManager.get()
                 .createQuery(query, ServiceRoleEntity.class)

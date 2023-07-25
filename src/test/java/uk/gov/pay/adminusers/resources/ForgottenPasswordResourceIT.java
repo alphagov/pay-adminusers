@@ -22,11 +22,11 @@ public class ForgottenPasswordResourceIT extends IntegrationTest {
 
         String username = randomUuid();
         String email = username + "@example.com";
-        userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser().getUsername();
+        userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
 
         givenSetup()
                 .when()
-                .body(mapper.writeValueAsString(Map.of("username", username)))
+                .body(mapper.writeValueAsString(Map.of("username", email)))
                 .contentType(JSON)
                 .accept(JSON)
                 .post(FORGOTTEN_PASSWORDS_RESOURCE_URL)

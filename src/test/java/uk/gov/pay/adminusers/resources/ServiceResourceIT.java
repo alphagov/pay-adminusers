@@ -85,26 +85,22 @@ public class ServiceResourceIT extends IntegrationTest {
         String username1 = "zoe-" + randomUuid();
         String email1 = username1 + "@example.com";
         User user1 = userDbFixture(databaseHelper)
-                .withUsername(username1)
                 .withEmail(email1)
                 .withServiceRole(service1.getId(), role1.getId()).insertUser();
         String username2 = "tim-" + randomUuid();
         String email2 = username2 + "@example.com";
         User user2 = userDbFixture(databaseHelper)
-                .withUsername(username2)
                 .withEmail(email2)
                 .withServiceRole(service1.getId(), role2.getId()).insertUser();
         String username3 = "bob-" + randomUuid();
         String email3 = username3 + "@example.com";
         User user3 = userDbFixture(databaseHelper)
-                .withUsername(username3)
                 .withEmail(email3)
                 .withServiceRole(service1.getId(), role2.getId()).insertUser();
 
         String username4 = randomUuid();
         String email4 = username4 + "@example.com";
         userDbFixture(databaseHelper)
-                .withUsername(username4)
                 .withEmail(email4)
                 .withServiceRole(service2.getId(), role1.getId()).insertUser();
 
@@ -115,17 +111,17 @@ public class ServiceResourceIT extends IntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("$", hasSize(3))
-                .body("[0].username", is(user3.getUsername()))
+                .body("[0].username", is(user3.getEmail()))
                 .body("[0]._links", hasSize(1))
                 .body("[0]._links[0].href", is("http://localhost:8080/v1/api/users/" + user3.getExternalId()))
                 .body("[0]._links[0].method", is("GET"))
                 .body("[0]._links[0].rel", is("self"))
-                .body("[1].username", is(user2.getUsername()))
+                .body("[1].username", is(user2.getEmail()))
                 .body("[1]._links", hasSize(1))
                 .body("[1]._links[0].href", is("http://localhost:8080/v1/api/users/" + user2.getExternalId()))
                 .body("[1]._links[0].method", is("GET"))
                 .body("[1]._links[0].rel", is("self"))
-                .body("[2].username", is(user1.getUsername()))
+                .body("[2].username", is(user1.getEmail()))
                 .body("[2]._links", hasSize(1))
                 .body("[2]._links[0].href", is("http://localhost:8080/v1/api/users/" + user1.getExternalId()))
                 .body("[2]._links[0].method", is("GET"))
@@ -167,7 +163,7 @@ public class ServiceResourceIT extends IntegrationTest {
                 .accept(JSON)
                 .get(format("/v1/api/services/%s/users", serviceExternalId))
                 .then()
-                .body("$", hasItem(allOf(hasEntry("username", user1WithRoleViewInService1.getUsername()))));
+                .body("$", hasItem(allOf(hasEntry("username", user1WithRoleViewInService1.getEmail()))));
 
         givenSetup()
                 .when()
@@ -200,14 +196,14 @@ public class ServiceResourceIT extends IntegrationTest {
                 .accept(JSON)
                 .get(format("/v1/api/services/%s/users", serviceExternalId))
                 .then()
-                .body("$", hasItem(allOf(hasEntry("username", user1WithRoleViewInService1.getUsername()))));
+                .body("$", hasItem(allOf(hasEntry("username", user1WithRoleViewInService1.getEmail()))));
 
         givenSetup()
                 .when()
                 .accept(JSON)
                 .get(format("/v1/api/services/%s/users", anotherService.getExternalId()))
                 .then()
-                .body("$", hasItem(allOf(hasEntry("username", user1WithRoleViewInService1.getUsername()))));
+                .body("$", hasItem(allOf(hasEntry("username", user1WithRoleViewInService1.getEmail()))));
 
         givenSetup()
                 .when()
@@ -223,14 +219,14 @@ public class ServiceResourceIT extends IntegrationTest {
                 .accept(JSON)
                 .get(format("/v1/api/services/%s/users", serviceExternalId))
                 .then()
-                .body("$", not(hasItem(allOf(hasEntry("username", user1WithRoleViewInService1.getUsername())))));
+                .body("$", not(hasItem(allOf(hasEntry("username", user1WithRoleViewInService1.getEmail())))));
 
         givenSetup()
                 .when()
                 .accept(JSON)
                 .get(format("/v1/api/services/%s/users", anotherService.getExternalId()))
                 .then()
-                .body("$", hasItem(allOf(hasEntry("username", user1WithRoleViewInService1.getUsername()))));
+                .body("$", hasItem(allOf(hasEntry("username", user1WithRoleViewInService1.getEmail()))));
     }
 
     @Test

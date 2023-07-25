@@ -100,7 +100,7 @@ public class UserResource {
         LOGGER.info("User FIND request");
         return validator.validateFindRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> userServices.findUserByUsername(payload.get(FIELD_USERNAME).asText())
+                .orElseGet(() -> userServices.findUserByEmail(payload.get(FIELD_USERNAME).asText())
                         .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                         .orElseGet(() -> Response.status(NOT_FOUND).build()));
     }
@@ -201,14 +201,14 @@ public class UserResource {
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
                     String roleName = node.get(CreateUserRequest.FIELD_ROLE_NAME).asText();
-                    String userName = node.get(CreateUserRequest.FIELD_USERNAME).asText();
+                    String email = node.get(CreateUserRequest.FIELD_EMAIL).asText();
                     try {
                         User newUser = userServicesFactory.userCreator().doCreate(CreateUserRequest.from(node), roleName);
                         LOGGER.info("User created successfully [{}]", newUser.getExternalId());
                         return Response.status(CREATED).type(APPLICATION_JSON)
                                 .entity(newUser).build();
                     } catch (Exception e) {
-                        return handleCreateUserException(userName, e);
+                        return handleCreateUserException(email, e);
                     }
                 });
     }

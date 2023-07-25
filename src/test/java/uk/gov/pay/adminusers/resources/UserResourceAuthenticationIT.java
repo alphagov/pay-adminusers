@@ -28,7 +28,7 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
         String username = createAValidUser(service);
 
         Map<Object, Object> authPayload = Map.of(
-                "username", username,
+                "username","user-" + username + "@example.com",
                 "password", "password-" + username);
 
         givenSetup()
@@ -39,7 +39,7 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
                 .post(USERS_AUTHENTICATE_URL)
                 .then()
                 .statusCode(200)
-                .body("username", is(username))
+                .body("username", is("user-" + username + "@example.com"))
                 .body("email", is("user-" + username + "@example.com"))
                 .body("service_roles", hasSize(1))
                 .body("service_roles[0].service.external_id", is(notNullValue()))

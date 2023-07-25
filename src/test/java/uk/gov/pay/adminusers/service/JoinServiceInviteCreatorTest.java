@@ -346,7 +346,7 @@ class JoinServiceInviteCreatorTest {
     private User aUser(String email) {
         Service service = Service.from(serviceId, serviceExternalId, new ServiceName(Service.DEFAULT_NAME_VALUE));
         ServiceRole serviceRole = ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"));
-        return User.from(randomInt(), randomUuid(), "a-username", "random-password", email,
+        return User.from(randomInt(), randomUuid(), "random-password", email,
                 "784rh", "8948924", Collections.singletonList(serviceRole), null,
                 SecondFactorMethod.SMS, null, null, null);
     }

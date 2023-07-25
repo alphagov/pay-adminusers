@@ -32,8 +32,6 @@ public class UserEntity extends AbstractEntity {
     @Column(name = "external_id")
     private String externalId;
 
-    @Column(name = "username")
-    private String username;
 
     @Column(name = "password")
     private String password;
@@ -99,14 +97,6 @@ public class UserEntity extends AbstractEntity {
 
     public void setExternalId(String externalId) {
         this.externalId = externalId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getPassword() {
@@ -238,7 +228,6 @@ public class UserEntity extends AbstractEntity {
     public static UserEntity from(User user) {
         UserEntity userEntity = new UserEntity();
         userEntity.setExternalId(user.getExternalId());
-        userEntity.setUsername(user.getUsername());
         userEntity.setPassword(user.getPassword());
         userEntity.setEmail(user.getEmail());
         userEntity.setOtpKey(user.getOtpKey());
@@ -265,7 +254,6 @@ public class UserEntity extends AbstractEntity {
     public static UserEntity from(CreateUserRequest createUserRequest, String otpKey) {
         UserEntity userEntity = new UserEntity();
         userEntity.setExternalId(RandomIdGenerator.randomUuid());
-        userEntity.setUsername(createUserRequest.getUsername());
         userEntity.setPassword(createUserRequest.getPassword());
         userEntity.setEmail(createUserRequest.getEmail());
         userEntity.setOtpKey(otpKey);
@@ -284,7 +272,7 @@ public class UserEntity extends AbstractEntity {
     public User toUser() {
         List<ServiceRole> serviceRoles = this.servicesRoles.stream().map(ServiceRoleEntity::toServiceRole).collect(toUnmodifiableList());
 
-        User user = User.from(getId(), externalId, username, password, email, otpKey, telephoneNumber, serviceRoles,
+        User user = User.from(getId(), externalId, password, email, otpKey, telephoneNumber, serviceRoles,
                 features, secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt);
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);

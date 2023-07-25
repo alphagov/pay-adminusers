@@ -40,8 +40,6 @@ import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemp
 class ExistingUserOtpDispatcherTest {
 
     private static final String USER_EXTERNAL_ID = "7d19aff33f8948deb97ed16b2912dcd3";
-    private static final String USER_USERNAME = "random-name";
-    
     @Mock
     private NotificationService notificationService;
     @Mock
@@ -163,13 +161,13 @@ class ExistingUserOtpDispatcherTest {
     }
 
     private User aUser() {
-        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password",
+        return User.from(randomInt(), USER_EXTERNAL_ID, "random-password",
                 "user@test.test","784rh", "07700900000", emptyList(),
                 null, SecondFactorMethod.SMS,null, null, null);
     }
 
     private User aUserWithProvisionalOtpKey() {
-        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password",
+        return User.from(randomInt(), USER_EXTERNAL_ID,"random-password",
                 "user@test.test","784rh", "07700900001", emptyList(),
                 null, SecondFactorMethod.APP,"provisional OTP key", ZonedDateTime.now(UTC), null);
     }

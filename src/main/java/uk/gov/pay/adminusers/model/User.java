@@ -55,16 +55,15 @@ public class User {
     private List<Link> links = new ArrayList<>();
     private Integer sessionVersion = 0;
 
-    public static User from(Integer id, String externalId, String username, String password, String email, String otpKey, 
+    public static User from(Integer id, String externalId, String password, String email, String otpKey,
                             String telephoneNumber, List<ServiceRole> serviceRoles, String features,
                             SecondFactorMethod secondFactor, String provisionalOtpKey,
                             ZonedDateTime provisionalOtpKeyCreatedAt, ZonedDateTime lastLoggedInAt) {
-        return new User(id, externalId, username, password, email, otpKey, telephoneNumber, serviceRoles, features,
+        return new User(id, externalId, password, email, otpKey, telephoneNumber, serviceRoles, features,
                 secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt);
     }
 
-    private User(Integer id, @JsonProperty("external_id") String externalId, @JsonProperty("username") String username,
-                 @JsonProperty("password") String password, @JsonProperty("email") String email,
+    private User(Integer id, @JsonProperty("external_id") String externalId, @JsonProperty("password") String password, @JsonProperty("email") String email,
                  @JsonProperty("otp_key") String otpKey, @JsonProperty("telephone_number") String telephoneNumber,
                  @JsonProperty("service_roles") List<ServiceRole> serviceRoles, @JsonProperty("features") String features,
                  @JsonProperty("second_factor") SecondFactorMethod secondFactor,
@@ -73,7 +72,7 @@ public class User {
                  @JsonProperty("last_logged_in_at") ZonedDateTime lastLoggedInAt) {
         this.id = id;
         this.externalId = externalId;
-        this.username = username;
+        this.username = email;
         this.password = password;
         this.email = email;
         this.otpKey = otpKey;

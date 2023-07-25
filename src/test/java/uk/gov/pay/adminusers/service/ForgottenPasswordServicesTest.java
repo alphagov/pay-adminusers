@@ -66,7 +66,7 @@ public class ForgottenPasswordServicesTest {
         String email = "existing-user@example.com";
         UserEntity mockUser = mock(UserEntity.class);
         when(mockUser.getEmail()).thenReturn(email);
-        when(userDao.findByUsername(username)).thenReturn(Optional.of(mockUser));
+        when(userDao.findByEmail(username)).thenReturn(Optional.of(mockUser));
         when(mockNotificationService.sendForgottenPasswordEmail(eq(email), matches("^http://selfservice/reset-password/[0-9a-z]{32}$")))
                 .thenReturn("random-notify-id");
         doNothing().when(forgottenPasswordDao).persist(any(ForgottenPasswordEntity.class));
@@ -88,7 +88,7 @@ public class ForgottenPasswordServicesTest {
         String email = "existing-user@example.com";
         UserEntity mockUser = mock(UserEntity.class);
         when(mockUser.getEmail()).thenReturn(email);
-        when(userDao.findByUsername(username)).thenReturn(Optional.of(mockUser));
+        when(userDao.findByEmail(username)).thenReturn(Optional.of(mockUser));
         when(mockNotificationService.sendForgottenPasswordEmail(eq(email), matches("^http://selfservice/reset-password/[0-9a-z]{32}$")))
                 .thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
         doNothing().when(forgottenPasswordDao).persist(any(ForgottenPasswordEntity.class));
@@ -105,7 +105,7 @@ public class ForgottenPasswordServicesTest {
     public void shouldReturnEmpty_whenCreating_ifUserNotFound() {
 
         String nonExistentUser = "non-existent-user";
-        when(userDao.findByUsername(nonExistentUser)).thenReturn(Optional.empty());
+        when(userDao.findByEmail(nonExistentUser)).thenReturn(Optional.empty());
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
                 () -> forgottenPasswordServices.create(nonExistentUser));

@@ -30,7 +30,7 @@ class LinksBuilderTest {
         Role role = Role.role(2, "blah", "blah");
         ServiceRole serviceRole = ServiceRole.from(service, role);
 
-        User user = User.from(randomInt(), randomUuid(), "a-username", "a-password", "email@example.com",
+        User user = User.from(randomInt(), randomUuid(), "a-password", "email@example.com",
                 "4wrwef", "123435", Collections.singletonList(serviceRole), null,
                 SecondFactorMethod.SMS, null, null, null);
         User decoratedUser = linksBuilder.decorate(user);

@@ -60,7 +60,7 @@ class InviteResourceUserCompleteIT extends IntegrationTest {
                 .body("service_roles", hasSize(1))
                 .body("service_roles[0].service.external_id", is(serviceExternalId));
 
-        Map<String, Object> user = databaseHelper.findUserByUsername(email).stream().findFirst().get();
+        Map<String, Object> user = databaseHelper.findUserByEmail(email).stream().findFirst().get();
         Map<String, Object> role = databaseHelper.findServiceRoleForUser((Integer) user.get("id")).stream().findFirst().get();
         Map<String, Object> invite = databaseHelper.findInviteByCode(inviteCode).stream().findFirst().get();
 

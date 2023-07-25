@@ -28,7 +28,7 @@ public class UserResourceCreateIT extends IntegrationTest {
     public void shouldCreateAUser_Successfully() throws Exception {
         String username = randomUuid();
         Map<Object, Object> userPayload = Map.of(
-                "username", username,
+                "username", "user-" + username + "@example.com",
                 "email", "user-" + username + "@example.com",
                 "telephone_number", "+441134960000",
                 "otp_key", "34f34",
@@ -47,7 +47,7 @@ public class UserResourceCreateIT extends IntegrationTest {
                 .statusCode(201)
                 .body("id", nullValue())
                 .body("external_id", is(externalId))
-                .body("username", is(username))
+                .body("username", is("user-" + username + "@example.com"))
                 .body("password", nullValue())
                 .body("email", is("user-" + username + "@example.com"))
                 .body("service_roles", hasSize(0))
@@ -98,7 +98,7 @@ public class UserResourceCreateIT extends IntegrationTest {
                 .statusCode(201)
                 .body("id", nullValue())
                 .body("external_id", is(externalId))
-                .body("username", is(username))
+                .body("username", is("user-" + username + "@example.com"))
                 .body("password", nullValue())
                 .body("email", is("user-" + username + "@example.com"))
                 .body("service_roles", hasSize(1))
@@ -192,7 +192,7 @@ public class UserResourceCreateIT extends IntegrationTest {
                 .then()
                 .statusCode(409)
                 .body("errors", hasSize(1))
-                .body("errors[0]", is(format("username [%s] already exists", username)));
+                .body("errors[0]", is(format("username [%s] already exists", email)));
     }
 
 }

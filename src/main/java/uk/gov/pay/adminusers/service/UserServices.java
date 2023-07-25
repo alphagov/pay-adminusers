@@ -59,9 +59,9 @@ public class UserServices {
     }
 
     @Transactional
-    public Optional<User> authenticate(String username, String password) {
-        Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
-        logger.debug("Login attempt - username={}", username);
+    public Optional<User> authenticate(String email, String password) {
+        Optional<UserEntity> userEntityOptional = userDao.findByEmail(email);
+        logger.debug("Login attempt - email={}", email);
         if (userEntityOptional.isPresent()) {
             UserEntity userEntity = userEntityOptional.get();
             if (passwordHasher.isEqual(password, userEntity.getPassword())) {
@@ -100,11 +100,6 @@ public class UserServices {
                 .map(UserEntity::toUser)
                 .map(linksBuilder::decorate)
                 .collect(toUnmodifiableList());
-    }
-
-    public Optional<User> findUserByUsername(String username) {
-        Optional<UserEntity> userEntityOptional = userDao.findByUsername(username);
-        return userEntityOptional.map(userEntity -> linksBuilder.decorate(userEntity.toUser()));
     }
 
     public Optional<User> findUserByEmail(String username) {
@@ -297,7 +292,6 @@ public class UserServices {
     
     private void changeUserEmail(UserEntity userEntity, String email) {
         userEntity.setEmail(email);
-        userEntity.setUsername(email);
         userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
         userDao.merge(userEntity);
     }
