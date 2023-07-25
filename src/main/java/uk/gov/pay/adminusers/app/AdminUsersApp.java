@@ -12,6 +12,11 @@ import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.migrations.MigrationsBundle;
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.dropwizard.DropwizardExports;
+import io.prometheus.client.exporter.MetricsServlet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.AdminUsersModule;
 import uk.gov.pay.adminusers.app.config.PersistenceServiceInitialiser;
@@ -35,11 +40,13 @@ import uk.gov.pay.adminusers.resources.ToolboxEndpointResource;
 import uk.gov.pay.adminusers.resources.UserResource;
 import uk.gov.service.payments.commons.utils.healthchecks.DatabaseHealthCheck;
 import uk.gov.service.payments.commons.utils.metrics.DatabaseMetricsService;
+import uk.gov.service.payments.commons.utils.prometheus.PrometheusDefaultLabelSampleBuilder;
 import uk.gov.service.payments.logging.GovUkPayDropwizardRequestJsonLogLayoutFactory;
 import uk.gov.service.payments.logging.LoggingFilter;
 import uk.gov.service.payments.logging.LogstashConsoleAppenderFactory;
 import uk.gov.service.payments.logging.SentryAppenderFactory;
 
+import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.EnumSet.of;
@@ -47,6 +54,8 @@ import static javax.servlet.DispatcherType.REQUEST;
 
 public class AdminUsersApp extends Application<AdminUsersConfig> {
 
+    private static final Logger logger = LoggerFactory.getLogger(AdminUsersApp.class);
+    
     private static final boolean NON_STRICT_VARIABLE_SUBSTITUTOR = false;
     private static final String SERVICE_METRICS_NODE = "adminusers";
     private static final int GRAPHITE_SENDING_PERIOD_SECONDS = 10;
@@ -115,6 +124,21 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
                 .build()
                 .scheduleAtFixedRate(metricsService::updateMetricData, 0, GRAPHITE_SENDING_PERIOD_SECONDS / 2, TimeUnit.SECONDS);
 
+        initialiseGraphiteMetrics(configuration, environment);
+        configuration.getEcsContainerMetadataUriV4().ifPresent(uri -> initialisePrometheusMetrics(environment, uri));
+    }
+
+    private void initialisePrometheusMetrics(Environment environment, URI ecsContainerMetadataUri) {
+        logger.info("Initialising prometheus metrics.");
+        CollectorRegistry collectorRegistry = new CollectorRegistry();
+        collectorRegistry.register(new DropwizardExports(environment.metrics(), new PrometheusDefaultLabelSampleBuilder(ecsContainerMetadataUri)));
+        environment.admin().addServlet("prometheusMetrics", new MetricsServlet(collectorRegistry)).addMapping("/metrics");
+    }
+
+    /**
+     * Graphtie metric config to be deleted when we've completely moved to Prometheus
+     */
+    private static void initialiseGraphiteMetrics(AdminUsersConfig configuration, Environment environment) {
         GraphiteSender graphiteUDP = new GraphiteUDP(configuration.getGraphiteHost(), configuration.getGraphitePort());
         GraphiteReporter.forRegistry(environment.metrics())
                 .prefixedWith(SERVICE_METRICS_NODE)

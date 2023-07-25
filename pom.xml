@@ -17,7 +17,8 @@
         <eclipselink.version>2.7.11</eclipselink.version>
         <guice.version>5.1.0</guice.version>
         <pact.version>3.6.15</pact.version>
-        <pay-java-commons.version>1.0.20230705145238</pay-java-commons.version>
+        <pay-java-commons.version>1.0.20230720152355</pay-java-commons.version>
+        <prometheus.version>0.16.0</prometheus.version>
         <swaggger-version>2.2.10</swaggger-version>
         <testcontainers.version>1.18.3</testcontainers.version>
         <wiremock.version>2.35.0</wiremock.version>
@@ -29,6 +30,21 @@
         <PACT_CONSUMER_TAG/>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>simpleclient</artifactId>
+            <version>${prometheus.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>simpleclient_servlet</artifactId>
+            <version>${prometheus.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>simpleclient_dropwizard</artifactId>
+            <version>${prometheus.version}</version>
+        </dependency>
         <dependency>
             <groupId>uk.gov.service.payments</groupId>
             <artifactId>logging-dropwizard-3</artifactId>

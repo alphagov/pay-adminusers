@@ -6,6 +6,8 @@ import io.dropwizard.db.DataSourceFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.net.URI;
+import java.util.Optional;
 
 public class AdminUsersConfig extends Configuration {
 
@@ -74,6 +76,9 @@ public class AdminUsersConfig extends Configuration {
         return jpaConfiguration;
     }
 
+    @JsonProperty("ecsContainerMetadataUriV4")
+    private URI ecsContainerMetadataUriV4;
+
     public String getGraphiteHost() {
         return graphiteHost;
     }
@@ -124,5 +129,9 @@ public class AdminUsersConfig extends Configuration {
 
     public RestClientConfig getRestClientConfig() {
         return restClientConfig;
+    }
+
+    public Optional<URI> getEcsContainerMetadataUriV4() {
+        return Optional.ofNullable(ecsContainerMetadataUriV4);
     }
 }

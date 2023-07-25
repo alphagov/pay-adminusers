@@ -131,3 +131,5 @@ ledgerBaseURL: ${LEDGER_URL}
 
 restClientConfig:
   disabledSecureConnection: ${DISABLE_INTERNAL_HTTPS:-false}
+
+ecsContainerMetadataUriV4: ${ECS_CONTAINER_METADATA_URI_V4:-}
