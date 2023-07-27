@@ -10,7 +10,6 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 public final class UserEntityFixture {
     private Integer id = randomInt();
     private String externalId = "an-external-id";
-    private String username = "foo@example.com";
     private String password;
     private String email = "foo@example.com";
     private String otpKey = "an-otp-key";
@@ -43,10 +42,6 @@ public final class UserEntityFixture {
         return this;
     }
 
-    public UserEntityFixture withUsername(String username) {
-        this.username = username;
-        return this;
-    }
 
     public UserEntityFixture withPassword(String password) {
         this.password = password;
@@ -122,7 +117,6 @@ public final class UserEntityFixture {
         UserEntity userEntity = new UserEntity();
         userEntity.setId(id);
         userEntity.setExternalId(externalId);
-        userEntity.setUsername(username);
         userEntity.setPassword(password);
         userEntity.setEmail(email);
         userEntity.setOtpKey(otpKey);

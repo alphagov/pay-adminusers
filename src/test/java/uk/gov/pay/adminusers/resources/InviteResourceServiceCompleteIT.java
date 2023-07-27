@@ -51,7 +51,7 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
                 .body("$", not(hasKey("service_external_id")));
 
 
-        Map<String, Object> createdUser = databaseHelper.findUserByUsername(email).stream().findFirst().get();
+        Map<String, Object> createdUser = databaseHelper.findUserByEmail(email).stream().findFirst().get();
         Map<String, Object> invite = databaseHelper.findInviteByCode(inviteCode).stream().findFirst().get();
 
         assertThat(createdUser.get("password"), is(password));

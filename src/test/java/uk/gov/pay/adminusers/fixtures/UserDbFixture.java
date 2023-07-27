@@ -44,7 +44,7 @@ public class UserDbFixture {
                 .map(servicePair -> ServiceRole.from(servicePair.getLeft(), servicePair.getRight()))
                 .collect(toUnmodifiableList());
 
-        User user = User.from(randomInt(), externalId, username, password, email, otpKey, telephoneNumber,
+        User user = User.from(randomInt(), externalId, password, email, otpKey, telephoneNumber,
                 serviceRoles, features, secondFactorMethod, provisionalOtpKey, null, null);
 
         databaseTestHelper.add(user);

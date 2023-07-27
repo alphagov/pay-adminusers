@@ -38,7 +38,7 @@ public class ForgottenPasswordServices {
     }
 
     public void create(String username) {
-        Optional<UserEntity> userOptional = userDao.findByUsername(username);
+        Optional<UserEntity> userOptional = userDao.findByEmail(username);
         if (userOptional.isPresent()) {
             UserEntity userEntity = userOptional.get();
             ForgottenPasswordEntity forgottenPasswordEntity = new ForgottenPasswordEntity(randomUuid(), ZonedDateTime.now(), userEntity);

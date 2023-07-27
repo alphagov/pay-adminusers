@@ -25,7 +25,6 @@ class UserEntityTest {
     @Test
     void shouldConstructAUser_fromMinimalValidUserJson() throws Exception {
         String minimumUserJson = "{" +
-                "\"username\": \"a-username\"," +
                 "\"telephone_number\": \"+441134960000\"," +
                 "\"gateway_account_ids\": [\"1\", \"2\"]," +
                 "\"email\": \"email@example.com\"" +
@@ -37,7 +36,6 @@ class UserEntityTest {
 
         UserEntity userEntity = UserEntity.from(createUserRequest, otpKey);
 
-        assertThat(userEntity.getUsername(), is(createUserRequest.getUsername()));
         assertThat(userEntity.getPassword(), is(createUserRequest.getPassword()));
         assertThat(userEntity.getOtpKey(), is(otpKey));
         assertThat(userEntity.getTelephoneNumber().get(), is(createUserRequest.getTelephoneNumber()));

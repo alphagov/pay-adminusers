@@ -22,7 +22,6 @@ import static uk.gov.pay.adminusers.utils.Comparators.numericallyThenLexicograph
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class CreateUserRequest {
 
-    public static final String FIELD_USERNAME = "username";
     public static final String FIELD_PASSWORD = "password";
     public static final String FIELD_EMAIL = "email";
     public static final String FIELD_GATEWAY_ACCOUNT_IDS = "gateway_account_ids";
@@ -32,8 +31,6 @@ public class CreateUserRequest {
     public static final String FIELD_ROLE_NAME = "role_name";
     public static final String FIELD_FEATURES = "features";
 
-    @Schema(example = "user@somegovernmentdept.gov.uk")
-    private String username;
     private String password;
     @Schema(example = "user@somegovernmentdept.gov.uk")
     private String email;
@@ -48,9 +45,9 @@ public class CreateUserRequest {
     @Schema(example = "feature1, feature2")
     private String features;
 
-    public static CreateUserRequest from(String username, String password, String email,
+    public static CreateUserRequest from(String password, String email,
                                          List<String> gatewayAccountIds, List<String> serviceExternalIds, String otpKey, String telephoneNumber, String features) {
-        return new CreateUserRequest(username, password, email, gatewayAccountIds, serviceExternalIds, otpKey, telephoneNumber, features);
+        return new CreateUserRequest(password, email, gatewayAccountIds, serviceExternalIds, otpKey, telephoneNumber, features);
     }
 
     public static CreateUserRequest from(JsonNode node) {
@@ -59,13 +56,12 @@ public class CreateUserRequest {
 
         final List<String> serviceExternalIds = safelyGetList(node, FIELD_SERVICE_EXTERNAL_IDS);
 
-        String username = getNodeAsTextOrFail(node, FIELD_USERNAME);
-        String password = getOrElseRandom(node.get(FIELD_PASSWORD), randomUuid());
+           String password = getOrElseRandom(node.get(FIELD_PASSWORD), randomUuid());
         String email = getNodeAsTextOrFail(node, FIELD_EMAIL);
         String telephoneNumber = getNodeAsTextOrFail(node, FIELD_TELEPHONE_NUMBER);
         String otpKey = getNodeAsTextNullable(node, FIELD_OTP_KEY);
         String features = getOrElseRandom(node.get(FIELD_FEATURES), null);
-        return from(username, password, email, gatewayAccountIds, serviceExternalIds, otpKey, telephoneNumber, features);
+        return from(password, email, gatewayAccountIds, serviceExternalIds, otpKey, telephoneNumber, features);
     }
 
     private static List<String> safelyGetList(JsonNode node, String fieldName) {
@@ -96,11 +92,10 @@ public class CreateUserRequest {
         return elementNode == null || isBlank(elementNode.asText()) ? randomValue : elementNode.asText();
     }
 
-    private CreateUserRequest(@JsonProperty("username") String username, @JsonProperty("password") String password,
+    private CreateUserRequest(@JsonProperty("password") String password,
                               @JsonProperty("email") String email,
                               @JsonProperty("gateway_account_ids") List<String> gatewayAccountIds, @JsonProperty("service_external_ids") List<String> serviceExternalIds,
                               @JsonProperty("otp_key") String otpKey, @JsonProperty("telephone_number") String telephoneNumber, @JsonProperty("features") String features) {
-        this.username = username;
         this.password = password;
         this.email = email;
         this.gatewayAccountIds = gatewayAccountIds;
@@ -110,9 +105,6 @@ public class CreateUserRequest {
         this.features = features;
     }
 
-    public String getUsername() {
-        return username;
-    }
 
     @JsonIgnore
     public String getPassword() {

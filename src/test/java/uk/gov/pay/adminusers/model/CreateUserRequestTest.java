@@ -17,7 +17,6 @@ class CreateUserRequestTest {
     @Test
     void shouldConstructAUser_fromMinimalValidUserJson() throws Exception {
         String minimumUserJson = "{" +
-                "\"username\": \"a-username\"," +
                 "\"telephone_number\": \"2123524\"," +
                 "\"gateway_account_ids\": [\"1\", \"2\"]," +
                 "\"email\": \"email@example.com\"" +
@@ -26,7 +25,6 @@ class CreateUserRequestTest {
         JsonNode jsonNode = objectMapper.readTree(minimumUserJson);
         CreateUserRequest createUserRequest = CreateUserRequest.from(jsonNode);
 
-        assertThat(createUserRequest.getUsername(), is("a-username"));
         assertThat(createUserRequest.getPassword(), notNullValue());
         assertThat(createUserRequest.getOtpKey(), notNullValue());
         assertThat(createUserRequest.getGatewayAccountIds().size(), is(2));
@@ -39,7 +37,6 @@ class CreateUserRequestTest {
     @Test
     void shouldConstructAUser_fromCompleteValidUserJson() throws Exception {
         String minimunUserJson = "{" +
-                "\"username\": \"a-username\"," +
                 "\"password\": \"a-password\"," +
                 "\"telephone_number\": \"2123524\"," +
                 "\"gateway_account_ids\": [\"1\", \"2\"]," +
@@ -50,7 +47,6 @@ class CreateUserRequestTest {
         JsonNode jsonNode = objectMapper.readTree(minimunUserJson);
         CreateUserRequest createUserRequest = CreateUserRequest.from(jsonNode);
 
-        assertThat(createUserRequest.getUsername(), is("a-username"));
         assertThat(createUserRequest.getPassword(), is("a-password"));
         assertThat(createUserRequest.getGatewayAccountIds().size(), is(2));
         assertThat(createUserRequest.getGatewayAccountIds().get(0), is("1"));

@@ -219,7 +219,6 @@ public class InviteEntity extends AbstractEntity {
     public UserEntity mapToUserEntity(SecondFactorMethod secondFactor) {
         UserEntity userEntity = new UserEntity();
         userEntity.setExternalId(RandomIdGenerator.randomUuid());
-        userEntity.setUsername(email);
         userEntity.setPassword(password);
         userEntity.setEmail(email);
         userEntity.setOtpKey(otpKey);

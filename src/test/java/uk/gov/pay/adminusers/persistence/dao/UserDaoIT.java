@@ -68,7 +68,6 @@ public class UserDaoIT extends DaoTestBase {
 
         UserEntity userEntity = new UserEntity();
         userEntity.setExternalId(randomUuid());
-        userEntity.setUsername(username);
         userEntity.setPassword("password-" + username);
         userEntity.setDisabled(false);
         userEntity.setEmail(username + "@example.com");
@@ -95,7 +94,6 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(savedUserData.size(), is(1));
         assertThat((String) savedUserData.get(0).get("external_id"), not(emptyOrNullString()));
         assertThat(((String) savedUserData.get(0).get("external_id")).length(), equalTo(32));
-        assertThat(savedUserData.get(0).get("username"), is(userEntity.getUsername()));
         assertThat(savedUserData.get(0).get("password"), is(userEntity.getPassword()));
         assertThat(savedUserData.get(0).get("email"), is(userEntity.getEmail()));
         assertThat(savedUserData.get(0).get("otp_key"), is(userEntity.getOtpKey()));
@@ -120,12 +118,10 @@ public class UserDaoIT extends DaoTestBase {
                 .insertService().getId();
         int serviceId2 = serviceDbFixture(databaseHelper)
                 .insertService().getId();
-        String username = randomUuid();
-        String email = username + "@example.com";
+        String email = randomUuid() + "@example.com";
         User user = userDbFixture(databaseHelper)
                 .withServiceRole(serviceId1, role.getId())
                 .withServiceRole(serviceId2, role.getId())
-                .withUsername(username)
                 .withEmail(email)
                 .insertUser();
 
@@ -137,7 +133,6 @@ public class UserDaoIT extends DaoTestBase {
 
         UserEntity foundUser = userEntityMaybe.get();
         assertThat(foundUser.getExternalId(), is(externalId));
-        assertThat(foundUser.getUsername(), is(username));
         assertThat(foundUser.getEmail(), is(email));
         assertThat(foundUser.getOtpKey(), is(otpKey));
         assertThat(foundUser.getTelephoneNumber().get(), is("+447700900000"));
@@ -189,7 +184,6 @@ public class UserDaoIT extends DaoTestBase {
 
         UserEntity foundUser1 = userEntities.get(0);
         assertThat(foundUser1.getExternalId(), is(user1.getExternalId()));
-        assertThat(foundUser1.getUsername(), is(user1.getUsername()));
         assertThat(foundUser1.getEmail(), is(user1.getEmail()));
         assertThat(foundUser1.getOtpKey(), is(user1.getOtpKey()));
         assertThat(foundUser1.getTelephoneNumber().get(), is("+447700900000"));
@@ -202,7 +196,6 @@ public class UserDaoIT extends DaoTestBase {
 
         UserEntity foundUser2 = userEntities.get(1);
         assertThat(foundUser2.getExternalId(), is(user2.getExternalId()));
-        assertThat(foundUser2.getUsername(), is(user2.getUsername()));
         assertThat(foundUser2.getEmail(), is(user2.getEmail()));
         assertThat(foundUser2.getOtpKey(), is(user2.getOtpKey()));
         assertThat(foundUser2.getTelephoneNumber().get(), is("+447700900000"));
@@ -215,7 +208,7 @@ public class UserDaoIT extends DaoTestBase {
     }
 
     @Test
-    public void shouldFindUserBy_Username_caseInsensitive() {
+    public void shouldFindUserBy_UserEmail_caseInsensitive() {
         Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId = serviceDbFixture(databaseHelper)
                 .insertService().getId();
@@ -226,12 +219,11 @@ public class UserDaoIT extends DaoTestBase {
 
         String otpKey = user.getOtpKey();
 
-        Optional<UserEntity> userEntityMaybe = userDao.findByUsername(username.toUpperCase(Locale.ENGLISH));
+        Optional<UserEntity> userEntityMaybe = userDao.findByEmail(email.toLowerCase(Locale.ENGLISH));
         assertTrue(userEntityMaybe.isPresent());
 
         UserEntity foundUser = userEntityMaybe.get();
         assertThat(foundUser.getEmail(), is(email));
-        assertThat(foundUser.getUsername(), is(username));
         assertThat(foundUser.getOtpKey(), is(otpKey));
         assertThat(foundUser.getTelephoneNumber().get(), is("+447700900000"));
         assertThat(foundUser.isDisabled(), is(false));
@@ -256,7 +248,6 @@ public class UserDaoIT extends DaoTestBase {
         assertTrue(userEntityMaybe.isPresent());
 
         UserEntity foundUser = userEntityMaybe.get();
-        assertThat(foundUser.getUsername(), is(username));
         assertThat(foundUser.getEmail(), is(email));
         assertThat(foundUser.getOtpKey(), is(otpKey));
         assertThat(foundUser.getTelephoneNumber().get(), is("+447700900000"));
@@ -286,7 +277,7 @@ public class UserDaoIT extends DaoTestBase {
         userDbFixture(databaseHelper)
                 .withServiceRole(service1, role1.getId()).withUsername(username).withEmail(email).insertUser();
 
-        UserEntity existingUser = userDao.findByUsername(username).get();
+        UserEntity existingUser = userDao.findByEmail(email).get();
 
         assertThat(existingUser.getGatewayAccountId(), is(gatewayAccountId1));
         assertThat(existingUser.getRoles().size(), is(1));
@@ -300,7 +291,7 @@ public class UserDaoIT extends DaoTestBase {
         existingUser.addServiceRole(serviceRole);
         userDao.merge(existingUser);
 
-        UserEntity changedUser = userDao.findByUsername(username).get();
+        UserEntity changedUser = userDao.findByEmail(email).get();
         List<ServiceRoleEntity> servicesRoles = changedUser.getServicesRoles();
         assertThat(servicesRoles.size(), is(2));
         assertThat(servicesRoles.stream().map(sr -> sr.getService().getExternalId()).collect(toUnmodifiableList()),
@@ -370,7 +361,6 @@ public class UserDaoIT extends DaoTestBase {
 
         UserEntity userEntity = new UserEntity();
         userEntity.setExternalId(randomUuid());
-        userEntity.setUsername("User@example.com");
         userEntity.setPassword("password-" + username);
         userEntity.setDisabled(false);
         userEntity.setEmail("User@example.com");

@@ -167,7 +167,7 @@ public class ServiceRoleUpdaterTest {
     }
 
     private User aUser(String externalId) {
-        return User.from(randomInt(), externalId, "random-name", "random-password", "random@example.com",
+        return User.from(randomInt(), externalId, "random-password", "random@example.com",
                 "784rh", "8948924", emptyList(), null, SecondFactorMethod.SMS,
                 null, null, null);
     }

@@ -77,9 +77,9 @@ public class UserServicesTest {
     private UserServices underTest;
 
     private static final String USER_EXTERNAL_ID = "7d19aff33f8948deb97ed16b2912dcd3";
-    private static final String USER_USERNAME = "random-name";
+    private static final String USER_EMAIL = "random-name@example.com";
     private static final String ANOTHER_USER_EXTERNAL_ID = "7d19aff33f8948deb97ed16b2912dcd4";
-    private static final String ANOTHER_USER_USERNAME = "another-random-name";
+    private static final String ANOTHER_USER_EMAIL = "another-random-name@example.com";
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -135,19 +135,19 @@ public class UserServicesTest {
         UserEntity userEntity = aUserEntityWithTrimmings(user);
 
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
-        when(mockUserDao.findByUsername(USER_USERNAME)).thenReturn(userEntityOptional);
+        when(mockUserDao.findByEmail(USER_EMAIL)).thenReturn(userEntityOptional);
 
-        Optional<User> userOptional = underTest.findUserByUsername(USER_USERNAME);
+        Optional<User> userOptional = underTest.findUserByEmail(USER_EMAIL);
         assertTrue(userOptional.isPresent());
 
-        assertThat(userOptional.get().getUsername(), is(USER_USERNAME));
+        assertThat(userOptional.get().getUsername(), is(USER_EMAIL));
     }
 
     @Test
-    void shouldReturnEmpty_WhenFindByUserName_ifNotFound() {
-        when(mockUserDao.findByUsername(USER_USERNAME)).thenReturn(Optional.empty());
+    void shouldReturnEmpty_WhenfindByEmail_ifNotFound() {
+        when(mockUserDao.findByEmail(USER_EMAIL)).thenReturn(Optional.empty());
 
-        Optional<User> userOptional = underTest.findUserByUsername(USER_USERNAME);
+        Optional<User> userOptional = underTest.findUserByEmail(USER_EMAIL);
         assertFalse(userOptional.isPresent());
     }
 
@@ -158,19 +158,19 @@ public class UserServicesTest {
         UserEntity userEntity = aUserEntityWithTrimmings(user);
 
         Optional<UserEntity> userEntityOptional = Optional.of(userEntity);
-        when(mockUserDao.findByEmail(USER_USERNAME)).thenReturn(userEntityOptional);
+        when(mockUserDao.findByEmail(USER_EMAIL)).thenReturn(userEntityOptional);
 
-        Optional<User> userOptional = underTest.findUserByEmail(USER_USERNAME);
+        Optional<User> userOptional = underTest.findUserByEmail(USER_EMAIL);
         assertTrue(userOptional.isPresent());
 
-        assertThat(userOptional.get().getUsername(), is(USER_USERNAME));
+        assertThat(userOptional.get().getUsername(), is(USER_EMAIL));
     }
 
     @Test
     void shouldReturnEmpty_WhenFindByEmail_ifNotFound() {
-        when(mockUserDao.findByEmail(USER_USERNAME)).thenReturn(Optional.empty());
+        when(mockUserDao.findByEmail(USER_EMAIL)).thenReturn(Optional.empty());
 
-        Optional<User> userOptional = underTest.findUserByEmail(USER_USERNAME);
+        Optional<User> userOptional = underTest.findUserByEmail(USER_EMAIL);
         assertFalse(userOptional.isPresent());
     }
 
@@ -183,14 +183,14 @@ public class UserServicesTest {
         userEntity.setPassword("hashed-password");
 
         when(mockPasswordHasher.isEqual("random-password", "hashed-password")).thenReturn(true);
-        when(mockUserDao.findByUsername(USER_USERNAME)).thenReturn(Optional.of(userEntity));
+        when(mockUserDao.findByEmail(USER_EMAIL)).thenReturn(Optional.of(userEntity));
         when(mockUserDao.merge(userEntityArgumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        Optional<User> userOptional = underTest.authenticate(USER_USERNAME, "random-password");
+        Optional<User> userOptional = underTest.authenticate(USER_EMAIL, "random-password");
         assertTrue(userOptional.isPresent());
 
         User authenticatedUser = userOptional.get();
-        assertThat(authenticatedUser.getUsername(), is(USER_USERNAME));
+        assertThat(authenticatedUser.getUsername(), is(USER_EMAIL));
         assertThat(authenticatedUser.getLinks().size(), is(1));
         assertThat(userEntityArgumentCaptor.getValue().getLoginCounter(), is(0));
     }
@@ -205,13 +205,13 @@ public class UserServicesTest {
         userEntity.setPassword("hashed-password");
 
         when(mockPasswordHasher.isEqual("random-password", "hashed-password")).thenReturn(true);
-        when(mockUserDao.findByUsername(USER_USERNAME)).thenReturn(Optional.of(userEntity));
+        when(mockUserDao.findByEmail(USER_EMAIL)).thenReturn(Optional.of(userEntity));
 
-        Optional<User> userOptional = underTest.authenticate(USER_USERNAME, "random-password");
+        Optional<User> userOptional = underTest.authenticate(USER_EMAIL, "random-password");
         assertTrue(userOptional.isPresent());
 
         User authenticatedUser = userOptional.get();
-        assertThat(authenticatedUser.getUsername(), is(USER_USERNAME));
+        assertThat(authenticatedUser.getUsername(), is(USER_EMAIL));
         assertThat(authenticatedUser.isDisabled(), is(true));
         assertThat(authenticatedUser.getLinks().size(), is(1));
         assertThat(userEntity.getLoginCounter(), is(2));
@@ -224,10 +224,10 @@ public class UserServicesTest {
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         userEntity.setPassword("hashed-password");
 
-        when(mockUserDao.findByUsername(USER_USERNAME)).thenReturn(Optional.of(UserEntity.from(user)));
+        when(mockUserDao.findByEmail(USER_EMAIL)).thenReturn(Optional.of(UserEntity.from(user)));
         when(mockUserDao.merge(userEntityArgumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        Optional<User> userOptional = underTest.authenticate(USER_USERNAME, "random-password");
+        Optional<User> userOptional = underTest.authenticate(USER_EMAIL, "random-password");
         assertFalse(userOptional.isPresent());
 
         UserEntity savedUser = userEntityArgumentCaptor.getValue();
@@ -243,10 +243,10 @@ public class UserServicesTest {
         UserEntity userEntity = aUserEntityWithTrimmings(user);
         userEntity.setPassword("hashed-password");
 
-        when(mockUserDao.findByUsername(USER_USERNAME)).thenReturn(Optional.of(UserEntity.from(user)));
+        when(mockUserDao.findByEmail(USER_EMAIL)).thenReturn(Optional.of(UserEntity.from(user)));
         when(mockUserDao.merge(userEntityArgumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        underTest.authenticate(USER_USERNAME, "random-password");
+        underTest.authenticate(USER_EMAIL, "random-password");
         UserEntity savedUser = userEntityArgumentCaptor.getValue();
         assertTrue(within(3, SECONDS, savedUser.getCreatedAt()).matches(savedUser.getUpdatedAt()));
         assertThat(savedUser.getLoginCounter(), is(3));
@@ -730,11 +730,11 @@ public class UserServicesTest {
     }
 
     private User aUser() {
-        return User.from(randomInt(), USER_EXTERNAL_ID, USER_USERNAME, "random-password", "email@example.com", "784rh", "8948924", emptyList(), null, SecondFactorMethod.SMS, null, null, null);
+        return User.from(randomInt(), USER_EXTERNAL_ID,"random-password", USER_EMAIL, "784rh", "8948924", emptyList(), null, SecondFactorMethod.SMS, null, null, null);
     }
 
     private User anotherUser() {
-        return User.from(randomInt(), ANOTHER_USER_EXTERNAL_ID, ANOTHER_USER_USERNAME, "random-password", "email@example.com", "784rh", "8948924", emptyList(), null, SecondFactorMethod.SMS, null, null, null);
+        return User.from(randomInt(), ANOTHER_USER_EXTERNAL_ID, "random-password", ANOTHER_USER_EMAIL, "784rh", "8948924", emptyList(), null, SecondFactorMethod.SMS, null, null, null);
     }
 
     private Role aRole() {
@@ -762,8 +762,7 @@ public class UserServicesTest {
 
     public static UserEntity aUserEntityWithRoleForService(Service service, boolean isAdmin, String username) {
         UserEntity userEntity = new UserEntity();
-        userEntity.setUsername(username);
-        userEntity.setEmail(format("%s@service.gov.uk", userEntity.getUsername()));
+        userEntity.setEmail(format("%s@service.gov.uk",username));
         Role role = role(isAdmin ? 2 : 1, "role", "role-desc");
         role.setPermissions(Set.of(
                 permission(1, "perm1", "perm1 desc"), 

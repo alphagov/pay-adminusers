@@ -47,7 +47,7 @@ public class ServiceNameTest {
     }
 
     @Test
-    public void shouldIgnoreNonEnglishServiceNameIfBlank() {
+        public void shouldIgnoreNonEnglishServiceNameIfBlank() {
         ServiceName serviceName = new ServiceName(ENGLISH_SERVICE_NAME, Map.of(SupportedLanguage.WELSH, "  "));
 
         assertThat(serviceName.getEnglish(), is(ENGLISH_SERVICE_NAME));
