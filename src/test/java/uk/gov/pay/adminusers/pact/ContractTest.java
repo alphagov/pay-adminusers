@@ -55,23 +55,23 @@ public abstract class ContractTest {
     public void aUserExistsWithAForgottenPasswordRequest() {
         String code = "avalidforgottenpasswordtoken";
         String userExternalId = randomUuid();
-        createUserWithinAService(userExternalId, randomUuid(), "password", "cp5wa");
+        createUserWithinAService(userExternalId, randomUuid() + "@example.com", "password", "cp5wa");
         List<Map<String, Object>> userByExternalId = dbHelper.findUserByExternalId(userExternalId);
         dbHelper.add(ForgottenPassword.forgottenPassword(code, userExternalId), (Integer) userByExternalId.get(0).get("id"));
     }
 
     @State("a user exists with max login attempts")
     public void aUserExistsWithMaxLoginAttempts() {
-        String username = "user-login-attempts-max";
-        createUserWithinAService(randomUuid(), username, "password", "cp5wa");
-        dbHelper.updateLoginCount(username, 10);
+        String email = "user-login-attempts-max@example.com";
+        createUserWithinAService(randomUuid(), email, "password", "cp5wa");
+        dbHelper.updateLoginCount(email, 10);
     }
 
     @State("a forgotten password entry exist")
     public void aForgottenPasswordEntryExist() {
         String code = "existing-code";
         String existingUserExternalId = "7d19aff33f8948deb97ed16b2912dcd3";
-        createUserWithinAService(existingUserExternalId, "forgotten-password-user", "password", "cp5wa");
+        createUserWithinAService(existingUserExternalId, "forgotten-password-user@example.com", "password", "cp5wa");
         List<Map<String, Object>> userByName = dbHelper.findUserByExternalId(existingUserExternalId);
         dbHelper.add(ForgottenPassword.forgottenPassword(code, existingUserExternalId), (Integer) userByName.get(0).get("id"));
     }
@@ -125,12 +125,12 @@ public abstract class ContractTest {
 
     @State({"a user exists with the given external id 7d19aff33f8948deb97ed16b2912dcd3",
             "a user exists",
-            "a user exists with username existing-user",
-            "a user exists with username existing-user and password password",
+            "a user exists with email existing-user@example.com",
+            "a user exists with email existing-user@example.com and password password",
             "a user exists with role for service with id cp5wa",
             "a user exists with external id 7d19aff33f8948deb97ed16b2912dcd3 with admin role for service with id cp5wa"})
     public void aUserExistsWithGivenExternalId() {
-        createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", "password", "cp5wa");
+        createUserWithinAService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user@example.com", "password", "cp5wa");
     }
 
     @State("a user exists external id 7d19aff33f8948deb97ed16b2912dcd3 and a service exists with external id cp5wa")
@@ -177,8 +177,8 @@ public abstract class ContractTest {
                 .insertService();
 
         Role role = createRole();
-        createUserWithRoleForService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user", "password", role, service);
-        createUserWithRoleForService("admin-2-id", "admin-2", "password", role, service);
+        createUserWithRoleForService("7d19aff33f8948deb97ed16b2912dcd3", "existing-user@example.com", "password", role, service);
+        createUserWithRoleForService("admin-2-id", "admin-2@example.com", "password", role, service);
     }
 
     @State("a valid self-signup invite exists with invite code an-invite-code")
@@ -210,7 +210,7 @@ public abstract class ContractTest {
                 .insertInviteToAddUserToService();
     }
 
-    private static void createUserWithinAService(String externalId, String username, String password, String serviceExternalId) {
+    private static void createUserWithinAService(String externalId, String email, String password, String serviceExternalId) {
         String gatewayAccount1 = randomNumeric(5);
         String gatewayAccount2 = randomNumeric(5);
         Service service = serviceDbFixture(dbHelper)
@@ -219,7 +219,7 @@ public abstract class ContractTest {
                 .insertService();
 
         Role role = createRole();
-        createUserWithRoleForService(externalId, username, password, role, service);
+        createUserWithRoleForService(externalId, email, password, role, service);
     }
 
     private static Role createRole() {
@@ -230,11 +230,11 @@ public abstract class ContractTest {
                 Permission.permission(randomInt(), "perm-3", "permission-3-description"));
     }
 
-    private static void createUserWithRoleForService(String externalId, String username, String password, Role role, Service service) {
+    private static void createUserWithRoleForService(String externalId, String email, String password, Role role, Service service) {
         userDbFixture(dbHelper)
                 .withExternalId(externalId)
                 .withPassword(PASSWORD_HASHER.hash(password))
-                .withEmail("user-" + username + "@example.com")
+                .withEmail(email)
                 .withTelephoneNumber("45334534634")
                 .withOtpKey("34f34")
                 .withProvisionalOtpKey("94423")
