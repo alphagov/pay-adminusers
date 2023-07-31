@@ -26,7 +26,7 @@ class UserResourceCreateServiceRoleIT extends IntegrationTest {
         Service service = serviceDbFixture(databaseHelper).insertService();
         String username = randomUuid();
         String email = username + "@example.com";
-        User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
+        User user = userDbFixture(databaseHelper).withEmail(email).insertUser();
 
         JsonNode payload = mapper.valueToTree(Map.of("service_external_id", service.getExternalId(), "role_name", role.getName()));
 
@@ -49,7 +49,7 @@ class UserResourceCreateServiceRoleIT extends IntegrationTest {
         serviceDbFixture(databaseHelper).insertService();
         String username = randomUuid();
         String email = username + "@example.com";
-        User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
+        User user = userDbFixture(databaseHelper).withEmail(email).insertUser();
 
         JsonNode payload = mapper.valueToTree(Map.of("role_name", role.getName()));
 
@@ -72,7 +72,7 @@ class UserResourceCreateServiceRoleIT extends IntegrationTest {
         Service service = serviceDbFixture(databaseHelper).insertService();
         String username = randomUuid();
         String email = username + "@example.com";
-        User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withUsername(username).withEmail(email).insertUser();
+        User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email).insertUser();
 
         JsonNode payload = mapper.valueToTree(Map.of("service_external_id", service.getExternalId(), "role_name", roleName));
 

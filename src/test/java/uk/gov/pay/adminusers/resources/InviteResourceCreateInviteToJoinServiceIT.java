@@ -52,7 +52,6 @@ class InviteResourceCreateInviteToJoinServiceIT extends IntegrationTest {
         String email = username + "@example.com";
         senderExternalId = userDbFixture(databaseHelper)
                 .withServiceRole(service.getId(), ADMIN.getId())
-                .withUsername(username)
                 .withEmail(email)
                 .insertUser()
                 .getExternalId();
@@ -128,7 +127,6 @@ class InviteResourceCreateInviteToJoinServiceIT extends IntegrationTest {
                 .withServiceId(serviceId)
                 .insertInviteToAddUserToService();
         User user = userDbFixture(databaseHelper)
-                .withUsername(existingUserUsername)
                 .withEmail(existingUserEmail)
                 .withServiceRole(Service.from(serviceId, serviceExternalId, new ServiceName("service name")), 2)
                 .insertUser();
@@ -221,7 +219,6 @@ class InviteResourceCreateInviteToJoinServiceIT extends IntegrationTest {
         String senderEmail = senderUsername + "@example.com";
         String senderWithNoAdminRole = userDbFixture(databaseHelper)
                 .withServiceRole(service.getId(), otherRoleId)
-                .withUsername(senderUsername)
                 .withEmail(senderEmail)
                 .insertUser().getExternalId();
 
@@ -251,7 +248,6 @@ class InviteResourceCreateInviteToJoinServiceIT extends IntegrationTest {
         String senderEmail = senderUsername + "@example.com";
         String senderExternalId = userDbFixture(databaseHelper)
                 .withServiceRole(otherService.getId(), ADMIN.getId())
-                .withUsername(senderUsername)
                 .withEmail(senderEmail)
                 .insertUser().getExternalId();
 

@@ -156,7 +156,6 @@ public class UserDaoIT extends DaoTestBase {
         User user1 = userDbFixture(databaseHelper)
                 .withServiceRole(serviceId1, role.getId())
                 .withServiceRole(serviceId2, role.getId())
-                .withUsername(username1)
                 .withEmail(email1)
                 .insertUser();
         String username2 = randomUuid();
@@ -164,7 +163,6 @@ public class UserDaoIT extends DaoTestBase {
         User user2 = userDbFixture(databaseHelper)
                 .withServiceRole(serviceId1, role.getId())
                 .withServiceRole(serviceId2, role.getId())
-                .withUsername(username2)
                 .withEmail(email2)
                 .insertUser();
         // Add third user to prove we're not just returning all users
@@ -173,7 +171,6 @@ public class UserDaoIT extends DaoTestBase {
         userDbFixture(databaseHelper)
                 .withServiceRole(serviceId1, role.getId())
                 .withServiceRole(serviceId2, role.getId())
-                .withUsername(username3)
                 .withEmail(email3)
                 .insertUser();
 
@@ -215,7 +212,7 @@ public class UserDaoIT extends DaoTestBase {
         String username = randomUuid();
         String email = username + "@example.com";
         User user = userDbFixture(databaseHelper)
-                .withServiceRole(serviceId, role.getId()).withUsername(username).withEmail(email).insertUser();
+                .withServiceRole(serviceId, role.getId()).withEmail(email).insertUser();
 
         String otpKey = user.getOtpKey();
 
@@ -240,7 +237,7 @@ public class UserDaoIT extends DaoTestBase {
         String username = randomUuid();
         String email = username + "@example.com";
         User user = userDbFixture(databaseHelper)
-                .withServiceRole(serviceId, role.getId()).withUsername(username).withEmail(email).insertUser();
+                .withServiceRole(serviceId, role.getId()).withEmail(email).insertUser();
 
         String otpKey = user.getOtpKey();
 
@@ -275,7 +272,7 @@ public class UserDaoIT extends DaoTestBase {
         String email = username + "@example.com";
 
         userDbFixture(databaseHelper)
-                .withServiceRole(service1, role1.getId()).withUsername(username).withEmail(email).insertUser();
+                .withServiceRole(service1, role1.getId()).withEmail(email).insertUser();
 
         UserEntity existingUser = userDao.findByEmail(email).get();
 
@@ -316,14 +313,12 @@ public class UserDaoIT extends DaoTestBase {
         String username1 = "thomas" + randomUuid();
         String email1 = username1 + "@example.com";
         User user1 = userDbFixture(databaseHelper)
-                .withUsername(username1)
                 .withEmail(email1)
                 .withServiceRole(serviceId, role1.getId()).insertUser();
 
         String username2 = "bob" + randomUuid();
         String email2 = username2 + "@example.com";
         User user2 = userDbFixture(databaseHelper)
-                .withUsername(username2)
                 .withEmail(email2)
                 .withServiceRole(serviceId, role2.getId()).insertUser();
 
@@ -351,7 +346,6 @@ public class UserDaoIT extends DaoTestBase {
 
         int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
         userDbFixture(databaseHelper)
-                .withUsername("user@example.com")
                 .withEmail("user@example.com")
                 .withServiceRole(serviceId, existingRole.getId()).insertUser();
 

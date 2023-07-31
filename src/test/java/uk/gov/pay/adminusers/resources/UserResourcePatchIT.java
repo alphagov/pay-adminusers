@@ -22,7 +22,7 @@ class UserResourcePatchIT extends IntegrationTest {
     void createAUser() {
         String username = randomUuid();
         String email = username + "@example.com";
-        User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
+        User user = userDbFixture(databaseHelper).withEmail(email).insertUser();
 
         externalId = user.getExternalId();
     }

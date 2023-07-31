@@ -43,7 +43,7 @@ public class ForgottenPasswordDaoIT extends DaoTestBase {
         String forgottenPasswordCode = random(10);
         String username = randomUuid();
         String email = username + "@example.com";
-        User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
+        User user = userDbFixture(databaseHelper).withEmail(email).insertUser();
         String userExternalId = user.getExternalId();
         UserEntity userEntity = userDao.findByExternalId(userExternalId).get();
 
@@ -68,7 +68,7 @@ public class ForgottenPasswordDaoIT extends DaoTestBase {
         String forgottenPasswordCode = random(10);
         String username = randomUuid();
         String email = username + "@example.com";
-        User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
+        User user = userDbFixture(databaseHelper).withEmail(email).insertUser();
         String userExternalId = user.getExternalId();
         UserEntity userEntity = userDao.findByExternalId(userExternalId).get();
 
@@ -90,7 +90,7 @@ public class ForgottenPasswordDaoIT extends DaoTestBase {
         String forgottenPasswordCode = randomUuid();
         String username = randomUuid();
         String email = username + "@example.com";
-        User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
+        User user = userDbFixture(databaseHelper).withEmail(email).insertUser();
         String userExternalId = user.getExternalId();
         UserEntity userEntity = userDao.findByExternalId(userExternalId).get();
 
@@ -108,7 +108,7 @@ public class ForgottenPasswordDaoIT extends DaoTestBase {
         String forgottenPasswordCode = randomUuid();
         String username = randomUuid();
         String email = username + "@example.com";
-        User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
+        User user = userDbFixture(databaseHelper).withEmail(email).insertUser();
         String userExternalId = user.getExternalId();
         UserEntity userEntity = userDao.findByExternalId(userExternalId).get();
 

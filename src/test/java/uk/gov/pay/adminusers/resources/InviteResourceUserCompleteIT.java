@@ -30,7 +30,6 @@ class InviteResourceUserCompleteIT extends IntegrationTest {
         userDbFixture(databaseHelper)
                 .withExternalId(userExternalId)
                 .withEmail(email)
-                .withUsername(email)
                 .insertUser();
 
         String inviteCode = inviteDbFixture(databaseHelper)
@@ -90,7 +89,6 @@ class InviteResourceUserCompleteIT extends IntegrationTest {
         userDbFixture(databaseHelper)
                 .withExternalId(userExternalId)
                 .withEmail(email)
-                .withUsername(username)
                 .insertUser();
 
         String inviteCode = inviteDbFixture(databaseHelper)

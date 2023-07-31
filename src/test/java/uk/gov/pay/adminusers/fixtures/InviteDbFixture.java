@@ -42,7 +42,6 @@ public class InviteDbFixture {
         String userEmail = userUsername + "@example.com";
         int invitingUserId =
                 UserDbFixture.userDbFixture(databaseTestHelper)
-                        .withUsername(userUsername)
                         .withEmail(userEmail)
                         .insertUser()
                         .getId();
@@ -60,7 +59,6 @@ public class InviteDbFixture {
         String userEmail = userUsername + "@example.com";
         int invitingUserId =
                 UserDbFixture.userDbFixture(databaseTestHelper)
-                        .withUsername(userUsername)
                         .withEmail(userEmail)
                         .insertUser()
                         .getId();

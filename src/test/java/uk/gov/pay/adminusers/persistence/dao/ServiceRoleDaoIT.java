@@ -36,7 +36,6 @@ public class ServiceRoleDaoIT extends DaoTestBase {
         User user =
                 UserDbFixture.userDbFixture(databaseHelper)
                         .withServiceRole(service, roleId)
-                        .withUsername(username)
                         .withEmail(email)
                         .insertUser();
         UserServiceId userServiceId = new UserServiceId();

@@ -45,7 +45,6 @@ public class ServiceResourceIT extends IntegrationTest {
         String email1 = username1 + "@example.com";
         userWithRoleAdminInService1 = userDbFixture(databaseHelper)
                 .withServiceRole(service, roleAdmin.getId())
-                .withUsername(username1)
                 .withEmail(email1)
                 .insertUser();
 
@@ -53,7 +52,6 @@ public class ServiceResourceIT extends IntegrationTest {
         String email2 = username2 + "@example.com";
         user1WithRoleViewInService1 = userDbFixture(databaseHelper)
                 .withServiceRole(service, roleView.getId())
-                .withUsername(username2)
                 .withEmail(email2)
                 .insertUser();
 
@@ -61,7 +59,6 @@ public class ServiceResourceIT extends IntegrationTest {
         String email3 = username3 + "@example.com";
         userDbFixture(databaseHelper)
                 .withServiceRole(service, roleView.getId())
-                .withUsername(username3)
                 .withEmail(email3)
                 .insertUser();
     }

@@ -174,7 +174,7 @@ public class UserResourceCreateIT extends IntegrationTest {
         serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount).insertService();
         String username = randomUuid();
         String email = username + "@example.com";
-        userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
+        userDbFixture(databaseHelper).withEmail(email).insertUser();
 
         Map<Object, Object> userPayload = Map.of(
                 "username", username,

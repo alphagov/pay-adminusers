@@ -26,10 +26,10 @@ public class UserResourceUpdateServiceRoleIT extends IntegrationTest {
         String serviceExternalId = service.getExternalId();
         String username1 = randomUuid();
         String email1 = username1 + "@example.com";
-        User user = userDbFixture(databaseHelper).withServiceRole(service, role.getId()).withUsername(username1).withEmail(email1).insertUser();
+        User user = userDbFixture(databaseHelper).withServiceRole(service, role.getId()).withEmail(email1).insertUser();
         String username2 = randomUuid();
         String email2 = username2 + "@example.com";
-        userDbFixture(databaseHelper).withServiceRole(service, role.getId()).withUsername(username2).withEmail(email2).insertUser();
+        userDbFixture(databaseHelper).withServiceRole(service, role.getId()).withEmail(email2).insertUser();
 
         JsonNode payload = mapper.valueToTree(Map.of("role_name", "view-and-refund"));
 
@@ -66,7 +66,7 @@ public class UserResourceUpdateServiceRoleIT extends IntegrationTest {
         String serviceExternalId = service.getExternalId();
         String username = randomUuid();
         String email = username + "@example.com";
-        User user = userDbFixture(databaseHelper).withServiceRole(service, role.getId()).withUsername(username).withEmail(email).insertUser();
+        User user = userDbFixture(databaseHelper).withServiceRole(service, role.getId()).withEmail(email).insertUser();
 
         JsonNode payload = mapper.valueToTree(Map.of("role_name", "view-and-refund"));
 
