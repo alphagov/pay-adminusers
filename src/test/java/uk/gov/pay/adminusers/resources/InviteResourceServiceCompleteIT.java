@@ -121,7 +121,6 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
         Map<String, String> payload = Map.of("second_factor", "SMS");
 
         userDbFixture(databaseHelper)
-                .withUsername(username)
                 .withEmail(email)
                 .insertUser();
 

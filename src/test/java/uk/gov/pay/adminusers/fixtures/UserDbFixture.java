@@ -22,10 +22,9 @@ public class UserDbFixture {
     private final DatabaseTestHelper databaseTestHelper;
     private List<Pair<Service, Role>> serviceRolePairs = new ArrayList<>();
     private String externalId = randomUuid();
-    private String username = randomUuid();
     private String otpKey = RandomStringUtils.randomAlphabetic(10);
-    private String password = "password-" + username;
-    private String email = username + "@example.com";
+    private String password = "password-" + randomUuid();
+    private String email = randomUuid() + "@example.com";
     private String telephoneNumber = "+447700900000";
     private String features = "FEATURE_1, FEATURE_2";
     private String provisionalOtpKey;
@@ -67,11 +66,6 @@ public class UserDbFixture {
 
     public UserDbFixture withExternalId(String externalId) {
         this.externalId = externalId;
-        return this;
-    }
-
-    public UserDbFixture withUsername(String username) {
-        this.username = username;
         return this;
     }
 

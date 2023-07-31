@@ -61,7 +61,6 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
         String encryptedPassword = new PasswordHasher().hash(password);
 
         UserDbFixture.userDbFixture(databaseHelper)
-                .withUsername(username)
                 .withEmail(email)
                 .withPassword(encryptedPassword).insertUser();
 

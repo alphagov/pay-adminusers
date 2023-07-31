@@ -77,7 +77,7 @@ class UserResourceGetIT extends IntegrationTest {
         Role role = roleDbFixture(databaseHelper).insertRole();
         String username = randomUuid();
         String email = username + "@example.com";
-        User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withUsername(username).withEmail(email).insertUser();
+        User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email).insertUser();
 
         givenSetup()
                 .when()

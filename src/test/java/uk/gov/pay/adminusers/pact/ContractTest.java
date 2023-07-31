@@ -88,10 +88,10 @@ public abstract class ContractTest {
 
         String username1 = randomUuid();
         String email1 = username1 + "@example.com";
-        userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withUsername(username1).withEmail(email1).insertUser();
+        userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withEmail(email1).insertUser();
         String username2 = randomUuid();
         String email2 = username2 + "@example.com";
-        userDbFixture(dbHelper).withExternalId(existingUserRemoverExternalId).withServiceRole(service, role.getId()).withUsername(username2).withEmail(email2).insertUser();
+        userDbFixture(dbHelper).withExternalId(existingUserRemoverExternalId).withServiceRole(service, role.getId()).withEmail(email2).insertUser();
     }
 
     @State("a user exists but not the remover before a delete operation")
@@ -105,7 +105,7 @@ public abstract class ContractTest {
 
         String username = randomUuid();
         String email = username + "@example.com";
-        userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withUsername(username).withEmail(email).insertUser();
+        userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withEmail(email).insertUser();
     }
 
     @State({"a forgotten password does not exists",
@@ -233,7 +233,6 @@ public abstract class ContractTest {
     private static void createUserWithRoleForService(String externalId, String username, String password, Role role, Service service) {
         userDbFixture(dbHelper)
                 .withExternalId(externalId)
-                .withUsername(username)
                 .withPassword(PASSWORD_HASHER.hash(password))
                 .withEmail("user-" + username + "@example.com")
                 .withTelephoneNumber("45334534634")

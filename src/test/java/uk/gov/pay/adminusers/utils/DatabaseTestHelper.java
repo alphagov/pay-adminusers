@@ -34,7 +34,7 @@ public class DatabaseTestHelper {
 
     public List<Map<String, Object>> findUserByExternalId(String externalId) {
         return jdbi.withHandle(h ->
-                h.createQuery("SELECT id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
+                h.createQuery("SELECT id, external_id, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
                         "FROM users " +
                         "WHERE external_id = :externalId")
                         .bind("externalId", externalId)
@@ -43,7 +43,7 @@ public class DatabaseTestHelper {
 
     public List<Map<String, Object>> findUserByEmail(String email) {
         return jdbi.withHandle(h ->
-                h.createQuery("SELECT id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
+                h.createQuery("SELECT id, external_id, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
                                 "FROM users " +
                                 "WHERE email = :email")
                         .bind("email", email)
@@ -51,7 +51,7 @@ public class DatabaseTestHelper {
     }
     public List<Map<String, Object>> findUser(long userId) {
         return jdbi.withHandle(h ->
-                h.createQuery("SELECT id, external_id, username, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
+                h.createQuery("SELECT id, external_id, password, email, otp_key, telephone_number, disabled, login_counter, \"createdAt\", \"updatedAt\", session_version " +
                         "FROM users " +
                         "WHERE id = :userId")
                         .bind("userId", userId)
@@ -85,26 +85,26 @@ public class DatabaseTestHelper {
                         .mapToMap().list());
     }
 
-    public DatabaseTestHelper updateLoginCount(String username, int loginCount) {
+    public DatabaseTestHelper updateLoginCount(String email, int loginCount) {
         jdbi.withHandle(handle ->
                 handle
                         .createUpdate("UPDATE users SET login_counter = :loginCount " +
-                                "WHERE username = :username")
+                                "WHERE email = :email")
                         .bind("loginCount", loginCount)
-                        .bind("username", username)
+                        .bind("email", email)
                         .execute()
         );
         return this;
     }
 
-    public DatabaseTestHelper updateProvisionalOtpKey(String username, String provisionalOtpKey) {
+    public DatabaseTestHelper updateProvisionalOtpKey(String email, String provisionalOtpKey) {
         jdbi.withHandle(handle ->
                 handle
                         .createUpdate("UPDATE users SET provisional_otp_key = :provisionalOtpKey, " +
                                 "provisional_otp_key_created_at = NOW() " +
-                                "WHERE username = :username")
+                                "WHERE email = :email")
                         .bind("provisionalOtpKey", provisionalOtpKey)
-                        .bind("username", username)
+                        .bind("email", email)
                         .execute()
         );
         return this;
@@ -115,14 +115,13 @@ public class DatabaseTestHelper {
         jdbi.withHandle(handle ->
                 handle
                         .createUpdate("INSERT INTO users(" +
-                                "id, external_id, username, password, email, otp_key, telephone_number, " +
+                                "id, external_id, password, email, otp_key, telephone_number, " +
                                 "second_factor, disabled, login_counter, version, " +
                                 "\"createdAt\", \"updatedAt\", session_version, provisional_otp_key) " +
-                                "VALUES (:id, :externalId, :username, :password, :email, :otpKey, :telephoneNumber, " +
+                                "VALUES (:id, :externalId, :password, :email, :otpKey, :telephoneNumber, " +
                                 ":secondFactor, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version, :provisionalOtpKey)")
                         .bind("id", user.getId())
                         .bind("externalId", user.getExternalId())
-                        .bind("username", user.getUsername())
                         .bind("password", user.getPassword())
                         .bind("email", user.getEmail())
                         .bind("otpKey", user.getOtpKey())

@@ -19,7 +19,7 @@ public class UserResourceFindIT extends IntegrationTest {
     public void createAUser() {
         String username = randomUuid();
         String email = username + "@example.com";
-        User user = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
+        User user = userDbFixture(databaseHelper).withEmail(email).insertUser();
         this.username = user.getUsername();
     }
 

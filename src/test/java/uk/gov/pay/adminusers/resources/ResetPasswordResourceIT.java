@@ -27,7 +27,7 @@ public class ResetPasswordResourceIT extends IntegrationTest {
     public void before() {
         String username = randomUuid();
         String email = username + "@example.com";
-        userId = userDbFixture(databaseHelper).withPassword(CURRENT_PASSWORD).withUsername(username).withEmail(email).insertUser().getId();
+        userId = userDbFixture(databaseHelper).withPassword(CURRENT_PASSWORD).withEmail(email).insertUser().getId();
     }
 
     @Test

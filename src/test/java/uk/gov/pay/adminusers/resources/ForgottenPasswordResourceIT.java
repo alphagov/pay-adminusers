@@ -22,7 +22,7 @@ public class ForgottenPasswordResourceIT extends IntegrationTest {
 
         String username = randomUuid();
         String email = username + "@example.com";
-        userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
+        userDbFixture(databaseHelper).withEmail(email).insertUser();
 
         givenSetup()
                 .when()
@@ -53,7 +53,7 @@ public class ForgottenPasswordResourceIT extends IntegrationTest {
 
         String username = randomUuid();
         String email = username + "@example.com";
-        int userId = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser().getId();
+        int userId = userDbFixture(databaseHelper).withEmail(email).insertUser().getId();
         String forgottenPasswordCode = forgottenPasswordDbFixture(databaseHelper, userId).insertForgottenPassword();
 
         givenSetup()

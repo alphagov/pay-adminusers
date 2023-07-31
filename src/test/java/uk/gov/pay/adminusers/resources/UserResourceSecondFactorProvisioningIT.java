@@ -30,7 +30,7 @@ public class UserResourceSecondFactorProvisioningIT extends IntegrationTest {
     public void createValidUser() {
         String username = randomUuid();
         String email = username + "@example.com";
-        User user = userDbFixture(databaseHelper).withOtpKey(ORIGINAL_OTP_KEY).withUsername(username).withEmail(email).insertUser();
+        User user = userDbFixture(databaseHelper).withOtpKey(ORIGINAL_OTP_KEY).withEmail(email).insertUser();
 
         this.externalId = user.getExternalId();
         this.username = user.getUsername();

@@ -47,7 +47,7 @@ public class InviteDaoIT extends DaoTestBase {
         int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
         String username = randomUuid();
         String email = username + "@example.com";
-        User sender = userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
+        User sender = userDbFixture(databaseHelper).withEmail(email).insertUser();
 
         RoleEntity roleEntity = roleDao.findByRoleName(role.getName()).get();
         ServiceEntity serviceEntity = serviceDao.findById(serviceId).get();

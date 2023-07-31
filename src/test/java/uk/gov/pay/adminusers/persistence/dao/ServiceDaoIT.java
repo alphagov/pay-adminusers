@@ -390,7 +390,7 @@ class ServiceDaoIT extends DaoTestBase {
         range(0, noOfUsers - 1).forEach(i -> {
             String username = randomUuid();
             String email = username + "@example.com";
-            UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).withUsername(username).withEmail(email).insertUser();
+            UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).withEmail(email).insertUser();
         });
 
         //unmatching service
@@ -403,7 +403,7 @@ class ServiceDaoIT extends DaoTestBase {
         //same user 2 diff services - should count only once
         String username3 = randomUuid();
         String email3 = username3 + "@example.com";
-        User user3 = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).withUsername(username3).withEmail(email3).insertUser();
+        User user3 = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).withEmail(email3).insertUser();
         databaseHelper.addUserServiceRole(user3.getId(), serviceId2, role.getId());
     }
 

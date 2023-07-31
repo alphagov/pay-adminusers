@@ -40,7 +40,6 @@ public class ToolboxEndpointResourceIT extends IntegrationTest {
         String email = username + "@example.com";
         user = userDbFixture(databaseHelper)
                 .withServiceRole(service, role.getId())
-                .withUsername(username)
                 .withEmail(email)
                 .insertUser();
     }

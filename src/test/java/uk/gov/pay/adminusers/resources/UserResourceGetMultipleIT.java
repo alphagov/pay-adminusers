@@ -28,10 +28,10 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
         Role role = roleDbFixture(databaseHelper).insertRole();
         String username1 = randomUuid();
         String email1 = username1 + "@example.com";
-        User user1 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withUsername(username1).withEmail(email1).insertUser();
+        User user1 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email1).insertUser();
         String username2 = randomUuid();
         String email2 = username2 + "@example.com";
-        User user2 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withUsername(username2).withEmail(email2).insertUser();
+        User user2 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email2).insertUser();
 
         givenSetup()
                 .when()
@@ -88,7 +88,7 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
         Role role = roleDbFixture(databaseHelper).insertRole();
         String username1 = randomUuid();
         String email1 = username1 + "@example.com";
-        User user1 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withUsername(username1).withEmail(email1).insertUser();
+        User user1 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email1).insertUser();
 
         givenSetup()
                 .when()
@@ -127,7 +127,7 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
         Role role = roleDbFixture(databaseHelper).insertRole();
         String username = randomUuid();
         String email = username + "@example.com";
-        User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withUsername(username).withEmail(email).insertUser();
+        User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email).insertUser();
 
         givenSetup()
                 .when()
@@ -176,7 +176,7 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
         Role role = roleDbFixture(databaseHelper).insertRole();
         String username = randomUuid();
         String email = username + "@example.com";
-        User existingUser = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withUsername(username).withEmail(email).insertUser();
+        User existingUser = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email).insertUser();
 
         givenSetup()
                 .when()

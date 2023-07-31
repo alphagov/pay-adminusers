@@ -92,7 +92,7 @@ class InviteResourceCreateSelfRegistrationInviteIT extends IntegrationTest {
 
         String username = randomUuid();
         String email = username + "@example.gov.uk";
-        UserDbFixture.userDbFixture(databaseHelper).withUsername(username).withEmail(email).insertUser();
+        UserDbFixture.userDbFixture(databaseHelper).withEmail(email).insertUser();
 
         Map<String, String> payload = Map.of("email", email);
 
