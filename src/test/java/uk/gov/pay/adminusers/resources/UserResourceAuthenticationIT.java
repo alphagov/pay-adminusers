@@ -25,11 +25,11 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
         String[] gatewayAccountIds = {"1", "2"};
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccountIds).insertService();
 
-        String username = createAValidUser(service);
+        String email = createAValidUser(service);
 
         Map<Object, Object> authPayload = Map.of(
-                "username","user-" + username + "@example.com",
-                "password", "password-" + username);
+                "email", email,
+                "password", "password-" + email);
 
         givenSetup()
                 .when()
@@ -39,8 +39,8 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
                 .post(USERS_AUTHENTICATE_URL)
                 .then()
                 .statusCode(200)
-                .body("username", is("user-" + username + "@example.com"))
-                .body("email", is("user-" + username + "@example.com"))
+                .body("username", is(email))
+                .body("email", is(email))
                 .body("service_roles", hasSize(1))
                 .body("service_roles[0].service.external_id", is(notNullValue()))
                 .body("service_roles[0].service.name", is(notNullValue()))
@@ -55,9 +55,8 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
 
     @Test
     public void shouldAuthenticateUser_onAValidUsernamePasswordCombination_whenUserDoesNotBelongToAService() throws Exception {
-        String username = randomUuid() + "@example.com";
-        String email = username;
-        String password = "password-" + username;
+        String email = randomUuid() + "@example.com";
+        String password = "password-" + email;
         String encryptedPassword = new PasswordHasher().hash(password);
 
         UserDbFixture.userDbFixture(databaseHelper)
@@ -65,7 +64,7 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
                 .withPassword(encryptedPassword).insertUser();
 
         Map<Object, Object> authPayload = Map.of(
-                "username", username,
+                "email", email,
                 "password", password);
 
         givenSetup()
@@ -76,7 +75,7 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
                 .post(USERS_AUTHENTICATE_URL)
                 .then()
                 .statusCode(200)
-                .body("username", is(username))
+                .body("email", is(email))
                 .body("service_roles", hasSize(0))
                 .body("_links", hasSize(1));
     }
@@ -86,10 +85,10 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
         String[] gatewayAccountIds = {"3", "4"};
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccountIds).insertService();
 
-        String username = createAValidUser(service);
+        String email = createAValidUser(service);
 
         Map<Object, Object> authPayload = Map.of(
-                "username", username,
+                "email", email,
                 "password", "invalid-password");
 
         givenSetup()
@@ -105,11 +104,11 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
     }
 
     private String createAValidUser(Service service) throws JsonProcessingException {
-        String username = randomAlphanumeric(10) + UUID.randomUUID();
+        String email = "user-" + randomAlphanumeric(10) + UUID.randomUUID() + "@example.com";
         Map<Object, Object> userPayload = Map.of(
-                "username", username,
-                "password", "password-" + username,
-                "email", "user-" + username + "@example.com",
+                "username", email,
+                "password", "password-" + email,
+                "email", email,
                 "service_external_ids", new String[]{service.getExternalId()},
                 "telephone_number", "+441134960000",
                 "otp_key", "34f34",
@@ -124,7 +123,7 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
                 .then()
                 .statusCode(201);
 
-        return username;
+        return email;
     }
 
 }

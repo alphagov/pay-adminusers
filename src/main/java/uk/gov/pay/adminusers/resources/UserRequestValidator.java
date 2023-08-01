@@ -35,7 +35,7 @@ public class UserRequestValidator {
     }
 
     public Optional<Errors> validateAuthenticateRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkExistsAndNotEmpty(payload, FIELD_USERNAME, FIELD_PASSWORD);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkExistsAndNotEmpty(payload, FIELD_EMAIL, FIELD_PASSWORD);
         return missingMandatoryFields.map(Errors::from);
     }
 
