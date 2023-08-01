@@ -237,7 +237,7 @@ public class UserResource {
                 .map(errors -> Response.status(400).entity(errors).build())
                 .orElseGet(() -> {
                     Optional<User> userOptional = userServices.authenticate(
-                            node.get("username").asText(),
+                            node.get("email").asText(),
                             node.get("password").asText());
 
                     return userOptional
