@@ -24,8 +24,7 @@ class UserResourceCreateServiceRoleIT extends IntegrationTest {
     void shouldSuccess_whenAddServiceRoleForUser() {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
         Service service = serviceDbFixture(databaseHelper).insertService();
-        String username = randomUuid();
-        String email = username + "@example.com";
+        String email = randomUuid() + "@example.com";
         User user = userDbFixture(databaseHelper).withEmail(email).insertUser();
 
         JsonNode payload = mapper.valueToTree(Map.of("service_external_id", service.getExternalId(), "role_name", role.getName()));
@@ -37,7 +36,7 @@ class UserResourceCreateServiceRoleIT extends IntegrationTest {
                 .post(format(USER_SERVICES_RESOURCE, user.getExternalId()))
                 .then()
                 .statusCode(200)
-                .body("username", is(user.getUsername()))
+                .body("email", is(user.getEmail()))
                 .body("service_roles", hasSize(1))
                 .body("service_roles[0].role.name", is(role.getName()))
                 .body("service_roles[0].service.external_id", is(service.getExternalId()));

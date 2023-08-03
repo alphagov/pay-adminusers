@@ -41,22 +41,19 @@ public class ServiceResourceIT extends IntegrationTest {
         Service service = serviceDbFixture(databaseHelper).insertService();
         serviceExternalId = service.getExternalId();
 
-        String username1 = "c" + randomUuid();
-        String email1 = username1 + "@example.com";
+        String email1 = "c" + randomUuid() + "@example.com";
         userWithRoleAdminInService1 = userDbFixture(databaseHelper)
                 .withServiceRole(service, roleAdmin.getId())
                 .withEmail(email1)
                 .insertUser();
 
-        String username2 = "b" + randomUuid();
-        String email2 = username2 + "@example.com";
+        String email2 = "b" + randomUuid() + "@example.com";
         user1WithRoleViewInService1 = userDbFixture(databaseHelper)
                 .withServiceRole(service, roleView.getId())
                 .withEmail(email2)
                 .insertUser();
 
-        String username3 = "a" + randomUuid();
-        String email3 = username3 + "@example.com";
+        String email3 = "a" + randomUuid() + "@example.com";
         userDbFixture(databaseHelper)
                 .withServiceRole(service, roleView.getId())
                 .withEmail(email3)
@@ -64,7 +61,7 @@ public class ServiceResourceIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturnListOfAllUsersWithRolesForAGivenServiceOrderedByUsername_identifiedByExternalid() {
+    public void shouldReturnListOfAllUsersWithRolesForAGivenServiceOrderedByEmail_identifiedByExternalid() {
         Role role1 = roleDbFixture(databaseHelper)
                 .withName("role-" + randomUuid())
                 .insertRole();
@@ -79,24 +76,20 @@ public class ServiceResourceIT extends IntegrationTest {
                 .withExperimentalFeaturesEnabled(false)
                 .insertService();
 
-        String username1 = "zoe-" + randomUuid();
-        String email1 = username1 + "@example.com";
+        String email1 = "zoe-" + randomUuid() + "@example.com";
         User user1 = userDbFixture(databaseHelper)
                 .withEmail(email1)
                 .withServiceRole(service1.getId(), role1.getId()).insertUser();
-        String username2 = "tim-" + randomUuid();
-        String email2 = username2 + "@example.com";
+        String email2 = "tim-" + randomUuid() + "@example.com";
         User user2 = userDbFixture(databaseHelper)
                 .withEmail(email2)
                 .withServiceRole(service1.getId(), role2.getId()).insertUser();
-        String username3 = "bob-" + randomUuid();
-        String email3 = username3 + "@example.com";
+        String email3 = "bob-" + randomUuid() + "@example.com";
         User user3 = userDbFixture(databaseHelper)
                 .withEmail(email3)
                 .withServiceRole(service1.getId(), role2.getId()).insertUser();
 
-        String username4 = randomUuid();
-        String email4 = username4 + "@example.com";
+        String email4 = randomUuid() + "@example.com";
         userDbFixture(databaseHelper)
                 .withEmail(email4)
                 .withServiceRole(service2.getId(), role1.getId()).insertUser();
@@ -108,17 +101,17 @@ public class ServiceResourceIT extends IntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("$", hasSize(3))
-                .body("[0].username", is(user3.getEmail()))
+                .body("[0].email", is(user3.getEmail()))
                 .body("[0]._links", hasSize(1))
                 .body("[0]._links[0].href", is("http://localhost:8080/v1/api/users/" + user3.getExternalId()))
                 .body("[0]._links[0].method", is("GET"))
                 .body("[0]._links[0].rel", is("self"))
-                .body("[1].username", is(user2.getEmail()))
+                .body("[1].email", is(user2.getEmail()))
                 .body("[1]._links", hasSize(1))
                 .body("[1]._links[0].href", is("http://localhost:8080/v1/api/users/" + user2.getExternalId()))
                 .body("[1]._links[0].method", is("GET"))
                 .body("[1]._links[0].rel", is("self"))
-                .body("[2].username", is(user1.getEmail()))
+                .body("[2].email", is(user1.getEmail()))
                 .body("[2]._links", hasSize(1))
                 .body("[2]._links[0].href", is("http://localhost:8080/v1/api/users/" + user1.getExternalId()))
                 .body("[2]._links[0].method", is("GET"))
@@ -160,7 +153,7 @@ public class ServiceResourceIT extends IntegrationTest {
                 .accept(JSON)
                 .get(format("/v1/api/services/%s/users", serviceExternalId))
                 .then()
-                .body("$", hasItem(allOf(hasEntry("username", user1WithRoleViewInService1.getEmail()))));
+                .body("$", hasItem(allOf(hasEntry("email", user1WithRoleViewInService1.getEmail()))));
 
         givenSetup()
                 .when()
@@ -179,7 +172,7 @@ public class ServiceResourceIT extends IntegrationTest {
                 .accept(JSON)
                 .get(format("/v1/api/services/%s/users", serviceExternalId))
                 .then()
-                .body("$", not(hasItem(allOf(hasEntry("username", user1WithRoleViewInService1.getUsername())))));
+                .body("$", not(hasItem(allOf(hasEntry("email", user1WithRoleViewInService1.getEmail())))));
     }
 
     @Test
@@ -193,14 +186,14 @@ public class ServiceResourceIT extends IntegrationTest {
                 .accept(JSON)
                 .get(format("/v1/api/services/%s/users", serviceExternalId))
                 .then()
-                .body("$", hasItem(allOf(hasEntry("username", user1WithRoleViewInService1.getEmail()))));
+                .body("$", hasItem(allOf(hasEntry("email", user1WithRoleViewInService1.getEmail()))));
 
         givenSetup()
                 .when()
                 .accept(JSON)
                 .get(format("/v1/api/services/%s/users", anotherService.getExternalId()))
                 .then()
-                .body("$", hasItem(allOf(hasEntry("username", user1WithRoleViewInService1.getEmail()))));
+                .body("$", hasItem(allOf(hasEntry("email", user1WithRoleViewInService1.getEmail()))));
 
         givenSetup()
                 .when()
@@ -216,14 +209,14 @@ public class ServiceResourceIT extends IntegrationTest {
                 .accept(JSON)
                 .get(format("/v1/api/services/%s/users", serviceExternalId))
                 .then()
-                .body("$", not(hasItem(allOf(hasEntry("username", user1WithRoleViewInService1.getEmail())))));
+                .body("$", not(hasItem(allOf(hasEntry("email", user1WithRoleViewInService1.getEmail())))));
 
         givenSetup()
                 .when()
                 .accept(JSON)
                 .get(format("/v1/api/services/%s/users", anotherService.getExternalId()))
                 .then()
-                .body("$", hasItem(allOf(hasEntry("username", user1WithRoleViewInService1.getEmail()))));
+                .body("$", hasItem(allOf(hasEntry("email", user1WithRoleViewInService1.getEmail()))));
     }
 
     @Test

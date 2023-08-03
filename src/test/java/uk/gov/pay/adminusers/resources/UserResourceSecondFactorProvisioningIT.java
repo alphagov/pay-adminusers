@@ -24,16 +24,15 @@ public class UserResourceSecondFactorProvisioningIT extends IntegrationTest {
     private static final String ORIGINAL_OTP_KEY = "1111111111111111";
 
     private String externalId;
-    private String username;
+    private String email;
 
     @BeforeEach
     public void createValidUser() {
-        String username = randomUuid();
-        String email = username + "@example.com";
+        String email = randomUuid() + "@example.com";
         User user = userDbFixture(databaseHelper).withOtpKey(ORIGINAL_OTP_KEY).withEmail(email).insertUser();
 
         this.externalId = user.getExternalId();
-        this.username = user.getUsername();
+        this.email = user.getEmail();
     }
 
     @Test
@@ -43,7 +42,7 @@ public class UserResourceSecondFactorProvisioningIT extends IntegrationTest {
                 .post(format(USER_2FA_PROVISION_URL, externalId))
                 .then()
                 .statusCode(200)
-                .body("username", is(username))
+                .body("email", is(email))
                 .body("otp_key", is(ORIGINAL_OTP_KEY))
                 .body("provisional_otp_key", is(notNullValue()))
                 .body("provisional_otp_key_created_at", is(notNullValue()));
@@ -79,7 +78,7 @@ public class UserResourceSecondFactorProvisioningIT extends IntegrationTest {
                 .post(format(USER_2FA_ACTIVATE_URL, externalId))
                 .then()
                 .statusCode(200)
-                .body("username", is(username))
+                .body("email", is(email))
                 .body("second_factor", is("APP"))
                 .body("otp_key", is(newOtpKey))
                 .body("provisional_otp_key", is(nullValue()))

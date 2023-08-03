@@ -1592,6 +1592,3 @@ components:
         telephone_number:
           type: string
           example: "447700900000"
-        username:
-          type: string
-          example: user@somegovernmentdept.gov.uk
