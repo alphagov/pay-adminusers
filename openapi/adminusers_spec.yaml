@@ -744,7 +744,7 @@ paths:
         "400":
           description: Invalid payload
         "409":
-          description: User with username already exists
+          description: User with email already exists
         "500":
           description: Internal server error
       summary: Create new user

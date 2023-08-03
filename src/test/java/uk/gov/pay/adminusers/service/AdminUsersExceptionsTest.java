@@ -21,10 +21,10 @@ public class AdminUsersExceptionsTest {
 
     @Test
     public void shouldCreateAConflictingUsernameException() {
-        WebApplicationException undefinedRoleException = AdminUsersExceptions.conflictingUsername("existing-user");
+        WebApplicationException undefinedRoleException = AdminUsersExceptions.conflictingEmail("existing-user@example.com");
         assertThat(undefinedRoleException.getResponse().getStatus(), is(409));
         Map<String, List<String>> entity = (Map<String, List<String>>) undefinedRoleException.getResponse().getEntity();
-        assertThat(entity.get("errors").get(0), is("username [existing-user] already exists"));
+        assertThat(entity.get("errors").get(0), is("email [existing-user@example.com] already exists"));
     }
 
     @Test

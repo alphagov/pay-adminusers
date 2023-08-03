@@ -28,7 +28,6 @@ public class UserResourceCreateIT extends IntegrationTest {
     public void shouldCreateAUser_Successfully() throws Exception {
         String userEmail = "user-" + randomUuid() + "@example.com";
         Map<Object, Object> userPayload = Map.of(
-                "username", userEmail,
                 "email", userEmail,
                 "telephone_number", "+441134960000",
                 "otp_key", "34f34",
@@ -77,7 +76,6 @@ public class UserResourceCreateIT extends IntegrationTest {
         String userEmail = "user-" + randomUuid() + "@example.com";
 
         Map<Object, Object> userPayload = Map.of(
-                "username", userEmail,
                 "email", userEmail,
                 "service_external_ids", new String[]{valueOf(serviceExternalId)},
                 "telephone_number", "+441134960000",
@@ -125,10 +123,9 @@ public class UserResourceCreateIT extends IntegrationTest {
 
     @Test
     public void shouldError400_IfRoleDoesNotExist() throws Exception {
-        String username = randomUuid();
+        String email = "user-" + randomUuid() + "@example.com";
         Map<Object, Object> userPayload = Map.of(
-                "username", username,
-                "email", "user-" + username + "@example.com",
+                "email", email,
                 "gateway_account_ids", new String[]{"1", "2"},
                 "telephone_number", "01134960000",
                 "otp_key", "34f34",
@@ -158,24 +155,21 @@ public class UserResourceCreateIT extends IntegrationTest {
                 .post(USERS_RESOURCE_URL)
                 .then()
                 .statusCode(400)
-                .body("errors", hasSize(4))
+                .body("errors", hasSize(3))
                 .body("errors", hasItems(
-                        "Field [username] is required",
                         "Field [email] is required",
                         "Field [telephone_number] is required",
                         "Field [role_name] is required"));
     }
 
     @Test
-    public void shouldError409_IfUsernameAlreadyExists() throws Exception {
+    public void shouldError409_IfEmailAlreadyExists() throws Exception {
         String gatewayAccount = valueOf(nextInt());
         serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount).insertService();
-        String username = randomUuid();
-        String email = username + "@example.com";
+        String email = randomUuid() + "@example.com";
         userDbFixture(databaseHelper).withEmail(email).insertUser();
 
         Map<Object, Object> userPayload = Map.of(
-                "username", username,
                 "email", email,
                 "gateway_account_ids", new String[]{gatewayAccount},
                 "telephone_number", "01134960000",
@@ -190,7 +184,7 @@ public class UserResourceCreateIT extends IntegrationTest {
                 .then()
                 .statusCode(409)
                 .body("errors", hasSize(1))
-                .body("errors[0]", is(format("username [%s] already exists", email)));
+                .body("errors[0]", is(format("email [%s] already exists", email)));
     }
 
 }

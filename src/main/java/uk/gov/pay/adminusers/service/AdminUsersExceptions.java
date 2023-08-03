@@ -32,11 +32,6 @@ public class AdminUsersExceptions {
         return buildWebApplicationException(error, PRECONDITION_FAILED.getStatusCode());
     }
 
-    public static WebApplicationException conflictingUsername(String username) {
-        String error = format("username [%s] already exists", username);
-        return buildWebApplicationException(error, CONFLICT.getStatusCode());
-    }
-
     public static WebApplicationException conflictingEmail(String email) {
         String error = format("email [%s] already exists", email);
         return buildWebApplicationException(error, CONFLICT.getStatusCode());
