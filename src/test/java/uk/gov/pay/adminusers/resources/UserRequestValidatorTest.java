@@ -40,9 +40,8 @@ class UserRequestValidatorTest {
         assertTrue(optionalErrors.isPresent());
         Errors errors = optionalErrors.get();
 
-        assertThat(errors.getErrors().size(), is(4));
+        assertThat(errors.getErrors().size(), is(3));
         assertThat(errors.getErrors(), hasItems(
-                "Field [username] is required",
                 "Field [email] is required",
                 "Field [telephone_number] is required",
                 "Field [role_name] is required"));
@@ -51,7 +50,6 @@ class UserRequestValidatorTest {
     @Test
     void shouldError_ifSomeMandatoryFieldsAreMissing() throws Exception {
         String invalidPayload = "{" +
-                "\"username\": \"a-username\"," +
                 "\"email\": \"email@example.com\"," +
                 "\"otp_key\": \"12345\"" +
                 "}";
@@ -211,7 +209,6 @@ class UserRequestValidatorTest {
     @Test
     void shouldError_ifTelephoneNumberFieldIsInvalid() throws Exception {
         String invalidPayload = "{" +
-                "\"username\": \"a-username\"," +
                 "\"password\": \"a-password\"," +
                 "\"email\": \"email@example.com\"," +
                 "\"gateway_account_ids\": [\"1\"]," +
@@ -234,9 +231,8 @@ class UserRequestValidatorTest {
     @Test
     void shouldError_ifFieldsAreBiggerThanMaxLength() throws Exception {
         String invalidPayload = "{" +
-                "\"username\": \"" + RandomStringUtils.randomAlphanumeric(256) + "\"," +
                 "\"password\": \"" + RandomStringUtils.randomAlphanumeric(256) + "\"," +
-                "\"email\": \"email@example.com\"," +
+                "\"email\": \"" + RandomStringUtils.randomAlphanumeric(255) + "\"," +
                 "\"gateway_account_ids\": [\"1\"]," +
                 "\"telephone_number\": \"07990000000\"," +
                 "\"otp_key\": \"12345\"," +
@@ -250,14 +246,13 @@ class UserRequestValidatorTest {
 
         assertThat(errors.getErrors().size(), is(1));
         assertThat(errors.getErrors(), hasItems(
-                "Field [username] must have a maximum length of 255 characters"));
+                "Field [email] must have a maximum length of 254 characters"));
 
     }
 
     @Test
     void shouldReturnEmpty_ifAllValidationsArePassed() throws Exception {
         String validPayload = "{" +
-                "\"username\": \"a-username\"," +
                 "\"password\": \"a-password\"," +
                 "\"email\": \"email@example.com\"," +
                 "\"gateway_account_ids\": [\"1\"]," +

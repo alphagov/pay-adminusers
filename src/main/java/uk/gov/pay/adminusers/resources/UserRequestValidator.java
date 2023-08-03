@@ -26,7 +26,7 @@ import static uk.gov.pay.adminusers.validations.UserPatchValidations.isPathAllow
 
 public class UserRequestValidator {
 
-    private static final int MAX_LENGTH_FIELD_USERNAME = 255;
+    private static final int MAX_LENGTH_FIELD_USER_EMAIL = 254;
     private final RequestValidations requestValidations;
 
     @Inject
@@ -40,7 +40,7 @@ public class UserRequestValidator {
     }
 
     public Optional<Errors> validateCreateRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkExistsAndNotEmpty(payload, FIELD_USERNAME, FIELD_EMAIL, FIELD_TELEPHONE_NUMBER, FIELD_ROLE_NAME);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkExistsAndNotEmpty(payload, FIELD_EMAIL, FIELD_TELEPHONE_NUMBER, FIELD_ROLE_NAME);
         if (missingMandatoryFields.isPresent()) {
             return Optional.of(Errors.from(missingMandatoryFields.get()));
         }
@@ -48,7 +48,7 @@ public class UserRequestValidator {
         if (invalidData.isPresent()) {
             return Optional.of(Errors.from(invalidData.get()));
         }
-        Optional<List<String>> invalidLength = requestValidations.checkMaxLength(payload, MAX_LENGTH_FIELD_USERNAME, FIELD_USERNAME);
+        Optional<List<String>> invalidLength = requestValidations.checkMaxLength(payload, MAX_LENGTH_FIELD_USER_EMAIL, FIELD_EMAIL);
         return invalidLength.map(Errors::from);
     }
 

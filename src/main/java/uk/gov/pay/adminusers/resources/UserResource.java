@@ -44,7 +44,7 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static uk.gov.pay.adminusers.model.User.FIELD_USERNAME;
-import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingUsername;
+import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmail;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 
 @Path(UserResource.USERS_RESOURCE)
@@ -190,7 +190,7 @@ public class UserResource {
                     @ApiResponse(responseCode = "201", description = "Created",
                             content = @Content(schema = @Schema(implementation = User.class))),
                     @ApiResponse(responseCode = "400", description = "Invalid payload"),
-                    @ApiResponse(responseCode = "409", description = "User with username already exists"),
+                    @ApiResponse(responseCode = "409", description = "User with email already exists"),
                     @ApiResponse(responseCode = "500", description = "Internal server error")
             }
     )
@@ -486,13 +486,13 @@ public class UserResource {
                 });
     }
 
-    private Response handleCreateUserException(String userName, Exception e) {
+    private Response handleCreateUserException(String email, Exception e) {
         if (e.getMessage().contains(CONSTRAINT_VIOLATION_MESSAGE)) {
-            throw conflictingUsername(userName);
+            throw conflictingEmail(email);
         } else if (e instanceof WebApplicationException) {
             throw (WebApplicationException) e;
         } else {
-            LOGGER.error("unknown database error during user creation for user [{}]", userName, e);
+            LOGGER.error("unknown database error during user creation for user [{}]", email, e);
             throw internalServerError("unable to create user at this moment");
         }
     }
