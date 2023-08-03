@@ -58,6 +58,6 @@ jobs:
           -DPACT_CONSUMER_TAG="${{ inputs.consumer_tag }}" \
           -Dpact.provider.version="${{ steps.get-provider-sha.outputs.provider-sha }}" \
           -Dpact.verifier.publishResults=true \
-          -DPACT_BROKER_HOST=pay-pact-broker.cloudapps.digital \
+          -DPACT_BROKER_HOST=pact-broker.deploy.payments.service.gov.uk \
           -DPACT_BROKER_USERNAME="${{ secrets.pact_broker_username }}" \
           -DPACT_BROKER_PASSWORD="${{ secrets.pact_broker_password }}"
