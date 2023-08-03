@@ -36,8 +36,7 @@ public class ToolboxEndpointResourceIT extends IntegrationTest {
         Service service = serviceDbFixture(databaseHelper).insertService();
         serviceExternalId = service.getExternalId();
 
-        String username = "b" + randomUuid();
-        String email = username + "@example.com";
+        String email = "b" + randomUuid() + "@example.com";
         user = userDbFixture(databaseHelper)
                 .withServiceRole(service, role.getId())
                 .withEmail(email)
@@ -54,7 +53,7 @@ public class ToolboxEndpointResourceIT extends IntegrationTest {
                 .accept(JSON)
                 .get(format("/v1/api/services/%s/users", serviceExternalId))
                 .then()
-                .body("$", hasItem(allOf(hasEntry("username", user.getUsername()))));
+                .body("$", hasItem(allOf(hasEntry("email", user.getEmail()))));
 
         givenSetup()
                 .when()
@@ -72,6 +71,6 @@ public class ToolboxEndpointResourceIT extends IntegrationTest {
                 .accept(JSON)
                 .get(format("/v1/api/services/%s/users", serviceExternalId))
                 .then()
-                .body("$", not(hasItem(allOf(hasEntry("username", user.getUsername())))));
+                .body("$", not(hasItem(allOf(hasEntry("email", user.getEmail())))));
     }
 }

@@ -26,11 +26,9 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
         String serviceExternalId = service.getExternalId();
         Role role = roleDbFixture(databaseHelper).insertRole();
-        String username1 = randomUuid();
-        String email1 = username1 + "@example.com";
+        String email1 = randomUuid() + "@example.com";
         User user1 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email1).insertUser();
-        String username2 = randomUuid();
-        String email2 = username2 + "@example.com";
+        String email2 = randomUuid() + "@example.com";
         User user2 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email2).insertUser();
 
         givenSetup()
@@ -41,7 +39,6 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("[0].external_id", is(user1.getExternalId()))
-                .body("[0].username", is(user1.getUsername()))
                 .body("[0].password", nullValue())
                 .body("[0].email", is(user1.getEmail()))
                 .body("[0].service_roles", hasSize(1))
@@ -59,7 +56,6 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
                 .body("[0]._links[0].method", is("GET"))
                 .body("[0]._links[0].rel", is("self"))
                 .body("[1].external_id", is(user2.getExternalId()))
-                .body("[1].username", is(user2.getUsername()))
                 .body("[1].password", nullValue())
                 .body("[1].email", is(user2.getEmail()))
                 .body("[1].service_roles", hasSize(1))
@@ -86,8 +82,7 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
         String serviceExternalId = service.getExternalId();
         Role role = roleDbFixture(databaseHelper).insertRole();
-        String username1 = randomUuid();
-        String email1 = username1 + "@example.com";
+        String email1 = randomUuid() + "@example.com";
         User user1 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email1).insertUser();
 
         givenSetup()
@@ -98,7 +93,6 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("[0].external_id", is(user1.getExternalId()))
-                .body("[0].username", is(user1.getUsername()))
                 .body("[0].password", nullValue())
                 .body("[0].email", is(user1.getEmail()))
                 .body("[0].service_roles", hasSize(1))
@@ -125,8 +119,7 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
         String serviceExternalId = service.getExternalId();
         Role role = roleDbFixture(databaseHelper).insertRole();
-        String username = randomUuid();
-        String email = username + "@example.com";
+        String email = randomUuid() + "@example.com";
         User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email).insertUser();
 
         givenSetup()
@@ -137,7 +130,6 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("[0].external_id", is(user.getExternalId()))
-                .body("[0].username", is(user.getUsername()))
                 .body("[0].password", nullValue())
                 .body("[0].email", is(user.getEmail()))
                 .body("[0].service_roles", hasSize(1))
@@ -174,8 +166,7 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
         Role role = roleDbFixture(databaseHelper).insertRole();
-        String username = randomUuid();
-        String email = username + "@example.com";
+        String email = randomUuid() + "@example.com";
         User existingUser = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email).insertUser();
 
         givenSetup()
@@ -186,7 +177,6 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("[0].external_id", is(existingUser.getExternalId()))
-                .body("[0].username", is(existingUser.getUsername()))
                 .body("[0].password", nullValue())
                 .body("[0].email", is(existingUser.getEmail()))
                 .body("[0].service_roles", hasSize(1))

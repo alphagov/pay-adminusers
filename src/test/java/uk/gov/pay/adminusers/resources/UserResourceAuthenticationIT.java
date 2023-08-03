@@ -39,7 +39,6 @@ public class UserResourceAuthenticationIT extends IntegrationTest {
                 .post(USERS_AUTHENTICATE_URL)
                 .then()
                 .statusCode(200)
-                .body("username", is(email))
                 .body("email", is(email))
                 .body("service_roles", hasSize(1))
                 .body("service_roles[0].service.external_id", is(notNullValue()))

@@ -26,10 +26,10 @@ public class UserResourceCreateIT extends IntegrationTest {
 
     @Test
     public void shouldCreateAUser_Successfully() throws Exception {
-        String username = randomUuid();
+        String userEmail = "user-" + randomUuid() + "@example.com";
         Map<Object, Object> userPayload = Map.of(
-                "username", "user-" + username + "@example.com",
-                "email", "user-" + username + "@example.com",
+                "username", userEmail,
+                "email", userEmail,
                 "telephone_number", "+441134960000",
                 "otp_key", "34f34",
                 "role_name", "admin");
@@ -47,9 +47,8 @@ public class UserResourceCreateIT extends IntegrationTest {
                 .statusCode(201)
                 .body("id", nullValue())
                 .body("external_id", is(externalId))
-                .body("username", is("user-" + username + "@example.com"))
                 .body("password", nullValue())
-                .body("email", is("user-" + username + "@example.com"))
+                .body("email", is(userEmail))
                 .body("service_roles", hasSize(0))
                 .body("telephone_number", is("+441134960000"))
                 .body("otp_key", is("34f34"))
@@ -75,11 +74,11 @@ public class UserResourceCreateIT extends IntegrationTest {
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
         String serviceExternalId = service.getExternalId();
-        String username = randomUuid();
+        String userEmail = "user-" + randomUuid() + "@example.com";
 
         Map<Object, Object> userPayload = Map.of(
-                "username", username,
-                "email", "user-" + username + "@example.com",
+                "username", userEmail,
+                "email", userEmail,
                 "service_external_ids", new String[]{valueOf(serviceExternalId)},
                 "telephone_number", "+441134960000",
                 "otp_key", "34f34",
@@ -98,9 +97,8 @@ public class UserResourceCreateIT extends IntegrationTest {
                 .statusCode(201)
                 .body("id", nullValue())
                 .body("external_id", is(externalId))
-                .body("username", is("user-" + username + "@example.com"))
                 .body("password", nullValue())
-                .body("email", is("user-" + username + "@example.com"))
+                .body("email", is(userEmail))
                 .body("service_roles", hasSize(1))
                 .body("service_roles[0].service.external_id", is(serviceExternalId))
                 .body("service_roles[0].service.name", is(service.getName()))

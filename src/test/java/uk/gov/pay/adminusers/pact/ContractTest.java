@@ -86,11 +86,9 @@ public abstract class ContractTest {
         Service service = serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
         Role role = roleDbFixture(dbHelper).insertAdmin();
 
-        String username1 = randomUuid();
-        String email1 = username1 + "@example.com";
+        String email1 = randomUuid() + "@example.com";
         userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withEmail(email1).insertUser();
-        String username2 = randomUuid();
-        String email2 = username2 + "@example.com";
+        String email2 = randomUuid() + "@example.com";
         userDbFixture(dbHelper).withExternalId(existingUserRemoverExternalId).withServiceRole(service, role.getId()).withEmail(email2).insertUser();
     }
 
@@ -103,8 +101,7 @@ public abstract class ContractTest {
         Service service = serviceDbFixture(dbHelper).withExternalId(existingServiceExternalId).insertService();
         Role role = roleDbFixture(dbHelper).insertAdmin();
 
-        String username = randomUuid();
-        String email = username + "@example.com";
+        String email = randomUuid() + "@example.com";
         userDbFixture(dbHelper).withExternalId(existingUserExternalId).withServiceRole(service, role.getId()).withEmail(email).insertUser();
     }
 

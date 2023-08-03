@@ -140,7 +140,7 @@ public class UserServicesTest {
         Optional<User> userOptional = underTest.findUserByEmail(USER_EMAIL);
         assertTrue(userOptional.isPresent());
 
-        assertThat(userOptional.get().getUsername(), is(USER_EMAIL));
+        assertThat(userOptional.get().getEmail(), is(USER_EMAIL));
     }
 
     @Test
@@ -163,7 +163,7 @@ public class UserServicesTest {
         Optional<User> userOptional = underTest.findUserByEmail(USER_EMAIL);
         assertTrue(userOptional.isPresent());
 
-        assertThat(userOptional.get().getUsername(), is(USER_EMAIL));
+        assertThat(userOptional.get().getEmail(), is(USER_EMAIL));
     }
 
     @Test
@@ -190,7 +190,7 @@ public class UserServicesTest {
         assertTrue(userOptional.isPresent());
 
         User authenticatedUser = userOptional.get();
-        assertThat(authenticatedUser.getUsername(), is(USER_EMAIL));
+        assertThat(authenticatedUser.getEmail(), is(USER_EMAIL));
         assertThat(authenticatedUser.getLinks().size(), is(1));
         assertThat(userEntityArgumentCaptor.getValue().getLoginCounter(), is(0));
     }
@@ -211,7 +211,7 @@ public class UserServicesTest {
         assertTrue(userOptional.isPresent());
 
         User authenticatedUser = userOptional.get();
-        assertThat(authenticatedUser.getUsername(), is(USER_EMAIL));
+        assertThat(authenticatedUser.getEmail(), is(USER_EMAIL));
         assertThat(authenticatedUser.isDisabled(), is(true));
         assertThat(authenticatedUser.getLinks().size(), is(1));
         assertThat(userEntity.getLoginCounter(), is(2));

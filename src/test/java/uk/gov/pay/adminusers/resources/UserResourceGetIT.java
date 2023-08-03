@@ -75,8 +75,7 @@ class UserResourceGetIT extends IntegrationTest {
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
         String serviceExternalId = service.getExternalId();
         Role role = roleDbFixture(databaseHelper).insertRole();
-        String username = randomUuid();
-        String email = username + "@example.com";
+        String email = randomUuid() + "@example.com";
         User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email).insertUser();
 
         givenSetup()
@@ -87,7 +86,6 @@ class UserResourceGetIT extends IntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("external_id", is(user.getExternalId()))
-                .body("username", is(user.getUsername()))
                 .body("password", nullValue())
                 .body("email", is(user.getEmail()))
                 .body("service_roles", hasSize(1))

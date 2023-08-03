@@ -26,8 +26,6 @@ public class User {
     private Integer id;
     @Schema(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
     private String externalId;
-    @Schema(example = "user@somegovernmentdept.gov.uk")
-    private String username;
     private String password;
     @Schema(example = "user@somegovernmentdept.gov.uk")
     private String email;
@@ -72,7 +70,6 @@ public class User {
                  @JsonProperty("last_logged_in_at") ZonedDateTime lastLoggedInAt) {
         this.id = id;
         this.externalId = externalId;
-        this.username = email;
         this.password = password;
         this.email = email;
         this.otpKey = otpKey;
@@ -92,10 +89,6 @@ public class User {
 
     public String getExternalId() {
         return externalId;
-    }
-
-    public String getUsername() {
-        return username;
     }
 
     @JsonIgnore

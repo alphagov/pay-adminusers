@@ -24,11 +24,9 @@ public class UserResourceUpdateServiceRoleIT extends IntegrationTest {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
         Service service = serviceDbFixture(databaseHelper).insertService();
         String serviceExternalId = service.getExternalId();
-        String username1 = randomUuid();
-        String email1 = username1 + "@example.com";
+        String email1 = randomUuid() + "@example.com";
         User user = userDbFixture(databaseHelper).withServiceRole(service, role.getId()).withEmail(email1).insertUser();
-        String username2 = randomUuid();
-        String email2 = username2 + "@example.com";
+        String email2 = randomUuid() + "@example.com";
         userDbFixture(databaseHelper).withServiceRole(service, role.getId()).withEmail(email2).insertUser();
 
         JsonNode payload = mapper.valueToTree(Map.of("role_name", "view-and-refund"));
@@ -40,7 +38,7 @@ public class UserResourceUpdateServiceRoleIT extends IntegrationTest {
                 .put(format(USER_SERVICE_RESOURCE, user.getExternalId(), serviceExternalId))
                 .then()
                 .statusCode(200)
-                .body("username", is(user.getUsername()))
+                .body("email", is(user.getEmail()))
                 .body("service_roles[0].role.name", is("view-and-refund"))
                 .body("service_roles[0].role.description", is("View and Refund"));
     }
@@ -64,8 +62,7 @@ public class UserResourceUpdateServiceRoleIT extends IntegrationTest {
         Role role = roleDbFixture(databaseHelper).insertAdmin();
         Service service = serviceDbFixture(databaseHelper).insertService();
         String serviceExternalId = service.getExternalId();
-        String username = randomUuid();
-        String email = username + "@example.com";
+        String email = randomUuid() + "@example.com";
         User user = userDbFixture(databaseHelper).withServiceRole(service, role.getId()).withEmail(email).insertUser();
 
         JsonNode payload = mapper.valueToTree(Map.of("role_name", "view-and-refund"));

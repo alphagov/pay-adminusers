@@ -30,7 +30,7 @@ class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
         User user = userDbFixture(databaseHelper).withOtpKey(OTP_KEY).withEmail(email).insertUser();
 
         this.externalId = user.getExternalId();
-        this.username = user.getUsername();
+        this.username = user.getEmail();
     }
 
 
@@ -99,7 +99,7 @@ class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
                 .post(format(USER_2FA_AUTHENTICATE_URL, externalId))
                 .then()
                 .statusCode(200)
-                .body("username", is(username))
+                .body("email", is(username))
                 .body("login_counter", is(0))
                 .body("disabled", is(false));
     }
@@ -151,7 +151,7 @@ class UserResourceSecondFactorAuthenticationIT extends IntegrationTest {
                 .get(format(USER_RESOURCE_URL, externalId))
                 .then()
                 .statusCode(200)
-                .body("username", is(username))
+                .body("email", is(username))
                 .body("login_counter", is(11))
                 .body("disabled", is(true));
     }
