@@ -813,7 +813,7 @@ paths:
             schema:
               type: string
               example:
-                username: user@somegovernmentdept.gov.uk
+                email: user@somegovernmentdept.gov.uk
       responses:
         "200":
           content:
@@ -825,7 +825,7 @@ paths:
           description: Invalid search params
         "404":
           description: Not found
-      summary: Find user by username
+      summary: Find user by email
       tags:
       - Users
   /v1/api/users/{userExternalId}:

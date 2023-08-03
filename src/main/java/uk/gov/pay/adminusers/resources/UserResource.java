@@ -43,6 +43,7 @@ import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static uk.gov.pay.adminusers.model.User.FIELD_EMAIL;
 import static uk.gov.pay.adminusers.model.User.FIELD_USERNAME;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmail;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
@@ -83,10 +84,10 @@ public class UserResource {
     @Produces(APPLICATION_JSON)
     @Operation(
             tags = "Users",
-            summary = "Find user by username",
+            summary = "Find user by email",
             requestBody = @RequestBody(
                     content = @Content(schema = @Schema(example = "{" +
-                            "    \"username\": \"user@somegovernmentdept.gov.uk\"" +
+                            "    \"email\": \"user@somegovernmentdept.gov.uk\"" +
                             "}"))
             ),
             responses = {
@@ -100,7 +101,7 @@ public class UserResource {
         LOGGER.info("User FIND request");
         return validator.validateFindRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> userServices.findUserByEmail(payload.get(FIELD_USERNAME).asText())
+                .orElseGet(() -> userServices.findUserByEmail(payload.get(FIELD_EMAIL).asText())
                         .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                         .orElseGet(() -> Response.status(NOT_FOUND).build()));
     }
