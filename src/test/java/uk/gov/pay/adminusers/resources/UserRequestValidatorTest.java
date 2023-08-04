@@ -268,7 +268,7 @@ class UserRequestValidatorTest {
 
     @Test
     void shouldSuccess_ifValidSearchRequest_whenFindingAUser() {
-        JsonNode payload = objectMapper.valueToTree(Map.of("username", "some-existing-user"));
+        JsonNode payload = objectMapper.valueToTree(Map.of("email", "some-existing-user"));
         Optional<Errors> optionalErrors = validator.validateFindRequest(payload);
 
         assertThat(optionalErrors.isPresent(), is(false));
@@ -384,7 +384,7 @@ class UserRequestValidatorTest {
         Errors errors = optionalErrors.get();
 
         assertThat(errors.getErrors().size(), is(1));
-        assertThat(errors.getErrors(), hasItems("Field [username] is required"));
+        assertThat(errors.getErrors(), hasItems("Field [email] is required"));
     }
 
     private void mockValidValuesFor(JsonNode mockJsonNode, Map<String, String> mockFieldValues) {

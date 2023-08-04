@@ -119,7 +119,7 @@ public class UserRequestValidator {
     }
 
     public Optional<Errors> validateFindRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkExistsAndNotEmpty(payload, FIELD_USERNAME);
+        Optional<List<String>> missingMandatoryFields = requestValidations.checkExistsAndNotEmpty(payload, FIELD_EMAIL);
         return missingMandatoryFields.map(Errors::from);
     }
 
