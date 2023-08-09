@@ -31,7 +31,7 @@ public class SqsTestDocker {
         if (sqsContainer == null) {
             logger.info("Creating SQS Container");
 
-            sqsContainer = new GenericContainer("softwaremill/elasticmq-native")
+            sqsContainer = new GenericContainer("softwaremill/elasticmq-native:1.4.2")
                     .withExposedPorts(9324)
                     .waitingFor(Wait.forLogMessage(".*ElasticMQ server.*.*started.*", 1));
             sqsContainer.start();
