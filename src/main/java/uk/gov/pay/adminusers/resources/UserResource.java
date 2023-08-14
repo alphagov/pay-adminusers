@@ -86,7 +86,7 @@ public class UserResource {
             tags = "Users",
             summary = "Find user by email",
             requestBody = @RequestBody(
-                    content = @Content(schema = @Schema(example = "{" +
+                    content = @Content(mediaType = "application/json", schema = @Schema(example = "{" +
                             "    \"email\": \"user@somegovernmentdept.gov.uk\"" +
                             "}"))
             ),
@@ -220,9 +220,9 @@ public class UserResource {
     @Consumes(APPLICATION_JSON)
     @Operation(
             tags = "Users",
-            summary = "Authenticate a given username/password",
+            summary = "Authenticate a given email/password",
             requestBody = @RequestBody(
-                    content = @Content(schema = @Schema(example = "{ \"username\": \"user@somegovernmentdept.gov.uk\"," +
+                    content = @Content(mediaType = "application/json", schema = @Schema(example = "{ \"email\": \"user@somegovernmentdept.gov.uk\"," +
                             "\"password\": \"a-password\"}"))
             ),
             responses = {

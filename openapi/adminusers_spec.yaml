@@ -788,7 +788,7 @@ paths:
             schema:
               type: string
               example:
-                username: user@somegovernmentdept.gov.uk
+                email: user@somegovernmentdept.gov.uk
                 password: a-password
       responses:
         "200":
@@ -801,7 +801,7 @@ paths:
           description: Invalid payload
         "401":
           description: Unauthorised
-      summary: Authenticate a given username/password
+      summary: Authenticate a given email/password
       tags:
       - Users
   /v1/api/users/find:
