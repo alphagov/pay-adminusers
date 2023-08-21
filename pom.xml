@@ -188,7 +188,7 @@
         <dependency>
             <groupId>com.googlecode.libphonenumber</groupId>
             <artifactId>libphonenumber</artifactId>
-            <version>8.13.11</version>
+            <version>8.13.19</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.service.payments</groupId>
