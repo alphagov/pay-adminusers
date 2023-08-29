@@ -17,7 +17,7 @@
         <eclipselink.version>2.7.11</eclipselink.version>
         <guice.version>5.1.0</guice.version>
         <pact.version>3.6.15</pact.version>
-        <pay-java-commons.version>1.0.20230825122025</pay-java-commons.version>
+        <pay-java-commons.version>1.0.20230810083009</pay-java-commons.version>
         <prometheus.version>0.16.0</prometheus.version>
         <swaggger-version>2.2.10</swaggger-version>
         <testcontainers.version>1.19.0</testcontainers.version>
