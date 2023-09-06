@@ -20,11 +20,6 @@ public class AdminUsersConfig extends Configuration {
     private JPAConfiguration jpaConfiguration;
 
     @NotNull
-    private String graphiteHost;
-    @NotNull
-    private Integer graphitePort;
-
-    @NotNull
     private String baseUrl;
 
     @Valid
@@ -78,14 +73,6 @@ public class AdminUsersConfig extends Configuration {
 
     @JsonProperty("ecsContainerMetadataUriV4")
     private URI ecsContainerMetadataUriV4;
-
-    public String getGraphiteHost() {
-        return graphiteHost;
-    }
-
-    public Integer getGraphitePort() {
-        return graphitePort;
-    }
 
     public String getBaseUrl() {
         return baseUrl;
