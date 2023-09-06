@@ -26,8 +26,6 @@ The [API Specification](/openapi/adminusers_spec.yaml) provides more detail on t
 | `JPA_LOG_LEVEL`                                                               | The logging level to set for JPA. Defaults to `WARNING`. |
 | `JPA_SQL_LOG_LEVEL`                                                           | The logging level to set for JPA SQL logging. Defaults to `WARNING`. |
 | `LOGIN_ATTEMPT_CAP`                                                           | The number of consecutive failed logins a user can have before their account is disabled. Defaults to `10`. |
-| `METRICS_HOST`                                                                | The hostname to send graphite metrics to. Defaults to `localhost`. |
-| `METRICS_PORT`                                                                | The port number to send graphite metrics to. Defaults to `8092`. |
 | `NOTIFY_SIGN_IN_OTP_SMS_TEMPLATE_ID`                                          | The GOV.UK Notify template ID to use for sending OTP codes via SMS for signing in. Defaults to `pay-notify-sign-in-otp-sms-template-id`. |
 | `NOTIFY_CHANGE_SIGN_IN_2FA_TO_SMS_OTP_SMS_TEMPLATE_ID`                        | The GOV.UK Notify template ID to use for sending OTP codes via SMS for changing the sign-in method to text messages. Defaults to `pay-notify-switch-sign-in-2fa-to-sms-otp-sms-template-id`. |
 | `NOTIFY_SELF_INITIATED_CREATE_USER_AND_SERVICE_OTP_SMS_TEMPLATE_ID`           | The GOV.UK Notify template ID to use for sending OTP codes via SMS for self-initiated user and service creation. Defaults to `pay-notify-self-initiated-create-user-and-service-otp-sms-template-id`. |

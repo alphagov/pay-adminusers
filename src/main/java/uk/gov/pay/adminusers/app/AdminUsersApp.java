@@ -1,8 +1,5 @@
 package uk.gov.pay.adminusers.app;
 
-import com.codahale.metrics.graphite.GraphiteReporter;
-import com.codahale.metrics.graphite.GraphiteSender;
-import com.codahale.metrics.graphite.GraphiteUDP;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
@@ -58,7 +55,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
     
     private static final boolean NON_STRICT_VARIABLE_SUBSTITUTOR = false;
     private static final String SERVICE_METRICS_NODE = "adminusers";
-    private static final int GRAPHITE_SENDING_PERIOD_SECONDS = 10;
+    private static final int METRICS_COLLECTION_PERIOD_SECONDS = 30;
 
     @Override
     public void initialize(Bootstrap<AdminUsersConfig> bootstrap) {
@@ -122,9 +119,8 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
                 .scheduledExecutorService("metricscollector")
                 .threads(1)
                 .build()
-                .scheduleAtFixedRate(metricsService::updateMetricData, 0, GRAPHITE_SENDING_PERIOD_SECONDS / 2, TimeUnit.SECONDS);
+                .scheduleAtFixedRate(metricsService::updateMetricData, 0, METRICS_COLLECTION_PERIOD_SECONDS / 2, TimeUnit.SECONDS);
 
-        initialiseGraphiteMetrics(configuration, environment);
         configuration.getEcsContainerMetadataUriV4().ifPresent(uri -> initialisePrometheusMetrics(environment, uri));
     }
 
@@ -133,17 +129,6 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         CollectorRegistry collectorRegistry = new CollectorRegistry();
         collectorRegistry.register(new DropwizardExports(environment.metrics(), new PrometheusDefaultLabelSampleBuilder(ecsContainerMetadataUri)));
         environment.admin().addServlet("prometheusMetrics", new MetricsServlet(collectorRegistry)).addMapping("/metrics");
-    }
-
-    /**
-     * Graphtie metric config to be deleted when we've completely moved to Prometheus
-     */
-    private static void initialiseGraphiteMetrics(AdminUsersConfig configuration, Environment environment) {
-        GraphiteSender graphiteUDP = new GraphiteUDP(configuration.getGraphiteHost(), configuration.getGraphitePort());
-        GraphiteReporter.forRegistry(environment.metrics())
-                .prefixedWith(SERVICE_METRICS_NODE)
-                .build(graphiteUDP)
-                .start(GRAPHITE_SENDING_PERIOD_SECONDS, TimeUnit.SECONDS);
     }
 
     public static void main(String[] args) throws Exception {
