@@ -21,7 +21,7 @@
         <prometheus.version>0.16.0</prometheus.version>
         <swaggger-version>2.2.10</swaggger-version>
         <testcontainers.version>1.19.0</testcontainers.version>
-        <wiremock.version>2.35.0</wiremock.version>
+        <wiremock.version>2.35.1</wiremock.version>
         <surefire.version>3.1.2</surefire.version>
         <PACT_BROKER_URL/>
         <PACT_BROKER_USERNAME/>
