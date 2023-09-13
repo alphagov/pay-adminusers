@@ -411,8 +411,8 @@ public class ServiceResource {
             summary = "Record acceptance of Stripe terms",
             description = "Records that a GOV.UK Pay agreement has been accepted for the service.",
             responses = {
+                    @ApiResponse(responseCode = "200", description = "Stripe agreement already created"),
                     @ApiResponse(responseCode = "201", description = "Created"),
-                    @ApiResponse(responseCode = "409", description = "Conflict. Another stripe agreement already exists for the service"),
                     @ApiResponse(responseCode = "422", description = "Invalid JSON payload or IP address")
             }
     )
@@ -421,6 +421,12 @@ public class ServiceResource {
                                           @NotNull @Valid StripeAgreementRequest stripeAgreementRequest) throws UnknownHostException {
         LOGGER.info("Create stripe agreement POST request - [ {} ]", stripeAgreementRequest.toString());
 
+        Optional<StripeAgreement> maybeStripeAgreement = stripeAgreementService.findStripeAgreementByServiceId(serviceExternalId);
+        if (maybeStripeAgreement.isPresent()) {
+            LOGGER.info("Stripe agreement information is already stored for this service");
+            return Response.status(OK).build();
+        }
+        
         stripeAgreementService.doCreate(serviceExternalId,
                 InetAddress.getByName(stripeAgreementRequest.getIpAddress()));
 
@@ -463,9 +469,10 @@ public class ServiceResource {
             responses = {
                     @ApiResponse(responseCode = "201", description = "Created",
                             content = @Content(schema = @Schema(implementation = GovUkPayAgreement.class))),
+                    @ApiResponse(responseCode = "200", description = "Agreement already created - existing agreement returned",
+                            content = @Content(schema = @Schema(implementation = GovUkPayAgreement.class))),
                     @ApiResponse(responseCode = "400", description = "Invalid payload"),
-                    @ApiResponse(responseCode = "404", description = "Service with serviceExternalId not found"),
-                    @ApiResponse(responseCode = "409", description = "Agreement already exists for the service.")
+                    @ApiResponse(responseCode = "404", description = "Service with serviceExternalId not found")
             }
     )
     public Response createGovUkPayAgreement(@Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3")
@@ -496,24 +503,23 @@ public class ServiceResource {
     }
 
     private Response createGovUkPayAgreementFromPayload(String serviceExternalId, JsonNode payload) {
-        if (govUkPayAgreementService.findGovUkPayAgreementByServiceId(serviceExternalId).isPresent()) {
-            return Response.status(CONFLICT)
-                    .entity(Errors.from("GOV.UK Pay agreement information is already stored for this service"))
-                    .build();
-        }
+        return govUkPayAgreementService.findGovUkPayAgreementByServiceId(serviceExternalId).map(govUkPayAgreement -> {
+            LOGGER.info("GOV.UK Pay agreement information is already stored for this service");
+            return Response.status(OK).entity(govUkPayAgreement).build();
+        }).orElseGet(() -> {
+            ServiceEntity serviceEntity = serviceDao.findByExternalId(serviceExternalId)
+                    .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
+            Optional<UserEntity> userEntity = userDao.findByExternalId(payload.get("user_external_id").asText());
+            if (!userEntity.isPresent()) {
+                return Response.status(BAD_REQUEST).entity(Errors.from("Field [user_external_id] must be a valid user ID")).build();
+            }
+            if (!userEntity.get().getServicesRole(serviceExternalId).isPresent()) {
+                return Response.status(BAD_REQUEST).entity(Errors.from("User does not belong to the given service")).build();
+            }
+            GovUkPayAgreement govUkPayAgreement = govUkPayAgreementService.doCreate(serviceEntity, userEntity.get().getEmail(), ZonedDateTime.now(ZoneOffset.UTC));
 
-        ServiceEntity serviceEntity = serviceDao.findByExternalId(serviceExternalId)
-                .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
-        Optional<UserEntity> userEntity = userDao.findByExternalId(payload.get("user_external_id").asText());
-        if (!userEntity.isPresent()) {
-            return Response.status(BAD_REQUEST).entity(Errors.from("Field [user_external_id] must be a valid user ID")).build();
-        }
-        if (!userEntity.get().getServicesRole(serviceExternalId).isPresent()) {
-            return Response.status(BAD_REQUEST).entity(Errors.from("User does not belong to the given service")).build();
-        }
-        GovUkPayAgreement govUkPayAgreement = govUkPayAgreementService.doCreate(serviceEntity, userEntity.get().getEmail(), ZonedDateTime.now(ZoneOffset.UTC));
-
-        return Response.status(CREATED).entity(govUkPayAgreement).build();
+            return Response.status(CREATED).entity(govUkPayAgreement).build();
+        });
     }
 
     @Path("/{serviceExternalId}/send-live-email")

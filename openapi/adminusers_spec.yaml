@@ -507,6 +507,12 @@ paths:
               required:
               - user_external_id
       responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GovUkPayAgreement'
+          description: Agreement already created - existing agreement returned
         "201":
           content:
             application/json:
@@ -517,8 +523,6 @@ paths:
           description: Invalid payload
         "404":
           description: Service with serviceExternalId not found
-        "409":
-          description: Agreement already exists for the service.
       summary: Record acceptance of GOV.UK Pay terms
       tags:
       - Services
@@ -613,10 +617,10 @@ paths:
               $ref: '#/components/schemas/StripeAgreementRequest'
         required: true
       responses:
+        "200":
+          description: Stripe agreement already created
         "201":
           description: Created
-        "409":
-          description: Conflict. Another stripe agreement already exists for the service
         "422":
           description: Invalid JSON payload or IP address
       summary: Record acceptance of Stripe terms

@@ -41,19 +41,7 @@ class ServiceResourceStripeAgreementIT extends IntegrationTest {
     }
 
     @Test
-    void shouldReturn_NOT_FOUND_whenServiceNotFound() {
-        JsonNode payload = mapper.valueToTree(Map.of(FIELD_IP_ADDRESS, "0.0.0.0"));
-        givenSetup()
-                .when()
-                .accept(JSON)
-                .body(payload)
-                .post(format("/v1/api/services/%s/stripe-agreement", "123"))
-                .then()
-                .statusCode(404);
-    }
-
-    @Test
-    void shouldReturn_409_whenStripeAgreementAlreadyExists() {
+    void shouldReturn_200_whenStripeAgreementAlreadyExists() {
         StripeAgreementDbFixture.stripeAgreementDbFixture(databaseHelper)
                 .withServiceId(service.getId())
                 .insert();
@@ -65,9 +53,19 @@ class ServiceResourceStripeAgreementIT extends IntegrationTest {
                 .body(payload)
                 .post(format("/v1/api/services/%s/stripe-agreement", service.getExternalId()))
                 .then()
-                .statusCode(409)
-                .body("errors", hasSize(1))
-                .body("errors[0]", is("Stripe agreement information is already stored for this service"));
+                .statusCode(200);
+    }
+
+    @Test
+    void shouldReturn_NOT_FOUND_whenServiceNotFound() {
+        JsonNode payload = mapper.valueToTree(Map.of(FIELD_IP_ADDRESS, "0.0.0.0"));
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .body(payload)
+                .post(format("/v1/api/services/%s/stripe-agreement", "123"))
+                .then()
+                .statusCode(404);
     }
 
     @Test
