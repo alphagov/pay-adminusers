@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
-import uk.gov.pay.adminusers.exception.StripeAgreementExistsException;
 import uk.gov.pay.adminusers.model.StripeAgreement;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.StripeAgreementDao;
@@ -39,10 +38,6 @@ public class StripeAgreementService {
     public void doCreate(String serviceExternalId, InetAddress ipAddress) {
         ServiceEntity serviceEntity = serviceDao.findByExternalId(serviceExternalId)
                 .orElseThrow(() -> new ServiceNotFoundException(serviceExternalId));
-        
-        if (stripeAgreementDao.findByServiceExternalId(serviceExternalId).isPresent()) {
-            throw new StripeAgreementExistsException();
-        }
 
         logger.info(format("Creating stripe agreement for service %s", serviceExternalId));
         ZonedDateTime agreementTime = ZonedDateTime.now(ZoneId.of("UTC"));

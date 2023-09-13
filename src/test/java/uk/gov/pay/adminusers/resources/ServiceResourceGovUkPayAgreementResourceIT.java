@@ -50,6 +50,24 @@ class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest {
     }
 
     @Test
+    void shouldReturn_200_whenAgreementAlreadyExists() {
+        GovUkPayAgreementDbFixture.govUkPayAgreementDbFixture(databaseHelper)
+                .withServiceId(service.getId())
+                .withEmail(email)
+                .insert();
+
+        JsonNode payload = mapper.valueToTree(Map.of("user_external_id", user.getExternalId()));
+        givenSetup()
+                .when()
+                .accept(JSON)
+                .body(payload)
+                .post(format("/v1/api/services/%s/govuk-pay-agreement", service.getExternalId()))
+                .then()
+                .statusCode(200)
+                .body("email", is(email));
+    }
+
+    @Test
     void shouldReturn_404_whenServiceNotFound() {
         JsonNode payload = mapper.valueToTree(Map.of("user_external_id", user.getExternalId()));
         givenSetup()
@@ -114,24 +132,6 @@ class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest {
                 .statusCode(400)
                 .body("errors", hasSize(1))
                 .body("errors[0]", is("Field [user_external_id] is required"));
-    }
-
-    @Test
-    void shouldReturn_409_whenAgreementAlreadyExists() {
-        GovUkPayAgreementDbFixture.govUkPayAgreementDbFixture(databaseHelper)
-                .withServiceId(service.getId())
-                .insert();
-
-        JsonNode payload = mapper.valueToTree(Map.of("user_external_id", user.getExternalId()));
-        givenSetup()
-                .when()
-                .accept(JSON)
-                .body(payload)
-                .post(format("/v1/api/services/%s/govuk-pay-agreement", service.getExternalId()))
-                .then()
-                .statusCode(409)
-                .body("errors", hasSize(1))
-                .body("errors[0]", is("GOV.UK Pay agreement information is already stored for this service"));
     }
 
     @Test

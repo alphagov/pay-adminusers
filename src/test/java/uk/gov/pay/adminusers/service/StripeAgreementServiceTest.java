@@ -8,7 +8,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
-import uk.gov.pay.adminusers.exception.StripeAgreementExistsException;
 import uk.gov.pay.adminusers.model.StripeAgreement;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.StripeAgreementDao;
@@ -94,22 +93,5 @@ public class StripeAgreementServiceTest {
 
         assertThrows(ServiceNotFoundException.class,
                 () -> stripeAgreementService.doCreate(serviceExternalId, InetAddress.getByName("192.0.2.0")));
-    }
-
-    @Test
-    public void shouldThrowException_whenStripeAgreementAlreadyExists() throws UnknownHostException {
-        String serviceExternalId = "abc123";
-
-        ServiceEntity mockServiceEntity = mock(ServiceEntity.class);
-        when(mockedServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.of(mockServiceEntity));
-
-        StripeAgreementEntity mockStripeAgreementEntity = mock(StripeAgreementEntity.class);
-        when(mockedStripeAgreementDao.findByServiceExternalId(serviceExternalId)).thenReturn(Optional.of(mockStripeAgreementEntity));
-
-        StripeAgreementExistsException exception = assertThrows(StripeAgreementExistsException.class,
-                () -> stripeAgreementService.doCreate(serviceExternalId, InetAddress.getByName("192.0.2.0")));
-
-        assertThat(exception.getMessage(),
-                is("Stripe agreement information is already stored for this service"));
     }
 }
