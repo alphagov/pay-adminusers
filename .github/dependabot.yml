@@ -6,7 +6,7 @@ updates:
     interval: daily
     time: "03:00"
   ignore:
-    - dependency-name: "dropwizard-dependencies"
+    - dependency-name: "io.dropwizard:dropwizard-dependencies"
       versions:
         - ">= 4"
   open-pull-requests-limit: 10
