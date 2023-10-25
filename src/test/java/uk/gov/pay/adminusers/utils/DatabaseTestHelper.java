@@ -117,9 +117,9 @@ public class DatabaseTestHelper {
                         .createUpdate("INSERT INTO users(" +
                                 "id, external_id, password, email, otp_key, telephone_number, " +
                                 "second_factor, disabled, login_counter, version, " +
-                                "\"createdAt\", \"updatedAt\", session_version, provisional_otp_key) " +
+                                "\"createdAt\", \"updatedAt\", session_version, provisional_otp_key, last_logged_in_at) " +
                                 "VALUES (:id, :externalId, :password, :email, :otpKey, :telephoneNumber, " +
-                                ":secondFactor, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version, :provisionalOtpKey)")
+                                ":secondFactor, :disabled, :loginCounter, :version, :createdAt, :updatedAt, :session_version, :provisionalOtpKey, :lastLoggedInAt)")
                         .bind("id", user.getId())
                         .bind("externalId", user.getExternalId())
                         .bind("password", user.getPassword())
@@ -131,9 +131,10 @@ public class DatabaseTestHelper {
                         .bind("loginCounter", user.getLoginCounter())
                         .bind("version", 0)
                         .bind("session_version", user.getSessionVersion())
-                        .bind("createdAt", now)
+                        .bind("createdAt", user.getCreatedAt() == null ? now : user.getCreatedAt())
                         .bind("updatedAt", now)
                         .bind("provisionalOtpKey", user.getProvisionalOtpKey())
+                        .bind("lastLoggedInAt", user.getLastLoggedInAt())
                         .execute()
         );
         return this;

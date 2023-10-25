@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.persistence.dao;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
@@ -18,11 +19,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.lang.String.valueOf;
+import static java.time.ZonedDateTime.parse;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.equalTo;
@@ -50,7 +54,7 @@ public class UserDaoIT extends DaoTestBase {
         serviceDao = env.getInstance(ServiceDao.class);
         roleDao = env.getInstance(RoleDao.class);
     }
-    
+
     @Test
     void getAdminUserEmailsForGatewayAccountIds_should_return_empty_map() {
         Map<String, List<String>> map = userDao.getAdminUserEmailsForGatewayAccountIds(List.of());
@@ -376,5 +380,80 @@ public class UserDaoIT extends DaoTestBase {
 
         var thrown = assertThrows(javax.persistence.RollbackException.class, () -> userDao.persist(userEntity));
         assertThat(thrown.getMessage(), containsString("ERROR: duplicate key value violates unique constraint \"lower_case_email_index\""));
+    }
+
+    @Nested
+    class TestDeleteUsersNotAssociatedWithAnyService {
+
+        @Test
+        void shouldDeleteUsersWithLastLoggedInAtDateCorrectly() {
+            ZonedDateTime deleteUsersUpToDate = parse("2023-01-31T00:00:00Z");
+            Integer userId = userDbFixture(databaseHelper)
+                    .withLastLoggedInAt(deleteUsersUpToDate.minusDays(1))
+                    .insertUser()
+                    .getId();
+            Integer userIdThatShouldNotDeleted = userDbFixture(databaseHelper)
+                    .withLastLoggedInAt(deleteUsersUpToDate.plusDays(1))
+                    .insertUser()
+                    .getId();
+
+            int recordsDeleted = userDao.deleteUsersNotAssociatedWithAnyService(deleteUsersUpToDate.toInstant());
+
+            assertThat(recordsDeleted, is(1));
+
+            Optional<UserEntity> userEntity = userDao.findById(userId);
+            assertThat(userEntity.isPresent(), is(false));
+
+            userEntity = userDao.findById(userIdThatShouldNotDeleted);
+            assertThat(userEntity.isPresent(), is(true));
+        }
+
+        @Test
+        void shouldDeleteUsersWithOutLastLoggedInAtDateCorrectlyButCreatedDateBeforeTheExpungeDate() {
+            ZonedDateTime deleteUsersUpToDate = parse("2023-01-31T00:00:00Z");
+            Integer userId = userDbFixture(databaseHelper)
+                    .withLastLoggedInAt(null)
+                    .withCreatedAt(deleteUsersUpToDate.minusDays(1))
+                    .insertUser()
+                    .getId();
+            Integer userIdThatShouldNotDeleted = userDbFixture(databaseHelper)
+                    .withLastLoggedInAt(null)
+                    .withCreatedAt(deleteUsersUpToDate.plusDays(1))
+                    .insertUser()
+                    .getId();
+
+            int recordsDeleted = userDao.deleteUsersNotAssociatedWithAnyService(deleteUsersUpToDate.toInstant());
+
+            assertThat(recordsDeleted, is(1));
+
+            Optional<UserEntity> userEntity = userDao.findById(userId);
+            assertThat(userEntity.isPresent(), is(false));
+
+            userEntity = userDao.findById(userIdThatShouldNotDeleted);
+            assertThat(userEntity.isPresent(), is(true));
+        }
+
+        @Test
+        void shouldNotDeleteUsersWithLoggedInOrCreatedIfDateIsAfterTheExpungingDate() {
+            ZonedDateTime deleteUsersUpToDate = parse("2023-01-31T00:00:00Z");
+            String externalId1 = userDbFixture(databaseHelper)
+                    .withLastLoggedInAt(deleteUsersUpToDate.plusDays(1))
+                    .insertUser()
+                    .getExternalId();
+            String externalId2 = userDbFixture(databaseHelper)
+                    .withLastLoggedInAt(null)
+                    .withCreatedAt(deleteUsersUpToDate.plusDays(1))
+                    .insertUser()
+                    .getExternalId();
+
+            int recordsDeleted = userDao.deleteUsersNotAssociatedWithAnyService(deleteUsersUpToDate.toInstant());
+
+            assertThat(recordsDeleted, is(0));
+
+            List<UserEntity> users = userDao.findByExternalIds(List.of(externalId1, externalId2));
+
+            assertThat(users.size(), is(2));
+            assertThat(users.stream().map(UserEntity::getExternalId).collect(Collectors.toSet()), containsInAnyOrder(externalId1, externalId2));
+        }
     }
 }

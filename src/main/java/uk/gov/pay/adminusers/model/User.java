@@ -50,6 +50,8 @@ public class User {
     @Schema(example = "2022-04-06T23:03:41.665Z")
     @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
     private ZonedDateTime lastLoggedInAt;
+    @JsonIgnore
+    private ZonedDateTime createdAt;
     private List<Link> links = new ArrayList<>();
     private Integer sessionVersion = 0;
 
@@ -58,7 +60,15 @@ public class User {
                             SecondFactorMethod secondFactor, String provisionalOtpKey,
                             ZonedDateTime provisionalOtpKeyCreatedAt, ZonedDateTime lastLoggedInAt) {
         return new User(id, externalId, password, email, otpKey, telephoneNumber, serviceRoles, features,
-                secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt);
+                secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt, null);
+    }
+
+    public static User from(Integer id, String externalId, String password, String email, String otpKey,
+                            String telephoneNumber, List<ServiceRole> serviceRoles, String features,
+                            SecondFactorMethod secondFactor, String provisionalOtpKey,
+                            ZonedDateTime provisionalOtpKeyCreatedAt, ZonedDateTime lastLoggedInAt, ZonedDateTime createdAt) {
+        return new User(id, externalId, password, email, otpKey, telephoneNumber, serviceRoles, features,
+                secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt, createdAt);
     }
 
     private User(Integer id, @JsonProperty("external_id") String externalId, @JsonProperty("password") String password, @JsonProperty("email") String email,
@@ -67,7 +77,9 @@ public class User {
                  @JsonProperty("second_factor") SecondFactorMethod secondFactor,
                  @JsonProperty("provisional_otp_key") String provisionalOtpKey,
                  @JsonProperty("provisional_otp_key_created_at") ZonedDateTime provisionalOtpKeyCreatedAt,
-                 @JsonProperty("last_logged_in_at") ZonedDateTime lastLoggedInAt) {
+                 @JsonProperty("last_logged_in_at") ZonedDateTime lastLoggedInAt,
+                ZonedDateTime createdAt
+                 ) {
         this.id = id;
         this.externalId = externalId;
         this.password = password;
@@ -80,6 +92,7 @@ public class User {
         this.provisionalOtpKey = provisionalOtpKey;
         this.provisionalOtpKeyCreatedAt = provisionalOtpKeyCreatedAt;
         this.lastLoggedInAt = lastLoggedInAt;
+        this.createdAt = createdAt;
     }
 
     @JsonIgnore
@@ -171,6 +184,10 @@ public class User {
 
     public void setLastLoggedInAt(ZonedDateTime lastLoggedInAt) {
         this.lastLoggedInAt = lastLoggedInAt;
+    }
+
+    public ZonedDateTime getCreatedAt() {
+        return createdAt;
     }
 
     @JsonProperty("_links")
