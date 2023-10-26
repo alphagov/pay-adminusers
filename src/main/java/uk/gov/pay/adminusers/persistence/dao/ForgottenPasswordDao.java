@@ -7,9 +7,12 @@ import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.persistence.entity.ForgottenPasswordEntity;
 
 import javax.persistence.EntityManager;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+
+import static java.util.Date.from;
 
 @Transactional
 public class ForgottenPasswordDao extends JpaDao<ForgottenPasswordEntity> {
@@ -34,5 +37,15 @@ public class ForgottenPasswordDao extends JpaDao<ForgottenPasswordEntity> {
                 .setParameter("code", code)
                 .setParameter("expiry", expiryDateTime)
                 .getResultList().stream().findFirst();
+    }
+
+    public int deleteForgottenPasswords(ZonedDateTime deleteRecordsBeforeDate) {
+        String query = "DELETE FROM ForgottenPasswordEntity" +
+                " WHERE createdAt < :deleteRecordsBeforeDate";
+
+        return entityManager.get()
+                .createQuery(query)
+                .setParameter("deleteRecordsBeforeDate", deleteRecordsBeforeDate)
+                .executeUpdate();
     }
 }

@@ -61,4 +61,7 @@ public class ForgottenPasswordDbFixture {
         return date;
     }
 
+    public Object getId() {
+        return id;
+    }
 }
