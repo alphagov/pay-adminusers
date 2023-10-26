@@ -409,7 +409,7 @@ public class UserDaoIT extends DaoTestBase {
         }
 
         @Test
-        void shouldDeleteUsersWithOutLastLoggedInAtDateCorrectlyButCreatedDateBeforeTheExpungeDate() {
+        void shouldDeleteUsersWithoutLastLoggedInAtDateCorrectlyButCreatedDateBeforeTheExpungeDate() {
             ZonedDateTime deleteUsersUpToDate = parse("2023-01-31T00:00:00Z");
             Integer userId = userDbFixture(databaseHelper)
                     .withLastLoggedInAt(null)
