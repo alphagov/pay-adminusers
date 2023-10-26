@@ -2,7 +2,6 @@ package uk.gov.pay.adminusers.utils;
 
 import org.jdbi.v3.core.Jdbi;
 import org.postgresql.util.PGobject;
-import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.MerchantDetails;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
@@ -175,15 +174,16 @@ public class DatabaseTestHelper {
         return this;
     }
 
-    public DatabaseTestHelper add(ForgottenPassword forgottenPassword, Integer userId) {
+    public DatabaseTestHelper insertForgottenPassword(Integer id, ZonedDateTime date, String code, Integer userId, ZonedDateTime createdAt) {
         jdbi.withHandle(handle ->
                 handle
-                        .createUpdate("INSERT INTO forgotten_passwords(id, date, code, \"userId\") " +
-                                "VALUES (:id, :date, :code, :userId)")
-                        .bind("id", forgottenPassword.getId())
-                        .bind("date", from(forgottenPassword.getDate().toInstant()))
-                        .bind("code", forgottenPassword.getCode())
+                        .createUpdate("INSERT INTO forgotten_passwords(id, date, code, \"userId\", \"createdAt\") " +
+                                "VALUES (:id, :date, :code, :userId, :createdAt)")
+                        .bind("id", id)
+                        .bind("date", from(date.toInstant()))
+                        .bind("code", code)
                         .bind("userId", userId)
+                        .bind("createdAt", from(date.toInstant()))
                         .execute()
         );
         return this;

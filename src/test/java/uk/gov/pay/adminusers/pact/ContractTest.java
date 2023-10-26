@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import uk.gov.pay.adminusers.infra.AppWithPostgresAndSqsRule;
-import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
@@ -22,6 +21,7 @@ import java.util.Map;
 import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
+import static uk.gov.pay.adminusers.fixtures.ForgottenPasswordDbFixture.aForgottenPasswordDbFixture;
 import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
@@ -57,7 +57,12 @@ public abstract class ContractTest {
         String userExternalId = randomUuid();
         createUserWithinAService(userExternalId, randomUuid() + "@example.com", "password", "cp5wa");
         List<Map<String, Object>> userByExternalId = dbHelper.findUserByExternalId(userExternalId);
-        dbHelper.add(ForgottenPassword.forgottenPassword(code, userExternalId), (Integer) userByExternalId.get(0).get("id"));
+
+        aForgottenPasswordDbFixture()
+                .withDatabaseTestHelper(dbHelper)
+                .withUserId((Integer) userByExternalId.get(0).get("id"))
+                .withCode(code)
+                .insert();
     }
 
     @State("a user exists with max login attempts")
@@ -73,7 +78,12 @@ public abstract class ContractTest {
         String existingUserExternalId = "7d19aff33f8948deb97ed16b2912dcd3";
         createUserWithinAService(existingUserExternalId, "forgotten-password-user@example.com", "password", "cp5wa");
         List<Map<String, Object>> userByName = dbHelper.findUserByExternalId(existingUserExternalId);
-        dbHelper.add(ForgottenPassword.forgottenPassword(code, existingUserExternalId), (Integer) userByName.get(0).get("id"));
+
+        aForgottenPasswordDbFixture()
+                .withDatabaseTestHelper(dbHelper)
+                .withUserId((Integer) userByName.get(0).get("id"))
+                .withCode(code)
+                .insert();
     }
 
     @State("a user and user admin exists in service with the given ids before a delete operation")

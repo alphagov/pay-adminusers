@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
 import org.junit.jupiter.api.Test;
+import uk.gov.pay.adminusers.fixtures.ForgottenPasswordDbFixture;
 
 import java.util.Map;
 
@@ -10,7 +11,7 @@ import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.fixtures.ForgottenPasswordDbFixture.forgottenPasswordDbFixture;
+import static uk.gov.pay.adminusers.fixtures.ForgottenPasswordDbFixture.aForgottenPasswordDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 public class ForgottenPasswordResourceIT extends IntegrationTest {
@@ -54,7 +55,12 @@ public class ForgottenPasswordResourceIT extends IntegrationTest {
         String username = randomUuid();
         String email = username + "@example.com";
         int userId = userDbFixture(databaseHelper).withEmail(email).insertUser().getId();
-        String forgottenPasswordCode = forgottenPasswordDbFixture(databaseHelper, userId).insertForgottenPassword();
+
+        String forgottenPasswordCode = aForgottenPasswordDbFixture()
+                .withDatabaseTestHelper(databaseHelper)
+                .withUserId(userId)
+                .insert()
+                .getForgottenPasswordCode();
 
         givenSetup()
                 .when()
@@ -63,7 +69,6 @@ public class ForgottenPasswordResourceIT extends IntegrationTest {
                 .then()
                 .statusCode(OK.getStatusCode())
                 .body("code", is(forgottenPasswordCode));
-
     }
 
     @Test
