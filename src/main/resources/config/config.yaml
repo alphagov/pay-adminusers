@@ -138,3 +138,7 @@ restClientConfig:
   disabledSecureConnection: ${DISABLE_INTERNAL_HTTPS:-false}
 
 ecsContainerMetadataUriV4: ${ECS_CONTAINER_METADATA_URI_V4:-}
+
+expungeAndArchiveDataConfig:
+  expungeAndArchiveHistoricalDataEnabled: ${EXPUNGE_AND_ARCHIVE_HISTORICAL_DATA_ENABLED:-false}
+  expungeUserDataAfterDays: ${EXPUNGE_USER_DATA_AFTER_DAYS:-1460}

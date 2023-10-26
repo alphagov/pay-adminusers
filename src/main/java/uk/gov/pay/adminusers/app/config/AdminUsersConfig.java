@@ -49,6 +49,9 @@ public class AdminUsersConfig extends Configuration {
     private EventSubscriberQueueConfig eventSubscriberQueueConfig;
 
     @NotNull
+    private ExpungeAndArchiveDataConfig expungeAndArchiveDataConfig;
+
+    @NotNull
     @JsonProperty("ledgerBaseURL")
     private String ledgerBaseUrl;
 
@@ -116,6 +119,10 @@ public class AdminUsersConfig extends Configuration {
 
     public RestClientConfig getRestClientConfig() {
         return restClientConfig;
+    }
+
+    public ExpungeAndArchiveDataConfig getExpungeAndArchiveDataConfig() {
+        return expungeAndArchiveDataConfig;
     }
 
     public Optional<URI> getEcsContainerMetadataUriV4() {
