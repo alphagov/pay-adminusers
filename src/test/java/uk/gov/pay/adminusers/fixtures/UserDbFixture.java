@@ -10,6 +10,7 @@ import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,8 @@ public class UserDbFixture {
     private String features = "FEATURE_1, FEATURE_2";
     private String provisionalOtpKey;
     private SecondFactorMethod secondFactorMethod = SecondFactorMethod.SMS;
+    private ZonedDateTime createdAt;
+    private ZonedDateTime lastLoggedInAt;
 
     private UserDbFixture(DatabaseTestHelper databaseTestHelper) {
         this.databaseTestHelper = databaseTestHelper;
@@ -44,7 +47,7 @@ public class UserDbFixture {
                 .collect(toUnmodifiableList());
 
         User user = User.from(randomInt(), externalId, password, email, otpKey, telephoneNumber,
-                serviceRoles, features, secondFactorMethod, provisionalOtpKey, null, null);
+                serviceRoles, features, secondFactorMethod, provisionalOtpKey, null, lastLoggedInAt, createdAt);
 
         databaseTestHelper.add(user);
         serviceRoles.forEach(serviceRole -> 
@@ -101,6 +104,16 @@ public class UserDbFixture {
 
     public UserDbFixture withSecondFactorMethod(SecondFactorMethod secondFactorMethod) {
         this.secondFactorMethod = secondFactorMethod;
+        return this;
+    }
+
+    public UserDbFixture withCreatedAt(ZonedDateTime createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
+
+    public UserDbFixture withLastLoggedInAt(ZonedDateTime lastLoggedInAt) {
+        this.lastLoggedInAt = lastLoggedInAt;
         return this;
     }
 }

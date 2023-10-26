@@ -8,6 +8,7 @@ import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.time.Instant;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.Date.from;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static java.util.stream.Collectors.toUnmodifiableMap;
@@ -47,7 +49,7 @@ public class UserDao extends JpaDao<UserEntity> {
                 .setParameter("externalIds", lowerCaseExternalIds)
                 .getResultList();
     }
-    
+
     public Map<String, List<String>> getAdminUserEmailsForGatewayAccountIds(List<String> gatewayAccountIds) {
         if (gatewayAccountIds.size() > 0) {
             String positionalParams = IntStream.rangeClosed(1, gatewayAccountIds.size()).mapToObj(Integer::toString)
@@ -80,7 +82,7 @@ public class UserDao extends JpaDao<UserEntity> {
             return Map.of();
         }
     }
-    
+
     public Optional<UserEntity> findByEmail(String email) {
         String query = "SELECT u FROM UserEntity u " +
                 "WHERE LOWER(u.email) = LOWER(:email)";
@@ -102,5 +104,22 @@ public class UserDao extends JpaDao<UserEntity> {
                 .getResultList().stream()
                 .map(ServiceRoleEntity::getUser)
                 .collect(toUnmodifiableList());
+    }
+
+    public int deleteUsersNotAssociatedWithAnyService(Instant deleteRecordsBeforeDate) {
+        String query = "DELETE FROM users u" +
+                " WHERE u.id in (" +
+                "    SELECT u.id FROM users u" +
+                "     LEFT OUTER JOIN user_services_roles usr " +
+                "     ON u.id = usr.user_id" +
+                "    WHERE usr.user_id is null" +
+                "      AND (last_logged_in_at < ?1 OR (\"createdAt\" < ?2 AND last_logged_in_at IS null))" +
+                " )";
+
+        return entityManager.get()
+                .createNativeQuery(query)
+                .setParameter(1, from(deleteRecordsBeforeDate))
+                .setParameter(2, from(deleteRecordsBeforeDate))
+                .executeUpdate();
     }
 }
