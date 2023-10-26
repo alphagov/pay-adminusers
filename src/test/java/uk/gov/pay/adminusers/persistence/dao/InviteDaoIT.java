@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.persistence.dao;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.User;
@@ -9,23 +10,27 @@ import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static java.sql.Timestamp.from;
+import static java.time.ZonedDateTime.parse;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
-public class InviteDaoIT extends DaoTestBase {
+class InviteDaoIT extends DaoTestBase {
 
     private InviteDao inviteDao;
     private RoleDao roleDao;
@@ -41,7 +46,7 @@ public class InviteDaoIT extends DaoTestBase {
     }
 
     @Test
-    public void create_shouldCreateAnInvite() {
+    void create_shouldCreateAnInvite() {
 
         Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
@@ -79,7 +84,7 @@ public class InviteDaoIT extends DaoTestBase {
     }
 
     @Test
-    public void findByCode_shouldFindAnExistingInvite() {
+    void findByCode_shouldFindAnExistingInvite() {
 
         String code = inviteDbFixture(databaseHelper).insertInviteToAddUserToService();
 
@@ -89,7 +94,7 @@ public class InviteDaoIT extends DaoTestBase {
     }
 
     @Test
-    public void findByEmail_shouldFindAnExistingInvite() {
+    void findByEmail_shouldFindAnExistingInvite() {
 
         String email = randomAlphanumeric(5) + "@example.com";
 
@@ -101,12 +106,51 @@ public class InviteDaoIT extends DaoTestBase {
     }
 
     @Test
-    public void findAllByServiceId_shouldFindAllInvitesForAService() {
+    void findAllByServiceId_shouldFindAllInvitesForAService() {
         String serviceId = "asfkhsjhfskdf";
         inviteDbFixture(databaseHelper).withServiceExternalId(serviceId).insertInviteToAddUserToService();
 
         List<InviteEntity> invites = inviteDao.findAllByServiceId(serviceId);
-        
+
         assertThat(invites.size(), is(1));
+    }
+
+    @Nested
+    class TestDeleteInvites {
+
+        @Test
+        void shouldDeleteInvitesOlderThanTheDateProvided() {
+            ZonedDateTime deleteRecordsUpToDate = parse("2020-01-01T00:00:00Z");
+            String code = inviteDbFixture(databaseHelper)
+                    .withDate(deleteRecordsUpToDate.minusDays(1))
+                    .insertInviteToAddUserToService();
+
+            int noOfRecordsDeleted = inviteDao.deleteInvites(deleteRecordsUpToDate);
+
+            assertThat(noOfRecordsDeleted, is(1));
+
+            Optional<InviteEntity> invite = inviteDao.findByCode(code);
+            assertFalse(invite.isPresent());
+        }
+
+        @Test
+        void shouldNotDeleteInvitesCreatedOnOrAfterTheDateProvided() {
+            ZonedDateTime deleteRecordsUpToDate = parse("2020-01-01T00:00:00Z");
+            String code1 = inviteDbFixture(databaseHelper)
+                    .withDate(deleteRecordsUpToDate)
+                    .insertInviteToAddUserToService();
+            String code2 = inviteDbFixture(databaseHelper)
+                    .withDate(deleteRecordsUpToDate.plusDays(1))
+                    .insertInviteToAddUserToService();
+
+            int noOfRecordsDeleted = inviteDao.deleteInvites(deleteRecordsUpToDate);
+            assertThat(noOfRecordsDeleted, is(0));
+
+            Optional<InviteEntity> invite = inviteDao.findByCode(code1);
+            assertTrue(invite.isPresent());
+
+            invite = inviteDao.findByCode(code2);
+            assertTrue(invite.isPresent());
+        }
     }
 }

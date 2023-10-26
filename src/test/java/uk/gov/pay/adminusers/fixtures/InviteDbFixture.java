@@ -119,4 +119,9 @@ public class InviteDbFixture {
         this.code = code;
         return this;
     }
+
+    public InviteDbFixture withDate(ZonedDateTime date) {
+        this.date = date;
+        return this;
+    }
 }
