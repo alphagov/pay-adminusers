@@ -1,19 +1,21 @@
 package uk.gov.pay.adminusers.resources;
 
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Map;
 
 import static io.restassured.http.ContentType.JSON;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.fixtures.ForgottenPasswordDbFixture.forgottenPasswordDbFixture;
+import static uk.gov.pay.adminusers.fixtures.ForgottenPasswordDbFixture.aForgottenPasswordDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 public class ResetPasswordResourceIT extends IntegrationTest {
@@ -33,7 +35,12 @@ public class ResetPasswordResourceIT extends IntegrationTest {
     @Test
     public void resetPassword_shouldReturn204_whenCodeIsValid_changingTheOldPasswordToTheNewEncryptedOne() throws Exception {
 
-        String forgottenPasswordCode = forgottenPasswordDbFixture(databaseHelper, userId).insertForgottenPassword();
+        String forgottenPasswordCode = aForgottenPasswordDbFixture()
+                .withDatabaseTestHelper(databaseHelper)
+                .withUserId(userId)
+                .insert()
+                .getForgottenPasswordCode();
+
         String password = "iPromiseIWon'tForgetThisPassword";
 
         Map<Object, Object> payload = Map.of(
@@ -84,8 +91,13 @@ public class ResetPasswordResourceIT extends IntegrationTest {
     @Test
     public void resetPassword_shouldReturn400_whenCodeHasExpired_andCurrentEncryptedPasswordShouldNotChange() throws Exception {
 
-
-        String expiredForgottenPasswordCode = forgottenPasswordDbFixture(databaseHelper, userId).expired().insertForgottenPassword();
+        ZonedDateTime expired = ZonedDateTime.now(ZoneId.of("UTC")).minus(91, MINUTES);
+        String expiredForgottenPasswordCode = aForgottenPasswordDbFixture()
+                .withDatabaseTestHelper(databaseHelper)
+                .withUserId(userId)
+                .withExpiryDate(expired)
+                .insert()
+                .getForgottenPasswordCode();
 
         Map<Object, Object> payload = Map.of(
                 "forgotten_password_code", expiredForgottenPasswordCode,

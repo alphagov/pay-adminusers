@@ -1,39 +1,64 @@
 package uk.gov.pay.adminusers.fixtures;
 
-import org.apache.commons.lang3.RandomStringUtils;
-import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.time.ZonedDateTime.now;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
-import static uk.gov.pay.adminusers.model.ForgottenPassword.forgottenPassword;
 
 public class ForgottenPasswordDbFixture {
 
     private DatabaseTestHelper databaseTestHelper;
     private int userId;
-    private ZonedDateTime date = ZonedDateTime.now(ZoneId.of("UTC"));
-    private String forgottenPasswordCode = RandomStringUtils.randomAlphanumeric(100);
+    private ZonedDateTime date = now(ZoneId.of("UTC"));
+    private String forgottenPasswordCode = randomAlphanumeric(100);
+    private ZonedDateTime createdAt = now(ZoneId.of("UTC"));
 
-    private ForgottenPasswordDbFixture(DatabaseTestHelper databaseTestHelper, int userId) {
-        this.databaseTestHelper = databaseTestHelper;
+    private final Integer id = nextInt();
+
+    public static ForgottenPasswordDbFixture aForgottenPasswordDbFixture() {
+        return new ForgottenPasswordDbFixture();
+    }
+
+    public ForgottenPasswordDbFixture insert() {
+        databaseTestHelper.insertForgottenPassword(id, date, forgottenPasswordCode, userId, createdAt);
+        return this;
+    }
+
+    public ForgottenPasswordDbFixture withExpiryDate(ZonedDateTime expiryDate) {
+        this.date = expiryDate;
+        return this;
+    }
+
+    public ForgottenPasswordDbFixture withCreatedAt(ZonedDateTime createdAt) {
+        this.createdAt = createdAt;
+        return this;
+    }
+
+    public ForgottenPasswordDbFixture withUserId(int userId) {
         this.userId = userId;
+        return this;
     }
 
-    public static ForgottenPasswordDbFixture forgottenPasswordDbFixture(DatabaseTestHelper databaseHelper, int userId) {
-        return new ForgottenPasswordDbFixture(databaseHelper, userId);
+    public ForgottenPasswordDbFixture withCode(String forgottenPasswordCode) {
+        this.forgottenPasswordCode = forgottenPasswordCode;
+        return this;
     }
 
-    public String insertForgottenPassword() {
-        databaseTestHelper.add(forgottenPassword(nextInt(), forgottenPasswordCode, date, RandomIdGenerator.randomUuid()), userId);
+    public ForgottenPasswordDbFixture withDatabaseTestHelper(DatabaseTestHelper databaseHelper) {
+        this.databaseTestHelper = databaseHelper;
+        return this;
+    }
+
+    public String getForgottenPasswordCode() {
         return forgottenPasswordCode;
     }
 
-    public ForgottenPasswordDbFixture expired() {
-        date = ZonedDateTime.now(ZoneId.of("UTC")).minus(91, MINUTES);
-        return this;
+    public ZonedDateTime getDate() {
+        return date;
     }
+
 }
