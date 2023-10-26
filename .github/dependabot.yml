@@ -10,6 +10,9 @@ updates:
       - dependency-name: "io.dropwizard:dropwizard-dependencies"
         versions:
           - ">= 4"
+      - dependency-name: "com.google.inject:guice-bom"
+        versions:
+          - ">= 7"
     open-pull-requests-limit: 10
     labels:
       - dependencies
