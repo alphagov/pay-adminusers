@@ -183,7 +183,7 @@ public class DatabaseTestHelper {
                         .bind("date", from(date.toInstant()))
                         .bind("code", code)
                         .bind("userId", userId)
-                        .bind("createdAt", from(date.toInstant()))
+                        .bind("createdAt", from(createdAt.toInstant()))
                         .execute()
         );
         return this;
