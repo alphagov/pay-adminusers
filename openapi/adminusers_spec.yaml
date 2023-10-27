@@ -175,7 +175,7 @@ paths:
               example:
               - op: replace
                 path: telephone_number
-                value: +441134960000
+                value: "+441134960000"
               - op: replace
                 path: password
                 value: a-password
@@ -1263,7 +1263,7 @@ components:
           example: view-only
         telephone_number:
           type: string
-          example: +440787654534
+          example: "+440787654534"
         user_exist:
           type: boolean
     InviteValidateOtpRequest:
