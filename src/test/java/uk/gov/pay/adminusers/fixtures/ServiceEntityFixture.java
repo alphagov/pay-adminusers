@@ -11,14 +11,14 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.service.payments.commons.model.SupportedLanguage;
 
-import static org.apache.commons.lang3.RandomUtils.nextInt;
-
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static org.apache.commons.lang3.RandomUtils.nextInt;
 
 public final class ServiceEntityFixture {
     private Integer id = nextInt();
@@ -37,6 +37,7 @@ public final class ServiceEntityFixture {
     private ZonedDateTime wentLiveDate;
     private String sector;
     private PspTestAccountStage pspTestAccountStage = PspTestAccountStage.NOT_STARTED;
+    private boolean archived = false;
 
     private ServiceEntityFixture() {
     }
@@ -127,6 +128,11 @@ public final class ServiceEntityFixture {
         return this;
     }
 
+    public ServiceEntityFixture withArchived(boolean archived) {
+        this.archived = archived;
+        return this;
+    }
+
     public ServiceEntity build() {
         ServiceEntity serviceEntity = new ServiceEntity();
         serviceEntity.setId(id);
@@ -145,6 +151,7 @@ public final class ServiceEntityFixture {
         serviceEntity.setWentLiveDate(wentLiveDate);
         serviceEntity.setSector(sector);
         serviceEntity.setCurrentPspTestAccountStage(pspTestAccountStage);
+        serviceEntity.setArchived(archived);
         return serviceEntity;
     }
 }
