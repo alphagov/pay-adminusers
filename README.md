@@ -50,7 +50,8 @@ The [API Specification](/openapi/adminusers_spec.yaml) provides more detail on t
 | `RUN_MIGRATION`                                                               | Set to `true` to run a database migration. Defaults to `false`. |
 | `SELFSERVICE_URL`                                                             | The URL to the admin portal. Defaults to `https://selfservice.pymnt.localdomain`. |
 | `SUPPORT_URL`                                                                 | The URL users can visit to get support. Defaults to `https://frontend.pymnt.localdomain/contact/`. |
-
+| `EXPUNGE_AND_ARCHIVE_HISTORICAL_DATA_ENABLED`                                 | Set to `true` to enable expunging (user related data) and archiving (services) historical data. Default is `false`. |
+| `EXPUNGE_USER_DATA_AFTER_DAYS`                                                | Number of days after which users (not attached to any service) not logged in or created but never logged in deleted. Default is 4 years. |
 -----------------------------------------------------------------------------------------------------------
 
 ## Maven profiles
