@@ -82,14 +82,14 @@ public class LedgerServiceTest {
     @Test
     public void searchTransactions_shouldDeserialiseSearchTransactionsResponseCorrectly() throws JsonProcessingException {
         String externalId = "e8eq11mi2ndmauvb51qsg8hccn";
-        ImmutableMap<String, Object> transactionData = ImmutableMap.of(
+        Map<String, Object> transactionData = Map.of(
                 "total", 1,
                 "count", 1,
                 "results", List.of(
                         Map.of("reference", "ref-1", "created_date", "2023-10-09T16:31:13.511Z",
                                 "transaction_id", externalId, "gateway_account_id", "1")
                 ));
-        String ledgerPayload = new Gson().toJson(transactionData);
+        String ledgerPayload = objectMapper.writeValueAsString(transactionData);
 
         when(mockResponse.readEntity(LedgerSearchTransactionsResponse.class)).thenReturn(objectMapper.readValue(ledgerPayload, LedgerSearchTransactionsResponse.class));
         LedgerSearchTransactionsResponse ledgerSearchTransactionsResponse = serviceUnderTest.searchTransactions("1", 1);
@@ -99,7 +99,7 @@ public class LedgerServiceTest {
     }
 
     @Test
-    public void searchTransactions_shouldTHrowExceptionIfLedgerReturnsNon2xxError() throws JsonProcessingException {
+    public void searchTransactions_shouldThrowExceptionIfLedgerReturnsNon2xxError() throws JsonProcessingException {
         when(mockResponse.getStatus()).thenReturn(SC_INTERNAL_SERVER_ERROR);
 
         assertThrows(LedgerException.class, () -> serviceUnderTest.searchTransactions("1", 1));

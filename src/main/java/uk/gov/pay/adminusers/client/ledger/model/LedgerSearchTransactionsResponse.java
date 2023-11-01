@@ -11,12 +11,6 @@ import java.util.List;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class LedgerSearchTransactionsResponse {
 
-    @JsonProperty("total")
-    private int total;
-
-    @JsonProperty("count")
-    private int count;
-
     @JsonProperty("results")
     private List<LedgerTransaction> transactions;
 
@@ -24,11 +18,4 @@ public class LedgerSearchTransactionsResponse {
         return transactions;
     }
 
-    public int getTotal() {
-        return total;
-    }
-
-    public int getCount() {
-        return count;
-    }
 }
