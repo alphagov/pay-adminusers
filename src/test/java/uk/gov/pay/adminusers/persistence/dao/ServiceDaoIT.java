@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.postgresql.util.PGobject;
+import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.Permission;
@@ -19,7 +21,6 @@ import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntityBuilder;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
-import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
 import uk.gov.service.payments.commons.model.SupportedLanguage;
 
@@ -372,6 +373,59 @@ class ServiceDaoIT extends DaoTestBase {
 
         assertThat(optionalService.isPresent(), is(true));
         assertThat(optionalService.get().getCurrentPspTestAccountStage(), is(PspTestAccountStage.REQUEST_SUBMITTED));
+    }
+
+    @Nested
+    class TestFindServicesToCheckForArchiving {
+        @Test
+        void shouldReturnServicesOlderThanTheProvidedDate() {
+            ZonedDateTime archiveServicesBeforeDate = ZonedDateTime.parse("2022-01-01T00:00:00Z");
+            ServiceEntity insertedServiceEntity = ServiceEntityFixture
+                    .aServiceEntity()
+                    .withCreatedDate(archiveServicesBeforeDate.minusDays(1))
+                    .build();
+
+            databaseHelper.insertServiceEntity(insertedServiceEntity);
+
+            List<ServiceEntity> services = serviceDao.findServicesToCheckForArchiving(archiveServicesBeforeDate);
+            assertThat(services.size(), is(1));
+            assertThat(services.get(0).getExternalId(), is(insertedServiceEntity.getExternalId()));
+        }
+
+        @Test
+        void shouldNotReturnServiceCreatedAfterTheProvidedDate() {
+            ZonedDateTime archiveServicesBeforeDate = ZonedDateTime.parse("2022-01-01T00:00:00Z");
+            ServiceEntity insertedServiceEntity1 = ServiceEntityFixture
+                    .aServiceEntity()
+                    .withCreatedDate(archiveServicesBeforeDate)
+                    .build();
+            ServiceEntity insertedServiceEntity2 = ServiceEntityFixture
+                    .aServiceEntity()
+                    .withCreatedDate(archiveServicesBeforeDate.plusDays(1))
+                    .build();
+
+            databaseHelper.insertServiceEntity(insertedServiceEntity1);
+            databaseHelper.insertServiceEntity(insertedServiceEntity2);
+
+            List<ServiceEntity> services = serviceDao.findServicesToCheckForArchiving(archiveServicesBeforeDate);
+            assertThat(services.size(), is(0));
+        }
+
+        @Test
+        void shouldNotReturnServiceArchived() {
+            ZonedDateTime archiveServicesBeforeDate = ZonedDateTime.parse("2022-01-01T00:00:00Z");
+
+            ServiceEntity insertedServiceEntity = ServiceEntityFixture
+                    .aServiceEntity()
+                    .withCreatedDate(archiveServicesBeforeDate.minusDays(1))
+                    .withArchived(true)
+                    .build();
+
+            databaseHelper.insertServiceEntity(insertedServiceEntity);
+
+            List<ServiceEntity> services = serviceDao.findServicesToCheckForArchiving(archiveServicesBeforeDate);
+            assertThat(services.size(), is(0));
+        }
     }
 
     private void setupUsersForServiceAndRole(String externalId, int roleId, int noOfUsers) {
