@@ -63,6 +63,7 @@ public class EmailValidator {
             "sssc.uk.com",
             "tfgm.com",
             "ucds.email",
+            "ukaea.uk",
             "uksbs.co.uk",
             "wmca.org.uk",
             "york.ac.uk"
