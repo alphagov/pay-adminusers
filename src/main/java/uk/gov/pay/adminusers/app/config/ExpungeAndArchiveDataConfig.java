@@ -10,11 +10,18 @@ public class ExpungeAndArchiveDataConfig {
     @NotNull
     private int expungeUserDataAfterDays;
 
+    @NotNull
+    private int archiveServicesAfterDays;
+
     public boolean isExpungeAndArchiveHistoricalDataEnabled() {
         return expungeAndArchiveHistoricalDataEnabled;
     }
 
     public int getExpungeUserDataAfterDays() {
         return expungeUserDataAfterDays;
+    }
+
+    public int getArchiveServicesAfterDays() {
+        return archiveServicesAfterDays;
     }
 }

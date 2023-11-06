@@ -22,11 +22,11 @@ public class LedgerTransaction {
         // empty constructor
     }
 
-    public LedgerTransaction(String transactionId, String reference) {
+    public LedgerTransaction(String transactionId, String reference, ZonedDateTime createdDate) {
         this.transactionId = transactionId;
         this.reference = reference;
+        this.createdDate = createdDate;
     }
-
 
     public String getReference() {
         return reference;

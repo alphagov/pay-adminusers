@@ -6,12 +6,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.ExpungeAndArchiveDataConfig;
+import uk.gov.pay.adminusers.client.ledger.model.LedgerSearchTransactionsResponse;
+import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
+import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -23,6 +32,8 @@ public class ExpungeAndArchiveHistoricalDataService {
     private final UserDao userDao;
     private final InviteDao inviteDao;
     private final ForgottenPasswordDao forgottenPasswordDao;
+    private final ServiceDao serviceDao;
+    private final LedgerService ledgerService;
     private final ExpungeAndArchiveDataConfig expungeAndArchiveDataConfig;
     private final Clock clock;
 
@@ -35,11 +46,15 @@ public class ExpungeAndArchiveHistoricalDataService {
     @Inject
     public ExpungeAndArchiveHistoricalDataService(UserDao userDao, InviteDao inviteDao,
                                                   ForgottenPasswordDao forgottenPasswordDao,
+                                                  ServiceDao serviceDao,
+                                                  LedgerService ledgerService,
                                                   AdminUsersConfig adminUsersConfig,
                                                   Clock clock) {
         this.userDao = userDao;
         this.inviteDao = inviteDao;
         this.forgottenPasswordDao = forgottenPasswordDao;
+        this.serviceDao = serviceDao;
+        this.ledgerService = ledgerService;
         expungeAndArchiveDataConfig = adminUsersConfig.getExpungeAndArchiveDataConfig();
         this.clock = clock;
     }
@@ -55,10 +70,14 @@ public class ExpungeAndArchiveHistoricalDataService {
                 int noOfInvitesDeleted = inviteDao.deleteInvites(deleteUsersAndRelatedDataBeforeDate);
                 int noOfForgottenPasswordsDeleted = forgottenPasswordDao.deleteForgottenPasswords(deleteUsersAndRelatedDataBeforeDate);
 
+                int noOfServicesArchived = archiveServices();
+
                 LOGGER.info("Completed expunging and archiving historical data",
                         kv("no_of_users_deleted", noOfUsersDeleted),
                         kv("no_of_forgotten_passwords_deleted", noOfForgottenPasswordsDeleted),
-                        kv("no_of_invites_deleted", noOfInvitesDeleted));
+                        kv("no_of_invites_deleted", noOfInvitesDeleted),
+                        kv("no_of_services_archived", noOfServicesArchived)
+                );
             } else {
                 LOGGER.info("Expunging and archiving historical data is not enabled");
             }
@@ -67,10 +86,64 @@ public class ExpungeAndArchiveHistoricalDataService {
         }
     }
 
+    private int archiveServices() {
+        ZonedDateTime archiveServicesBeforeDate = getArchiveServicesBeforeDate();
+        List<ServiceEntity> servicesToCheckForArchiving = serviceDao.findServicesToCheckForArchiving(archiveServicesBeforeDate);
+
+        AtomicInteger numberOfServicesArchived = new AtomicInteger();
+        servicesToCheckForArchiving.forEach(serviceEntity -> {
+
+            if (canArchiveService(serviceEntity)) {
+                numberOfServicesArchived.getAndIncrement();
+                serviceEntity.setArchived(true);
+
+                serviceDao.merge(serviceEntity);
+            }
+        });
+
+        return numberOfServicesArchived.get();
+    }
+
+    private boolean canArchiveService(ServiceEntity serviceEntity) {
+        Optional<ZonedDateTime> mayBeLastTransactionDateForService = getLastTransactionDateForService(serviceEntity);
+        ZonedDateTime archiveServicesBeforeDate = getArchiveServicesBeforeDate();
+
+        if (mayBeLastTransactionDateForService.isPresent()) {
+            return mayBeLastTransactionDateForService.get().isBefore(archiveServicesBeforeDate);
+        } else if (serviceEntity.getCreatedDate() != null) {
+            return serviceEntity.getCreatedDate().isBefore(archiveServicesBeforeDate);
+        }
+
+        return false;
+    }
+
+    private Optional<ZonedDateTime> getLastTransactionDateForService(ServiceEntity serviceEntity) {
+        return serviceEntity.getGatewayAccountIds()
+                .stream()
+                .map(gatewayAccountIdEntity -> getLastTransactionDateForGatewayAccount(gatewayAccountIdEntity.getGatewayAccountId()))
+                .filter(Objects::nonNull)
+                .max(Comparator.comparing(ZonedDateTime::toEpochSecond));
+    }
+
+    private ZonedDateTime getLastTransactionDateForGatewayAccount(String gatewayAccountId) {
+        LedgerSearchTransactionsResponse searchTransactions = ledgerService.searchTransactions(gatewayAccountId, 1);
+
+        if (searchTransactions != null && !searchTransactions.getTransactions().isEmpty()) {
+            return searchTransactions.getTransactions().get(0).getCreatedDate();
+        }
+
+        return null;
+    }
+
+    private ZonedDateTime getArchiveServicesBeforeDate() {
+        return clock.instant()
+                .minus(expungeAndArchiveDataConfig.getArchiveServicesAfterDays(), DAYS)
+                .atZone(UTC);
+    }
+
     private ZonedDateTime getDeleteUsersAndRelatedDataBeforeDate() {
-        ZonedDateTime expungeAndArchiveDateBeforeDate = clock.instant()
+        return clock.instant()
                 .minus(expungeAndArchiveDataConfig.getExpungeUserDataAfterDays(), DAYS)
                 .atZone(UTC);
-        return expungeAndArchiveDateBeforeDate;
     }
 }
