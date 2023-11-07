@@ -14,6 +14,13 @@ public class LedgerSearchTransactionsResponse {
     @JsonProperty("results")
     private List<LedgerTransaction> transactions;
 
+    public LedgerSearchTransactionsResponse(){
+        //empty constructor
+    }
+    public LedgerSearchTransactionsResponse(List<LedgerTransaction> transactions) {
+        this.transactions = transactions;
+    }
+
     public List<LedgerTransaction> getTransactions() {
         return transactions;
     }
