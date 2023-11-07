@@ -14,4 +14,11 @@ public class ServiceRoleDao extends JpaDao<ServiceRoleEntity> {
     /* default */ ServiceRoleDao(Provider<EntityManager> entityManager) {
         super(entityManager, ServiceRoleEntity.class);
     }
+
+    public void removeUsersFromService(Integer serviceId) {
+        entityManager.get()
+                .createQuery("DELETE from ServiceRoleEntity where service.id = :serviceId")
+                .setParameter("serviceId", serviceId)
+                .executeUpdate();
+    }
 }

@@ -11,6 +11,7 @@ import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
+import uk.gov.pay.adminusers.persistence.dao.ServiceRoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
@@ -25,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static net.logstash.logback.argument.StructuredArguments.kv;
+import static uk.gov.service.payments.logging.LoggingKeys.SERVICE_EXTERNAL_ID;
 
 public class ExpungeAndArchiveHistoricalDataService {
 
@@ -33,6 +35,7 @@ public class ExpungeAndArchiveHistoricalDataService {
     private final InviteDao inviteDao;
     private final ForgottenPasswordDao forgottenPasswordDao;
     private final ServiceDao serviceDao;
+    private final ServiceRoleDao serviceRoleDao;
     private final LedgerService ledgerService;
     private final ExpungeAndArchiveDataConfig expungeAndArchiveDataConfig;
     private final Clock clock;
@@ -47,6 +50,7 @@ public class ExpungeAndArchiveHistoricalDataService {
     public ExpungeAndArchiveHistoricalDataService(UserDao userDao, InviteDao inviteDao,
                                                   ForgottenPasswordDao forgottenPasswordDao,
                                                   ServiceDao serviceDao,
+                                                  ServiceRoleDao serviceRoleDao,
                                                   LedgerService ledgerService,
                                                   AdminUsersConfig adminUsersConfig,
                                                   Clock clock) {
@@ -54,6 +58,7 @@ public class ExpungeAndArchiveHistoricalDataService {
         this.inviteDao = inviteDao;
         this.forgottenPasswordDao = forgottenPasswordDao;
         this.serviceDao = serviceDao;
+        this.serviceRoleDao = serviceRoleDao;
         this.ledgerService = ledgerService;
         expungeAndArchiveDataConfig = adminUsersConfig.getExpungeAndArchiveDataConfig();
         this.clock = clock;
@@ -98,10 +103,17 @@ public class ExpungeAndArchiveHistoricalDataService {
                 serviceEntity.setArchived(true);
 
                 serviceDao.merge(serviceEntity);
+                detachUsers(serviceEntity);
+
+                LOGGER.info("Archived service", kv(SERVICE_EXTERNAL_ID, serviceEntity.getExternalId()));
             }
         });
 
         return numberOfServicesArchived.get();
+    }
+
+    private void detachUsers(ServiceEntity serviceEntity) {
+        serviceRoleDao.removeUsersFromService(serviceEntity.getId());
     }
 
     private boolean canArchiveService(ServiceEntity serviceEntity) {
