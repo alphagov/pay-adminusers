@@ -23,6 +23,7 @@ import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
+import uk.gov.pay.adminusers.persistence.dao.ServiceRoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -61,6 +62,9 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
     ServiceDao mockServiceDao;
 
     @Mock
+    ServiceRoleDao mockServiceRoleDao;
+
+    @Mock
     LedgerService mockLedgerService;
 
     @Mock
@@ -90,7 +94,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
         clock = Clock.fixed(Instant.parse(SYSTEM_INSTANT), UTC);
         when(mockAdminUsersConfig.getExpungeAndArchiveDataConfig()).thenReturn(mockExpungeAndArchiveConfig);
         expungeAndArchiveHistoricalDataService = new ExpungeAndArchiveHistoricalDataService(mockUserDao,
-                mockInviteDao, mockForgottenPasswordDao, mockServiceDao, mockLedgerService, mockAdminUsersConfig, clock);
+                mockInviteDao, mockForgottenPasswordDao, mockServiceDao, mockServiceRoleDao, mockLedgerService, mockAdminUsersConfig, clock);
     }
 
     @Test
@@ -198,6 +202,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
 
             assertTrue(serviceEntity.isArchived());
             verify(mockServiceDao).merge(serviceEntity);
+            verify(mockServiceRoleDao).removeUsersFromService(serviceEntity.getId());
         }
 
         @Test
@@ -221,6 +226,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
 
             assertTrue(serviceEntity.isArchived());
             verify(mockServiceDao).merge(serviceEntity);
+            verify(mockServiceRoleDao).removeUsersFromService(serviceEntity.getId());
         }
 
         @Test
