@@ -6,6 +6,7 @@ resourceClasses:
   - uk.gov.pay.adminusers.resources.ServiceResource
   - uk.gov.pay.adminusers.resources.UserResource
   - uk.gov.pay.adminusers.resources.ToolboxEndpointResource
+  - uk.gov.pay.adminusers.expungeandarchive.resource.ExpungeAndArchiveHistoricalDataResource
 readAllResources: true
 sortOutput: true
 prettyPrint: true

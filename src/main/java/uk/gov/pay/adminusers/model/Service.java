@@ -335,4 +335,7 @@ public class Service {
     public ZonedDateTime getWentLiveDate() {
         return wentLiveDate;
     }
+    public void setCreatedDate(ZonedDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
 }

@@ -19,6 +19,7 @@ import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 import uk.gov.service.payments.commons.testing.db.PostgresDockerExtension;
 import uk.gov.service.payments.commons.testing.db.PostgresTestHelper;
+import uk.gov.service.payments.commons.testing.port.PortFactory;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -38,6 +39,8 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
 
     private DatabaseTestHelper databaseTestHelper;
 
+    private final int wireMockPort = PortFactory.findFreePort();
+
     public AppWithPostgresExtension(ConfigOverride... configOverrides) {
         this("config/test-it-config.yaml", configOverrides);
     }
@@ -46,16 +49,17 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
         configFilePath = resourceFilePath(configPath);
         postgres = new PostgresDockerExtension("11.16");
 
-        ConfigOverride[] postgresOverrides = List.of(
+        ConfigOverride[] newConfigOverrides = List.of(
                         config("database.url", postgres.getConnectionUrl()),
                         config("database.user", postgres.getUsername()),
-                        config("database.password", postgres.getPassword()))
+                        config("database.password", postgres.getPassword()),
+                        config("ledgerBaseURL", "http://localhost:" + wireMockPort))
                 .toArray(new ConfigOverride[0]);
 
         app = new DropwizardAppExtension<>(
                 AdminUsersApp.class,
                 configFilePath,
-                ArrayUtils.addAll(postgresOverrides, configOverrides)
+                ArrayUtils.addAll(newConfigOverrides, configOverrides)
         );
 
         createJpaModule(postgres);
@@ -121,4 +125,7 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
                 app.getApplication().getName());
     }
 
+    public int getWireMockPort() {
+        return wireMockPort;
+    }
 }
