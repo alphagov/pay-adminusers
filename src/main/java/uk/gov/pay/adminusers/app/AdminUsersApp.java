@@ -22,6 +22,7 @@ import uk.gov.pay.adminusers.app.healthchecks.MigrateToInitialDbState;
 import uk.gov.pay.adminusers.exception.ConflictExceptionMapper;
 import uk.gov.pay.adminusers.exception.NotFoundExceptionMapper;
 import uk.gov.pay.adminusers.exception.ValidationExceptionMapper;
+import uk.gov.pay.adminusers.expungeandarchive.resource.ExpungeAndArchiveHistoricalDataResource;
 import uk.gov.pay.adminusers.filters.LoggingMDCRequestFilter;
 import uk.gov.pay.adminusers.filters.LoggingMDCResponseFilter;
 import uk.gov.pay.adminusers.queue.managed.EventSubscriberQueueMessageReceiver;
@@ -42,7 +43,6 @@ import uk.gov.service.payments.logging.LoggingFilter;
 import uk.gov.service.payments.logging.LogstashConsoleAppenderFactory;
 import uk.gov.service.payments.logging.SentryAppenderFactory;
 
-import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.EnumSet.of;
@@ -99,6 +99,7 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(injector.getInstance(ResetPasswordResource.class));
         environment.jersey().register(injector.getInstance(HealthCheckResource.class));
         environment.jersey().register(injector.getInstance(EmailResource.class));
+        environment.jersey().register(injector.getInstance(ExpungeAndArchiveHistoricalDataResource.class));
 
         // Register the custom ExceptionMapper(s)
         environment.jersey().register(new ValidationExceptionMapper());

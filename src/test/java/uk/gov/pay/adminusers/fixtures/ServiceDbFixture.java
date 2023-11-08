@@ -7,11 +7,14 @@ import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.valueOf;
+import static java.time.ZoneOffset.UTC;
+import static java.time.ZonedDateTime.now;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
@@ -33,6 +36,7 @@ public class ServiceDbFixture {
     private GoLiveStage goLiveStage = GoLiveStage.NOT_STARTED;
     private Map<String, Object> customBranding;
     private PspTestAccountStage currentPspTestAccountStage = PspTestAccountStage.NOT_STARTED;
+    private ZonedDateTime createdDate = now(UTC);
 
     private ServiceDbFixture(DatabaseTestHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
@@ -90,6 +94,11 @@ public class ServiceDbFixture {
         return this;
     }
 
+    public ServiceDbFixture withCreatedDate(ZonedDateTime createdDate) {
+        this.createdDate = createdDate;
+        return this;
+    }
+
     public Service insertService() {
         int serviceId = id == null ? nextInt() : id;
         String extId = externalId == null ? randomUuid() : externalId;
@@ -102,8 +111,10 @@ public class ServiceDbFixture {
         service.setExperimentalFeaturesEnabled(experimentalFeaturesEnabled);
         service.setTakesPaymentsOverPhone(takesPaymentsOverPhone);
         service.setCurrentPspTestAccountStage(currentPspTestAccountStage);
+        service.setCreatedDate(createdDate);
         databaseHelper.addService(service, gatewayAccountIds.toArray(new String[0]));
 
+        service.setGatewayAccountIds(gatewayAccountIds);
         return service;
     }
 

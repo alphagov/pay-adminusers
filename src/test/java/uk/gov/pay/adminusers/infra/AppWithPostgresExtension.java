@@ -19,6 +19,7 @@ import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 import uk.gov.service.payments.commons.testing.db.PostgresDockerExtension;
 import uk.gov.service.payments.commons.testing.db.PostgresTestHelper;
+import uk.gov.service.payments.commons.testing.port.PortFactory;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -26,6 +27,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static io.dropwizard.testing.ConfigOverride.config;
 import static io.dropwizard.testing.ResourceHelpers.resourceFilePath;
 
@@ -38,6 +40,8 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
 
     private DatabaseTestHelper databaseTestHelper;
 
+    private final int wireMockPort = PortFactory.findFreePort();
+
     public AppWithPostgresExtension(ConfigOverride... configOverrides) {
         this("config/test-it-config.yaml", configOverrides);
     }
@@ -46,16 +50,18 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
         configFilePath = resourceFilePath(configPath);
         postgres = new PostgresDockerExtension("11.16");
 
-        ConfigOverride[] postgresOverrides = List.of(
+        ConfigOverride[] newConfigOverrides = List.of(
                         config("database.url", postgres.getConnectionUrl()),
                         config("database.user", postgres.getUsername()),
                         config("database.password", postgres.getPassword()))
                 .toArray(new ConfigOverride[0]);
 
+        newConfigOverrides = overrideUrlsConfig(newConfigOverrides);
+
         app = new DropwizardAppExtension<>(
                 AdminUsersApp.class,
                 configFilePath,
-                ArrayUtils.addAll(postgresOverrides, configOverrides)
+                ArrayUtils.addAll(newConfigOverrides, configOverrides)
         );
 
         createJpaModule(postgres);
@@ -121,4 +127,13 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
                 app.getApplication().getName());
     }
 
+    private ConfigOverride[] overrideUrlsConfig(ConfigOverride[] configOverrides) {
+        List<ConfigOverride> newConfigOverride = newArrayList(configOverrides);
+        newConfigOverride.add(config("ledgerBaseURL", "http://localhost:" + wireMockPort));
+        return newConfigOverride.toArray(new ConfigOverride[0]);
+    }
+
+    public int getWireMockPort() {
+        return wireMockPort;
+    }
 }

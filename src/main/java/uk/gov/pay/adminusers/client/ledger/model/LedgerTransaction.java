@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import uk.gov.service.payments.commons.api.json.ApiResponseDateTimeDeserializer;
+import uk.gov.service.payments.commons.api.json.ApiResponseDateTimeSerializer;
 
 import java.time.ZonedDateTime;
 
@@ -16,6 +18,7 @@ public class LedgerTransaction {
     private String reference;
 
     @JsonDeserialize(using = ApiResponseDateTimeDeserializer.class)
+    @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
     private ZonedDateTime createdDate;
 
     public LedgerTransaction() {

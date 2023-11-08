@@ -1103,6 +1103,19 @@ paths:
       summary: Update user's role for a service
       tags:
       - Users
+  /v1/tasks/expunge-and-archive-historical-data:
+    post:
+      operationId: expungeAndArchiveHistoricalData
+      responses:
+        "200":
+          description: OK
+      summary: "Deletes and archives historical data based on `expungeAndArchiveDataConfig`.\
+        \ Currently,   1. deletes historical users not attached to any service 2.\
+        \ deletes historical invites 3. deletes forgotten passwords 4. archives services\
+        \ without transactions within the configured number of days and detaches users\
+        \ from service"
+      tags:
+      - Tasks
   /v2/api/invites/otp/validate:
     post:
       operationId: validateOtpKey
