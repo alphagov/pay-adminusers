@@ -27,7 +27,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static io.dropwizard.testing.ConfigOverride.config;
 import static io.dropwizard.testing.ResourceHelpers.resourceFilePath;
 
@@ -53,10 +52,9 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
         ConfigOverride[] newConfigOverrides = List.of(
                         config("database.url", postgres.getConnectionUrl()),
                         config("database.user", postgres.getUsername()),
-                        config("database.password", postgres.getPassword()))
+                        config("database.password", postgres.getPassword()),
+                        config("ledgerBaseURL", "http://localhost:" + wireMockPort))
                 .toArray(new ConfigOverride[0]);
-
-        newConfigOverrides = overrideUrlsConfig(newConfigOverrides);
 
         app = new DropwizardAppExtension<>(
                 AdminUsersApp.class,
@@ -125,12 +123,6 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
     private void restoreDropwizardsLogging() {
         app.getConfiguration().getLoggingFactory().configure(app.getEnvironment().metrics(),
                 app.getApplication().getName());
-    }
-
-    private ConfigOverride[] overrideUrlsConfig(ConfigOverride[] configOverrides) {
-        List<ConfigOverride> newConfigOverride = newArrayList(configOverrides);
-        newConfigOverride.add(config("ledgerBaseURL", "http://localhost:" + wireMockPort));
-        return newConfigOverride.toArray(new ConfigOverride[0]);
     }
 
     public int getWireMockPort() {

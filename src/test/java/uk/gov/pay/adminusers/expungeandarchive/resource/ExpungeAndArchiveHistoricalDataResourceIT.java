@@ -143,6 +143,9 @@ class ExpungeAndArchiveHistoricalDataResourceIT extends IntegrationTest {
         serviceRoles = databaseHelper.findServiceRoleForUser(user.getId());
         assertTrue(serviceRoles.isEmpty());
 
+        Map<String, Object> userAttributes = databaseHelper.findUser(user.getId()).get(0);
+        assertThat(userAttributes.get("external_id").toString(), is(user.getExternalId()));
+
         wireMockExtension.verify(getRequestedFor(urlPathEqualTo("/v1/transaction"))
                 .withQueryParam("account_id", equalTo(service.getGatewayAccountIds().get(0)))
                 .withQueryParam("display_size", equalTo("1"))
