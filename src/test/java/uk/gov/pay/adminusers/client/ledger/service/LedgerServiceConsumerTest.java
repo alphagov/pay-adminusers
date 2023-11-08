@@ -10,6 +10,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.pay.adminusers.app.RestClientFactory;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.RestClientConfig;
+import uk.gov.pay.adminusers.client.ledger.model.LedgerSearchTransactionsResponse;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.service.payments.commons.testing.pact.consumers.PactProviderRule;
 import uk.gov.service.payments.commons.testing.pact.consumers.Pacts;
@@ -51,5 +52,18 @@ public class LedgerServiceConsumerTest {
         LedgerTransaction transaction = mayBeTransaction.get();
         assertThat(transaction.getTransactionId(), is(externalId));
         assertThat(transaction.getReference(), is(notNullValue()));
+    }
+
+    @Test
+    @PactVerification("ledger")
+    @Pacts(pacts = {"adminusers-ledger-search-transactions"})
+    public void searchTransactions_shouldDeserialiseLedgerResponseCorrectly() {
+        String externalId = "e8eq11m3f2bg32dlll0dl2kdjg";
+        LedgerSearchTransactionsResponse searchTransactionsResponse = ledgerService.searchTransactions("54322", 1);
+
+        assertThat(searchTransactionsResponse.getTransactions().size(), is(1));
+        LedgerTransaction transaction = searchTransactionsResponse.getTransactions().get(0);
+        assertThat(transaction.getTransactionId(), is(externalId));
+        assertThat(transaction.getCreatedDate(), is(notNullValue()));
     }
 }
