@@ -104,6 +104,10 @@ public class ServiceEntity {
     @Convert(converter = UTCDateTimeConverter.class)
     private ZonedDateTime wentLiveDate;
 
+    @Column(name = "archived_date")
+    @Convert(converter = UTCDateTimeConverter.class)
+    private ZonedDateTime archivedDate;
+
     @Column(name = "current_psp_test_account_stage")
     @Enumerated(STRING)
     private PspTestAccountStage currentPspTestAccountStage = PspTestAccountStage.NOT_STARTED;
@@ -263,6 +267,14 @@ public class ServiceEntity {
         this.wentLiveDate = wentLiveDate;
     }
 
+    public ZonedDateTime getArchivedDate() {
+        return archivedDate;
+    }
+
+    public void setArchivedDate(ZonedDateTime archivedDate) {
+        this.archivedDate = archivedDate;
+    }
+
     public PspTestAccountStage getCurrentPspTestAccountStage() {
         return currentPspTestAccountStage;
     }
@@ -288,6 +300,7 @@ public class ServiceEntity {
                 this.archived,
                 this.createdDate,
                 this.wentLiveDate,
+                this.archivedDate,
                 this.currentPspTestAccountStage);
         service.setGatewayAccountIds(gatewayAccountIds.stream()
                 .map(GatewayAccountIdEntity::getGatewayAccountId)

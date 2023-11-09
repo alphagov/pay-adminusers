@@ -201,6 +201,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             expungeAndArchiveHistoricalDataService.expungeAndArchiveHistoricalData();
 
             assertTrue(serviceEntity.isArchived());
+            assertThat(serviceEntity.getArchivedDate(), is(clock.instant().atZone(UTC)));
             verify(mockServiceDao).merge(serviceEntity);
             verify(mockServiceRoleDao).removeUsersFromService(serviceEntity.getId());
         }
@@ -225,6 +226,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             expungeAndArchiveHistoricalDataService.expungeAndArchiveHistoricalData();
 
             assertTrue(serviceEntity.isArchived());
+            assertThat(serviceEntity.getArchivedDate(), is(clock.instant().atZone(UTC)));
             verify(mockServiceDao).merge(serviceEntity);
             verify(mockServiceRoleDao).removeUsersFromService(serviceEntity.getId());
         }

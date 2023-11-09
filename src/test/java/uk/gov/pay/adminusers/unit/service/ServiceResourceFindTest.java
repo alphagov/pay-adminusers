@@ -41,7 +41,7 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(DropwizardExtensionsSupport.class)
-public class ServiceResourceFindTest extends ServiceResourceBaseTest {
+class ServiceResourceFindTest extends ServiceResourceBaseTest {
 
     private static ServiceDao mockedServiceDao = mock(ServiceDao.class);
     private static UserDao mockedUserDao = mock(UserDao.class);
@@ -74,7 +74,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldGet_existingServiceById_withDefaultEnNameVariant() {
+    void shouldGet_existingServiceById_withDefaultEnNameVariant() {
         String serviceExternalId = randomUuid();
         ServiceEntity serviceEntity = ServiceEntityFixture.aServiceEntity().withExternalId(serviceExternalId).build();
         given(mockedServiceDao.findByExternalId(serviceExternalId)).willReturn(Optional.of(serviceEntity));
@@ -98,7 +98,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldGetServiceById_withServiceNameVariantForCy() {
+    void shouldGetServiceById_withServiceNameVariantForCy() {
         String serviceExternalId = randomUuid();
         ServiceEntity serviceEntity = ServiceEntityFixture.aServiceEntity()
                 .withExternalId(serviceExternalId)
@@ -119,7 +119,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldGetServiceById_withServiceNameVariantsForEn_andCy() {
+    void shouldGetServiceById_withServiceNameVariantsForEn_andCy() {
         String serviceExternalId = randomUuid();
         ServiceEntity serviceEntity = ServiceEntityFixture.aServiceEntity()
                 .withExternalId(serviceExternalId)
@@ -142,7 +142,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldFind_existingServiceByGatewayAccountId() {
+    void shouldFind_existingServiceByGatewayAccountId() {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
         String gatewayAccountId = randomUuid();
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
@@ -151,6 +151,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
                 .withRedirectToServiceImmediatelyOnTerminalState(true)
                 .withCreatedDate(ZonedDateTime.parse("2020-01-31T12:30:00Z"))
                 .withWentLiveDate(ZonedDateTime.parse("2020-02-01T09:00:00Z"))
+                .withArchivedDate(ZonedDateTime.parse("2021-02-01T09:00:00Z"))
                 .withSector("police")
                 .build();
         gatewayAccountIdEntity.setService(serviceEntity);
@@ -175,13 +176,14 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertThat(json.get("current_go_live_stage"), is(String.valueOf(serviceEntity.getCurrentGoLiveStage())));
         assertThat(json.get("created_date"), is("2020-01-31T12:30:00.000Z"));
         assertThat(json.get("went_live_date"), is("2020-02-01T09:00:00.000Z"));
+        assertThat(json.get("archived_date"), is("2021-02-01T09:00:00.000Z"));
         assertThat(json.get("sector"), is("police"));
         assertThat(json.get("internal"), is(false));
         assertThat(json.get("archived"), is(false));
     }
 
     @Test
-    public void shouldReturn404_whenFindByGatewayAccountId_ifNotFound() {
+    void shouldReturn404_whenFindByGatewayAccountId_ifNotFound() {
         String gatewayAccountId = randomUuid();
         given(mockedServiceDao.findByGatewayAccountId(gatewayAccountId)).willReturn(Optional.empty());
 
@@ -192,7 +194,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldReturn404_whenGetServiceById_ifNotFound() {
+    void shouldReturn404_whenGetServiceById_ifNotFound() {
         String externalId = randomUuid();
         given(mockedServiceDao.findByExternalId(externalId)).willReturn(Optional.empty());
         Response response = RESOURCES.target(format("/v1/api/services/%s", externalId)).request().get();
@@ -200,7 +202,7 @@ public class ServiceResourceFindTest extends ServiceResourceBaseTest {
     }
 
     @Test
-    public void shouldReturnBadRequest_whenGetByGatewayAccountId_isMissingQueryParam() {
+    void shouldReturnBadRequest_whenGetByGatewayAccountId_isMissingQueryParam() {
         Response response = RESOURCES.target("/v1/api/services")
                 .queryParam("gatewayAccountId", "")
                 .request().get();

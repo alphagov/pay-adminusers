@@ -1396,6 +1396,10 @@ components:
         archived:
           type: boolean
           example: false
+        archived_date:
+          type: string
+          format: date-time
+          example: 2023-04-09T18:07:46.568Z
         collect_billing_address:
           type: boolean
           example: true

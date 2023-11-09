@@ -67,6 +67,10 @@ public class Service {
     @Schema(example = "2022-04-09T18:07:46.568Z")
     private ZonedDateTime wentLiveDate;
 
+    @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
+    @Schema(example = "2023-04-09T18:07:46.568Z")
+    private ZonedDateTime archivedDate;
+
     @JsonIgnore
     private ServiceName serviceName;
 
@@ -94,6 +98,7 @@ public class Service {
                 false,
                 null,
                 null,
+                null,
                 null);
     }
 
@@ -112,6 +117,7 @@ public class Service {
                                boolean archived,
                                ZonedDateTime createdDate,
                                ZonedDateTime wentLiveDate,
+                               ZonedDateTime archivedDate,
                                PspTestAccountStage pspTestAccountStage) {
         return new Service(id,
                 externalId,
@@ -128,6 +134,7 @@ public class Service {
                 archived,
                 createdDate,
                 wentLiveDate,
+                archivedDate,
                 pspTestAccountStage);
     }
 
@@ -146,6 +153,7 @@ public class Service {
                     boolean archived,
                     ZonedDateTime createdDate,
                     ZonedDateTime wentLiveDate,
+                    ZonedDateTime archivedDate,
                     PspTestAccountStage currentPspTestAccountStage) {
         this.id = id;
         this.externalId = externalId;
@@ -162,6 +170,7 @@ public class Service {
         this.archived = archived;
         this.createdDate = createdDate;
         this.wentLiveDate = wentLiveDate;
+        this.archivedDate = archivedDate;
         this.currentPspTestAccountStage = currentPspTestAccountStage;
     }
 

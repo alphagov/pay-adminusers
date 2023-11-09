@@ -101,6 +101,7 @@ public class ExpungeAndArchiveHistoricalDataService {
             if (canArchiveService(serviceEntity)) {
                 numberOfServicesArchived.getAndIncrement();
                 serviceEntity.setArchived(true);
+                serviceEntity.setArchivedDate(clock.instant().atZone(UTC));
 
                 serviceDao.merge(serviceEntity);
                 detachUsers(serviceEntity);
