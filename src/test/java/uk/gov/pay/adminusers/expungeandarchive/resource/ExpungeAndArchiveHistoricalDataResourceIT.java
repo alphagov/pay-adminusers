@@ -32,6 +32,7 @@ import static java.time.ZoneOffset.UTC;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.pay.adminusers.fixtures.ForgottenPasswordDbFixture.aForgottenPasswordDbFixture;
 import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
@@ -139,6 +140,7 @@ class ExpungeAndArchiveHistoricalDataResourceIT extends IntegrationTest {
 
         List<Map<String, Object>> services = databaseHelper.findServiceByExternalId(service.getExternalId());
         assertThat(services.get(0).get("archived"), is(true));
+        assertThat(services.get(0).get("archived_date"), is(notNullValue()));
 
         serviceRoles = databaseHelper.findServiceRoleForUser(user.getId());
         assertTrue(serviceRoles.isEmpty());

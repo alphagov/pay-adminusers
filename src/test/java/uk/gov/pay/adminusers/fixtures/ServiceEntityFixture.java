@@ -38,6 +38,7 @@ public final class ServiceEntityFixture {
     private String sector;
     private PspTestAccountStage pspTestAccountStage = PspTestAccountStage.NOT_STARTED;
     private boolean archived = false;
+    private ZonedDateTime archivedDate;
 
     private ServiceEntityFixture() {
     }
@@ -133,6 +134,11 @@ public final class ServiceEntityFixture {
         return this;
     }
 
+    public ServiceEntityFixture withArchivedDate(ZonedDateTime archivedDate) {
+        this.archivedDate = archivedDate;
+        return this;
+    }
+
     public ServiceEntity build() {
         ServiceEntity serviceEntity = new ServiceEntity();
         serviceEntity.setId(id);
@@ -152,6 +158,7 @@ public final class ServiceEntityFixture {
         serviceEntity.setSector(sector);
         serviceEntity.setCurrentPspTestAccountStage(pspTestAccountStage);
         serviceEntity.setArchived(archived);
+        serviceEntity.setArchivedDate(archivedDate);
         return serviceEntity;
     }
 }
