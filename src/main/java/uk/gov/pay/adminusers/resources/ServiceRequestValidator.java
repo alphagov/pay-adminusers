@@ -32,6 +32,8 @@ public class ServiceRequestValidator {
     private static final int FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH = 255;
     private static final int MAX_SEARCH_STRING_LENGTH = 60;
 
+    private static final Pattern ALLOWED_SEARCH_CHARS = Pattern.compile("^[0-9A-Za-z'\\-\\s]+$");
+
     private final RequestValidations requestValidations;
     private final ServiceUpdateOperationValidator serviceUpdateOperationValidator;
 
@@ -100,7 +102,6 @@ public class ServiceRequestValidator {
     }
 
     public Optional<Errors> validateSearchRequest(ServiceSearchRequest request) {
-        var allowedChars = Pattern.compile("^[0-9A-Za-z'\\-\\s]+$");
         var errorList = new ArrayList<String>();
         var values = request.toMap().values().stream()
                 .filter(value -> !isBlank(value))
@@ -113,7 +114,7 @@ public class ServiceRequestValidator {
                 if (lengthValidator(value)) {
                     errorList.add(SERVICE_SEARCH_LENGTH_ERR_MSG);
                 }
-                if (!allowedChars.matcher(value).matches()) {
+                if (!ALLOWED_SEARCH_CHARS.matcher(value).matches()) {
                     errorList.add(SERVICE_SEARCH_SPECIAL_CHARS_ERR_MSG);
                 }
             });
