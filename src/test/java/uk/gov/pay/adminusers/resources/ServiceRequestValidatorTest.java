@@ -125,7 +125,7 @@ public class ServiceRequestValidatorTest {
 
     @Test
     public void shouldAllowWellFormedRequest_whenSearchingServicesWithApostropheAndHyphen() throws JsonProcessingException {
-        var searchRequest = ServiceSearchRequest.from(mapper.readTree("{\"service_name\": \"test's test-name\"}"));
+        var searchRequest = ServiceSearchRequest.from(mapper.readTree("{\"service_name\": \"King’s Academy - 2\"}"));
         Optional<Errors> errors = serviceRequestValidator.validateSearchRequest(searchRequest);
         assertThat(errors.isPresent(), is(false));
     }

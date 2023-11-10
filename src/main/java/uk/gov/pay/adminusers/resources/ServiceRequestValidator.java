@@ -26,13 +26,13 @@ public class ServiceRequestValidator {
 
     public static final String SERVICE_SEARCH_SUPPORT_ERR_MSG = "Search only supports searching by service name or merchant name";
     public static final String SERVICE_SEARCH_LENGTH_ERR_MSG = "Search strings can only be 60 characters or less";
-    public static final String SERVICE_SEARCH_SPECIAL_CHARS_ERR_MSG = "Search strings can only contain letters, numbers and spaces";
+    public static final String SERVICE_SEARCH_SPECIAL_CHARS_ERR_MSG = "Search strings can only contain letters, numbers, spaces, apostrophes and hyphens";
 
     private static final int FIELD_MERCHANT_DETAILS_NAME_MAX_LENGTH = 255;
     private static final int FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH = 255;
     private static final int MAX_SEARCH_STRING_LENGTH = 60;
 
-    private static final Pattern ALLOWED_SEARCH_CHARS = Pattern.compile("^[0-9A-Za-z'\\-\\s]+$");
+    private static final Pattern ALLOWED_SEARCH_CHARS = Pattern.compile("^[0-9A-Za-z'’\\-\\s]+$");
 
     private final RequestValidations requestValidations;
     private final ServiceUpdateOperationValidator serviceUpdateOperationValidator;
