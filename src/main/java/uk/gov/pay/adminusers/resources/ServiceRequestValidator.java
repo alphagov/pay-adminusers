@@ -100,7 +100,7 @@ public class ServiceRequestValidator {
     }
 
     public Optional<Errors> validateSearchRequest(ServiceSearchRequest request) {
-        var allowedChars = Pattern.compile("^[0-9A-Za-z\\s]+$");
+        var allowedChars = Pattern.compile("^[0-9A-Za-z'\\-\\s]+$");
         var errorList = new ArrayList<String>();
         var values = request.toMap().values().stream()
                 .filter(value -> !isBlank(value))
