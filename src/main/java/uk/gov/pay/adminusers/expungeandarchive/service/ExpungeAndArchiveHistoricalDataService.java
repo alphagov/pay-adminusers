@@ -71,9 +71,9 @@ public class ExpungeAndArchiveHistoricalDataService {
             if (expungeAndArchiveDataConfig.isExpungeAndArchiveHistoricalDataEnabled()) {
                 ZonedDateTime deleteUsersAndRelatedDataBeforeDate = getDeleteUsersAndRelatedDataBeforeDate();
 
-                int noOfUsersDeleted = userDao.deleteUsersNotAssociatedWithAnyService(deleteUsersAndRelatedDataBeforeDate.toInstant());
                 int noOfInvitesDeleted = inviteDao.deleteInvites(deleteUsersAndRelatedDataBeforeDate);
                 int noOfForgottenPasswordsDeleted = forgottenPasswordDao.deleteForgottenPasswords(deleteUsersAndRelatedDataBeforeDate);
+                int noOfUsersDeleted = userDao.deleteUsersNotAssociatedWithAnyService(deleteUsersAndRelatedDataBeforeDate.toInstant());
 
                 int noOfServicesArchived = archiveServices();
 

@@ -81,12 +81,17 @@ class ExpungeAndArchiveHistoricalDataResourceIT extends IntegrationTest {
 
     @Test
     void shouldDeleteHistoricalInvitesAndForgottenPasswords() {
-        User user = userDbFixture(databaseHelper).insertUser();
+        User userToBeDeleted = userDbFixture(databaseHelper)
+                .withCreatedAt(now.minusYears(5))
+                .insertUser();
+        User userThatWontBeDeleted = userDbFixture(databaseHelper)
+                .withCreatedAt(now)
+                .insertUser();
 
-        ForgottenPasswordDbFixture forgottenPasswordDbFixture = insertForgottenPassword(user.getId(), now.minusYears(5));
-        ForgottenPasswordDbFixture forgottenPasswordThatShouldNotBeDeleted = insertForgottenPassword(user.getId(), now);
-        String code = insertInvite(now.minusYears(5));
-        String codeThatShouldNotBeDeleted = insertInvite(now);
+        ForgottenPasswordDbFixture forgottenPasswordDbFixture = insertForgottenPassword(userToBeDeleted.getId(), now.minusYears(5));
+        ForgottenPasswordDbFixture forgottenPasswordThatShouldNotBeDeleted = insertForgottenPassword(userThatWontBeDeleted.getId(), now);
+        String code = insertInvite(userToBeDeleted.getId(), now.minusYears(5));
+        String codeThatShouldNotBeDeleted = insertInvite(userThatWontBeDeleted.getId(), now);
 
         assertForgottenPasswordsExist(forgottenPasswordDbFixture.getId(), forgottenPasswordThatShouldNotBeDeleted.getId());
         assertInvitesExist(code, codeThatShouldNotBeDeleted);
@@ -106,6 +111,9 @@ class ExpungeAndArchiveHistoricalDataResourceIT extends IntegrationTest {
 
         Optional<Map<String, Object>> inviteByCode = databaseHelper.findInviteByCode(code);
         assertTrue(inviteByCode.isEmpty());
+
+        assertUserNotExists(userToBeDeleted.getId());
+        assertUserExists(userThatWontBeDeleted.getId());
     }
 
     @Test
@@ -221,9 +229,10 @@ class ExpungeAndArchiveHistoricalDataResourceIT extends IntegrationTest {
                 });
     }
 
-    private String insertInvite(ZonedDateTime date) {
+    private String insertInvite(Integer userId, ZonedDateTime date) {
         return inviteDbFixture(databaseHelper)
                 .withDate(date)
+                .withSenderId(userId)
                 .insertInviteToAddUserToService();
     }
 

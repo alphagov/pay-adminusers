@@ -26,6 +26,7 @@ public class InviteDbFixture {
     private Integer loginCounter = 0;
     private String externalServiceId = randomUuid();
     private Integer serviceId = randomInt();
+    private Integer senderId;
 
     private InviteDbFixture(DatabaseTestHelper databaseTestHelper) {
         this.databaseTestHelper = databaseTestHelper;
@@ -40,13 +41,13 @@ public class InviteDbFixture {
         int roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
         String userUsername = randomUuid();
         String userEmail = userUsername + "@example.com";
-        int invitingUserId =
+        senderId =
                 UserDbFixture.userDbFixture(databaseTestHelper)
                         .withEmail(userEmail)
                         .insertUser()
                         .getId();
         databaseTestHelper.addInvite(
-                nextInt(), invitingUserId, serviceId, roleId,
+                nextInt(), senderId, serviceId, roleId,
                 email, code, otpKey, date, expiryDate, telephoneNumber, password,
                 disabled, loginCounter
         );
@@ -122,6 +123,11 @@ public class InviteDbFixture {
 
     public InviteDbFixture withDate(ZonedDateTime date) {
         this.date = date;
+        return this;
+    }
+
+    public InviteDbFixture withSenderId(Integer senderId) {
+        this.senderId = senderId;
         return this;
     }
 }
