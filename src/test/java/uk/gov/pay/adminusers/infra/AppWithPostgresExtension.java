@@ -53,6 +53,7 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
                         config("database.url", postgres.getConnectionUrl()),
                         config("database.user", postgres.getUsername()),
                         config("database.password", postgres.getPassword()),
+                        config("sqs.connectorTaskQueueUrl", "http://localhost:" + wireMockPort),
                         config("ledgerBaseURL", "http://localhost:" + wireMockPort))
                 .toArray(new ConfigOverride[0]);
 

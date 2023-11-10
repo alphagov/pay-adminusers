@@ -10,6 +10,7 @@ import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.pay.adminusers.fixtures.ForgottenPasswordDbFixture;
 import uk.gov.pay.adminusers.fixtures.RoleDbFixture;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
+import uk.gov.pay.adminusers.infra.ConnectorTaskQueueStub;
 import uk.gov.pay.adminusers.infra.LedgerStub;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.Service;
@@ -51,11 +52,14 @@ class ExpungeAndArchiveHistoricalDataResourceIT extends IntegrationTest {
             .build();
 
     LedgerStub ledgerStub;
+    
+    ConnectorTaskQueueStub connectorTaskQueueStub;
 
     @BeforeEach
     void setUp() {
         databaseHelper.truncateAllData();
         ledgerStub = new LedgerStub(wireMockExtension);
+        connectorTaskQueueStub = new ConnectorTaskQueueStub(wireMockExtension);
     }
 
     @Test
@@ -110,6 +114,8 @@ class ExpungeAndArchiveHistoricalDataResourceIT extends IntegrationTest {
 
     @Test
     void shouldArchiveHistoricalServicesAndDetachUsers() throws JsonProcessingException {
+        connectorTaskQueueStub.returnOkWhenPlacingTasksOnQueue();
+        
         Service service = serviceDbFixture(databaseHelper)
                 .withCreatedDate(now.minusYears(8))
                 .withGatewayAccountIds(valueOf(nextInt()))
