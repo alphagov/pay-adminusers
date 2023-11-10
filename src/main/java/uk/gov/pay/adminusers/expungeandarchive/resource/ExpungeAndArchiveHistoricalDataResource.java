@@ -27,7 +27,6 @@ public class ExpungeAndArchiveHistoricalDataResource {
     public ExpungeAndArchiveHistoricalDataResource(ExpungeAndArchiveHistoricalDataService expungeAndArchiveHistoricalDataService) {
         this.expungeAndArchiveHistoricalDataService = expungeAndArchiveHistoricalDataService;
     }
-
     @POST
     @Produces(APPLICATION_JSON)
     @Operation(
