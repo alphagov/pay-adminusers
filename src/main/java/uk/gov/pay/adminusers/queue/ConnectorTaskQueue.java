@@ -21,7 +21,7 @@ public class ConnectorTaskQueue extends AbstractQueue {
     
     @Inject
     public ConnectorTaskQueue(SqsQueueService sqsQueueService, AdminUsersConfig adminUsersConfig, ObjectMapper objectMapper) {
-        super(sqsQueueService, objectMapper, adminUsersConfig.getSqsConfig().getConnectorTaskQueueUrl(),
+        super(sqsQueueService, objectMapper, adminUsersConfig.getSqsConfig().getConnectorTasksQueueUrl(),
                 adminUsersConfig.getConnectorTaskQueueConfig().getFailedMessageRetryDelayInSeconds());
     }
 

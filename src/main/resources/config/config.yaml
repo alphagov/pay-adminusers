@@ -124,7 +124,7 @@ sqs:
   eventSubscriberQueueUrl: ${AWS_SQS_EVENT_SUBSCRIBER_QUEUE_URL}
   messageMaximumWaitTimeInSeconds: ${AWS_SQS_MESSAGE_MAXIMUM_WAIT_TIME_IN_SECONDS:-1}
   messageMaximumBatchSize: ${AWS_SQS_MESSAGE_MAXIMUM_BATCH_SIZE:-10}
-  connectorTaskQueueUrl: ${AWS_SQS_CONNECTOR_TASKS_QUEUE_URL}
+  connectorTasksQueueUrl: ${AWS_SQS_CONNECTOR_TASKS_QUEUE_URL}
 
 eventSubscriberQueue:
   eventSubscriberQueueEnabled: ${EVENT_SUBSCRIBER_QUEUE_ENABLED:-false}

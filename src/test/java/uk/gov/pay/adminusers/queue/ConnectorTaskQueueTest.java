@@ -14,7 +14,6 @@ import uk.gov.pay.adminusers.queue.model.ServiceArchivedTaskData;
 import uk.gov.service.payments.commons.queue.model.QueueMessage;
 import uk.gov.service.payments.commons.queue.sqs.SqsQueueService;
 
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -40,7 +39,7 @@ public class ConnectorTaskQueueTest {
     @BeforeEach
     void setup() {
         when(adminUsersConfig.getSqsConfig()).thenReturn(sqsConfig);
-        when(sqsConfig.getConnectorTaskQueueUrl()).thenReturn("http://connector-task-queue-url");
+        when(sqsConfig.getConnectorTasksQueueUrl()).thenReturn("http://connector-task-queue-url");
         when(adminUsersConfig.getConnectorTaskQueueConfig()).thenReturn(connectorTaskQueueConfig);
         when(connectorTaskQueueConfig.getFailedMessageRetryDelayInSeconds()).thenReturn(0);
     }
@@ -52,7 +51,7 @@ public class ConnectorTaskQueueTest {
         ConnectorTaskQueue connectorTaskQueue = new ConnectorTaskQueue(sqsQueueService, adminUsersConfig, objectMapper);
         connectorTaskQueue.addTaskToQueue(new ConnectorTask(new ServiceArchivedTaskData("serviceId"), "service_archived"));
 
-        verify(sqsQueueService).sendMessage(adminUsersConfig.getSqsConfig().getConnectorTaskQueueUrl(),
+        verify(sqsQueueService).sendMessage(adminUsersConfig.getSqsConfig().getConnectorTasksQueueUrl(),
                 "{\"data\":\"{\\\"service_external_id\\\":\\\"serviceId\\\"}\",\"task\":\"service_archived\"}");
     }
 }
