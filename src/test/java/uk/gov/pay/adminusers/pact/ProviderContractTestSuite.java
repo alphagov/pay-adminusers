@@ -13,6 +13,7 @@ public class ProviderContractTestSuite {
 
     public static TestSuite suite() {
         ImmutableSetMultimap<String, JUnit4TestAdapter> map = ImmutableSetMultimap.of(
+                "connector", new JUnit4TestAdapter(ConnectorQueueMessageContractTest.class),
                 "products-ui", new JUnit4TestAdapter(ProductsUIContractTest.class),
                 "selfservice", new JUnit4TestAdapter(SelfServiceContractTest.class));
         return CreateTestSuite.create(map);
