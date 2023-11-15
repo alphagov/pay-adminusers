@@ -49,6 +49,9 @@ public class AdminUsersConfig extends Configuration {
     private EventSubscriberQueueConfig eventSubscriberQueueConfig;
 
     @NotNull
+    private ConnectorTaskQueueConfig connectorTaskQueueConfig;
+
+    @NotNull
     private ExpungeAndArchiveDataConfig expungeAndArchiveDataConfig;
 
     @NotNull
@@ -127,5 +130,9 @@ public class AdminUsersConfig extends Configuration {
 
     public Optional<URI> getEcsContainerMetadataUriV4() {
         return Optional.ofNullable(ecsContainerMetadataUriV4);
+    }
+
+    public ConnectorTaskQueueConfig getConnectorTaskQueueConfig() {
+        return connectorTaskQueueConfig;
     }
 }

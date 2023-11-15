@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.infra;
 
+import com.amazonaws.services.sqs.AmazonSQS;
 import com.google.inject.persist.jpa.JpaPersistModule;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.testing.ConfigOverride;
@@ -24,6 +25,7 @@ import uk.gov.service.payments.commons.testing.port.PortFactory;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -34,6 +36,7 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppWithPostgresExtension.class);
     private static final String JPA_UNIT = "AdminUsersUnit";
     private final PostgresDockerExtension postgres;
+    private final AmazonSQS sqsClient;
     private final String configFilePath;
     private final DropwizardAppExtension<AdminUsersConfig> app;
 
@@ -48,11 +51,13 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
     public AppWithPostgresExtension(String configPath, ConfigOverride... configOverrides) {
         configFilePath = resourceFilePath(configPath);
         postgres = new PostgresDockerExtension("11.16");
+        sqsClient = SqsTestDocker.initialise(Collections.singletonList("event-queue"));
 
         ConfigOverride[] newConfigOverrides = List.of(
                         config("database.url", postgres.getConnectionUrl()),
                         config("database.user", postgres.getUsername()),
                         config("database.password", postgres.getPassword()),
+                        config("sqs.connectorTasksQueueUrl", SqsTestDocker.getQueueUrl("event-queue")),
                         config("ledgerBaseURL", "http://localhost:" + wireMockPort))
                 .toArray(new ConfigOverride[0]);
 

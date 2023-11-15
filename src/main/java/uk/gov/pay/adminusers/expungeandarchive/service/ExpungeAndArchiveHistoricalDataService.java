@@ -14,6 +14,9 @@ import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceRoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.queue.ConnectorTaskQueue;
+import uk.gov.pay.adminusers.queue.model.ConnectorTask;
+import uk.gov.pay.adminusers.queue.model.ServiceArchivedTaskData;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
@@ -23,6 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.lang.String.format;
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static net.logstash.logback.argument.StructuredArguments.kv;
@@ -38,6 +42,7 @@ public class ExpungeAndArchiveHistoricalDataService {
     private final ServiceRoleDao serviceRoleDao;
     private final LedgerService ledgerService;
     private final ExpungeAndArchiveDataConfig expungeAndArchiveDataConfig;
+    private final ConnectorTaskQueue connectorTaskQueue;
     private final Clock clock;
 
     private static final Histogram duration = Histogram.build()
@@ -53,6 +58,7 @@ public class ExpungeAndArchiveHistoricalDataService {
                                                   ServiceRoleDao serviceRoleDao,
                                                   LedgerService ledgerService,
                                                   AdminUsersConfig adminUsersConfig,
+                                                  ConnectorTaskQueue connectorTaskQueue, 
                                                   Clock clock) {
         this.userDao = userDao;
         this.inviteDao = inviteDao;
@@ -60,7 +66,8 @@ public class ExpungeAndArchiveHistoricalDataService {
         this.serviceDao = serviceDao;
         this.serviceRoleDao = serviceRoleDao;
         this.ledgerService = ledgerService;
-        expungeAndArchiveDataConfig = adminUsersConfig.getExpungeAndArchiveDataConfig();
+        this.expungeAndArchiveDataConfig = adminUsersConfig.getExpungeAndArchiveDataConfig();
+        this.connectorTaskQueue = connectorTaskQueue;
         this.clock = clock;
     }
 
@@ -105,6 +112,9 @@ public class ExpungeAndArchiveHistoricalDataService {
 
                 serviceDao.merge(serviceEntity);
                 detachUsers(serviceEntity);
+                
+                connectorTaskQueue.addTaskToQueue(
+                        new ConnectorTask(new ServiceArchivedTaskData(serviceEntity.getExternalId()), "service_archived"));
 
                 LOGGER.info("Archived service", kv(SERVICE_EXTERNAL_ID, serviceEntity.getExternalId()));
             }

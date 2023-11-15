@@ -15,6 +15,9 @@ public class SqsConfig {
     
     @NotNull
     private String eventSubscriberQueueUrl;
+    
+    @NotNull
+    private String connectorTasksQueueUrl;
 
     @Max(20)
     private int messageMaximumWaitTimeInSeconds;
@@ -51,5 +54,9 @@ public class SqsConfig {
 
     public int getMessageMaximumBatchSize() {
         return messageMaximumBatchSize;
+    }
+
+    public String getConnectorTasksQueueUrl() {
+        return connectorTasksQueueUrl;
     }
 }

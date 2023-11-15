@@ -27,6 +27,9 @@ import uk.gov.pay.adminusers.persistence.dao.ServiceRoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.queue.ConnectorTaskQueue;
+import uk.gov.pay.adminusers.queue.model.ConnectorTask;
+import uk.gov.pay.adminusers.queue.model.ServiceArchivedTaskData;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -77,6 +80,9 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
 
     @Mock
     ExpungeAndArchiveDataConfig mockExpungeAndArchiveConfig;
+    
+    @Mock
+    ConnectorTaskQueue mockConnectorTaskQueue;
 
     @Mock
     private Appender<ILoggingEvent> mockAppender;
@@ -94,7 +100,8 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
         clock = Clock.fixed(Instant.parse(SYSTEM_INSTANT), UTC);
         when(mockAdminUsersConfig.getExpungeAndArchiveDataConfig()).thenReturn(mockExpungeAndArchiveConfig);
         expungeAndArchiveHistoricalDataService = new ExpungeAndArchiveHistoricalDataService(mockUserDao,
-                mockInviteDao, mockForgottenPasswordDao, mockServiceDao, mockServiceRoleDao, mockLedgerService, mockAdminUsersConfig, clock);
+                mockInviteDao, mockForgottenPasswordDao, mockServiceDao, mockServiceRoleDao, mockLedgerService, 
+                mockAdminUsersConfig, mockConnectorTaskQueue, clock);
     }
 
     @Test
@@ -174,6 +181,12 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
                     .build();
 
             systemDate = clock.instant().atZone(UTC);
+        }
+        
+        @Test
+        void shouldSendEventToConnectorTasksQueueWhenServiceIsArchived() {
+            shouldArchiveService_WhenTheLastTransactionDateIsBeforeTheServicesEligibleForArchivingDate();
+            verify(mockConnectorTaskQueue).addTaskToQueue(new ConnectorTask(new ServiceArchivedTaskData(serviceEntity.getExternalId()), "service_archived"));
         }
 
         @Test

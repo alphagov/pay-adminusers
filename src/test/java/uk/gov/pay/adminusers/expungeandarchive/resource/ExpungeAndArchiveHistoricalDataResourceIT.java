@@ -51,7 +51,7 @@ class ExpungeAndArchiveHistoricalDataResourceIT extends IntegrationTest {
             .build();
 
     LedgerStub ledgerStub;
-
+    
     @BeforeEach
     void setUp() {
         databaseHelper.truncateAllData();
