@@ -323,15 +323,15 @@
         </dependency>
         <dependency>
             <groupId>au.com.dius</groupId>
-            <artifactId>pact-jvm-provider-junit_2.12</artifactId>
-            <version>${pact.version}</version>
+            <artifactId>pact-jvm-provider-junit</artifactId>
+            <version>4.0.10</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>au.com.dius</groupId>
-            <artifactId>pact-jvm-consumer-junit_2.12</artifactId>
-            <version>${pact.version}</version>
-            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>

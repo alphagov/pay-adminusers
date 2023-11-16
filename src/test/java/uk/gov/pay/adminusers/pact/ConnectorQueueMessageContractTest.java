@@ -8,7 +8,7 @@ import au.com.dius.pact.provider.junit.loader.PactBrokerAuth;
 import org.junit.runner.RunWith;
 
 @RunWith(PactRunner.class)
-@Provider("connector")
+@Provider("adminusers")
 @PactBroker(scheme = "https", host = "${PACT_BROKER_HOST:pact-broker.deploy.payments.service.gov.uk}", tags = {"${PACT_CONSUMER_TAG}", "test-fargate"},
         authentication = @PactBrokerAuth(username = "${PACT_BROKER_USERNAME}", password = "${PACT_BROKER_PASSWORD}"),
         consumers = {"connector"})
