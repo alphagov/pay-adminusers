@@ -23,10 +23,8 @@ import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.lang.String.format;
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static net.logstash.logback.argument.StructuredArguments.kv;
@@ -58,7 +56,7 @@ public class ExpungeAndArchiveHistoricalDataService {
                                                   ServiceRoleDao serviceRoleDao,
                                                   LedgerService ledgerService,
                                                   AdminUsersConfig adminUsersConfig,
-                                                  ConnectorTaskQueue connectorTaskQueue, 
+                                                  ConnectorTaskQueue connectorTaskQueue,
                                                   Clock clock) {
         this.userDao = userDao;
         this.inviteDao = inviteDao;
@@ -105,18 +103,27 @@ public class ExpungeAndArchiveHistoricalDataService {
         AtomicInteger numberOfServicesArchived = new AtomicInteger();
         servicesToCheckForArchiving.forEach(serviceEntity -> {
 
-            if (canArchiveService(serviceEntity)) {
+            ZonedDateTime lastTransactionDateForService = getLastTransactionDateForService(serviceEntity);
+
+            if (canArchiveService(serviceEntity, lastTransactionDateForService)) {
                 numberOfServicesArchived.getAndIncrement();
                 serviceEntity.setArchived(true);
                 serviceEntity.setArchivedDate(clock.instant().atZone(UTC));
 
                 serviceDao.merge(serviceEntity);
                 detachUsers(serviceEntity);
-                
+
                 connectorTaskQueue.addTaskToQueue(
                         new ConnectorTask(new ServiceArchivedTaskData(serviceEntity.getExternalId()), "service_archived"));
 
                 LOGGER.info("Archived service", kv(SERVICE_EXTERNAL_ID, serviceEntity.getExternalId()));
+            } else {
+                if (serviceEntity.getFirstCheckedForArchivalDate() == null) {
+                    serviceEntity.setFirstCheckedForArchivalDate(clock.instant().atZone(UTC));
+                }
+
+                ZonedDateTime skipCheckingUntilDate = calculateSkipCheckingForArchivalUntilDate(serviceEntity, lastTransactionDateForService);
+                serviceEntity.setSkipCheckingForArchivalUntilDate(skipCheckingUntilDate);
             }
         });
 
@@ -127,25 +134,39 @@ public class ExpungeAndArchiveHistoricalDataService {
         serviceRoleDao.removeUsersFromService(serviceEntity.getId());
     }
 
-    private boolean canArchiveService(ServiceEntity serviceEntity) {
-        Optional<ZonedDateTime> mayBeLastTransactionDateForService = getLastTransactionDateForService(serviceEntity);
+    private boolean canArchiveService(ServiceEntity serviceEntity, ZonedDateTime lastTransactionDateForService) {
         ZonedDateTime archiveServicesBeforeDate = getArchiveServicesBeforeDate();
 
-        if (mayBeLastTransactionDateForService.isPresent()) {
-            return mayBeLastTransactionDateForService.get().isBefore(archiveServicesBeforeDate);
+        if (lastTransactionDateForService != null) {
+            return lastTransactionDateForService.isBefore(archiveServicesBeforeDate);
         } else if (serviceEntity.getCreatedDate() != null) {
             return serviceEntity.getCreatedDate().isBefore(archiveServicesBeforeDate);
+        } else if (serviceEntity.getFirstCheckedForArchivalDate() != null) {
+            return serviceEntity.getFirstCheckedForArchivalDate().isBefore(archiveServicesBeforeDate);
         }
 
         return false;
     }
 
-    private Optional<ZonedDateTime> getLastTransactionDateForService(ServiceEntity serviceEntity) {
+    private ZonedDateTime calculateSkipCheckingForArchivalUntilDate(ServiceEntity serviceEntity, ZonedDateTime lastTransactionDateForService) {
+        ZonedDateTime skipCheckingUntilDate = null;
+        if (lastTransactionDateForService != null) {
+            skipCheckingUntilDate = lastTransactionDateForService.plusDays(expungeAndArchiveDataConfig.getArchiveServicesAfterDays());
+        } else if (serviceEntity.getCreatedDate() != null) {
+            skipCheckingUntilDate = serviceEntity.getCreatedDate().plusDays(expungeAndArchiveDataConfig.getArchiveServicesAfterDays());
+        } else if (serviceEntity.getFirstCheckedForArchivalDate() != null) {
+            skipCheckingUntilDate = serviceEntity.getFirstCheckedForArchivalDate().plusDays(expungeAndArchiveDataConfig.getArchiveServicesAfterDays());
+        }
+        return skipCheckingUntilDate;
+    }
+
+    private ZonedDateTime getLastTransactionDateForService(ServiceEntity serviceEntity) {
         return serviceEntity.getGatewayAccountIds()
                 .stream()
                 .map(gatewayAccountIdEntity -> getLastTransactionDateForGatewayAccount(gatewayAccountIdEntity.getGatewayAccountId()))
                 .filter(Objects::nonNull)
-                .max(Comparator.comparing(ZonedDateTime::toEpochSecond));
+                .max(Comparator.comparing(ZonedDateTime::toEpochSecond))
+                .orElse(null);
     }
 
     private ZonedDateTime getLastTransactionDateForGatewayAccount(String gatewayAccountId) {

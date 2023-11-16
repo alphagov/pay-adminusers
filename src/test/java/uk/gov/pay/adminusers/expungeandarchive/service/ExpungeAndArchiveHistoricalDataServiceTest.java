@@ -80,7 +80,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
 
     @Mock
     ExpungeAndArchiveDataConfig mockExpungeAndArchiveConfig;
-    
+
     @Mock
     ConnectorTaskQueue mockConnectorTaskQueue;
 
@@ -100,7 +100,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
         clock = Clock.fixed(Instant.parse(SYSTEM_INSTANT), UTC);
         when(mockAdminUsersConfig.getExpungeAndArchiveDataConfig()).thenReturn(mockExpungeAndArchiveConfig);
         expungeAndArchiveHistoricalDataService = new ExpungeAndArchiveHistoricalDataService(mockUserDao,
-                mockInviteDao, mockForgottenPasswordDao, mockServiceDao, mockServiceRoleDao, mockLedgerService, 
+                mockInviteDao, mockForgottenPasswordDao, mockServiceDao, mockServiceRoleDao, mockLedgerService,
                 mockAdminUsersConfig, mockConnectorTaskQueue, clock);
     }
 
@@ -182,7 +182,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
 
             systemDate = clock.instant().atZone(UTC);
         }
-        
+
         @Test
         void shouldSendEventToConnectorTasksQueueWhenServiceIsArchived() {
             shouldArchiveService_WhenTheLastTransactionDateIsBeforeTheServicesEligibleForArchivingDate();
@@ -245,6 +245,32 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
         }
 
         @Test
+        void shouldArchiveServiceWithoutCreatedDateAndFirstButFirstCheckedForArchivalDateIsBeforeTheServicesEligibleForArchivingDate() {
+            when(mockExpungeAndArchiveConfig.getArchiveServicesAfterDays()).thenReturn(7);
+
+            LedgerSearchTransactionsResponse searchTransactionsResponse1 = aLedgerSearchTransactionsResponseFixture()
+                    .withTransactionList(List.of())
+                    .build();
+            when(mockLedgerService.searchTransactions(gatewayAccountId1, 1)).thenReturn(searchTransactionsResponse1);
+
+            serviceEntity = ServiceEntityFixture
+                    .aServiceEntity()
+                    .withArchived(false)
+                    .withCreatedDate(null)
+                    .withFirstCheckedForArchivalDate(systemDate.minusDays(8))
+                    .withGatewayAccounts(List.of(gatewayAccountIdEntity1))
+                    .build();
+            when(mockServiceDao.findServicesToCheckForArchiving(systemDate.minusDays(7))).thenReturn(List.of(serviceEntity));
+
+            expungeAndArchiveHistoricalDataService.expungeAndArchiveHistoricalData();
+
+            assertTrue(serviceEntity.isArchived());
+            assertThat(serviceEntity.getArchivedDate(), is(clock.instant().atZone(UTC)));
+            verify(mockServiceDao).merge(serviceEntity);
+            verify(mockServiceRoleDao).removeUsersFromService(serviceEntity.getId());
+        }
+
+        @Test
         void shouldNotArchiveService_WhenTheLastTransactionDateIsAfterTheServicesEligibleForArchivingDate() {
             when(mockExpungeAndArchiveConfig.getArchiveServicesAfterDays()).thenReturn(7);
 
@@ -266,6 +292,57 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             expungeAndArchiveHistoricalDataService.expungeAndArchiveHistoricalData();
 
             assertFalse(serviceEntity.isArchived());
+            assertThat(serviceEntity.getFirstCheckedForArchivalDate(), is(systemDate.withZoneSameInstant(UTC)));
+            assertThat(serviceEntity.getSkipCheckingForArchivalUntilDate(), is(systemDate.plusDays(8)));
+            verifyNoMoreInteractions(mockServiceDao);
+        }
+
+        @Test
+        void shouldNotArchiveService_WhenTheFirstCheckedForArchivalDateIsAfterTheServicesEligibleForArchivingDate() {
+            when(mockExpungeAndArchiveConfig.getArchiveServicesAfterDays()).thenReturn(7);
+
+            LedgerSearchTransactionsResponse searchTransactionsResponse1 = aLedgerSearchTransactionsResponseFixture()
+                    .withTransactionList(List.of())
+                    .build();
+
+            serviceEntity = ServiceEntityFixture
+                    .aServiceEntity()
+                    .withArchived(false)
+                    .withCreatedDate(null)
+                    .withFirstCheckedForArchivalDate(systemDate)
+                    .withGatewayAccounts(List.of(gatewayAccountIdEntity1))
+                    .build();
+
+            when(mockLedgerService.searchTransactions(gatewayAccountId1, 1)).thenReturn(searchTransactionsResponse1);
+            when(mockServiceDao.findServicesToCheckForArchiving(systemDate.minusDays(7))).thenReturn(List.of(serviceEntity));
+
+            expungeAndArchiveHistoricalDataService.expungeAndArchiveHistoricalData();
+
+            assertFalse(serviceEntity.isArchived());
+            assertThat(serviceEntity.getFirstCheckedForArchivalDate(), is(systemDate.withZoneSameInstant(UTC)));
+            assertThat(serviceEntity.getSkipCheckingForArchivalUntilDate(), is(systemDate.plusDays(7)));
+            verifyNoMoreInteractions(mockServiceDao);
+        }
+
+        @Test
+        void shouldNotSetFirstCheckedForArchivalDateIfItIsAlreadySet() {
+            when(mockExpungeAndArchiveConfig.getArchiveServicesAfterDays()).thenReturn(7);
+            serviceEntity.setFirstCheckedForArchivalDate(ZonedDateTime.parse("2021-01-01T10:15:30Z"));
+
+            LedgerTransaction ledgerTransaction = aLedgerTransactionFixture()
+                    .withCreatedDate(systemDate)
+                    .build();
+            LedgerSearchTransactionsResponse searchTransactionsResponse = aLedgerSearchTransactionsResponseFixture()
+                    .withTransactionList(List.of(ledgerTransaction))
+                    .build();
+
+            when(mockLedgerService.searchTransactions(gatewayAccountId1, 1)).thenReturn(searchTransactionsResponse);
+            when(mockServiceDao.findServicesToCheckForArchiving(systemDate.minusDays(7))).thenReturn(List.of(serviceEntity));
+
+            expungeAndArchiveHistoricalDataService.expungeAndArchiveHistoricalData();
+
+            assertFalse(serviceEntity.isArchived());
+            assertThat(serviceEntity.getFirstCheckedForArchivalDate().toString(), is("2021-01-01T10:15:30Z"));
             verifyNoMoreInteractions(mockServiceDao);
         }
 
@@ -289,11 +366,12 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             expungeAndArchiveHistoricalDataService.expungeAndArchiveHistoricalData();
 
             assertFalse(serviceEntity.isArchived());
+            assertThat(serviceEntity.getSkipCheckingForArchivalUntilDate(), is(systemDate.plusDays(7)));
             verifyNoMoreInteractions(mockServiceDao);
         }
 
         @Test
-        void shouldNotArchiveServiceWhenLedgerReturnsNoTransactionsAndCreatedDateIsNotAvailableOnService() {
+        void shouldNotArchiveServiceWhenLedgerReturnsNoTransactionsAndCreatedDateOrFirstCheckedForArchivalDateAreNotAvailableOnService() {
             when(mockExpungeAndArchiveConfig.getArchiveServicesAfterDays()).thenReturn(7);
 
             LedgerSearchTransactionsResponse searchTransactionsResponse1 = aLedgerSearchTransactionsResponseFixture()
@@ -305,6 +383,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
                     .aServiceEntity()
                     .withArchived(false)
                     .withCreatedDate(null)
+                    .withFirstCheckedForArchivalDate(null)
                     .withGatewayAccounts(List.of(gatewayAccountIdEntity1))
                     .build();
             when(mockServiceDao.findServicesToCheckForArchiving(systemDate.minusDays(7))).thenReturn(List.of(serviceEntity));
@@ -312,6 +391,8 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             expungeAndArchiveHistoricalDataService.expungeAndArchiveHistoricalData();
 
             assertFalse(serviceEntity.isArchived());
+            assertThat(serviceEntity.getFirstCheckedForArchivalDate(), is(systemDate.withZoneSameInstant(UTC)));
+            assertThat(serviceEntity.getSkipCheckingForArchivalUntilDate(), is(systemDate.plusDays(7)));
             verifyNoMoreInteractions(mockServiceDao);
         }
     }
