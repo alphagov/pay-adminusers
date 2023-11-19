@@ -7,9 +7,13 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import static java.time.ZoneOffset.UTC;
+import static java.time.ZonedDateTime.now;
 
 @Transactional
 public class ServiceDao extends JpaDao<ServiceEntity> {
@@ -83,12 +87,20 @@ public class ServiceDao extends JpaDao<ServiceEntity> {
     }
 
     public List<ServiceEntity> findServicesToCheckForArchiving(ZonedDateTime archiveServicesBeforeDate) {
+        ZonedDateTime now = now(UTC);
+
         String query = "SELECT s FROM ServiceEntity as s" +
-                " WHERE s.createdDate < :archiveServicesBeforeDate" +
+                " WHERE (s.createdDate <= :archiveServicesBeforeDate" +
+                "         OR (s.createdDate is null and s.firstCheckedForArchivalDate is null)" +
+                "         OR s.firstCheckedForArchivalDate <= :archiveServicesBeforeDate)" +
+                "   AND (s.skipCheckingForArchivalUntilDate is null " +
+                "        OR s.skipCheckingForArchivalUntilDate <= :now)" +
                 "   AND NOT s.archived";
+
         return entityManager.get()
                 .createQuery(query, ServiceEntity.class)
                 .setParameter("archiveServicesBeforeDate", archiveServicesBeforeDate)
+                .setParameter("now", now)
                 .getResultList();
     }
 }
