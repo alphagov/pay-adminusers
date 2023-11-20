@@ -39,6 +39,7 @@ public final class ServiceEntityFixture {
     private PspTestAccountStage pspTestAccountStage = PspTestAccountStage.NOT_STARTED;
     private boolean archived = false;
     private ZonedDateTime archivedDate;
+    private ZonedDateTime firstCheckedForArchivalDate;
 
     private ServiceEntityFixture() {
     }
@@ -139,6 +140,11 @@ public final class ServiceEntityFixture {
         return this;
     }
 
+    public ServiceEntityFixture withFirstCheckedForArchivalDate(ZonedDateTime firstCheckedForArchivalDate) {
+        this.firstCheckedForArchivalDate = firstCheckedForArchivalDate;
+        return this;
+    }
+
     public ServiceEntity build() {
         ServiceEntity serviceEntity = new ServiceEntity();
         serviceEntity.setId(id);
@@ -159,6 +165,7 @@ public final class ServiceEntityFixture {
         serviceEntity.setCurrentPspTestAccountStage(pspTestAccountStage);
         serviceEntity.setArchived(archived);
         serviceEntity.setArchivedDate(archivedDate);
+        serviceEntity.setFirstCheckedForArchivalDate(firstCheckedForArchivalDate);
         return serviceEntity;
     }
 }

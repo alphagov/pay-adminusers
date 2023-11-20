@@ -53,6 +53,7 @@ public class UserDaoIT extends DaoTestBase {
         userDao = env.getInstance(UserDao.class);
         serviceDao = env.getInstance(ServiceDao.class);
         roleDao = env.getInstance(RoleDao.class);
+        databaseHelper.truncateAllData();
     }
 
     @Test

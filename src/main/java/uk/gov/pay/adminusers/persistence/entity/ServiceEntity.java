@@ -108,6 +108,14 @@ public class ServiceEntity {
     @Convert(converter = UTCDateTimeConverter.class)
     private ZonedDateTime archivedDate;
 
+    @Column(name = "first_checked_for_archival_date")
+    @Convert(converter = UTCDateTimeConverter.class)
+    private ZonedDateTime firstCheckedForArchivalDate;
+
+    @Column(name = "skip_checking_for_archival_until_date")
+    @Convert(converter = UTCDateTimeConverter.class)
+    private ZonedDateTime skipCheckingForArchivalUntilDate;
+
     @Column(name = "current_psp_test_account_stage")
     @Enumerated(STRING)
     private PspTestAccountStage currentPspTestAccountStage = PspTestAccountStage.NOT_STARTED;
@@ -273,6 +281,22 @@ public class ServiceEntity {
 
     public void setArchivedDate(ZonedDateTime archivedDate) {
         this.archivedDate = archivedDate;
+    }
+
+    public ZonedDateTime getFirstCheckedForArchivalDate() {
+        return firstCheckedForArchivalDate;
+    }
+
+    public void setFirstCheckedForArchivalDate(ZonedDateTime firstCheckedForArchivalDate) {
+        this.firstCheckedForArchivalDate = firstCheckedForArchivalDate;
+    }
+
+    public ZonedDateTime getSkipCheckingForArchivalUntilDate() {
+        return skipCheckingForArchivalUntilDate;
+    }
+
+    public void setSkipCheckingForArchivalUntilDate(ZonedDateTime skipCheckingForArchivalUntilDate) {
+        this.skipCheckingForArchivalUntilDate = skipCheckingForArchivalUntilDate;
     }
 
     public PspTestAccountStage getCurrentPspTestAccountStage() {
