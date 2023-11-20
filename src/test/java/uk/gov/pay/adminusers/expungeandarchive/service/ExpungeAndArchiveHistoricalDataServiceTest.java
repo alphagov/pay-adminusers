@@ -319,7 +319,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             expungeAndArchiveHistoricalDataService.expungeAndArchiveHistoricalData();
 
             assertFalse(serviceEntity.isArchived());
-            assertThat(serviceEntity.getFirstCheckedForArchivalDate(), is(systemDate.withZoneSameInstant(UTC)));
+            assertThat(serviceEntity.getFirstCheckedForArchivalDate(), is(systemDate));
             assertThat(serviceEntity.getSkipCheckingForArchivalUntilDate(), is(systemDate.plusDays(7)));
             verifyNoMoreInteractions(mockServiceDao);
         }
