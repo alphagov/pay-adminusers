@@ -1,4 +1,4 @@
-FROM eclipse-temurin:11-jre-alpine@sha256:c033de8d3135b954d230eed6b9bd14dc3dbf32550e448705222f1c907ceebe08
+FROM eclipse-temurin:11-jre-alpine@sha256:1017b1b26f9b92921a93a730fa33327d83cdfa0cc2f7fa486b1348ad4eda755c
 
 RUN ["apk", "--no-cache", "upgrade"]
 
@@ -9,9 +9,8 @@ ENV LANG C.UTF-8
 
 RUN echo networkaddress.cache.ttl=$DNS_TTL >> "$JAVA_HOME/conf/security/java.security"
 
-# Add RDS CA certificates to the default truststore
-RUN wget -qO - https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem       | keytool -importcert -noprompt -cacerts -storepass changeit -alias rds-ca-2019-root \
- && wget -qO - https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem | keytool -importcert -noprompt -cacerts -storepass changeit -alias rds-combined-ca-bundle
+COPY ./import_aws_rds_cert_bundles.sh /
+RUN /import_aws_rds_cert_bundles.sh && rm /import_aws_rds_cert_bundles.sh
 
 RUN ["apk", "add", "--no-cache", "bash", "tini"]
 
