@@ -386,10 +386,10 @@ public class DatabaseTestHelper {
                     "id, custom_branding, " +
                     "merchant_name, merchant_telephone_number, merchant_address_line1, merchant_address_line2, merchant_address_city, " +
                     "merchant_address_postcode, merchant_address_country, merchant_email, merchant_url, external_id, redirect_to_service_immediately_on_terminal_state, " +
-                    "current_go_live_stage, experimental_features_enabled, current_psp_test_account_stage, created_date, archived) " +
+                    "current_go_live_stage, experimental_features_enabled, current_psp_test_account_stage, created_date, archived, first_checked_for_archival_date, skip_checking_for_archival_until_date) " +
                     "VALUES (:id, :customBranding, :merchantName, :merchantTelephoneNumber, :merchantAddressLine1, :merchantAddressLine2, " +
                     ":merchantAddressCity, :merchantAddressPostcode, :merchantAddressCountry, :merchantEmail, :merchantUrl, :externalId, :redirectToServiceImmediatelyOnTerminalState, " +
-                    ":currentGoLiveStage, :experimentalFeaturesEnabled, :pspTestAccountStage, :createdDate, :archived)")
+                    ":currentGoLiveStage, :experimentalFeaturesEnabled, :pspTestAccountStage, :createdDate, :archived, :firstCheckedForArchivalDate, :skipCheckingForArchivalUntilDate)")
                     .bind("id", serviceEntity.getId())
                     .bindBySqlType("customBranding", customBranding, OTHER)
                     .bind("merchantName", merchantDetails.getName())
@@ -408,6 +408,8 @@ public class DatabaseTestHelper {
                     .bind("pspTestAccountStage", serviceEntity.getCurrentPspTestAccountStage())
                     .bind("createdDate", serviceEntity.getCreatedDate())
                     .bind("archived", serviceEntity.isArchived())
+                    .bind("firstCheckedForArchivalDate", serviceEntity.getFirstCheckedForArchivalDate())
+                    .bind("skipCheckingForArchivalUntilDate", serviceEntity.getSkipCheckingForArchivalUntilDate())
                     .execute();
         });
         serviceEntity.getGatewayAccountIds().forEach(gatewayAccount ->

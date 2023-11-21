@@ -40,6 +40,7 @@ public final class ServiceEntityFixture {
     private boolean archived = false;
     private ZonedDateTime archivedDate;
     private ZonedDateTime firstCheckedForArchivalDate;
+    private ZonedDateTime skipCheckingForArchivalUntilDate;
 
     private ServiceEntityFixture() {
     }
@@ -145,6 +146,11 @@ public final class ServiceEntityFixture {
         return this;
     }
 
+    public ServiceEntityFixture withSkipCheckingForArchivalUntilDate(ZonedDateTime skipCheckingForArchivalUntilDate) {
+        this.skipCheckingForArchivalUntilDate = skipCheckingForArchivalUntilDate;
+        return this;
+    }
+
     public ServiceEntity build() {
         ServiceEntity serviceEntity = new ServiceEntity();
         serviceEntity.setId(id);
@@ -166,6 +172,8 @@ public final class ServiceEntityFixture {
         serviceEntity.setArchived(archived);
         serviceEntity.setArchivedDate(archivedDate);
         serviceEntity.setFirstCheckedForArchivalDate(firstCheckedForArchivalDate);
+        serviceEntity.setSkipCheckingForArchivalUntilDate(skipCheckingForArchivalUntilDate);
         return serviceEntity;
     }
+
 }

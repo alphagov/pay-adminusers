@@ -34,6 +34,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.time.ZoneOffset.UTC;
+import static java.time.ZonedDateTime.now;
+import static java.time.ZonedDateTime.parse;
 import static java.util.Comparator.comparing;
 import static java.util.stream.IntStream.range;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -164,7 +166,7 @@ class ServiceDaoIT extends DaoTestBase {
 
     @Test
     void shouldFindByServiceExternalId() {
-        ZonedDateTime now = ZonedDateTime.now(UTC);
+        ZonedDateTime now = now(UTC);
         ServiceEntity insertedServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withExperimentalFeaturesEnabled(true)
                 .build();
@@ -254,7 +256,7 @@ class ServiceDaoIT extends DaoTestBase {
     void shouldReturnServiceValuesFromDatabase() {
         ServiceEntity insertedServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withRedirectToServiceImmediatelyOnTerminalState(true)
-                .withCreatedDate(ZonedDateTime.parse("2020-11-01T00:00:00Z"))
+                .withCreatedDate(parse("2020-11-01T00:00:00Z"))
                 .build();
 
         databaseHelper.insertServiceEntity(insertedServiceEntity);
@@ -378,8 +380,8 @@ class ServiceDaoIT extends DaoTestBase {
     @Nested
     class TestFindServicesToCheckForArchiving {
         @Test
-        void shouldReturnServicesOlderThanTheProvidedDate() {
-            ZonedDateTime archiveServicesBeforeDate = ZonedDateTime.parse("2022-01-01T00:00:00Z");
+        void shouldReturnServices_WhenCreatedDateIsOlderThanTheProvidedDate() {
+            ZonedDateTime archiveServicesBeforeDate = parse("2022-01-01T00:00:00Z");
             ServiceEntity insertedServiceEntity = ServiceEntityFixture
                     .aServiceEntity()
                     .withCreatedDate(archiveServicesBeforeDate.minusDays(1))
@@ -393,11 +395,58 @@ class ServiceDaoIT extends DaoTestBase {
         }
 
         @Test
+        void shouldReturnServices_WhenCreatedDateAndFirstCheckedForArchivalDateAreNull() {
+            ZonedDateTime archiveServicesBeforeDate = parse("2022-01-01T00:00:00Z");
+            ServiceEntity insertedServiceEntity = ServiceEntityFixture
+                    .aServiceEntity()
+                    .withCreatedDate(null)
+                    .withFirstCheckedForArchivalDate(null)
+                    .build();
+
+            databaseHelper.insertServiceEntity(insertedServiceEntity);
+
+            List<ServiceEntity> services = serviceDao.findServicesToCheckForArchiving(archiveServicesBeforeDate);
+            assertThat(services.size(), is(1));
+            assertThat(services.get(0).getExternalId(), is(insertedServiceEntity.getExternalId()));
+        }
+
+        @Test
+        void shouldReturnServices_WhenFirstCheckedForArchivalDate_IsOlderThanTheProvidedDate() {
+            ZonedDateTime archiveServicesBeforeDate = parse("2022-01-01T00:00:00Z");
+            ServiceEntity insertedServiceEntity = ServiceEntityFixture
+                    .aServiceEntity()
+                    .withFirstCheckedForArchivalDate(archiveServicesBeforeDate.minusDays(1))
+                    .build();
+
+            databaseHelper.insertServiceEntity(insertedServiceEntity);
+
+            List<ServiceEntity> services = serviceDao.findServicesToCheckForArchiving(archiveServicesBeforeDate);
+            assertThat(services.size(), is(1));
+            assertThat(services.get(0).getExternalId(), is(insertedServiceEntity.getExternalId()));
+        }
+
+        @Test
+        void shouldReturnServices_WhenSkipCheckingForArchivalUntilDateIsInThePast() {
+            ZonedDateTime archiveServicesBeforeDate = now(UTC);
+            ServiceEntity insertedServiceEntity = ServiceEntityFixture
+                    .aServiceEntity()
+                    .withCreatedDate(null)
+                    .withSkipCheckingForArchivalUntilDate(now(UTC).minusDays(3))
+                    .build();
+
+            databaseHelper.insertServiceEntity(insertedServiceEntity);
+
+            List<ServiceEntity> services = serviceDao.findServicesToCheckForArchiving(archiveServicesBeforeDate);
+            assertThat(services.size(), is(1));
+            assertThat(services.get(0).getExternalId(), is(insertedServiceEntity.getExternalId()));
+        }
+
+        @Test
         void shouldNotReturnServiceCreatedAfterTheProvidedDate() {
-            ZonedDateTime archiveServicesBeforeDate = ZonedDateTime.parse("2022-01-01T00:00:00Z");
+            ZonedDateTime archiveServicesBeforeDate = parse("2022-01-01T00:00:00Z");
             ServiceEntity insertedServiceEntity1 = ServiceEntityFixture
                     .aServiceEntity()
-                    .withCreatedDate(archiveServicesBeforeDate)
+                    .withCreatedDate(archiveServicesBeforeDate.plusDays(2))
                     .build();
             ServiceEntity insertedServiceEntity2 = ServiceEntityFixture
                     .aServiceEntity()
@@ -412,8 +461,38 @@ class ServiceDaoIT extends DaoTestBase {
         }
 
         @Test
+        void shouldNotReturnServices_WhenFirstCheckedForArchivalDate_IsLaterThanTheProvidedDate() {
+            ZonedDateTime archiveServicesBeforeDate = parse("2022-01-01T00:00:00Z");
+            ServiceEntity insertedServiceEntity = ServiceEntityFixture
+                    .aServiceEntity()
+                    .withCreatedDate(null)
+                    .withFirstCheckedForArchivalDate(parse("2023-01-01T00:00:00Z"))
+                    .build();
+
+            databaseHelper.insertServiceEntity(insertedServiceEntity);
+
+            List<ServiceEntity> services = serviceDao.findServicesToCheckForArchiving(archiveServicesBeforeDate);
+            assertThat(services.size(), is(0));
+        }
+
+        @Test
+        void shouldNotReturnServices_WhenSkipCheckingForArchivalUntilDateIsInFuture() {
+            ZonedDateTime archiveServicesBeforeDate = now(UTC);
+            ServiceEntity insertedServiceEntity = ServiceEntityFixture
+                    .aServiceEntity()
+                    .withCreatedDate(null)
+                    .withSkipCheckingForArchivalUntilDate(now(UTC).plusDays(3))
+                    .build();
+
+            databaseHelper.insertServiceEntity(insertedServiceEntity);
+
+            List<ServiceEntity> services = serviceDao.findServicesToCheckForArchiving(archiveServicesBeforeDate);
+            assertThat(services.size(), is(0));
+        }
+
+        @Test
         void shouldNotReturnServiceArchived() {
-            ZonedDateTime archiveServicesBeforeDate = ZonedDateTime.parse("2022-01-01T00:00:00Z");
+            ZonedDateTime archiveServicesBeforeDate = parse("2022-01-01T00:00:00Z");
 
             ServiceEntity insertedServiceEntity = ServiceEntityFixture
                     .aServiceEntity()
