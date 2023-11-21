@@ -51,7 +51,7 @@ class ExpungeAndArchiveHistoricalDataResourceIT extends IntegrationTest {
             .build();
 
     LedgerStub ledgerStub;
-    
+
     @BeforeEach
     void setUp() {
         databaseHelper.truncateAllData();
@@ -195,6 +195,50 @@ class ExpungeAndArchiveHistoricalDataResourceIT extends IntegrationTest {
                 .withQueryParam("account_id", equalTo(service.getGatewayAccountIds().get(0)))
                 .withQueryParam("display_size", equalTo("1"))
         );
+    }
+
+    @Test
+    void shouldSet_FirstCheckedForArchivalDate_And_SkipCheckingForArchivalUntilDate_WhenServicesAreNotArchived() throws JsonProcessingException {
+        Service serviceWithoutCreatedDateOrTransactions = serviceDbFixture(databaseHelper)
+                .withCreatedDate(null)
+                .withGatewayAccountIds(valueOf(nextInt()))
+                .insertService();
+        Service serviceWithoutCreatedDateAndSomeTransactions = serviceDbFixture(databaseHelper)
+                .withCreatedDate(null)
+                .withGatewayAccountIds(valueOf(nextInt()))
+                .insertService();
+
+        LedgerTransaction ledgerTransaction = aLedgerTransactionFixture()
+                .withCreatedDate(now.minusDays(4))
+                .build();
+        LedgerSearchTransactionsResponse searchTransactionsResponse = aLedgerSearchTransactionsResponseFixture()
+                .withTransactionList(List.of(ledgerTransaction))
+                .build();
+        LedgerSearchTransactionsResponse searchTransactionsResponseWitNoResults = aLedgerSearchTransactionsResponseFixture()
+                .withTransactionList(List.of(ledgerTransaction))
+                .build();
+
+        ledgerStub.returnLedgerTransactionsForSearch(serviceWithoutCreatedDateOrTransactions.getGatewayAccountIds().get(0), searchTransactionsResponseWitNoResults);
+        ledgerStub.returnLedgerTransactionsForSearch(serviceWithoutCreatedDateAndSomeTransactions.getGatewayAccountIds().get(0), searchTransactionsResponse);
+
+        givenSetup().when()
+                .contentType(JSON)
+                .accept(JSON)
+                .post("v1/tasks/expunge-and-archive-historical-data")
+                .then()
+                .statusCode(200);
+
+        Map<String, Object> serviceAttributes = databaseHelper.findServiceByExternalId(serviceWithoutCreatedDateOrTransactions.getExternalId()).get(0);
+        assertServiceNotArchived(serviceAttributes);
+
+        serviceAttributes = databaseHelper.findServiceByExternalId(serviceWithoutCreatedDateAndSomeTransactions.getExternalId()).get(0);
+        assertServiceNotArchived(serviceAttributes);
+    }
+
+    private void assertServiceNotArchived(Map<String, Object> serviceAttributes) {
+        assertThat(serviceAttributes.get("archived"), is(false));
+        assertThat(serviceAttributes.get("first_checked_for_archival_date"), is(notNullValue()));
+        assertThat(serviceAttributes.get("skip_checking_for_archival_until_date"), is(notNullValue()));
     }
 
     private User insertUser(ZonedDateTime createdDate, ZonedDateTime lastLoggedInAt) {

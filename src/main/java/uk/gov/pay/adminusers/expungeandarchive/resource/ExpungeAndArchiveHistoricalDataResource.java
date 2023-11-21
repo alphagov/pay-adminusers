@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.expungeandarchive.resource;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
