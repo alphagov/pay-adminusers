@@ -50,7 +50,7 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
 
     public AppWithPostgresExtension(String configPath, ConfigOverride... configOverrides) {
         configFilePath = resourceFilePath(configPath);
-        postgres = new PostgresDockerExtension("11.16");
+        postgres = new PostgresDockerExtension("15.2");
         sqsClient = SqsTestDocker.initialise(Collections.singletonList("event-queue"));
 
         ConfigOverride[] newConfigOverrides = List.of(
