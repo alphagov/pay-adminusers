@@ -124,6 +124,7 @@ public class ExpungeAndArchiveHistoricalDataService {
 
                 ZonedDateTime skipCheckingUntilDate = calculateSkipCheckingForArchivalUntilDate(serviceEntity, lastTransactionDateForService);
                 serviceEntity.setSkipCheckingForArchivalUntilDate(skipCheckingUntilDate);
+                serviceDao.merge(serviceEntity);
             }
         });
 

@@ -294,7 +294,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             assertFalse(serviceEntity.isArchived());
             assertThat(serviceEntity.getFirstCheckedForArchivalDate(), is(systemDate.withZoneSameInstant(UTC)));
             assertThat(serviceEntity.getSkipCheckingForArchivalUntilDate(), is(systemDate.plusDays(8)));
-            verifyNoMoreInteractions(mockServiceDao);
+            verify(mockServiceDao).merge(serviceEntity);
         }
 
         @Test
@@ -321,7 +321,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             assertFalse(serviceEntity.isArchived());
             assertThat(serviceEntity.getFirstCheckedForArchivalDate(), is(systemDate));
             assertThat(serviceEntity.getSkipCheckingForArchivalUntilDate(), is(systemDate.plusDays(7)));
-            verifyNoMoreInteractions(mockServiceDao);
+            verify(mockServiceDao).merge(serviceEntity);
         }
 
         @Test
@@ -343,7 +343,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
 
             assertFalse(serviceEntity.isArchived());
             assertThat(serviceEntity.getFirstCheckedForArchivalDate().toString(), is("2021-01-01T10:15:30Z"));
-            verifyNoMoreInteractions(mockServiceDao);
+            verify(mockServiceDao).merge(serviceEntity);
         }
 
         @Test
@@ -367,7 +367,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
 
             assertFalse(serviceEntity.isArchived());
             assertThat(serviceEntity.getSkipCheckingForArchivalUntilDate(), is(systemDate.plusDays(7)));
-            verifyNoMoreInteractions(mockServiceDao);
+            verify(mockServiceDao).merge(serviceEntity);
         }
 
         @Test
@@ -393,7 +393,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             assertFalse(serviceEntity.isArchived());
             assertThat(serviceEntity.getFirstCheckedForArchivalDate(), is(systemDate.withZoneSameInstant(UTC)));
             assertThat(serviceEntity.getSkipCheckingForArchivalUntilDate(), is(systemDate.plusDays(7)));
-            verifyNoMoreInteractions(mockServiceDao);
+            verify(mockServiceDao).merge(serviceEntity);
         }
     }
 }
