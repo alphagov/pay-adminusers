@@ -26,7 +26,7 @@ public class DaoTestBase {
 
     private static Logger logger = LoggerFactory.getLogger(DaoTestBase.class);
 
-    public static PostgresDockerExtension postgres = new PostgresDockerExtension("11.16");
+    public static PostgresDockerExtension postgres = new PostgresDockerExtension("15.2");
 
     protected static DatabaseTestHelper databaseHelper;
     protected static GuicedTestEnvironment env;

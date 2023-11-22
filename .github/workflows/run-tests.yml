@@ -40,7 +40,7 @@ jobs:
           key: ${{ runner.os }}-build-id-${{ github.head_ref }}-${{ github.sha }}-pacts
       - name: Pull docker image dependencies
         run: |
-          docker pull postgres:11.16
+          docker pull postgres:15.2
       - name: Compile
         run: mvn clean compile
       - name: Check for OpenApi file changes

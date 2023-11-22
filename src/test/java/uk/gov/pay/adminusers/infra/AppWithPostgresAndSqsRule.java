@@ -54,7 +54,7 @@ public class AppWithPostgresAndSqsRule implements TestRule {
 
     public AppWithPostgresAndSqsRule(String configPath, ConfigOverride... configOverrides) {
         configFilePath = resourceFilePath(configPath);
-        postgres = new PostgresDockerRule("11.16");
+        postgres = new PostgresDockerRule("15.2");
 
         sqsClient = SqsTestDocker.initialise(Collections.singletonList("event-queue"));
 
