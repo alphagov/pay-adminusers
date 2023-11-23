@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.ExpungeAndArchiveDataConfig;
+import uk.gov.pay.adminusers.client.ledger.exception.LedgerException;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerSearchTransactionsResponse;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
@@ -39,9 +40,11 @@ import java.util.Optional;
 
 import static ch.qos.logback.classic.Level.INFO;
 import static java.time.ZoneOffset.UTC;
+import static javax.ws.rs.core.Response.serverError;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -394,6 +397,44 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             assertThat(serviceEntity.getFirstCheckedForArchivalDate(), is(systemDate.withZoneSameInstant(UTC)));
             assertThat(serviceEntity.getSkipCheckingForArchivalUntilDate(), is(systemDate.plusDays(7)));
             verify(mockServiceDao).merge(serviceEntity);
+        }
+
+        @Test
+        void shouldLogAndContinueArchivingServicesForLedgerErrors() {
+            when(mockExpungeAndArchiveConfig.getArchiveServicesAfterDays()).thenReturn(7);
+
+            when(mockLedgerService.searchTransactions(gatewayAccountId1, 1)).thenThrow(new LedgerException(serverError().build()));
+            serviceEntity = ServiceEntityFixture
+                    .aServiceEntity()
+                    .withArchived(false)
+                    .withCreatedDate(null)
+                    .withFirstCheckedForArchivalDate(null)
+                    .withGatewayAccounts(List.of(gatewayAccountIdEntity1))
+                    .build();
+
+            LedgerSearchTransactionsResponse searchTransactionsResponse = aLedgerSearchTransactionsResponseFixture()
+                    .withTransactionList(List.of())
+                    .build();
+            when(mockLedgerService.searchTransactions(gatewayAccountId2, 1)).thenReturn(searchTransactionsResponse);
+            ServiceEntity serviceEntityToArchive = ServiceEntityFixture
+                    .aServiceEntity()
+                    .withArchived(false)
+                    .withCreatedDate(systemDate.minusDays(10))
+                    .withFirstCheckedForArchivalDate(null)
+                    .withGatewayAccounts(List.of(gatewayAccountIdEntity2))
+                    .build();
+            when(mockServiceDao.findServicesToCheckForArchiving(systemDate.minusDays(7))).thenReturn(List.of(serviceEntity, serviceEntityToArchive));
+
+            expungeAndArchiveHistoricalDataService.expungeAndArchiveHistoricalData();
+
+            assertFalse(serviceEntity.isArchived());
+            assertThat(serviceEntity.getFirstCheckedForArchivalDate(), is(nullValue()));
+            assertThat(serviceEntity.getSkipCheckingForArchivalUntilDate(), is(nullValue()));
+
+            assertTrue(serviceEntityToArchive.isArchived());
+
+            verify(mockServiceDao).merge(serviceEntityToArchive);
+            verifyNoMoreInteractions(mockServiceDao);
         }
     }
 }

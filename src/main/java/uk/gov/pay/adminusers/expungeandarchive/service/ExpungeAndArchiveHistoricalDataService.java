@@ -4,8 +4,10 @@ import com.google.inject.Inject;
 import io.prometheus.client.Histogram;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.ExpungeAndArchiveDataConfig;
+import uk.gov.pay.adminusers.client.ledger.exception.LedgerException;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerSearchTransactionsResponse;
 import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
@@ -28,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static net.logstash.logback.argument.StructuredArguments.kv;
+import static uk.gov.service.payments.logging.LoggingKeys.MDC_REQUEST_ID_KEY;
 import static uk.gov.service.payments.logging.LoggingKeys.SERVICE_EXTERNAL_ID;
 
 public class ExpungeAndArchiveHistoricalDataService {
@@ -103,33 +106,46 @@ public class ExpungeAndArchiveHistoricalDataService {
         AtomicInteger numberOfServicesArchived = new AtomicInteger();
         servicesToCheckForArchiving.forEach(serviceEntity -> {
 
-            ZonedDateTime lastTransactionDateForService = getLastTransactionDateForService(serviceEntity);
+            try {
+                ZonedDateTime lastTransactionDateForService = getLastTransactionDateForService(serviceEntity);
 
-            if (canArchiveService(serviceEntity, lastTransactionDateForService)) {
-                numberOfServicesArchived.getAndIncrement();
-                serviceEntity.setArchived(true);
-                serviceEntity.setArchivedDate(clock.instant().atZone(UTC));
+                if (canArchiveService(serviceEntity, lastTransactionDateForService)) {
+                    numberOfServicesArchived.getAndIncrement();
+                    archiveService(serviceEntity);
+                } else {
+                    if (serviceEntity.getFirstCheckedForArchivalDate() == null) {
+                        serviceEntity.setFirstCheckedForArchivalDate(clock.instant().atZone(UTC));
+                    }
 
-                serviceDao.merge(serviceEntity);
-                detachUsers(serviceEntity);
-
-                connectorTaskQueue.addTaskToQueue(
-                        new ConnectorTask(new ServiceArchivedTaskData(serviceEntity.getExternalId()), "service_archived"));
-
-                LOGGER.info("Archived service", kv(SERVICE_EXTERNAL_ID, serviceEntity.getExternalId()));
-            } else {
-                if (serviceEntity.getFirstCheckedForArchivalDate() == null) {
-                    serviceEntity.setFirstCheckedForArchivalDate(clock.instant().atZone(UTC));
+                    ZonedDateTime skipCheckingUntilDate = calculateSkipCheckingForArchivalUntilDate(serviceEntity, lastTransactionDateForService);
+                    serviceEntity.setSkipCheckingForArchivalUntilDate(skipCheckingUntilDate);
+                    serviceDao.merge(serviceEntity);
                 }
-
-                ZonedDateTime skipCheckingUntilDate = calculateSkipCheckingForArchivalUntilDate(serviceEntity, lastTransactionDateForService);
-                serviceEntity.setSkipCheckingForArchivalUntilDate(skipCheckingUntilDate);
-                serviceDao.merge(serviceEntity);
+            } catch (LedgerException e) {
+                LOGGER.warn("Error getting transactions",
+                        SERVICE_EXTERNAL_ID, serviceEntity.getExternalId(),
+                        "error", e.getMessage());
             }
         });
 
         return numberOfServicesArchived.get();
     }
+
+    private void archiveService(ServiceEntity serviceEntity) {
+        MDC.put(SERVICE_EXTERNAL_ID, serviceEntity.getExternalId());
+        serviceEntity.setArchived(true);
+        serviceEntity.setArchivedDate(clock.instant().atZone(UTC));
+
+        serviceDao.merge(serviceEntity);
+        detachUsers(serviceEntity);
+
+        connectorTaskQueue.addTaskToQueue(
+                new ConnectorTask(new ServiceArchivedTaskData(serviceEntity.getExternalId()), "service_archived"));
+
+        LOGGER.info("Archived service");
+        MDC.remove(SERVICE_EXTERNAL_ID);
+    }
+
 
     private void detachUsers(ServiceEntity serviceEntity) {
         serviceRoleDao.removeUsersFromService(serviceEntity.getId());
