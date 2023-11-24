@@ -16,13 +16,6 @@ public class ServiceRoleDao extends JpaDao<ServiceRoleEntity> {
         super(entityManager, ServiceRoleEntity.class);
     }
 
-    public void removeUsersFromService(Integer serviceId) {
-        entityManager.get()
-                .createQuery("DELETE from ServiceRoleEntity where service.id = :serviceId")
-                .setParameter("serviceId", serviceId)
-                .executeUpdate();
-    }
-
     public List<ServiceRoleEntity> findServiceUserRoles(Integer serviceId) {
         return entityManager.get()
                 .createQuery("select sre from ServiceRoleEntity sre where sre.service.id = :serviceId")
