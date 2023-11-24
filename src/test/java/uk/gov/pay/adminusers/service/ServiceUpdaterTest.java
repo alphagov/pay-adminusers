@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
+import uk.gov.pay.adminusers.expungeandarchive.service.ExpungeAndArchiveHistoricalDataService;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.model.Service;
@@ -46,12 +47,13 @@ public class ServiceUpdaterTest {
     private static final String NON_EXISTENT_SERVICE_EXTERNAL_ID = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
     public static final String SERVICE_ID = randomUuid();
     private ServiceDao serviceDao = mock(ServiceDao.class);
+    private ExpungeAndArchiveHistoricalDataService expungeAndArchiveHistoricalDataService = mock(ExpungeAndArchiveHistoricalDataService.class);
     private ServiceUpdater updater;
     private final ObjectMapper mapper = new ObjectMapper();
 
     @BeforeEach
     public void before() {
-        updater = new ServiceUpdater(serviceDao);
+        updater = new ServiceUpdater(serviceDao, expungeAndArchiveHistoricalDataService);
     }
 
     @Test
@@ -290,7 +292,7 @@ public class ServiceUpdaterTest {
     }
 
     @Test
-    public void shouldUpdateArchivedSuccessfully() {
+    void shouldArchiveServiceForTrueValue() {
         ServiceUpdateRequest request = serviceUpdateRequest("replace", "archived", true);
         ServiceEntity serviceEntity = mock(ServiceEntity.class);
 
@@ -300,8 +302,25 @@ public class ServiceUpdaterTest {
         Optional<Service> maybeService = updater.doUpdate(SERVICE_ID, request);
 
         assertThat(maybeService.isPresent(), is(true));
+
+        verify(expungeAndArchiveHistoricalDataService).archiveService(serviceEntity);
+    }
+
+    @Test
+    void shouldUpdateArchivedForFalseValue() {
+        ServiceUpdateRequest request = serviceUpdateRequest("replace", "archived", false);
+        ServiceEntity serviceEntity = mock(ServiceEntity.class);
+
+        when(serviceDao.findByExternalId(SERVICE_ID)).thenReturn(of(serviceEntity));
+        when(serviceEntity.toService()).thenReturn(Service.from());
+
+        Optional<Service> maybeService = updater.doUpdate(SERVICE_ID, request);
+
+        assertThat(maybeService.isPresent(), is(true));
+
         InOrder inOrder = inOrder(serviceEntity, serviceDao);
-        inOrder.verify(serviceEntity).setArchived(true);
+        inOrder.verify(serviceEntity).setArchived(false);
+        inOrder.verify(serviceEntity).setArchivedDate(null);
         inOrder.verify(serviceDao).merge(serviceEntity);
     }
 

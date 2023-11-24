@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static net.logstash.logback.argument.StructuredArguments.kv;
-import static uk.gov.service.payments.logging.LoggingKeys.MDC_REQUEST_ID_KEY;
 import static uk.gov.service.payments.logging.LoggingKeys.SERVICE_EXTERNAL_ID;
 
 public class ExpungeAndArchiveHistoricalDataService {
@@ -131,7 +130,7 @@ public class ExpungeAndArchiveHistoricalDataService {
         return numberOfServicesArchived.get();
     }
 
-    private void archiveService(ServiceEntity serviceEntity) {
+    public void archiveService(ServiceEntity serviceEntity) {
         MDC.put(SERVICE_EXTERNAL_ID, serviceEntity.getExternalId());
         serviceEntity.setArchived(true);
         serviceEntity.setArchivedDate(clock.instant().atZone(UTC));

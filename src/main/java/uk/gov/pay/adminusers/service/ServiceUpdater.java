@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.service;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
+import uk.gov.pay.adminusers.expungeandarchive.service.ExpungeAndArchiveHistoricalDataService;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.model.Service;
@@ -54,8 +55,10 @@ public class ServiceUpdater {
     private final ServiceDao serviceDao;
     private final Map<String, BiConsumer<ServiceUpdateRequest, ServiceEntity>> attributeUpdaters;
 
+    ExpungeAndArchiveHistoricalDataService expungeAndArchiveHistoricalDataService;
+
     @Inject
-    public ServiceUpdater(ServiceDao serviceDao) {
+    public ServiceUpdater(ServiceDao serviceDao, ExpungeAndArchiveHistoricalDataService expungeAndArchiveHistoricalDataService) {
         Map<String, BiConsumer<ServiceUpdateRequest, ServiceEntity>> attributeUpdaters = new HashMap<>(Map.ofEntries(
                 entry(FIELD_GATEWAY_ACCOUNT_IDS, assignGatewayAccounts()),
                 entry(FIELD_CUSTOM_BRANDING, updateCustomBranding()),
@@ -86,6 +89,7 @@ public class ServiceUpdater {
                 .forEach(language -> attributeUpdaters.put(FIELD_SERVICE_NAME_PREFIX + '/' + language.toString(), updateServiceName()));
         this.attributeUpdaters = Map.copyOf(attributeUpdaters);
         this.serviceDao = serviceDao;
+        this.expungeAndArchiveHistoricalDataService = expungeAndArchiveHistoricalDataService;
     }
 
     @Transactional
@@ -146,7 +150,7 @@ public class ServiceUpdater {
         return (serviceUpdateRequest, serviceEntity) ->
                 serviceEntity.setRedirectToServiceImmediatelyOnTerminalState(serviceUpdateRequest.valueAsBoolean());
     }
-    
+
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateExperimentalFeaturesEnabled() {
         return ((serviceUpdateRequest, serviceEntity) -> serviceEntity.setExperimentalFeaturesEnabled(serviceUpdateRequest.valueAsBoolean()));
     }
@@ -154,6 +158,7 @@ public class ServiceUpdater {
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateTakesPaymentsOverPhone() {
         return ((serviceUpdateRequest, serviceEntity) -> serviceEntity.setTakesPaymentsOverPhone(serviceUpdateRequest.valueAsBoolean()));
     }
+
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateAgentInitiatedMotoEnabled() {
         return ((serviceUpdateRequest, serviceEntity) -> serviceEntity.setAgentInitiatedMotoEnabled(serviceUpdateRequest.valueAsBoolean()));
     }
@@ -162,10 +167,10 @@ public class ServiceUpdater {
         return (serviceUpdateRequest, serviceEntity) ->
                 serviceEntity.setCollectBillingAddress(serviceUpdateRequest.valueAsBoolean());
     }
-    
+
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateDefaultBillingAddressCountry() {
         return (serviceUpdateRequest, serviceEntity) ->
-                serviceEntity.setDefaultBillingAddressCountry(serviceUpdateRequest.valueAsString());        
+                serviceEntity.setDefaultBillingAddressCountry(serviceUpdateRequest.valueAsString());
     }
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateCurrentGoLiveStage() {
@@ -182,15 +187,21 @@ public class ServiceUpdater {
         return (serviceUpdateRequest, serviceEntity) ->
                 serviceEntity.setSector(serviceUpdateRequest.valueAsString());
     }
-    
+
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateInternal() {
-        return ((serviceUpdateRequest, serviceEntity) -> 
+        return ((serviceUpdateRequest, serviceEntity) ->
                 serviceEntity.setInternal(serviceUpdateRequest.valueAsBoolean()));
     }
-    
+
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateArchived() {
-        return ((serviceUpdateRequest, serviceEntity) ->
-                serviceEntity.setArchived(serviceUpdateRequest.valueAsBoolean()));
+        return ((serviceUpdateRequest, serviceEntity) -> {
+            if (serviceUpdateRequest.valueAsBoolean()) {
+                expungeAndArchiveHistoricalDataService.archiveService(serviceEntity);
+            } else {
+                serviceEntity.setArchived(serviceUpdateRequest.valueAsBoolean());
+                serviceEntity.setArchivedDate(null);
+            }
+        });
     }
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> updateWentLiveDate() {
