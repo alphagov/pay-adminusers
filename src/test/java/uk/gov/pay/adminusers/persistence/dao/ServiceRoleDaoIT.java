@@ -57,34 +57,6 @@ class ServiceRoleDaoIT extends DaoTestBase {
     }
 
     @Test
-    void removeUsersFromService_shouldRemoveUsersForAGivenServiceId() {
-        Service service1 = ServiceDbFixture.serviceDbFixture(databaseHelper).insertService();
-        int roleId = RoleDbFixture.roleDbFixture(databaseHelper).insertRole().getId();
-
-        User userThatShouldBeDeletedFromServiceRoles = UserDbFixture.userDbFixture(databaseHelper)
-                .withServiceRole(service1, roleId)
-                .insertUser();
-
-        Service service2 = ServiceDbFixture.serviceDbFixture(databaseHelper).insertService();
-        User userThatShouldNotBeDeleted = UserDbFixture.userDbFixture(databaseHelper)
-                .withServiceRole(service2, roleId)
-                .insertUser();
-
-        List<Map<String, Object>> serviceRoles = databaseHelper.findServiceRoleForUser(userThatShouldBeDeletedFromServiceRoles.getId());
-        assertThat(serviceRoles.size(), is(1));
-        serviceRoles = databaseHelper.findServiceRoleForUser(userThatShouldNotBeDeleted.getId());
-        assertThat(serviceRoles.size(), is(1));
-
-        serviceRoleDao.removeUsersFromService(service1.getId());
-
-        serviceRoles = databaseHelper.findServiceRoleForUser(userThatShouldBeDeletedFromServiceRoles.getId());
-        assertThat(serviceRoles.size(), is(0));
-
-        serviceRoles = databaseHelper.findServiceRoleForUser(userThatShouldNotBeDeleted.getId());
-        assertThat(serviceRoles.size(), is(1));
-    }
-
-    @Test
     void findServiceUserRoles_ShouldReturnRolesCorrectly() {
         Service serviceToFind = ServiceDbFixture.serviceDbFixture(databaseHelper).insertService();
         int roleId = RoleDbFixture.roleDbFixture(databaseHelper).insertRole().getId();
