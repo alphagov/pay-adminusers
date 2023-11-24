@@ -6,6 +6,7 @@ import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 
 @Transactional
 public class ServiceRoleDao extends JpaDao<ServiceRoleEntity> {
@@ -20,5 +21,12 @@ public class ServiceRoleDao extends JpaDao<ServiceRoleEntity> {
                 .createQuery("DELETE from ServiceRoleEntity where service.id = :serviceId")
                 .setParameter("serviceId", serviceId)
                 .executeUpdate();
+    }
+
+    public List<ServiceRoleEntity> findServiceUserRoles(Integer serviceId) {
+        return entityManager.get()
+                .createQuery("select sre from ServiceRoleEntity sre where sre.service.id = :serviceId")
+                .setParameter("serviceId", serviceId)
+                .getResultList();
     }
 }

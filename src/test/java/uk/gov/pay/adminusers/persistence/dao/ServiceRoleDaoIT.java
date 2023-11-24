@@ -12,8 +12,10 @@ import uk.gov.pay.adminusers.persistence.entity.UserServiceId;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
@@ -80,5 +82,29 @@ class ServiceRoleDaoIT extends DaoTestBase {
 
         serviceRoles = databaseHelper.findServiceRoleForUser(userThatShouldNotBeDeleted.getId());
         assertThat(serviceRoles.size(), is(1));
+    }
+
+    @Test
+    void findServiceUserRoles_ShouldReturnRolesCorrectly() {
+        Service serviceToFind = ServiceDbFixture.serviceDbFixture(databaseHelper).insertService();
+        int roleId = RoleDbFixture.roleDbFixture(databaseHelper).insertRole().getId();
+
+        User user = UserDbFixture.userDbFixture(databaseHelper)
+                .withServiceRole(serviceToFind, roleId)
+                .insertUser();
+        User user2 = UserDbFixture.userDbFixture(databaseHelper)
+                .withServiceRole(serviceToFind, roleId)
+                .insertUser();
+
+        Service service2 = ServiceDbFixture.serviceDbFixture(databaseHelper).insertService();
+        User userThatShouldNotBeReturned = UserDbFixture.userDbFixture(databaseHelper)
+                .withServiceRole(service2, roleId)
+                .insertUser();
+
+        List<ServiceRoleEntity> serviceUserRoles = serviceRoleDao.findServiceUserRoles(serviceToFind.getId());
+
+        assertThat(serviceUserRoles.size(), is(2));
+        assertThat(serviceUserRoles.stream().map(serviceRoleEntity -> serviceRoleEntity.getUser().getExternalId()).collect(Collectors.toList()),
+                containsInAnyOrder(user.getExternalId(), user2.getExternalId()));
     }
 }

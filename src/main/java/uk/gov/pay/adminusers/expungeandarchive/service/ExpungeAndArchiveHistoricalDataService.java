@@ -16,6 +16,7 @@ import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceRoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.queue.ConnectorTaskQueue;
 import uk.gov.pay.adminusers.queue.model.ConnectorTask;
 import uk.gov.pay.adminusers.queue.model.ServiceArchivedTaskData;
@@ -31,6 +32,7 @@ import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static net.logstash.logback.argument.StructuredArguments.kv;
 import static uk.gov.service.payments.logging.LoggingKeys.SERVICE_EXTERNAL_ID;
+import static uk.gov.service.payments.logging.LoggingKeys.USER_EXTERNAL_ID;
 
 public class ExpungeAndArchiveHistoricalDataService {
 
@@ -147,7 +149,13 @@ public class ExpungeAndArchiveHistoricalDataService {
 
 
     private void detachUsers(ServiceEntity serviceEntity) {
-        serviceRoleDao.removeUsersFromService(serviceEntity.getId());
+        List<ServiceRoleEntity> serviceUsersAndRoles = serviceRoleDao.findServiceUserRoles(serviceEntity.getId());
+
+        serviceUsersAndRoles.forEach(serviceRole -> {
+            LOGGER.info("Removed user from service",
+                    kv(USER_EXTERNAL_ID, serviceRole.getUser().getExternalId()));
+            serviceRoleDao.remove(serviceRole);
+        });
     }
 
     private boolean canArchiveService(ServiceEntity serviceEntity, ZonedDateTime lastTransactionDateForService) {
