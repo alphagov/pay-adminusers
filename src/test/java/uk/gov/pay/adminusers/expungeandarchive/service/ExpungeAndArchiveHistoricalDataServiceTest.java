@@ -21,13 +21,16 @@ import uk.gov.pay.adminusers.client.ledger.model.LedgerSearchTransactionsRespons
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
 import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
+import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceRoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
+import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
+import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.queue.ConnectorTaskQueue;
 import uk.gov.pay.adminusers.queue.model.ConnectorTask;
 import uk.gov.pay.adminusers.queue.model.ServiceArchivedTaskData;
@@ -37,16 +40,19 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static ch.qos.logback.classic.Level.INFO;
 import static java.time.ZoneOffset.UTC;
 import static javax.ws.rs.core.Response.serverError;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -54,6 +60,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.LedgerSearchTransactionsResponseFixture.aLedgerSearchTransactionsResponseFixture;
 import static uk.gov.pay.adminusers.fixtures.LedgerTransactionFixture.aLedgerTransactionFixture;
+import static uk.gov.pay.adminusers.fixtures.UserEntityFixture.aUserEntity;
 
 @ExtendWith(MockitoExtension.class)
 class ExpungeAndArchiveHistoricalDataServiceTest {
@@ -219,7 +226,6 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             assertTrue(serviceEntity.isArchived());
             assertThat(serviceEntity.getArchivedDate(), is(clock.instant().atZone(UTC)));
             verify(mockServiceDao).merge(serviceEntity);
-            verify(mockServiceRoleDao).removeUsersFromService(serviceEntity.getId());
         }
 
         @Test
@@ -244,7 +250,6 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             assertTrue(serviceEntity.isArchived());
             assertThat(serviceEntity.getArchivedDate(), is(clock.instant().atZone(UTC)));
             verify(mockServiceDao).merge(serviceEntity);
-            verify(mockServiceRoleDao).removeUsersFromService(serviceEntity.getId());
         }
 
         @Test
@@ -270,7 +275,42 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             assertTrue(serviceEntity.isArchived());
             assertThat(serviceEntity.getArchivedDate(), is(clock.instant().atZone(UTC)));
             verify(mockServiceDao).merge(serviceEntity);
-            verify(mockServiceRoleDao).removeUsersFromService(serviceEntity.getId());
+        }
+
+        @Test
+        void shouldRemoveUsersFromServiceWhenServiceIsArchived() {
+            Logger root = (Logger) LoggerFactory.getLogger(ExpungeAndArchiveHistoricalDataService.class);
+            root.addAppender(mockAppender);
+            root.setLevel(INFO);
+            
+            when(mockExpungeAndArchiveConfig.getArchiveServicesAfterDays()).thenReturn(7);
+            when(mockExpungeAndArchiveConfig.getArchiveServicesAfterDays()).thenReturn(7);
+
+            LedgerTransaction ledgerTransaction = aLedgerTransactionFixture()
+                    .withCreatedDate(systemDate.minusDays(10))
+                    .build();
+            LedgerSearchTransactionsResponse searchTransactionsResponse = aLedgerSearchTransactionsResponseFixture()
+                    .withTransactionList(List.of(ledgerTransaction))
+                    .build();
+
+            when(mockLedgerService.searchTransactions(gatewayAccountId1, 1)).thenReturn(searchTransactionsResponse);
+            when(mockServiceDao.findServicesToCheckForArchiving(systemDate.minusDays(7))).thenReturn(List.of(serviceEntity));
+
+            RoleEntity roleEntity = new RoleEntity(Role.role(1, "role-1", "role"));
+            ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity, roleEntity);
+            serviceRoleEntity.setUser(aUserEntity().build());
+            when(mockServiceRoleDao.findServiceUserRoles(serviceEntity.getId())).thenReturn(List.of(serviceRoleEntity));
+
+            expungeAndArchiveHistoricalDataService.expungeAndArchiveHistoricalData();
+
+            assertTrue(serviceEntity.isArchived());
+            verify(mockServiceDao).merge(serviceEntity);
+            verify(mockServiceRoleDao).remove(serviceRoleEntity);
+
+            verify(mockAppender, times(3)).doAppend(loggingEventArgumentCaptor.capture());
+            List<LoggingEvent> loggingEvents = loggingEventArgumentCaptor.getAllValues();
+            assertThat(loggingEvents.stream().map(LoggingEvent::getFormattedMessage).collect(Collectors.toList()), 
+                    hasItems("Removed user from service"));
         }
 
         @Test
@@ -298,6 +338,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             assertThat(serviceEntity.getFirstCheckedForArchivalDate(), is(systemDate.withZoneSameInstant(UTC)));
             assertThat(serviceEntity.getSkipCheckingForArchivalUntilDate(), is(systemDate.plusDays(8)));
             verify(mockServiceDao).merge(serviceEntity);
+            verifyNoInteractions(mockServiceRoleDao);
         }
 
         @Test
@@ -325,6 +366,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             assertThat(serviceEntity.getFirstCheckedForArchivalDate(), is(systemDate));
             assertThat(serviceEntity.getSkipCheckingForArchivalUntilDate(), is(systemDate.plusDays(7)));
             verify(mockServiceDao).merge(serviceEntity);
+            verifyNoInteractions(mockServiceRoleDao);
         }
 
         @Test
@@ -371,6 +413,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             assertFalse(serviceEntity.isArchived());
             assertThat(serviceEntity.getSkipCheckingForArchivalUntilDate(), is(systemDate.plusDays(7)));
             verify(mockServiceDao).merge(serviceEntity);
+            verifyNoInteractions(mockServiceRoleDao);
         }
 
         @Test
@@ -397,6 +440,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             assertThat(serviceEntity.getFirstCheckedForArchivalDate(), is(systemDate.withZoneSameInstant(UTC)));
             assertThat(serviceEntity.getSkipCheckingForArchivalUntilDate(), is(systemDate.plusDays(7)));
             verify(mockServiceDao).merge(serviceEntity);
+            verifyNoInteractions(mockServiceRoleDao);
         }
 
         @Test
