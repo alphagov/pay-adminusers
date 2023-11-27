@@ -49,6 +49,7 @@ public class EmailValidator {
             "nls.uk",
             "nmandd.org",
             "nmni.com",
+            "nsandi.com",
             "ogauthority.co.uk",
             "opencastsoftware.com",
             "os.uk",
