@@ -161,7 +161,7 @@ class EventMessageHandlerTest {
         assertThat(personalisation.get("serviceName"), is(service.getName()));
         assertThat(personalisation.get("paymentExternalId"), is("456"));
         assertThat(personalisation.get("serviceReference"), is("tx ref"));
-        assertThat(personalisation.get("sendEvidenceToPayDueDate"), is("4 March 2022"));
+        assertThat(personalisation.get("sendEvidenceToPayDueDate"), is("28 February 2022"));
         assertThat(personalisation.get("disputedAmount"), is("210.00"));
 
         assertThat(personalisation.get("fraudulent"), is("yes"));
