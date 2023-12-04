@@ -147,7 +147,7 @@ public class DisputeCreatedEventQueueConsumerIT {
                 .withRequestBody(matchingJsonPath("$.template_id", equalTo("pay-notify-stripe-dispute-created-email-template-id")))
                 .withRequestBody(matchingJsonPath("$.email_reply_to_id", equalTo("pay-notify-email-reply-to-support-id")))
                 .withRequestBody(matchingJsonPath("$.personalisation.disputeType", equalTo(reason)))
-                .withRequestBody(matchingJsonPath("$.personalisation.sendEvidenceToPayDueDate", equalTo("11 February 2022")))
+                .withRequestBody(matchingJsonPath("$.personalisation.sendEvidenceToPayDueDate", equalTo("7 February 2022")))
                 .withRequestBody(matchingJsonPath("$.personalisation.paymentExternalId", equalTo(parentResourceExternalId)))
                 .withRequestBody(matchingJsonPath("$.personalisation.disputedAmount", equalTo("65.00")))
                 .withRequestBody(matchingJsonPath("$.personalisation.serviceName", equalTo(serviceName)))
