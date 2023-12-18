@@ -14,7 +14,7 @@ ENV LANG C.UTF-8
 
 RUN echo networkaddress.cache.ttl=$DNS_TTL >> "$JAVA_HOME/conf/security/java.security"
 
-RUN apt-get update && apt-get install -y tini wget
+RUN apt-get update && apt-get upgrade -y && apt-get install -y tini wget
 
 COPY import_aws_rds_cert_bundles.sh /
 RUN /import_aws_rds_cert_bundles.sh
