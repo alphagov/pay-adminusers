@@ -26,12 +26,5 @@ for REGION in eu-west-1 eu-central-1; do
   rm "${TMPDIR}/${REGION}-bundle.pem"
 done
 
-echo "Importing rds-ca-2019-root"
-wget -q https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem -O "${TMPDIR}/rds-ca-2019-root.pem"
-keytool -importcert -noprompt -cacerts -storepass changeit -alias rds-ca-2019-root -file "${TMPDIR}/rds-ca-2019-root.pem"
-echo "Importing rds-combined-ca-bundle"
-wget -q https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem -O "${TMPDIR}/rds-combined-ca-bundle.pem"
-keytool -importcert -noprompt -cacerts -storepass changeit -alias rds-combined-ca-bundle -file "${TMPDIR}/rds-combined-ca-bundle.pem"
-
 echo "removing TMPDIR"
 rm -rf "${TMPDIR}"
