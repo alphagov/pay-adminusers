@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_DISABLED;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_EMAIL;
@@ -273,9 +275,13 @@ public class UserServices {
     public List<UserEntity> getAdminUsersForService(Integer serviceId) {
         List<UserEntity> serviceUsers = userDao.findByServiceId(serviceId);
         return serviceUsers.stream().filter(userEntity -> {
-            var hasAdminRole = userEntity.getRoles().stream().filter(RoleEntity::isAdmin).count();
+            var hasAdminRole = getServicesRoles(userEntity).stream().filter(RoleEntity::isAdmin).count();
             return hasAdminRole > 0;
         }).collect(Collectors.toList());
+    }
+
+    public List<RoleEntity> getServicesRoles(UserEntity userEntity) {
+        return userEntity.getServicesRoles().isEmpty() ? emptyList() : singletonList(userEntity.getServicesRoles().get(0).getRole());
     }
 
     private void changeUserFeatures(UserEntity userEntity, String features) {

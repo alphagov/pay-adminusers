@@ -9,7 +9,6 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -58,8 +57,8 @@ class UserEntityTest {
 
         userEntity.addServiceRole(serviceRole);
 
-        assertThat(userEntity.getRoles().size(), is(1));
-        assertThat(userEntity.getRoles().get(0).getId(), is(1));
+        assertThat(userEntity.getServicesRoles().size(), is(1));
+        assertThat(userEntity.getServicesRoles().get(0).getRole().getId(), is(1));
         assertThat(userEntity.getGatewayAccountId(), is(gatewayAccountId));
     }
 }

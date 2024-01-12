@@ -19,7 +19,6 @@ import static uk.gov.pay.adminusers.model.User.FIELD_PASSWORD;
 import static uk.gov.pay.adminusers.model.User.FIELD_ROLE_NAME;
 import static uk.gov.pay.adminusers.model.User.FIELD_SERVICE_EXTERNAL_ID;
 import static uk.gov.pay.adminusers.model.User.FIELD_TELEPHONE_NUMBER;
-import static uk.gov.pay.adminusers.model.User.FIELD_USERNAME;
 import static uk.gov.pay.adminusers.validations.UserPatchValidations.getUserPatchPathValidations;
 import static uk.gov.pay.adminusers.validations.UserPatchValidations.isAllowedOpForPath;
 import static uk.gov.pay.adminusers.validations.UserPatchValidations.isPathAllowed;
@@ -86,7 +85,7 @@ public class UserRequestValidator {
         return Optional.empty();
     }
 
-    public Optional<Errors> validateServiceRole(JsonNode payload) {
+    public Optional<Errors> validateRole(JsonNode payload) {
         Optional<List<String>> missingMandatoryFields = requestValidations.checkExistsAndNotEmpty(payload, "role_name");
         return missingMandatoryFields.map(Errors::from);
     }

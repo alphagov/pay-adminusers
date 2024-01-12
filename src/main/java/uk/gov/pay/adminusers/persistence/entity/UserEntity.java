@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.persistence.entity;
 
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
+import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.ServiceRole;
 import uk.gov.pay.adminusers.model.User;
@@ -11,6 +12,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -20,9 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static javax.persistence.FetchType.EAGER;
 
 @Entity
 @Table(name = "users")
@@ -31,7 +32,6 @@ public class UserEntity extends AbstractEntity {
 
     @Column(name = "external_id")
     private String externalId;
-
 
     @Column(name = "password")
     private String password;
@@ -56,6 +56,9 @@ public class UserEntity extends AbstractEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, targetEntity = ServiceRoleEntity.class)
     private List<ServiceRoleEntity> servicesRoles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, targetEntity = UserRoleEntity.class, orphanRemoval = true)
+    private List<UserRoleEntity> userRoles = new ArrayList<>();
 
     // TODO: Change column from 'camelCase' to 'snake_case'. These columns were created through Sequelize.
     @Column(name = "\"createdAt\"")
@@ -159,10 +162,6 @@ public class UserEntity extends AbstractEntity {
         this.features = features;
     }
 
-    public List<RoleEntity> getRoles() {
-        return servicesRoles.isEmpty() ? emptyList() : singletonList(servicesRoles.get(0).getRole());
-    }
-
     public ZonedDateTime getUpdatedAt() {
         return updatedAt;
     }
@@ -213,6 +212,10 @@ public class UserEntity extends AbstractEntity {
 
     public ZonedDateTime getLastLoggedInAt() {
         return lastLoggedInAt;
+    }
+
+    public List<UserRoleEntity> getUserRoles() {
+        return userRoles;
     }
 
     public void setLastLoggedInAt(ZonedDateTime lastLoggedInAt) {
@@ -272,8 +275,13 @@ public class UserEntity extends AbstractEntity {
     public User toUser() {
         List<ServiceRole> serviceRoles = this.servicesRoles.stream().map(ServiceRoleEntity::toServiceRole).collect(toUnmodifiableList());
 
+        Role globalRole = null;
+        if (this.userRoles != null && !this.userRoles.isEmpty()) {
+            globalRole = this.userRoles.get(0).toUserRole();
+        }
+
         User user = User.from(getId(), externalId, password, email, otpKey, telephoneNumber, serviceRoles,
-                features, secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt);
+                features, secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt, globalRole);
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);
@@ -286,6 +294,14 @@ public class UserEntity extends AbstractEntity {
         this.servicesRoles.add(serviceRole);
     }
 
+    public void addUserRole(UserRoleEntity userRoleEntity) {
+        userRoleEntity.setUser(this);
+        this.userRoles.add(userRoleEntity);
+    }
+
+    public void removeUserRole() {
+        this.userRoles.clear();
+    }
     @Deprecated // Use external Id version
     public Optional<ServiceRoleEntity> getServicesRole(Integer serviceId) {
         return servicesRoles.stream().filter(serviceRoleEntity -> serviceId.equals(serviceRoleEntity.getService().getId())).findFirst();

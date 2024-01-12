@@ -907,6 +907,64 @@ paths:
       summary: Reset 2FA to SMS
       tags:
       - Users
+  /v1/api/users/{userExternalId}/roles:
+    delete:
+      operationId: deleteUserRole
+      parameters:
+      - example: 93ba1ec4ed6a4238a59f16ad97b4fa12
+        in: path
+        name: userExternalId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        "400":
+          description: Invalid payload
+        "404":
+          description: Not found
+        "409":
+          description: User does not belong to service
+      summary: Remove global user role (For internal use only)
+      tags:
+      - Users
+    put:
+      operationId: assignUserRole
+      parameters:
+      - example: 93ba1ec4ed6a4238a59f16ad97b4fa12
+        in: path
+        name: userExternalId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              example:
+                role_name: admin
+              required:
+              - role_name
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        "400":
+          description: Invalid payload
+        "404":
+          description: Not found
+      summary: Assigns global role to user (For internal use only)
+      tags:
+      - Users
   /v1/api/users/{userExternalId}/second-factor:
     post:
       operationId: sendOtpSms
@@ -1360,6 +1418,7 @@ components:
           example: tokens:delete
     Role:
       type: object
+      description: global role
       properties:
         description:
           type: string
@@ -1597,6 +1656,8 @@ components:
         provisional_otp_key_created_at:
           type: string
           format: date-time
+        role:
+          $ref: '#/components/schemas/Role'
         second_factor:
           type: string
           enum:

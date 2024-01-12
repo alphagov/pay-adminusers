@@ -144,9 +144,9 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(foundUser.isDisabled(), is(false));
         assertThat(foundUser.getLoginCounter(), is(0));
         assertThat(foundUser.getSessionVersion(), is(0));
-        assertThat(foundUser.getRoles().size(), is(1));
+        assertThat(foundUser.getServicesRoles().size(), is(2));
         assertThat(foundUser.toUser().getServiceRoles().size(), is(2));
-        assertThat(foundUser.getRoles().get(0).getId(), is(role.getId()));
+        assertThat(foundUser.getServicesRoles().get(0).getRole().getId(), is(role.getId()));
     }
 
     @Test
@@ -192,9 +192,9 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(foundUser1.isDisabled(), is(false));
         assertThat(foundUser1.getLoginCounter(), is(0));
         assertThat(foundUser1.getSessionVersion(), is(0));
-        assertThat(foundUser1.getRoles().size(), is(1));
+        assertThat(foundUser1.getServicesRoles().size(), is(2));
         assertThat(foundUser1.toUser().getServiceRoles().size(), is(2));
-        assertThat(foundUser1.getRoles().get(0).getId(), is(role.getId()));
+        assertThat(foundUser1.getServicesRoles().get(0).getRole().getId(), is(role.getId()));
 
         UserEntity foundUser2 = userEntities.get(1);
         assertThat(foundUser2.getExternalId(), is(user2.getExternalId()));
@@ -204,9 +204,9 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(foundUser2.isDisabled(), is(false));
         assertThat(foundUser2.getLoginCounter(), is(0));
         assertThat(foundUser2.getSessionVersion(), is(0));
-        assertThat(foundUser2.getRoles().size(), is(1));
+        assertThat(foundUser2.getServicesRoles().size(), is(2));
         assertThat(foundUser2.toUser().getServiceRoles().size(), is(2));
-        assertThat(foundUser2.getRoles().get(0).getId(), is(role.getId()));
+        assertThat(foundUser2.getServicesRoles().get(0).getRole().getId(), is(role.getId()));
     }
 
     @Test
@@ -231,8 +231,8 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(foundUser.isDisabled(), is(false));
         assertThat(foundUser.getLoginCounter(), is(0));
         assertThat(foundUser.getSessionVersion(), is(0));
-        assertThat(foundUser.getRoles().size(), is(1));
-        assertThat(foundUser.getRoles().get(0).getId(), is(role.getId()));
+        assertThat(foundUser.getServicesRoles().size(), is(1));
+        assertThat(foundUser.getServicesRoles().get(0).getRole().getId(), is(role.getId()));
     }
 
     @Test
@@ -256,8 +256,8 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(foundUser.isDisabled(), is(false));
         assertThat(foundUser.getLoginCounter(), is(0));
         assertThat(foundUser.getSessionVersion(), is(0));
-        assertThat(foundUser.getRoles().size(), is(1));
-        assertThat(foundUser.getRoles().get(0).getId(), is(role.getId()));
+        assertThat(foundUser.getServicesRoles().size(), is(1));
+        assertThat(foundUser.getServicesRoles().get(0).getRole().getId(), is(role.getId()));
     }
 
     @Test
@@ -282,8 +282,8 @@ public class UserDaoIT extends DaoTestBase {
         UserEntity existingUser = userDao.findByEmail(email).get();
 
         assertThat(existingUser.getGatewayAccountId(), is(gatewayAccountId1));
-        assertThat(existingUser.getRoles().size(), is(1));
-        assertThat(existingUser.getRoles().get(0).getId(), is(role1.getId()));
+        assertThat(existingUser.getServicesRoles().size(), is(1));
+        assertThat(existingUser.getServicesRoles().get(0).getRole().getId(), is(role1.getId()));
 
         ServiceEntity serviceEntity2 = serviceDao.findByGatewayAccountId(gatewayAccountId2).get();
         RoleEntity roleEntity2 = roleDao.findByRoleName(role2.getName()).get();

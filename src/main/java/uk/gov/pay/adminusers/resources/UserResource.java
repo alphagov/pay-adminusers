@@ -24,6 +24,7 @@ import uk.gov.pay.adminusers.service.UserServicesFactory;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -44,7 +45,6 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static uk.gov.pay.adminusers.model.User.FIELD_EMAIL;
-import static uk.gov.pay.adminusers.model.User.FIELD_USERNAME;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmail;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 
@@ -441,7 +441,7 @@ public class UserResource {
                                       @Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3")
                                       @PathParam("serviceExternalId") String serviceExternalId, JsonNode payload) {
         LOGGER.info("User update service role request");
-        return validator.validateServiceRole(payload)
+        return validator.validateRole(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
                     String roleName = payload.get(User.FIELD_ROLE_NAME).asText();
@@ -449,6 +449,65 @@ public class UserResource {
                             .map(user -> Response.status(OK).entity(user).build())
                             .orElseGet(() -> Response.status(NOT_FOUND).build());
                 });
+    }
+
+    @PUT
+    @Path("/{userExternalId}/roles")
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    @Operation(
+            tags = "Users",
+            summary = "Assigns global role to user (For internal use only)",
+            requestBody = @RequestBody(
+                    content = @Content(schema = @Schema(
+                            requiredProperties = {"role_name"},
+                            example = "{ \"role_name\":\"admin\"}"
+                    ))
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = User.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+                    @ApiResponse(responseCode = "404", description = "Not found")
+            }
+    )
+    public Response assignUserRole(@Parameter(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
+                                   @PathParam("userExternalId") String userExternalId,
+                                   @Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3")
+                                   JsonNode payload) {
+        LOGGER.info("Assigning global role to user");
+        return validator.validateRole(payload)
+                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
+                .orElseGet(() -> {
+                    String roleName = payload.get(User.FIELD_ROLE_NAME).asText();
+                    return userServicesFactory.userRolesService().doUpdate(userExternalId, roleName)
+                            .map(user -> Response.status(OK).entity(user).build())
+                            .orElseGet(() -> Response.status(NOT_FOUND).build());
+                });
+    }
+
+    @DELETE
+    @Path("/{userExternalId}/roles")
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    @Operation(
+            tags = "Users",
+            summary = "Remove global user role (For internal use only)",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(schema = @Schema(implementation = User.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid payload"),
+                    @ApiResponse(responseCode = "404", description = "Not found"),
+                    @ApiResponse(responseCode = "409", description = "User does not belong to service")
+            }
+    )
+    public Response deleteUserRole(@Parameter(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
+                                   @PathParam("userExternalId") String userExternalId) {
+        LOGGER.info("Assigning global role to user");
+        
+        return userServicesFactory.userRolesService().removeRole(userExternalId)
+                .map(user -> Response.status(OK).entity(user).build())
+                .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
     @POST

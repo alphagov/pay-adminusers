@@ -7,4 +7,6 @@ public interface UserServicesFactory {
     ServiceRoleCreator serviceRoleCreator();
 
     UserCreator userCreator();
+
+    UserRolesService userRolesService();
 }

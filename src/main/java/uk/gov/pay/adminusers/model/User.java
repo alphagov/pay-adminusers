@@ -22,6 +22,8 @@ public class User {
     public static final String FIELD_EMAIL = "email";
     public static final String FIELD_TELEPHONE_NUMBER = "telephone_number";
     public static final String FIELD_ROLE_NAME = "role_name";
+    @Schema(description = "global role")
+    private final Role role;
 
     private Integer id;
     @Schema(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
@@ -60,7 +62,15 @@ public class User {
                             SecondFactorMethod secondFactor, String provisionalOtpKey,
                             ZonedDateTime provisionalOtpKeyCreatedAt, ZonedDateTime lastLoggedInAt) {
         return new User(id, externalId, password, email, otpKey, telephoneNumber, serviceRoles, features,
-                secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt, null);
+                secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt, null, null);
+    }
+
+    public static User from(Integer id, String externalId, String password, String email, String otpKey,
+                            String telephoneNumber, List<ServiceRole> serviceRoles, String features,
+                            SecondFactorMethod secondFactor, String provisionalOtpKey,
+                            ZonedDateTime provisionalOtpKeyCreatedAt, ZonedDateTime lastLoggedInAt, Role globalRole) {
+        return new User(id, externalId, password, email, otpKey, telephoneNumber, serviceRoles, features,
+                secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt, null, globalRole);
     }
 
     public static User from(Integer id, String externalId, String password, String email, String otpKey,
@@ -68,7 +78,7 @@ public class User {
                             SecondFactorMethod secondFactor, String provisionalOtpKey,
                             ZonedDateTime provisionalOtpKeyCreatedAt, ZonedDateTime lastLoggedInAt, ZonedDateTime createdAt) {
         return new User(id, externalId, password, email, otpKey, telephoneNumber, serviceRoles, features,
-                secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt, createdAt);
+                secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt, createdAt, null);
     }
 
     private User(Integer id, @JsonProperty("external_id") String externalId, @JsonProperty("password") String password, @JsonProperty("email") String email,
@@ -78,8 +88,9 @@ public class User {
                  @JsonProperty("provisional_otp_key") String provisionalOtpKey,
                  @JsonProperty("provisional_otp_key_created_at") ZonedDateTime provisionalOtpKeyCreatedAt,
                  @JsonProperty("last_logged_in_at") ZonedDateTime lastLoggedInAt,
-                ZonedDateTime createdAt
-                 ) {
+                 ZonedDateTime createdAt,
+                 Role role
+    ) {
         this.id = id;
         this.externalId = externalId;
         this.password = password;
@@ -93,6 +104,7 @@ public class User {
         this.provisionalOtpKeyCreatedAt = provisionalOtpKeyCreatedAt;
         this.lastLoggedInAt = lastLoggedInAt;
         this.createdAt = createdAt;
+        this.role = role;
     }
 
     @JsonIgnore
@@ -160,6 +172,10 @@ public class User {
 
     public void setSecondFactor(SecondFactorMethod secondFactor) {
         this.secondFactor = secondFactor;
+    }
+
+    public Role getRole() {
+        return role;
     }
 
     public String getProvisionalOtpKey() {
