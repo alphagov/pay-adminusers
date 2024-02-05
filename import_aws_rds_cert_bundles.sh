@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # The cert bundles distributed by AWS are bundles which contain multiple CA cert
 # chains. The keytool command can only import a single cert/chain, and will 
@@ -7,7 +7,7 @@
 #
 # This file was heavily based on the AWS example https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL-certificate-rotation.html#UsingWithRDS.SSL-certificate-rotation-sample-script
 
-set -euo pipefail
+set -eu
 
 TMPDIR=$(mktemp -d)
 
