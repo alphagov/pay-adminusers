@@ -22,10 +22,10 @@ import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
-public class UserResourceCreateIT extends IntegrationTest {
+class UserResourceCreateIT extends IntegrationTest {
 
     @Test
-    public void shouldCreateAUser_Successfully() throws Exception {
+    void shouldCreateAUser_Successfully() throws Exception {
         String userEmail = "user-" + randomUuid() + "@example.com";
         Map<Object, Object> userPayload = Map.of(
                 "email", userEmail,
@@ -52,7 +52,8 @@ public class UserResourceCreateIT extends IntegrationTest {
                 .body("telephone_number", is("+441134960000"))
                 .body("otp_key", is("34f34"))
                 .body("login_counter", is(0))
-                .body("disabled", is(false));
+                .body("disabled", is(false))
+                .body("time_zone", is("Europe/London"));
 
         response
                 .body("_links", hasSize(1))
@@ -68,7 +69,7 @@ public class UserResourceCreateIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldCreateAUser_withinAService_IfServiceExternalIdsExists() throws Exception {
+    void shouldCreateAUser_withinAService_IfServiceExternalIdsExists() throws Exception {
         String gatewayAccount1 = valueOf(nextInt());
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
@@ -122,7 +123,7 @@ public class UserResourceCreateIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldError400_IfRoleDoesNotExist() throws Exception {
+    void shouldError400_IfRoleDoesNotExist() throws Exception {
         String email = "user-" + randomUuid() + "@example.com";
         Map<Object, Object> userPayload = Map.of(
                 "email", email,
@@ -144,7 +145,7 @@ public class UserResourceCreateIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldError400_whenFieldsMissingForUserCreation() throws Exception {
+    void shouldError400_whenFieldsMissingForUserCreation() throws Exception {
         Map<Object, Object> invalidPayload = emptyMap();
 
         givenSetup()
@@ -163,7 +164,7 @@ public class UserResourceCreateIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldError409_IfEmailAlreadyExists() throws Exception {
+    void shouldError409_IfEmailAlreadyExists() throws Exception {
         String gatewayAccount = valueOf(nextInt());
         serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount).insertService();
         String email = randomUuid() + "@example.com";

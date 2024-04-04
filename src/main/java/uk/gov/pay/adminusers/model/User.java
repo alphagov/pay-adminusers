@@ -54,6 +54,7 @@ public class User {
     private ZonedDateTime createdAt;
     private List<Link> links = new ArrayList<>();
     private Integer sessionVersion = 0;
+    private String timeZone;
 
     public static User from(Integer id, String externalId, String password, String email, String otpKey,
                             String telephoneNumber, List<ServiceRole> serviceRoles, String features,
@@ -190,6 +191,10 @@ public class User {
         return createdAt;
     }
 
+    public String getTimeZone() {
+        return timeZone;
+    }
+
     @JsonProperty("_links")
     public List<Link> getLinks() {
         return links;
@@ -216,5 +221,9 @@ public class User {
 
     public List<ServiceRole> getServiceRoles() {
         return serviceRoles;
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
     }
 }

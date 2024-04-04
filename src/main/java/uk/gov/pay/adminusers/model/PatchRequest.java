@@ -11,6 +11,7 @@ public class PatchRequest {
     public static final String PATH_SESSION_VERSION = "sessionVersion";
     public static final String PATH_DISABLED = "disabled";
     public static final String PATH_TELEPHONE_NUMBER = "telephone_number";
+    public static final String PATH_TIME_ZONE = "time_zone";
     public static final String PATH_EMAIL = "email";
     public static final String PATH_FEATURES = "features";
 

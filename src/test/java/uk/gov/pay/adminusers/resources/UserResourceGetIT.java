@@ -95,6 +95,7 @@ class UserResourceGetIT extends IntegrationTest {
                 .body("otp_key", is(user.getOtpKey()))
                 .body("login_counter", is(0))
                 .body("disabled", is(false))
+                .body("time_zone", is("Europe/London"))
                 .body("service_roles[0].role.name", is(role.getName()))
                 .body("service_roles[0].role.description", is(role.getDescription()))
                 .body("service_roles[0].role.permissions", hasSize(role.getPermissions().size()))

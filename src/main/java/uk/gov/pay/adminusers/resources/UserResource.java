@@ -395,7 +395,7 @@ public class UserResource {
             tags = "Users",
             summary = "Update user attributes",
             description = "Patch user attributes. <br>" +
-                    "Supports patching (replace op) fields `disabled, email, features, telephone_number` and `append` for attrbute `sessionVersion`.",
+                    "Supports patching (replace op) fields `disabled, email, features, telephone_number, time_zone` and `append` for attribute `sessionVersion`.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK",
                             content = @Content(schema = @Schema(implementation = User.class))),

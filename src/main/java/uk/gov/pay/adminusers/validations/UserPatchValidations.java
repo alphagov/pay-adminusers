@@ -17,6 +17,8 @@ import static uk.gov.pay.adminusers.model.PatchRequest.PATH_EMAIL;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_FEATURES;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TELEPHONE_NUMBER;
+import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TIME_ZONE;
+import static uk.gov.pay.adminusers.validations.RequestValidations.isNotAValidTimeZone;
 import static uk.gov.pay.adminusers.validations.RequestValidations.isNotBoolean;
 import static uk.gov.pay.adminusers.validations.RequestValidations.isNotNumeric;
 import static uk.gov.pay.adminusers.validations.RequestValidations.isNotValidEmail;
@@ -25,12 +27,13 @@ import static uk.gov.pay.adminusers.validations.RequestValidations.isNotValidTel
 public class UserPatchValidations {
 
     private static final List<String> PATCH_ALLOWED_PATHS = 
-            List.of(PATH_SESSION_VERSION, PATH_DISABLED, PATH_TELEPHONE_NUMBER, PATH_FEATURES, PATH_EMAIL);
+            List.of(PATH_SESSION_VERSION, PATH_DISABLED, PATH_TELEPHONE_NUMBER, PATH_TIME_ZONE, PATH_FEATURES, PATH_EMAIL);
     
     private static final Map<String, String> USER_PATCH_PATH_OPS = Map.of(
             PATH_SESSION_VERSION, "append",
             PATH_DISABLED, "replace",
             PATH_TELEPHONE_NUMBER, "replace",
+            PATH_TIME_ZONE, "replace",
             PATH_EMAIL, "replace",
             PATH_FEATURES, "replace");
 
@@ -38,6 +41,7 @@ public class UserPatchValidations {
             .put(PATH_SESSION_VERSION, of(isNotNumeric(), format("path [%s] must contain a value of positive integer", PATH_SESSION_VERSION)))
             .put(PATH_DISABLED, of(isNotBoolean(), format("path [%s] must be contain value [true | false]", PATH_DISABLED)))
             .put(PATH_TELEPHONE_NUMBER, of(isNotValidTelephoneNumber(), format("path [%s] must contain a valid telephone number", PATH_TELEPHONE_NUMBER)))
+            .put(PATH_TIME_ZONE, of(isNotAValidTimeZone(), format("path [%s] must contain a valid time zone", PATH_TIME_ZONE)))
             .put(PATH_EMAIL, of(isNotValidEmail(), format("path [%s] must contain a valid email", PATH_EMAIL)))
             .build();
 

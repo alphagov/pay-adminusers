@@ -6,8 +6,11 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import uk.gov.pay.adminusers.utils.email.EmailValidator;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
+import java.time.DateTimeException;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
+import java.time.zone.ZoneRulesException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -138,6 +141,17 @@ public class RequestValidations {
 
     static Function<JsonNode, Boolean> isNotValidTelephoneNumber() {
         return jsonNode -> !TelephoneNumberUtility.isValidPhoneNumber(jsonNode.asText());
+    }
+
+    static Function<JsonNode, Boolean> isNotAValidTimeZone() {
+        return jsonNode -> {
+            try {
+                ZoneId.of(jsonNode.asText());
+                return false;
+            } catch (DateTimeException e) {
+                return true;
+            }
+        };
     }
 
     static Function<JsonNode, Boolean> isNotValidEmail() {

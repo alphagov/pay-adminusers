@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
+import org.joda.time.DateTimeZone;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
@@ -15,6 +16,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,6 +85,9 @@ public class UserEntity extends AbstractEntity {
     @Column(name = "last_logged_in_at")
     @Convert(converter = UTCDateTimeConverter.class)
     private ZonedDateTime lastLoggedInAt;
+
+    @Column(name = "time_zone")
+    private String timeZone = "Europe/London";
 
     /**
      * For JPA
@@ -219,6 +224,14 @@ public class UserEntity extends AbstractEntity {
         this.lastLoggedInAt = lastLoggedInAt;
     }
 
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
+    }
+
     /**
      * Note: this constructor will not copy <b>id</b> from the User model. It will always assign a new one internally (by JPA)
      *
@@ -277,6 +290,7 @@ public class UserEntity extends AbstractEntity {
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);
+        user.setTimeZone(timeZone);
 
         return user;
     }

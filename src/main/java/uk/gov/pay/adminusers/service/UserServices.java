@@ -31,6 +31,7 @@ import static uk.gov.pay.adminusers.model.PatchRequest.PATH_EMAIL;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_FEATURES;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TELEPHONE_NUMBER;
+import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TIME_ZONE;
 import static uk.gov.pay.adminusers.model.SecondFactorMethod.SMS;
 
 public class UserServices {
@@ -254,6 +255,9 @@ public class UserServices {
             case PATH_TELEPHONE_NUMBER:
                 changeUserTelephoneNumber(user, patchRequest.getValue());
                 break;
+            case PATH_TIME_ZONE:
+                changeUserTimeZone(user, patchRequest.getValue());
+                break;
             case PATH_EMAIL:
                 changeUserEmail(user, patchRequest.getValue());
                 break;
@@ -286,6 +290,12 @@ public class UserServices {
 
     private void changeUserTelephoneNumber(UserEntity userEntity, String telephoneNumber) {
         userEntity.setTelephoneNumber(TelephoneNumberUtility.formatToE164(telephoneNumber));
+        userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+        userDao.merge(userEntity);
+    }
+
+    private void changeUserTimeZone(UserEntity userEntity, String timeZone) {
+        userEntity.setTimeZone(timeZone);
         userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
         userDao.merge(userEntity);
     }

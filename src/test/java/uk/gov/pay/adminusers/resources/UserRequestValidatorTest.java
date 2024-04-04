@@ -177,6 +177,25 @@ class UserRequestValidatorTest {
     }
     
     @Test
+    void shouldValidatePatchSuccessfullyForValidTimeZone() {
+        JsonNode payload = objectMapper.valueToTree(Map.of("op", "replace", "path", "time_zone", "value", "UTC"));
+        Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
+
+        assertFalse(optionalErrors.isPresent());
+    }
+
+    @Test
+    void shouldError_whenPatchingWithInvalidTimeZone() {
+        JsonNode payload = objectMapper.valueToTree(Map.of("op", "replace", "path", "time_zone", "value", "invalid-tim-ezone"));
+        Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);
+
+        Errors errors = optionalErrors.get();
+
+        assertThat(errors.getErrors().size(), is(1));
+        assertThat(errors.getErrors(), hasItems("path [time_zone] must contain a valid time zone"));
+    }
+
+    @Test
     void shouldError_whenPatchingInvalidEmail() {
         JsonNode payload = objectMapper.valueToTree(Map.of("op", "replace", "path", "email", "value", "(╯°□°）╯︵ ┻━┻"));
         Optional<Errors> optionalErrors = validator.validatePatchRequest(payload);

@@ -75,6 +75,21 @@ class UserResourcePatchIT extends IntegrationTest {
     }
 
     @Test
+    void shouldPatchTimeZoneForValidValue() {
+        String timeZone = "UTC";
+        JsonNode payload = mapper.valueToTree(Map.of("op", "replace", "path", "time_zone", "value", timeZone));
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .body(payload)
+                .patch(format(USER_RESOURCE_URL, externalId))
+                .then()
+                .statusCode(200)
+                .body("time_zone", is(timeZone));
+    }
+
+    @Test
     void shouldUpdateFeatures_whenPatchAttempt() {
 
         String newFeatures = "SUPER_FEATURE_1, SECRET_SQUIRREL_FEATURE";

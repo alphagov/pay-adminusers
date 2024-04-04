@@ -856,8 +856,8 @@ paths:
       - Users
     patch:
       description: "Patch user attributes. <br>Supports patching (replace op) fields\
-        \ `disabled, email, features, telephone_number` and `append` for attrbute\
-        \ `sessionVersion`."
+        \ `disabled, email, features, telephone_number, time_zone` and `append` for\
+        \ attribute `sessionVersion`."
       operationId: updateUserAttribute
       parameters:
       - example: 93ba1ec4ed6a4238a59f16ad97b4fa12
@@ -1613,3 +1613,5 @@ components:
         telephone_number:
           type: string
           example: "447700900000"
+        time_zone:
+          type: string
