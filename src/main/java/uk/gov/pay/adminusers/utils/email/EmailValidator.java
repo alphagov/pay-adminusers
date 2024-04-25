@@ -62,6 +62,7 @@ public class EmailValidator {
             "slc.co.uk",
             "socialworkengland.org.uk",
             "sssc.uk.com",
+            "tarboltoncc.co.uk",
             "tfgm.com",
             "ucds.email",
             "ukaea.uk",
