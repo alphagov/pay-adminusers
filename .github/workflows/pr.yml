@@ -1,24 +1,26 @@
-name: Post Merge
+name: Github Actions Tests
 
 on:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - '.github/**'
+  pull_request:
 
 permissions:
   contents: read
 
-concurrency: adminusers-post-merge
-
 jobs:
+  detect-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b
+      - name: Detect secrets
+        uses: alphagov/pay-ci/actions/detect-secrets@master
+
   tests:
     uses: alphagov/pay-ci/.github/workflows/_run-java-tests.yml@pp_12590_reusable_workflows
     with:
       publish_pacts: true
       run_app_as_provider_contract_tests: true
-      consumer_tag: master
+      consumer_tag: ${{ github.event.pull_request.number }}
     secrets:
       pact_broker_username: ${{ secrets.pact_broker_username }}
       pact_broker_password: ${{ secrets.pact_broker_password }}
@@ -32,18 +34,8 @@ jobs:
         provider: [ 'ledger', 'connector' ]
     with:
       consumer: adminusers
-      consumer_tag: master
+      consumer_tag: ${{ github.event.pull_request.number }}
       provider: ${{ matrix.provider }}
     secrets:
       pact_broker_username: ${{ secrets.pact_broker_username }}
       pact_broker_password: ${{ secrets.pact_broker_password }}
-
-  tag-release:
-    needs:
-      - provider-contract-tests
-      - consumer-contract-tests
-      - ledger-provider-contract-tests
-      - connector-provider-contract-tests
-    permissions:
-      contents: write
-    uses: alphagov/pay-ci/.github/workflows/_create-alpha-release-tag.yml@master
