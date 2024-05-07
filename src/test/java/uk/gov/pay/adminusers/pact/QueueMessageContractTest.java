@@ -19,7 +19,7 @@ public class QueueMessageContractTest {
     @PactVerifyProvider("a service archived event")
     public String verifyServiceArchivedEvent() throws JsonProcessingException {
         ConnectorTask event =
-                new ConnectorTask(new ServiceArchivedTaskData("service-external-id"), "service_archived");
+                new ConnectorTask(new ServiceArchivedTaskData("service-external-id"), "non-existent-task-type");
         return objectMapper.writeValueAsString(event);
     }
 }
