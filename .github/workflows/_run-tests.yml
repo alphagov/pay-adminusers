@@ -45,7 +45,7 @@ jobs:
 
   provider-contract-tests:
     needs: integration-tests
-    name: "App as provider contract tests"
+    name: "App as provider tests"
     uses: alphagov/pay-ci/.github/workflows/_run-app-as-provider-contract-tests.yml@master
     secrets:
       pact_broker_username: ${{ secrets.pact_broker_username }}
