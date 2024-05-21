@@ -22,7 +22,7 @@ jobs:
 
   integration-tests:
     name: "Integration tests and publish pacts"
-    uses: alphagov/pay-ci/.github/workflows/_run-java-tests-and-publish-pacts.yml@master
+    uses: alphagov/pay-ci/.github/workflows/_run-java-tests-and-publish-pacts.yml@pp_11911_docker_images
     with:
       publish_pacts: true
     secrets:
@@ -32,7 +32,7 @@ jobs:
   pact-providers-contract-tests:
     name: "Provider tests"
     needs: integration-tests
-    uses: alphagov/pay-ci/.github/workflows/_run-provider-pact-tests-for-consumer.yml@master
+    uses: alphagov/pay-ci/.github/workflows/_run-provider-pact-tests-for-consumer.yml@pp_11911_docker_images
     strategy:
       matrix:
         provider: [ 'ledger', 'connector' ]
@@ -46,7 +46,7 @@ jobs:
   provider-contract-tests:
     needs: integration-tests
     name: "App as provider tests"
-    uses: alphagov/pay-ci/.github/workflows/_run-app-as-provider-contract-tests.yml@master
+    uses: alphagov/pay-ci/.github/workflows/_run-app-as-provider-contract-tests.yml@pp_11911_docker_images
     secrets:
       pact_broker_username: ${{ secrets.pact_broker_username }}
       pact_broker_password: ${{ secrets.pact_broker_password }}
