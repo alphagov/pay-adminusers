@@ -97,6 +97,7 @@ class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@ucds.email", true},
                 {"valid@ukaea.uk", true},
                 {"valid@uksbs.co.uk", true},
+                {"valid@visitbritain.org", true},
                 {"valid@wmca.org.uk", true},
                 {"valid@york.ac.uk", true},
 
@@ -145,12 +146,13 @@ class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@subdomain.serc.ac.uk", true},
                 {"valid@subdomain.slc.co.uk", true},
                 {"valid@subdomain.socialworkengland.org.uk", true},
+                {"valid@subdomain.sssc.uk.com", true},
                 {"valid@subdomain.tfgm.com", true},
                 {"valid@subdomain.tarboltoncc.co.uk", true},
                 {"valid@subdomain.ucds.email", true},
                 {"valid@subdomain.ukaea.uk", true},
                 {"valid@subdomain.uksbs.co.uk", true},
-                {"valid@subdomain.sssc.uk.com", true},
+                {"valid@subdomain.visitbritain.org", true},
                 {"valid@subdomain.wmca.org.uk", true},
                 {"valid@subdomain.york.ac.uk", true},
         });

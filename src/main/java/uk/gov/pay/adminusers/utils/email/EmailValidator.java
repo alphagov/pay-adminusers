@@ -67,6 +67,7 @@ public class EmailValidator {
             "ucds.email",
             "ukaea.uk",
             "uksbs.co.uk",
+            "visitbritain.org",
             "wmca.org.uk",
             "york.ac.uk"
     );
