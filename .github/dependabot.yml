@@ -27,6 +27,10 @@ updates:
         # Guice 7.x only works with Jakarta EE and not Java EE
         versions:
           - ">= 6"
+      - dependency-name: "org.eclipse.persistence:org.eclipse.persistence.jpa"
+        # Version 3.x and above only works with Jakarta EE and not Java EE
+        versions:
+          - ">= 3"
     open-pull-requests-limit: 10
     labels:
       - dependencies
