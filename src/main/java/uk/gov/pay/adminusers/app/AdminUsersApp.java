@@ -8,6 +8,7 @@ import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.db.DataSourceFactory;
+import io.dropwizard.jersey.jackson.JsonProcessingExceptionMapper;
 import io.dropwizard.migrations.MigrationsBundle;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.dropwizard.DropwizardExports;
@@ -100,6 +101,8 @@ public class AdminUsersApp extends Application<AdminUsersConfig> {
         environment.jersey().register(injector.getInstance(HealthCheckResource.class));
         environment.jersey().register(injector.getInstance(EmailResource.class));
         environment.jersey().register(injector.getInstance(ExpungeAndArchiveHistoricalDataResource.class));
+
+        environment.jersey().register(new JsonProcessingExceptionMapper(true));
 
         // Register the custom ExceptionMapper(s)
         environment.jersey().register(new ValidationExceptionMapper());
