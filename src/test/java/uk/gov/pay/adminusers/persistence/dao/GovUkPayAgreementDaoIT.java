@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.time.temporal.ChronoUnit.MICROS;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,7 +38,7 @@ public class GovUkPayAgreementDaoIT extends DaoTestBase {
         Service service = serviceDbFixture(databaseHelper)
                 .withGatewayAccountIds(randomInt().toString())
                 .insertService();
-        ZonedDateTime dateTime = ZonedDateTime.now(ZoneOffset.UTC);
+        ZonedDateTime dateTime = ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(MICROS);
         GovUkPayAgreementEntity newEntity = new GovUkPayAgreementEntity("someone@example.org", dateTime);
         Optional<ServiceEntity> serviceEntity = serviceDao.findByExternalId(service.getExternalId());
         newEntity.setService(serviceEntity.get());

@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import static java.sql.Timestamp.from;
 import static java.time.ZonedDateTime.parse;
+import static java.time.temporal.ChronoUnit.MICROS;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -78,7 +79,7 @@ class InviteDaoIT extends DaoTestBase {
         assertThat(savedInvite.get(0).get("otp_key"), is(notNullValue()));
         assertThat(savedInvite.get(0).get("otp_key"), is(invite.getOtpKey()));
         assertThat(savedInvite.get(0).get("telephone_number"), is(nullValue()));
-        assertThat(savedInvite.get(0).get("date"), is(from(invite.getDate().toInstant())));
+        assertThat(savedInvite.get(0).get("date"), is(from(invite.getDate().toInstant().truncatedTo(MICROS))));
         assertThat(savedInvite.get(0).get("disabled"), is(Boolean.FALSE));
         assertThat(savedInvite.get(0).get("login_counter"), is(0));
     }
