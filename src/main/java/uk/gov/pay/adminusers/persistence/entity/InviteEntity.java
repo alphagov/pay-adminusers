@@ -18,6 +18,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.MICROS;
 import static uk.gov.pay.adminusers.persistence.entity.UTCDateTimeConverter.UTC;
 
 @Entity
@@ -76,7 +77,7 @@ public class InviteEntity extends AbstractEntity {
 
     public InviteEntity(String email, String code, String otpKey, RoleEntity role) {
         super();
-        this.date = ZonedDateTime.now(ZoneId.of("UTC"));
+        this.date = ZonedDateTime.now(ZoneId.of("UTC")).truncatedTo(MICROS);
         initializeExpiry();
         this.code = code;
         this.otpKey = otpKey;
