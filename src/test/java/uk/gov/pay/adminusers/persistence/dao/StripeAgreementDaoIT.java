@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.time.temporal.ChronoUnit.MICROS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -45,7 +46,7 @@ public class StripeAgreementDaoIT extends DaoTestBase {
         Optional<ServiceEntity> serviceEntity = serviceDao.findByExternalId(service.getExternalId());
         assertThat(serviceEntity.isPresent(), is(true));
 
-        StripeAgreementEntity stripeAgreementEntity = new StripeAgreementEntity(serviceEntity.get(), "192.0.2.0", ZonedDateTime.now(ZoneId.of("UTC")));
+        StripeAgreementEntity stripeAgreementEntity = new StripeAgreementEntity(serviceEntity.get(), "192.0.2.0", ZonedDateTime.now(ZoneId.of("UTC")).truncatedTo(MICROS));
         stripeAgreementDao.persist(stripeAgreementEntity);
 
         assertThat(stripeAgreementEntity.getId(), is(notNullValue()));
@@ -83,7 +84,7 @@ public class StripeAgreementDaoIT extends DaoTestBase {
         Service service = serviceDbFixture(databaseHelper)
                 .insertService();
 
-        ZonedDateTime agreementTime = ZonedDateTime.now(ZoneOffset.UTC);
+        ZonedDateTime agreementTime = ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(MICROS);
         String ipAddress = "192.0.2.0";
         
         stripeAgreementDbFixture(databaseHelper)

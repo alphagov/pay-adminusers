@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.valueOf;
 import static java.time.ZonedDateTime.parse;
+import static java.time.temporal.ChronoUnit.MICROS;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -80,7 +81,7 @@ public class UserDaoIT extends DaoTestBase {
         userEntity.setTelephoneNumber("+447700900000");
         userEntity.setSecondFactor(SecondFactorMethod.SMS);
         userEntity.setSessionVersion(0);
-        ZonedDateTime timeNow = ZonedDateTime.now(ZoneId.of("UTC"));
+        ZonedDateTime timeNow = ZonedDateTime.now(ZoneId.of("UTC")).truncatedTo(MICROS);
         userEntity.setCreatedAt(timeNow);
         userEntity.setUpdatedAt(timeNow);
 
