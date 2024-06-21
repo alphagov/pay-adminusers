@@ -66,6 +66,7 @@ class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@hial.co.uk", true},
                 {"valid@hmcts.net", true},
                 {"valid@hscni.net", true},
+                {"valid@hssib.org.uk", true},
                 {"valid@judiciary.uk", true},
                 {"valid@llyw.cymru", true},
                 {"valid@mil.uk", true},
