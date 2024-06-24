@@ -35,7 +35,7 @@ import uk.gov.pay.adminusers.validations.RequestValidations;
 import uk.gov.service.payments.commons.queue.sqs.SqsQueueService;
 
 import javax.ws.rs.client.Client;
-import java.time.Clock;
+import java.time.InstantSource;
 import java.util.Properties;
 
 public class AdminUsersModule extends AbstractModule {
@@ -61,7 +61,7 @@ public class AdminUsersModule extends AbstractModule {
                 .setTimeStepSizeInMillis(secondFactorAuthConfig.getTimeWindowInMillis())
                 .build());
         bind(LinksConfig.class).toInstance(configuration.getLinks());
-        bind(Clock.class).toInstance(Clock.systemDefaultZone());
+        bind(InstantSource.class).toInstance(InstantSource.system());
 
         bind(PasswordHasher.class).in(Singleton.class);
         bind(CountryConverter.class).in(Singleton.class);

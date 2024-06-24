@@ -35,8 +35,8 @@ import uk.gov.pay.adminusers.queue.ConnectorTaskQueue;
 import uk.gov.pay.adminusers.queue.model.ConnectorTask;
 import uk.gov.pay.adminusers.queue.model.ServiceArchivedTaskData;
 
-import java.time.Clock;
 import java.time.Instant;
+import java.time.InstantSource;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -103,15 +103,15 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
     private final CollectorRegistry collectorRegistry = CollectorRegistry.defaultRegistry;
 
     String SYSTEM_INSTANT = "2022-03-03T10:15:30Z";
-    Clock clock;
+    InstantSource instantSource;
 
     @BeforeEach
     void setUp() {
-        clock = Clock.fixed(Instant.parse(SYSTEM_INSTANT), UTC);
+        instantSource = InstantSource.fixed(Instant.parse(SYSTEM_INSTANT));
         when(mockAdminUsersConfig.getExpungeAndArchiveDataConfig()).thenReturn(mockExpungeAndArchiveConfig);
         expungeAndArchiveHistoricalDataService = new ExpungeAndArchiveHistoricalDataService(mockUserDao,
                 mockInviteDao, mockForgottenPasswordDao, mockServiceDao, mockServiceRoleDao, mockLedgerService,
-                mockAdminUsersConfig, mockConnectorTaskQueue, clock);
+                mockAdminUsersConfig, mockConnectorTaskQueue, instantSource);
     }
 
     @Test
@@ -143,9 +143,9 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
 
         expungeAndArchiveHistoricalDataService.expungeAndArchiveHistoricalData();
 
-        verify(mockUserDao).deleteUsersNotAssociatedWithAnyService(clock.instant());
-        verify(mockInviteDao).deleteInvites(clock.instant().atZone(UTC));
-        verify(mockForgottenPasswordDao).deleteForgottenPasswords(clock.instant().atZone(UTC));
+        verify(mockUserDao).deleteUsersNotAssociatedWithAnyService(instantSource.instant());
+        verify(mockInviteDao).deleteInvites(instantSource.instant().atZone(UTC));
+        verify(mockForgottenPasswordDao).deleteForgottenPasswords(instantSource.instant().atZone(UTC));
 
         verify(mockAppender).doAppend(loggingEventArgumentCaptor.capture());
         List<LoggingEvent> loggingEvents = loggingEventArgumentCaptor.getAllValues();
@@ -190,7 +190,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
                     .withGatewayAccounts(List.of(gatewayAccountIdEntity1, gatewayAccountIdEntity2))
                     .build();
 
-            systemDate = clock.instant().atZone(UTC);
+            systemDate = instantSource.instant().atZone(UTC);
         }
 
         @Test
@@ -224,7 +224,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             expungeAndArchiveHistoricalDataService.expungeAndArchiveHistoricalData();
 
             assertTrue(serviceEntity.isArchived());
-            assertThat(serviceEntity.getArchivedDate(), is(clock.instant().atZone(UTC)));
+            assertThat(serviceEntity.getArchivedDate(), is(instantSource.instant().atZone(UTC)));
             verify(mockServiceDao).merge(serviceEntity);
         }
 
@@ -248,7 +248,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             expungeAndArchiveHistoricalDataService.expungeAndArchiveHistoricalData();
 
             assertTrue(serviceEntity.isArchived());
-            assertThat(serviceEntity.getArchivedDate(), is(clock.instant().atZone(UTC)));
+            assertThat(serviceEntity.getArchivedDate(), is(instantSource.instant().atZone(UTC)));
             verify(mockServiceDao).merge(serviceEntity);
         }
 
@@ -273,7 +273,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             expungeAndArchiveHistoricalDataService.expungeAndArchiveHistoricalData();
 
             assertTrue(serviceEntity.isArchived());
-            assertThat(serviceEntity.getArchivedDate(), is(clock.instant().atZone(UTC)));
+            assertThat(serviceEntity.getArchivedDate(), is(instantSource.instant().atZone(UTC)));
             verify(mockServiceDao).merge(serviceEntity);
         }
 
