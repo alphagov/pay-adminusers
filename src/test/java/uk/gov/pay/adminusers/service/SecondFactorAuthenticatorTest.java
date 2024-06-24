@@ -7,9 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.InstantSource;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,7 +37,7 @@ class SecondFactorAuthenticatorTest {
             .build();
 
     @Mock
-    private Clock clock;
+    private InstantSource instantSource;
 
     private Instant initialTime;
 
@@ -46,8 +46,8 @@ class SecondFactorAuthenticatorTest {
     @BeforeEach
     void before() {
         initialTime = Instant.now();
-        lenient().when(clock.millis()).thenReturn(initialTime.toEpochMilli());
-        secondFactorAuthenticator = new SecondFactorAuthenticator(AUTH_CONFIG, clock);
+        lenient().when(instantSource.millis()).thenReturn(initialTime.toEpochMilli());
+        secondFactorAuthenticator = new SecondFactorAuthenticator(AUTH_CONFIG, instantSource);
     }
 
     @Test
@@ -64,7 +64,7 @@ class SecondFactorAuthenticatorTest {
     void shouldSuccess_ifAskedToValidateImmediateLastSteps2FAPasscode() {
         int passCode = secondFactorAuthenticator.newPassCode(BASE32_ENCODED_SECRET);
 
-        when(clock.millis()).thenReturn(initialTime.plus(TIME_STEP).toEpochMilli());
+        when(instantSource.millis()).thenReturn(initialTime.plus(TIME_STEP).toEpochMilli());
 
         assertTrue(secondFactorAuthenticator.authorize(BASE32_ENCODED_SECRET, passCode));
     }
@@ -73,7 +73,7 @@ class SecondFactorAuthenticatorTest {
     void shouldSuccess_ifAskedToValidateAValidPastSteps2FAPasscode() {
         int passCode = secondFactorAuthenticator.newPassCode(BASE32_ENCODED_SECRET);
 
-        when(clock.millis()).thenReturn(initialTime.plus(TIME_STEP.multipliedBy(PAST_OR_FUTURE_WINDOWS_TO_CHECK)).toEpochMilli());
+        when(instantSource.millis()).thenReturn(initialTime.plus(TIME_STEP.multipliedBy(PAST_OR_FUTURE_WINDOWS_TO_CHECK)).toEpochMilli());
 
         assertTrue(secondFactorAuthenticator.authorize(BASE32_ENCODED_SECRET, passCode));
     }
@@ -82,7 +82,7 @@ class SecondFactorAuthenticatorTest {
     void shouldError_ifAskedToValidate2FAPasscodeOlderThanLastValidStep() {
         int passCode = secondFactorAuthenticator.newPassCode(BASE32_ENCODED_SECRET);
 
-        when(clock.millis()).thenReturn(initialTime.plus(TIME_STEP.multipliedBy(PAST_OR_FUTURE_WINDOWS_TO_CHECK + 1)).toEpochMilli());
+        when(instantSource.millis()).thenReturn(initialTime.plus(TIME_STEP.multipliedBy(PAST_OR_FUTURE_WINDOWS_TO_CHECK + 1)).toEpochMilli());
 
         assertFalse(secondFactorAuthenticator.authorize(BASE32_ENCODED_SECRET, passCode));
     }

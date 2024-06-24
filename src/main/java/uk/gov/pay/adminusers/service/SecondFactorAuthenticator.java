@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Clock;
+import java.time.InstantSource;
 import java.util.regex.Pattern;
 
 import static com.google.common.io.BaseEncoding.base32;
@@ -20,22 +20,22 @@ public class SecondFactorAuthenticator {
     private static final Pattern BASE32_ALPHABET = Pattern.compile("[A-Z2-7]+");
 
     private final GoogleAuthenticator authenticator;
-    private final Clock clock;
+    private final InstantSource instantSource;
 
     @Inject
-    public SecondFactorAuthenticator(GoogleAuthenticatorConfig authenticatorConfig, Clock clock) {
-        this.clock = clock;
+    public SecondFactorAuthenticator(GoogleAuthenticatorConfig authenticatorConfig, InstantSource instantSource) {
+        this.instantSource = instantSource;
         this.authenticator = new GoogleAuthenticator(authenticatorConfig);
     }
 
     public int newPassCode(String secret) {
         checkNull(secret);
-        return authenticator.getTotpPassword(secret, clock.millis());
+        return authenticator.getTotpPassword(secret, instantSource.millis());
     }
 
     public boolean authorize(String secret, int passcode) {
         checkNull(secret);
-        return authenticator.authorize(secret, passcode, clock.millis());
+        return authenticator.authorize(secret, passcode, instantSource.millis());
     }
 
     public String generateNewBase32EncodedSecret() {

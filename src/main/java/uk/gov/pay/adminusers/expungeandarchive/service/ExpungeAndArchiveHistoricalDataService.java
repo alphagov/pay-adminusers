@@ -21,7 +21,7 @@ import uk.gov.pay.adminusers.queue.ConnectorTaskQueue;
 import uk.gov.pay.adminusers.queue.model.ConnectorTask;
 import uk.gov.pay.adminusers.queue.model.ServiceArchivedTaskData;
 
-import java.time.Clock;
+import java.time.InstantSource;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -45,7 +45,7 @@ public class ExpungeAndArchiveHistoricalDataService {
     private final LedgerService ledgerService;
     private final ExpungeAndArchiveDataConfig expungeAndArchiveDataConfig;
     private final ConnectorTaskQueue connectorTaskQueue;
-    private final Clock clock;
+    private final InstantSource instantSource;
 
     private static final Histogram duration = Histogram.build()
             .name("expunge_and_archive_historical_data_job_duration_seconds")
@@ -61,7 +61,7 @@ public class ExpungeAndArchiveHistoricalDataService {
                                                   LedgerService ledgerService,
                                                   AdminUsersConfig adminUsersConfig,
                                                   ConnectorTaskQueue connectorTaskQueue,
-                                                  Clock clock) {
+                                                  InstantSource instantSource) {
         this.userDao = userDao;
         this.inviteDao = inviteDao;
         this.forgottenPasswordDao = forgottenPasswordDao;
@@ -70,7 +70,7 @@ public class ExpungeAndArchiveHistoricalDataService {
         this.ledgerService = ledgerService;
         this.expungeAndArchiveDataConfig = adminUsersConfig.getExpungeAndArchiveDataConfig();
         this.connectorTaskQueue = connectorTaskQueue;
-        this.clock = clock;
+        this.instantSource = instantSource;
     }
 
     public void expungeAndArchiveHistoricalData() {
@@ -115,7 +115,7 @@ public class ExpungeAndArchiveHistoricalDataService {
                     archiveService(serviceEntity);
                 } else {
                     if (serviceEntity.getFirstCheckedForArchivalDate() == null) {
-                        serviceEntity.setFirstCheckedForArchivalDate(clock.instant().atZone(UTC));
+                        serviceEntity.setFirstCheckedForArchivalDate(instantSource.instant().atZone(UTC));
                     }
 
                     ZonedDateTime skipCheckingUntilDate = calculateSkipCheckingForArchivalUntilDate(serviceEntity, lastTransactionDateForService);
@@ -135,7 +135,7 @@ public class ExpungeAndArchiveHistoricalDataService {
     public void archiveService(ServiceEntity serviceEntity) {
         MDC.put(SERVICE_EXTERNAL_ID, serviceEntity.getExternalId());
         serviceEntity.setArchived(true);
-        serviceEntity.setArchivedDate(clock.instant().atZone(UTC));
+        serviceEntity.setArchivedDate(instantSource.instant().atZone(UTC));
 
         serviceDao.merge(serviceEntity);
         detachUsers(serviceEntity);
@@ -204,13 +204,13 @@ public class ExpungeAndArchiveHistoricalDataService {
     }
 
     private ZonedDateTime getArchiveServicesBeforeDate() {
-        return clock.instant()
+        return instantSource.instant()
                 .minus(expungeAndArchiveDataConfig.getArchiveServicesAfterDays(), DAYS)
                 .atZone(UTC);
     }
 
     private ZonedDateTime getDeleteUsersAndRelatedDataBeforeDate() {
-        return clock.instant()
+        return instantSource.instant()
                 .minus(expungeAndArchiveDataConfig.getExpungeUserDataAfterDays(), DAYS)
                 .atZone(UTC);
     }
