@@ -37,6 +37,7 @@ public class EmailValidator {
             "hscni.net",
             "hssib.org.uk",
             "judiciary.uk",
+            "improvementservice.org.uk",
             "llyw.cymru",
             "mil.uk",
             "mod.uk",
