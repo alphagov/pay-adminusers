@@ -172,7 +172,6 @@ public class UserResource {
     )
     public Response getUsers(@Parameter(schema = @Schema(example = "93ba1ec4ed6a4238a59f16ad97b4fa12,1234"))
                              @QueryParam("ids") String externalIds) {
-        LOGGER.info("Users GET request - [ {} ]", externalIds);
         List<String> externalIdsList = COMMA_SEPARATOR.splitToList(externalIds);
 
         List<User> users = userServices.findUsersByExternalIds(externalIdsList);
@@ -475,7 +474,6 @@ public class UserResource {
     )
     public Response createServiceRole(@Parameter(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
                                       @PathParam("userExternalId") String userExternalId, JsonNode payload) {
-        LOGGER.info("Assign service role to a user {} request", userExternalId);
         return validator.validateAssignServiceRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> {
