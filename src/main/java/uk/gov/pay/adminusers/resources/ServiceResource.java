@@ -148,7 +148,6 @@ public class ServiceResource {
     )
     public Response findService(@Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3") @PathParam("serviceExternalId")
                                 String serviceExternalId) {
-        LOGGER.info("Find Service request - [ {} ]", serviceExternalId);
         return serviceDao.findByExternalId(serviceExternalId)
                 .map(serviceEntity ->
                         Response.status(OK).entity(linksBuilder.decorate(serviceEntity.toService())).build())
@@ -169,7 +168,6 @@ public class ServiceResource {
             }
     )
     public Response findServices(@Parameter(example = "1") @QueryParam("gatewayAccountId") String gatewayAccountId) {
-        LOGGER.info("Find service by gateway account id request - [ {} ]", gatewayAccountId);
         return serviceRequestValidator.validateFindRequest(gatewayAccountId)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> serviceServicesFactory.serviceFinder().byGatewayAccountId(gatewayAccountId)
@@ -302,7 +300,6 @@ public class ServiceResource {
     public Response updateServiceAttribute(@Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3")
                                            @PathParam("serviceExternalId") String serviceExternalId,
                                            JsonNode payload) {
-        LOGGER.info("Service PATCH request - [ {} ]", serviceExternalId);
         return serviceRequestValidator.validateUpdateAttributeRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
                 .orElseGet(() -> processUpdateServiceAttributePayload(serviceExternalId, payload));
@@ -334,7 +331,6 @@ public class ServiceResource {
                                                  @Parameter(schema = @Schema(implementation = UpdateMerchantDetailsRequest.class))
                                                  JsonNode payload)
             throws ValidationException, ServiceNotFoundException {
-        LOGGER.info("Service PUT request to update merchant details - [ {} ]", serviceExternalId);
         serviceRequestValidator.validateUpdateMerchantDetailsRequest(payload);
         Service service = serviceServicesFactory.serviceUpdater().doUpdateMerchantDetails(
                 serviceExternalId, UpdateMerchantDetailsRequest.from(payload));
@@ -355,7 +351,6 @@ public class ServiceResource {
             }
     )
     public Response findUsersByServiceId(@PathParam("serviceExternalId") String serviceExternalId) {
-        LOGGER.info("Service users GET request - [ {} ]", serviceExternalId);
         return serviceDao.findByExternalId(serviceExternalId)
                 .map(serviceEntity ->
                         Response.status(200).entity(
@@ -389,16 +384,12 @@ public class ServiceResource {
                                           @PathParam("userExternalId") String userExternalId,
                                           @Parameter(example = "d012mkldfdfnsdhqha7f0ee748ff1546", required = true, description = "User external ID to remove from service")
                                           @HeaderParam(HEADER_USER_CONTEXT) String userContext) {
-        LOGGER.info("Service users DELETE request - serviceExternalId={}, userExternalId={}", serviceExternalId, userExternalId);
         if (isBlank(userContext)) {
             return Response.status(Status.FORBIDDEN).build();
         } else if (userExternalId.equals(userContext)) {
-            LOGGER.info("Failed Service users DELETE request. User and Remover cannot be the same - " +
-                    "serviceExternalId={}, removerExternalId={}, userExternalId={}", serviceExternalId, userContext, userExternalId);
             return Response.status(CONFLICT).build();
         }
         serviceServicesFactory.serviceUserRemover().remove(userExternalId, userContext, serviceExternalId);
-        LOGGER.info("Succeeded Service users DELETE request - serviceExternalId={}, removerExternalId={}, userExternalId={}", serviceExternalId, userContext, userExternalId);
         return Response.status(NO_CONTENT).build();
     }
 
