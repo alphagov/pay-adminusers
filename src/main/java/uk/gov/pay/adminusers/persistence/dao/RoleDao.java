@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.persistence.dao;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 
 import javax.persistence.EntityManager;
@@ -15,6 +16,7 @@ import java.util.Optional;
  * </p>
  *     @see uk.gov.pay.adminusers.persistence.entity.RoleEntity
  */
+@Transactional
 public class RoleDao {
 
     private final Provider<EntityManager> entityManager;
