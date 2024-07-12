@@ -1,10 +1,10 @@
 package uk.gov.pay.adminusers.pact.queuemessage;
 
 import au.com.dius.pact.consumer.MessagePactBuilder;
-import au.com.dius.pact.consumer.MessagePactProviderRule;
-import au.com.dius.pact.consumer.Pact;
-import au.com.dius.pact.consumer.PactVerification;
-import au.com.dius.pact.model.v3.messaging.MessagePact;
+import au.com.dius.pact.consumer.junit.MessagePactProviderRule;
+import au.com.dius.pact.consumer.junit.PactVerification;
+import au.com.dius.pact.core.model.annotations.Pact;
+import au.com.dius.pact.core.model.messaging.MessagePact;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;

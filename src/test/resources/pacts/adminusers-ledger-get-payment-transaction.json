@@ -34,7 +34,7 @@
         },
         "body": {
           "reference": "my reference",
-          "transaction_id": "e8eq11mi2ndmauvb51qsg8hccn",
+          "transaction_id": "e8eq11mi2ndmauvb51qsg8hccn"
         },
         "matchingRules": {
           "body": {
