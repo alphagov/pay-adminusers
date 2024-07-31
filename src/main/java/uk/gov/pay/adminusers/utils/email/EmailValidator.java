@@ -21,6 +21,7 @@ public class EmailValidator {
             "assembly.wales",
             "beechpc.com",
             "bl.uk",
+            "bolton-sfc.ac.uk",
             "caa.co.uk",
             "careinspectorate.com",
             "cynulliad.cymru",
