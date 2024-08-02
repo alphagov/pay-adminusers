@@ -14,9 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.CompleteInviteRequest;
 import uk.gov.pay.adminusers.model.CompleteInviteResponse;
-import uk.gov.pay.adminusers.model.Invite;
-import uk.gov.pay.adminusers.model.CreateSelfRegistrationInviteRequest;
 import uk.gov.pay.adminusers.model.CreateInviteToJoinServiceRequest;
+import uk.gov.pay.adminusers.model.CreateSelfRegistrationInviteRequest;
+import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.service.AdminUsersExceptions;
@@ -76,9 +76,7 @@ public class InviteResource {
             }
     )
     public Response getInvite(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String code) {
-
-        LOGGER.info("Invite GET request for code - [ {} ]", code);
-
+        LOGGER.info("Invite GET request");
         if (isNotBlank(code) && code.length() > MAX_LENGTH_CODE) {
             return Response.status(NOT_FOUND).build();
         }
@@ -136,12 +134,10 @@ public class InviteResource {
             }
     )
     public void sendOtp(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode) {
-        LOGGER.info("Invite send OTP POST request for code - [ {} ]", inviteCode);
-
+        LOGGER.info("Invite send OTP POST request");
         if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-
         inviteService.sendOtp(inviteCode);
     }
 
@@ -157,12 +153,10 @@ public class InviteResource {
             }
     )
     public Invite reprovisionOtp(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode) {
-        LOGGER.info("Invite re-provision OTP POST request for code - [ {} ]", inviteCode);
-
+        LOGGER.info("Invite re-provision OTP POST request");
         if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-
         return inviteService.reprovisionOtp(inviteCode);
     }
 
@@ -181,12 +175,10 @@ public class InviteResource {
             }
     )
     public CompleteInviteResponse completeInvite(@Parameter(example = "d02jddeib0lqpsir28fbskg9v0rv") @PathParam("code") String inviteCode, @Valid CompleteInviteRequest completeInviteRequest) {
-        LOGGER.info("Invite  complete POST request for code - [ {} ]", inviteCode);
-
+        LOGGER.info("Invite complete POST request");
         if (isNotBlank(inviteCode) && inviteCode.length() > MAX_LENGTH_CODE) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-
         SecondFactorMethod secondFactorMethod = (completeInviteRequest != null) ? completeInviteRequest.getSecondFactor() : null;
         return inviteService.complete(inviteCode, secondFactorMethod);
     }
@@ -225,7 +217,6 @@ public class InviteResource {
         if (!isPublicSectorEmail(createSelfRegistrationInviteRequest.getEmail())) {
             throw AdminUsersExceptions.invalidPublicSectorEmail(createSelfRegistrationInviteRequest.getEmail());
         }
-
         Invite invite = inviteServiceFactory.selfRegistrationInviteCreator().doInvite(createSelfRegistrationInviteRequest);
         return Response.status(CREATED).entity(invite).build();
     }
@@ -263,7 +254,6 @@ public class InviteResource {
             }
     )
     public void validateOtpKey(@Valid InviteValidateOtpRequest inviteValidateOtpRequest) {
-
         LOGGER.info("Invite POST request for validating otp");
         inviteService.validateOtp(inviteValidateOtpRequest);
     }

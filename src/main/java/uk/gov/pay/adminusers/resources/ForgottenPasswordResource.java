@@ -63,7 +63,7 @@ public class ForgottenPasswordResource {
             }
     )
     public Response sendForgottenPassword(JsonNode payload) {
-        LOGGER.info("ForgottenPassword CREATE request - [ {} ]", payload);
+        LOGGER.info("ForgottenPassword CREATE request");
         Optional<Errors> errorsOptional = validator.validateCreateRequest(payload);
         return errorsOptional
                 .map(errors ->
@@ -86,8 +86,7 @@ public class ForgottenPasswordResource {
             }
     )
     public Response findNonExpiredForgottenPassword(@Parameter(example = "bc9039e00cba4e63b2c92ecd0e188aba") @PathParam("code") String code) {
-        LOGGER.info("ForgottenPassword GET request - [ {} ]", code);
-
+        LOGGER.info("ForgottenPassword GET request");
         if (isNotBlank(code) && code.length() > MAX_LENGTH) {
             return Response.status(NOT_FOUND).build();
         }
