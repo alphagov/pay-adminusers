@@ -13,6 +13,7 @@ The [API Specification](/openapi/adminusers_spec.yaml) provides more detail on t
 | NAME                    | DESCRIPTION                                                                    |
 | ----------------------- | ------------------------------------------------------------------------------ |
 | `ADMIN_PORT`                                                                  | The port number to listen for Dropwizard admin requests on. Defaults to `8081`. |
+| `BIND_HOST`                                                                   | The IP address for the application to bind to. Defaults to `127.0.0.1` |
 | `BASE_URL`                                                                    | This is the publicly visible URL for the pay admin users root. Defaults to `http://localhost:8080`. |
 | `DB_HOST`                                                                     | The hostname of the database server. |
 | `DB_NAME`                                                                     | The name of the database on `DB_HOST`. Defaults to `adminusers`. |
