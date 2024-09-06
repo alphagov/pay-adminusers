@@ -83,6 +83,7 @@ public class IntegrationTest {
     @BeforeEach
     public void initialise() {
         databaseHelper = APP.getDatabaseTestHelper();
+        databaseHelper.truncateAllData();
     }
 
     protected RequestSpecification givenSetup() {

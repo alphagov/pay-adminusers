@@ -48,7 +48,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static uk.gov.pay.adminusers.resources.ServiceResource.FIELD_NAME;
-import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT_IDS;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -103,7 +102,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         Service service = buildService(Collections.emptyList(), Collections.emptyMap());
         given(mockedServiceCreator.doCreate(Collections.emptyList(), Collections.emptyMap()))
                 .willReturn(service);
-        Response response = RESOURCES.target(SERVICES_RESOURCE)
+        Response response = RESOURCES.target("/v1/api/services")
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(PAYLOAD_MAP), Response.class);
 
@@ -129,7 +128,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         Service service = buildService(Collections.emptyList(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
         given(mockedServiceCreator.doCreate(Collections.emptyList(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)))
                 .willReturn(service);
-        Response response = RESOURCES.target(SERVICES_RESOURCE)
+        Response response = RESOURCES.target("/v1/api/services")
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(PAYLOAD_MAP), Response.class);
 
@@ -152,7 +151,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         Service service = buildService(Collections.emptyList(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME));
         given(mockedServiceCreator.doCreate(Collections.emptyList(), Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)))
                 .willReturn(service);
-        Response response = RESOURCES.target(SERVICES_RESOURCE)
+        Response response = RESOURCES.target("/v1/api/services")
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(PAYLOAD_MAP), Response.class);
 
@@ -179,7 +178,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         given(mockedServiceCreator.doCreate(gatewayAccounts, Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)))
                 .willReturn(service);
 
-        Response response = RESOURCES.target(SERVICES_RESOURCE)
+        Response response = RESOURCES.target("/v1/api/services")
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(PAYLOAD_MAP), Response.class);
         assertThat(response.getStatus(), is(201));
@@ -205,7 +204,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         given(mockedServiceCreator.doCreate(gatewayAccounts, Map.of(SupportedLanguage.ENGLISH, EN_SERVICE_NAME)))
                 .willReturn(service);
 
-        Response response = RESOURCES.target(SERVICES_RESOURCE)
+        Response response = RESOURCES.target("/v1/api/services")
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(PAYLOAD_MAP), Response.class);
         assertThat(response.getStatus(), is(201));
@@ -235,7 +234,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
         given(mockedServiceCreator.doCreate(gatewayAccounts, serviceName))
                 .willReturn(service);
 
-        Response response = RESOURCES.target(SERVICES_RESOURCE)
+        Response response = RESOURCES.target("/v1/api/services")
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(PAYLOAD_MAP), Response.class);
 
@@ -260,7 +259,7 @@ public class ServiceResourceCreateTest extends ServiceResourceBaseTest {
 
         given(mockedServicesFactory.serviceCreator()).willReturn(serviceCreator);
         given(mockedServiceDao.checkIfGatewayAccountsUsed(anyList())).willReturn(true);
-        Response response = RESOURCES.target(SERVICES_RESOURCE)
+        Response response = RESOURCES.target("/v1/api/services")
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.json(PAYLOAD_MAP), Response.class);
         assertThat(response.getStatus(), is(409));

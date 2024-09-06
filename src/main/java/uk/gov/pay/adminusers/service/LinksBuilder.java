@@ -12,7 +12,6 @@ import java.util.List;
 
 import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.resources.ForgottenPasswordResource.FORGOTTEN_PASSWORDS_RESOURCE;
-import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
 import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
 
 public class LinksBuilder {
@@ -32,7 +31,7 @@ public class LinksBuilder {
     }
 
     public Service decorate(Service service) {
-        URI uri = fromUri(baseUrl).path(SERVICES_RESOURCE).path(String.valueOf(service.getExternalId()))
+        URI uri = fromUri(baseUrl).path("/v1/api/services").path(String.valueOf(service.getExternalId()))
                 .build();
         Link selfLink = Link.from(Rel.SELF, "GET", uri.toString());
         service.setLinks(List.of(selfLink));

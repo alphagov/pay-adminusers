@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
+import uk.gov.pay.adminusers.model.CreateServiceRequest;
 import uk.gov.pay.adminusers.model.GovUkPayAgreement;
 import uk.gov.pay.adminusers.model.SearchServicesResponse;
 import uk.gov.pay.adminusers.model.Service;
@@ -33,7 +34,6 @@ import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 import uk.gov.pay.adminusers.service.StripeAgreementService;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.service.payments.commons.api.exception.ValidationException;
-import uk.gov.service.payments.commons.model.SupportedLanguage;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -53,13 +53,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -71,15 +67,12 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static uk.gov.pay.adminusers.resources.ServiceResource.SERVICES_RESOURCE;
-import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT_IDS;
 
-@Path(SERVICES_RESOURCE)
+@Path("/v1/api/services")
 public class ServiceResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceResource.class);
     /* default */static final String HEADER_USER_CONTEXT = "GovUkPay-User-Context";
-    public static final String SERVICES_RESOURCE = "/v1/api/services";
 
     public static final String FIELD_NAME = "name";
 
@@ -227,26 +220,19 @@ public class ServiceResource {
                     @ApiResponse(responseCode = "201", description = "Created",
                             content = @Content(schema = @Schema(implementation = Service.class))),
                     @ApiResponse(responseCode = "409", description = "Gateway account IDs provided has already been assigned to another service"),
+                    @ApiResponse(responseCode = "400", description = "Service names must be one of 'en' (English) or 'cy' (Welsh)"),
                     @ApiResponse(responseCode = "500", description = "Invalid JSON payload")
             }
     )
-    public Response createService(JsonNode payload) {
-        LOGGER.info("Create Service POST request - [ {} ]", payload);
-        List<String> gatewayAccountIds = extractGatewayAccountIds(payload);
-        Map<SupportedLanguage, String> serviceNameVariants = getServiceNameVariants(payload);
+    public Response createService(@Valid CreateServiceRequest createServiceRequest) {
+        LOGGER.info("Create Service POST request - [ {} ]", createServiceRequest);
 
-        Service service = serviceServicesFactory.serviceCreator().doCreate(gatewayAccountIds, serviceNameVariants);
+        var nullableCreateServiceRequest = Optional.ofNullable(createServiceRequest);
+        Service service = serviceServicesFactory.serviceCreator().doCreate(
+                nullableCreateServiceRequest.map(CreateServiceRequest::gatewayAccountIds).orElse(List.of()),
+                nullableCreateServiceRequest.map(CreateServiceRequest::serviceName).orElse(Map.of()));
         return Response.status(CREATED).entity(service).build();
 
-    }
-
-    private List<String> extractGatewayAccountIds(JsonNode payload) {
-        List<String> gatewayAccountIds = new ArrayList<>();
-        if (payload != null && payload.get(FIELD_GATEWAY_ACCOUNT_IDS) != null) {
-            payload.get(FIELD_GATEWAY_ACCOUNT_IDS)
-                    .elements().forEachRemaining((node) -> gatewayAccountIds.add(node.textValue()));
-        }
-        return List.copyOf(gatewayAccountIds);
     }
 
     @Path("/{serviceExternalId}")
@@ -532,17 +518,5 @@ public class ServiceResource {
                 .orElseThrow(() -> new WebApplicationException(NOT_FOUND));
         sendLiveAccountCreatedEmailService.sendEmail(serviceExternalId);
         return Response.status(OK).build();
-    }
-
-    private Map<SupportedLanguage, String> getServiceNameVariants(JsonNode payload) {
-        if (payload.hasNonNull("service_name")) {
-            JsonNode serviceName = payload.get("service_name");
-            return Stream.of(SupportedLanguage.values())
-                    .filter(supportedLanguage -> serviceName.hasNonNull(supportedLanguage.toString()))
-                    .collect(Collectors.toUnmodifiableMap(
-                            supportedLanguage -> supportedLanguage,
-                            supportedLanguage -> serviceName.get(supportedLanguage.toString()).asText()));
-        }
-        return Collections.emptyMap();
     }
 }
