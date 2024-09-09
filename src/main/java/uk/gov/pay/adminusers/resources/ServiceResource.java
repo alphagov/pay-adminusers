@@ -34,6 +34,7 @@ import uk.gov.pay.adminusers.service.ServiceServicesFactory;
 import uk.gov.pay.adminusers.service.StripeAgreementService;
 import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.service.payments.commons.api.exception.ValidationException;
+import uk.gov.service.payments.commons.model.SupportedLanguage;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -227,10 +228,9 @@ public class ServiceResource {
     public Response createService(@Valid CreateServiceRequest createServiceRequest) {
         LOGGER.info("Create Service POST request - [ {} ]", createServiceRequest);
 
-        var nullableCreateServiceRequest = Optional.ofNullable(createServiceRequest);
-        Service service = serviceServicesFactory.serviceCreator().doCreate(
-                nullableCreateServiceRequest.map(CreateServiceRequest::gatewayAccountIds).orElse(List.of()),
-                nullableCreateServiceRequest.map(CreateServiceRequest::serviceName).orElse(Map.of()));
+        List<String> gatewayAccountIds = Optional.ofNullable(createServiceRequest).map(CreateServiceRequest::gatewayAccountIds).orElse(List.of());
+        Map<SupportedLanguage, String> serviceNames = Optional.ofNullable(createServiceRequest).map(CreateServiceRequest::serviceName).orElse(Map.of());
+        Service service = serviceServicesFactory.serviceCreator().doCreate(gatewayAccountIds, serviceNames);
         return Response.status(CREATED).entity(service).build();
 
     }
