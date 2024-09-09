@@ -37,20 +37,6 @@ class ServiceResourceCreateIT extends IntegrationTest {
         assertStandardFields(validatableResponse);
     }
 
-    private void assertStandardFields(ValidatableResponse validatableResponse) {
-        validatableResponse
-                .body("current_psp_test_account_stage", is("NOT_STARTED"))
-                .body("current_go_live_stage", is("NOT_STARTED"))
-                .body("default_billing_address_country", is("GB"))
-                .body("agent_initiated_moto_enabled", is(false))
-                .body("takes_payments_over_phone", is(false))
-                .body("experimental_features_enabled", is(false))
-                .body("internal", is(false))
-                .body("archived", is(false))
-                .body("redirect_to_service_immediately_on_terminal_state", is(false))
-                .body("collect_billing_address", is(true));
-    }
-
     @Test
     void can_create_default_service_with_empty_request_body() {
         var validatableResponse = givenSetup()
@@ -100,6 +86,20 @@ class ServiceResourceCreateIT extends IntegrationTest {
                 .body("name", is("Service name"));
 
         assertStandardFields(validatableResponse);
+    }
+
+    private void assertStandardFields(ValidatableResponse validatableResponse) {
+        validatableResponse
+                .body("current_psp_test_account_stage", is("NOT_STARTED"))
+                .body("current_go_live_stage", is("NOT_STARTED"))
+                .body("default_billing_address_country", is("GB"))
+                .body("agent_initiated_moto_enabled", is(false))
+                .body("takes_payments_over_phone", is(false))
+                .body("experimental_features_enabled", is(false))
+                .body("internal", is(false))
+                .body("archived", is(false))
+                .body("redirect_to_service_immediately_on_terminal_state", is(false))
+                .body("collect_billing_address", is(true));
     }
     
     @Test
