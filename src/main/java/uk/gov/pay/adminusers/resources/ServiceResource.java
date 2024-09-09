@@ -220,7 +220,7 @@ public class ServiceResource {
                     @ApiResponse(responseCode = "201", description = "Created",
                             content = @Content(schema = @Schema(implementation = Service.class))),
                     @ApiResponse(responseCode = "409", description = "Gateway account IDs provided has already been assigned to another service"),
-                    @ApiResponse(responseCode = "400", description = "Service names must be one of 'en' (English) or 'cy' (Welsh)"),
+                    @ApiResponse(responseCode = "400", description = "Service name keys must be one of 'en' (English) or 'cy' (Welsh)"),
                     @ApiResponse(responseCode = "500", description = "Invalid JSON payload")
             }
     )
