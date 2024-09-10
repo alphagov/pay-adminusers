@@ -19,7 +19,7 @@ public enum RoleName {
     @JsonProperty("view-and-initiate-moto") VIEW_AND_INITIATE_MOTO("view-and-initiate-moto"),
     @JsonProperty("view-refund-and-initiate-moto") VIEW_REFUND_AND_INITIATE_MOTO("view-refund-and-initiate-moto"),
     @JsonProperty("super-admin") SUPER_ADMIN("super-admin");
-
+    
     private final String name;
 
     private static final Map<String, RoleName> roleNames = Arrays.stream(RoleName.values())
