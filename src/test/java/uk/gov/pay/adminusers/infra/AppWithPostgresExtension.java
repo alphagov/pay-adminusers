@@ -1,6 +1,8 @@
 package uk.gov.pay.adminusers.infra;
 
-import com.amazonaws.services.sqs.AmazonSQS;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.persist.PersistService;
 import com.google.inject.persist.jpa.JpaPersistModule;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.testing.ConfigOverride;
@@ -17,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.app.AdminUsersApp;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
+import uk.gov.pay.adminusers.app.config.AdminUsersModule;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 import uk.gov.service.payments.commons.testing.db.PostgresDockerExtension;
 import uk.gov.service.payments.commons.testing.db.PostgresTestHelper;
@@ -36,10 +39,10 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppWithPostgresExtension.class);
     private static final String JPA_UNIT = "AdminUsersUnit";
     private final PostgresDockerExtension postgres;
-    private final AmazonSQS sqsClient;
     private final String configFilePath;
     private final DropwizardAppExtension<AdminUsersConfig> app;
-
+    
+    private Injector injector;
     private DatabaseTestHelper databaseTestHelper;
 
     private final int wireMockPort = PortFactory.findFreePort();
@@ -51,7 +54,7 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
     public AppWithPostgresExtension(String configPath, ConfigOverride... configOverrides) {
         configFilePath = resourceFilePath(configPath);
         postgres = new PostgresDockerExtension("15.2");
-        sqsClient = SqsTestDocker.initialise(Collections.singletonList("event-queue"));
+        SqsTestDocker.initialise(Collections.singletonList("event-queue"));
 
         ConfigOverride[] newConfigOverrides = List.of(
                         config("database.url", postgres.getConnectionUrl()),
@@ -64,8 +67,7 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
         app = new DropwizardAppExtension<>(
                 AdminUsersApp.class,
                 configFilePath,
-                ArrayUtils.addAll(newConfigOverrides, configOverrides)
-        );
+                ArrayUtils.addAll(newConfigOverrides, configOverrides));
 
         createJpaModule(postgres);
         registerShutdownHook();
@@ -78,6 +80,14 @@ public class AppWithPostgresExtension implements BeforeAllCallback {
             LOGGER.error("Exception starting application - {}", e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    public synchronized Injector getInjector() {
+        if (injector == null) {
+            injector = Guice.createInjector(new AdminUsersModule(app.getConfiguration(), app.getEnvironment()));
+            injector.getInstance(PersistService.class).start();
+        }
+        return injector;
     }
 
     @Override

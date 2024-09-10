@@ -148,7 +148,7 @@ public class DatabaseTestHelper {
                                 "WHERE NOT EXISTS (SELECT id FROM roles WHERE id = :id) " +
                                 "RETURNING id")
                         .bind("id", role.getId())
-                        .bind("name", role.getName())
+                        .bind("name", role.getRoleName())
                         .bind("description", role.getDescription())
                         .execute()
         );

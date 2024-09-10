@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.CreateSelfRegistrationInviteRequest;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
@@ -26,8 +27,6 @@ import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerE
 public class SelfRegistrationInviteCreator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SelfRegistrationInviteCreator.class);
-    
-    private static final String ADMIN_ROLE_NAME = "admin";
     
     private final InviteDao inviteDao;
     private final UserDao userDao;
@@ -81,7 +80,7 @@ public class SelfRegistrationInviteCreator {
             });
         }
 
-        return roleDao.findByRoleName(ADMIN_ROLE_NAME)
+        return roleDao.findByRoleName(RoleName.ADMIN)
                 .map(roleEntity -> {
                     String otpKey = secondFactorAuthenticator.generateNewBase32EncodedSecret();
                     InviteEntity inviteEntity = new InviteEntity(requestEmail, randomUuid(), otpKey, roleEntity);

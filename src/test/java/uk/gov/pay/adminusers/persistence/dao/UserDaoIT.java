@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
@@ -39,7 +40,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
@@ -48,6 +48,8 @@ public class UserDaoIT extends DaoTestBase {
     private UserDao userDao;
     private ServiceDao serviceDao;
     private RoleDao roleDao;
+    private Role adminRole;
+    private Role viewOnlyRole;
 
     @BeforeEach
     public void before() {
@@ -55,6 +57,8 @@ public class UserDaoIT extends DaoTestBase {
         serviceDao = env.getInstance(ServiceDao.class);
         roleDao = env.getInstance(RoleDao.class);
         databaseHelper.truncateAllData();
+        adminRole = roleDao.findByRoleName(RoleName.ADMIN).get().toRole();
+        viewOnlyRole = roleDao.findByRoleName(RoleName.VIEW_ONLY).get().toRole();
     }
 
     @Test
@@ -65,7 +69,6 @@ public class UserDaoIT extends DaoTestBase {
 
     @Test
     public void shouldCreateAUserSuccessfully() {
-        Role role = roleDbFixture(databaseHelper).insertRole();
         String gatewayAccountId = randomInt().toString();
         int serviceId = serviceDbFixture(databaseHelper)
                 .withGatewayAccountIds(gatewayAccountId).insertService().getId();
@@ -86,9 +89,9 @@ public class UserDaoIT extends DaoTestBase {
         userEntity.setUpdatedAt(timeNow);
 
         ServiceEntity serviceEntity = serviceDao.findByGatewayAccountId(gatewayAccountId).get();
-        RoleEntity roleEntity = roleDao.findByRoleName(role.getName()).get();
+        RoleEntity adminRoleEntity = new RoleEntity(adminRole);
 
-        ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity, roleEntity);
+        ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity, adminRoleEntity);
         serviceRoleEntity.setUser(userEntity);
 
         userEntity.addServiceRole(serviceRoleEntity);
@@ -111,23 +114,22 @@ public class UserDaoIT extends DaoTestBase {
 
         List<Map<String, Object>> serviceRolesForUser = databaseHelper.findServiceRoleForUser(userEntity.getId());
         assertThat(serviceRolesForUser.size(), is(1));
-        assertThat(serviceRolesForUser.get(0).get("id"), is(role.getId()));
+        assertThat(serviceRolesForUser.get(0).get("id"), is(adminRoleEntity.getId()));
         assertThat(serviceRolesForUser.get(0).get("service_id"), is(serviceId));
-        assertThat(serviceRolesForUser.get(0).get("name"), is(role.getName()));
-        assertThat(serviceRolesForUser.get(0).get("description"), is(role.getDescription()));
+        assertThat(serviceRolesForUser.get(0).get("name"), is(adminRoleEntity.getRoleName().getName()));
+        assertThat(serviceRolesForUser.get(0).get("description"), is(adminRoleEntity.getDescription()));
     }
 
     @Test
     public void shouldFindUserBy_ExternalId() {
-        Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId1 = serviceDbFixture(databaseHelper)
                 .insertService().getId();
         int serviceId2 = serviceDbFixture(databaseHelper)
                 .insertService().getId();
         String email = randomUuid() + "@example.com";
         User user = userDbFixture(databaseHelper)
-                .withServiceRole(serviceId1, role.getId())
-                .withServiceRole(serviceId2, role.getId())
+                .withServiceRole(serviceId1, adminRole)
+                .withServiceRole(serviceId2, adminRole)
                 .withEmail(email)
                 .insertUser();
 
@@ -147,12 +149,11 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(foundUser.getSessionVersion(), is(0));
         assertThat(foundUser.getRoles().size(), is(1));
         assertThat(foundUser.toUser().getServiceRoles().size(), is(2));
-        assertThat(foundUser.getRoles().get(0).getId(), is(role.getId()));
+        assertThat(foundUser.getRoles().get(0).getId(), is(adminRole.getId()));
     }
 
     @Test
     public void shouldFindUsersBy_ExternalIds() {
-        Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId1 = serviceDbFixture(databaseHelper)
                 .insertService().getId();
         int serviceId2 = serviceDbFixture(databaseHelper)
@@ -160,23 +161,23 @@ public class UserDaoIT extends DaoTestBase {
         String username1 = randomUuid();
         String email1 = username1 + "@example.com";
         User user1 = userDbFixture(databaseHelper)
-                .withServiceRole(serviceId1, role.getId())
-                .withServiceRole(serviceId2, role.getId())
+                .withServiceRole(serviceId1, adminRole)
+                .withServiceRole(serviceId2, adminRole)
                 .withEmail(email1)
                 .insertUser();
         String username2 = randomUuid();
         String email2 = username2 + "@example.com";
         User user2 = userDbFixture(databaseHelper)
-                .withServiceRole(serviceId1, role.getId())
-                .withServiceRole(serviceId2, role.getId())
+                .withServiceRole(serviceId1, adminRole)
+                .withServiceRole(serviceId2, adminRole)
                 .withEmail(email2)
                 .insertUser();
         // Add third user to prove we're not just returning all users
         String username3 = randomUuid();
         String email3 = username3 + "@example.com";
         userDbFixture(databaseHelper)
-                .withServiceRole(serviceId1, role.getId())
-                .withServiceRole(serviceId2, role.getId())
+                .withServiceRole(serviceId1, adminRole)
+                .withServiceRole(serviceId2, adminRole)
                 .withEmail(email3)
                 .insertUser();
 
@@ -195,7 +196,7 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(foundUser1.getSessionVersion(), is(0));
         assertThat(foundUser1.getRoles().size(), is(1));
         assertThat(foundUser1.toUser().getServiceRoles().size(), is(2));
-        assertThat(foundUser1.getRoles().get(0).getId(), is(role.getId()));
+        assertThat(foundUser1.getRoles().get(0).getId(), is(adminRole.getId()));
 
         UserEntity foundUser2 = userEntities.get(1);
         assertThat(foundUser2.getExternalId(), is(user2.getExternalId()));
@@ -207,18 +208,17 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(foundUser2.getSessionVersion(), is(0));
         assertThat(foundUser2.getRoles().size(), is(1));
         assertThat(foundUser2.toUser().getServiceRoles().size(), is(2));
-        assertThat(foundUser2.getRoles().get(0).getId(), is(role.getId()));
+        assertThat(foundUser2.getRoles().get(0).getId(), is(adminRole.getId()));
     }
 
     @Test
     public void shouldFindUserBy_UserEmail_caseInsensitive() {
-        Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId = serviceDbFixture(databaseHelper)
                 .insertService().getId();
         String username = randomUuid();
         String email = username + "@example.com";
         User user = userDbFixture(databaseHelper)
-                .withServiceRole(serviceId, role.getId()).withEmail(email).insertUser();
+                .withServiceRole(serviceId, adminRole).withEmail(email).insertUser();
 
         String otpKey = user.getOtpKey();
 
@@ -233,17 +233,16 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(foundUser.getLoginCounter(), is(0));
         assertThat(foundUser.getSessionVersion(), is(0));
         assertThat(foundUser.getRoles().size(), is(1));
-        assertThat(foundUser.getRoles().get(0).getId(), is(role.getId()));
+        assertThat(foundUser.getRoles().get(0).getId(), is(adminRole.getId()));
     }
 
     @Test
     public void shouldFindUser_ByEmail_caseInsensitive() {
-        Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
         String username = randomUuid();
         String email = username + "@example.com";
         User user = userDbFixture(databaseHelper)
-                .withServiceRole(serviceId, role.getId()).withEmail(email).insertUser();
+                .withServiceRole(serviceId, adminRole).withEmail(email).insertUser();
 
         String otpKey = user.getOtpKey();
 
@@ -258,14 +257,11 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(foundUser.getLoginCounter(), is(0));
         assertThat(foundUser.getSessionVersion(), is(0));
         assertThat(foundUser.getRoles().size(), is(1));
-        assertThat(foundUser.getRoles().get(0).getId(), is(role.getId()));
+        assertThat(foundUser.getRoles().get(0).getId(), is(adminRole.getId()));
     }
 
     @Test
     public void shouldAddServiceRoleOfAnExistingUser_whenSettingANewServiceRole() {
-        Role role1 = roleDbFixture(databaseHelper).insertRole();
-        Role role2 = roleDbFixture(databaseHelper).insertRole();
-
         String gatewayAccountId1 = randomInt().toString();
         String gatewayAccountId2 = randomInt().toString();
 
@@ -277,17 +273,16 @@ public class UserDaoIT extends DaoTestBase {
         String username = randomUuid();
         String email = username + "@example.com";
 
-        userDbFixture(databaseHelper)
-                .withServiceRole(service1, role1.getId()).withEmail(email).insertUser();
+        userDbFixture(databaseHelper).withServiceRole(service1, adminRole).withEmail(email).insertUser();
 
         UserEntity existingUser = userDao.findByEmail(email).get();
 
         assertThat(existingUser.getGatewayAccountId(), is(gatewayAccountId1));
         assertThat(existingUser.getRoles().size(), is(1));
-        assertThat(existingUser.getRoles().get(0).getId(), is(role1.getId()));
+        assertThat(existingUser.getRoles().get(0).getId(), is(adminRole.getId()));
 
         ServiceEntity serviceEntity2 = serviceDao.findByGatewayAccountId(gatewayAccountId2).get();
-        RoleEntity roleEntity2 = roleDao.findByRoleName(role2.getName()).get();
+        RoleEntity roleEntity2 = new RoleEntity(viewOnlyRole);
 
         ServiceRoleEntity serviceRole = new ServiceRoleEntity(serviceEntity2, roleEntity2);
         serviceRole.setUser(existingUser);
@@ -299,20 +294,12 @@ public class UserDaoIT extends DaoTestBase {
         assertThat(servicesRoles.size(), is(2));
         assertThat(servicesRoles.stream().map(sr -> sr.getService().getExternalId()).collect(toUnmodifiableList()),
                 hasItems(service1.getExternalId(), serviceEntity2.getExternalId()));
-        assertThat(servicesRoles.stream().map(sr -> sr.getRole().getName()).collect(toUnmodifiableList()),
-                hasItems(role1.getName(), role2.getName()));
+        assertThat(servicesRoles.stream().map(sr -> sr.getRole().getRoleName()).collect(toUnmodifiableList()),
+                hasItems(adminRole.getRoleName(), viewOnlyRole.getRoleName()));
     }
 
     @Test
     public void shouldFindUsers_ByServiceId_OrderedByUsername() {
-
-        Role role1 = roleDbFixture(databaseHelper)
-                .withName("view")
-                .insertRole();
-
-        Role role2 = roleDbFixture(databaseHelper)
-                .withName("admin")
-                .insertRole();
 
         int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
 
@@ -320,13 +307,13 @@ public class UserDaoIT extends DaoTestBase {
         String email1 = username1 + "@example.com";
         User user1 = userDbFixture(databaseHelper)
                 .withEmail(email1)
-                .withServiceRole(serviceId, role1.getId()).insertUser();
+                .withServiceRole(serviceId, adminRole).insertUser();
 
         String username2 = "bob" + randomUuid();
         String email2 = username2 + "@example.com";
         User user2 = userDbFixture(databaseHelper)
                 .withEmail(email2)
-                .withServiceRole(serviceId, role2.getId()).insertUser();
+                .withServiceRole(serviceId, adminRole).insertUser();
 
         List<UserEntity> users = userDao.findByServiceId(serviceId);
 
@@ -346,16 +333,10 @@ public class UserDaoIT extends DaoTestBase {
 
     @Test
     public void shouldNotCreateAUserWithDifferentCaseEmail() {
-        Role existingRole = roleDbFixture(databaseHelper)
-                .withName("admin")
-                .insertRole();
-
         int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
         userDbFixture(databaseHelper)
                 .withEmail("user@example.com")
-                .withServiceRole(serviceId, existingRole.getId()).insertUser();
-
-        Role role = roleDbFixture(databaseHelper).insertRole();
+                .withServiceRole(serviceId, adminRole).insertUser();
 
         String username = valueOf(nextInt());
 
@@ -373,7 +354,7 @@ public class UserDaoIT extends DaoTestBase {
         userEntity.setUpdatedAt(timeNow);
 
         Optional<ServiceEntity> serviceEntity = serviceDao.findById(serviceId);
-        RoleEntity roleEntity = roleDao.findByRoleName(role.getName()).get();
+        RoleEntity roleEntity = roleDao.findByRoleName(RoleName.VIEW_REFUND_AND_INITIATE_MOTO).get();
 
         ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity.get(), roleEntity);
         serviceRoleEntity.setUser(userEntity);

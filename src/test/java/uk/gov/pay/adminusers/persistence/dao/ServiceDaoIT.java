@@ -10,9 +10,9 @@ import org.postgresql.util.PGobject;
 import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.model.GoLiveStage;
-import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.model.User;
@@ -50,7 +50,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.model.Role.role;
 
 class ServiceDaoIT extends DaoTestBase {
 
@@ -58,11 +57,13 @@ class ServiceDaoIT extends DaoTestBase {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String EN_NAME = "en-test-name";
     private static final String CY_NAME = "gwasanaeth prawf";
+    private Role adminRole;
 
     @BeforeEach
     void before() {
         databaseHelper.truncateAllData();
         serviceDao = env.getInstance(ServiceDao.class);
+        adminRole = env.getInstance(RoleDao.class).findByRoleName(RoleName.ADMIN).get().toRole();
     }
 
     @Test
@@ -315,12 +316,8 @@ class ServiceDaoIT extends DaoTestBase {
     @Test
     void shouldGetRoleCountForAService() {
         String serviceExternalId = randomUuid();
-        Integer roleId = randomInt();
-        setupUsersForServiceAndRole(serviceExternalId, roleId, 3);
-
-        Long count = serviceDao.countOfUsersWithRoleForService(serviceExternalId, roleId);
-
-        assertThat(count, is(3L));
+        setupUsersForServiceAndRole(serviceExternalId, adminRole, 3);
+        assertThat(serviceDao.countOfUsersWithRoleForService(serviceExternalId, adminRole.getId()), is(3L));
     }
 
     @Test
@@ -507,15 +504,7 @@ class ServiceDaoIT extends DaoTestBase {
         }
     }
 
-    private void setupUsersForServiceAndRole(String externalId, int roleId, int noOfUsers) {
-        Permission perm1 = aPermission();
-        Permission perm2 = aPermission();
-        databaseHelper.add(perm1).add(perm2);
-
-        Role role = role(roleId, "role-" + roleId, "role-desc-" + roleId);
-        role.setPermissions(Set.of(perm1, perm2));
-        databaseHelper.add(role);
-
+    private void setupUsersForServiceAndRole(String externalId, Role role, int noOfUsers) {
         String gatewayAccountId1 = randomInt().toString();
         Service service1 = Service.from(randomInt(), externalId, new ServiceName(Service.DEFAULT_NAME_VALUE));
         databaseHelper.addService(service1, gatewayAccountId1);
@@ -523,7 +512,7 @@ class ServiceDaoIT extends DaoTestBase {
         range(0, noOfUsers - 1).forEach(i -> {
             String username = randomUuid();
             String email = username + "@example.com";
-            UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).withEmail(email).insertUser();
+            UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, adminRole).withEmail(email).insertUser();
         });
 
         //unmatching service
@@ -536,7 +525,7 @@ class ServiceDaoIT extends DaoTestBase {
         //same user 2 diff services - should count only once
         String username3 = randomUuid();
         String email3 = username3 + "@example.com";
-        User user3 = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, roleId).withEmail(email3).insertUser();
+        User user3 = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, role).withEmail(email3).insertUser();
         databaseHelper.addUserServiceRole(user3.getId(), serviceId2, role.getId());
     }
 

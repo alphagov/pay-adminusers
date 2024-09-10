@@ -2,8 +2,10 @@ package uk.gov.pay.adminusers.persistence.entity;
 
 import org.eclipse.persistence.annotations.ReadOnly;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -35,7 +37,8 @@ public class RoleEntity {
     private Integer id;
 
     @Column(name = "name")
-    private String name;
+    @Convert(converter = RoleNameConverter.class)
+    private RoleName roleName;
 
     @Column(name = "description")
     private String description;
@@ -51,7 +54,7 @@ public class RoleEntity {
 
     public RoleEntity(Role role) {
         this.id = role.getId();
-        this.name = role.getName();
+        this.roleName = role.getRoleName();
         this.description = role.getDescription();
         this.permissions = role.getPermissions().stream().map(PermissionEntity::new).collect(toUnmodifiableSet());
     }
@@ -64,12 +67,12 @@ public class RoleEntity {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public RoleName getRoleName() {
+        return roleName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setRoleName(RoleName name) {
+        this.roleName = name;
     }
 
     public String getDescription() {
@@ -89,7 +92,7 @@ public class RoleEntity {
     }
 
     public Role toRole() {
-        Role role = Role.role(id, name, description);
+        Role role = new Role(id, roleName, description);
         role.setPermissions(permissions.stream().map(PermissionEntity::toPermission).collect(toUnmodifiableSet()));
         return role;
     }

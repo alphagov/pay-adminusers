@@ -3,7 +3,7 @@ package uk.gov.pay.adminusers.persistence.dao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
@@ -17,7 +17,6 @@ import java.util.Optional;
 
 import static java.sql.Timestamp.from;
 import static java.time.ZonedDateTime.parse;
-import static java.time.temporal.ChronoUnit.MICROS;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -27,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
-import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
@@ -37,6 +35,8 @@ class InviteDaoIT extends DaoTestBase {
     private RoleDao roleDao;
     private ServiceDao serviceDao;
     private UserDao userDao;
+    
+    private RoleEntity adminRoleEntity;
 
     @BeforeEach
     public void before() {
@@ -44,25 +44,24 @@ class InviteDaoIT extends DaoTestBase {
         roleDao = env.getInstance(RoleDao.class);
         serviceDao = env.getInstance(ServiceDao.class);
         userDao = env.getInstance(UserDao.class);
+        adminRoleEntity = roleDao.findByRoleName(RoleName.ADMIN).get();
     }
 
     @Test
     void create_shouldCreateAnInvite() {
 
-        Role role = roleDbFixture(databaseHelper).insertRole();
         int serviceId = serviceDbFixture(databaseHelper).insertService().getId();
         String username = randomUuid();
         String email = username + "@example.com";
         User sender = userDbFixture(databaseHelper).withEmail(email).insertUser();
 
-        RoleEntity roleEntity = roleDao.findByRoleName(role.getName()).get();
         ServiceEntity serviceEntity = serviceDao.findById(serviceId).get();
         UserEntity userSenderEntity = userDao.findById(sender.getId()).get();
 
         String code = randomAlphanumeric(10);
         String otpKey = randomAlphanumeric(10);
 
-        InviteEntity invite = new InviteEntity("USER@example.com", code, otpKey, roleEntity);
+        InviteEntity invite = new InviteEntity("USER@example.com", code, otpKey, adminRoleEntity);
         invite.setService(serviceEntity);
         invite.setSender(userSenderEntity);
 
@@ -73,7 +72,7 @@ class InviteDaoIT extends DaoTestBase {
         assertThat(savedInvite.size(), is(1));
         assertThat(savedInvite.get(0).get("sender_id"), is(userSenderEntity.getId()));
         assertThat(savedInvite.get(0).get("email"), is("user@example.com"));
-        assertThat(savedInvite.get(0).get("role_id"), is(roleEntity.getId()));
+        assertThat(savedInvite.get(0).get("role_id"), is(adminRoleEntity.getId()));
         assertThat(savedInvite.get(0).get("service_id"), is(serviceId));
         assertThat(savedInvite.get(0).get("code"), is(code));
         assertThat(savedInvite.get(0).get("otp_key"), is(notNullValue()));
@@ -87,7 +86,7 @@ class InviteDaoIT extends DaoTestBase {
     @Test
     void findByCode_shouldFindAnExistingInvite() {
 
-        String code = inviteDbFixture(databaseHelper).insertInviteToAddUserToService();
+        String code = inviteDbFixture(databaseHelper).insertInviteToAddUserToService(adminRoleEntity.toRole());
 
         Optional<InviteEntity> invite = inviteDao.findByCode(code);
 
@@ -99,7 +98,7 @@ class InviteDaoIT extends DaoTestBase {
 
         String email = randomAlphanumeric(5) + "@example.com";
 
-        inviteDbFixture(databaseHelper).withEmail(email).insertInviteToAddUserToService();
+        inviteDbFixture(databaseHelper).withEmail(email).insertInviteToAddUserToService(adminRoleEntity.toRole());
 
         List<InviteEntity> invites = inviteDao.findByEmail(email);
 
@@ -109,7 +108,8 @@ class InviteDaoIT extends DaoTestBase {
     @Test
     void findAllByServiceId_shouldFindAllInvitesForAService() {
         String serviceId = "asfkhsjhfskdf";
-        inviteDbFixture(databaseHelper).withServiceExternalId(serviceId).insertInviteToAddUserToService();
+        inviteDbFixture(databaseHelper).withServiceExternalId(serviceId)
+                .insertInviteToAddUserToService(adminRoleEntity.toRole());
 
         List<InviteEntity> invites = inviteDao.findAllByServiceId(serviceId);
 
@@ -124,7 +124,7 @@ class InviteDaoIT extends DaoTestBase {
             ZonedDateTime deleteRecordsUpToDate = parse("2020-01-01T00:00:00Z");
             String code = inviteDbFixture(databaseHelper)
                     .withDate(deleteRecordsUpToDate.minusDays(1))
-                    .insertInviteToAddUserToService();
+                    .insertInviteToAddUserToService(adminRoleEntity.toRole());
 
             int noOfRecordsDeleted = inviteDao.deleteInvites(deleteRecordsUpToDate);
 
@@ -139,10 +139,10 @@ class InviteDaoIT extends DaoTestBase {
             ZonedDateTime deleteRecordsUpToDate = parse("2020-01-01T00:00:00Z");
             String code1 = inviteDbFixture(databaseHelper)
                     .withDate(deleteRecordsUpToDate)
-                    .insertInviteToAddUserToService();
+                    .insertInviteToAddUserToService(adminRoleEntity.toRole());
             String code2 = inviteDbFixture(databaseHelper)
                     .withDate(deleteRecordsUpToDate.plusDays(1))
-                    .insertInviteToAddUserToService();
+                    .insertInviteToAddUserToService(adminRoleEntity.toRole());
 
             int noOfRecordsDeleted = inviteDao.deleteInvites(deleteRecordsUpToDate);
             assertThat(noOfRecordsDeleted, is(0));

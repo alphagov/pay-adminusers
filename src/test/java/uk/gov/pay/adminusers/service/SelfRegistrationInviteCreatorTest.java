@@ -11,6 +11,7 @@ import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.CreateSelfRegistrationInviteRequest;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
@@ -38,6 +39,9 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @ExtendWith(MockitoExtension.class)
 class SelfRegistrationInviteCreatorTest {
+    
+    private static Role adminRole = new Role(2, RoleName.ADMIN, "Administrator");
+    
     @Mock
     private NotificationService notificationService;
     @Mock
@@ -65,10 +69,10 @@ class SelfRegistrationInviteCreatorTest {
     void shouldSuccess_IfEmailDoesNotConflict() {
         String email = "email@example.gov.uk";
         CreateSelfRegistrationInviteRequest request = new CreateSelfRegistrationInviteRequest(email);
-        RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
+        RoleEntity roleEntity = new RoleEntity(new Role(2, RoleName.ADMIN, "Adminstrator"));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(emptyList());
-        when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
+        when(roleDao.findByRoleName(RoleName.ADMIN)).thenReturn(Optional.of(roleEntity));
         when(notificationService.sendSelfRegistrationInviteEmail(eq(email), anyString())).thenReturn("done");
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
 
@@ -84,10 +88,10 @@ class SelfRegistrationInviteCreatorTest {
     void shouldSuccess_evenIfNotifyThrowsAnError() {
         String email = "email@example.gov.uk";
         CreateSelfRegistrationInviteRequest request = new CreateSelfRegistrationInviteRequest(email);
-        RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
+        RoleEntity roleEntity = new RoleEntity(new Role(2, RoleName.ADMIN, "Adminstrator"));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(emptyList());
-        when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
+        when(roleDao.findByRoleName(RoleName.ADMIN)).thenReturn(Optional.of(roleEntity));
         when(notificationService.sendSelfRegistrationInviteEmail(eq(email), anyString())).thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
         Invite invite = selfRegistrationInviteCreator.doInvite(request);
@@ -104,8 +108,7 @@ class SelfRegistrationInviteCreatorTest {
         String email = "email@example.gov.uk";
         CreateSelfRegistrationInviteRequest request = new CreateSelfRegistrationInviteRequest(email);
         UserEntity sender = mock(UserEntity.class);
-        RoleEntity role = mock(RoleEntity.class);
-        InviteEntity validInvite = new InviteEntity(email, "code", "otpKey", role);
+        InviteEntity validInvite = new InviteEntity(email, "code", "otpKey", new RoleEntity(adminRole));
         validInvite.setSender(sender);
 
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
@@ -133,8 +136,8 @@ class SelfRegistrationInviteCreatorTest {
         validInvite.setSender(sender);
         validInvite.setService(service);
 
-        RoleEntity roleEntity = new RoleEntity(Role.role(2, "admin", "Adminstrator"));
-        when(roleDao.findByRoleName("admin")).thenReturn(Optional.of(roleEntity));
+        RoleEntity roleEntity = new RoleEntity(new Role(2, RoleName.ADMIN, "Administrator"));
+        when(roleDao.findByRoleName(RoleName.ADMIN)).thenReturn(Optional.of(roleEntity));
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(List.of(validInvite));
         when(linksConfig.getSelfserviceInvitesUrl()).thenReturn("http://selfservice/invites");
@@ -187,7 +190,7 @@ class SelfRegistrationInviteCreatorTest {
         CreateSelfRegistrationInviteRequest request = new CreateSelfRegistrationInviteRequest(email);
         when(userDao.findByEmail(email)).thenReturn(Optional.empty());
         when(inviteDao.findByEmail(email)).thenReturn(emptyList());
-        when(roleDao.findByRoleName("admin")).thenReturn(Optional.empty());
+        when(roleDao.findByRoleName(RoleName.ADMIN)).thenReturn(Optional.empty());
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
                 () -> selfRegistrationInviteCreator.doInvite(request));

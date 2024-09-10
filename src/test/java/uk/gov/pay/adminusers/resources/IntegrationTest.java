@@ -1,6 +1,7 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Injector;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit5.DropwizardClientExtension;
 import io.restassured.specification.RequestSpecification;
@@ -33,7 +34,7 @@ public class IntegrationTest {
     /* default */ static final String USERS_AUTHENTICATE_URL = "/v1/api/users/authenticate";
     /* default */ static final String USER_2FA_URL = "/v1/api/users/%s/second-factor";
     /* default */ static final String USER_SERVICES_RESOURCE = USER_RESOURCE_URL + "/services";
-    /* default */ static final String USER_SERVICE_RESOURCE = USER_RESOURCE_URL + "/services/%s";
+    /* default */ static final String USER_SERVICE_RESOURCE = "/v1/api/users/%s/services/%s";
 
     /* default */ static final String INVITES_RESOURCE_URL = "/v1/api/invites";
     /* default */ static final String INVITES_SEND_OTP_RESOURCE_URL = "/v1/api/invites/%s/send-otp";
@@ -44,7 +45,6 @@ public class IntegrationTest {
 
     @Deprecated
     /* default */ static final String SERVICE_INVITES_RESOURCE_URL = "/v1/api/services/%d/invites";
-    /* default */ static final String INVITE_USER_RESOURCE_URL = "/v1/api/invites/user";
 
     public static final DropwizardClientExtension NOTIFY;
 
@@ -89,5 +89,9 @@ public class IntegrationTest {
     protected RequestSpecification givenSetup() {
         return given().port(APP.getLocalPort())
                 .contentType(JSON);
+    }
+    
+    protected static Injector getInjector() {
+        return APP.getInjector();
     }
 }

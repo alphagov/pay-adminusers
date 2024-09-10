@@ -12,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.model.CompleteInviteResponse;
 import uk.gov.pay.adminusers.model.Invite;
+import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
@@ -37,12 +39,10 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.fixtures.InviteEntityFixture.anInviteEntity;
-import static uk.gov.pay.adminusers.fixtures.RoleEntityFixture.aRoleEntity;
 import static uk.gov.pay.adminusers.fixtures.ServiceEntityFixture.aServiceEntity;
 import static uk.gov.pay.adminusers.fixtures.UserEntityFixture.aUserEntity;
 import static uk.gov.pay.adminusers.model.SecondFactorMethod.APP;
@@ -264,8 +264,10 @@ class InviteServiceTest {
     }
 
     @Nested
-    class complete {
+    class Complete {
 
+        RoleEntity adminRole = new RoleEntity(new Role(2, RoleName.ADMIN, "Administrator"));
+        
         @Test
         void shouldThrowNotFoundExceptionWhenInviteNotFound() {
             when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.empty());
@@ -299,12 +301,11 @@ class InviteServiceTest {
         void shouldAddServiceRoleToUserWhenExists() {
             ServiceEntity serviceEntity = aServiceEntity().build();
             UserEntity userEntity = aUserEntity().build();
-            RoleEntity roleEntity = new RoleEntity();
 
             InviteEntity inviteEntity = anInviteEntity()
                     .withEmail(email)
                     .withService(serviceEntity)
-                    .withRole(roleEntity)
+                    .withRole(adminRole)
                     .build();
 
             when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
@@ -321,18 +322,17 @@ class InviteServiceTest {
             assertThat(inviteEntity.isDisabled(), is(true));
             Optional<ServiceRoleEntity> userServiceRole = updatedUser.getServicesRole(serviceEntity.getExternalId());
             assertThat(userServiceRole.isPresent(), is(true));
-            assertThat(userServiceRole.get().getRole().getId(), is(roleEntity.getId()));
+            assertThat(userServiceRole.get().getRole().getId(), is(adminRole.getId()));
         }
 
         @Test
         @DisplayName("An invite inviting a user to a service when the user does not exist completes successfully")
         void shouldCreateUserAndAddToServiceWhenUserDoesNotExist() {
             ServiceEntity serviceEntity = aServiceEntity().build();
-            RoleEntity roleEntity = aRoleEntity().build();
             InviteEntity inviteEntity = anInviteEntity()
                     .withEmail(email)
                     .withService(serviceEntity)
-                    .withRole(roleEntity)
+                    .withRole(adminRole)
                     .build();
 
             when(mockInviteDao.findByCode(inviteCode)).thenReturn(Optional.of(inviteEntity));
@@ -351,7 +351,7 @@ class InviteServiceTest {
             assertThat(persistedUser.getSecondFactor(), is(APP));
             Optional<ServiceRoleEntity> userServiceRole = persistedUser.getServicesRole(serviceEntity.getExternalId());
             assertThat(userServiceRole.isPresent(), is(true));
-            assertThat(userServiceRole.get().getRole().getId(), is(roleEntity.getId()));
+            assertThat(userServiceRole.get().getRole().getId(), is(adminRole.getId()));
         }
 
         @Test

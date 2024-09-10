@@ -56,14 +56,14 @@ public class UserDbFixture {
         return user;
     }
 
-    public UserDbFixture withServiceRole(int serviceId, int roleId) {
+    public UserDbFixture withServiceRole(int serviceId, Role role) {
         this.serviceRolePairs.add(Pair.of(Service.from(serviceId, randomUuid(), new ServiceName(Service.DEFAULT_NAME_VALUE)),
-                Role.role(roleId, "roleName", "roleDescription")));
+                role));
         return this;
     }
 
-    public UserDbFixture withServiceRole(Service service, int roleId) {
-        this.serviceRolePairs.add(Pair.of(service, Role.role(roleId, "roleName", "roleDescription")));
+    public UserDbFixture withServiceRole(Service service, Role role) {
+        this.serviceRolePairs.add(Pair.of(service, role));
         return this;
     }
 

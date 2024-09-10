@@ -6,8 +6,10 @@ import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +25,6 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsIterableContaining.hasItem;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 import static uk.gov.pay.adminusers.resources.ServiceResource.HEADER_USER_CONTEXT;
@@ -34,32 +35,32 @@ public class ServiceResourceIT extends IntegrationTest {
     private String serviceExternalId;
     private User userWithRoleAdminInService1;
     private User user1WithRoleViewInService1;
-    private Role roleView;
+    private Role viewRole;
+    private Role adminRole;
 
     @BeforeEach
     public void setUp() {
-        Role roleAdmin = roleDbFixture(databaseHelper).insertAdmin();
-        roleView = roleDbFixture(databaseHelper)
-                .withName("roleView")
-                .insertRole();
+        RoleDao roleDao = getInjector().getInstance(RoleDao.class);
+        adminRole = roleDao.findByRoleName(RoleName.ADMIN).get().toRole();
+        viewRole = roleDao.findByRoleName(RoleName.VIEW_ONLY).get().toRole();
         Service service = serviceDbFixture(databaseHelper).insertService();
         serviceExternalId = service.getExternalId();
 
         String email1 = "c" + randomUuid() + "@example.com";
         userWithRoleAdminInService1 = userDbFixture(databaseHelper)
-                .withServiceRole(service, roleAdmin.getId())
+                .withServiceRole(service, adminRole)
                 .withEmail(email1)
                 .insertUser();
 
         String email2 = "b" + randomUuid() + "@example.com";
         user1WithRoleViewInService1 = userDbFixture(databaseHelper)
-                .withServiceRole(service, roleView.getId())
+                .withServiceRole(service, viewRole)
                 .withEmail(email2)
                 .insertUser();
 
         String email3 = "a" + randomUuid() + "@example.com";
         userDbFixture(databaseHelper)
-                .withServiceRole(service, roleView.getId())
+                .withServiceRole(service, viewRole)
                 .withEmail(email3)
                 .insertUser();
     }
@@ -69,13 +70,6 @@ public class ServiceResourceIT extends IntegrationTest {
 
         @Test
         public void should_return_users_ordered_by_email() {
-            Role role1 = roleDbFixture(databaseHelper)
-                    .withName("role-" + randomUuid())
-                    .insertRole();
-            Role role2 = roleDbFixture(databaseHelper)
-                    .withName("role-" + randomUuid())
-                    .insertRole();
-
             Service service1 = serviceDbFixture(databaseHelper)
                     .withExperimentalFeaturesEnabled(true)
                     .insertService();
@@ -86,20 +80,20 @@ public class ServiceResourceIT extends IntegrationTest {
             String email1 = "zoe-" + randomUuid() + "@example.com";
             User user1 = userDbFixture(databaseHelper)
                     .withEmail(email1)
-                    .withServiceRole(service1.getId(), role1.getId()).insertUser();
+                    .withServiceRole(service1.getId(), adminRole).insertUser();
             String email2 = "tim-" + randomUuid() + "@example.com";
             User user2 = userDbFixture(databaseHelper)
                     .withEmail(email2)
-                    .withServiceRole(service1.getId(), role2.getId()).insertUser();
+                    .withServiceRole(service1.getId(), viewRole).insertUser();
             String email3 = "bob-" + randomUuid() + "@example.com";
             User user3 = userDbFixture(databaseHelper)
                     .withEmail(email3)
-                    .withServiceRole(service1.getId(), role2.getId()).insertUser();
+                    .withServiceRole(service1.getId(), viewRole).insertUser();
 
             String email4 = randomUuid() + "@example.com";
             userDbFixture(databaseHelper)
                     .withEmail(email4)
-                    .withServiceRole(service2.getId(), role1.getId()).insertUser();
+                    .withServiceRole(service2.getId(), adminRole).insertUser();
 
             givenSetup()
                     .when()
@@ -190,7 +184,7 @@ public class ServiceResourceIT extends IntegrationTest {
         public void should_delete_user_from_specified_service_only() {
             Service anotherService = serviceDbFixture(databaseHelper).insertService();
 
-            databaseHelper.addUserServiceRole(user1WithRoleViewInService1.getId(), anotherService.getId(), roleView.getId());
+            databaseHelper.addUserServiceRole(user1WithRoleViewInService1.getId(), anotherService.getId(), viewRole.getId());
 
             givenSetup()
                     .when()

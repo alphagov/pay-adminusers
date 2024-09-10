@@ -5,6 +5,7 @@ import com.google.inject.persist.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
@@ -51,7 +52,7 @@ public class UserCreator {
 
     @Transactional
     public User doCreate(CreateUserRequest userRequest, String roleName) {
-        return roleDao.findByRoleName(roleName)
+        return roleDao.findByRoleName(RoleName.fromName(roleName))
                 .map(roleEntity -> {
                     String otpKey = userRequest.getOtpKey().orElseGet(secondFactorAuthenticator::generateNewBase32EncodedSecret);
                     UserEntity userEntity = UserEntity.from(userRequest, otpKey);

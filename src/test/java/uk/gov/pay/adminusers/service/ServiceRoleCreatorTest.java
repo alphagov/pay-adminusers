@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
@@ -43,7 +44,7 @@ public class ServiceRoleCreatorTest {
 
     private static final String EXISTING_USER_EXTERNAL_ID = "7d19aff33f8948deb97ed16b2912dcd3";
     private static final String EXISTING_SERVICE_EXTERNAL_ID = "8374rgw88934r98c9io";
-    private static final String EXISTING_ROLE_NAME = "admin";
+    private static final Role adminRole = new Role(2, RoleName.ADMIN, "Administrator");
 
     @BeforeEach
     public void before() {
@@ -54,15 +55,15 @@ public class ServiceRoleCreatorTest {
     public void shouldSuccess_whenAssignANewServiceRole() {
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID))));
         when(serviceDao.findByExternalId(EXISTING_SERVICE_EXTERNAL_ID)).thenReturn(Optional.of(ServiceEntity.from(aService(EXISTING_SERVICE_EXTERNAL_ID))));
-        when(roleDao.findByRoleName(EXISTING_ROLE_NAME)).thenReturn(Optional.of(new RoleEntity(aRole(1, EXISTING_ROLE_NAME))));
+        when(roleDao.findByRoleName(RoleName.ADMIN)).thenReturn(Optional.of(new RoleEntity(adminRole)));
 
-        Optional<User> userOptional = serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, EXISTING_ROLE_NAME);
+        Optional<User> userOptional = serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, RoleName.ADMIN.getName());
 
         assertTrue(userOptional.isPresent());
 
         User user = userOptional.get();
         assertThat(user.getServiceRoles().size(), is(1));
-        assertThat(user.getServiceRoles().get(0).getRole().getName(), is(EXISTING_ROLE_NAME));
+        assertThat(user.getServiceRoles().get(0).getRole().getRoleName(), is(RoleName.ADMIN));
         assertThat(user.getServiceRoles().get(0).getService().getExternalId(), is(EXISTING_SERVICE_EXTERNAL_ID));
     }
 
@@ -70,7 +71,7 @@ public class ServiceRoleCreatorTest {
     public void shouldReturnEmpty_whenAssignANewServiceRole_ifUserNotFound() {
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.empty());
 
-        Optional<User> userOptional = serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, EXISTING_ROLE_NAME);
+        Optional<User> userOptional = serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, RoleName.ADMIN.getName());
 
         assertFalse(userOptional.isPresent());
     }
@@ -81,7 +82,7 @@ public class ServiceRoleCreatorTest {
         when(serviceDao.findByExternalId(EXISTING_SERVICE_EXTERNAL_ID)).thenReturn(Optional.empty());
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, EXISTING_ROLE_NAME));
+                () -> serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, RoleName.ADMIN.getName()));
         assertThat(exception.getMessage(), is("HTTP 400 Bad Request"));
     }
 
@@ -89,16 +90,16 @@ public class ServiceRoleCreatorTest {
     public void shouldError400_whenAssignANewServiceRole_ifRoleNotFound() {
         ServiceEntity serviceEntity = ServiceEntity.from(aService(EXISTING_SERVICE_EXTERNAL_ID));
         UserEntity userEntity = UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID));
-        RoleEntity roleEntity = new RoleEntity(aRole(1, EXISTING_ROLE_NAME));
+        RoleEntity roleEntity = new RoleEntity(adminRole);
 
         userEntity.addServiceRole(new ServiceRoleEntity(serviceEntity, roleEntity));
 
         when(serviceDao.findByExternalId(EXISTING_SERVICE_EXTERNAL_ID)).thenReturn(Optional.of(serviceEntity));
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(userEntity));
-        when(roleDao.findByRoleName(EXISTING_ROLE_NAME)).thenReturn(Optional.of(roleEntity));
+        when(roleDao.findByRoleName(RoleName.ADMIN)).thenReturn(Optional.of(roleEntity));
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, EXISTING_ROLE_NAME));
+                () -> serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, RoleName.ADMIN.getName()));
         assertThat(exception.getMessage(), is("HTTP 409 Conflict"));
     }
 
@@ -106,19 +107,15 @@ public class ServiceRoleCreatorTest {
     public void shouldError409_whenAssignANewServiceRole_ifRoleForServiceAlreadyExists() {
         when(userDao.findByExternalId(EXISTING_USER_EXTERNAL_ID)).thenReturn(Optional.of(UserEntity.from(aUser(EXISTING_USER_EXTERNAL_ID))));
         when(serviceDao.findByExternalId(EXISTING_SERVICE_EXTERNAL_ID)).thenReturn(Optional.of(ServiceEntity.from(aService(EXISTING_SERVICE_EXTERNAL_ID))));
-        when(roleDao.findByRoleName(EXISTING_ROLE_NAME)).thenReturn(Optional.empty());
+        when(roleDao.findByRoleName(RoleName.ADMIN)).thenReturn(Optional.empty());
 
         WebApplicationException exception = assertThrows(WebApplicationException.class,
-                () -> serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, EXISTING_ROLE_NAME));
+                () -> serviceRoleCreator.doCreate(EXISTING_USER_EXTERNAL_ID, EXISTING_SERVICE_EXTERNAL_ID, RoleName.ADMIN.getName()));
         assertThat(exception.getMessage(), is("HTTP 400 Bad Request"));
     }
 
     private Service aService(String serviceExternalId) {
         return Service.from(randomInt(), serviceExternalId, new ServiceName("random-service"));
-    }
-
-    private Role aRole(int roleId, String roleName) {
-        return Role.role(roleId, roleName, roleName + "-description");
     }
 
     private User aUser(String externalId) {

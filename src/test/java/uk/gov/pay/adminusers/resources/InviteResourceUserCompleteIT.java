@@ -1,6 +1,10 @@
 package uk.gov.pay.adminusers.resources;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
+import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 
 import java.util.Map;
 
@@ -17,7 +21,15 @@ import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 class InviteResourceUserCompleteIT extends IntegrationTest {
+    
     public static final String INVITES_RESOURCE_URL = "/v1/api/invites";
+
+    private Role adminRole;
+    
+    @BeforeEach
+    public void setUp() {
+        adminRole = getInjector().getInstance(RoleDao.class).findByRoleName(RoleName.ADMIN).get().toRole();
+    }
 
     @Test
     void shouldReturn200WithDisabledInvite_whenExistingUserSubscribingToAnExistingService() {
@@ -37,8 +49,7 @@ class InviteResourceUserCompleteIT extends IntegrationTest {
                 .withTelephoneNumber(telephoneNumber)
                 .withEmail(email)
                 .withPassword(password)
-                .insertInviteToAddUserToService();
-
+                .insertInviteToAddUserToService(adminRole);
 
         givenSetup()
                 .when()
@@ -96,8 +107,7 @@ class InviteResourceUserCompleteIT extends IntegrationTest {
                 .withTelephoneNumber(telephoneNumber)
                 .withEmail(email)
                 .withPassword(password)
-                .insertInviteToAddUserToService();
-
+                .insertInviteToAddUserToService(adminRole);
 
         givenSetup()
                 .when()

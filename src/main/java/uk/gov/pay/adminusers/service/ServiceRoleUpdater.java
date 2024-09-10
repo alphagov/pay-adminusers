@@ -3,6 +3,7 @@ package uk.gov.pay.adminusers.service;
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
 import org.apache.commons.lang3.StringUtils;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -38,7 +39,7 @@ public class ServiceRoleUpdater {
     }
 
     @Transactional
-    public Optional<User> doUpdate(String userExternalId, String serviceId, String roleName) {
+    public Optional<User> doUpdate(String userExternalId, String serviceId, String roleName) { // TODO roleName should be RoleType
         String serviceExternalId = serviceId;
         if (StringUtils.isNumeric(serviceId)) {
             serviceExternalId = serviceDao.findById(Integer.valueOf(serviceId))
@@ -52,7 +53,7 @@ public class ServiceRoleUpdater {
         }
         UserEntity userEntity = userMaybe.get();
 
-        Optional<RoleEntity> roleMaybe = roleDao.findByRoleName(roleName);
+        Optional<RoleEntity> roleMaybe = roleDao.findByRoleName(RoleName.fromName(roleName));
         if (!roleMaybe.isPresent()) {
             throw undefinedRoleException(roleName);
         }

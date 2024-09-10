@@ -3,6 +3,9 @@ package uk.gov.pay.adminusers.resources;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.fixtures.InviteDbFixture;
+import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
+import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 
 import java.util.Map;
 
@@ -14,22 +17,23 @@ import static org.apache.commons.lang3.RandomStringUtils.random;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
 
 public class InviteResourceReprovisionOtpIT extends IntegrationTest {
 
-    private String code;
-
     private static final String OTP_KEY = "KPWXGUTNWOE7PMVK";
     private static final String EMAIL = "invited-" + random(5) + "@example.com";
+    
+    private Role adminRole;
+    private String code;
 
     @BeforeEach
     void givenAnExistingInvite() {
+        adminRole = getInjector().getInstance(RoleDao.class).findByRoleName(RoleName.ADMIN).get().toRole();
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
                 .withEmail(EMAIL)
                 .withOtpKey(OTP_KEY)
                 .expired()
-                .insertInviteToAddUserToService();
+                .insertInviteToAddUserToService(adminRole);
     }
 
     @Test

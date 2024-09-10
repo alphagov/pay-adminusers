@@ -270,7 +270,7 @@ public class UserEntity extends AbstractEntity {
     }
 
     public User toUser() {
-        List<ServiceRole> serviceRoles = this.servicesRoles.stream().map(ServiceRoleEntity::toServiceRole).collect(toUnmodifiableList());
+        List<ServiceRole> serviceRoles = this.servicesRoles.stream().map(ServiceRoleEntity::toServiceRole).toList();
 
         User user = User.from(getId(), externalId, password, email, otpKey, telephoneNumber, serviceRoles,
                 features, secondFactor, provisionalOtpKey, provisionalOtpKeyCreatedAt, lastLoggedInAt);

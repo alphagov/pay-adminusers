@@ -204,7 +204,7 @@ public class InviteEntity extends AbstractEntity {
     }
 
     public Invite toInvite() {
-        String roleName = getRole().map(RoleEntity::getName).orElse(null);
+        String roleName = getRole().map(x -> x.getRoleName().getName()).orElse(null);
         return new Invite(code, email, telephoneNumber, disabled, loginCounter, isInviteToJoinService(), roleName, isExpired(),
                 hasPassword(), otpKey);
     }

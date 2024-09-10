@@ -1,9 +1,12 @@
 package uk.gov.pay.adminusers.resources;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 
 import java.util.List;
 import java.util.Map;
@@ -18,12 +21,21 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 class UserResourceGetIT extends IntegrationTest {
 
+    private Role adminRole;
+    private Role viewOnlyRole;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        RoleDao roleDao = getInjector().getInstance(RoleDao.class);
+        adminRole = roleDao.findByRoleName(RoleName.ADMIN).get().toRole();
+        viewOnlyRole = roleDao.findByRoleName(RoleName.VIEW_ONLY).get().toRole();
+    }
+    
     @Test
     void should_return_empty_map_when_getting_admin_emails_for_gateway_accounts() throws Exception {
         givenSetup()
@@ -44,12 +56,10 @@ class UserResourceGetIT extends IntegrationTest {
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2)
                 .insertService();
         
-        Role adminRole = roleDbFixture(databaseHelper).insertAdmin();
-        var adminUser1 = userDbFixture(databaseHelper).withServiceRole(service.getId(), adminRole.getId()).insertUser();
-        var adminUser2 = userDbFixture(databaseHelper).withServiceRole(service.getId(), adminRole.getId()).insertUser();
+        var adminUser1 = userDbFixture(databaseHelper).withServiceRole(service.getId(), adminRole).insertUser();
+        var adminUser2 = userDbFixture(databaseHelper).withServiceRole(service.getId(), adminRole).insertUser();
         
-        Role viewOnlyRole = roleDbFixture(databaseHelper).withName("view-only").insertRole();
-        userDbFixture(databaseHelper).withServiceRole(service.getId(), viewOnlyRole.getId()).insertUser();
+        userDbFixture(databaseHelper).withServiceRole(service.getId(), viewOnlyRole).insertUser();
 
         var gatewayAccountIds = Map.of("gatewayAccountIds", List.of(gatewayAccount1, gatewayAccount2));
         
@@ -73,9 +83,8 @@ class UserResourceGetIT extends IntegrationTest {
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
         String serviceExternalId = service.getExternalId();
-        Role role = roleDbFixture(databaseHelper).insertRole();
         String email = randomUuid() + "@example.com";
-        User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email).insertUser();
+        User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), adminRole).withEmail(email).insertUser();
 
         givenSetup()
                 .when()
@@ -94,9 +103,9 @@ class UserResourceGetIT extends IntegrationTest {
                 .body("otp_key", is(user.getOtpKey()))
                 .body("login_counter", is(0))
                 .body("disabled", is(false))
-                .body("service_roles[0].role.name", is(role.getName()))
-                .body("service_roles[0].role.description", is(role.getDescription()))
-                .body("service_roles[0].role.permissions", hasSize(role.getPermissions().size()))
+                .body("service_roles[0].role.name", is(adminRole.getRoleName().getName()))
+                .body("service_roles[0].role.description", is(adminRole.getDescription()))
+                .body("service_roles[0].role.permissions", hasSize(adminRole.getPermissions().size()))
                 .body("_links", hasSize(1))
                 .body("_links[0].href", is("http://localhost:8080/v1/api/users/" + user.getExternalId()))
                 .body("_links[0].method", is("GET"))

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.ForgottenPassword;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
@@ -27,7 +28,7 @@ class LinksBuilderTest {
     @Test
     void shouldConstruct_userSelfLinkCorrectly() throws Exception {
         Service service = Service.from(2, "34783g87ebg764r", new ServiceName(Service.DEFAULT_NAME_VALUE));
-        Role role = Role.role(2, "blah", "blah");
+        Role role = new Role(2, RoleName.ADMIN, "Administrator");
         ServiceRole serviceRole = ServiceRole.from(service, role);
 
         User user = User.from(randomInt(), randomUuid(), "a-password", "email@example.com",
