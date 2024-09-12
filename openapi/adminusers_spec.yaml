@@ -637,6 +637,17 @@ paths:
         required: true
         schema:
           type: string
+      - in: query
+        name: role
+        schema:
+          type: string
+          enum:
+          - admin
+          - view-and-refund
+          - view-only
+          - view-and-initiate-moto
+          - view-refund-and-initiate-moto
+          - super-admin
       responses:
         "200":
           content:
@@ -646,6 +657,9 @@ paths:
                 items:
                   $ref: '#/components/schemas/User'
           description: OK
+        "400":
+          description: "If query parameter 'role' is not one of [admin, view-and-refund,\
+            \ view-only, view-and-initiate-moto, view-refund-and-initiate-moto, super-admin]"
         "404":
           description: Not found
       summary: Find users of a service

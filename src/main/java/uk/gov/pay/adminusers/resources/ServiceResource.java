@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
 import uk.gov.pay.adminusers.model.CreateServiceRequest;
 import uk.gov.pay.adminusers.model.GovUkPayAgreement;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.SearchServicesResponse;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceSearchRequest;
@@ -333,14 +334,17 @@ public class ServiceResource {
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK",
                             content = @Content(array = @ArraySchema(schema = @Schema(implementation = User.class)))),
+                    @ApiResponse(responseCode = "400", description = "If query parameter 'role' is not one of [admin, " +
+                            "view-and-refund, view-only, view-and-initiate-moto, view-refund-and-initiate-moto, super-admin]"),
                     @ApiResponse(responseCode = "404", description = "Not found")
             }
     )
-    public Response findUsersByServiceId(@PathParam("serviceExternalId") String serviceExternalId) {
+    public Response findUsersByServiceId(@PathParam("serviceExternalId") String serviceExternalId, 
+                                         @QueryParam("role") RoleName role) {
         return serviceDao.findByExternalId(serviceExternalId)
                 .map(serviceEntity ->
                         Response.status(200).entity(
-                                userDao.findByServiceId(serviceEntity.getId())
+                                userDao.findByServiceId(serviceEntity.getId(), role)
                                         .stream()
                                         .map(UserEntity::toUser)
                                         .map(linksBuilder::decorate)

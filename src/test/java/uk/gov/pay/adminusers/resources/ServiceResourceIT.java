@@ -34,16 +34,18 @@ public class ServiceResourceIT extends IntegrationTest {
 
     private String serviceExternalId;
     private User userWithRoleAdminInService1;
-    private User user1WithRoleViewInService1;
+    private User userWithRoleViewInService1;
+    private User user2WithRoleViewInService1;
     private Role viewRole;
     private Role adminRole;
+    private Service service;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         RoleDao roleDao = getInjector().getInstance(RoleDao.class);
         adminRole = roleDao.findByRoleName(RoleName.ADMIN).get().toRole();
         viewRole = roleDao.findByRoleName(RoleName.VIEW_ONLY).get().toRole();
-        Service service = serviceDbFixture(databaseHelper).insertService();
+        service = serviceDbFixture(databaseHelper).insertService();
         serviceExternalId = service.getExternalId();
 
         String email1 = "c" + randomUuid() + "@example.com";
@@ -53,13 +55,13 @@ public class ServiceResourceIT extends IntegrationTest {
                 .insertUser();
 
         String email2 = "b" + randomUuid() + "@example.com";
-        user1WithRoleViewInService1 = userDbFixture(databaseHelper)
+        userWithRoleViewInService1 = userDbFixture(databaseHelper)
                 .withServiceRole(service, viewRole)
                 .withEmail(email2)
                 .insertUser();
 
         String email3 = "a" + randomUuid() + "@example.com";
-        userDbFixture(databaseHelper)
+        user2WithRoleViewInService1 = userDbFixture(databaseHelper)
                 .withServiceRole(service, viewRole)
                 .withEmail(email3)
                 .insertUser();
@@ -69,7 +71,55 @@ public class ServiceResourceIT extends IntegrationTest {
     class GetUsersForService {
 
         @Test
-        public void should_return_users_ordered_by_email() {
+        void should_return_view_users_ordered_by_email_when_specifying_view_role_query_param() {
+            givenSetup()
+                    .when()
+                    .accept(JSON)
+                    .get(format("/v1/api/services/%s/users?role=view-only", service.getExternalId()))
+                    .then()
+                    .statusCode(200)
+                    .body("$", hasSize(2))
+                    .body("[0].email", is(user2WithRoleViewInService1.getEmail()))
+                    .body("[0]._links", hasSize(1))
+                    .body("[0]._links[0].href", is("http://localhost:8080/v1/api/users/" + user2WithRoleViewInService1.getExternalId()))
+                    .body("[0]._links[0].method", is("GET"))
+                    .body("[0]._links[0].rel", is("self"))
+                    .body("[1].email", is(userWithRoleViewInService1.getEmail()))
+                    .body("[1]._links", hasSize(1))
+                    .body("[1]._links[0].href", is("http://localhost:8080/v1/api/users/" + userWithRoleViewInService1.getExternalId()))
+                    .body("[1]._links[0].method", is("GET"))
+                    .body("[1]._links[0].rel", is("self"));
+        }
+        
+        @Test
+        void should_return_admin_users_ordered_by_email_when_specifying_admin_role_query_param() {
+            String user3email = "d" + randomUuid() + "@example.com";
+            User user2 = userDbFixture(databaseHelper)
+                    .withServiceRole(service, adminRole)
+                    .withEmail(user3email)
+                    .insertUser();
+
+            givenSetup()
+                    .when()
+                    .accept(JSON)
+                    .get(format("/v1/api/services/%s/users?role=admin", service.getExternalId()))
+                    .then()
+                    .statusCode(200)
+                    .body("$", hasSize(2))
+                    .body("[0].email", is(userWithRoleAdminInService1.getEmail()))
+                    .body("[0]._links", hasSize(1))
+                    .body("[0]._links[0].href", is("http://localhost:8080/v1/api/users/" + userWithRoleAdminInService1.getExternalId()))
+                    .body("[0]._links[0].method", is("GET"))
+                    .body("[0]._links[0].rel", is("self"))
+                    .body("[1].email", is(user2.getEmail()))
+                    .body("[1]._links", hasSize(1))
+                    .body("[1]._links[0].href", is("http://localhost:8080/v1/api/users/" + user2.getExternalId()))
+                    .body("[1]._links[0].method", is("GET"))
+                    .body("[1]._links[0].rel", is("self"));
+        }
+        
+        @Test
+        void should_return_users_ordered_by_email() {
             Service service1 = serviceDbFixture(databaseHelper)
                     .withExperimentalFeaturesEnabled(true)
                     .insertService();
@@ -120,7 +170,7 @@ public class ServiceResourceIT extends IntegrationTest {
         }
 
         @Test
-        public void should_return_404_if_service_does_not_exist() {
+        void should_return_404_if_service_does_not_exist() {
             givenSetup()
                     .when()
                     .accept(JSON)
@@ -128,10 +178,22 @@ public class ServiceResourceIT extends IntegrationTest {
                     .then()
                     .statusCode(404);
         }
+        
+        @Test
+        void should_return_400_if_role_does_not_exist() {
+            givenSetup()
+                    .when()
+                    .accept(JSON)
+                    .get(format("/v1/api/services/%s/users?role=charlix", service.getExternalId()))
+                    .then()
+                    .statusCode(400)
+                    .body("message", is("query param role must be one of [ADMIN, VIEW_AND_REFUND, VIEW_ONLY, " +
+                            "VIEW_AND_INITIATE_MOTO, VIEW_REFUND_AND_INITIATE_MOTO, SUPER_ADMIN]"));
+        }
     }
 
     @Test
-    public void get_service_by_external_id() {
+    void get_service_by_external_id() {
         Service service1 = serviceDbFixture(databaseHelper)
                 .withExperimentalFeaturesEnabled(true)
                 .insertService();
@@ -149,8 +211,8 @@ public class ServiceResourceIT extends IntegrationTest {
     class DeleteUsersFromService {
 
         @Test
-        public void should_delete_user_from_service_successfully() {
-            List<Map<String, Object>> serviceRoleForUserBefore = databaseHelper.findServiceRoleForUser(user1WithRoleViewInService1.getId());
+        void should_delete_user_from_service_successfully() {
+            List<Map<String, Object>> serviceRoleForUserBefore = databaseHelper.findServiceRoleForUser(userWithRoleViewInService1.getId());
             assertThat(serviceRoleForUserBefore.size(), is(1));
 
             givenSetup()
@@ -158,18 +220,18 @@ public class ServiceResourceIT extends IntegrationTest {
                     .accept(JSON)
                     .get(format("/v1/api/services/%s/users", serviceExternalId))
                     .then()
-                    .body("$", hasItem(allOf(hasEntry("email", user1WithRoleViewInService1.getEmail()))));
+                    .body("$", hasItem(allOf(hasEntry("email", userWithRoleViewInService1.getEmail()))));
 
             givenSetup()
                     .when()
                     .accept(JSON)
                     .header(HEADER_USER_CONTEXT, userWithRoleAdminInService1.getExternalId())
-                    .delete(format("/v1/api/services/%s/users/%s", serviceExternalId, user1WithRoleViewInService1.getExternalId()))
+                    .delete(format("/v1/api/services/%s/users/%s", serviceExternalId, userWithRoleViewInService1.getExternalId()))
                     .then()
                     .statusCode(204)
                     .body(emptyString());
 
-            List<Map<String, Object>> serviceRoleForUserAfter = databaseHelper.findServiceRoleForUser(user1WithRoleViewInService1.getId());
+            List<Map<String, Object>> serviceRoleForUserAfter = databaseHelper.findServiceRoleForUser(userWithRoleViewInService1.getId());
             assertThat(serviceRoleForUserAfter.isEmpty(), is(true));
 
             givenSetup()
@@ -177,34 +239,34 @@ public class ServiceResourceIT extends IntegrationTest {
                     .accept(JSON)
                     .get(format("/v1/api/services/%s/users", serviceExternalId))
                     .then()
-                    .body("$", not(hasItem(allOf(hasEntry("email", user1WithRoleViewInService1.getEmail())))));
+                    .body("$", not(hasItem(allOf(hasEntry("email", userWithRoleViewInService1.getEmail())))));
         }
 
         @Test
-        public void should_delete_user_from_specified_service_only() {
+        void should_delete_user_from_specified_service_only() {
             Service anotherService = serviceDbFixture(databaseHelper).insertService();
 
-            databaseHelper.addUserServiceRole(user1WithRoleViewInService1.getId(), anotherService.getId(), viewRole.getId());
+            databaseHelper.addUserServiceRole(userWithRoleViewInService1.getId(), anotherService.getId(), viewRole.getId());
 
             givenSetup()
                     .when()
                     .accept(JSON)
                     .get(format("/v1/api/services/%s/users", serviceExternalId))
                     .then()
-                    .body("$", hasItem(allOf(hasEntry("email", user1WithRoleViewInService1.getEmail()))));
+                    .body("$", hasItem(allOf(hasEntry("email", userWithRoleViewInService1.getEmail()))));
 
             givenSetup()
                     .when()
                     .accept(JSON)
                     .get(format("/v1/api/services/%s/users", anotherService.getExternalId()))
                     .then()
-                    .body("$", hasItem(allOf(hasEntry("email", user1WithRoleViewInService1.getEmail()))));
+                    .body("$", hasItem(allOf(hasEntry("email", userWithRoleViewInService1.getEmail()))));
 
             givenSetup()
                     .when()
                     .accept(JSON)
                     .header(HEADER_USER_CONTEXT, userWithRoleAdminInService1.getExternalId())
-                    .delete(format("/v1/api/services/%s/users/%s", serviceExternalId, user1WithRoleViewInService1.getExternalId()))
+                    .delete(format("/v1/api/services/%s/users/%s", serviceExternalId, userWithRoleViewInService1.getExternalId()))
                     .then()
                     .statusCode(204)
                     .body(emptyString());
@@ -214,18 +276,18 @@ public class ServiceResourceIT extends IntegrationTest {
                     .accept(JSON)
                     .get(format("/v1/api/services/%s/users", serviceExternalId))
                     .then()
-                    .body("$", not(hasItem(allOf(hasEntry("email", user1WithRoleViewInService1.getEmail())))));
+                    .body("$", not(hasItem(allOf(hasEntry("email", userWithRoleViewInService1.getEmail())))));
 
             givenSetup()
                     .when()
                     .accept(JSON)
                     .get(format("/v1/api/services/%s/users", anotherService.getExternalId()))
                     .then()
-                    .body("$", hasItem(allOf(hasEntry("email", user1WithRoleViewInService1.getEmail()))));
+                    .body("$", hasItem(allOf(hasEntry("email", userWithRoleViewInService1.getEmail()))));
         }
 
         @Test
-        public void should_return_409_if_user_tries_to_delete_itself() {
+        void should_return_409_if_user_tries_to_delete_itself() {
             givenSetup()
                     .when()
                     .accept(JSON)
@@ -237,7 +299,7 @@ public class ServiceResourceIT extends IntegrationTest {
         }
 
         @Test
-        public void should_return_403_if_GovUkPay_User_Context_Header_is_empty() {
+        void should_return_403_if_GovUkPay_User_Context_Header_is_empty() {
             givenSetup()
                     .when()
                     .accept(JSON)
@@ -249,7 +311,7 @@ public class ServiceResourceIT extends IntegrationTest {
         }
 
         @Test
-        public void should_return_403_if_GovUkPay_User_Context_Header_is_missing() {
+        void should_return_403_if_GovUkPay_User_Context_Header_is_missing() {
             givenSetup()
                     .when()
                     .accept(JSON)
