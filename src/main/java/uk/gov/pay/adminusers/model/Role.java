@@ -14,19 +14,19 @@ public class Role {
 
     @JsonIgnore
     private Integer id;
+    
     @Schema(example = "admin")
-    private String name; // TODO Enum this to admin, view-only, view-and-refund, super-admin
+    @JsonProperty("name")
+    private RoleName roleName;
+    
     @Schema(example = "Administrator")
     private String description; // TODO Enum this to "Super Admin", "Administrator", "View and Refund", "View only" 
+    
     private Set<Permission> permissions = new HashSet<>();
 
-    public static Role role(Integer roleId, String name, String description) {
-        return new Role(roleId, name, description);
-    }
-
-    private Role(Integer id, @JsonProperty("name") String name, @JsonProperty("description") String description) {
+    public Role(Integer id, @JsonProperty("name") RoleName roleName, @JsonProperty("description") String description) {
         this.id = id;
-        this.name = name;
+        this.roleName = roleName;
         this.description = description;
     }
 
@@ -34,8 +34,8 @@ public class Role {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public RoleName getRoleName() {
+        return roleName;
     }
 
     public String getDescription() {
@@ -66,7 +66,7 @@ public class Role {
             return false;
         }
 
-        if (!name.equals(role.name)) {
+        if (!roleName.equals(role.roleName)) {
             return false;
         }
 
@@ -80,7 +80,7 @@ public class Role {
     @Override
     public int hashCode() {
         int result = id.hashCode();
-        result = 31 * result + name.hashCode();
+        result = 31 * result + roleName.hashCode();
         result = 31 * result + description.hashCode();
         result = 31 * result + permissions.hashCode();
         return result;
@@ -90,7 +90,7 @@ public class Role {
     public String toString() {
         return "Role{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", name='" + roleName + '\'' +
                 '}';
     }
 }

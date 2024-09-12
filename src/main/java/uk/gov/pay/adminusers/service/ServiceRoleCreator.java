@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.Inject;
 import com.google.inject.persist.Transactional;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -44,7 +45,7 @@ public class ServiceRoleCreator {
             throw serviceDoesNotExistError(serviceExternalId);
         }
 
-        Optional<RoleEntity> roleMaybe = roleDao.findByRoleName(roleName);
+        Optional<RoleEntity> roleMaybe = roleDao.findByRoleName(RoleName.fromName(roleName));
         if (!roleMaybe.isPresent()) {
             throw undefinedRoleException(roleName);
         }

@@ -10,6 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.app.config.LinksConfig;
 import uk.gov.pay.adminusers.model.Invite;
 import uk.gov.pay.adminusers.model.CreateInviteToJoinServiceRequest;
+import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
@@ -45,7 +47,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.persistence.entity.Role.ADMIN;
 
 @ExtendWith(MockitoExtension.class)
@@ -74,7 +75,7 @@ class JoinServiceInviteCreatorTest {
     private int serviceId = 1;
     private String serviceExternalId = "3453rmeuty87t";
     private String senderExternalId = "12345";
-    private String roleName = "view-only";
+    private Role viewRole = new Role(4, RoleName.VIEW_ONLY, "View only");
 
     @BeforeEach
     void setUp() {
@@ -93,7 +94,7 @@ class JoinServiceInviteCreatorTest {
         String otpKey = "an-otp-key";
         when(secondFactorAuthenticator.generateNewBase32EncodedSecret()).thenReturn(otpKey);
 
-        joinServiceInviteCreator.doInvite(new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId));
+        joinServiceInviteCreator.doInvite(new CreateInviteToJoinServiceRequest(senderExternalId, email, viewRole.getRoleName(), serviceExternalId));
 
         verify(mockInviteDao).persist(expectedInvite.capture());
         InviteEntity savedInvite = expectedInvite.getValue();
@@ -107,7 +108,8 @@ class JoinServiceInviteCreatorTest {
     @Test
     void shouldReturnEmpty_ifServiceNotFound() {
         when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.empty());
-        CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId);
+        var createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, 
+                viewRole.getRoleName(), serviceExternalId);
         Optional<Invite> invite = joinServiceInviteCreator.doInvite(createInviteToJoinServiceRequest);
 
         assertFalse(invite.isPresent());
@@ -124,7 +126,8 @@ class JoinServiceInviteCreatorTest {
         String otpKey = "an-otp-key";
         when(secondFactorAuthenticator.generateNewBase32EncodedSecret()).thenReturn(otpKey);
 
-        joinServiceInviteCreator.doInvite(new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId));
+        joinServiceInviteCreator.doInvite(new CreateInviteToJoinServiceRequest(senderExternalId, email, 
+                viewRole.getRoleName(), serviceExternalId));
 
         verify(mockInviteDao).persist(expectedInvite.capture());
         InviteEntity savedInvite = expectedInvite.getValue();
@@ -147,17 +150,17 @@ class JoinServiceInviteCreatorTest {
         String someOtherSenderId = "7834ny0t7cr";
         someOtherSender.setExternalId(someOtherSenderId);
         someOtherSender.setEmail(senderEmail);
-        RoleEntity role = new RoleEntity(role(ADMIN.getId(), "admin", "Admin Role"));
+        RoleEntity role = new RoleEntity(new Role(ADMIN.getId(), RoleName.ADMIN, "Admin Role"));
         someOtherSender.addServiceRole(new ServiceRoleEntity(service, role));
 
         when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.of(service));
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
 
         InviteEntity anInvite = anInvite(email, inviteCode, "otpKey", someOtherSender, service, role);
-
-
+        
         when(mockInviteDao.findByEmail(email)).thenReturn(List.of(anInvite));
-        CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId);
+        var createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, 
+                viewRole.getRoleName(), serviceExternalId);
 
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class, ()
                 -> joinServiceInviteCreator.doInvite(createInviteToJoinServiceRequest));
@@ -174,13 +177,14 @@ class JoinServiceInviteCreatorTest {
         UserEntity existingUser = new UserEntity();
         existingUser.setExternalId("7834ny0t7cr");
         existingUser.setEmail(email);
-        RoleEntity role = new RoleEntity(role(ADMIN.getId(), "admin", "Admin Role"));
+        RoleEntity role = new RoleEntity(new Role(ADMIN.getId(), RoleName.ADMIN, "Admin Role"));
         existingUser.addServiceRole(new ServiceRoleEntity(service, role));
 
         when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.of(service));
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.of(existingUser));
 
-        CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId);
+        var createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, 
+                viewRole.getRoleName(), serviceExternalId);
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
                 () -> joinServiceInviteCreator.doInvite(createInviteToJoinServiceRequest));
         assertThat(webApplicationException.getMessage(), is("HTTP 412 Precondition Failed"));
@@ -194,10 +198,10 @@ class JoinServiceInviteCreatorTest {
         InviteEntity anInvite = mockInviteSuccessExistingInvite();
         when(mockNotificationService.sendInviteNewUserToJoinServiceEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$")))
                 .thenReturn("random-notify-id");
-
-
+        
         //When
-        CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId);
+        var createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, 
+                viewRole.getRoleName(), serviceExternalId);
         Optional<Invite> invite = joinServiceInviteCreator.doInvite(createInviteToJoinServiceRequest);
 
         //Then
@@ -212,7 +216,8 @@ class JoinServiceInviteCreatorTest {
         InviteEntity inviteEntity = mockInviteSuccessForNonExistingUserNonExistingInvite();
         inviteEntity.getSender().getServicesRoles().clear();
 
-        CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId);
+        var createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, 
+                viewRole.getRoleName(), serviceExternalId);
         WebApplicationException webApplicationException = assertThrows(WebApplicationException.class,
                 () -> joinServiceInviteCreator.doInvite(createInviteToJoinServiceRequest));
         assertThat(webApplicationException.getMessage(), is("HTTP 403 Forbidden"));
@@ -227,7 +232,8 @@ class JoinServiceInviteCreatorTest {
         when(mockNotificationService.sendInviteExistingUserToJoinServiceEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
                 eq(anInvite.getService().get().getServiceNames().get(SupportedLanguage.ENGLISH).getName()))).thenReturn("random-notify-id");
 
-        CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId);
+        var createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, 
+                viewRole.getRoleName(), serviceExternalId);
         Optional<Invite> invite = joinServiceInviteCreator.doInvite(createInviteToJoinServiceRequest);
 
         assertThat(invite.isPresent(), is(true));
@@ -246,7 +252,8 @@ class JoinServiceInviteCreatorTest {
                 eq(anInvite.getService().get().getServiceNames().get(SupportedLanguage.ENGLISH).getName())))
                 .thenThrow(AdminUsersExceptions.userNotificationError(new Exception("Cause")));
 
-        CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId);
+        var createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, 
+                viewRole.getRoleName(), serviceExternalId);
         Optional<Invite> invite = joinServiceInviteCreator.doInvite(createInviteToJoinServiceRequest);
 
         assertThat(invite.isPresent(), is(true));
@@ -282,7 +289,8 @@ class JoinServiceInviteCreatorTest {
         when(mockNotificationService.sendInviteExistingUserToJoinServiceEmail(eq(senderEmail), eq(email), matches("^http://selfservice/invites/[0-9a-z]{32}$"),
                 eq(validInvite.getService().get().getServiceNames().get(SupportedLanguage.ENGLISH).getName()))).thenReturn("random-notify-id");
 
-        CreateInviteToJoinServiceRequest createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, roleName, serviceExternalId);
+        var createInviteToJoinServiceRequest = new CreateInviteToJoinServiceRequest(senderExternalId, email, 
+                viewRole.getRoleName(), serviceExternalId);
         Optional<Invite> invite = joinServiceInviteCreator.doInvite(createInviteToJoinServiceRequest);
 
         assertThat(invite.isPresent(), is(true));
@@ -300,7 +308,7 @@ class JoinServiceInviteCreatorTest {
         UserEntity sameSender = new UserEntity();
         sameSender.setExternalId(senderExternalId);
         sameSender.setEmail(senderEmail);
-        RoleEntity role = new RoleEntity(role(ADMIN.getId(), "admin", "Admin Role"));
+        RoleEntity role = new RoleEntity(new Role(ADMIN.getId(), RoleName.ADMIN, "Admin Role"));
         sameSender.addServiceRole(new ServiceRoleEntity(service, role));
 
         when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.of(service));
@@ -321,12 +329,12 @@ class JoinServiceInviteCreatorTest {
         when(mockUserDao.findByEmail(email)).thenReturn(Optional.empty());
         when(mockInviteDao.findByEmail(email)).thenReturn(emptyList());
         when(mockServiceDao.findByExternalId(serviceExternalId)).thenReturn(Optional.of(service));
-        when(mockRoleDao.findByRoleName(roleName)).thenReturn(Optional.of(new RoleEntity()));
+        when(mockRoleDao.findByRoleName(viewRole.getRoleName())).thenReturn(Optional.of(new RoleEntity(viewRole)));
 
         UserEntity senderUser = new UserEntity();
         senderUser.setExternalId(senderExternalId);
         senderUser.setEmail(senderEmail);
-        RoleEntity role = new RoleEntity(role(ADMIN.getId(), "admin", "Admin Role"));
+        RoleEntity role = new RoleEntity(new Role(ADMIN.getId(), RoleName.ADMIN, "Admin Role"));
         senderUser.addServiceRole(new ServiceRoleEntity(service, role));
         when(mockUserDao.findByExternalId(senderExternalId)).thenReturn(Optional.of(senderUser));
 
@@ -345,7 +353,7 @@ class JoinServiceInviteCreatorTest {
 
     private User aUser(String email) {
         Service service = Service.from(serviceId, serviceExternalId, new ServiceName(Service.DEFAULT_NAME_VALUE));
-        ServiceRole serviceRole = ServiceRole.from(service, role(ADMIN.getId(), "Admin", "Administrator"));
+        ServiceRole serviceRole = ServiceRole.from(service, new Role(ADMIN.getId(), RoleName.ADMIN, "Administrator"));
         return User.from(randomInt(), randomUuid(), "random-password", email,
                 "784rh", "8948924", Collections.singletonList(serviceRole), null,
                 SecondFactorMethod.SMS, null, null, null);

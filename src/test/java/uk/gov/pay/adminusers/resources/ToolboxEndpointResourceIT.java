@@ -3,8 +3,10 @@ package uk.gov.pay.adminusers.resources;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 
 import java.util.List;
 import java.util.Map;
@@ -19,26 +21,25 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsIterableContaining.hasItem;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 public class ToolboxEndpointResourceIT extends IntegrationTest {
 
     private User user;
-    private Role role;
+    private Role viewRole;
     private String serviceExternalId;
     
     @BeforeEach
     public void setup() {
-        role = roleDbFixture(databaseHelper).withName("roleView").insertRole();
+        viewRole = getInjector().getInstance(RoleDao.class).findByRoleName(RoleName.VIEW_ONLY).get().toRole();
         
         Service service = serviceDbFixture(databaseHelper).insertService();
         serviceExternalId = service.getExternalId();
 
         String email = "b" + randomUuid() + "@example.com";
         user = userDbFixture(databaseHelper)
-                .withServiceRole(service, role.getId())
+                .withServiceRole(service, viewRole)
                 .withEmail(email)
                 .insertUser();
     }

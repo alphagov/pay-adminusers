@@ -1,9 +1,12 @@
 package uk.gov.pay.adminusers.resources;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.valueOf;
@@ -12,24 +15,29 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
-import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
 
 public class UserResourceGetMultipleIT extends IntegrationTest {
 
+    private Role adminRole;
+    
+    @BeforeEach
+    void setUp() throws Exception {
+        adminRole = getInjector().getInstance(RoleDao.class).findByRoleName(RoleName.ADMIN).get().toRole();
+    }
+    
     @Test
     public void shouldReturnMultipleUsers_whenGetUsersWithMultipleIds() {
         String gatewayAccount1 = valueOf(nextInt());
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
         String serviceExternalId = service.getExternalId();
-        Role role = roleDbFixture(databaseHelper).insertRole();
         String email1 = randomUuid() + "@example.com";
-        User user1 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email1).insertUser();
+        User user1 = userDbFixture(databaseHelper).withServiceRole(service.getId(), adminRole).withEmail(email1).insertUser();
         String email2 = randomUuid() + "@example.com";
-        User user2 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email2).insertUser();
+        User user2 = userDbFixture(databaseHelper).withServiceRole(service.getId(), adminRole).withEmail(email2).insertUser();
 
         givenSetup()
                 .when()
@@ -48,9 +56,9 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
                 .body("[0].otp_key", is(user1.getOtpKey()))
                 .body("[0].login_counter", is(0))
                 .body("[0].disabled", is(false))
-                .body("[0].service_roles[0].role.name", is(role.getName()))
-                .body("[0].service_roles[0].role.description", is(role.getDescription()))
-                .body("[0].service_roles[0].role.permissions", hasSize(role.getPermissions().size()))
+                .body("[0].service_roles[0].role.name", is(adminRole.getRoleName().getName()))
+                .body("[0].service_roles[0].role.description", is(adminRole.getDescription()))
+                .body("[0].service_roles[0].role.permissions", hasSize(adminRole.getPermissions().size()))
                 .body("[0]._links", hasSize(1))
                 .body("[0]._links[0].href", is("http://localhost:8080/v1/api/users/" + user1.getExternalId()))
                 .body("[0]._links[0].method", is("GET"))
@@ -65,9 +73,9 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
                 .body("[1].otp_key", is(user2.getOtpKey()))
                 .body("[1].login_counter", is(0))
                 .body("[1].disabled", is(false))
-                .body("[1].service_roles[0].role.name", is(role.getName()))
-                .body("[1].service_roles[0].role.description", is(role.getDescription()))
-                .body("[1].service_roles[0].role.permissions", hasSize(role.getPermissions().size()))
+                .body("[1].service_roles[0].role.name", is(adminRole.getRoleName().getName()))
+                .body("[1].service_roles[0].role.description", is(adminRole.getDescription()))
+                .body("[1].service_roles[0].role.permissions", hasSize(adminRole.getPermissions().size()))
                 .body("[1]._links", hasSize(1))
                 .body("[1]._links[0].href", is("http://localhost:8080/v1/api/users/" + user2.getExternalId()))
                 .body("[1]._links[0].method", is("GET"))
@@ -81,9 +89,8 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
         String serviceExternalId = service.getExternalId();
-        Role role = roleDbFixture(databaseHelper).insertRole();
         String email1 = randomUuid() + "@example.com";
-        User user1 = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email1).insertUser();
+        User user1 = userDbFixture(databaseHelper).withServiceRole(service.getId(), adminRole).withEmail(email1).insertUser();
 
         givenSetup()
                 .when()
@@ -102,9 +109,9 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
                 .body("[0].otp_key", is(user1.getOtpKey()))
                 .body("[0].login_counter", is(0))
                 .body("[0].disabled", is(false))
-                .body("[0].service_roles[0].role.name", is(role.getName()))
-                .body("[0].service_roles[0].role.description", is(role.getDescription()))
-                .body("[0].service_roles[0].role.permissions", hasSize(role.getPermissions().size()))
+                .body("[0].service_roles[0].role.name", is(adminRole.getRoleName().getName()))
+                .body("[0].service_roles[0].role.description", is(adminRole.getDescription()))
+                .body("[0].service_roles[0].role.permissions", hasSize(adminRole.getPermissions().size()))
                 .body("[0]._links", hasSize(1))
                 .body("[0]._links[0].href", is("http://localhost:8080/v1/api/users/" + user1.getExternalId()))
                 .body("[0]._links[0].method", is("GET"))
@@ -118,9 +125,8 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
         String serviceExternalId = service.getExternalId();
-        Role role = roleDbFixture(databaseHelper).insertRole();
         String email = randomUuid() + "@example.com";
-        User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email).insertUser();
+        User user = userDbFixture(databaseHelper).withServiceRole(service.getId(), adminRole).withEmail(email).insertUser();
 
         givenSetup()
                 .when()
@@ -139,9 +145,9 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
                 .body("[0].otp_key", is(user.getOtpKey()))
                 .body("[0].login_counter", is(0))
                 .body("[0].disabled", is(false))
-                .body("[0].service_roles[0].role.name", is(role.getName()))
-                .body("[0].service_roles[0].role.description", is(role.getDescription()))
-                .body("[0].service_roles[0].role.permissions", hasSize(role.getPermissions().size()))
+                .body("[0].service_roles[0].role.name", is(adminRole.getRoleName().getName()))
+                .body("[0].service_roles[0].role.description", is(adminRole.getDescription()))
+                .body("[0].service_roles[0].role.permissions", hasSize(adminRole.getPermissions().size()))
                 .body("[0]._links", hasSize(1))
                 .body("[0]._links[0].href", is("http://localhost:8080/v1/api/users/" + user.getExternalId()))
                 .body("[0]._links[0].method", is("GET"))
@@ -165,9 +171,8 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
         String gatewayAccount1 = valueOf(nextInt());
         String gatewayAccount2 = valueOf(nextInt());
         Service service = serviceDbFixture(databaseHelper).withGatewayAccountIds(gatewayAccount1, gatewayAccount2).insertService();
-        Role role = roleDbFixture(databaseHelper).insertRole();
         String email = randomUuid() + "@example.com";
-        User existingUser = userDbFixture(databaseHelper).withServiceRole(service.getId(), role.getId()).withEmail(email).insertUser();
+        User existingUser = userDbFixture(databaseHelper).withServiceRole(service.getId(), adminRole).withEmail(email).insertUser();
 
         givenSetup()
                 .when()
@@ -186,9 +191,9 @@ public class UserResourceGetMultipleIT extends IntegrationTest {
                 .body("[0].otp_key", is(existingUser.getOtpKey()))
                 .body("[0].login_counter", is(0))
                 .body("[0].disabled", is(false))
-                .body("[0].service_roles[0].role.name", is(role.getName()))
-                .body("[0].service_roles[0].role.description", is(role.getDescription()))
-                .body("[0].service_roles[0].role.permissions", hasSize(role.getPermissions().size()))
+                .body("[0].service_roles[0].role.name", is(adminRole.getRoleName().getName()))
+                .body("[0].service_roles[0].role.description", is(adminRole.getDescription()))
+                .body("[0].service_roles[0].role.permissions", hasSize(adminRole.getPermissions().size()))
                 .body("[0]._links", hasSize(1))
                 .body("[0]._links[0].href", is("http://localhost:8080/v1/api/users/" + existingUser.getExternalId()))
                 .body("[0]._links[0].method", is("GET"))

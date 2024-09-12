@@ -9,14 +9,12 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static uk.gov.pay.adminusers.model.Permission.permission;
-import static uk.gov.pay.adminusers.model.Role.role;
 
 class UserEntityTest {
 
@@ -51,7 +49,7 @@ class UserEntityTest {
         UserEntity userEntity = new UserEntity();
         String gatewayAccountId = "1";
         ServiceEntity service = new ServiceEntity(List.of(gatewayAccountId));
-        Role role = role(1, "role", "hey");
+        Role role = new Role(2, RoleName.ADMIN, "Administrator");
         role.setPermissions(Set.of(permission(1, "perm1", "perm1 desc"), permission(2, "perm2", "perm2 desc")));
         RoleEntity roleEntity = new RoleEntity(role);
         ServiceRoleEntity serviceRole = new ServiceRoleEntity(service, roleEntity);
@@ -59,7 +57,7 @@ class UserEntityTest {
         userEntity.addServiceRole(serviceRole);
 
         assertThat(userEntity.getRoles().size(), is(1));
-        assertThat(userEntity.getRoles().get(0).getId(), is(1));
+        assertThat(userEntity.getRoles().get(0).getId(), is(role.getId()));
         assertThat(userEntity.getGatewayAccountId(), is(gatewayAccountId));
     }
 }

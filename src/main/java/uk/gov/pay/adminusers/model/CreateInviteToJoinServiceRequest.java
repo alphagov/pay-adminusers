@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CreateInviteToJoinServiceRequest {
@@ -17,8 +18,8 @@ public class CreateInviteToJoinServiceRequest {
     @Email
     protected String email;
 
-    @NotEmpty
-    private String roleName;
+    @NotNull
+    private RoleName roleName;
 
     @NotEmpty
     private String serviceExternalId;
@@ -27,7 +28,7 @@ public class CreateInviteToJoinServiceRequest {
         // for Jackson
     }
 
-    public CreateInviteToJoinServiceRequest(String sender, String email, String roleName, String serviceExternalId) {
+    public CreateInviteToJoinServiceRequest(String sender, String email, RoleName roleName, String serviceExternalId) {
         this.sender = sender;
         this.email = email;
         this.roleName = roleName;
@@ -45,7 +46,7 @@ public class CreateInviteToJoinServiceRequest {
     }
     
     @Schema(example = "view-only", required = true)
-    public String getRoleName() {
+    public RoleName getRoleName() {
         return roleName;
     }
     

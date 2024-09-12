@@ -119,7 +119,7 @@ public class JoinServiceInviteCreator {
                         throw forbiddenOperationException(createInviteToJoinServiceRequest.getSender(), "invite", serviceEntity.getExternalId());
                     }
                 })
-                .orElseThrow(() -> undefinedRoleException(createInviteToJoinServiceRequest.getRoleName()));
+                .orElseThrow(() -> undefinedRoleException(createInviteToJoinServiceRequest.getRoleName().getName()));
     }
 
     private void sendNewUserInviteNotification(InviteEntity inviteEntity, String inviteUrl) {

@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.Permission;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
@@ -57,7 +58,6 @@ import static org.mockito.Mockito.when;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.model.Permission.permission;
-import static uk.gov.pay.adminusers.model.Role.role;
 import static uk.gov.pay.adminusers.model.Service.DEFAULT_NAME_VALUE;
 
 @ExtendWith(MockitoExtension.class)
@@ -80,6 +80,8 @@ public class UserServicesTest {
     private static final String USER_EMAIL = "random-name@example.com";
     private static final String ANOTHER_USER_EXTERNAL_ID = "7d19aff33f8948deb97ed16b2912dcd4";
     private static final String ANOTHER_USER_EMAIL = "another-random-name@example.com";
+    private static final Role adminRole = new Role(2, RoleName.ADMIN, "Administrator");
+    private static final Role viewRole = new Role(4, RoleName.VIEW_ONLY, "View only");
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -737,10 +739,6 @@ public class UserServicesTest {
         return User.from(randomInt(), ANOTHER_USER_EXTERNAL_ID, "random-password", ANOTHER_USER_EMAIL, "784rh", "8948924", emptyList(), null, SecondFactorMethod.SMS, null, null, null);
     }
 
-    private Role aRole() {
-        return role(randomInt(), "role-name-" + randomUuid(), "role-description" + randomUuid());
-    }
-
     private Permission aPermission() {
         return permission(randomInt(), "permission-name-" + randomUuid(), "permission-description" + randomUuid());
     }
@@ -751,7 +749,7 @@ public class UserServicesTest {
         serviceEntity.addOrUpdateServiceName(ServiceNameEntity.from(SupportedLanguage.ENGLISH, Service.DEFAULT_NAME_VALUE));
         serviceEntity.setId(randomInt());
 
-        Role role = aRole();
+        Role role = adminRole;
         role.setPermissions(Set.of(aPermission()));
 
         ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity, new RoleEntity(role));
@@ -763,7 +761,7 @@ public class UserServicesTest {
     public static UserEntity aUserEntityWithRoleForService(Service service, boolean isAdmin, String username) {
         UserEntity userEntity = new UserEntity();
         userEntity.setEmail(format("%s@service.gov.uk",username));
-        Role role = role(isAdmin ? 2 : 1, "role", "role-desc");
+        Role role = isAdmin ? adminRole : viewRole;
         role.setPermissions(Set.of(
                 permission(1, "perm1", "perm1 desc"), 
                 permission(2, "perm2", "perm2 desc")));

@@ -1,5 +1,6 @@
 package uk.gov.pay.adminusers.fixtures;
 
+import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.time.ZoneId;
@@ -36,9 +37,8 @@ public class InviteDbFixture {
         return new InviteDbFixture(databaseHelper);
     }
 
-    public String insertInviteToAddUserToService() {
+    public String insertInviteToAddUserToService(Role role) {
         ServiceDbFixture.serviceDbFixture(databaseTestHelper).withId(serviceId).withExternalId(externalServiceId).insertService().getId();
-        int roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
         String userUsername = randomUuid();
         String userEmail = userUsername + "@example.com";
         senderId =
@@ -47,15 +47,14 @@ public class InviteDbFixture {
                         .insertUser()
                         .getId();
         databaseTestHelper.addInvite(
-                nextInt(), senderId, serviceId, roleId,
+                nextInt(), senderId, serviceId, role.getId(),
                 email, code, otpKey, date, expiryDate, telephoneNumber, password,
                 disabled, loginCounter
         );
         return code;
     }
 
-    public String insertSelfSignupInvite() {
-        int roleId = RoleDbFixture.roleDbFixture(databaseTestHelper).insertRole().getId();
+    public String insertSelfSignupInvite(Role role) {
         String userUsername = randomUuid();
         String userEmail = userUsername + "@example.com";
         int invitingUserId =
@@ -64,7 +63,7 @@ public class InviteDbFixture {
                         .insertUser()
                         .getId();
         databaseTestHelper.addServiceInvite(
-                nextInt(), invitingUserId, roleId,
+                nextInt(), invitingUserId, role.getId(), 
                 email, code, otpKey, date, expiryDate, telephoneNumber, password,
                 disabled, loginCounter
         );

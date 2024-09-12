@@ -1165,6 +1165,13 @@ components:
           example: example@example.gov.uk
         role_name:
           type: string
+          enum:
+          - admin
+          - view-and-refund
+          - view-only
+          - view-and-initiate-moto
+          - view-refund-and-initiate-moto
+          - super-admin
           example: view-only
         sender:
           type: string
@@ -1379,6 +1386,13 @@ components:
           example: Administrator
         name:
           type: string
+          enum:
+          - admin
+          - view-and-refund
+          - view-only
+          - view-and-initiate-moto
+          - view-refund-and-initiate-moto
+          - super-admin
           example: admin
         permissions:
           type: array

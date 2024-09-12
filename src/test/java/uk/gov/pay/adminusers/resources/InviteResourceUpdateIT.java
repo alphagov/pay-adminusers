@@ -1,6 +1,10 @@
 package uk.gov.pay.adminusers.resources;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
+import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 
 import java.util.List;
 import java.util.Map;
@@ -17,9 +21,16 @@ import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 
 class InviteResourceUpdateIT extends IntegrationTest {
 
+    private Role adminRole;
+
+    @BeforeEach
+    public void setUp() {
+        adminRole = getInjector().getInstance(RoleDao.class).findByRoleName(RoleName.ADMIN).get().toRole();
+    }
+    
     @Test
     void validUpdateInviteRequest_shouldSucceed() throws Exception {
-        String inviteCode = inviteDbFixture(databaseHelper).insertInviteToAddUserToService();
+        String inviteCode = inviteDbFixture(databaseHelper).insertInviteToAddUserToService(adminRole);
 
         String newPassword = "a-new-password";
         String newPhoneNumber = "+441134960000";

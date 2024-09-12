@@ -22,7 +22,9 @@ import uk.gov.pay.adminusers.infra.NotifyStub;
 import uk.gov.pay.adminusers.infra.SqsTestDocker;
 import uk.gov.pay.adminusers.model.MerchantDetails;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +41,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 import static uk.gov.pay.adminusers.fixtures.EventFixture.anEventFixture;
 import static uk.gov.pay.adminusers.fixtures.LedgerTransactionFixture.aLedgerTransactionFixture;
-import static uk.gov.pay.adminusers.fixtures.RoleDbFixture.roleDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 public class DisputeCreatedEventQueueConsumerIT {
@@ -49,8 +50,7 @@ public class DisputeCreatedEventQueueConsumerIT {
 
     @Rule
     public AppWithPostgresAndSqsRule adminusersApp = new AppWithPostgresAndSqsRule(
-            config("eventSubscriberQueue.eventSubscriberQueueEnabled", "true")
-    );
+            config("eventSubscriberQueue.eventSubscriberQueueEnabled", "true"));
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(options().port(adminusersApp.getWireMockPort()));
@@ -118,10 +118,10 @@ public class DisputeCreatedEventQueueConsumerIT {
                         "https://merchant.example.org"
                 ))
                 .insertService();
-        Role adminRole = roleDbFixture(adminusersApp.getDatabaseTestHelper()).insertAdmin();
+        Role adminRole = adminusersApp.getInjector().getInstance(RoleDao.class).findByRoleName(RoleName.ADMIN).get().toRole();
         userDbFixture(adminusersApp.getDatabaseTestHelper())
                 .withEmail(adminUserEmail)
-                .withServiceRole(service.getId(), adminRole.getId())
+                .withServiceRole(service.getId(), adminRole)
                 .insertUser();
 
         LedgerTransaction ledgerTransaction = aLedgerTransactionFixture()

@@ -4,8 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.fixtures.GovUkPayAgreementDbFixture;
+import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -30,8 +33,9 @@ class ServiceResourceGovUkPayAgreementResourceIT extends IntegrationTest {
     void setUp() {
         email = randomUuid() + "@example.org";
         service = serviceDbFixture(databaseHelper).insertService();
+        Role role = getInjector().getInstance(RoleDao.class).findByRoleName(RoleName.ADMIN).get().toRole();
         user = userDbFixture(databaseHelper)
-                .withServiceRole(service, 1)
+                .withServiceRole(service, role)
                 .withEmail(email)
                 .insertUser();
     }

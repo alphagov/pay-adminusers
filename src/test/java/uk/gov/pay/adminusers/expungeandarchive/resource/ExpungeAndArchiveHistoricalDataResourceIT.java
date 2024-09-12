@@ -8,12 +8,13 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerSearchTransactionsResponse;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.pay.adminusers.fixtures.ForgottenPasswordDbFixture;
-import uk.gov.pay.adminusers.fixtures.RoleDbFixture;
 import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import uk.gov.pay.adminusers.infra.LedgerStub;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.User;
+import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import uk.gov.pay.adminusers.resources.IntegrationTest;
 
 import java.time.ZonedDateTime;
@@ -43,7 +44,8 @@ import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 class ExpungeAndArchiveHistoricalDataResourceIT extends IntegrationTest {
 
-    ZonedDateTime now = ZonedDateTime.now(UTC);
+    private ZonedDateTime now = ZonedDateTime.now(UTC);
+    private Role adminRole;
 
     @RegisterExtension
     static WireMockExtension wireMockExtension = WireMockExtension.newInstance()
@@ -56,6 +58,8 @@ class ExpungeAndArchiveHistoricalDataResourceIT extends IntegrationTest {
     void setUp() {
         databaseHelper.truncateAllData();
         ledgerStub = new LedgerStub(wireMockExtension);
+        RoleDao roleDao = getInjector().getInstance(RoleDao.class);
+        adminRole = roleDao.findByRoleName(RoleName.ADMIN).get().toRole();
     }
 
     @Test
@@ -122,8 +126,7 @@ class ExpungeAndArchiveHistoricalDataResourceIT extends IntegrationTest {
                 .withCreatedDate(now.minusYears(8))
                 .withGatewayAccountIds(valueOf(nextInt()))
                 .insertService();
-        Role role = RoleDbFixture.roleDbFixture(databaseHelper).insertRole();
-        User user = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service, role.getId()).insertUser();
+        User user = UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service, adminRole).insertUser();
 
         LedgerTransaction ledgerTransaction = aLedgerTransactionFixture()
                 .withCreatedDate(now.minusYears(8))
@@ -277,7 +280,7 @@ class ExpungeAndArchiveHistoricalDataResourceIT extends IntegrationTest {
         return inviteDbFixture(databaseHelper)
                 .withDate(date)
                 .withSenderId(userId)
-                .insertInviteToAddUserToService();
+                .insertInviteToAddUserToService(adminRole);
     }
 
     private ForgottenPasswordDbFixture insertForgottenPassword(Integer userId, ZonedDateTime createdDate) {

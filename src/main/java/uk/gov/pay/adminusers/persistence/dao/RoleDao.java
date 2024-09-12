@@ -4,6 +4,7 @@ package uk.gov.pay.adminusers.persistence.dao;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 
 import javax.persistence.EntityManager;
@@ -26,10 +27,10 @@ public class RoleDao {
         this.entityManager = entityManager;
     }
 
-    public Optional<RoleEntity> findByRoleName(String roleName) {
+    public Optional<RoleEntity> findByRoleName(RoleName roleName) {
 
         String query = "SELECT r FROM RoleEntity r " +
-                "WHERE r.name = :roleName";
+                "WHERE r.roleName = :roleName";
 
         return entityManager.get()
                 .createQuery(query, RoleEntity.class)

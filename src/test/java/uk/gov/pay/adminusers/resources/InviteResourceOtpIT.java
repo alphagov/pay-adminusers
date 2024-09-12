@@ -4,6 +4,9 @@ import com.warrenstrange.googleauth.GoogleAuthenticator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.fixtures.InviteDbFixture;
+import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
+import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 
 import java.util.Map;
 
@@ -23,21 +26,23 @@ import static org.hamcrest.core.Is.is;
 
 class InviteResourceOtpIT extends IntegrationTest {
 
-    private String code;
-
     private static final String OTP_KEY = "KPWXGUTNWOE7PMVK";
     private static final int PASSCODE = new GoogleAuthenticator().getTotpPassword(OTP_KEY);
     private static final String EMAIL = "invited-" + random(5) + "@example.com";
     private static final String TELEPHONE_NUMBER = "+447999999999";
     private static final String PASSWORD = "a-secure-password";
+    
+    private Role adminRole;
+    private String code;
 
     @BeforeEach
     void givenAnExistingInvite() {
+        adminRole = getInjector().getInstance(RoleDao.class).findByRoleName(RoleName.ADMIN).get().toRole();
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
                 .withEmail(EMAIL)
                 .withOtpKey(OTP_KEY)
                 .expired()
-                .insertInviteToAddUserToService();
+                .insertInviteToAddUserToService(adminRole);
     }
 
     @Test
@@ -65,7 +70,7 @@ class InviteResourceOtpIT extends IntegrationTest {
                 .withOtpKey(OTP_KEY)
                 .withTelephoneNumber(TELEPHONE_NUMBER)
                 .withPassword(PASSWORD)
-                .insertInviteToAddUserToService();
+                .insertInviteToAddUserToService(adminRole);
 
         // generate invalid invitationOtpRequest and execute it
         Map<Object, Object> invitationOtpRequest = Map.of(
@@ -91,7 +96,7 @@ class InviteResourceOtpIT extends IntegrationTest {
                 .withTelephoneNumber(TELEPHONE_NUMBER)
                 .withPassword(PASSWORD)
                 .withLoginCounter(9)
-                .insertInviteToAddUserToService();
+                .insertInviteToAddUserToService(adminRole);
 
         // generate invalid invitationOtpRequest and execute it
         Map<Object, Object> invitationOtpRequest = Map.of(
@@ -148,7 +153,7 @@ class InviteResourceOtpIT extends IntegrationTest {
 
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
                 .withOtpKey(OTP_KEY)
-                .insertInviteToAddUserToService();
+                .insertInviteToAddUserToService(adminRole);
 
         Map<Object, Object> sendRequest = Map.of(
                 "code", code,
@@ -168,7 +173,7 @@ class InviteResourceOtpIT extends IntegrationTest {
 
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
                 .withOtpKey(OTP_KEY)
-                .insertInviteToAddUserToService();
+                .insertInviteToAddUserToService(adminRole);
 
         int invalidOtp = 111111;
 
@@ -190,7 +195,7 @@ class InviteResourceOtpIT extends IntegrationTest {
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
                 .withTelephoneNumber("01234567890")
                 .withOtpKey(OTP_KEY)
-                .insertInviteToAddUserToService();
+                .insertInviteToAddUserToService(adminRole);
 
         givenSetup()
                 .when()
@@ -225,7 +230,7 @@ class InviteResourceOtpIT extends IntegrationTest {
         code = InviteDbFixture.inviteDbFixture(databaseHelper)
                 .withTelephoneNumber(null)
                 .withOtpKey(OTP_KEY)
-                .insertInviteToAddUserToService();
+                .insertInviteToAddUserToService(adminRole);
         
         givenSetup()
                 .when()

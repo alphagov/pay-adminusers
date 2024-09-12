@@ -1,18 +1,28 @@
 package uk.gov.pay.adminusers.resources;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
+import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 
 import static io.restassured.http.ContentType.JSON;
 import static javax.ws.rs.core.Response.Status.GONE;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 
 class InviteResourceGetIT extends IntegrationTest {
 
+    private Role adminRole;
+
+    @BeforeEach
+    public void setUp() {
+        adminRole = getInjector().getInstance(RoleDao.class).findByRoleName(RoleName.ADMIN).get().toRole();
+    }
+    
     @Test
     void getInvitation_shouldSucceed() {
 
@@ -21,7 +31,7 @@ class InviteResourceGetIT extends IntegrationTest {
         String inviteCode = inviteDbFixture(databaseHelper)
                 .withEmail(email)
                 .withOtpKey(otpKey)
-                .insertInviteToAddUserToService();
+                .insertInviteToAddUserToService(adminRole);
 
         givenSetup()
                 .when()
@@ -52,7 +62,7 @@ class InviteResourceGetIT extends IntegrationTest {
         String inviteCode = inviteDbFixture(databaseHelper)
                 .withTelephoneNumber(telephoneNumber)
                 .withEmail(email)
-                .insertInviteToAddUserToService();
+                .insertInviteToAddUserToService(adminRole);
 
         givenSetup()
                 .when()
@@ -70,7 +80,7 @@ class InviteResourceGetIT extends IntegrationTest {
     @Test
     void getInvitation_shouldFail_whenExpired() {
 
-        String expiredCode = inviteDbFixture(databaseHelper).expired().insertInviteToAddUserToService();
+        String expiredCode = inviteDbFixture(databaseHelper).expired().insertInviteToAddUserToService(adminRole);
 
         givenSetup()
                 .when()
@@ -83,7 +93,7 @@ class InviteResourceGetIT extends IntegrationTest {
     @Test
     void getInvitation_shouldFail_whenDisabled() {
 
-        String expiredCode = inviteDbFixture(databaseHelper).disabled().insertInviteToAddUserToService();
+        String expiredCode = inviteDbFixture(databaseHelper).disabled().insertInviteToAddUserToService(adminRole);
 
         givenSetup()
                 .when()
@@ -111,7 +121,7 @@ class InviteResourceGetIT extends IntegrationTest {
         inviteDbFixture(databaseHelper)
                 .withEmail(email)
                 .withServiceExternalId(serviceExternalId)
-                .insertInviteToAddUserToService();
+                .insertInviteToAddUserToService(adminRole);
         givenSetup()
                 .when()
                 .accept(JSON)

@@ -1,6 +1,9 @@
 package uk.gov.pay.adminusers.infra;
 
 import com.amazonaws.services.sqs.AmazonSQS;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.persist.PersistService;
 import com.google.inject.persist.jpa.JpaPersistModule;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.testing.ConfigOverride;
@@ -19,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.app.AdminUsersApp;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
+import uk.gov.pay.adminusers.app.config.AdminUsersModule;
 import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 import uk.gov.service.payments.commons.testing.db.PostgresDockerRule;
 import uk.gov.service.payments.commons.testing.db.PostgresTestHelper;
@@ -44,9 +48,10 @@ public class AppWithPostgresAndSqsRule implements TestRule {
     private final AmazonSQS sqsClient;
     private final DropwizardAppRule<AdminUsersConfig> app;
     private final RuleChain rules;
+    private final int wireMockPort = PortFactory.findFreePort();
 
     private DatabaseTestHelper databaseTestHelper;
-    private final int wireMockPort = PortFactory.findFreePort();
+    private Injector injector;
 
     public AppWithPostgresAndSqsRule(ConfigOverride... configOverrides) {
         this("config/test-it-config.yaml", configOverrides);
@@ -116,6 +121,14 @@ public class AppWithPostgresAndSqsRule implements TestRule {
 
     public int getWireMockPort() {
         return wireMockPort;
+    }
+
+    public synchronized Injector getInjector() {
+        if (injector == null) {
+            injector = Guice.createInjector(new AdminUsersModule(app.getConfiguration(), app.getEnvironment()));
+            injector.getInstance(PersistService.class).start();
+        }
+        return injector;
     }
 
     private void registerShutdownHook() {

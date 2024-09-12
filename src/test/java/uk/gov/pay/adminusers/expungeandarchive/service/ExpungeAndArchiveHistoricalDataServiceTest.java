@@ -22,6 +22,7 @@ import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.pay.adminusers.client.ledger.service.LedgerService;
 import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.persistence.dao.ForgottenPasswordDao;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
@@ -165,6 +166,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
     @Nested
     class TestArchivingServices {
 
+        RoleEntity adminRole = new RoleEntity(new Role(2, RoleName.ADMIN, "Administrator"));
         ServiceEntity serviceEntity;
         String gatewayAccountId1 = randomUuid();
         String gatewayAccountId2 = randomUuid();
@@ -296,8 +298,7 @@ class ExpungeAndArchiveHistoricalDataServiceTest {
             when(mockLedgerService.searchTransactions(gatewayAccountId1, 1)).thenReturn(searchTransactionsResponse);
             when(mockServiceDao.findServicesToCheckForArchiving(systemDate.minusDays(7))).thenReturn(List.of(serviceEntity));
 
-            RoleEntity roleEntity = new RoleEntity(Role.role(1, "role-1", "role"));
-            ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity, roleEntity);
+            ServiceRoleEntity serviceRoleEntity = new ServiceRoleEntity(serviceEntity, adminRole);
             serviceRoleEntity.setUser(aUserEntity().build());
             when(mockServiceRoleDao.findServiceUserRoles(serviceEntity.getId())).thenReturn(List.of(serviceRoleEntity));
 

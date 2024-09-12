@@ -1,6 +1,10 @@
 package uk.gov.pay.adminusers.resources;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import uk.gov.pay.adminusers.model.Role;
+import uk.gov.pay.adminusers.model.RoleName;
+import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 
 import java.util.Map;
 
@@ -21,8 +25,14 @@ import static uk.gov.pay.adminusers.fixtures.InviteDbFixture.inviteDbFixture;
 import static uk.gov.pay.adminusers.fixtures.UserDbFixture.userDbFixture;
 
 class InviteResourceServiceCompleteIT extends IntegrationTest {
-    public static final String INVITES_RESOURCE_URL = "/v1/api/invites";
 
+    private Role adminRole;
+
+    @BeforeEach
+    void setUp() {
+        adminRole = getInjector().getInstance(RoleDao.class).findByRoleName(RoleName.ADMIN).get().toRole();
+    }
+    
     @Test
     void shouldReturn200withDisabledInviteLinkingToCreatedUser_WhenPassedAValidInviteCode() throws Exception {
         String email = format("%s@example.gov.uk", randomUuid());
@@ -33,7 +43,7 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
                 .withTelephoneNumber(telephoneNumber)
                 .withEmail(email)
                 .withPassword(password)
-                .insertSelfSignupInvite();
+                .insertSelfSignupInvite(adminRole);
 
         Map<String, String> payload = Map.of("second_factor", "SMS");
 
@@ -86,7 +96,7 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
                 .withTelephoneNumber(telephoneNumber)
                 .withEmail(email)
                 .withPassword(password)
-                .insertSelfSignupInvite();
+                .insertSelfSignupInvite(adminRole);
 
         Map<String, String> payload = Map.of("second_factor", "SMS");
 
@@ -116,7 +126,7 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
                 .withTelephoneNumber(telephoneNumber)
                 .withEmail(email)
                 .withPassword(password)
-                .insertSelfSignupInvite();
+                .insertSelfSignupInvite(adminRole);
 
         Map<String, String> payload = Map.of("second_factor", "SMS");
 
@@ -143,7 +153,7 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
                 .withEmail(email)
                 .withPassword(password)
                 .disabled()
-                .insertSelfSignupInvite();
+                .insertSelfSignupInvite(adminRole);
 
         Map<String, String> payload = Map.of("second_factor", "SMS");
 
