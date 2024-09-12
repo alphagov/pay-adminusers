@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.persistence.entity;
 
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.Invite;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.service.AdminUsersExceptions;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
@@ -204,7 +205,7 @@ public class InviteEntity extends AbstractEntity {
     }
 
     public Invite toInvite() {
-        String roleName = getRole().map(x -> x.getRoleName().getName()).orElse(null);
+        String roleName = getRole().map(RoleEntity::getRoleName).map(RoleName::getName).orElse(null);
         return new Invite(code, email, telephoneNumber, disabled, loginCounter, isInviteToJoinService(), roleName, isExpired(),
                 hasPassword(), otpKey);
     }

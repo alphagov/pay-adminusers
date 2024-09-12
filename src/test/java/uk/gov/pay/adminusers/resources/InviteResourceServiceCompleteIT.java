@@ -29,7 +29,7 @@ class InviteResourceServiceCompleteIT extends IntegrationTest {
     private Role adminRole;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         adminRole = getInjector().getInstance(RoleDao.class).findByRoleName(RoleName.ADMIN).get().toRole();
     }
     

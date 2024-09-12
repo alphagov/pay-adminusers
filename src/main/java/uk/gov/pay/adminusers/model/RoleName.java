@@ -3,10 +3,12 @@ package uk.gov.pay.adminusers.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import java.util.EnumSet;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.function.Function;
 
+import static java.util.stream.Collectors.toUnmodifiableMap;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.undefinedRoleException;
 
 public enum RoleName {
@@ -18,10 +20,11 @@ public enum RoleName {
     @JsonProperty("view-refund-and-initiate-moto") VIEW_REFUND_AND_INITIATE_MOTO("view-refund-and-initiate-moto"),
     @JsonProperty("super-admin") SUPER_ADMIN("super-admin");
 
-    private static final Set<RoleName> roleNames = EnumSet.allOf(RoleName.class);
-    
     private final String name;
 
+    private static final Map<String, RoleName> roleNames = Arrays.stream(RoleName.values())
+            .collect(toUnmodifiableMap(RoleName::getName, Function.identity()));
+    
     RoleName(String name) {
         this.name = name;
     }
@@ -32,10 +35,6 @@ public enum RoleName {
     }
     
     public static RoleName fromName(String name) {
-        Optional<RoleName> roleName = roleNames.stream().filter(r -> r.getName().equalsIgnoreCase(name)).findFirst();
-        if (roleName.isEmpty()) {
-            throw undefinedRoleException(name);
-        }
-        return roleName.get();
+        return Optional.ofNullable(roleNames.get(name)).orElseThrow(() -> undefinedRoleException(name));
     }
 }

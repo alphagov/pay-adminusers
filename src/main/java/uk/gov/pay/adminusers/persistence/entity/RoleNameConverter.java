@@ -14,9 +14,6 @@ public class RoleNameConverter implements AttributeConverter<RoleName, String> {
 
     @Override
     public RoleName convertToEntityAttribute(String dbData) {
-        if (dbData == null) {
-            return null;
-        }
         return RoleName.fromName(dbData);
     }
 }
