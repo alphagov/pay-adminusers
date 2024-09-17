@@ -2,12 +2,14 @@ package uk.gov.pay.adminusers.persistence.dao;
 
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import java.time.Instant;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
@@ -93,17 +95,37 @@ public class UserDao extends JpaDao<UserEntity> {
                 .getResultList().stream().findFirst();
     }
 
-    public List<UserEntity> findByServiceId(Integer serviceId) {
+    public List<UserEntity> findByServiceId(Integer serviceId, RoleName roleName) {
 
-        String query = "SELECT s FROM ServiceRoleEntity s " +
-                "WHERE s.service.id = :serviceId ORDER BY s.user.email";
+        String query = "SELECT s FROM ServiceRoleEntity s ";
+        
+        if (roleName != null) {
+            query += " LEFT JOIN RoleEntity re ON s.role = re ";
+        }
 
-        return entityManager.get()
+        query += " WHERE s.service.id = :serviceId ";
+        
+        if (roleName != null) {
+            query += " AND re.roleName = :roleName ";
+        }
+        
+        query += " ORDER BY s.user.email";
+
+        TypedQuery<ServiceRoleEntity> typedQuery = entityManager.get()
                 .createQuery(query, ServiceRoleEntity.class)
-                .setParameter("serviceId", serviceId)
-                .getResultList().stream()
+                .setParameter("serviceId", serviceId);
+        
+        if (roleName != null) {
+            typedQuery.setParameter("roleName", roleName);
+        }
+        
+        return typedQuery.getResultList().stream()
                 .map(ServiceRoleEntity::getUser)
-                .collect(toUnmodifiableList());
+                .toList();
+    }
+
+    public List<UserEntity> findByServiceId(Integer serviceId) {
+        return findByServiceId(serviceId, null);
     }
 
     public int deleteUsersNotAssociatedWithAnyService(Instant deleteRecordsBeforeDate) {
