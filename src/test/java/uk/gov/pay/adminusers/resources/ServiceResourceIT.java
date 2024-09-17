@@ -93,10 +93,10 @@ public class ServiceResourceIT extends IntegrationTest {
         
         @Test
         void should_return_admin_users_ordered_by_email_when_specifying_admin_role_query_param() {
-            String user3email = "d" + randomUuid() + "@example.com";
-            User user2 = userDbFixture(databaseHelper)
+            String email = "d" + randomUuid() + "@example.com";
+            User anotherAdminUser = userDbFixture(databaseHelper)
                     .withServiceRole(service, adminRole)
-                    .withEmail(user3email)
+                    .withEmail(email)
                     .insertUser();
 
             givenSetup()
@@ -111,9 +111,9 @@ public class ServiceResourceIT extends IntegrationTest {
                     .body("[0]._links[0].href", is("http://localhost:8080/v1/api/users/" + userWithRoleAdminInService1.getExternalId()))
                     .body("[0]._links[0].method", is("GET"))
                     .body("[0]._links[0].rel", is("self"))
-                    .body("[1].email", is(user2.getEmail()))
+                    .body("[1].email", is(anotherAdminUser.getEmail()))
                     .body("[1]._links", hasSize(1))
-                    .body("[1]._links[0].href", is("http://localhost:8080/v1/api/users/" + user2.getExternalId()))
+                    .body("[1]._links[0].href", is("http://localhost:8080/v1/api/users/" + anotherAdminUser.getExternalId()))
                     .body("[1]._links[0].method", is("GET"))
                     .body("[1]._links[0].rel", is("self"));
         }
