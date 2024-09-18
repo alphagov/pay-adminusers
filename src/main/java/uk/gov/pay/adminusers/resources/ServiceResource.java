@@ -348,7 +348,7 @@ public class ServiceResource {
                                         .stream()
                                         .map(UserEntity::toUser)
                                         .map(linksBuilder::decorate)
-                                        .collect(toUnmodifiableList())
+                                        .toList()
                         ).build()
                 ).orElseGet(() -> Response.status(NOT_FOUND).build());
     }

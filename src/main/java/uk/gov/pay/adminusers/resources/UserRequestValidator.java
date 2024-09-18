@@ -17,9 +17,7 @@ import static java.lang.String.format;
 import static uk.gov.pay.adminusers.model.User.FIELD_EMAIL;
 import static uk.gov.pay.adminusers.model.User.FIELD_PASSWORD;
 import static uk.gov.pay.adminusers.model.User.FIELD_ROLE_NAME;
-import static uk.gov.pay.adminusers.model.User.FIELD_SERVICE_EXTERNAL_ID;
 import static uk.gov.pay.adminusers.model.User.FIELD_TELEPHONE_NUMBER;
-import static uk.gov.pay.adminusers.model.User.FIELD_USERNAME;
 import static uk.gov.pay.adminusers.validations.UserPatchValidations.getUserPatchPathValidations;
 import static uk.gov.pay.adminusers.validations.UserPatchValidations.isAllowedOpForPath;
 import static uk.gov.pay.adminusers.validations.UserPatchValidations.isPathAllowed;
@@ -88,11 +86,6 @@ public class UserRequestValidator {
 
     public Optional<Errors> validateServiceRole(JsonNode payload) {
         Optional<List<String>> missingMandatoryFields = requestValidations.checkExistsAndNotEmpty(payload, "role_name");
-        return missingMandatoryFields.map(Errors::from);
-    }
-
-    public Optional<Errors> validateAssignServiceRequest(JsonNode payload) {
-        Optional<List<String>> missingMandatoryFields = requestValidations.checkExistsAndNotEmpty(payload, FIELD_SERVICE_EXTERNAL_ID, FIELD_ROLE_NAME);
         return missingMandatoryFields.map(Errors::from);
     }
 

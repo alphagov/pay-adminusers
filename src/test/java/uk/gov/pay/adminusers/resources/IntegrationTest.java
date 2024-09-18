@@ -33,7 +33,6 @@ public class IntegrationTest {
     /* default */ static final String USER_RESOURCE_URL = "/v1/api/users/%s";
     /* default */ static final String USERS_AUTHENTICATE_URL = "/v1/api/users/authenticate";
     /* default */ static final String USER_2FA_URL = "/v1/api/users/%s/second-factor";
-    /* default */ static final String USER_SERVICES_RESOURCE = USER_RESOURCE_URL + "/services";
     /* default */ static final String USER_SERVICE_RESOURCE = "/v1/api/users/%s/services/%s";
 
     /* default */ static final String INVITES_RESOURCE_URL = "/v1/api/invites";

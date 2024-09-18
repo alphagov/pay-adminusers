@@ -1042,7 +1042,7 @@ paths:
       - Users
   /v1/api/users/{userExternalId}/services:
     post:
-      operationId: createServiceRole
+      operationId: assignServiceAndRoleToUser
       parameters:
       - example: 93ba1ec4ed6a4238a59f16ad97b4fa12
         in: path
@@ -1152,6 +1152,17 @@ paths:
       - Invites
 components:
   schemas:
+    AssignServiceAndRoleRequest:
+      type: object
+      properties:
+        role_name:
+          type: string
+        service_external_id:
+          type: string
+        valid_role_name:
+          type: boolean
+      required:
+      - service_external_id
     CompleteInviteRequest:
       type: object
       properties:
