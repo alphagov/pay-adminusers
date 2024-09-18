@@ -13,8 +13,10 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.pay.adminusers.model.AssignServiceAndRoleRequest;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.PatchRequest;
+import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.service.ExistingUserOtpDispatcher;
@@ -44,7 +46,6 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static uk.gov.pay.adminusers.model.User.FIELD_EMAIL;
-import static uk.gov.pay.adminusers.model.User.FIELD_USERNAME;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingEmail;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.internalServerError;
 
@@ -472,17 +473,13 @@ public class UserResource {
                     @ApiResponse(responseCode = "409", description = "User already got access to service")
             }
     )
-    public Response createServiceRole(@Parameter(example = "93ba1ec4ed6a4238a59f16ad97b4fa12")
-                                      @PathParam("userExternalId") String userExternalId, JsonNode payload) {
-        return validator.validateAssignServiceRequest(payload)
-                .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> {
-                    String serviceExternalId = payload.get(User.FIELD_SERVICE_EXTERNAL_ID).asText();
-                    String roleName = payload.get(User.FIELD_ROLE_NAME).asText();
-                    return userServicesFactory.serviceRoleCreator().doCreate(userExternalId, serviceExternalId, roleName)
-                            .map(user -> Response.status(OK).entity(user).build())
-                            .orElseGet(() -> Response.status(NOT_FOUND).build());
-                });
+    public Response assignServiceAndRoleToUser(
+            @Parameter(example = "93ba1ec4ed6a4238a59f16ad97b4fa12") @PathParam("userExternalId") String userExternalId, 
+            @Valid AssignServiceAndRoleRequest payload) {
+        
+        return userServicesFactory.serviceRoleCreator().doCreate(userExternalId, payload.serviceExternalId(), RoleName.fromName(payload.roleName()))
+                .map(user -> Response.status(OK).entity(user).build())
+                .orElseGet(() -> Response.status(NOT_FOUND).build());
     }
 
     private Response handleCreateUserException(String email, Exception e) {

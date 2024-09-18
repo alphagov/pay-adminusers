@@ -34,20 +34,20 @@ public class ServiceRoleCreator {
     }
 
     @Transactional
-    public Optional<User> doCreate(String userExternalId, String serviceExternalId, String roleName) {
+    public Optional<User> doCreate(String userExternalId, String serviceExternalId, RoleName roleName) {
         Optional<UserEntity> userMaybe = userDao.findByExternalId(userExternalId);
-        if (!userMaybe.isPresent()) {
+        if (userMaybe.isEmpty()) {
             return Optional.empty();
         }
 
         Optional<ServiceEntity> serviceMaybe = serviceDao.findByExternalId(serviceExternalId);
-        if (!serviceMaybe.isPresent()) {
+        if (serviceMaybe.isEmpty()) {
             throw serviceDoesNotExistError(serviceExternalId);
         }
 
-        Optional<RoleEntity> roleMaybe = roleDao.findByRoleName(RoleName.fromName(roleName));
-        if (!roleMaybe.isPresent()) {
-            throw undefinedRoleException(roleName);
+        Optional<RoleEntity> roleMaybe = roleDao.findByRoleName(roleName);
+        if (roleMaybe.isEmpty()) {
+            throw undefinedRoleException(roleName.toString());
         }
 
         UserEntity userEntity = userMaybe.get();

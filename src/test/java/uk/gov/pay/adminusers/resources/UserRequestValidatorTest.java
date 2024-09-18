@@ -188,25 +188,6 @@ class UserRequestValidatorTest {
     }
 
     @Test
-    void shouldSuccess_whenAddingServiceRole() {
-        JsonNode payload = objectMapper.valueToTree(Map.of("service_external_id", "blah-blah", "role_name", "blah"));
-        Optional<Errors> optionalErrors = validator.validateAssignServiceRequest(payload);
-
-        assertFalse(optionalErrors.isPresent());
-    }
-
-    @Test
-    void shouldError_whenAddingServiceRole_ifRequiredParamMissing() {
-        JsonNode payload = objectMapper.valueToTree(Map.of("service_external_id", "blah-blah"));
-        Optional<Errors> optionalErrors = validator.validateAssignServiceRequest(payload);
-
-        Errors errors = optionalErrors.get();
-        assertThat(errors.getErrors().size(), is(1));
-        assertThat(errors.getErrors(), hasItems(
-                "Field [role_name] is required"));
-    }
-
-    @Test
     void shouldError_ifTelephoneNumberFieldIsInvalid() throws Exception {
         String invalidPayload = "{" +
                 "\"password\": \"a-password\"," +
