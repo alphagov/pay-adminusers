@@ -395,7 +395,7 @@ paths:
       - Services
   /v1/api/services/{serviceExternalId}:
     get:
-      operationId: findService
+      operationId: getService
       parameters:
       - example: 7d19aff33f8948deb97ed16b2912dcd3
         in: path

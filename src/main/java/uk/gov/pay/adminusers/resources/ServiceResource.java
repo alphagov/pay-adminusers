@@ -141,7 +141,7 @@ public class ServiceResource {
                     @ApiResponse(responseCode = "404", description = "Not found")
             }
     )
-    public Response findService(@Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3") @PathParam("serviceExternalId")
+    public Response getService(@Parameter(example = "7d19aff33f8948deb97ed16b2912dcd3") @PathParam("serviceExternalId")
                                 String serviceExternalId) {
         return serviceDao.findByExternalId(serviceExternalId)
                 .map(serviceEntity ->
