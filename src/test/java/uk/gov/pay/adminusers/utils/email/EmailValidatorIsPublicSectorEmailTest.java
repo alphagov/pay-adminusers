@@ -55,6 +55,7 @@ class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@bolton-sfc.ac.uk", true},
                 {"valid@caa.co.uk", true},
                 {"valid@careinspectorate.com", true},
+                {"valid@cinolla.com", true},
                 {"valid@cynulliad.cymru", true},
                 {"valid@derrystrabane.com", true},
                 {"valid@digitalaccessibilitycentre.org", true},
@@ -113,6 +114,7 @@ class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@subdomain.bl.uk", true},
                 {"valid@subdomain.bolton-sfc.ac.uk", true},
                 {"valid@subdomain.careinspectorate.com", true},
+                {"valid@subdomain.cinolla.com", true},
                 {"valid@subdomain.cynulliad.cymru", true},
                 {"valid@subdomain.derrystrabane.com", true},
                 {"valid@subdomain.digitalaccessibilitycentre.org", true},
@@ -159,7 +161,7 @@ class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@subdomain.uksbs.co.uk", true},
                 {"valid@subdomain.visitbritain.org", true},
                 {"valid@subdomain.wmca.org.uk", true},
-                {"valid@subdomain.york.ac.uk", true},
+                {"valid@subdomain.york.ac.uk", true}
         });
     }
 

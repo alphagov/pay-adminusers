@@ -24,6 +24,7 @@ public class EmailValidator {
             "bolton-sfc.ac.uk",
             "caa.co.uk",
             "careinspectorate.com",
+            "cinolla.com",
             "cynulliad.cymru",
             "derrystrabane.com",
             "digitalaccessibilitycentre.org",
