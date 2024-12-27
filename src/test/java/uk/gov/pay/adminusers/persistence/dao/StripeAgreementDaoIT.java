@@ -6,7 +6,7 @@ import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
 
-import javax.persistence.RollbackException;
+import jakarta.persistence.RollbackException;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZoneOffset;

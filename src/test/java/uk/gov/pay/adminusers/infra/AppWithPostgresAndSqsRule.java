@@ -137,10 +137,10 @@ public class AppWithPostgresAndSqsRule implements TestRule {
 
     private JpaPersistModule createJpaModule(final PostgresDockerRule postgres) {
         final Properties properties = new Properties();
-        properties.put("javax.persistence.jdbc.driver", postgres.getDriverClass());
-        properties.put("javax.persistence.jdbc.url", postgres.getConnectionUrl());
-        properties.put("javax.persistence.jdbc.user", postgres.getUsername());
-        properties.put("javax.persistence.jdbc.password", postgres.getPassword());
+        properties.put("jakarta.persistence.jdbc.driver", postgres.getDriverClass());
+        properties.put("jakarta.persistence.jdbc.url", postgres.getConnectionUrl());
+        properties.put("jakarta.persistence.jdbc.user", postgres.getUsername());
+        properties.put("jakarta.persistence.jdbc.password", postgres.getPassword());
 
         final JpaPersistModule jpaModule = new JpaPersistModule(JPA_UNIT);
         jpaModule.properties(properties);

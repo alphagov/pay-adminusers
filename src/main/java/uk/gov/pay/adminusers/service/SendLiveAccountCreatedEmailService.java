@@ -8,7 +8,7 @@ import uk.gov.pay.adminusers.exception.GovUkPayAgreementNotSignedException;
 import uk.gov.pay.adminusers.persistence.dao.GovUkPayAgreementDao;
 import uk.gov.pay.adminusers.persistence.entity.GovUkPayAgreementEntity;
 
-import static javax.ws.rs.core.UriBuilder.fromUri;
+import static jakarta.ws.rs.core.UriBuilder.fromUri;
 
 public class SendLiveAccountCreatedEmailService {
 

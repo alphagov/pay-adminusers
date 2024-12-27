@@ -3,10 +3,10 @@ package uk.gov.pay.adminusers.persistence.entity;
 import org.eclipse.persistence.annotations.ReadOnly;
 import uk.gov.pay.adminusers.model.Permission;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 /**
  * Represents a single Permission assignable to a selfservice user (Government department user)

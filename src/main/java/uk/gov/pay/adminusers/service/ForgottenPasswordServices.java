@@ -14,7 +14,7 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static java.lang.String.format;
-import static javax.ws.rs.core.UriBuilder.fromUri;
+import static jakarta.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 public class ForgottenPasswordServices {

@@ -1,18 +1,15 @@
 package uk.gov.pay.adminusers.persistence.dao;
 
-import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import uk.gov.pay.adminusers.persistence.entity.ForgottenPasswordEntity;
 
-import javax.persistence.EntityManager;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
-
-import static java.util.Date.from;
 
 @Transactional
 public class ForgottenPasswordDao extends JpaDao<ForgottenPasswordEntity> {

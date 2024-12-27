@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.dropwizard.logback.shaded.checkerframework.checker.nullness.qual.Nullable;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)

@@ -9,7 +9,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hamcrest.version>3.0</hamcrest.version>
         <pact.version>3.6.15</pact.version>
-        <pay-java-commons.version>1.0.20250328094554</pay-java-commons.version>
+        <pay-java-commons.version>1.0.20250331151154</pay-java-commons.version>
         <prometheus.version>0.16.0</prometheus.version>
         <swaggger-version>2.2.28</swaggger-version>
         <surefire.version>3.5.3</surefire.version>
@@ -25,14 +25,14 @@
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-dependencies</artifactId>
-                <version>3.0.13</version>
+                <version>4.0.13</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>com.google.inject</groupId>
                 <artifactId>guice-bom</artifactId>
-                <version>6.0.0</version>
+                <version>7.0.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -59,22 +59,10 @@
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>jakarta.inject</groupId>
-                    <artifactId>jakarta.inject-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-auth</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>jakarta.inject</groupId>
-                    <artifactId>jakarta.inject-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>
@@ -91,12 +79,6 @@
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>jakarta.inject</groupId>
-                    <artifactId>jakarta.inject-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
@@ -157,14 +139,9 @@
 
         <!-- Main dependencies that need explicit versions -->
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>1.1.1</version>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>4.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -174,7 +151,7 @@
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.jpa</artifactId>
-            <version>2.7.15</version>
+            <version>4.0.4</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -235,7 +212,7 @@
         </dependency>
         <dependency>
             <groupId>io.prometheus</groupId>
-            <artifactId>simpleclient_servlet</artifactId>
+            <artifactId>simpleclient_servlet_jakarta</artifactId>
             <version>${prometheus.version}</version>
         </dependency>
         <dependency>
@@ -245,28 +222,23 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.service.payments</groupId>
-            <artifactId>model</artifactId>
+            <artifactId>model-dropwizard-4</artifactId>
             <version>${pay-java-commons.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.service.payments</groupId>
-            <artifactId>queue</artifactId>
+            <artifactId>queue-dropwizard-4</artifactId>
             <version>${pay-java-commons.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.service.payments</groupId>
-            <artifactId>utils</artifactId>
+            <artifactId>utils-dropwizard-4</artifactId>
             <version>${pay-java-commons.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.service.payments</groupId>
-            <artifactId>logging-dropwizard-3</artifactId>
+            <artifactId>logging-dropwizard-4</artifactId>
             <version>${pay-java-commons.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.inject</groupId>
-            <artifactId>jakarta.inject-api</artifactId>
-            <version>2.0.1</version>
         </dependency>
 
         <!-- Test dependencies that are imported from one of the BOMs specified
@@ -311,7 +283,7 @@
         <dependency>
             <groupId>io.dropwizard.modules</groupId>
             <artifactId>dropwizard-testing-junit4</artifactId>
-            <version>3.0.13</version>
+            <version>4.0.13</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -370,7 +342,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.service.payments</groupId>
-            <artifactId>testing</artifactId>
+            <artifactId>testing-dropwizard-4</artifactId>
             <version>${pay-java-commons.version}</version>
             <scope>test</scope>
         </dependency>
@@ -527,7 +499,7 @@
             </plugin>
             <plugin>
                 <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-maven-plugin</artifactId>
+                <artifactId>swagger-maven-plugin-jakarta</artifactId>
                 <version>${swaggger-version}</version>
                 <configuration>
                     <outputPath>openapi</outputPath>

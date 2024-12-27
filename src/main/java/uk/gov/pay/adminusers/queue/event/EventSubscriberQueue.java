@@ -12,7 +12,7 @@ import uk.gov.service.payments.commons.queue.model.QueueMessage;
 import uk.gov.service.payments.commons.queue.sqs.AbstractQueue;
 import uk.gov.service.payments.commons.queue.sqs.SqsQueueService;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;

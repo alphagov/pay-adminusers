@@ -6,7 +6,7 @@ import uk.gov.pay.adminusers.persistence.dao.ServiceRoleDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.Optional;
 import java.util.function.Predicate;
 

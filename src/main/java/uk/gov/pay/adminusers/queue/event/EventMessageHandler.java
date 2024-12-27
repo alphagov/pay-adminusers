@@ -23,7 +23,7 @@ import uk.gov.pay.adminusers.service.UserServices;
 import uk.gov.pay.adminusers.utils.dispute.DisputeReasonMapper;
 import uk.gov.service.payments.commons.queue.exception.QueueException;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;

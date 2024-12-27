@@ -5,7 +5,7 @@ import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 
 @Transactional
