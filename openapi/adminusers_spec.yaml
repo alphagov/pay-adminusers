@@ -63,7 +63,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ForgottenPassword'
+                $ref: "#/components/schemas/ForgottenPassword"
           description: OK
         "404":
           description: Not found
@@ -86,7 +86,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Invite'
+                  $ref: "#/components/schemas/Invite"
           description: OK
       summary: List invites for a service
       tags:
@@ -98,13 +98,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateInviteToJoinServiceRequest'
+              $ref: "#/components/schemas/CreateInviteToJoinServiceRequest"
       responses:
         "201":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Invite'
+                $ref: "#/components/schemas/Invite"
           description: Created
         "404":
           description: Service or role not found
@@ -121,13 +121,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateSelfRegistrationInviteRequest'
+              $ref: "#/components/schemas/CreateSelfRegistrationInviteRequest"
       responses:
         "201":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Invite'
+                $ref: "#/components/schemas/Invite"
           description: Created
         "403":
           description: The email is not an allowed public sector email address
@@ -151,7 +151,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Invite'
+                $ref: "#/components/schemas/Invite"
           description: OK
         "404":
           description: Not found
@@ -184,7 +184,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Invite'
+                $ref: "#/components/schemas/Invite"
           description: OK
         "400":
           description: Bad request
@@ -215,13 +215,13 @@ paths:
         content:
           '*/*':
             schema:
-              $ref: '#/components/schemas/CompleteInviteRequest'
+              $ref: "#/components/schemas/CompleteInviteRequest"
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CompleteInviteResponse'
+                $ref: "#/components/schemas/CompleteInviteResponse"
           description: OK
         "404":
           description: Not found
@@ -244,7 +244,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Invite'
+                $ref: "#/components/schemas/Invite"
           description: OK
         "404":
           description: Not found
@@ -311,7 +311,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Service'
+                $ref: "#/components/schemas/Service"
           description: OK
         "400":
           description: Missing gateway account ID
@@ -341,7 +341,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Service'
+                $ref: "#/components/schemas/Service"
           description: Created
         "400":
           description: Service name keys must be one of 'en' (English) or 'cy' (Welsh)
@@ -363,7 +363,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Service'
+                  $ref: "#/components/schemas/Service"
           description: OK
       summary: Get all services
       tags:
@@ -386,7 +386,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SearchServicesResponse'
+                $ref: "#/components/schemas/SearchServicesResponse"
           description: OK
         "400":
           description: Invalid JSON payload
@@ -408,7 +408,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Service'
+                $ref: "#/components/schemas/Service"
           description: OK
         "404":
           description: Not found
@@ -453,13 +453,13 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/ServiceUpdateRequest'
+                $ref: "#/components/schemas/ServiceUpdateRequest"
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Service'
+                $ref: "#/components/schemas/Service"
           description: OK
         "400":
           description: Invalid payload
@@ -483,7 +483,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GovUkPayAgreement'
+                $ref: "#/components/schemas/GovUkPayAgreement"
           description: OK
         "404":
           description: Service with serviceExternalId not found
@@ -513,13 +513,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GovUkPayAgreement'
+                $ref: "#/components/schemas/GovUkPayAgreement"
           description: Agreement already created - existing agreement returned
         "201":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GovUkPayAgreement'
+                $ref: "#/components/schemas/GovUkPayAgreement"
           description: Created
         "400":
           description: Invalid payload
@@ -542,13 +542,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateMerchantDetailsRequest'
+              $ref: "#/components/schemas/UpdateMerchantDetailsRequest"
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Service'
+                $ref: "#/components/schemas/Service"
           description: OK
         "400":
           description: Invalid payload
@@ -595,7 +595,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StripeAgreement'
+                $ref: "#/components/schemas/StripeAgreement"
           description: OK
         "404":
           description: Not found
@@ -616,7 +616,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StripeAgreementRequest'
+              $ref: "#/components/schemas/StripeAgreementRequest"
         required: true
       responses:
         "200":
@@ -655,7 +655,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: "#/components/schemas/User"
           description: OK
         "400":
           description: "If query parameter 'role' is not one of [admin, view-and-refund,\
@@ -740,7 +740,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: "#/components/schemas/User"
           description: OK
       summary: Gets users with the associated external ids
       tags:
@@ -753,13 +753,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUserRequest'
+              $ref: "#/components/schemas/CreateUserRequest"
       responses:
         "201":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: Created
         "400":
           description: Invalid payload
@@ -815,7 +815,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: OK
         "400":
           description: Invalid payload
@@ -839,7 +839,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: OK
         "400":
           description: Invalid search params
@@ -863,7 +863,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: OK
         "404":
           description: Not found
@@ -886,13 +886,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchRequest'
+              $ref: "#/components/schemas/PatchRequest"
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: OK
         "400":
           description: Invalid payload
@@ -916,7 +916,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: OK
         "404":
           description: User with userExternalId not found
@@ -976,7 +976,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: OK
         "400":
           description: Invalid payload
@@ -1009,7 +1009,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: OK
         "400":
           description: Invalid payload
@@ -1033,7 +1033,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: OK
         "404":
           description: Not found
@@ -1066,7 +1066,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: OK
         "400":
           description: Invalid payload
@@ -1108,7 +1108,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: OK
         "400":
           description: Invalid payload
@@ -1139,7 +1139,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/InviteValidateOtpRequest'
+              $ref: "#/components/schemas/InviteValidateOtpRequest"
       responses:
         "204":
           description: No content
@@ -1175,7 +1175,7 @@ components:
       type: object
       properties:
         invite:
-          $ref: '#/components/schemas/Invite'
+          $ref: "#/components/schemas/Invite"
         service_external_id:
           type: string
           example: 89wi6il2364328
@@ -1263,7 +1263,7 @@ components:
         _links:
           type: array
           items:
-            $ref: '#/components/schemas/Link'
+            $ref: "#/components/schemas/Link"
         code:
           type: string
           example: bc9039e00cba4e63b2c92ecd0e188aba
@@ -1290,7 +1290,7 @@ components:
         _links:
           type: array
           items:
-            $ref: '#/components/schemas/Link'
+            $ref: "#/components/schemas/Link"
         attempt_counter:
           type: integer
           format: int32
@@ -1422,7 +1422,7 @@ components:
         permissions:
           type: array
           items:
-            $ref: '#/components/schemas/Permission'
+            $ref: "#/components/schemas/Permission"
           uniqueItems: true
     SearchServicesResponse:
       type: object
@@ -1430,18 +1430,18 @@ components:
         merchant_results:
           type: array
           items:
-            $ref: '#/components/schemas/Service'
+            $ref: "#/components/schemas/Service"
         name_results:
           type: array
           items:
-            $ref: '#/components/schemas/Service'
+            $ref: "#/components/schemas/Service"
     Service:
       type: object
       properties:
         _links:
           type: array
           items:
-            $ref: '#/components/schemas/Link'
+            $ref: "#/components/schemas/Link"
         agent_initiated_moto_enabled:
           type: boolean
           example: false
@@ -1511,7 +1511,7 @@ components:
           type: boolean
           example: false
         merchant_details:
-          $ref: '#/components/schemas/MerchantDetails'
+          $ref: "#/components/schemas/MerchantDetails"
         name:
           type: string
           example: Some service name
@@ -1541,9 +1541,9 @@ components:
       type: object
       properties:
         role:
-          $ref: '#/components/schemas/Role'
+          $ref: "#/components/schemas/Role"
         service:
-          $ref: '#/components/schemas/Service'
+          $ref: "#/components/schemas/Service"
     ServiceUpdateRequest:
       type: object
       properties:
@@ -1616,7 +1616,7 @@ components:
         _links:
           type: array
           items:
-            $ref: '#/components/schemas/Link'
+            $ref: "#/components/schemas/Link"
         disabled:
           type: boolean
           example: false
@@ -1658,7 +1658,7 @@ components:
         service_roles:
           type: array
           items:
-            $ref: '#/components/schemas/ServiceRole'
+            $ref: "#/components/schemas/ServiceRole"
         session_version:
           type: integer
           format: int32
