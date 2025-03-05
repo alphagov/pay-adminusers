@@ -16,11 +16,15 @@ import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
@@ -258,7 +262,7 @@ public class UserServices {
                 changeUserEmail(user, patchRequest.getValue());
                 break;
             case PATH_FEATURES:
-                changeUserFeatures(user, patchRequest.getValue());
+                changeUserFeatures(user, patchRequest.getValue(), patchRequest.getOp());
                 break;
             default:
                 String error = format("Invalid patch request with path [%s]", patchRequest.getPath());
@@ -278,10 +282,30 @@ public class UserServices {
         }).collect(Collectors.toList());
     }
 
-    private void changeUserFeatures(UserEntity userEntity, String features) {
-        userEntity.setFeatures(features);
-        userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+    private void changeUserFeatures(UserEntity userEntity, String features, String op) {
+        if (op.equals("add")) {
+            Set<String> featureSet = createFeatureSet(userEntity);
+            featureSet.addAll(Arrays.asList(features.split(",")));
+            featureSet.remove("");
+            userEntity.setFeatures(
+                    String.join(",", featureSet.stream().toList())
+            );
+        } else if (op.equals("remove")) {
+            Set<String> featureSet = createFeatureSet(userEntity);
+            Stream.of(features.split(",")).forEach(featureSet::remove);
+            featureSet.remove("");
+            userEntity.setFeatures(
+                    String.join(",", featureSet.stream().toList())
+            );
+        } else {
+            userEntity.setFeatures(features);
+            userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+        }
         userDao.merge(userEntity);
+    }
+    
+    private Set<String> createFeatureSet(UserEntity userEntity) {
+        return new HashSet<>(Arrays.asList(Optional.ofNullable(userEntity.getFeatures()).orElse("").split(",")));
     }
 
     private void changeUserTelephoneNumber(UserEntity userEntity, String telephoneNumber) {

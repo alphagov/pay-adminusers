@@ -27,7 +27,7 @@ public class UserDbFixture {
     private String password = "password-" + randomUuid();
     private String email = randomUuid() + "@example.com";
     private String telephoneNumber = "+447700900000";
-    private String features = "FEATURE_1, FEATURE_2";
+    private String features = null;
     private String provisionalOtpKey;
     private SecondFactorMethod secondFactorMethod = SecondFactorMethod.SMS;
     private ZonedDateTime createdAt;

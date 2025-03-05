@@ -32,7 +32,7 @@ public class UserPatchValidations {
             PATH_DISABLED, "replace",
             PATH_TELEPHONE_NUMBER, "replace",
             PATH_EMAIL, "replace",
-            PATH_FEATURES, "replace");
+            PATH_FEATURES, "replace,add,remove");
 
     private static final Multimap<String, Pair<Function<JsonNode, Boolean>, String>> USER_PATCH_PATH_VALIDATIONS = new ImmutableListMultimap.Builder<String, Pair<Function<JsonNode, Boolean>, String>>()
             .put(PATH_SESSION_VERSION, of(isNotNumeric(), format("path [%s] must contain a value of positive integer", PATH_SESSION_VERSION)))

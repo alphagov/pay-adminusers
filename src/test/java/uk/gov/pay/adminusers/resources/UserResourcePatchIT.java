@@ -5,10 +5,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.User;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
@@ -135,5 +141,103 @@ class UserResourcePatchIT extends IntegrationTest {
                 .body("errors", hasSize(2))
                 .body("errors[0]", is("Field [op] is required"))
                 .body("errors[1]", is("Field [path] is required"));
+    }
+    
+    @Test
+    void shouldAddFeatureToUser_whenOpIsAdd () {
+        JsonNode payload = mapper.valueToTree(Map.of("path", "features", "op", "add", "value", "test_feature"));
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .accept(JSON)
+                .body(payload)
+                .patch(format(USER_RESOURCE_URL, externalId))
+                .then()
+                .body("features", is("test_feature"));        
+    }
+    
+    @Test
+    void shouldAddMultipleFeatureToUser_whenListOfFeaturesIsProvided () {
+        JsonNode payload = mapper.valueToTree(Map.of("path", "features", "op", "add", "value", "test_feature_1,test_feature_2,test_feature_3"));
+
+        String featureList = givenSetup()
+                .when()
+                .contentType(JSON)
+                .accept(JSON)
+                .body(payload)
+                .patch(format(USER_RESOURCE_URL, externalId))
+                .then()
+                .extract().path("features");
+
+        Set<String> featureSet = new HashSet<>(List.of(featureList.split(",")));
+        featureSet.remove("");
+        assertThat(featureSet.size(), is(3));
+        assertThat(featureSet, containsInAnyOrder("test_feature_1", "test_feature_2", "test_feature_3"));
+    }
+
+
+    @Test
+    void shouldRemoveFeatureFromUser_whenOpIsRemove () {
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User userWithFeatures = userDbFixture(databaseHelper).withEmail(email).withFeatures("test_feature_1,test_feature_2").insertUser();
+        
+        JsonNode payload = mapper.valueToTree(Map.of("path", "features", "op", "remove", "value", "test_feature_1"));
+
+        String featureList = givenSetup()
+                .when()
+                .contentType(JSON)
+                .accept(JSON)
+                .body(payload)
+                .patch(format(USER_RESOURCE_URL, userWithFeatures.getExternalId()))
+                .then()
+                .extract().path("features");
+
+        Set<String> featureSet = new HashSet<>(List.of(featureList.split(",")));
+        featureSet.remove("");
+        assertThat(featureSet.size(), is(1));
+        assertThat(featureSet, contains("test_feature_2"));
+    }
+
+    @Test
+    void shouldRemoveMultipleFeaturesFromUser_whenListOfFeaturesIsProvided () {
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User userWithFeatures = userDbFixture(databaseHelper).withEmail(email).withFeatures("test_feature_1,test_feature_2,test_feature_3,test_feature_4").insertUser();
+
+        JsonNode payload = mapper.valueToTree(Map.of("path", "features", "op", "remove", "value", "test_feature_1,test_feature_4"));
+
+        String featureList = givenSetup()
+                .when()
+                .contentType(JSON)
+                .accept(JSON)
+                .body(payload)
+                .patch(format(USER_RESOURCE_URL, userWithFeatures.getExternalId()))
+                .then()
+                .extract().path("features");
+        
+        Set<String> featureSet = new HashSet<>(List.of(featureList.split(",")));
+        featureSet.remove("");
+        assertThat(featureSet.size(), is(2));
+        assertThat(featureSet, containsInAnyOrder("test_feature_2", "test_feature_3"));
+    }
+
+    @Test
+    void shouldResultInEmptyFeaturesList_whenAllFeaturesAreRemoved () {
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User userWithFeatures = userDbFixture(databaseHelper).withEmail(email).withFeatures("test_feature_1,test_feature_2,test_feature_3,test_feature_4").insertUser();
+
+        JsonNode payload = mapper.valueToTree(Map.of("path", "features", "op", "remove", "value", "test_feature_1,test_feature_2,test_feature_3,test_feature_4"));
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .accept(JSON)
+                .body(payload)
+                .patch(format(USER_RESOURCE_URL, userWithFeatures.getExternalId()))
+                .then()
+                .body("features", is(""));
     }
 }
