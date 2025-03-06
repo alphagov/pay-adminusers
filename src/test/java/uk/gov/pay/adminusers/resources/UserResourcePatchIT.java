@@ -249,13 +249,17 @@ class UserResourcePatchIT extends IntegrationTest {
 
         JsonNode payload = mapper.valueToTree(Map.of("path", "features", "op", "remove", "value", "test_feature_5,test_feature_6"));
 
-        givenSetup()
+        String featureList = givenSetup()
                 .when()
                 .contentType(JSON)
                 .accept(JSON)
                 .body(payload)
                 .patch(format(USER_RESOURCE_URL, userWithFeatures.getExternalId()))
                 .then()
-                .body("features", is("test_feature_1,test_feature_2,test_feature_3,test_feature_4"));
+                .extract().path("features");
+
+        Set<String> featureSet = new HashSet<>(List.of(featureList.split(",")));
+        assertThat(featureSet.size(), is(4));
+        assertThat(featureSet, containsInAnyOrder("test_feature_1", "test_feature_2", "test_feature_3", "test_feature_4"));
     }
 }
