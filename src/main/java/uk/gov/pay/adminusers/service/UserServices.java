@@ -286,14 +286,14 @@ public class UserServices {
         if (op.equals("add")) {
             Set<String> featureSet = createFeatureSet(userEntity);
             featureSet.addAll(Arrays.asList(features.split(",")));
-            featureSet.remove("");
+            featureSet.remove(""); // splitting an empty string yields a list containing ""
             userEntity.setFeatures(
                     String.join(",", featureSet.stream().toList())
             );
         } else if (op.equals("remove")) {
             Set<String> featureSet = createFeatureSet(userEntity);
             Stream.of(features.split(",")).forEach(featureSet::remove);
-            featureSet.remove("");
+            featureSet.remove(""); // splitting an empty string yields a list containing ""
             userEntity.setFeatures(
                     String.join(",", featureSet.stream().toList())
             );

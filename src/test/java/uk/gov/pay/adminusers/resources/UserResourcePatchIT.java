@@ -240,4 +240,22 @@ class UserResourcePatchIT extends IntegrationTest {
                 .then()
                 .body("features", is(""));
     }
+
+    @Test
+    void shouldNotDeleteFeaturesFromList_whenAttemptingToDeleteFeaturesNotInList () {
+        String username = randomUuid();
+        String email = username + "@example.com";
+        User userWithFeatures = userDbFixture(databaseHelper).withEmail(email).withFeatures("test_feature_1,test_feature_2,test_feature_3,test_feature_4").insertUser();
+
+        JsonNode payload = mapper.valueToTree(Map.of("path", "features", "op", "remove", "value", "test_feature_5,test_feature_6"));
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .accept(JSON)
+                .body(payload)
+                .patch(format(USER_RESOURCE_URL, userWithFeatures.getExternalId()))
+                .then()
+                .body("features", is("test_feature_1,test_feature_2,test_feature_3,test_feature_4"));
+    }
 }
