@@ -27,6 +27,7 @@ public class EmailValidator {
             "cynulliad.cymru",
             "derrystrabane.com",
             "digitalaccessibilitycentre.org",
+            "dundeeandangus.ac.uk",
             "eani.org.uk",
             "fermanaghomagh.com",
             "forestryengland.uk",
