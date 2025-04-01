@@ -1171,6 +1171,7 @@ components:
           enum:
           - SMS
           - APP
+          - BACKUP_CODE
     CompleteInviteResponse:
       type: object
       properties:
@@ -1660,6 +1661,7 @@ components:
           enum:
           - SMS
           - APP
+          - BACKUP_CODE
           example: SMS
         service_roles:
           type: array

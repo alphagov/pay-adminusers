@@ -1,5 +1,7 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import uk.gov.pay.adminusers.app.util.RandomIdGenerator;
 import uk.gov.pay.adminusers.model.CreateUserRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
@@ -14,6 +16,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -56,6 +59,10 @@ public class UserEntity extends AbstractEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, targetEntity = ServiceRoleEntity.class)
     private List<ServiceRoleEntity> servicesRoles = new ArrayList<>();
+    
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST, targetEntity = UserMfaMethodEntity.class)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private List<UserMfaMethodEntity> userMfas = new ArrayList<>();
 
     // TODO: Change column from 'camelCase' to 'snake_case'. These columns were created through Sequelize.
     @Column(name = "\"createdAt\"")
@@ -217,6 +224,10 @@ public class UserEntity extends AbstractEntity {
 
     public void setLastLoggedInAt(ZonedDateTime lastLoggedInAt) {
         this.lastLoggedInAt = lastLoggedInAt;
+    }
+
+    public List<UserMfaMethodEntity> getUserMfas() {
+        return userMfas;
     }
 
     /**

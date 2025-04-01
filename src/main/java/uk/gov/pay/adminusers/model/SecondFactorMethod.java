@@ -18,6 +18,14 @@ public enum SecondFactorMethod {
         public String toString() {
             return "app";
         }
+    },
+    
+    @JsonProperty("BACKUP_CODE")
+    BACKUP_CODE {
+        @Override
+        public String toString() {
+            return "backup_code";
+        }
     }
 
 }

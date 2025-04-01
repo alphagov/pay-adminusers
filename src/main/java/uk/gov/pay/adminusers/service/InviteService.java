@@ -11,17 +11,22 @@ import uk.gov.pay.adminusers.model.InviteValidateOtpRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.persistence.dao.UserMfaMethodDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.adminusers.persistence.entity.UserMfaMethodEntity;
 import uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId;
+import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 import uk.gov.service.payments.commons.model.jsonpatch.JsonPatchOp;
 import uk.gov.service.payments.commons.model.jsonpatch.JsonPatchRequest;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
+
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -45,6 +50,7 @@ public class InviteService {
 
     private final InviteDao inviteDao;
     private final UserDao userDao;
+    private final UserMfaMethodDao userMfaMethodDao;
     private final NotificationService notificationService;
     private final SecondFactorAuthenticator secondFactorAuthenticator;
     private final PasswordHasher passwordHasher;
@@ -53,7 +59,7 @@ public class InviteService {
 
     @Inject
     public InviteService(InviteDao inviteDao,
-                         UserDao userDao,
+                         UserDao userDao, UserMfaMethodDao userMfaMethodDao,
                          NotificationService notificationService,
                          SecondFactorAuthenticator secondFactorAuthenticator,
                          PasswordHasher passwordHasher,
@@ -61,6 +67,7 @@ public class InviteService {
                          @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap) {
         this.inviteDao = inviteDao;
         this.userDao = userDao;
+        this.userMfaMethodDao = userMfaMethodDao;
         this.notificationService = notificationService;
         this.secondFactorAuthenticator = secondFactorAuthenticator;
         this.passwordHasher = passwordHasher;
@@ -184,8 +191,35 @@ public class InviteService {
             throw missingSecondFactorMethod(inviteEntity.getCode());
         }
         UserEntity newUser = inviteEntity.mapToUserEntity(secondFactorMethod);
+        createMfaEntity(newUser, inviteEntity, secondFactorMethod);
         userDao.persist(newUser);
         return newUser;
+    }
+
+    private void createMfaEntity(UserEntity userEntity, InviteEntity inviteEntity, SecondFactorMethod secondFactorMethod) {
+        UserMfaMethodEntity mfaMethod = new UserMfaMethodEntity();
+        mfaMethod.setUserId(userEntity.getId());
+        mfaMethod.setOtpKey(inviteEntity.getOtpKey());
+        mfaMethod.setActive(true);
+        mfaMethod.setDisabled(false);
+        mfaMethod.setMethod(secondFactorMethod);
+        mfaMethod.setCreatedAt(ZonedDateTime.now());
+        mfaMethod.setUpdatedAt(ZonedDateTime.now());
+
+        userEntity.getUserMfas().add(mfaMethod);
+
+        if (secondFactorMethod.equals(SecondFactorMethod.APP) && inviteEntity.getTelephoneNumber() != null) {
+            UserMfaMethodEntity mfaMethodPhone = new UserMfaMethodEntity();
+            mfaMethodPhone.setUserId(userEntity.getId());
+            mfaMethodPhone.setOtpKey(secondFactorAuthenticator.generateNewBase32EncodedSecret());
+            mfaMethodPhone.setActive(true);
+            mfaMethodPhone.setDisabled(false);
+            mfaMethodPhone.setPhoneNumber(TelephoneNumberUtility.formatToE164(inviteEntity.getTelephoneNumber()));
+            mfaMethodPhone.setMethod(SecondFactorMethod.SMS);
+            mfaMethodPhone.setCreatedAt(ZonedDateTime.now());
+            mfaMethodPhone.setUpdatedAt(ZonedDateTime.now());
+            userEntity.getUserMfas().add(mfaMethodPhone);
+        }
     }
 
 }

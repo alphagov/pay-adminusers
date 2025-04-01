@@ -16,6 +16,7 @@ import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.persistence.dao.InviteDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.persistence.dao.UserMfaMethodDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
@@ -61,6 +62,8 @@ class InviteServiceTest {
     @Mock
     private UserDao mockUserDao;
     @Mock
+    UserMfaMethodDao mockUserMfaMethodDao;
+    @Mock
     private NotificationService mockNotificationService;
     @Mock
     private SecondFactorAuthenticator mockSecondFactorAuthenticator;
@@ -85,6 +88,7 @@ class InviteServiceTest {
         inviteService = new InviteService(
                 mockInviteDao,
                 mockUserDao,
+                mockUserMfaMethodDao,
                 mockNotificationService,
                 mockSecondFactorAuthenticator,
                 mockPasswordHasher,
