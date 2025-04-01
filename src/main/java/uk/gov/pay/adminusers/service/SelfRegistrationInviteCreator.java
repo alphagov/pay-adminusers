@@ -35,6 +35,7 @@ public class SelfRegistrationInviteCreator {
     private final LinksConfig linksConfig;
     private final NotificationService notificationService;
     private final SecondFactorAuthenticator secondFactorAuthenticator;
+    private final PasswordHasher passwordHasher;
 
     @Inject
     public SelfRegistrationInviteCreator(InviteDao inviteDao,
@@ -43,7 +44,8 @@ public class SelfRegistrationInviteCreator {
                                          LinksBuilder linksBuilder,
                                          LinksConfig linksConfig,
                                          NotificationService notificationService,
-                                         SecondFactorAuthenticator secondFactorAuthenticator) {
+                                         SecondFactorAuthenticator secondFactorAuthenticator,
+                                         PasswordHasher passwordHasher) {
         this.inviteDao = inviteDao;
         this.userDao = userDao;
         this.roleDao = roleDao;
@@ -51,6 +53,7 @@ public class SelfRegistrationInviteCreator {
         this.linksConfig = linksConfig;
         this.notificationService = notificationService;
         this.secondFactorAuthenticator = secondFactorAuthenticator;
+        this.passwordHasher = passwordHasher;
     }
 
     @Transactional
@@ -74,6 +77,14 @@ public class SelfRegistrationInviteCreator {
 
         if (!existingValidServiceInvitesForSameEmail.isEmpty()) {
             InviteEntity foundInvite = existingValidServiceInvitesForSameEmail.get(0);
+
+            if(createSelfRegistrationInviteRequest.getTelephoneNumber()!=null){
+                foundInvite.setTelephoneNumber(createSelfRegistrationInviteRequest.getTelephoneNumber());
+            }
+            if(createSelfRegistrationInviteRequest.getPassword()!=null){
+                foundInvite.setPassword(passwordHasher.hash(createSelfRegistrationInviteRequest.getPassword()));
+            }
+
             return constructInviteAndSendEmail(foundInvite, inviteEntity -> {
                 inviteDao.merge(inviteEntity);
                 return null;
@@ -84,13 +95,20 @@ public class SelfRegistrationInviteCreator {
                 .map(roleEntity -> {
                     String otpKey = secondFactorAuthenticator.generateNewBase32EncodedSecret();
                     InviteEntity inviteEntity = new InviteEntity(requestEmail, randomUuid(), otpKey, roleEntity);
+
+                    if(createSelfRegistrationInviteRequest.getTelephoneNumber()!=null){
+                        inviteEntity.setTelephoneNumber(createSelfRegistrationInviteRequest.getTelephoneNumber());
+                    }
+                    if(createSelfRegistrationInviteRequest.getPassword()!=null){
+                        inviteEntity.setPassword(passwordHasher.hash(createSelfRegistrationInviteRequest.getPassword()));
+                    }
+
                     return constructInviteAndSendEmail(inviteEntity, inviteToPersist -> {
                         inviteDao.persist(inviteToPersist);
                         return null;
                     });
                 })
                 .orElseThrow(() -> internalServerError("Unable to retrieve admin service role"));
-
     }
 
     private Invite constructInviteAndSendEmail(InviteEntity inviteEntity, Function<InviteEntity, Void> saveOrUpdate) {

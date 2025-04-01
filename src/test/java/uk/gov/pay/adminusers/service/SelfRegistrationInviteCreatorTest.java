@@ -57,12 +57,14 @@ class SelfRegistrationInviteCreatorTest {
     @Captor
     private ArgumentCaptor<InviteEntity> persistedInviteEntity;
     private SelfRegistrationInviteCreator selfRegistrationInviteCreator;
+    @Mock
+    private PasswordHasher passwordHasher;
 
     @BeforeEach
     void before() {
         selfRegistrationInviteCreator = new SelfRegistrationInviteCreator(inviteDao, userDao, roleDao,
                 new LinksBuilder("http://localhost/"), linksConfig, notificationService,
-                secondFactorAuthenticator);
+                secondFactorAuthenticator, passwordHasher);
     }
 
     @Test

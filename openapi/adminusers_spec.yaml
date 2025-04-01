@@ -1216,6 +1216,12 @@ components:
         email:
           type: string
           example: example@example.gov.uk
+        password:
+          type: string
+          example: password123!
+        telephone_number:
+          type: string
+          example: 070xxxxxxxx
       required:
       - email
     CreateServiceRequest:
