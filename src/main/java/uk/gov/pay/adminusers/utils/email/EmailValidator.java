@@ -61,6 +61,7 @@ public class EmailValidator {
             "parliament.uk",
             "police.uk",
             "prrt.org",
+            "rnngroup.ac.uk",
             "scotent.co.uk",
             "serc.ac.uk",
             "slc.co.uk",
