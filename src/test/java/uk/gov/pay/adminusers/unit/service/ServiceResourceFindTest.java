@@ -24,7 +24,7 @@ import uk.gov.pay.adminusers.service.StripeAgreementService;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 import uk.gov.service.payments.commons.model.SupportedLanguage;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Optional;

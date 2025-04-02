@@ -1,9 +1,9 @@
 package uk.gov.pay.adminusers.resources;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 
 public class InvalidEmailRequestExceptionMapper implements ExceptionMapper<InvalidEmailRequestException> {
 

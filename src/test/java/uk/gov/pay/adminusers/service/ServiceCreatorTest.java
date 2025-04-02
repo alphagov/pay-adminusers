@@ -14,8 +14,8 @@ import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.service.payments.commons.model.SupportedLanguage;
 
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.WebApplicationException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
