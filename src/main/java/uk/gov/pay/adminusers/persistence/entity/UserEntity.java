@@ -25,7 +25,6 @@ import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toUnmodifiableList;
 
 @Entity
 @Table(name = "users")
@@ -290,9 +289,10 @@ public class UserEntity extends AbstractEntity {
         user.setSessionVersion(sessionVersion);
 
         if (userMfas != null) {
-            userMfas.forEach(userMfaMethodEntity ->
-                    user.getMfas().add(userMfaMethodEntity.toUserMfa())
-            );
+            userMfas.stream().filter(mfa -> mfa.isActive())
+                    .forEach((userMfaMethodEntity ->
+                            user.getMfas().add(userMfaMethodEntity.toUserMfa())
+                    ));
         }
 
         return user;

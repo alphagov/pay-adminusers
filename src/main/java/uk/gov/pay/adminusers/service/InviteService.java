@@ -206,6 +206,10 @@ public class InviteService {
         mfaMethod.setCreatedAt(ZonedDateTime.now());
         mfaMethod.setUpdatedAt(ZonedDateTime.now());
 
+        if(inviteEntity.getTelephoneNumber() != null){
+            mfaMethod.setPhoneNumber(TelephoneNumberUtility.formatToE164(inviteEntity.getTelephoneNumber()));
+        }
+
         userEntity.getUserMfas().add(mfaMethod);
 
         if (secondFactorMethod.equals(SecondFactorMethod.APP) && inviteEntity.getTelephoneNumber() != null) {

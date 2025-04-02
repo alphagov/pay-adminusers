@@ -115,7 +115,7 @@ public class UserMfaMethodEntity extends AbstractEntity {
         this.isPrimary = isPrimary;
     }
 
-    public Boolean getActive() {
+    public Boolean isActive() {
         return isActive;
     }
 

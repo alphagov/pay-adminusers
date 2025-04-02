@@ -18,6 +18,7 @@ import uk.gov.pay.adminusers.model.Service;
 import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.persistence.dao.UserMfaMethodDao;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
@@ -74,6 +75,8 @@ public class UserServicesTest {
     @Captor
     private ArgumentCaptor<UserEntity> userEntityArgumentCaptor;
 
+    @Mock UserMfaMethodDao userMfaMethodDao;
+
     private UserServices underTest;
 
     private static final String USER_EXTERNAL_ID = "7d19aff33f8948deb97ed16b2912dcd3";
@@ -87,7 +90,7 @@ public class UserServicesTest {
 
     @BeforeEach
     void before() {
-        underTest = new UserServices(mockUserDao, mockPasswordHasher, new LinksBuilder("http://localhost"), 3, () -> mockNotificationService, mockSecondFactorAuthenticator, mock(ServiceFinder.class));
+        underTest = new UserServices(mockUserDao, mockPasswordHasher, new LinksBuilder("http://localhost"), 3, () -> mockNotificationService, mockSecondFactorAuthenticator, mock(ServiceFinder.class), userMfaMethodDao);
     }
 
     @Test

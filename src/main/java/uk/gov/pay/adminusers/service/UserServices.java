@@ -10,8 +10,10 @@ import uk.gov.pay.adminusers.model.PatchRequest;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
+import uk.gov.pay.adminusers.persistence.dao.UserMfaMethodDao;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.adminusers.persistence.entity.UserMfaMethodEntity;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
 import java.time.ZoneId;
@@ -35,6 +37,7 @@ import static uk.gov.pay.adminusers.model.PatchRequest.PATH_EMAIL;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_FEATURES;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_SESSION_VERSION;
 import static uk.gov.pay.adminusers.model.PatchRequest.PATH_TELEPHONE_NUMBER;
+import static uk.gov.pay.adminusers.model.SecondFactorMethod.APP;
 import static uk.gov.pay.adminusers.model.SecondFactorMethod.SMS;
 
 public class UserServices {
@@ -42,6 +45,7 @@ public class UserServices {
     private static Logger logger = LoggerFactory.getLogger(UserServices.class);
 
     private final UserDao userDao;
+    private final UserMfaMethodDao userMfaMethodDao;
     private final PasswordHasher passwordHasher;
     private final LinksBuilder linksBuilder;
     private final Integer loginAttemptCap;
@@ -52,14 +56,15 @@ public class UserServices {
                         PasswordHasher passwordHasher,
                         LinksBuilder linksBuilder,
                         @Named("LOGIN_ATTEMPT_CAP") Integer loginAttemptCap,
-                        Provider<NotificationService> userNotificationService, 
-                        SecondFactorAuthenticator secondFactorAuthenticator, 
-                        ServiceFinder serviceFinder) {
+                        Provider<NotificationService> userNotificationService,
+                        SecondFactorAuthenticator secondFactorAuthenticator,
+                        ServiceFinder serviceFinder, UserMfaMethodDao userMfaMethodDao) {
         this.userDao = userDao;
         this.passwordHasher = passwordHasher;
         this.linksBuilder = linksBuilder;
         this.loginAttemptCap = loginAttemptCap;
         this.secondFactorAuthenticator = secondFactorAuthenticator;
+        this.userMfaMethodDao = userMfaMethodDao;
     }
 
     @Transactional
@@ -110,7 +115,7 @@ public class UserServices {
         Optional<UserEntity> userEntityOptional = userDao.findByEmail(username);
         return userEntityOptional.map(userEntity -> linksBuilder.decorate(userEntity.toUser()));
     }
-    
+
     public Map<String, List<String>> getAdminUserEmailsForGatewayAccountIds(List<String> gatewayAccountIds) {
         Map<String, List<String>> gatewayAccountIdsToAdminEmails = new HashMap<>(userDao.getAdminUserEmailsForGatewayAccountIds(gatewayAccountIds));
         gatewayAccountIds.forEach(gatewayAccountId -> gatewayAccountIdsToAdminEmails.putIfAbsent(gatewayAccountId, List.of()));
@@ -209,6 +214,32 @@ public class UserServices {
                     userEntity.setProvisionalOtpKeyCreatedAt(null);
                     userEntity.setUpdatedAt(now);
                     userDao.merge(userEntity);
+
+                    if (secondFactor.equals(APP)) {
+                        Optional<UserMfaMethodEntity> mayBeMfaEntity = userEntity.getUserMfas()
+                                .stream().filter(mfa -> mfa.isActive() && mfa.getMethod().equals(APP))
+                                .findFirst();
+
+                        if (mayBeMfaEntity.isPresent()) {
+                            UserMfaMethodEntity mfaEntity = mayBeMfaEntity.get();
+                            mfaEntity.setOtpKey(userEntity.getOtpKey());
+                            mfaEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+                            userMfaMethodDao.merge(mfaEntity);
+                        } else {
+                            UserMfaMethodEntity mfaMethod = new UserMfaMethodEntity();
+                            mfaMethod.setUserId(userEntity.getId());
+                            mfaMethod.setOtpKey(userEntity.getOtpKey());
+                            mfaMethod.setActive(true);
+                            mfaMethod.setIsPrimary(false);
+                            mfaMethod.setMethod(APP);
+                            mfaMethod.setCreatedAt(ZonedDateTime.now());
+                            mfaMethod.setUpdatedAt(ZonedDateTime.now());
+                            userMfaMethodDao.persist(mfaMethod);
+                        }
+
+                    }
+
+
                     return Optional.of(linksBuilder.decorate(userEntity.toUser()));
                 }).orElseGet(() -> {
                     logger.error("Attempt to activate a new OTP key for a non-existent user {}", externalId);
@@ -226,13 +257,13 @@ public class UserServices {
             if (userEntity.getTelephoneNumber().isEmpty()) {
                 throw AdminUsersExceptions.cannotResetSecondFactorToSmsError(externalId);
             }
-            
+
             logger.info("Resetting OTP method to SMS for user {}", userEntity.getExternalId());
             userEntity.setOtpKey(secondFactorAuthenticator.generateNewBase32EncodedSecret());
             userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
             userEntity.setSecondFactor(SMS);
             userDao.merge(userEntity);
-            
+
             return linksBuilder.decorate(userEntity.toUser());
         });
     }
@@ -247,7 +278,7 @@ public class UserServices {
         }
 
         UserEntity user = userOptional.get();
-        
+
         switch (patchRequest.getPath()) {
             case PATH_SESSION_VERSION:
                 incrementSessionVersion(user, parseInt(patchRequest.getValue()));
@@ -268,12 +299,12 @@ public class UserServices {
                 String error = format("Invalid patch request with path [%s]", patchRequest.getPath());
                 logger.error(error);
                 throw new RuntimeException(error);
-                
+
         }
-        
+
         return Optional.of(linksBuilder.decorate(user.toUser()));
     }
-    
+
     public List<UserEntity> getAdminUsersForService(Integer serviceId) {
         List<UserEntity> serviceUsers = userDao.findByServiceId(serviceId);
         return serviceUsers.stream().filter(userEntity -> {
@@ -303,7 +334,7 @@ public class UserServices {
         }
         userDao.merge(userEntity);
     }
-    
+
     private Set<String> createFeatureSet(UserEntity userEntity) {
         return new HashSet<>(Arrays.asList(Optional.ofNullable(userEntity.getFeatures()).orElse("").split(",")));
     }
@@ -311,9 +342,17 @@ public class UserServices {
     private void changeUserTelephoneNumber(UserEntity userEntity, String telephoneNumber) {
         userEntity.setTelephoneNumber(TelephoneNumberUtility.formatToE164(telephoneNumber));
         userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+
+        userEntity.getUserMfas()
+                .stream().filter(mfa -> mfa.getMethod().equals(SMS) && mfa.isActive())
+                .forEach(userMfaMethodEntity -> {
+                    userMfaMethodEntity.setPhoneNumber(TelephoneNumberUtility.formatToE164(telephoneNumber));
+                    userMfaMethodEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
+                    userMfaMethodDao.merge(userMfaMethodEntity);
+                });
         userDao.merge(userEntity);
     }
-    
+
     private void changeUserEmail(UserEntity userEntity, String email) {
         userEntity.setEmail(email);
         userEntity.setUpdatedAt(ZonedDateTime.now(ZoneId.of("UTC")));
