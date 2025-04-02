@@ -6,12 +6,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import uk.gov.pay.adminusers.model.SecondFactorMethod;
+import uk.gov.pay.adminusers.model.UserMfa;
 
 import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "user_mfa_method")
-@SequenceGenerator(name = "user_mfa_id_seq", sequenceName = "user_mfa_id_seq", 
+@SequenceGenerator(name = "user_mfa_id_seq", sequenceName = "user_mfa_id_seq",
         allocationSize = 1)
 public class UserMfaMethodEntity extends AbstractEntity {
     @Column(name = "external_id")
@@ -26,7 +27,7 @@ public class UserMfaMethodEntity extends AbstractEntity {
     @Column(name = "method", nullable = false)
     @Convert(converter = SecondFactorMethodConverter.class)
     private SecondFactorMethod method;
-    
+
     @Column(name = "otp_key")
     private String otpKey;
 
@@ -37,7 +38,7 @@ public class UserMfaMethodEntity extends AbstractEntity {
     private String backupCode;
 
     @Column(name = "is_primary")
-    private Boolean disabled = Boolean.FALSE;
+    private Boolean isPrimary = Boolean.FALSE;
 
     @Column(name = "is_active")
     private Boolean isActive = Boolean.FALSE;
@@ -106,12 +107,12 @@ public class UserMfaMethodEntity extends AbstractEntity {
         this.backupCode = backupCode;
     }
 
-    public Boolean getDisabled() {
-        return disabled;
+    public Boolean getIsPrimary() {
+        return isPrimary;
     }
 
-    public void setDisabled(Boolean disabled) {
-        this.disabled = disabled;
+    public void setIsPrimary(Boolean isPrimary) {
+        this.isPrimary = isPrimary;
     }
 
     public Boolean getActive() {
@@ -136,5 +137,20 @@ public class UserMfaMethodEntity extends AbstractEntity {
 
     public void setUpdatedAt(ZonedDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public UserMfa toUserMfa() {
+        UserMfa userMfa = new UserMfa();
+
+        userMfa.setExternalId(externalId);
+        userMfa.setDescription(description);
+        userMfa.setMethod(method);
+        userMfa.setActive(isActive);
+        userMfa.setPrimary(isPrimary);
+        userMfa.setCreatedAt(createdAt);
+        userMfa.setUpdatedAt(updatedAt);
+        userMfa.setPhoneNumber(phoneNumber);
+
+        return userMfa;
     }
 }

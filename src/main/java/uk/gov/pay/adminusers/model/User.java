@@ -55,6 +55,8 @@ public class User {
     private List<Link> links = new ArrayList<>();
     private Integer sessionVersion = 0;
 
+    private List<UserMfa> mfas = new ArrayList<>();
+
     public static User from(Integer id, String externalId, String password, String email, String otpKey,
                             String telephoneNumber, List<ServiceRole> serviceRoles, String features,
                             SecondFactorMethod secondFactor, String provisionalOtpKey,
@@ -193,6 +195,10 @@ public class User {
     @JsonProperty("_links")
     public List<Link> getLinks() {
         return links;
+    }
+
+    public List<UserMfa> getMfas() {
+        return mfas;
     }
 
     public void setLinks(List<Link> links) {

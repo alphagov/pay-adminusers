@@ -201,7 +201,7 @@ public class InviteService {
         mfaMethod.setUserId(userEntity.getId());
         mfaMethod.setOtpKey(inviteEntity.getOtpKey());
         mfaMethod.setActive(true);
-        mfaMethod.setDisabled(false);
+        mfaMethod.setIsPrimary(false);
         mfaMethod.setMethod(secondFactorMethod);
         mfaMethod.setCreatedAt(ZonedDateTime.now());
         mfaMethod.setUpdatedAt(ZonedDateTime.now());
@@ -213,7 +213,7 @@ public class InviteService {
             mfaMethodPhone.setUserId(userEntity.getId());
             mfaMethodPhone.setOtpKey(secondFactorAuthenticator.generateNewBase32EncodedSecret());
             mfaMethodPhone.setActive(true);
-            mfaMethodPhone.setDisabled(false);
+            mfaMethodPhone.setIsPrimary(false);
             mfaMethodPhone.setPhoneNumber(TelephoneNumberUtility.formatToE164(inviteEntity.getTelephoneNumber()));
             mfaMethodPhone.setMethod(SecondFactorMethod.SMS);
             mfaMethodPhone.setCreatedAt(ZonedDateTime.now());

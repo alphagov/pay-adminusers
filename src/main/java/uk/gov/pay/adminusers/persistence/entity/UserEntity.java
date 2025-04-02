@@ -59,7 +59,7 @@ public class UserEntity extends AbstractEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, targetEntity = ServiceRoleEntity.class)
     private List<ServiceRoleEntity> servicesRoles = new ArrayList<>();
-    
+
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST, targetEntity = UserMfaMethodEntity.class)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private List<UserMfaMethodEntity> userMfas = new ArrayList<>();
@@ -288,6 +288,12 @@ public class UserEntity extends AbstractEntity {
         user.setLoginCounter(loginCounter);
         user.setDisabled(disabled);
         user.setSessionVersion(sessionVersion);
+
+        if (userMfas != null) {
+            userMfas.forEach(userMfaMethodEntity ->
+                    user.getMfas().add(userMfaMethodEntity.toUserMfa())
+            );
+        }
 
         return user;
     }
