@@ -14,12 +14,12 @@ import java.util.Locale;
 import java.util.Map;
 
 import static java.lang.String.format;
-import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
-import static jakarta.ws.rs.core.Response.Status.CONFLICT;
-import static jakarta.ws.rs.core.Response.Status.CREATED;
-import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
-import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
-import static jakarta.ws.rs.core.Response.Status.PRECONDITION_FAILED;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
+import static javax.ws.rs.core.Response.Status.CREATED;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItems;

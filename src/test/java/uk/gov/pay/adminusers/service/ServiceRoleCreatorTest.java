@@ -19,7 +19,7 @@ import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceRoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
-import jakarta.ws.rs.WebApplicationException;
+import javax.ws.rs.WebApplicationException;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;

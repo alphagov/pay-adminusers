@@ -4,7 +4,7 @@ import com.google.inject.persist.PersistService;
 
 public class PersistenceServiceInitialiser {
 
-    @jakarta.inject.Inject
+    @javax.inject.Inject
     public PersistenceServiceInitialiser(PersistService service) {
         service.start();
     }

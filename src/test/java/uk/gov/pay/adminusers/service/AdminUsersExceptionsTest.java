@@ -2,7 +2,7 @@ package uk.gov.pay.adminusers.service;
 
 import org.junit.jupiter.api.Test;
 
-import jakarta.ws.rs.WebApplicationException;
+import javax.ws.rs.WebApplicationException;
 import java.util.List;
 import java.util.Map;
 

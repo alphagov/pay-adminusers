@@ -2,8 +2,8 @@ package uk.gov.pay.adminusers.persistence.entity;
 
 import uk.gov.pay.adminusers.model.RoleName;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 
 @Converter
 public class RoleNameConverter implements AttributeConverter<RoleName, String> {

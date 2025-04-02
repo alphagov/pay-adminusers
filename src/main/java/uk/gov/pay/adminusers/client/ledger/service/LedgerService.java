@@ -7,11 +7,11 @@ import uk.gov.pay.adminusers.client.ledger.exception.LedgerException;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerSearchTransactionsResponse;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 
-import jakarta.inject.Inject;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriBuilder;
+import javax.inject.Inject;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import java.util.Optional;
 
 import static java.lang.String.format;

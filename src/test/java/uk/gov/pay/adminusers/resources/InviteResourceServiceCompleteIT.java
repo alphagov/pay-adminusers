@@ -9,10 +9,10 @@ import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import java.util.Map;
 
 import static java.lang.String.format;
-import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
-import static jakarta.ws.rs.core.Response.Status.CONFLICT;
-import static jakarta.ws.rs.core.Response.Status.GONE;
-import static jakarta.ws.rs.core.Response.Status.OK;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
+import static javax.ws.rs.core.Response.Status.GONE;
+import static javax.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasKey;

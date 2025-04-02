@@ -8,9 +8,9 @@ import uk.gov.pay.adminusers.fixtures.UserDbFixture;
 import java.util.Locale;
 import java.util.Map;
 
-import static jakarta.ws.rs.core.Response.Status.CONFLICT;
-import static jakarta.ws.rs.core.Response.Status.CREATED;
-import static jakarta.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.CONFLICT;
+import static javax.ws.rs.core.Response.Status.CREATED;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;

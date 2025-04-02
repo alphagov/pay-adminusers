@@ -5,7 +5,7 @@ import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 
-import jakarta.persistence.EntityManager;
+import javax.persistence.EntityManager;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -52,8 +52,8 @@ public class InviteDao extends JpaDao<InviteEntity> {
     }
 
     public int deleteInvites(ZonedDateTime deleteRecordsBeforeDate) {
-        String query = "DELETE FROM InviteEntity ie" +
-                " WHERE ie.date < :deleteRecordsBeforeDate";
+        String query = "DELETE FROM InviteEntity" +
+                " WHERE date < :deleteRecordsBeforeDate";
 
         return entityManager.get()
                 .createQuery(query)

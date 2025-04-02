@@ -2,8 +2,8 @@ package uk.gov.pay.adminusers.resources;
 
 import org.apache.commons.validator.routines.InetAddressValidator;
 
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
 public class IpAddressValidator implements ConstraintValidator<ValidIpAddress, Object> {
 

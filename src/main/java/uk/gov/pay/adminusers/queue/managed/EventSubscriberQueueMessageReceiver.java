@@ -8,7 +8,7 @@ import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.EventSubscriberQueueConfig;
 import uk.gov.pay.adminusers.queue.event.EventMessageHandler;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 

@@ -1,7 +1,7 @@
 package uk.gov.pay.adminusers.app.config;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
 
 public class SqsConfig {
 

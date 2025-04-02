@@ -3,8 +3,8 @@ package uk.gov.pay.adminusers.persistence.entity;
 import uk.gov.pay.adminusers.model.MerchantDetails;
 import uk.gov.pay.adminusers.model.UpdateMerchantDetailsRequest;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import java.util.Objects;
 
 @Embeddable

@@ -6,7 +6,7 @@ import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 import uk.gov.service.payments.commons.api.exception.ValidationException;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

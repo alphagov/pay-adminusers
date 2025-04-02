@@ -2,8 +2,8 @@ package uk.gov.pay.adminusers.validations;
 
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
 public class TelephoneNumberValidator implements ConstraintValidator<ValidTelephoneNumber, String> {
     @Override

@@ -5,8 +5,8 @@ import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
 
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;

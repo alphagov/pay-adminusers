@@ -14,7 +14,7 @@ import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
-import jakarta.ws.rs.WebApplicationException;
+import javax.ws.rs.WebApplicationException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;

@@ -20,8 +20,8 @@ import uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId;
 import uk.gov.service.payments.commons.model.jsonpatch.JsonPatchOp;
 import uk.gov.service.payments.commons.model.jsonpatch.JsonPatchRequest;
 
-import jakarta.inject.Inject;
-import jakarta.ws.rs.WebApplicationException;
+import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;

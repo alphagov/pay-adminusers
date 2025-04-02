@@ -1,6 +1,6 @@
 package uk.gov.pay.adminusers.app.config;
 
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 
 public class ExpungeAndArchiveDataConfig {
 

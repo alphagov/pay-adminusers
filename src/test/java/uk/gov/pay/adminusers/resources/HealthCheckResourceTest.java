@@ -13,7 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import jakarta.ws.rs.core.Response;
+import javax.ws.rs.core.Response;
 import java.util.SortedMap;
 import java.util.TreeMap;
 

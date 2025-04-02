@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 
 import static ch.qos.logback.classic.Level.INFO;
 import static java.time.ZoneOffset.UTC;
-import static jakarta.ws.rs.core.Response.serverError;
+import static javax.ws.rs.core.Response.serverError;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItems;

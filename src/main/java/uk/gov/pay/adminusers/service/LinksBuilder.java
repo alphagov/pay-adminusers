@@ -10,7 +10,7 @@ import uk.gov.pay.adminusers.model.User;
 import java.net.URI;
 import java.util.List;
 
-import static jakarta.ws.rs.core.UriBuilder.fromUri;
+import static javax.ws.rs.core.UriBuilder.fromUri;
 import static uk.gov.pay.adminusers.resources.ForgottenPasswordResource.FORGOTTEN_PASSWORDS_RESOURCE;
 import static uk.gov.pay.adminusers.resources.UserResource.USERS_RESOURCE;
 

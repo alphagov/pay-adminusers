@@ -7,7 +7,7 @@ import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.persistence.entity.RoleEntity;
 
-import jakarta.persistence.EntityManager;
+import javax.persistence.EntityManager;
 import java.util.Optional;
 
 /**

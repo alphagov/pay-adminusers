@@ -6,7 +6,7 @@ import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 import uk.gov.service.payments.commons.model.SupportedLanguage;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import io.dropwizard.validation.ValidationMethod;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.ws.rs.WebApplicationException;
+import javax.validation.constraints.NotBlank;
+import javax.ws.rs.WebApplicationException;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record AssignServiceAndRoleRequest(

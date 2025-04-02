@@ -13,7 +13,7 @@ import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.InviteEntity;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;

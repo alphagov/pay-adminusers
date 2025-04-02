@@ -361,7 +361,7 @@ public class UserDaoIT extends DaoTestBase {
 
         userEntity.addServiceRole(serviceRoleEntity);
 
-        var thrown = assertThrows(jakarta.persistence.RollbackException.class, () -> userDao.persist(userEntity));
+        var thrown = assertThrows(javax.persistence.RollbackException.class, () -> userDao.persist(userEntity));
         assertThat(thrown.getMessage(), containsString("ERROR: duplicate key value violates unique constraint \"lower_case_email_index\""));
     }
 

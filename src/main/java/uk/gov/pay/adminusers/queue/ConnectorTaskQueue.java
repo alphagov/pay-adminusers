@@ -11,7 +11,7 @@ import uk.gov.service.payments.commons.queue.model.QueueMessage;
 import uk.gov.service.payments.commons.queue.sqs.AbstractQueue;
 import uk.gov.service.payments.commons.queue.sqs.SqsQueueService;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 
 import static net.logstash.logback.argument.StructuredArguments.kv;
 

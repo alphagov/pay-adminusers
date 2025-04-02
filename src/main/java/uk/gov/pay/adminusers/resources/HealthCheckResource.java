@@ -8,18 +8,18 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.Response;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
 import java.util.Collection;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.stream.Collectors;
 
-import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
-import static jakarta.ws.rs.core.Response.Status.OK;
-import static jakarta.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.Response.Status.OK;
+import static javax.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 
 @Path("/")

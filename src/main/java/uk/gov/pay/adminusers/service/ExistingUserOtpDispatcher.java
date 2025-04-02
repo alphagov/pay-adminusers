@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.SecondFactorToken;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 
 import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.CHANGE_SIGN_IN_2FA_TO_SMS;
 import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.SIGN_IN;

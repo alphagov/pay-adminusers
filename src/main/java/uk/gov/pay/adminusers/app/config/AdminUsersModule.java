@@ -34,7 +34,7 @@ import uk.gov.pay.adminusers.utils.CountryConverter;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 import uk.gov.service.payments.commons.queue.sqs.SqsQueueService;
 
-import jakarta.ws.rs.client.Client;
+import javax.ws.rs.client.Client;
 import java.time.InstantSource;
 import java.util.Properties;
 
@@ -88,10 +88,10 @@ public class AdminUsersModule extends AbstractModule {
     private JpaPersistModule jpaModule(AdminUsersConfig configuration) {
         DataSourceFactory dbConfig = configuration.getDataSourceFactory();
         final Properties properties = new Properties();
-        properties.put("jakarta.persistence.jdbc.driver", dbConfig.getDriverClass());
-        properties.put("jakarta.persistence.jdbc.url", dbConfig.getUrl());
-        properties.put("jakarta.persistence.jdbc.user", dbConfig.getUser());
-        properties.put("jakarta.persistence.jdbc.password", dbConfig.getPassword());
+        properties.put("javax.persistence.jdbc.driver", dbConfig.getDriverClass());
+        properties.put("javax.persistence.jdbc.url", dbConfig.getUrl());
+        properties.put("javax.persistence.jdbc.user", dbConfig.getUser());
+        properties.put("javax.persistence.jdbc.password", dbConfig.getPassword());
 
         JPAConfiguration jpaConfiguration = configuration.getJpaConfiguration();
         properties.put("eclipselink.logging.level", jpaConfiguration.getJpaLoggingLevel());
@@ -156,7 +156,7 @@ public class AdminUsersModule extends AbstractModule {
     }
 
     @Provides
-    @jakarta.inject.Singleton
+    @javax.inject.Singleton
     public Client provideClient() {
         return RestClientFactory.buildClient(configuration.getRestClientConfig());
     }

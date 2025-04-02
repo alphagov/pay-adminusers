@@ -6,8 +6,8 @@ import uk.gov.pay.adminusers.fixtures.ForgottenPasswordDbFixture;
 import java.util.Map;
 
 import static io.restassured.http.ContentType.JSON;
-import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
-import static jakarta.ws.rs.core.Response.Status.OK;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;

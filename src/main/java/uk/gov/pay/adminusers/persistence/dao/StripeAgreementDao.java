@@ -4,8 +4,8 @@ import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
 import uk.gov.pay.adminusers.persistence.entity.StripeAgreementEntity;
 
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import java.util.Optional;
 
 @Transactional

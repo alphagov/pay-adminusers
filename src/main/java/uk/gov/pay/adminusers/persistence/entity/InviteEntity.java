@@ -7,12 +7,12 @@ import uk.gov.pay.adminusers.model.SecondFactorMethod;
 import uk.gov.pay.adminusers.service.AdminUsersExceptions;
 import uk.gov.pay.adminusers.utils.telephonenumber.TelephoneNumberUtility;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Locale;

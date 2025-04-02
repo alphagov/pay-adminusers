@@ -1,9 +1,9 @@
 package uk.gov.pay.adminusers.resources;
 
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
 
-import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 
 public class InvalidMerchantDetailsExceptionMapper implements ExceptionMapper<InvalidMerchantDetailsException> {
 

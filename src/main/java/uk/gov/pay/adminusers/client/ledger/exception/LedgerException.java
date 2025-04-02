@@ -1,6 +1,6 @@
 package uk.gov.pay.adminusers.client.ledger.exception;
 
-import jakarta.ws.rs.core.Response;
+import javax.ws.rs.core.Response;
 
 public class LedgerException extends RuntimeException {
     private Integer status;
