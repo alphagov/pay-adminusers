@@ -5,9 +5,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.SecondFactorToken;
 import uk.gov.pay.adminusers.persistence.entity.UserEntity;
+import uk.gov.pay.adminusers.persistence.entity.UserMfaMethodEntity;
 
 import jakarta.inject.Inject;
 
+import java.util.Optional;
+
+import static uk.gov.pay.adminusers.model.SecondFactorMethod.SMS;
 import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.CHANGE_SIGN_IN_2FA_TO_SMS;
 import static uk.gov.pay.adminusers.service.NotificationService.OtpNotifySmsTemplateId.SIGN_IN;
 
@@ -33,7 +37,21 @@ public class ExistingUserOtpDispatcher {
     }
 
     private SecondFactorToken sendOtp(UserEntity userEntity, boolean changingSignInMethodToSms) {
-        String otpKeyOrProvisionalOtpKey = changingSignInMethodToSms ? userEntity.getProvisionalOtpKey() : userEntity.getOtpKey();
+        String otpKeyOrProvisionalOtpKey;
+        
+        if(changingSignInMethodToSms){
+            otpKeyOrProvisionalOtpKey = userEntity.getProvisionalOtpKey();
+        } else {
+            Optional<UserMfaMethodEntity> smsMfa = userEntity.getUserMfas()
+                    .stream().filter(userMfaMethodEntity -> userMfaMethodEntity.getMethod().equals(SMS))
+                    .findFirst();
+            if (smsMfa.isPresent()) {
+                otpKeyOrProvisionalOtpKey = smsMfa.get().getOtpKey();
+            } else {
+                otpKeyOrProvisionalOtpKey = "";
+            }
+        }
+
         if (otpKeyOrProvisionalOtpKey == null) {
             if (changingSignInMethodToSms) {
                 LOGGER.error("New provisional 2FA token attempted for user without a provisional OTP key [{}]", userEntity.getExternalId());

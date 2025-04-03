@@ -123,7 +123,7 @@ public class UserServices {
     }
 
     @Transactional
-    public Optional<User> authenticateSecondFactor(String externalId, int code) {
+    public Optional<User> authenticateSecondFactor(String externalId, int code, String method) {
         logger.debug("OTP attempt - user_id={}", externalId);
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
         return userDao.findByExternalId(externalId)
@@ -132,7 +132,25 @@ public class UserServices {
                         logger.warn("Failed OTP attempt - user_id={}, login_counter={}. Authenticate Second Factor attempted for a disabled User", userEntity.getExternalId(), userEntity.getLoginCounter());
                         return Optional.<User>empty();
                     }
-                    if (secondFactorAuthenticator.authorize(userEntity.getOtpKey(), code)) {
+                    String otpKey = userEntity.getOtpKey();
+                    if (method != null) {
+                        if (SMS.toString().equalsIgnoreCase(method)) {
+                            Optional<UserMfaMethodEntity> smsMfa = userEntity.getUserMfas()
+                                    .stream().filter(userMfaMethodEntity -> userMfaMethodEntity.getMethod().equals(SMS))
+                                    .findFirst();
+                            if (smsMfa.isPresent()) {
+                                otpKey = smsMfa.get().getOtpKey();
+                            }
+                        } else if (APP.toString().equalsIgnoreCase(method)) {
+                            Optional<UserMfaMethodEntity> appMfa = userEntity.getUserMfas()
+                                    .stream().filter(userMfaMethodEntity -> userMfaMethodEntity.getMethod().equals(APP))
+                                    .findFirst();
+                            if (appMfa.isPresent()) {
+                                otpKey = appMfa.get().getOtpKey();
+                            }
+                        }
+                    }
+                    if (secondFactorAuthenticator.authorize(otpKey, code)) {
                         userEntity.setLoginCounter(0);
                         userEntity.setUpdatedAt(now);
                         userEntity.setLastLoggedInAt(now);

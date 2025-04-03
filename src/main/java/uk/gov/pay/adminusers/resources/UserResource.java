@@ -308,7 +308,8 @@ public class UserResource {
         LOGGER.info("User 2FA authenticate passcode request");
         return validator.validate2FAAuthRequest(payload)
                 .map(errors -> Response.status(BAD_REQUEST).entity(errors).build())
-                .orElseGet(() -> userServices.authenticateSecondFactor(externalId, payload.get("code").asInt())
+                .orElseGet(() -> userServices.authenticateSecondFactor(externalId, payload.get("code").asInt(),
+                                payload.get("method").asText(""))
                         .map(user -> Response.status(OK).type(APPLICATION_JSON).entity(user).build())
                         .orElseGet(() -> Response.status(UNAUTHORIZED).build()));
     }

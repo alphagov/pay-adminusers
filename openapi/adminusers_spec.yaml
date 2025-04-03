@@ -1644,6 +1644,10 @@ components:
           type: integer
           format: int32
           example: 0
+        mfas:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserMfa"
         otp_key:
           type: string
           example: 43c3c4t
@@ -1673,3 +1677,34 @@ components:
         telephone_number:
           type: string
           example: "447700900000"
+    UserMfa:
+      type: object
+      properties:
+        active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          example: 2022-04-06T23:03:41.665Z
+        description:
+          type: string
+          example: google authenticator
+        external_id:
+          type: string
+          example: mfa_93ba1ec4ed6a4238a59f16ad97b4fa12
+        method:
+          type: string
+          enum:
+          - SMS
+          - APP
+          - BACKUP_CODE
+          example: "MFA method. sms, backup_code, app"
+        phone_number:
+          type: string
+          example: "447700900000"
+        primary:
+          type: boolean
+        updated_at:
+          type: string
+          format: date-time
+          example: 2022-04-06T23:03:41.665Z

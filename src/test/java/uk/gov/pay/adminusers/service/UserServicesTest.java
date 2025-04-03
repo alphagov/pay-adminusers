@@ -372,7 +372,7 @@ public class UserServicesTest {
         when(mockUserDao.findByExternalId(aUser.getExternalId())).thenReturn(Optional.of(userEntity));
         when(mockSecondFactorAuthenticator.authorize(aUser.getOtpKey(), newPassCode)).thenReturn(true);
 
-        Optional<User> userOptional = underTest.authenticateSecondFactor(aUser.getExternalId(), newPassCode);
+        Optional<User> userOptional = underTest.authenticateSecondFactor(aUser.getExternalId(), newPassCode, "SMS");
 
         assertTrue(userOptional.isPresent());
         User user = userOptional.get();
@@ -389,7 +389,7 @@ public class UserServicesTest {
         when(mockSecondFactorAuthenticator.authorize(user.getOtpKey(), 123456)).thenReturn(false);
         when(mockUserDao.merge(userEntityArgumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        Optional<User> tokenOptional = underTest.authenticateSecondFactor(user.getExternalId(), 123456);
+        Optional<User> tokenOptional = underTest.authenticateSecondFactor(user.getExternalId(), 123456, "SMS");
 
         assertFalse(tokenOptional.isPresent());
 
@@ -409,7 +409,7 @@ public class UserServicesTest {
         when(mockSecondFactorAuthenticator.authorize(user.getOtpKey(), 123456)).thenReturn(false);
         when(mockUserDao.merge(userEntityArgumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        Optional<User> tokenOptional = underTest.authenticateSecondFactor(user.getExternalId(), 123456);
+        Optional<User> tokenOptional = underTest.authenticateSecondFactor(user.getExternalId(), 123456,"SMS");
 
         assertFalse(tokenOptional.isPresent());
 
@@ -428,7 +428,7 @@ public class UserServicesTest {
         when(mockSecondFactorAuthenticator.authorize(user.getOtpKey(), 123456)).thenReturn(false);
         when(mockUserDao.merge(userEntityArgumentCaptor.capture())).thenReturn(mock(UserEntity.class));
 
-        Optional<User> tokenOptional = underTest.authenticateSecondFactor(user.getExternalId(), 123456);
+        Optional<User> tokenOptional = underTest.authenticateSecondFactor(user.getExternalId(), 123456, "SMS");
 
         assertFalse(tokenOptional.isPresent());
 
@@ -442,7 +442,7 @@ public class UserServicesTest {
         String nonExistentExternalId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         when(mockUserDao.findByExternalId(nonExistentExternalId)).thenReturn(Optional.empty());
 
-        Optional<User> tokenOptional = underTest.authenticateSecondFactor(nonExistentExternalId, 111111);
+        Optional<User> tokenOptional = underTest.authenticateSecondFactor(nonExistentExternalId, 111111,"SMS");
 
         assertFalse(tokenOptional.isPresent());
     }
