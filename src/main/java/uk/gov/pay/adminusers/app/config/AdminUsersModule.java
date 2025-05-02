@@ -1,10 +1,5 @@
 package uk.gov.pay.adminusers.app.config;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -15,6 +10,12 @@ import com.google.inject.persist.jpa.JpaPersistModule;
 import com.warrenstrange.googleauth.GoogleAuthenticatorConfig;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.db.DataSourceFactory;
+import jakarta.ws.rs.client.Client;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.SqsClientBuilder;
 import uk.gov.pay.adminusers.app.RestClientFactory;
 import uk.gov.pay.adminusers.resources.ResetPasswordValidator;
 import uk.gov.pay.adminusers.resources.UserRequestValidator;
@@ -34,7 +35,7 @@ import uk.gov.pay.adminusers.utils.CountryConverter;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 import uk.gov.service.payments.commons.queue.sqs.SqsQueueService;
 
-import jakarta.ws.rs.client.Client;
+import java.net.URI;
 import java.time.InstantSource;
 import java.util.Properties;
 
@@ -122,33 +123,29 @@ public class AdminUsersModule extends AbstractModule {
     }
 
     @Provides
-    public AmazonSQS sqsClient(AdminUsersConfig adminUsersConfig) {
-        AmazonSQSClientBuilder clientBuilder = AmazonSQSClientBuilder
-                .standard();
+    public SqsClient sqsClient(AdminUsersConfig adminUsersConfig) {
+        SqsClientBuilder clientBuilder = SqsClient.builder();
 
         if (adminUsersConfig.getSqsConfig().isNonStandardServiceEndpoint()) {
 
-            BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(
-                    adminUsersConfig.getSqsConfig().getAccessKey(),
-                    adminUsersConfig.getSqsConfig().getSecretKey());
+            AwsBasicCredentials basicAWSCredentials = AwsBasicCredentials
+                    .create(adminUsersConfig.getSqsConfig().getAccessKey(),
+                            adminUsersConfig.getSqsConfig().getSecretKey());
 
             clientBuilder
-                    .withCredentials(new AWSStaticCredentialsProvider(basicAWSCredentials))
-                    .withEndpointConfiguration(
-                            new AwsClientBuilder.EndpointConfiguration(
-                                    adminUsersConfig.getSqsConfig().getEndpoint(),
-                                    adminUsersConfig.getSqsConfig().getRegion())
-                    );
+                    .credentialsProvider(StaticCredentialsProvider.create(basicAWSCredentials))
+                    .endpointOverride(URI.create(adminUsersConfig.getSqsConfig().getEndpoint()))
+                    .region(Region.of(adminUsersConfig.getSqsConfig().getRegion()));
         } else {
             // uses AWS SDK's DefaultAWSCredentialsProviderChain to obtain credentials
-            clientBuilder.withRegion(adminUsersConfig.getSqsConfig().getRegion());
+            clientBuilder.region(Region.of(adminUsersConfig.getSqsConfig().getRegion()));
         }
 
         return clientBuilder.build();
     }
 
     @Provides
-    public SqsQueueService provideSqsQueueService(AmazonSQS amazonSQS, AdminUsersConfig adminUsersConfig) {
+    public SqsQueueService provideSqsQueueService(SqsClient amazonSQS, AdminUsersConfig adminUsersConfig) {
         return new SqsQueueService(
                 amazonSQS,
                 adminUsersConfig.getSqsConfig().getMessageMaximumWaitTimeInSeconds(),
@@ -160,5 +157,4 @@ public class AdminUsersModule extends AbstractModule {
     public Client provideClient() {
         return RestClientFactory.buildClient(configuration.getRestClientConfig());
     }
-
 }

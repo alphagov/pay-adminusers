@@ -1,6 +1,5 @@
 package uk.gov.pay.adminusers.infra;
 
-import com.amazonaws.services.sqs.AmazonSQS;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.persist.PersistService;
@@ -20,6 +19,7 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.services.sqs.SqsClient;
 import uk.gov.pay.adminusers.app.AdminUsersApp;
 import uk.gov.pay.adminusers.app.config.AdminUsersConfig;
 import uk.gov.pay.adminusers.app.config.AdminUsersModule;
@@ -45,7 +45,7 @@ public class AppWithPostgresAndSqsRule implements TestRule {
 
     private final String configFilePath;
     private final PostgresDockerRule postgres;
-    private final AmazonSQS sqsClient;
+    private final SqsClient sqsClient;
     private final DropwizardAppRule<AdminUsersConfig> app;
     private final RuleChain rules;
     private final int wireMockPort = PortFactory.findFreePort();
@@ -115,7 +115,7 @@ public class AppWithPostgresAndSqsRule implements TestRule {
         return databaseTestHelper;
     }
 
-    public AmazonSQS getSqsClient() {
+    public SqsClient getSqsClient() {
         return sqsClient;
     }
 
