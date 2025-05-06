@@ -13,6 +13,7 @@ import com.google.gson.GsonBuilder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 import uk.gov.pay.adminusers.client.ledger.model.LedgerTransaction;
 import uk.gov.pay.adminusers.fixtures.EventFixture;
 import uk.gov.pay.adminusers.fixtures.ServiceDbFixture;
@@ -137,7 +138,11 @@ public class DisputeCreatedEventQueueConsumerIT {
     public void test() throws Exception {
         String messageContents = new String(currentMessage);
         String snsMessage = new GsonBuilder().create().toJson(Map.of("Message", messageContents));
-        adminusersApp.getSqsClient().sendMessage(SqsTestDocker.getQueueUrl("event-queue"), snsMessage);
+        SendMessageRequest messageRequest = SendMessageRequest.builder()
+                .queueUrl(SqsTestDocker.getQueueUrl("event-queue"))
+                .messageBody(snsMessage)
+                .build();
+        adminusersApp.getSqsClient().sendMessage(messageRequest);
         await().atMost(2, TimeUnit.SECONDS).until(
                 () -> !wireMockRule.findAll(RequestPatternBuilder.newRequestPattern().withUrl("/v2/notifications/email")).isEmpty());
         

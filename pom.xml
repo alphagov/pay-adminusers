@@ -37,9 +37,9 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-bom</artifactId>
-                <version>1.12.782</version>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>2.31.34</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -133,8 +133,8 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-sqs</artifactId>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sqs</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
@@ -226,7 +226,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.service.payments</groupId>
-            <artifactId>queue-dropwizard-4</artifactId>
+            <artifactId>queue-dropwizard-4-aws-sdk-v2</artifactId>
             <version>${pay-java-commons.version}</version>
         </dependency>
         <dependency>

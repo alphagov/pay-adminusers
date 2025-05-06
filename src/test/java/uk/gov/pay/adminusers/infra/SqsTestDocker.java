@@ -1,15 +1,16 @@
 package uk.gov.pay.adminusers.infra;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.CreateQueueRequest;
 
+import java.net.URI;
 import java.util.List;
 
 public class SqsTestDocker {
@@ -17,7 +18,7 @@ public class SqsTestDocker {
 
     private static GenericContainer sqsContainer;
 
-    public static AmazonSQS initialise(List<String> queueNames) {
+    public static SqsClient initialise(List<String> queueNames) {
         try {
             createContainer();
             return createQueues(queueNames);
@@ -38,9 +39,15 @@ public class SqsTestDocker {
         }
     }
 
-    private static AmazonSQS createQueues(List<String> queueNames) {
-        AmazonSQS amazonSQS = getSqsClient();
-        queueNames.forEach(amazonSQS::createQueue);
+    private static SqsClient createQueues(List<String> queueNames) {
+        SqsClient amazonSQS = getSqsClient();
+        queueNames.forEach(queueName -> {
+            CreateQueueRequest createQueueRequest = CreateQueueRequest.builder()
+                    .queueName(queueName)
+                    .build();
+
+            amazonSQS.createQueue(createQueueRequest);
+        });
 
         return amazonSQS;
     }
@@ -53,18 +60,13 @@ public class SqsTestDocker {
         return "http://localhost:" + sqsContainer.getMappedPort(9324);
     }
 
-    private static AmazonSQS getSqsClient() {
+    private static SqsClient getSqsClient() {
         // random credentials required by AWS SDK to build SQS client
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials("x", "x");
-
-        return AmazonSQSClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .withEndpointConfiguration(
-                        new AwsClientBuilder.EndpointConfiguration(
-                                getEndpoint(),
-                                "region-1"
-                        ))
-                .withRequestHandlers()
+        AwsBasicCredentials awsCreds = AwsBasicCredentials.create("x", "x");
+        return SqsClient.builder()
+                .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
+                .endpointOverride(URI.create(getEndpoint()))
+                .region(Region.of("region-1"))
                 .build();
     }
 }
