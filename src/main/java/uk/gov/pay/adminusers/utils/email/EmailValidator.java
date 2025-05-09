@@ -41,6 +41,7 @@ public class EmailValidator {
             "judiciary.uk",
             "improvementservice.org.uk",
             "llyw.cymru",
+            "lmc.ac.uk",
             "mil.uk",
             "mod.uk",
             "naturalengland.org.uk",
