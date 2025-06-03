@@ -67,6 +67,7 @@ public class EmailValidator {
             "serc.ac.uk",
             "slc.co.uk",
             "socialworkengland.org.uk",
+            "socialcare.wales",
             "sssc.uk.com",
             "tarboltoncc.co.uk",
             "tfgm.com",
