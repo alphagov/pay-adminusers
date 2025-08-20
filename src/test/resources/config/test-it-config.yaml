@@ -18,7 +18,7 @@ logging:
       target: stdout
       customFields:
         container: "adminusers"
-    - type: pay-dropwizard-4-sentry
+    - type: sentry
       threshold: ERROR
       dsn: ${SENTRY_DSN:-https://example.com@dummy/1}
       environment: ${ENVIRONMENT}
