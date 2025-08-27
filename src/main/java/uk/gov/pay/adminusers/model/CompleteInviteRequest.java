@@ -2,9 +2,9 @@ package uk.gov.pay.adminusers.model;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import io.dropwizard.logback.shaded.checkerframework.checker.nullness.qual.Nullable;
 
 import jakarta.validation.Valid;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
