@@ -11,7 +11,7 @@
         <pact.version>3.6.15</pact.version>
         <pay-java-commons.version>1.0.20250929092433</pay-java-commons.version>
         <prometheus.version>0.16.0</prometheus.version>
-        <swaggger-version>2.2.37</swaggger-version>
+        <swaggger-version>2.2.38</swaggger-version>
         <surefire.version>3.5.4</surefire.version>
         <PACT_BROKER_URL/>
         <PACT_BROKER_USERNAME/>
