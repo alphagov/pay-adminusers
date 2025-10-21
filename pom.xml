@@ -9,7 +9,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hamcrest.version>3.0</hamcrest.version>
         <pact.version>3.6.15</pact.version>
-        <pay-java-commons.version>1.0.20251013083934</pay-java-commons.version>
+        <pay-java-commons.version>1.0.20251020124635</pay-java-commons.version>
         <prometheus.version>0.16.0</prometheus.version>
         <swaggger-version>2.2.39</swaggger-version>
         <surefire.version>3.5.4</surefire.version>
