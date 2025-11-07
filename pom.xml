@@ -187,7 +187,7 @@
         <dependency>
             <groupId>com.googlecode.libphonenumber</groupId>
             <artifactId>libphonenumber</artifactId>
-            <version>9.0.17</version>
+            <version>9.0.18</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
