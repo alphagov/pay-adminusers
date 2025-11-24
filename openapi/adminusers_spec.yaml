@@ -108,6 +108,10 @@ paths:
           description: Created
         "404":
           description: Service or role not found
+        "409":
+          description: Invite has already been sent to the corresponding email address
+        "412":
+          description: User is already registered on the service
         "422":
           description: Missing required fields or invalid values
       summary: Creates an invitation to allow a new team member to join an existing

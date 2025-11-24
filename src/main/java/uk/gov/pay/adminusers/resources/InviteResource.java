@@ -230,6 +230,8 @@ public class InviteResource {
             responses = {
                     @ApiResponse(responseCode = "201", description = "Created",
                             content = @Content(schema = @Schema(implementation = Invite.class))),
+                    @ApiResponse(responseCode = "409", description = "Invite has already been sent to the corresponding email address"),
+                    @ApiResponse(responseCode = "412", description = "User is already registered on the service"),
                     @ApiResponse(responseCode = "422", description = "Missing required fields or invalid values"),
                     @ApiResponse(responseCode = "404", description = "Service or role not found")
             }
