@@ -108,7 +108,7 @@ class EmailValidatorIsPublicSectorEmailTest {
                 {"valid@wmca.org.uk", true},
                 {"valid@wmcollege.ac.uk", true},
                 {"valid@york.ac.uk", true},
-
+    
                 // all valid emails with subdomains
                 {"valid@subdomain.acas.org.uk", true},
                 {"valid@subdomain.accessplanit.com", true},

@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Optional;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UpdateMerchantDetailsRequest {
 
@@ -21,19 +23,19 @@ public class UpdateMerchantDetailsRequest {
     private static final String FIELD_EMAIL = "email";
     private static final String FIELD_URL = "url";
 
-    @Schema(example = "organisation name", required = true)
+    @Schema(example = "organisation name", requiredMode = REQUIRED)
     private String name;
     @Schema(example = "447700900000")
     private String telephoneNumber;
-    @Schema(example = "Address line 1", required = true)
+    @Schema(example = "Address line 1", requiredMode = REQUIRED)
     private String addressLine1;
     @Schema(example = "Address line 2")
     private String addressLine2;
-    @Schema(example = "London", required = true)
+    @Schema(example = "London", requiredMode = REQUIRED)
     private String addressCity;
-    @Schema(example = "E1 8XX", required = true)
+    @Schema(example = "E1 8XX", requiredMode = REQUIRED)
     private String addressPostcode;
-    @Schema(example = "GB", required = true)
+    @Schema(example = "GB", requiredMode = REQUIRED)
     private String addressCountry;
     @Schema(example = "email@example.com")
     private String email;

@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CreateInviteToJoinServiceRequest {
 
@@ -35,22 +37,22 @@ public class CreateInviteToJoinServiceRequest {
         this.serviceExternalId = serviceExternalId;
     }
 
-    @Schema(example = "d0wksn12nklsdf1nd02nd9n2ndk", description = "User external ID", required = true)
+    @Schema(example = "d0wksn12nklsdf1nd02nd9n2ndk", description = "User external ID", requiredMode = REQUIRED)
     public String getSender() {
         return sender;
     }
 
-    @Schema(example = "example@example.gov.uk", required = true)
+    @Schema(example = "example@example.gov.uk", requiredMode = REQUIRED)
     public String getEmail() {
         return email;
     }
     
-    @Schema(example = "view-only", required = true)
+    @Schema(example = "view-only", requiredMode = REQUIRED)
     public RoleName getRoleName() {
         return roleName;
     }
     
-    @Schema(example = "dj2jkejke32jfhh3", required = true)
+    @Schema(example = "dj2jkejke32jfhh3", requiredMode = REQUIRED)
     public String getServiceExternalId() {
         return serviceExternalId;
     }
