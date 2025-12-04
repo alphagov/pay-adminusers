@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CreateSelfRegistrationInviteRequest {
 
@@ -22,7 +24,7 @@ public class CreateSelfRegistrationInviteRequest {
         this.email = email;
     }
 
-    @Schema(example = "example@example.gov.uk", required = true)
+    @Schema(example = "example@example.gov.uk", requiredMode = REQUIRED)
     public String getEmail() {
         return email;
     }

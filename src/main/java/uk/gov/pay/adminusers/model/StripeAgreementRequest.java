@@ -7,11 +7,13 @@ import uk.gov.pay.adminusers.resources.ValidIpAddress;
 
 import jakarta.validation.constraints.NotNull;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 public class StripeAgreementRequest {
 
     @NotNull
     @ValidIpAddress
-    @Schema(name = "ip_address", example = "0.0.0.0", required = true)
+    @Schema(name = "ip_address", example = "0.0.0.0", requiredMode = REQUIRED)
     private final String ipAddress;
     
     @JsonCreator
