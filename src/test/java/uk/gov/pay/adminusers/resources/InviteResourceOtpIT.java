@@ -11,13 +11,14 @@ import uk.gov.pay.adminusers.persistence.dao.RoleDao;
 import java.util.Map;
 
 import static io.restassured.http.ContentType.JSON;
-import static java.lang.String.format;
-import static java.util.Collections.emptyMap;
+import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
 import static jakarta.ws.rs.core.Response.Status.GONE;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static jakarta.ws.rs.core.Response.Status.NO_CONTENT;
 import static jakarta.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 import static jakarta.ws.rs.core.Response.Status.UNAUTHORIZED;
+import static java.lang.String.format;
+import static java.util.Collections.emptyMap;
 import static org.apache.commons.lang3.RandomStringUtils.random;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
@@ -222,7 +223,7 @@ class InviteResourceOtpIT extends IntegrationTest {
                 .contentType(JSON)
                 .post(format(INVITES_SEND_OTP_RESOURCE_URL, ""))
                 .then()
-                .statusCode(NOT_FOUND.getStatusCode());
+                .statusCode(BAD_REQUEST.getStatusCode());
     }
 
     @Test
