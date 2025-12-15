@@ -190,6 +190,19 @@ public class ServiceResourceIT extends IntegrationTest {
                     .body("message", is("query param role must be one of [ADMIN, VIEW_AND_REFUND, VIEW_ONLY, " +
                             "VIEW_AND_INITIATE_MOTO, VIEW_REFUND_AND_INITIATE_MOTO, SUPER_ADMIN]"));
         }
+
+        @Test
+        void should_not_return_400_AMBIGUOUS_PATH_ENCODING_when_using_url_encoded_query_parameter() {
+            String urlEncodedQueryParam = "AD001043%2F22"; // AD001043/22
+            givenSetup()
+                    .when()
+                    .accept(JSON)
+                    .get("/v1/api/services/" + service.getExternalId() + "/users?role=" + urlEncodedQueryParam)
+                    .then()
+                    .statusCode(400)
+                    .body("message", is("query param role must be one of [ADMIN, VIEW_AND_REFUND, VIEW_ONLY, " +
+                            "VIEW_AND_INITIATE_MOTO, VIEW_REFUND_AND_INITIATE_MOTO, SUPER_ADMIN]"));
+        }
     }
 
     @Test
