@@ -68,7 +68,7 @@ By default, maven will run all the tests excluding contract tests
 ### Contract tests profile
 
 By specifying this profile, maven will run *only* the contract tests
-`mvn clean install -DrunContractTests -DPACT_BROKER_USERNAME=username -DPACT_BROKER_PASSWORD=password -DPACT_CONSUMER_TAG=tag`
+`mvn test -DrunContractTests -DPACT_BROKER_USERNAME=username -DPACT_BROKER_PASSWORD=password -DPACT_CONSUMER_TAG=tag`
 
 ## Licence
 
