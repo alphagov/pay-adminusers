@@ -2,7 +2,7 @@ package uk.gov.pay.adminusers.service;
 
 import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.model.CompleteInviteResponse;
