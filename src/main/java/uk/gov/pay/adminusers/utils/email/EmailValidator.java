@@ -73,6 +73,7 @@ public class EmailValidator {
             "tfgm.com",
             "ucds.email",
             "ukaea.uk",
+            "ukri.org",
             "uksbs.co.uk",
             "visitbritain.org",
             "wmca.org.uk",
