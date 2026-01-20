@@ -1194,6 +1194,7 @@ components:
           type: string
           format: email
           example: example@example.gov.uk
+          minLength: 1
         role_name:
           type: string
           enum:
@@ -1208,9 +1209,11 @@ components:
           type: string
           description: User external ID
           example: d0wksn12nklsdf1nd02nd9n2ndk
+          minLength: 1
         service_external_id:
           type: string
           example: dj2jkejke32jfhh3
+          minLength: 1
       required:
       - email
       - role_name
@@ -1223,6 +1226,7 @@ components:
           type: string
           format: email
           example: example@example.gov.uk
+          minLength: 1
       required:
       - email
     CreateServiceRequest:
@@ -1338,6 +1342,7 @@ components:
           type: string
           example: d02jddeib0lqpsir28fbskg9v0rv
           maxLength: 255
+          minLength: 1
         otp:
           type: integer
           format: int32
