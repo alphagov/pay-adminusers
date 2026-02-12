@@ -58,6 +58,7 @@ public class EmailValidator {
             "ogauthority.co.uk",
             "opencastsoftware.com",
             "os.uk",
+            "oxfordstreet.org.uk",
             "parliament.scot",
             "parliament.uk",
             "police.uk",
