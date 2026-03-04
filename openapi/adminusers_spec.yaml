@@ -1176,6 +1176,7 @@ components:
           enum:
           - SMS
           - APP
+          nullable: true
     CompleteInviteResponse:
       type: object
       properties:
