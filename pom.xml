@@ -140,6 +140,10 @@
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>apache5-client</artifactId>
+        </dependency>
 
         <!-- Main dependencies that need explicit versions -->
         <dependency>
@@ -168,11 +172,6 @@
                     <artifactId>httpclient</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.14</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.service.notify</groupId>
