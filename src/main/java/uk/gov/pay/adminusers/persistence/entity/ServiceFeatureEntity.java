@@ -19,7 +19,7 @@ public class ServiceFeatureEntity {
     private Long id;
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "service_features_seq_gen")
 
-    @ManyToOne(fetch= FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_id")
     private ServiceEntity service;
     
