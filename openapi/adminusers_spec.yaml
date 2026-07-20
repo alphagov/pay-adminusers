@@ -1536,6 +1536,11 @@ components:
         sector:
           type: string
           example: local government
+        service_features:
+          type: array
+          items:
+            type: string
+            example: payment links
         service_name:
           type: object
           additionalProperties:

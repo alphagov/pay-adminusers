@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.apache.commons.lang3.RandomUtils.nextInt;
+import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 
 public final class ServiceEntityFixture {
-    private Integer id = nextInt();
+    private Integer id = randomInt();
     private String externalId = RandomIdGenerator.randomUuid();
     private String name = Service.DEFAULT_NAME_VALUE;
     private MerchantDetailsEntity merchantDetailsEntity = MerchantDetailsEntityBuilder.aMerchantDetailsEntity().build();
@@ -41,6 +41,7 @@ public final class ServiceEntityFixture {
     private ZonedDateTime archivedDate;
     private ZonedDateTime firstCheckedForArchivalDate;
     private ZonedDateTime skipCheckingForArchivalUntilDate;
+    private List<String> serviceFeatures = new ArrayList<>();
 
     private ServiceEntityFixture() {
     }
@@ -151,6 +152,11 @@ public final class ServiceEntityFixture {
         return this;
     }
 
+    public ServiceEntityFixture withServiceFeatures(List<String> features) {
+        this.serviceFeatures = features;
+        return this;
+    }
+
     public ServiceEntity build() {
         ServiceEntity serviceEntity = new ServiceEntity();
         serviceEntity.setId(id);
@@ -173,7 +179,7 @@ public final class ServiceEntityFixture {
         serviceEntity.setArchivedDate(archivedDate);
         serviceEntity.setFirstCheckedForArchivalDate(firstCheckedForArchivalDate);
         serviceEntity.setSkipCheckingForArchivalUntilDate(skipCheckingForArchivalUntilDate);
+        serviceFeatures.forEach(serviceEntity::addFeature);
         return serviceEntity;
     }
-
 }

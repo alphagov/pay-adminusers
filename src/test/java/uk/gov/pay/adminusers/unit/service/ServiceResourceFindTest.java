@@ -27,11 +27,13 @@ import uk.gov.service.payments.commons.model.SupportedLanguage;
 import jakarta.ws.rs.core.Response;
 import java.time.ZonedDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
@@ -69,7 +71,7 @@ class ServiceResourceFindTest extends ServiceResourceBaseTest {
             .build();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         given(mockedServicesFactory.serviceFinder()).willReturn(serviceFinder);
     }
 
@@ -153,6 +155,7 @@ class ServiceResourceFindTest extends ServiceResourceBaseTest {
                 .withWentLiveDate(ZonedDateTime.parse("2020-02-01T09:00:00Z"))
                 .withArchivedDate(ZonedDateTime.parse("2021-02-01T09:00:00Z"))
                 .withSector("police")
+                .withServiceFeatures(List.of("Apple pay", "payment links"))
                 .build();
         gatewayAccountIdEntity.setService(serviceEntity);
 
@@ -180,6 +183,8 @@ class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertThat(json.get("sector"), is("police"));
         assertThat(json.get("internal"), is(false));
         assertThat(json.get("archived"), is(false));
+        assertThat(json.getList("service_features"), hasSize(2));
+        assertThat(json.getList("service_features"), containsInAnyOrder("Apple pay", "payment links"));
     }
 
     @Test
