@@ -70,6 +70,8 @@ public class Service {
     @JsonSerialize(using = ApiResponseDateTimeSerializer.class)
     @Schema(example = "2023-04-09T18:07:46.568Z")
     private ZonedDateTime archivedDate;
+    
+    private List<String> serviceFeatures = new ArrayList<>();
 
     @JsonIgnore
     private ServiceName serviceName;
@@ -346,5 +348,14 @@ public class Service {
     }
     public void setCreatedDate(ZonedDateTime createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public void setServiceFeatures(List<String> serviceFeatures) {
+        this.serviceFeatures = serviceFeatures;
+    }
+
+    @ArraySchema(schema = @Schema(example = "payment_links"))
+    public List<String> getServiceFeatures() {
+        return serviceFeatures;
     }
 }

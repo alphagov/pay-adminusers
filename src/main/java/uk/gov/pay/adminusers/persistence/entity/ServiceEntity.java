@@ -1,12 +1,5 @@
 package uk.gov.pay.adminusers.persistence.entity;
 
-import uk.gov.pay.adminusers.model.GoLiveStage;
-import uk.gov.pay.adminusers.model.PspTestAccountStage;
-import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.model.ServiceName;
-import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
-import uk.gov.service.payments.commons.model.SupportedLanguage;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -20,6 +13,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import uk.gov.pay.adminusers.model.GoLiveStage;
+import uk.gov.pay.adminusers.model.PspTestAccountStage;
+import uk.gov.pay.adminusers.model.Service;
+import uk.gov.pay.adminusers.model.ServiceName;
+import uk.gov.pay.adminusers.persistence.entity.service.ServiceNameEntity;
+import uk.gov.service.payments.commons.model.SupportedLanguage;
+
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,11 +28,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import static jakarta.persistence.EnumType.STRING;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static java.util.stream.Collectors.toUnmodifiableMap;
-import static jakarta.persistence.EnumType.STRING;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 
 @Entity
@@ -73,6 +72,9 @@ public class ServiceEntity {
 
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<ServiceNameEntity> serviceNames = new HashSet<>();
+    
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<ServiceFeatureEntity> serviceFeatures = new ArrayList<>();
     
     @Column(name = "current_go_live_stage")
     @Enumerated(STRING)
@@ -328,7 +330,10 @@ public class ServiceEntity {
                 this.currentPspTestAccountStage);
         service.setGatewayAccountIds(gatewayAccountIds.stream()
                 .map(GatewayAccountIdEntity::getGatewayAccountId)
-                .collect(toUnmodifiableList()));
+                .toList());
+        service.setServiceFeatures(serviceFeatures.stream()
+                .map(ServiceFeatureEntity::getFeature)
+                .toList());
         service.setCustomBranding(this.customBranding);
         if (this.merchantDetailsEntity != null) {
             service.setMerchantDetails(this.merchantDetailsEntity.toMerchantDetails());
@@ -380,5 +385,9 @@ public class ServiceEntity {
         for (String gatewayAccountId : gatewayAccountIds) {
             this.gatewayAccountIds.add(new GatewayAccountIdEntity(gatewayAccountId, this));
         }
+    }
+
+    public void addFeature(String feature) {
+        this.serviceFeatures.add(new ServiceFeatureEntity(this, feature));
     }
 }
