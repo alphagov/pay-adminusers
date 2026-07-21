@@ -1540,7 +1540,7 @@ components:
           type: array
           items:
             type: string
-            example: payment links
+            example: payment_links
         service_name:
           type: object
           additionalProperties:

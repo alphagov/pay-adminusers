@@ -354,7 +354,7 @@ public class Service {
         this.serviceFeatures = serviceFeatures;
     }
 
-    @ArraySchema(schema = @Schema(example = "payment links"))
+    @ArraySchema(schema = @Schema(example = "payment_links"))
     public List<String> getServiceFeatures() {
         return serviceFeatures;
     }

@@ -157,7 +157,7 @@ class ServiceResourceFindTest extends ServiceResourceBaseTest {
                 .withWentLiveDate(ZonedDateTime.parse("2020-02-01T09:00:00Z"))
                 .withArchivedDate(ZonedDateTime.parse("2021-02-01T09:00:00Z"))
                 .withSector("police")
-                .withServiceFeatures(List.of("Apple pay", "payment links"))
+                .withServiceFeatures(List.of("apple_pay", "payment_links"))
                 .build();
         gatewayAccountIdEntity.setService(serviceEntity);
 
@@ -186,7 +186,7 @@ class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertThat(json.get("internal"), is(false));
         assertThat(json.get("archived"), is(false));
         assertThat(json.getList("service_features"), hasSize(2));
-        assertThat(json.getList("service_features"), containsInAnyOrder("Apple pay", "payment links"));
+        assertThat(json.getList("service_features"), containsInAnyOrder("apple_pay", "payment_links"));
     }
 
     @Test
