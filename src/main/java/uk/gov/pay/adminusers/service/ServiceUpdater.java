@@ -52,6 +52,7 @@ public class ServiceUpdater {
     public static final String FIELD_MERCHANT_DETAILS_EMAIL = "merchant_details/email";
     public static final String FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER = "merchant_details/telephone_number";
     public static final String FIELD_MERCHANT_DETAILS_URL = "merchant_details/url";
+    public static final String FEATURE = "feature";
     private final ServiceDao serviceDao;
     private final Map<String, BiConsumer<ServiceUpdateRequest, ServiceEntity>> attributeUpdaters;
 
@@ -109,7 +110,7 @@ public class ServiceUpdater {
                     return serviceEntity.toService();
                 });
     }
-
+    
     @Transactional
     public Service doUpdateMerchantDetails(String serviceExternalId, UpdateMerchantDetailsRequest updateMerchantDetailsRequest) throws ServiceNotFoundException {
         return serviceDao.findByExternalId(serviceExternalId)

@@ -21,6 +21,7 @@ import static java.util.Map.entry;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_OP;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_PATH;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_VALUE;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FEATURE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_AGENT_INITIATED_MOTO_ENABLED;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_ARCHIVED;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_COLLECT_BILLING_ADDRESS;
@@ -95,7 +96,8 @@ public class ServiceUpdateOperationValidator {
                 entry(FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, singletonList(REPLACE)),
                 entry(FIELD_MERCHANT_DETAILS_EMAIL, singletonList(REPLACE)),
                 entry(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, singletonList(REPLACE)),
-                entry(FIELD_MERCHANT_DETAILS_URL, singletonList(REPLACE))
+                entry(FIELD_MERCHANT_DETAILS_URL, singletonList(REPLACE)),
+                entry(FEATURE, singletonList(ADD))
         ));
         Arrays.stream(SupportedLanguage.values()).forEach(lang ->
                 validAttributeUpdateOperations.put(FIELD_SERVICE_NAME_PREFIX + '/' + lang.toString(), singletonList(REPLACE)));

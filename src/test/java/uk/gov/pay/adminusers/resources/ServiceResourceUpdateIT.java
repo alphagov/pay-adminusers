@@ -12,6 +12,7 @@ import java.util.Map;
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
@@ -98,6 +99,24 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("merchant_details.url", is("https://merchant.example.com"));
+    }
+    
+    @Test
+    public void shouldAddFeature() {
+        String serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
+        JsonNode payload = mapper
+                .valueToTree(List.of(
+                        patchRequest("add", "feature", "test_feature")));
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .body(payload)
+                .patch(format(SERVICE_RESOURCE, serviceExternalId))
+                .then()
+                .statusCode(200)
+                .body("features", contains("test_feature"));
+        
     }
 
     private Map<String, Object> patchRequest(String op, String path, Object value) {
