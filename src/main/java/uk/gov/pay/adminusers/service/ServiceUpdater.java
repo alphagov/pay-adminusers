@@ -121,6 +121,18 @@ public class ServiceUpdater {
                     return serviceEntity.toService();
                 }).orElseThrow(() -> new ServiceNotFoundException(serviceExternalId));
     }
+    
+    @Transactional
+    public Service doUpdateFeature(String serviceExternalId, List<ServiceUpdateRequest> requests) {
+        var serviceEntity = serviceDao.findByExternalId(serviceExternalId).get();
+        
+        if (requests.get(0).getOp().equals("add")){
+            serviceEntity.addFeature(requests.get(0).getValue());
+        }
+        
+        return serviceDao.merge(serviceEntity).toService();
+    }
+    
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> assignGatewayAccounts() {
         return (serviceUpdateRequest, serviceEntity) -> {

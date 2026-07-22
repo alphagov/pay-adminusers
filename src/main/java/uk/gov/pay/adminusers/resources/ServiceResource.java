@@ -69,8 +69,6 @@ import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
 import static jakarta.ws.rs.core.Response.Status.NO_CONTENT;
 import static jakarta.ws.rs.core.Response.Status.OK;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_OP;
-import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_PATH;
 
 @Path("/v1/api/services")
 public class ServiceResource {
@@ -298,9 +296,8 @@ public class ServiceResource {
         final List<ServiceUpdateRequest> requests = ServiceUpdateRequest.getUpdateRequests(payload);
 
         if (requests.stream().anyMatch(request -> "feature".equals(request.getPath()))) {
-            serviceServicesFactory.serviceUpdater().updateFeature(serviceExternalId, requests)
-                    .map(service -> Response.status(OK).entity(service).build())
-                    .orElseGet(() -> Response.status(NOT_FOUND).build());
+            Service service = serviceServicesFactory.serviceUpdater().doUpdateFeature(serviceExternalId, requests);
+            return Response.ok(service).build();
         }
         
         return serviceServicesFactory.serviceUpdater().doUpdate(serviceExternalId, requests)
