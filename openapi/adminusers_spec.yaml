@@ -1541,6 +1541,7 @@ components:
           items:
             type: string
             example: payment_links
+          uniqueItems: true
         service_name:
           type: object
           additionalProperties:

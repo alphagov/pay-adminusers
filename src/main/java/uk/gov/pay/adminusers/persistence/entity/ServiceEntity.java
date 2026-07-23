@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static jakarta.persistence.EnumType.STRING;
 import static java.time.ZoneOffset.UTC;
@@ -74,7 +75,7 @@ public class ServiceEntity {
     private Set<ServiceNameEntity> serviceNames = new HashSet<>();
     
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<ServiceFeatureEntity> serviceFeatures = new ArrayList<>();
+    private Set<ServiceFeatureEntity> serviceFeatures = new HashSet<>();
     
     @Column(name = "current_go_live_stage")
     @Enumerated(STRING)
@@ -333,7 +334,7 @@ public class ServiceEntity {
                 .toList());
         service.setServiceFeatures(serviceFeatures.stream()
                 .map(ServiceFeatureEntity::getFeature)
-                .toList());
+                .collect(Collectors.toSet()));
         service.setCustomBranding(this.customBranding);
         if (this.merchantDetailsEntity != null) {
             service.setMerchantDetails(this.merchantDetailsEntity.toMerchantDetails());

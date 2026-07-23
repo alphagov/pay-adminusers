@@ -41,7 +41,7 @@ public final class ServiceEntityFixture {
     private ZonedDateTime archivedDate;
     private ZonedDateTime firstCheckedForArchivalDate;
     private ZonedDateTime skipCheckingForArchivalUntilDate;
-    private List<String> serviceFeatures = new ArrayList<>();
+    private Set<String> serviceFeatures = new HashSet<>();
 
     private ServiceEntityFixture() {
     }
@@ -152,7 +152,7 @@ public final class ServiceEntityFixture {
         return this;
     }
 
-    public ServiceEntityFixture withServiceFeatures(List<String> features) {
+    public ServiceEntityFixture withServiceFeatures(Set<String> features) {
         this.serviceFeatures = features;
         return this;
     }
