@@ -50,7 +50,8 @@ import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_WENT_LIVE_DATE;
 public class ServiceUpdateOperationValidator {
 
     private static final String REPLACE = "replace";
-    private static final String ADD = "add";
+    public static final String ADD = "add";
+    public static final String REMOVE = "remove";
 
     private static final int SERVICE_NAME_MAX_LENGTH = 50;
 
@@ -97,7 +98,7 @@ public class ServiceUpdateOperationValidator {
                 entry(FIELD_MERCHANT_DETAILS_EMAIL, singletonList(REPLACE)),
                 entry(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, singletonList(REPLACE)),
                 entry(FIELD_MERCHANT_DETAILS_URL, singletonList(REPLACE)),
-                entry(FIELD_FEATURE, singletonList(ADD))
+                entry(FIELD_FEATURE, List.of(ADD, REMOVE))
         ));
         Arrays.stream(SupportedLanguage.values()).forEach(lang ->
                 validAttributeUpdateOperations.put(FIELD_SERVICE_NAME_PREFIX + '/' + lang.toString(), singletonList(REPLACE)));

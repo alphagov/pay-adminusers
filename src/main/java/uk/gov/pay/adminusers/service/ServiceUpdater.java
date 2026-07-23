@@ -24,6 +24,8 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import static java.util.Map.entry;
+import static uk.gov.pay.adminusers.resources.ServiceUpdateOperationValidator.ADD;
+import static uk.gov.pay.adminusers.resources.ServiceUpdateOperationValidator.REMOVE;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingServiceGatewayAccounts;
 
 public class ServiceUpdater {
@@ -126,7 +128,11 @@ public class ServiceUpdater {
     @Transactional
     public BiConsumer<ServiceUpdateRequest, ServiceEntity> updateFeature() {
         return (serviceUpdateRequest, serviceEntity) -> {
-            serviceEntity.addFeature(serviceUpdateRequest.valueAsString());
+            if (serviceUpdateRequest.getOp().equals(ADD)) {
+                serviceEntity.addFeature(serviceUpdateRequest.valueAsString());
+            } else if (serviceUpdateRequest.getOp().equals(REMOVE)) {
+                serviceEntity.removeFeature(serviceUpdateRequest.valueAsString());
+            }
         };
     }
     

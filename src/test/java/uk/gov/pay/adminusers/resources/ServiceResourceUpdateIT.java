@@ -16,7 +16,7 @@ import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.emptyArray;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -129,7 +129,6 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
         Set<String> features = new HashSet<>(List.of("test_feature"));
         Service service = serviceDbFixture(databaseHelper).withFeatures(features).insertService();
         
-        
         JsonNode payload = mapper
                 .valueToTree(List.of(
                         patchRequest("remove", "feature", "test_feature")));
@@ -141,7 +140,7 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
                 .patch(format(SERVICE_RESOURCE, service.getExternalId()))
                 .then()
                 .statusCode(200)
-                .body("service_features", is(emptyArray()));
+                .body("service_features", is(empty()));
     }
 
     private Map<String, Object> patchRequest(String op, String path, Object value) {

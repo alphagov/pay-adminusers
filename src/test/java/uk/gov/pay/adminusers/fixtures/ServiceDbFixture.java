@@ -118,7 +118,6 @@ public class ServiceDbFixture {
         databaseHelper.addService(service, features, gatewayAccountIds.toArray(new String[0]));
 
         service.setGatewayAccountIds(gatewayAccountIds);
-        service.setServiceFeatures(features);
         return service;
     }
 

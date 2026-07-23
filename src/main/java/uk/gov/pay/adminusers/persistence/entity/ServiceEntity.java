@@ -391,4 +391,8 @@ public class ServiceEntity {
     public void addFeature(String feature) {
         this.serviceFeatures.add(new ServiceFeatureEntity(this, feature));
     }
+
+    public void removeFeature(String feature) { 
+        this.serviceFeatures.remove(new ServiceFeatureEntity(this, feature));
+    }
 }
