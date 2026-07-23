@@ -57,7 +57,6 @@ public class ServiceRequestValidator {
         if (!errors.isEmpty()) {
             return Optional.of(Errors.from(errors));
         }
-        System.out.println("here");
         return Optional.empty();
     }
 

@@ -16,9 +16,9 @@ import jakarta.persistence.Table;
 @SequenceGenerator(name = "service_features_seq_gen", sequenceName = "service_features_id_seq", allocationSize = 1)
 public class ServiceFeatureEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "services_seq_gen")
     private Long id;
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "service_features_seq_gen")
-
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_id")
     private ServiceEntity service;

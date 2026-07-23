@@ -52,7 +52,7 @@ public class ServiceUpdater {
     public static final String FIELD_MERCHANT_DETAILS_EMAIL = "merchant_details/email";
     public static final String FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER = "merchant_details/telephone_number";
     public static final String FIELD_MERCHANT_DETAILS_URL = "merchant_details/url";
-    public static final String FEATURE = "feature";
+    public static final String FIELD_FEATURE = "feature";
     private final ServiceDao serviceDao;
     private final Map<String, BiConsumer<ServiceUpdateRequest, ServiceEntity>> attributeUpdaters;
 
@@ -83,7 +83,8 @@ public class ServiceUpdater {
                 entry(FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, updateMerchantDetailsAddressPostcode()),
                 entry(FIELD_MERCHANT_DETAILS_EMAIL, updateMerchantDetailsEmail()),
                 entry(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, updateMerchantDetailsPhone()),
-                entry(FIELD_MERCHANT_DETAILS_URL, updateMerchantDetailsUrl())
+                entry(FIELD_MERCHANT_DETAILS_URL, updateMerchantDetailsUrl()),
+                entry(FIELD_FEATURE, updateFeature())
         ));
 
         Arrays.stream(SupportedLanguage.values())
@@ -123,14 +124,10 @@ public class ServiceUpdater {
     }
     
     @Transactional
-    public Service doUpdateFeature(String serviceExternalId, List<ServiceUpdateRequest> requests) {
-        var serviceEntity = serviceDao.findByExternalId(serviceExternalId).get();
-        
-        if (requests.get(0).getOp().equals("add")){
-            serviceEntity.addFeature(requests.get(0).getValue());
-        }
-        
-        return serviceDao.merge(serviceEntity).toService();
+    public BiConsumer<ServiceUpdateRequest, ServiceEntity> updateFeature() {
+        return (serviceUpdateRequest, serviceEntity) -> {
+            serviceEntity.addFeature(serviceUpdateRequest.valueAsString());
+        };
     }
     
 

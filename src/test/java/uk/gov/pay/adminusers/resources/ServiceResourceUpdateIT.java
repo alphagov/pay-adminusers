@@ -13,6 +13,7 @@ import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
@@ -115,8 +116,8 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
                 .patch(format(SERVICE_RESOURCE, serviceExternalId))
                 .then()
                 .statusCode(200)
-                .body("features", contains("test_feature"));
-        
+                .body("service_features", hasSize(1))
+                .body("service_features", contains("test_feature"));
     }
 
     private Map<String, Object> patchRequest(String op, String path, Object value) {

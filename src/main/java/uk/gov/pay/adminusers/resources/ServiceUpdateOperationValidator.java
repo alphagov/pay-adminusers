@@ -1,12 +1,12 @@
 package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.inject.Inject;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 import uk.gov.service.payments.commons.model.SupportedLanguage;
 
-import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,7 +21,6 @@ import static java.util.Map.entry;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_OP;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_PATH;
 import static uk.gov.pay.adminusers.model.ServiceUpdateRequest.FIELD_VALUE;
-import static uk.gov.pay.adminusers.service.ServiceUpdater.FEATURE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_AGENT_INITIATED_MOTO_ENABLED;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_ARCHIVED;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_COLLECT_BILLING_ADDRESS;
@@ -30,7 +29,7 @@ import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CURRENT_PSP_TES
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_CUSTOM_BRANDING;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_DEFAULT_BILLING_ADDRESS_COUNTRY;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_EXPERIMENTAL_FEATURES_ENABLED;
-import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_TAKES_PAYMENTS_OVER_PHONE;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_FEATURE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_GATEWAY_ACCOUNT_IDS;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_INTERNAL;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAILS_ADDRESS_CITY;
@@ -45,6 +44,7 @@ import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_MERCHANT_DETAIL
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_REDIRECT_NAME;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_SECTOR;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_SERVICE_NAME_PREFIX;
+import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_TAKES_PAYMENTS_OVER_PHONE;
 import static uk.gov.pay.adminusers.service.ServiceUpdater.FIELD_WENT_LIVE_DATE;
 
 public class ServiceUpdateOperationValidator {
@@ -97,7 +97,7 @@ public class ServiceUpdateOperationValidator {
                 entry(FIELD_MERCHANT_DETAILS_EMAIL, singletonList(REPLACE)),
                 entry(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, singletonList(REPLACE)),
                 entry(FIELD_MERCHANT_DETAILS_URL, singletonList(REPLACE)),
-                entry(FEATURE, singletonList(ADD))
+                entry(FIELD_FEATURE, singletonList(ADD))
         ));
         Arrays.stream(SupportedLanguage.values()).forEach(lang ->
                 validAttributeUpdateOperations.put(FIELD_SERVICE_NAME_PREFIX + '/' + lang.toString(), singletonList(REPLACE)));
