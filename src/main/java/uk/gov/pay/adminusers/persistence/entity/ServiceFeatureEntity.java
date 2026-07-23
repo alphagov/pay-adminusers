@@ -11,6 +11,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "service_features")
 @SequenceGenerator(name = "service_features_seq_gen", sequenceName = "service_features_id_seq", allocationSize = 1)
@@ -36,5 +38,17 @@ public class ServiceFeatureEntity {
     
     public String getFeature() {
         return feature;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ServiceFeatureEntity that = (ServiceFeatureEntity) o;
+        return Objects.equals(service, that.service) && Objects.equals(feature, that.feature);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(service, feature);
     }
 }

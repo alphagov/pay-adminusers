@@ -9,6 +9,7 @@ import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +39,7 @@ public class ServiceDbFixture {
     private Map<String, Object> customBranding;
     private PspTestAccountStage currentPspTestAccountStage = PspTestAccountStage.NOT_STARTED;
     private ZonedDateTime createdDate = now(UTC);
-    private Set<String> features;
+    private Set<String> features = Collections.emptySet();
 
     private ServiceDbFixture(DatabaseTestHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
