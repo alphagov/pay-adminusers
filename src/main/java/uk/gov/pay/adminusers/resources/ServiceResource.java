@@ -293,8 +293,8 @@ public class ServiceResource {
     }
 
     private Response processUpdateServiceAttributePayload(String serviceExternalId, JsonNode payload) {
-        final List<ServiceUpdateRequest> requests = ServiceUpdateRequest.getUpdateRequests(payload);
 
+        final List<ServiceUpdateRequest> requests = ServiceUpdateRequest.getUpdateRequests(payload);
         return serviceServicesFactory.serviceUpdater().doUpdate(serviceExternalId, requests)
                 .map(service -> Response.status(OK).entity(service).build())
                 .orElseGet(() -> Response.status(NOT_FOUND).build());
