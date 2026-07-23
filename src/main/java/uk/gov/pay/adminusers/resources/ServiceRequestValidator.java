@@ -57,6 +57,7 @@ public class ServiceRequestValidator {
         if (!errors.isEmpty()) {
             return Optional.of(Errors.from(errors));
         }
+
         return Optional.empty();
     }
 
