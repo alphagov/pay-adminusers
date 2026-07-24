@@ -140,55 +140,40 @@ public class ServiceUpdateOperationValidator {
 
     private List<String> validateValueIsValidForPath(JsonNode operation) {
         String path = operation.get(FIELD_PATH).asText();
-        if (FIELD_CUSTOM_BRANDING.equals(path)) {
-            return validateCustomBrandingValue(operation);
-        } else if (path.startsWith(FIELD_SERVICE_NAME_PREFIX)) {
+
+        if (path.startsWith(FIELD_SERVICE_NAME_PREFIX)) {
             return validateServiceNameValue(operation, path);
-        } else if (FIELD_REDIRECT_NAME.equals(path)) {
-            return validateMandatoryBooleanValue(operation);
-        } else if (FIELD_EXPERIMENTAL_FEATURES_ENABLED.equals(path)) {
-            return validateMandatoryBooleanValue(operation);
-        } else if (FIELD_TAKES_PAYMENTS_OVER_PHONE.equals(path)) {
-            return validateMandatoryBooleanValue(operation);
-        } else if (FIELD_AGENT_INITIATED_MOTO_ENABLED.equals(path)) {
-            return validateMandatoryBooleanValue(operation);
-        } else if (FIELD_COLLECT_BILLING_ADDRESS.equals(path)) {
-            return validateMandatoryBooleanValue(operation);
-        } else if (FIELD_DEFAULT_BILLING_ADDRESS_COUNTRY.equals(path)) {
-            return validateCountryCode(operation);
-        } else if (FIELD_CURRENT_GO_LIVE_STAGE.equals(path)) {
-            return validateCurrentGoLiveStageValue(operation);
-        } else if (FIELD_CURRENT_PSP_TEST_ACCOUNT_STAGE.equals(path)){
-            return validateCurrentPspTestAccountStageValue(operation);
-        } else if (FIELD_SECTOR.equals(path)) {
-            return validateStringValueWithMaxLength(operation, false, FIELD_SECTOR_MAX_LENGTH);
-        } else if (FIELD_INTERNAL.equals(path)) {
-            return validateMandatoryBooleanValue(operation);
-        } else if (FIELD_ARCHIVED.equals(path)) {
-            return validateMandatoryBooleanValue(operation);
-        } else if (FIELD_WENT_LIVE_DATE.equals(path)) {
-            return validateZonedDateTimeValue(operation);
-        } else if (FIELD_MERCHANT_DETAILS_NAME.equals(path)) {
-            return validateStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_NAME_MAX_LENGTH);
-        } else if (FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1.equals(path)) {
-            return validateStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1_MAX_LENGTH);
-        } else if (FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2.equals(path)) {
-            return validateStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2_MAX_LENGTH);
-        } else if (FIELD_MERCHANT_DETAILS_ADDRESS_CITY.equals(path)) {
-            return validateStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_CITY_MAX_LENGTH);
-        } else if (FIELD_MERCHANT_DETAILS_ADDRESS_COUNRTY.equals(path)) {
-            return validateStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY_CODE_MAX_LENGTH);
-        } else if (FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE.equals(path)) {
-            return validateStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE_MAX_LENGTH);
-        } else if (FIELD_MERCHANT_DETAILS_EMAIL.equals(path)) {
-            return validateStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH);
-        } else if (FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER.equals(path)) {
-            return validateStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER_MAX_LENGTH);
-        } else if (FIELD_FEATURE.equals(path)){
-            return validateFeature(operation);
         }
 
-        return Collections.emptyList();
+        return switch (path) {
+            case FIELD_REDIRECT_NAME, FIELD_EXPERIMENTAL_FEATURES_ENABLED, FIELD_TAKES_PAYMENTS_OVER_PHONE,
+                 FIELD_AGENT_INITIATED_MOTO_ENABLED, FIELD_COLLECT_BILLING_ADDRESS, FIELD_INTERNAL, FIELD_ARCHIVED -> validateMandatoryBooleanValue(operation);
+
+            case FIELD_CUSTOM_BRANDING -> validateCustomBrandingValue(operation);
+            case FIELD_DEFAULT_BILLING_ADDRESS_COUNTRY -> validateCountryCode(operation);
+            case FIELD_CURRENT_GO_LIVE_STAGE -> validateCurrentGoLiveStageValue(operation);
+            case FIELD_CURRENT_PSP_TEST_ACCOUNT_STAGE -> validateCurrentPspTestAccountStageValue(operation);
+            case FIELD_SECTOR -> validateStringValueWithMaxLength(operation, false, FIELD_SECTOR_MAX_LENGTH);
+            case FIELD_WENT_LIVE_DATE -> validateZonedDateTimeValue(operation);
+            case FIELD_MERCHANT_DETAILS_NAME ->
+                    validateStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_NAME_MAX_LENGTH);
+            case FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1 ->
+                    validateStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_LINE_1_MAX_LENGTH);
+            case FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2 ->
+                    validateStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_ADDRESS_LINE_2_MAX_LENGTH);
+            case FIELD_MERCHANT_DETAILS_ADDRESS_CITY ->
+                    validateStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_CITY_MAX_LENGTH);
+            case FIELD_MERCHANT_DETAILS_ADDRESS_COUNRTY ->
+                    validateStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_COUNTRY_CODE_MAX_LENGTH);
+            case FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE ->
+                    validateStringValueWithMaxLength(operation, false, FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE_MAX_LENGTH);
+            case FIELD_MERCHANT_DETAILS_EMAIL ->
+                    validateStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH);
+            case FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER ->
+                    validateStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER_MAX_LENGTH);
+            case FIELD_FEATURE -> validateFeature(operation);
+            default -> Collections.emptyList();
+        };
     }
 
     private List<String> validateFeature(JsonNode operation) {
@@ -198,7 +183,7 @@ public class ServiceUpdateOperationValidator {
         return errors;
     }
 
-    private List<String> validateCustomBrandingValue(JsonNode operation) { ;
+    private List<String> validateCustomBrandingValue(JsonNode operation) {
         return requestValidations.checkExists(operation, FIELD_VALUE)
                 .orElseGet(() -> checkIfValidJson(operation.get(FIELD_VALUE), FIELD_CUSTOM_BRANDING));
     }

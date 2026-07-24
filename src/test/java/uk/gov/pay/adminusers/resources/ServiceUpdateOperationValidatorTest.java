@@ -72,7 +72,7 @@ public class ServiceUpdateOperationValidatorTest {
                 new Object[]{"add", "merchant_details/email", "any value"},
                 new Object[]{"add", "merchant_details/telephone_number", "any value"},
                 new Object[]{"add", "default_billing_address_country", "GB"},
-                new Object[]{"replace", "feature", "any value"},
+                new Object[]{"replace", "feature", "test_feature"},
         };
     }
 
