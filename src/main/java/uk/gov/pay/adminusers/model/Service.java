@@ -12,8 +12,10 @@ import uk.gov.service.payments.commons.api.json.ApiResponseDateTimeSerializer;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
@@ -71,7 +73,7 @@ public class Service {
     @Schema(example = "2023-04-09T18:07:46.568Z")
     private ZonedDateTime archivedDate;
     
-    private List<String> serviceFeatures = new ArrayList<>();
+    private Set<String> serviceFeatures = new HashSet<>();
 
     @JsonIgnore
     private ServiceName serviceName;
@@ -350,12 +352,12 @@ public class Service {
         this.createdDate = createdDate;
     }
 
-    public void setServiceFeatures(List<String> serviceFeatures) {
+    public void setServiceFeatures(Set<String> serviceFeatures) {
         this.serviceFeatures = serviceFeatures;
     }
 
     @ArraySchema(schema = @Schema(example = "payment_links"))
-    public List<String> getServiceFeatures() {
+    public Set<String> getServiceFeatures() {
         return serviceFeatures;
     }
 }

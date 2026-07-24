@@ -4,14 +4,20 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.MerchantDetails;
+import uk.gov.pay.adminusers.model.Service;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
@@ -98,6 +104,43 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
                 .then()
                 .statusCode(200)
                 .body("merchant_details.url", is("https://merchant.example.com"));
+    }
+    
+    @Test
+    public void shouldAddFeature() {
+        String serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
+        JsonNode payload = mapper
+                .valueToTree(List.of(
+                        patchRequest("add", "feature", "test_feature")));
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .body(payload)
+                .patch(format(SERVICE_RESOURCE, serviceExternalId))
+                .then()
+                .statusCode(200)
+                .body("service_features", hasSize(1))
+                .body("service_features", contains("test_feature"));
+    }
+
+    @Test
+    public void shouldRemoveFeature() {
+        Set<String> features = new HashSet<>(List.of("test_feature"));
+        Service service = serviceDbFixture(databaseHelper).withFeatures(features).insertService();
+        
+        JsonNode payload = mapper
+                .valueToTree(List.of(
+                        patchRequest("remove", "feature", "test_feature")));
+
+        givenSetup()
+                .when()
+                .contentType(JSON)
+                .body(payload)
+                .patch(format(SERVICE_RESOURCE, service.getExternalId()))
+                .then()
+                .statusCode(200)
+                .body("service_features", is(empty()));
     }
 
     private Map<String, Object> patchRequest(String op, String path, Object value) {

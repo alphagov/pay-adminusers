@@ -9,6 +9,7 @@ import java.util.Map;
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
@@ -21,7 +22,7 @@ public class ServiceResourceUpdateCustomBrandingIT extends IntegrationTest {
 
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
-        databaseHelper.addService(service, randomInt().toString());
+        databaseHelper.addService(service, emptySet(), randomInt().toString());
 
         Map<String, Object> payload = Map.of("path", "custom_branding", "op", "replace", "value", Map.of("image_url","image url","css_url","css url"));
 
@@ -46,7 +47,7 @@ public class ServiceResourceUpdateCustomBrandingIT extends IntegrationTest {
         service.setCustomBranding(existingBranding);
 
         Map<String, Object> payloadWithEmptyBranding = Map.of("path", "custom_branding", "op", "replace", "value", emptyMap());
-        databaseHelper.addService(service, randomInt().toString());
+        databaseHelper.addService(service, emptySet(), randomInt().toString());
 
 
         givenSetup()
@@ -68,7 +69,7 @@ public class ServiceResourceUpdateCustomBrandingIT extends IntegrationTest {
         Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
         Map<String, Object> customBranding = Map.of("css_url","existing css", "image_url","existing image");
         service.setCustomBranding(customBranding);
-        databaseHelper.addService(service, randomInt().toString());
+        databaseHelper.addService(service, emptySet(), randomInt().toString());
 
         Map<String, Object> payload = Map.of("path", "custom_branding", "op", "replace", "value", "blah");
 

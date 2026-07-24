@@ -10,6 +10,7 @@ import java.util.Map;
 
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
+import static java.util.Collections.emptySet;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasKey;
@@ -25,7 +26,7 @@ public class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
     public void shouldSuccess_whenUpdatingMerchantDetails() throws Exception {
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
-        databaseHelper.addService(service, randomInt().toString());
+        databaseHelper.addService(service, emptySet(), randomInt().toString());
         Map<String, Object> payload = Map.of(
                 "name", "somename",
                 "telephone_number", "03069990000",
@@ -60,7 +61,7 @@ public class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
     public void shouldSuccess_whenUpdatingMerchantDetails_withoutOptionalFields() throws Exception {
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
-        databaseHelper.addService(service, randomInt().toString());
+        databaseHelper.addService(service, emptySet(), randomInt().toString());
         Map<String, Object> payload = Map.of(
                 "name", "somename",
                 "address_line1", "line1",
@@ -91,7 +92,7 @@ public class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
     public void shouldFail_whenUpdatingMerchantDetails_withMissingMandatoryFieldName() throws Exception {
         String serviceExternalId = randomUuid();
         Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
-        databaseHelper.addService(service, randomInt().toString());
+        databaseHelper.addService(service, emptySet(), randomInt().toString());
         Map<String, Object> payload = Map.of(
                 "telephone_number", "03069990000",
                 "address_line1", "line1",

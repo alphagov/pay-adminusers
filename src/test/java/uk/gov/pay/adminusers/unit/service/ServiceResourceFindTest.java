@@ -3,16 +3,17 @@ package uk.gov.pay.adminusers.unit.service;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import io.dropwizard.testing.junit5.ResourceExtension;
 import io.restassured.path.json.JsonPath;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.persistence.dao.ServiceDao;
 import uk.gov.pay.adminusers.persistence.dao.UserDao;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
 import uk.gov.pay.adminusers.persistence.entity.MerchantDetailsEntity;
 import uk.gov.pay.adminusers.persistence.entity.ServiceEntity;
-import uk.gov.pay.adminusers.fixtures.ServiceEntityFixture;
 import uk.gov.pay.adminusers.resources.GovUkPayAgreementRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceRequestValidator;
 import uk.gov.pay.adminusers.resources.ServiceResource;
@@ -24,11 +25,12 @@ import uk.gov.pay.adminusers.service.StripeAgreementService;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 import uk.gov.service.payments.commons.model.SupportedLanguage;
 
-import jakarta.ws.rs.core.Response;
 import java.time.ZonedDateTime;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.not;
@@ -149,6 +151,7 @@ class ServiceResourceFindTest extends ServiceResourceBaseTest {
     void shouldFind_existingServiceByGatewayAccountId() {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
         String gatewayAccountId = randomUuid();
+        Set<String> features = new HashSet<>(List.of("apple_pay", "payment_links"));
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
         ServiceEntity serviceEntity = ServiceEntityFixture.aServiceEntity()
                 .withGatewayAccounts(Collections.singletonList(gatewayAccountIdEntity))
@@ -157,7 +160,7 @@ class ServiceResourceFindTest extends ServiceResourceBaseTest {
                 .withWentLiveDate(ZonedDateTime.parse("2020-02-01T09:00:00Z"))
                 .withArchivedDate(ZonedDateTime.parse("2021-02-01T09:00:00Z"))
                 .withSector("police")
-                .withServiceFeatures(List.of("apple_pay", "payment_links"))
+                .withServiceFeatures(features)
                 .build();
         gatewayAccountIdEntity.setService(serviceEntity);
 

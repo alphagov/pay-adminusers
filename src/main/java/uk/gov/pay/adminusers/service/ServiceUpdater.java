@@ -24,6 +24,8 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import static java.util.Map.entry;
+import static uk.gov.pay.adminusers.resources.ServiceUpdateOperationValidator.ADD;
+import static uk.gov.pay.adminusers.resources.ServiceUpdateOperationValidator.REMOVE;
 import static uk.gov.pay.adminusers.service.AdminUsersExceptions.conflictingServiceGatewayAccounts;
 
 public class ServiceUpdater {
@@ -52,6 +54,7 @@ public class ServiceUpdater {
     public static final String FIELD_MERCHANT_DETAILS_EMAIL = "merchant_details/email";
     public static final String FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER = "merchant_details/telephone_number";
     public static final String FIELD_MERCHANT_DETAILS_URL = "merchant_details/url";
+    public static final String FIELD_FEATURE = "feature";
     private final ServiceDao serviceDao;
     private final Map<String, BiConsumer<ServiceUpdateRequest, ServiceEntity>> attributeUpdaters;
 
@@ -82,7 +85,8 @@ public class ServiceUpdater {
                 entry(FIELD_MERCHANT_DETAILS_ADDRESS_POSTCODE, updateMerchantDetailsAddressPostcode()),
                 entry(FIELD_MERCHANT_DETAILS_EMAIL, updateMerchantDetailsEmail()),
                 entry(FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER, updateMerchantDetailsPhone()),
-                entry(FIELD_MERCHANT_DETAILS_URL, updateMerchantDetailsUrl())
+                entry(FIELD_MERCHANT_DETAILS_URL, updateMerchantDetailsUrl()),
+                entry(FIELD_FEATURE, updateFeature())
         ));
 
         Arrays.stream(SupportedLanguage.values())
@@ -109,7 +113,7 @@ public class ServiceUpdater {
                     return serviceEntity.toService();
                 });
     }
-
+    
     @Transactional
     public Service doUpdateMerchantDetails(String serviceExternalId, UpdateMerchantDetailsRequest updateMerchantDetailsRequest) throws ServiceNotFoundException {
         return serviceDao.findByExternalId(serviceExternalId)
@@ -120,6 +124,18 @@ public class ServiceUpdater {
                     return serviceEntity.toService();
                 }).orElseThrow(() -> new ServiceNotFoundException(serviceExternalId));
     }
+    
+    @Transactional
+    public BiConsumer<ServiceUpdateRequest, ServiceEntity> updateFeature() {
+        return (serviceUpdateRequest, serviceEntity) -> {
+            if (serviceUpdateRequest.getOp().equals(ADD)) {
+                serviceEntity.addFeature(serviceUpdateRequest.valueAsString());
+            } else if (serviceUpdateRequest.getOp().equals(REMOVE)) {
+                serviceEntity.removeFeature(serviceUpdateRequest.valueAsString());
+            }
+        };
+    }
+    
 
     private BiConsumer<ServiceUpdateRequest, ServiceEntity> assignGatewayAccounts() {
         return (serviceUpdateRequest, serviceEntity) -> {

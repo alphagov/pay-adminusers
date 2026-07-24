@@ -13,6 +13,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 import static java.lang.String.format;
@@ -76,7 +77,7 @@ public class RequestValidations {
         return errors.isEmpty() ? Optional.empty() : Optional.of(errors);
     }
 
-    public Optional<List<String>> isValidEnumValue(JsonNode payload, EnumSet<?> enumSet, String field) {
+    public Optional<List<String>> isValidEnum(JsonNode payload, EnumSet<?> enumSet, String field) {
         String value = payload.get(field).asText();
         if (enumSet.stream().noneMatch(constant -> constant.name().equals(value))) {
             return Optional.of(singletonList(format("Field [%s] must be one of %s", field, enumSet)));
@@ -163,5 +164,13 @@ public class RequestValidations {
                 jsonNode -> !EmailValidator.isValid(jsonNode.asText()),
                 fieldNames,
                 "Field [email] must be a valid email address");
+    }
+
+    public Optional<List<String>> isValidEnumValue(JsonNode payload, Set<String> validValues, String field) {
+        String value = payload.get(field).asText();
+        if (validValues.stream().noneMatch(validValue -> validValue.equals(value))) {
+            return Optional.of(singletonList(format("Field [%s] must be one of %s", field, validValues)));
+        }
+        return Optional.empty();
     }
 }
