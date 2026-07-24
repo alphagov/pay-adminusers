@@ -251,7 +251,9 @@ public class ServiceUpdateOperationValidatorTest {
                 new Object[]{"replace", "archived", true},
                 new Object[]{"replace", "went_live_date", "2020-01-01T01:01:00Z"},
                 new Object[]{"replace", "default_billing_address_country", null},
-                new Object[]{"replace", "default_billing_address_country", "GB"}
+                new Object[]{"replace", "default_billing_address_country", "GB"},
+                new Object[]{"add", "feature", "test_feature"},
+                new Object[]{"remove", "feature", "test_feature"}
         };
     }
 
