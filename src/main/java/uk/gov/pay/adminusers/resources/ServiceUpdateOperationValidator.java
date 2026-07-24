@@ -2,6 +2,7 @@ package uk.gov.pay.adminusers.resources;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.inject.Inject;
+import uk.gov.pay.adminusers.model.Feature;
 import uk.gov.pay.adminusers.model.GoLiveStage;
 import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.validations.RequestValidations;
@@ -14,6 +15,8 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
@@ -71,6 +74,10 @@ public class ServiceUpdateOperationValidator {
 
     private static final EnumSet<GoLiveStage> GO_LIVE_STAGES = EnumSet.allOf(GoLiveStage.class);
     private static final EnumSet<PspTestAccountStage> PSP_TEST_ACCOUNT_STAGES = EnumSet.allOf(PspTestAccountStage.class);
+    private static final Set<String> FEATURES = EnumSet.allOf(Feature.class)
+            .stream()
+            .map(Feature::getValue)
+            .collect(Collectors.toSet());
 
     @Inject
     public ServiceUpdateOperationValidator(RequestValidations requestValidations) {
@@ -177,9 +184,18 @@ public class ServiceUpdateOperationValidator {
             return validateStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_EMAIL_MAX_LENGTH);
         } else if (FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER.equals(path)) {
             return validateStringValueWithMaxLength(operation, true, FIELD_MERCHANT_DETAILS_TELEPHONE_NUMBER_MAX_LENGTH);
+        } else if (FIELD_FEATURE.equals(path)){
+            return validateFeature(operation);
         }
 
         return Collections.emptyList();
+    }
+
+    private List<String> validateFeature(JsonNode operation) {
+        List<String> errors = new ArrayList<>();
+ 
+        requestValidations.isValidEnumValue(operation, FEATURES, FIELD_VALUE).ifPresent(errors::addAll);
+        return errors;
     }
 
     private List<String> validateCustomBrandingValue(JsonNode operation) { ;
@@ -211,7 +227,7 @@ public class ServiceUpdateOperationValidator {
                     FIELD_VALUE).ifPresent(errors::addAll);
         }
         if (errors.isEmpty()) {
-            requestValidations.isValidEnumValue(operation, GO_LIVE_STAGES, FIELD_VALUE).ifPresent(errors::addAll);
+            requestValidations.isValidEnum(operation, GO_LIVE_STAGES, FIELD_VALUE).ifPresent(errors::addAll);
         }
         return errors;
     }
@@ -226,7 +242,7 @@ public class ServiceUpdateOperationValidator {
                     FIELD_VALUE).ifPresent(errors::addAll);
         }
         if (errors.isEmpty()) {
-            requestValidations.isValidEnumValue(operation, PSP_TEST_ACCOUNT_STAGES, FIELD_VALUE).ifPresent(errors::addAll);
+            requestValidations.isValidEnum(operation, PSP_TEST_ACCOUNT_STAGES, FIELD_VALUE).ifPresent(errors::addAll);
         }
         return errors;
     }

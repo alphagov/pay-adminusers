@@ -71,7 +71,8 @@ public class ServiceUpdateOperationValidatorTest {
                 new Object[]{"add", "merchant_details/address_postcode", "any value"},
                 new Object[]{"add", "merchant_details/email", "any value"},
                 new Object[]{"add", "merchant_details/telephone_number", "any value"},
-                new Object[]{"add", "default_billing_address_country", "GB"}
+                new Object[]{"add", "default_billing_address_country", "GB"},
+                new Object[]{"replace", "feature", "any value"},
         };
     }
 
@@ -215,6 +216,11 @@ public class ServiceUpdateOperationValidatorTest {
     @MethodSource("shouldFailWhenStringValueIsTooLongParameters")
     public void replaceShouldFailWhenStringValueIsTooLong(String path, int expectedMaxLength) {
         shouldFail(path, "replace", randomAlphanumeric(expectedMaxLength + 1), String.format("Field [value] must have a maximum length of %s characters", expectedMaxLength));
+    }
+    
+    @Test 
+    public void addShouldFailWhenFeatureIsInvalid(){
+        shouldFail("feature", "add", "invalidFeature", "Field [value] must be one of [test_feature]");
     }
 
     private static Object[] shouldSucceedParams() {
