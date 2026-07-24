@@ -10,6 +10,20 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.pay.adminusers.exception.ServiceNotFoundException;
@@ -37,20 +51,6 @@ import uk.gov.pay.adminusers.utils.Errors;
 import uk.gov.service.payments.commons.api.exception.ValidationException;
 import uk.gov.service.payments.commons.model.SupportedLanguage;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.HeaderParam;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.ZoneOffset;
@@ -59,7 +59,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static jakarta.ws.rs.core.Response.Status;
 import static jakarta.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -122,7 +121,7 @@ public class ServiceResource {
     )
     public Response getServices() {
         LOGGER.info("Get Services request");
-        List<Service> services = serviceDao.listAll().stream().map(ServiceEntity::toService).map(linksBuilder::decorate).collect(toUnmodifiableList());
+        List<Service> services = serviceDao.listAll().stream().map(ServiceEntity::toService).map(linksBuilder::decorate).toList();
         return Response
                 .status(OK)
                 .entity(services)
@@ -276,7 +275,9 @@ public class ServiceResource {
                     "| replace | internal | true |\n" +
                     "| replace | archived | true |\n" +
                     "| replace | went_live_date | 2022-04-09T18:07:46Z |\n" +
-                    "| replace | default_billing_address_country | GB | ",
+                    "| replace | default_billing_address_country | GB |\n " +
+                    "| add | feature | test_feature |\n " +
+                    "| remove | feature | test_feature |",
             requestBody = @RequestBody(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ServiceUpdateRequest.class)))),
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK",
