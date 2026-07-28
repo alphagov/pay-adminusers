@@ -25,6 +25,7 @@ public class EmailValidator {
             "caa.co.uk",
             "careinspectorate.com",
             "cynulliad.cymru",
+            "deltsharedservices.co.uk",
             "derrystrabane.com",
             "digitalaccessibilitycentre.org",
             "dundeeandangus.ac.uk",
