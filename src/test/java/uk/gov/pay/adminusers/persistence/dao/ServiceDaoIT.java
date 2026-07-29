@@ -14,7 +14,6 @@ import uk.gov.pay.adminusers.model.PspTestAccountStage;
 import uk.gov.pay.adminusers.model.Role;
 import uk.gov.pay.adminusers.model.RoleName;
 import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.model.ServiceName;
 import uk.gov.pay.adminusers.model.User;
 import uk.gov.pay.adminusers.persistence.entity.CustomBrandingConverter;
 import uk.gov.pay.adminusers.persistence.entity.GatewayAccountIdEntity;
@@ -31,12 +30,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.time.ZoneOffset.UTC;
 import static java.time.ZonedDateTime.now;
 import static java.time.ZonedDateTime.parse;
-import static java.util.Collections.emptySet;
 import static java.util.Comparator.comparing;
 import static java.util.stream.IntStream.range;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -49,8 +46,8 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
+import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
 class ServiceDaoIT extends DaoTestBase {
 
@@ -168,7 +165,6 @@ class ServiceDaoIT extends DaoTestBase {
 
     @Test
     void shouldFindByServiceExternalId() {
-        ZonedDateTime now = now(UTC);
         ServiceEntity insertedServiceEntity = ServiceEntityFixture.aServiceEntity()
                 .withExperimentalFeaturesEnabled(true)
                 .build();
@@ -210,7 +206,7 @@ class ServiceDaoIT extends DaoTestBase {
                 .stream()
                 .map(ServiceEntity::toService)
                 .map(Service::getName)
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
         assertThat(foundServiceNames, contains("register a birth"));
 
         List<ServiceEntity> shouldNotHaveServiceEntities = serviceDao.findByENServiceName("random");
@@ -247,7 +243,7 @@ class ServiceDaoIT extends DaoTestBase {
                 .stream()
                 .map(ServiceEntity::toService)
                 .map(Service::getName)
-                .collect(Collectors.toUnmodifiableList());
+                .toList();
         assertThat(foundServiceNames, containsInAnyOrder("register a birth", "bulky waste collection"));
 
         List<ServiceEntity> shouldNotHaveServiceEntities = serviceDao.findByServiceMerchantName("of");
@@ -506,23 +502,17 @@ class ServiceDaoIT extends DaoTestBase {
     }
 
     private void setupUsersForServiceAndRole(String externalId, Role role, int noOfUsers) {
-        String gatewayAccountId1 = randomInt().toString();
-        Service service1 = Service.from(randomInt(), externalId, new ServiceName(Service.DEFAULT_NAME_VALUE));
-        databaseHelper.addService(service1, emptySet(), gatewayAccountId1);
+        var service1 = serviceDbFixture(databaseHelper).withExternalId(externalId).insertService();
 
-        range(0, noOfUsers - 1).forEach(i -> {
+        range(0, noOfUsers - 1).forEach(_ -> {
             String username = randomUuid();
             String email = username + "@example.com";
             UserDbFixture.userDbFixture(databaseHelper).withServiceRole(service1, adminRole).withEmail(email).insertUser();
         });
 
         //unmatching service
-        String gatewayAccountId2 = randomInt().toString();
-        Integer serviceId2 = randomInt();
-        String externalId2 = randomUuid();
-        Service service2 = Service.from(serviceId2, externalId2, new ServiceName(Service.DEFAULT_NAME_VALUE));
-        databaseHelper.addService(service2, emptySet(), gatewayAccountId2);
-
+        var serviceId2 = serviceDbFixture(databaseHelper).insertService().getId();
+        
         //same user 2 diff services - should count only once
         String username3 = randomUuid();
         String email3 = username3 + "@example.com";
