@@ -1,8 +1,6 @@
 package uk.gov.pay.adminusers.resources;
 
 import org.junit.jupiter.api.Test;
-import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.model.ServiceName;
 
 import java.util.Map;
 
@@ -11,17 +9,13 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
+import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
-public class ServiceResourceUpdateCustomBrandingIT extends IntegrationTest {
+class ServiceResourceUpdateCustomBrandingIT extends IntegrationTest {
 
     @Test
-    public void shouldSuccess_whenUpdatingCustomBranding() throws Exception {
-
-        String serviceExternalId = randomUuid();
-        Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
-        databaseHelper.addService(service, randomInt().toString());
+    void shouldSuccess_whenUpdatingCustomBranding() throws Exception {
+        var serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
 
         Map<String, Object> payload = Map.of("path", "custom_branding", "op", "replace", "value", Map.of("image_url","image url","css_url","css url"));
 
@@ -39,22 +33,19 @@ public class ServiceResourceUpdateCustomBrandingIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReplaceWithEmpty_whenUpdatingCustomBranding_withEmptyObject() throws Exception {
-        String serviceExternalId = randomUuid();
+    void shouldReplaceWithEmpty_whenUpdatingCustomBranding_withEmptyObject() throws Exception {
+        var service = serviceDbFixture(databaseHelper).insertService();
         Map<String, Object> existingBranding = Map.of("css_url","existing css", "image_url","existing image");
-        Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
         service.setCustomBranding(existingBranding);
 
         Map<String, Object> payloadWithEmptyBranding = Map.of("path", "custom_branding", "op", "replace", "value", emptyMap());
-        databaseHelper.addService(service, randomInt().toString());
-
-
+        
         givenSetup()
                 .when()
                 .contentType(JSON)
                 .accept(JSON)
                 .body(mapper.writeValueAsString(payloadWithEmptyBranding))
-                .patch(format(SERVICE_RESOURCE, serviceExternalId))
+                .patch(format(SERVICE_RESOURCE, service.getExternalId()))
                 .then()
                 .statusCode(200)
                 .body("custom_branding", is(nullValue()));
@@ -62,13 +53,10 @@ public class ServiceResourceUpdateCustomBrandingIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldReturn400_whenUpdatingServiceCustomisations_ifPayloadNotJson() throws Exception {
-
-        String serviceExternalId = randomUuid();
-        Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
+    void shouldReturn400_whenUpdatingServiceCustomisations_ifPayloadNotJson() throws Exception {
+        var service = serviceDbFixture(databaseHelper).insertService();
         Map<String, Object> customBranding = Map.of("css_url","existing css", "image_url","existing image");
         service.setCustomBranding(customBranding);
-        databaseHelper.addService(service, randomInt().toString());
 
         Map<String, Object> payload = Map.of("path", "custom_branding", "op", "replace", "value", "blah");
 
@@ -77,13 +65,13 @@ public class ServiceResourceUpdateCustomBrandingIT extends IntegrationTest {
                 .contentType(JSON)
                 .accept(JSON)
                 .body(mapper.writeValueAsString(payload))
-                .patch(format(SERVICE_RESOURCE, serviceExternalId))
+                .patch(format(SERVICE_RESOURCE, service.getExternalId()))
                 .then()
                 .statusCode(400);
     }
 
     @Test
-    public void shouldReturn404_whenUpdatingServiceCustomisations_ifNotFound() throws Exception {
+    void shouldReturn404_whenUpdatingServiceCustomisations_ifNotFound() throws Exception {
 
         Map<String, Object> payload = Map.of("path", "custom_branding", "op", "replace", "value", Map.of("image_url","image url","css_url","css url"));
 

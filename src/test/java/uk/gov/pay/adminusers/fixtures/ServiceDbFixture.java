@@ -9,8 +9,10 @@ import uk.gov.pay.adminusers.utils.DatabaseTestHelper;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static java.lang.String.valueOf;
 import static java.time.ZoneOffset.UTC;
@@ -37,6 +39,7 @@ public class ServiceDbFixture {
     private Map<String, Object> customBranding;
     private PspTestAccountStage currentPspTestAccountStage = PspTestAccountStage.NOT_STARTED;
     private ZonedDateTime createdDate = now(UTC);
+    private Set<String> features = Collections.emptySet();
 
     private ServiceDbFixture(DatabaseTestHelper databaseHelper) {
         this.databaseHelper = databaseHelper;
@@ -112,7 +115,7 @@ public class ServiceDbFixture {
         service.setTakesPaymentsOverPhone(takesPaymentsOverPhone);
         service.setCurrentPspTestAccountStage(currentPspTestAccountStage);
         service.setCreatedDate(createdDate);
-        databaseHelper.addService(service, gatewayAccountIds.toArray(new String[0]));
+        databaseHelper.addService(service, features, gatewayAccountIds.toArray(new String[0]));
 
         service.setGatewayAccountIds(gatewayAccountIds);
         return service;
@@ -125,6 +128,11 @@ public class ServiceDbFixture {
 
     public ServiceDbFixture withExternalId(String externalId) {
         this.externalId = externalId;
+        return this;
+    }
+    
+    public ServiceDbFixture withFeatures(Set<String> features) {
+        this.features = features;
         return this;
     }
 }

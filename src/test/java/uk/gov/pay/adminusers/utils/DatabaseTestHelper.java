@@ -19,6 +19,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.sql.Timestamp.from;
 import static java.sql.Types.OTHER;
@@ -199,7 +200,7 @@ public class DatabaseTestHelper {
                         .mapToMap().list());
     }
 
-    public DatabaseTestHelper addService(Service service, String... gatewayAccountIds) {
+    public DatabaseTestHelper addService(Service service, Set<String> features, String... gatewayAccountIds) {
         jdbi.withHandle(handle ->
         {
             PGobject customBranding = service.getCustomBranding() == null ? null :
@@ -239,6 +240,15 @@ public class DatabaseTestHelper {
                     handle.createUpdate("INSERT INTO service_gateway_accounts(service_id, gateway_account_id) VALUES (:serviceId, :gatewayAccountId)")
                             .bind("serviceId", service.getId())
                             .bind("gatewayAccountId", gatewayAccountId)
+                            .execute()
+            );
+        }
+
+        for (String feature : features) {
+            jdbi.withHandle(handle ->
+                    handle.createUpdate("INSERT INTO service_features(service_id, feature) VALUES (:serviceId, :feature)")
+                            .bind("serviceId", service.getId())
+                            .bind("feature", feature)
                             .execute()
             );
         }

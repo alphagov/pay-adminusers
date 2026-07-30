@@ -3,8 +3,6 @@ package uk.gov.pay.adminusers.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.junit.jupiter.api.Test;
-import uk.gov.pay.adminusers.model.Service;
-import uk.gov.pay.adminusers.model.ServiceName;
 
 import java.util.Map;
 
@@ -15,17 +13,14 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomInt;
-import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
-public class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
+class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
 
     @Test
-    public void shouldSuccess_whenUpdatingMerchantDetails() throws Exception {
-        String serviceExternalId = randomUuid();
-        Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
-        databaseHelper.addService(service, randomInt().toString());
+    void shouldSuccess_whenUpdatingMerchantDetails() throws Exception {
+        var serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
+        
         Map<String, Object> payload = Map.of(
                 "name", "somename",
                 "telephone_number", "03069990000",
@@ -57,10 +52,9 @@ public class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldSuccess_whenUpdatingMerchantDetails_withoutOptionalFields() throws Exception {
-        String serviceExternalId = randomUuid();
-        Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
-        databaseHelper.addService(service, randomInt().toString());
+    void shouldSuccess_whenUpdatingMerchantDetails_withoutOptionalFields() throws Exception {
+        var serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
+        
         Map<String, Object> payload = Map.of(
                 "name", "somename",
                 "address_line1", "line1",
@@ -88,10 +82,9 @@ public class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldFail_whenUpdatingMerchantDetails_withMissingMandatoryFieldName() throws Exception {
-        String serviceExternalId = randomUuid();
-        Service service = Service.from(randomInt(), serviceExternalId, new ServiceName("existing-name"));
-        databaseHelper.addService(service, randomInt().toString());
+    void shouldFail_whenUpdatingMerchantDetails_withMissingMandatoryFieldName() throws Exception {
+        var serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
+        
         Map<String, Object> payload = Map.of(
                 "telephone_number", "03069990000",
                 "address_line1", "line1",
@@ -113,7 +106,7 @@ public class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldSucceed_whenPatchUpdatingMultipleMerchantDetails() {
+    void shouldSucceed_whenPatchUpdatingMultipleMerchantDetails() {
         String serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
         String addressLine1 = "1 Spider Lane";
         String addressCountry = "Somewhere";
@@ -141,7 +134,7 @@ public class ServiceResourceUpdateMerchantDetailsIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldSucceed_whenPatchUpdatingAddressLine1AndMerchantDetailsIsNull() {
+    void shouldSucceed_whenPatchUpdatingAddressLine1AndMerchantDetailsIsNull() {
         String serviceExternalId = serviceDbFixture(databaseHelper)
                 .withMerchantDetails(null)
                 .insertService()
