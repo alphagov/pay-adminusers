@@ -12,7 +12,7 @@ import uk.gov.service.payments.commons.api.json.ApiResponseDateTimeSerializer;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -73,7 +73,7 @@ public class Service {
     @Schema(example = "2023-04-09T18:07:46.568Z")
     private ZonedDateTime archivedDate;
     
-    private Set<String> serviceFeatures = new HashSet<>();
+    private Map<String, Map<String, Boolean>> serviceFeatures = new HashMap<>();
 
     @JsonIgnore
     private ServiceName serviceName;
@@ -353,11 +353,27 @@ public class Service {
     }
 
     public void setServiceFeatures(Set<String> serviceFeatures) {
-        this.serviceFeatures = serviceFeatures;
+        var featureStatus = new HashMap<String, Map<String, Boolean>>();
+
+        for (Feature feature : Feature.values()) {
+            String value = feature.getValue();
+            featureStatus.put(value, Map.of("enabled", serviceFeatures.contains(value)));
+        }
+        
+        this.serviceFeatures = featureStatus;
     }
 
-    @ArraySchema(schema = @Schema(example = "payment_links"))
-    public Set<String> getServiceFeatures() {
+    @Schema(example = """
+            {
+              "test_feature": {
+                "enabled": true
+              },
+              "test_feature_2": {
+                "enabled": false
+              }
+            }
+            """)
+    public Map<String, Map<String, Boolean>> getServiceFeatures() {
         return serviceFeatures;
     }
 }
