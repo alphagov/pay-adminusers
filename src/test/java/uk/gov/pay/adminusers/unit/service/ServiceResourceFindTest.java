@@ -36,7 +36,6 @@ import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
@@ -100,7 +99,9 @@ class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertThat(json.get("collect_billing_address"), is(serviceEntity.isCollectBillingAddress()));
         assertThat(json.get("default_billing_address_country"), is(serviceEntity.getDefaultBillingAddressCountry()));
         assertThat(json.get("current_go_live_stage"), is(String.valueOf(serviceEntity.getCurrentGoLiveStage())));
-        assertThat(json.getList("service_features"), is(empty()));
+        assertThat(json.getMap("service_features"), aMapWithSize(2));
+        assertThat(json.get("service_features.test_feature.enabled"), is(false));
+        assertThat(json.get("service_features.test_feature.enabled"), is(false));
     }
 
     @Test
