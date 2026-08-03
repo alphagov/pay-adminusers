@@ -35,8 +35,7 @@ import java.util.Set;
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
@@ -100,7 +99,9 @@ class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertThat(json.get("collect_billing_address"), is(serviceEntity.isCollectBillingAddress()));
         assertThat(json.get("default_billing_address_country"), is(serviceEntity.getDefaultBillingAddressCountry()));
         assertThat(json.get("current_go_live_stage"), is(String.valueOf(serviceEntity.getCurrentGoLiveStage())));
-        assertThat(json.getList("service_features"), is(empty()));
+        assertThat(json.getMap("service_features"), aMapWithSize(2));
+        assertThat(json.get("service_features.test_feature.enabled"), is(false));
+        assertThat(json.get("service_features.test_feature.enabled"), is(false));
     }
 
     @Test
@@ -151,7 +152,7 @@ class ServiceResourceFindTest extends ServiceResourceBaseTest {
     void shouldFind_existingServiceByGatewayAccountId() {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
         String gatewayAccountId = randomUuid();
-        Set<String> features = new HashSet<>(List.of("apple_pay", "payment_links"));
+        Set<String> features = new HashSet<>(List.of("test_feature"));
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
         ServiceEntity serviceEntity = ServiceEntityFixture.aServiceEntity()
                 .withGatewayAccounts(Collections.singletonList(gatewayAccountIdEntity))
@@ -188,8 +189,9 @@ class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertThat(json.get("sector"), is("police"));
         assertThat(json.get("internal"), is(false));
         assertThat(json.get("archived"), is(false));
-        assertThat(json.getList("service_features"), hasSize(2));
-        assertThat(json.getList("service_features"), containsInAnyOrder("apple_pay", "payment_links"));
+        assertThat(json.getMap("service_features"), aMapWithSize(2));
+        assertThat(json.get("service_features.test_feature.enabled"), is(true));
+        assertThat(json.get("service_features.test_feature_2.enabled"), is(false));
     }
 
     @Test

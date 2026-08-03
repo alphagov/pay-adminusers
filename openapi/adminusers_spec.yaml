@@ -1548,11 +1548,22 @@ components:
           type: string
           example: local government
         service_features:
-          type: array
-          items:
-            type: string
-            example: payment_links
-          uniqueItems: true
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: boolean
+              example: false
+            example:
+              test_feature:
+                enabled: true
+              test_feature_2:
+                enabled: false
+          example:
+            test_feature:
+              enabled: true
+            test_feature_2:
+              enabled: false
         service_name:
           type: object
           additionalProperties:

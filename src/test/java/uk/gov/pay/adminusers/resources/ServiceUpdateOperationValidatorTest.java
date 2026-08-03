@@ -220,7 +220,7 @@ class ServiceUpdateOperationValidatorTest {
     
     @Test
     void addShouldFailWhenFeatureIsInvalid(){
-        shouldFail("feature", "add", "invalidFeature", "Field [value] must be one of [test_feature]");
+        shouldFail("feature", "add", "invalidFeature", "Field [value] must be one of [test_feature, test_feature_2]");
     }
 
     private static Object[] shouldSucceedParams() {

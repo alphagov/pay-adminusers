@@ -15,17 +15,14 @@ import java.util.Set;
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static uk.gov.pay.adminusers.fixtures.ServiceDbFixture.serviceDbFixture;
 
-public class ServiceResourceUpdateIT extends IntegrationTest {
+class ServiceResourceUpdateIT extends IntegrationTest {
 
     @Test
-    public void shouldUpdateServiceFields() {
+    void shouldUpdateServiceFields() {
         String serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
 
         JsonNode payload = mapper
@@ -66,7 +63,7 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldUpdateDefaultBillingAddressCountryToNull() {
+    void shouldUpdateDefaultBillingAddressCountryToNull() {
         String serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
 
         JsonNode payload = mapper
@@ -85,7 +82,7 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
     }
 
     @Test
-    public void shouldUpdateMerchantUrlField() {
+    void shouldUpdateMerchantUrlField() {
         String serviceExternalId = serviceDbFixture(databaseHelper)
                 .withMerchantDetails(new MerchantDetails(
                         "name", null, "line1", null, "city",
@@ -107,7 +104,7 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
     }
     
     @Test
-    public void shouldAddFeature() {
+    void shouldAddFeature() {
         String serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
         JsonNode payload = mapper
                 .valueToTree(List.of(
@@ -120,12 +117,11 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
                 .patch(format(SERVICE_RESOURCE, serviceExternalId))
                 .then()
                 .statusCode(200)
-                .body("service_features", hasSize(1))
-                .body("service_features", contains("test_feature"));
+                .body("service_features.test_feature.enabled", is(true));
     }
 
     @Test
-    public void shouldRemoveFeature() {
+    void shouldRemoveFeature() {
         Set<String> features = new HashSet<>(List.of("test_feature"));
         Service service = serviceDbFixture(databaseHelper).withFeatures(features).insertService();
         
@@ -140,7 +136,7 @@ public class ServiceResourceUpdateIT extends IntegrationTest {
                 .patch(format(SERVICE_RESOURCE, service.getExternalId()))
                 .then()
                 .statusCode(200)
-                .body("service_features", is(empty()));
+                .body("service_features.test_feature.enabled", is(false));
     }
 
     private Map<String, Object> patchRequest(String op, String path, Object value) {
