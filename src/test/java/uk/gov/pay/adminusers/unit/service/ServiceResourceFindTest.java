@@ -99,9 +99,8 @@ class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertThat(json.get("collect_billing_address"), is(serviceEntity.isCollectBillingAddress()));
         assertThat(json.get("default_billing_address_country"), is(serviceEntity.getDefaultBillingAddressCountry()));
         assertThat(json.get("current_go_live_stage"), is(String.valueOf(serviceEntity.getCurrentGoLiveStage())));
-        assertThat(json.getMap("service_features"), aMapWithSize(2));
-        assertThat(json.get("service_features.test_feature.enabled"), is(false));
-        assertThat(json.get("service_features.test_feature.enabled"), is(false));
+        assertThat(json.getMap("service_features"), aMapWithSize(1));
+        assertThat(json.get("service_features.govuk_psp_is_adyen.enabled"), is(false));
     }
 
     @Test
@@ -152,7 +151,7 @@ class ServiceResourceFindTest extends ServiceResourceBaseTest {
     void shouldFind_existingServiceByGatewayAccountId() {
         GatewayAccountIdEntity gatewayAccountIdEntity = new GatewayAccountIdEntity();
         String gatewayAccountId = randomUuid();
-        Set<String> features = new HashSet<>(List.of("test_feature"));
+        Set<String> features = new HashSet<>(List.of("govuk_psp_is_adyen"));
         gatewayAccountIdEntity.setGatewayAccountId(gatewayAccountId);
         ServiceEntity serviceEntity = ServiceEntityFixture.aServiceEntity()
                 .withGatewayAccounts(Collections.singletonList(gatewayAccountIdEntity))
@@ -189,9 +188,8 @@ class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertThat(json.get("sector"), is("police"));
         assertThat(json.get("internal"), is(false));
         assertThat(json.get("archived"), is(false));
-        assertThat(json.getMap("service_features"), aMapWithSize(2));
-        assertThat(json.get("service_features.test_feature.enabled"), is(true));
-        assertThat(json.get("service_features.test_feature_2.enabled"), is(false));
+        assertThat(json.getMap("service_features"), aMapWithSize(1));
+        assertThat(json.get("service_features.govuk_psp_is_adyen.enabled"), is(true));
     }
 
     @Test
