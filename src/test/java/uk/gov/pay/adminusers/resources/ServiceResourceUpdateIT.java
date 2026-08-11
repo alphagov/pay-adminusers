@@ -108,7 +108,7 @@ class ServiceResourceUpdateIT extends IntegrationTest {
         String serviceExternalId = serviceDbFixture(databaseHelper).insertService().getExternalId();
         JsonNode payload = mapper
                 .valueToTree(List.of(
-                        patchRequest("add", "feature", "test_feature")));
+                        patchRequest("add", "feature", "govuk_psp_is_adyen")));
 
         givenSetup()
                 .when()
@@ -117,17 +117,17 @@ class ServiceResourceUpdateIT extends IntegrationTest {
                 .patch(format(SERVICE_RESOURCE, serviceExternalId))
                 .then()
                 .statusCode(200)
-                .body("service_features.test_feature.enabled", is(true));
+                .body("service_features.govuk_psp_is_adyen.enabled", is(true));
     }
 
     @Test
     void shouldRemoveFeature() {
-        Set<String> features = new HashSet<>(List.of("test_feature"));
+        Set<String> features = new HashSet<>(List.of("govuk_psp_is_adyen"));
         Service service = serviceDbFixture(databaseHelper).withFeatures(features).insertService();
         
         JsonNode payload = mapper
                 .valueToTree(List.of(
-                        patchRequest("remove", "feature", "test_feature")));
+                        patchRequest("remove", "feature", "govuk_psp_is_adyen")));
 
         givenSetup()
                 .when()
@@ -136,7 +136,7 @@ class ServiceResourceUpdateIT extends IntegrationTest {
                 .patch(format(SERVICE_RESOURCE, service.getExternalId()))
                 .then()
                 .statusCode(200)
-                .body("service_features.test_feature.enabled", is(false));
+                .body("service_features.govuk_psp_is_adyen.enabled", is(false));
     }
 
     private Map<String, Object> patchRequest(String op, String path, Object value) {
