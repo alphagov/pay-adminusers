@@ -17,6 +17,7 @@ import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.resources.ServiceUpdateOperationValidator.FEATURES;
 
 class ServiceUpdateOperationValidatorTest {
 
@@ -72,7 +73,7 @@ class ServiceUpdateOperationValidatorTest {
                 new Object[]{"add", "merchant_details/email", "any value"},
                 new Object[]{"add", "merchant_details/telephone_number", "any value"},
                 new Object[]{"add", "default_billing_address_country", "GB"},
-                new Object[]{"replace", "feature", "test_feature"},
+                new Object[]{"replace", "feature", "govuk_psp_is_adyen"},
         };
     }
 
@@ -220,7 +221,9 @@ class ServiceUpdateOperationValidatorTest {
     
     @Test
     void addShouldFailWhenFeatureIsInvalid(){
-        shouldFail("feature", "add", "invalidFeature", "Field [value] must be one of [test_feature, test_feature_2]");
+        var expectedErrorMessage = String.format("Field [value] must be one of %s", FEATURES);
+        
+        shouldFail("feature", "add", "invalidFeature", expectedErrorMessage);
     }
 
     private static Object[] shouldSucceedParams() {
@@ -252,8 +255,8 @@ class ServiceUpdateOperationValidatorTest {
                 new Object[]{"replace", "went_live_date", "2020-01-01T01:01:00Z"},
                 new Object[]{"replace", "default_billing_address_country", null},
                 new Object[]{"replace", "default_billing_address_country", "GB"},
-                new Object[]{"add", "feature", "test_feature"},
-                new Object[]{"remove", "feature", "test_feature"}
+                new Object[]{"add", "feature", "govuk_psp_is_adyen"},
+                new Object[]{"remove", "feature", "govuk_psp_is_adyen"}
         };
     }
 

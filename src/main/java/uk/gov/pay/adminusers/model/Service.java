@@ -365,11 +365,8 @@ public class Service {
 
     @Schema(example = """
             {
-              "test_feature": {
+              "govuk_psp_is_adyen": {
                 "enabled": true
-              },
-              "test_feature_2": {
-                "enabled": false
               }
             }
             """)
