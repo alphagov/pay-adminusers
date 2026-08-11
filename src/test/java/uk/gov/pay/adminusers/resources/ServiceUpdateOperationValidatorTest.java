@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import uk.gov.pay.adminusers.model.Feature;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.util.HashMap;
@@ -220,7 +221,9 @@ class ServiceUpdateOperationValidatorTest {
     
     @Test
     void addShouldFailWhenFeatureIsInvalid(){
-        shouldFail("feature", "add", "invalidFeature", "Field [value] must be one of [govuk_psp_is_adyen]");
+        var expectedErrorMessage = String.format("Field [value] must be one of [%s]", Feature.getValidValues());
+        
+        shouldFail("feature", "add", "invalidFeature", expectedErrorMessage);
     }
 
     private static Object[] shouldSucceedParams() {
