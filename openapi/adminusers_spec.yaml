@@ -1555,10 +1555,8 @@ components:
               type: boolean
               example: false
             example:
-              test_feature:
+              govuk_psp_is_adyen:
                 enabled: true
-              test_feature_2:
-                enabled: false
           example:
             test_feature:
               enabled: true

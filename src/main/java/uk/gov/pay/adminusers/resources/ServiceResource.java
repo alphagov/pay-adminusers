@@ -276,8 +276,8 @@ public class ServiceResource {
                     "| replace | archived | true |\n" +
                     "| replace | went_live_date | 2022-04-09T18:07:46Z |\n" +
                     "| replace | default_billing_address_country | GB |\n " +
-                    "| add | feature | test_feature |\n " +
-                    "| remove | feature | test_feature |",
+                    "| add | feature | govuk_psp_is_adyen |\n " +
+                    "| remove | feature | govuk_psp_is_adyen |",
             requestBody = @RequestBody(content = @Content(array = @ArraySchema(schema = @Schema(implementation = ServiceUpdateRequest.class)))),
             responses = {
                     @ApiResponse(responseCode = "200", description = "OK",
