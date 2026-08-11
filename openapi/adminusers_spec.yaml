@@ -452,8 +452,8 @@ paths:
         | replace | archived | true |
         | replace | went_live_date | 2022-04-09T18:07:46Z |
         | replace | default_billing_address_country | GB |
-         | add | feature | test_feature |
-         | remove | feature | test_feature |
+         | add | feature | govuk_psp_is_adyen |
+         | remove | feature | govuk_psp_is_adyen |
       operationId: updateServiceAttribute
       parameters:
       - example: 7d19aff33f8948deb97ed16b2912dcd3
@@ -1558,10 +1558,8 @@ components:
               govuk_psp_is_adyen:
                 enabled: true
           example:
-            test_feature:
+            govuk_psp_is_adyen:
               enabled: true
-            test_feature_2:
-              enabled: false
         service_name:
           type: object
           additionalProperties:
