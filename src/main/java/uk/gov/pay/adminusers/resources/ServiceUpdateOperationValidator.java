@@ -74,7 +74,7 @@ public class ServiceUpdateOperationValidator {
 
     private static final EnumSet<GoLiveStage> GO_LIVE_STAGES = EnumSet.allOf(GoLiveStage.class);
     private static final EnumSet<PspTestAccountStage> PSP_TEST_ACCOUNT_STAGES = EnumSet.allOf(PspTestAccountStage.class);
-    private static final Set<String> FEATURES = EnumSet.allOf(Feature.class)
+    public static final Set<String> FEATURES = EnumSet.allOf(Feature.class)
             .stream()
             .map(Feature::getValue)
             .collect(Collectors.toSet());

@@ -42,11 +42,13 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static uk.gov.pay.adminusers.app.util.RandomIdGenerator.randomUuid;
+import static uk.gov.pay.adminusers.resources.ServiceUpdateOperationValidator.FEATURES;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(DropwizardExtensionsSupport.class)
 class ServiceResourceFindTest extends ServiceResourceBaseTest {
 
+    public static final int featureCount = FEATURES.size();
     private static ServiceDao mockedServiceDao = mock(ServiceDao.class);
     private static UserDao mockedUserDao = mock(UserDao.class);
 
@@ -99,7 +101,7 @@ class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertThat(json.get("collect_billing_address"), is(serviceEntity.isCollectBillingAddress()));
         assertThat(json.get("default_billing_address_country"), is(serviceEntity.getDefaultBillingAddressCountry()));
         assertThat(json.get("current_go_live_stage"), is(String.valueOf(serviceEntity.getCurrentGoLiveStage())));
-        assertThat(json.getMap("service_features"), aMapWithSize(1));
+        assertThat(json.getMap("service_features"), aMapWithSize(featureCount));
         assertThat(json.get("service_features.govuk_psp_is_adyen.enabled"), is(false));
     }
 
@@ -188,7 +190,7 @@ class ServiceResourceFindTest extends ServiceResourceBaseTest {
         assertThat(json.get("sector"), is("police"));
         assertThat(json.get("internal"), is(false));
         assertThat(json.get("archived"), is(false));
-        assertThat(json.getMap("service_features"), aMapWithSize(1));
+        assertThat(json.getMap("service_features"), aMapWithSize(featureCount));
         assertThat(json.get("service_features.govuk_psp_is_adyen.enabled"), is(true));
     }
 

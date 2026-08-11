@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import uk.gov.pay.adminusers.model.Feature;
 import uk.gov.pay.adminusers.validations.RequestValidations;
 
 import java.util.HashMap;
@@ -18,6 +17,7 @@ import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static uk.gov.pay.adminusers.resources.ServiceUpdateOperationValidator.FEATURES;
 
 class ServiceUpdateOperationValidatorTest {
 
@@ -221,7 +221,7 @@ class ServiceUpdateOperationValidatorTest {
     
     @Test
     void addShouldFailWhenFeatureIsInvalid(){
-        var expectedErrorMessage = String.format("Field [value] must be one of [%s]", Feature.getValidValues());
+        var expectedErrorMessage = String.format("Field [value] must be one of %s", FEATURES);
         
         shouldFail("feature", "add", "invalidFeature", expectedErrorMessage);
     }
