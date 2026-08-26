@@ -1,15 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>uk.gov.pay</groupId>
-    <version>0.1-SNAPSHOT</version>
     <artifactId>pay-adminusers</artifactId>
+    <version>0.1-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hamcrest.version>3.0</hamcrest.version>
         <pact.version>3.6.15</pact.version>
-        <pay-java-commons.version>1.0.20260817082240</pay-java-commons.version>
+        <pay-java-commons.version>1.0.20260825154634</pay-java-commons.version>
         <prometheus.version>0.16.0</prometheus.version>
         <swaggger-version>2.2.54</swaggger-version>
         <surefire.version>3.5.6</surefire.version>
@@ -22,6 +24,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>uk.gov.service.payments</groupId>
+                <artifactId>platform-bom</artifactId>
+                <version>${pay-java-commons.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-dependencies</artifactId>
@@ -52,7 +61,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
         <!-- Main dependencies that are imported from one of the BOMs specified
              in <dependencyManagement> so no explicit versions needed -->
@@ -340,6 +348,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -511,6 +520,7 @@
             </plugin>
         </plugins>
     </build>
+
     <profiles>
         <profile>
             <id>default</id>
