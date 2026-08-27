@@ -7,7 +7,7 @@ The GOV.UK Pay Admin Users Module in Java (Dropwizard)
 The [API Specification](/openapi/adminusers_spec.yaml) provides more detail on the paths and operations including
 examples.
 
-[View the API specification for adminusers in Swagger Editor](https://editor.swagger.io/?url=https://raw.githubusercontent.com/alphagov/pay-adminusers/master/openapi/adminusers_spec.yaml).
+[View the API specification for adminusers in Swagger Editor](https://editor.swagger.io/?url=https://raw.githubusercontent.com/govuk-pay/pay-adminusers/master/openapi/adminusers_spec.yaml).
 
 ## Environment Variables
 
