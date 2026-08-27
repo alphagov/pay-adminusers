@@ -12,7 +12,7 @@ public class EmailValidator {
     /**
      * {@link #PUBLIC_SECTOR_EMAIL_DOMAINS_IN_ASCENDING_ORDER} is based on:<br>
      * - <a href="https://en.wikipedia.org/wiki/.uk">en.wikipedia.org/wiki/.uk</a><br>
-     * - <a href="https://github.com/alphagov/notifications-admin/blob/9391181b2c7d077ea8fe0a72c718ab8f7fdbcd0c/app/config.py#L67">alphagov/notifications-admin</a><br>
+     * - <a href="https://github.com/govuk-pay/notifications-admin/blob/9391181b2c7d077ea8fe0a72c718ab8f7fdbcd0c/app/config.py#L67">govuk-pay/notifications-admin</a><br>
      */
     private static final List<String> PUBLIC_SECTOR_EMAIL_DOMAINS_IN_ASCENDING_ORDER = List.of(
             "acas.org.uk",
