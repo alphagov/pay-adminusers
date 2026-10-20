@@ -1,9 +1,9 @@
 package uk.gov.pay.adminusers.pact;
 
 import au.com.dius.pact.provider.PactVerifyProvider;
-import au.com.dius.pact.provider.junit.target.AmqpTarget;
-import au.com.dius.pact.provider.junit.target.Target;
-import au.com.dius.pact.provider.junit.target.TestTarget;
+import au.com.dius.pact.provider.junit.target.MessageTarget;
+import au.com.dius.pact.provider.junitsupport.target.Target;
+import au.com.dius.pact.provider.junitsupport.target.TestTarget;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import uk.gov.pay.adminusers.queue.model.ConnectorTask;
@@ -12,7 +12,7 @@ import uk.gov.pay.adminusers.queue.model.ServiceArchivedTaskData;
 public class QueueMessageContractTest {
 
     @TestTarget
-    public final Target target = new AmqpTarget();
+    public Target target = new MessageTarget();
     
     private ObjectMapper objectMapper = new ObjectMapper();
 
