@@ -56,5 +56,5 @@ jobs:
       java_version: "25"
 
   check-docker-base-images-are-manifests:
-    uses: govuk-pay/pay-ci/.github/workflows/_validate_docker_image_is_manifest.yml@591ff32de6cd3c9a0f4af2506f8938e7bd5decaa
+    uses: govuk-pay/pay-ci/.github/workflows/_validate_docker_image_is_manifest.yml@2f600380181d780f79bc92c3f648a23c6f2ab17d
 
